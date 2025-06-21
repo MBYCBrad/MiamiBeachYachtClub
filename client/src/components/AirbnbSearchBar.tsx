@@ -512,6 +512,17 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                       </Button>
                     </div>
                   </div>
+
+                  {/* Search Button */}
+                  <div className="pt-6 border-t border-gray-700">
+                    <Button
+                      onClick={handleSearch}
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl"
+                      size="lg"
+                    >
+                      Search Yachts
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
