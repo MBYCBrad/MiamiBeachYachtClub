@@ -11,6 +11,7 @@ import MemberFavorites from '@/pages/member-favorites-new';
 import MemberProfile from '@/pages/member-profile';
 import MemberNotifications from '@/pages/member-notifications';
 import SearchResults from '@/pages/search-results';
+import EventsPage from '@/pages/events-page';
 
 // Import dashboard components for other roles
 import YachtOwnerDashboard from '@/screens/YachtOwnerDashboard';
@@ -53,6 +54,8 @@ export default function HomePage() {
         return <MemberTrips currentView={currentView} setCurrentView={setCurrentView} />;
       case 'favorites':
         return <MemberFavorites currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'events':
+        return <EventsPage currentView={currentView} setCurrentView={setCurrentView} />;
       case 'messages':
         return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'profile':

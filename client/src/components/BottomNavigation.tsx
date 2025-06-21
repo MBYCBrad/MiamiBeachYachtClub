@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, LogOut } from 'lucide-react';
+import { X, User, Bell, LogOut, Calendar } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { 
@@ -30,6 +30,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
+    { id: 'events', icon: Calendar, label: 'Events', badge: null },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
   ];
 
