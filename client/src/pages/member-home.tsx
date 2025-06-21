@@ -113,7 +113,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
             </video>
             
             {/* Seamless Edge Transition */}
-            <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black via-black/80 via-black/50 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/60 via-black/30 via-black/10 to-transparent" />
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/80 via-black/40 via-black/20 to-transparent" />
             <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/60 via-black/30 via-black/10 to-transparent" />
             <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black/60 via-black/30 via-black/10 to-transparent" />
@@ -138,7 +138,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
 
         {/* Hero Content */}
-        <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 flex items-start justify-center text-center px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,11 +154,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               <img 
                 src="/api/media/MBYC-LOGO-WHITE_1750532808484.png" 
                 alt="Miami Beach Yacht Club Logo"
-                className="w-64 sm:w-80 md:w-96 lg:w-[500px] h-auto mx-auto"
+                className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto mx-auto"
               />
             </motion.div>
             <motion.p 
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-2 sm:mb-3"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -166,38 +166,37 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Discover extraordinary yachts and premium experiences
             </motion.p>
             
+            {/* Airbnb-Style Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="relative w-full max-w-4xl mx-auto"
+            >
+              <AirbnbSearchBar 
+                onSearch={handleSearch}
+                className="shadow-2xl"
+              />
+            </motion.div>
           </motion.div>
         </div>
-
-        {/* Search Bar Overlay - Positioned at bottom of hero */}
-        <motion.div 
-          className="absolute bottom-8 left-4 right-4 z-30"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.8 }}
-        >
-          <AirbnbSearchBar 
-            onSearch={handleSearch}
-            className="shadow-2xl"
-          />
-        </motion.div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Positioned below hero section with blur transition */}
+      {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
       <motion.div 
         className="relative z-40 -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4), rgba(0,0,0,0.8), rgba(0,0,0,1))',
-          backdropFilter: 'blur(60px) brightness(1.2)',
-          WebkitBackdropFilter: 'blur(60px) brightness(1.2)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
+          backdropFilter: 'blur(40px) brightness(1.1)',
+          WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 pt-20 pb-8 sm:pt-18 sm:pb-6 md:pt-16 md:pb-5 lg:pt-14 lg:pb-4 flex justify-center">
+        <div className="px-4 py-1 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
@@ -206,7 +205,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       </motion.div>
 
       {/* Content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <AnimatePresence mode="wait">
           {selectedCategory === 'yachts' && (
             <motion.div
