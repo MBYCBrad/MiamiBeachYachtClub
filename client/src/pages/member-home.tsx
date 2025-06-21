@@ -329,7 +329,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
                     <div className="relative overflow-hidden">
                       <motion.img
-                        src={event.imageUrl ? `/api/media/${event.imageUrl}` : `/api/media/pexels-mali-42092_1750537277229.jpg`}
+                        src={event.imageUrl || `/api/media/pexels-mali-42092_1750537277229.jpg`}
                         alt={event.title}
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                         whileHover={{ scale: 1.1 }}
