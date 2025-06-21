@@ -239,7 +239,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
         {/* Search Button */}
         <Button
           onClick={handleSearch}
-          className="mr-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg"
+          className="mr-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-full p-3 shadow-lg"
           size="icon"
         >
           <Search size={18} />
@@ -388,7 +388,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.adults === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
@@ -399,7 +399,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         onClick={() => handleGuestChange('adults', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400"
                       >
                         <Plus size={16} />
                       </Button>
@@ -418,7 +418,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.children === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
@@ -429,7 +429,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         onClick={() => handleGuestChange('children', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400"
                       >
                         <Plus size={16} />
                       </Button>
@@ -448,7 +448,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.infants === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
@@ -459,7 +459,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         onClick={() => handleGuestChange('infants', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400"
                       >
                         <Plus size={16} />
                       </Button>
@@ -480,7 +480,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.pets === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
@@ -491,7 +491,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         onClick={() => handleGuestChange('pets', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
+                        className="rounded-full w-8 h-8 p-0 border-purple-500 bg-purple-600/20 text-white hover:bg-purple-600 hover:border-purple-400"
                       >
                         <Plus size={16} />
                       </Button>
