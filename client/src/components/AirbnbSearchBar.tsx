@@ -158,13 +158,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
     return text;
   };
 
-  const nextMonth = () => {
-    setCalendarMonth(prev => addDays(startOfMonth(prev), 32));
-  };
 
-  const prevMonth = () => {
-    setCalendarMonth(prev => addDays(startOfMonth(prev), -32));
-  };
 
   return (
     <div ref={searchBarRef} className={cn("relative z-50", className)}>
@@ -329,35 +323,18 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                       <div className="flex flex-col md:flex-row md:space-x-8 space-y-6 md:space-y-0 max-w-[700px] w-full">
                         {/* Current Month */}
                         <div className="flex-1">
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center justify-center mb-4">
                             <h3 className="font-semibold text-lg text-white">
                               {format(calendarMonth, 'MMMM yyyy')}
                             </h3>
-                            <div className="flex space-x-2">
-                              <Button
-                                onClick={prevMonth}
-                                variant="ghost"
-                                size="sm"
-                                className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
-                              >
-                                <ChevronLeft size={16} />
-                              </Button>
-                              <Button
-                                onClick={nextMonth}
-                                variant="ghost"
-                                size="sm"
-                                className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
-                              >
-                                <ChevronRight size={16} />
-                              </Button>
-                            </div>
                           </div>
                           <Calendar
                             mode="single"
                             selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
                             onSelect={(date) => handleDateSelect(date, activeField)}
                             month={calendarMonth}
-                            className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
+                            onMonthChange={setCalendarMonth}
+                            className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white [&_.rdp-nav_button]:text-gray-300 [&_.rdp-nav_button:hover]:text-white [&_.rdp-nav_button:hover]:bg-white/10"
                             disabled={(date) => date < new Date()}
                           />
                         </div>
