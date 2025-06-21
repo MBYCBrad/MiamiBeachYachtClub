@@ -299,37 +299,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex justify-between items-center"
           >
-            <div className="flex items-center gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
-              >
-                <Edit className="h-4 w-4" />
-                <span>Edit Profile</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 text-white hover:bg-white/20 transition-all duration-300"
-              >
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </motion.button>
-            </div>
+
             
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-center"
-            >
-              <div className="flex items-center gap-2 text-gray-400">
-                <Sparkles className="h-4 w-4 text-cyan-400" />
-                <span className="text-sm">Discover more below</span>
-                <Sparkles className="h-4 w-4 text-purple-400" />
-              </div>
-            </motion.div>
+
           </motion.div>
         </div>
       </div>
@@ -353,10 +325,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             >
               <User className="h-6 w-6 text-blue-400" />
             </motion.div>
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-white">Profile Information</h2>
-              <p className="text-gray-400 text-sm md:text-base">Manage your account details and preferences</p>
-            </div>
+
           </div>
           
           <motion.button
