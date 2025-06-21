@@ -245,7 +245,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-bold text-white mb-4"
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4"
           >
             Your Favorites
           </motion.h1>
