@@ -196,8 +196,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
         <button
           onClick={() => setActiveField(activeField === 'checkin' ? null : 'checkin')}
           className={cn(
-            "flex-1 text-left px-6 py-3 transition-colors",
-            activeField === 'checkin' || activeField === 'checkout' ? "bg-white/10" : "hover:bg-white/5"
+            "flex-1 text-left px-6 py-3 transition-colors hover:bg-white/5"
           )}
         >
           <div className="font-semibold text-white">Check in</div>
@@ -212,8 +211,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
         <button
           onClick={() => setActiveField(activeField === 'checkout' ? null : 'checkout')}
           className={cn(
-            "flex-1 text-left px-6 py-3 transition-colors",
-            activeField === 'checkin' || activeField === 'checkout' ? "bg-white/10" : "hover:bg-white/5"
+            "flex-1 text-left px-6 py-3 transition-colors hover:bg-white/5"
           )}
         >
           <div className="font-semibold text-white">Check out</div>
