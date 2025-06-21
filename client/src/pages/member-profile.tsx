@@ -758,45 +758,43 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       {stat.label}
                     </motion.div>
                     
-                    {/* Progress Ring for Interactive Feel */}
+                    {/* Decorative Stars on Left */}
                     <motion.div
-                      className="absolute bottom-2 right-2 w-8 h-8"
-                      initial={{ rotate: -90, scale: 0 }}
-                      animate={{ rotate: 270, scale: 1 }}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       transition={{ 
-                        duration: 1.5, 
-                        delay: 0.8 + index * 0.2,
+                        duration: 1, 
+                        delay: 1 + index * 0.2,
                         ease: "easeOut"
                       }}
                     >
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle
-                          cx="16"
-                          cy="16"
-                          r="12"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="transparent"
-                          className="text-gray-700"
-                        />
-                        <motion.circle
-                          cx="16"
-                          cy="16"
-                          r="12"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="transparent"
-                          strokeLinecap="round"
-                          className={stat.color}
-                          initial={{ strokeDasharray: "0 100" }}
-                          animate={{ strokeDasharray: "75 100" }}
-                          transition={{ 
-                            duration: 2, 
-                            delay: 1 + index * 0.2,
-                            ease: "easeOut"
-                          }}
-                        />
-                      </svg>
+                      <motion.div
+                        animate={{
+                          rotate: [0, 360],
+                          scale: [0.8, 1.2, 0.8]
+                        }}
+                        transition={{ 
+                          duration: 4, 
+                          repeat: Infinity,
+                          delay: index * 0.5
+                        }}
+                      >
+                        <Sparkles className="h-3 w-3 text-yellow-400 mb-2" />
+                      </motion.div>
+                      <motion.div
+                        animate={{
+                          rotate: [360, 0],
+                          scale: [1, 0.6, 1]
+                        }}
+                        transition={{ 
+                          duration: 3, 
+                          repeat: Infinity,
+                          delay: 0.5 + index * 0.3
+                        }}
+                      >
+                        <Sparkles className="h-2 w-2 text-cyan-400" />
+                      </motion.div>
                     </motion.div>
                   </CardContent>
                 </Card>
