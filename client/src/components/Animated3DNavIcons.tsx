@@ -55,46 +55,56 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
           </linearGradient>
         </defs>
         
-        {/* Anchor Chain */}
-        <rect x="15" y="4" width="2" height="8" rx="1" fill="url(#anchorChain)" />
-        <circle cx="16" cy="4" r="2" fill="none" stroke="url(#anchorChain)" strokeWidth="1.5" />
+        {/* Anchor Ring/Shackle */}
+        <circle cx="16" cy="6" r="3" fill="none" stroke="url(#anchorChain)" strokeWidth="2" />
         
-        {/* Anchor Crossbar */}
-        <rect x="10" y="11" width="12" height="2" rx="1" fill="url(#anchorGradient)" />
+        {/* Anchor Shank (main vertical shaft) */}
+        <rect x="15" y="9" width="2" height="14" rx="1" fill="url(#anchorGradient)" />
         
-        {/* Anchor Shaft */}
-        <rect x="15" y="12" width="2" height="12" rx="1" fill="url(#anchorGradient)" />
+        {/* Anchor Stock (horizontal crossbar at top) */}
+        <rect x="8" y="8.5" width="16" height="1.5" rx="0.75" fill="url(#anchorGradient)" />
+        <circle cx="8" cy="9.25" r="1" fill="url(#anchorGradient)" />
+        <circle cx="24" cy="9.25" r="1" fill="url(#anchorGradient)" />
         
-        {/* Anchor Flukes (curved arms) */}
+        {/* Anchor Crown (bottom horizontal part) */}
+        <rect x="12" y="22" width="8" height="1.5" rx="0.75" fill="url(#anchorGradient)" />
+        
+        {/* Left Fluke */}
         <path
-          d="M16 24 Q12 22 10 26 Q12 28 16 24"
+          d="M12 22.75 L8 26 L8 28 L10 28 L10 26.5 L14 23.5 Z"
           fill="url(#anchorGradient)"
           stroke="#1e40af"
           strokeWidth="0.5"
         />
+        
+        {/* Right Fluke */}
         <path
-          d="M16 24 Q20 22 22 26 Q20 28 16 24"
+          d="M20 22.75 L24 26 L24 28 L22 28 L22 26.5 L18 23.5 Z"
           fill="url(#anchorGradient)"
           stroke="#1e40af"
           strokeWidth="0.5"
         />
         
-        {/* Anchor Tips */}
-        <circle cx="10" cy="26" r="1.5" fill="#1e40af" />
-        <circle cx="22" cy="26" r="1.5" fill="#1e40af" />
+        {/* Fluke Tips (sharp points) */}
+        <polygon points="8,26 6,27 8,28" fill="#1e40af" />
+        <polygon points="24,26 26,27 24,28" fill="#1e40af" />
         
-        {/* Rope/Chain Links */}
-        <motion.circle
-          cx="16" cy="6" r="0.8"
-          fill="#f59e0b"
-          animate={isActive ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        {/* Anchor Shading for 3D effect */}
+        <rect x="15.5" y="9" width="0.8" height="14" rx="0.4" fill="rgba(255,255,255,0.3)" />
+        <rect x="8.3" y="8.8" width="15.4" height="0.7" rx="0.35" fill="rgba(255,255,255,0.2)" />
+        
+        {/* Chain Links above anchor */}
+        <motion.ellipse
+          cx="16" cy="2" rx="1.5" ry="0.8"
+          fill="none" stroke="url(#anchorChain)" strokeWidth="1"
+          animate={isActive ? { y: [0, -1, 0] } : {}}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.circle
-          cx="16" cy="8" r="0.6"
-          fill="#fbbf24"
-          animate={isActive ? { scale: [1, 1.1, 1] } : {}}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+        <motion.ellipse
+          cx="16" cy="4" rx="1.2" ry="0.6"
+          fill="none" stroke="url(#anchorChain)" strokeWidth="0.8"
+          animate={isActive ? { y: [0, -0.5, 0] } : {}}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
         />
         
         {/* Water Ripples Animation */}
