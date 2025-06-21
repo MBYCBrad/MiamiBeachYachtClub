@@ -758,78 +758,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       {stat.label}
                     </motion.div>
                     
-                    {/* Rolls Royce Starfield Effect */}
-                    <motion.div
-                      className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ 
-                        duration: 2, 
-                        delay: 1 + index * 0.2
-                      }}
-                    >
-                      {/* Multiple twinkling stars scattered across the card */}
-                      {Array.from({ length: 8 }, (_, starIndex) => (
-                        <motion.div
-                          key={starIndex}
-                          className="absolute w-1 h-1 bg-white rounded-full"
-                          style={{
-                            left: `${15 + (starIndex * 12) % 70}%`,
-                            top: `${20 + (starIndex * 17) % 60}%`,
-                            boxShadow: "0 0 4px rgba(255, 255, 255, 0.9)"
-                          }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0.5, 1.5, 0.5]
-                          }}
-                          transition={{
-                            duration: 2 + starIndex * 0.3,
-                            repeat: Infinity,
-                            delay: starIndex * 0.4 + index * 0.2,
-                            ease: "easeInOut"
-                          }}
-                        />
-                      ))}
-                      
-                      {/* Larger accent stars */}
-                      <motion.div
-                        className="absolute w-1.5 h-1.5 bg-gray-200 rounded-full"
-                        style={{
-                          left: "25%",
-                          top: "35%",
-                          boxShadow: "0 0 6px rgba(229, 231, 235, 0.9)"
-                        }}
-                        animate={{
-                          opacity: [0.3, 1, 0.3],
-                          scale: [0.8, 1.2, 0.8]
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          delay: index * 0.5,
-                          ease: "easeInOut"
-                        }}
-                      />
-                      
-                      <motion.div
-                        className="absolute w-1 h-1 bg-gray-300 rounded-full"
-                        style={{
-                          left: "75%",
-                          top: "65%",
-                          boxShadow: "0 0 4px rgba(209, 213, 219, 0.8)"
-                        }}
-                        animate={{
-                          opacity: [0.2, 1, 0.2],
-                          scale: [0.6, 1.3, 0.6]
-                        }}
-                        transition={{
-                          duration: 2.5,
-                          repeat: Infinity,
-                          delay: 1 + index * 0.3,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    </motion.div>
+
                   </CardContent>
                 </Card>
               </motion.div>
