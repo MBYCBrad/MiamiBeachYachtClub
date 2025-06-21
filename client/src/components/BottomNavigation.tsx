@@ -18,7 +18,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
     { id: 'trips', icon: Calendar, label: 'Trips' },
     { id: 'favorites', icon: Heart, label: 'Favorites' },
     { id: 'messages', icon: MessageCircle, label: 'Messages' },
-    { id: 'menu', icon: User, label: 'Profile' }
+    { id: 'menu', icon: Menu, label: 'Profile' }
   ];
 
   const menuItems = [
