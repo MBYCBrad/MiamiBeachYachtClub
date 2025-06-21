@@ -184,7 +184,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
       {/* 3D Animated Tab Navigation - Positioned below hero section */}
       <motion.div 
-        className="relative z-40 -mt-20 border-none"
+        className="relative z-40 -mt-12 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
