@@ -171,7 +171,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
                 <Button
                   onClick={handleLogout}
                   disabled={logoutMutation.isPending}
-                  className="w-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 hover:from-purple-600/30 hover:to-blue-600/30 text-purple-300 hover:text-purple-200 border border-purple-500/30 rounded-xl py-3"
+                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium border-none rounded-xl py-3 shadow-lg"
                 >
                   <LogOut size={18} className="mr-2" />
                   {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
