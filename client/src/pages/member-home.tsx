@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 import { 
   Search, 
   Heart, 
@@ -58,6 +59,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+
+  const handleSearch = (criteria: any) => {
+    // Navigate to search results with criteria
+    setCurrentView('search-results');
+  };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
   const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
@@ -160,30 +166,17 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Discover extraordinary yachts and premium experiences
             </motion.p>
             
-            {/* Search Bar */}
+            {/* Airbnb-Style Search Bar */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="relative max-w-2xl mx-auto"
+              className="relative max-w-4xl mx-auto"
             >
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
-                <Input
-                  placeholder="Search yachts, services, events..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-16 py-4 text-lg bg-white/10 backdrop-blur-md border-white/20 text-white placeholder-gray-300 rounded-2xl focus:bg-white/20 focus:border-purple-400 transition-all duration-300 group-hover:bg-white/15"
-                />
-                <Button
-                  onClick={() => setShowFilters(!showFilters)}
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl"
-                >
-                  <Filter className="h-5 w-5" />
-                </Button>
-              </div>
+              <AirbnbSearchBar 
+                onSearch={handleSearch}
+                className="shadow-2xl"
+              />
             </motion.div>
           </motion.div>
         </div>
