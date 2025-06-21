@@ -109,7 +109,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           muted={isMuted}
           playsInline
         >
-          <source src="https://videos.pexels.com/video-files/2257002/2257002-hd_1920_1080_25fps.mp4" type="video/mp4" />
+          <source src="https://player.vimeo.com/external/451878268.hd.mp4?s=ea6d8a05c6ad9c53d41cfbc74b2a7f45bd0f9d46&profile_id=175" type="video/mp4" />
         </video>
         
         {/* Gradient Overlay */}
