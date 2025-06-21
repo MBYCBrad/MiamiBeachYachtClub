@@ -175,7 +175,6 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Search className="h-5 w-5 text-purple-400" />
                 <div>
                   <div className="font-semibold text-white text-base">Where to?</div>
                   <div className="text-sm text-gray-300 mt-0.5">
