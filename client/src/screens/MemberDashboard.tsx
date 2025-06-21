@@ -23,9 +23,19 @@ import {
 } from 'lucide-react';
 import { getMembershipBenefits, canBookYacht, calculateEventPrice, calculateServicePrice } from '@shared/membership';
 import { TokenManager } from '@shared/tokens';
-import { StripeService } from '@/services/stripe';
-import { ConciergeService } from '@/services/concierge';
+import { stripeService } from '@/services/stripe';
+import { twilioConciergeService } from '@/services/twilio';
 import type { Yacht, Service, Event, User } from '@shared/schema';
+import { 
+  ensureMembershipTier, 
+  safeParseFloat, 
+  safeString,
+  convertEventToExtended,
+  convertServiceToExtended,
+  createExtendedTokenBalance,
+  type ExtendedEvent,
+  type ExtendedService
+} from '@/lib/compatibility';
 
 interface TokenBalance {
   currentTokens: number;
@@ -152,13 +162,13 @@ const MemberDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const adjustedPrice = calculateServicePrice(parseFloat(service.price), user.membershipTier);
-      const paymentIntent = await StripeService.createServicePaymentIntent({
+      const adjustedPrice = calculateServicePrice(parseFloat(service.pricePerSession || '0'), user.membershipTier as any);
+      const paymentIntent = await stripeService.createServicePaymentIntent({
         serviceId: service.id,
         userId: user.id,
         datetime: selectedDate,
-        memberTier: user.membershipTier
-      }, parseFloat(service.price));
+        memberTier: user.membershipTier as any
+      }, parseFloat(service.pricePerSession || '0'));
 
       // Open Stripe payment modal here
       console.log('Payment intent created:', paymentIntent);
@@ -171,13 +181,13 @@ const MemberDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const adjustedPrice = calculateEventPrice(parseFloat(event.ticketPrice), user.membershipTier);
-      const paymentIntent = await StripeService.createEventPaymentIntent({
+      const adjustedPrice = calculateEventPrice(parseFloat(event.ticketPrice || '0'), user.membershipTier as any);
+      const paymentIntent = await stripeService.createEventPaymentIntent({
         eventId: event.id,
         userId: user.id,
-        memberTier: user.membershipTier,
+        memberTier: user.membershipTier as any,
         ticketQuantity
-      }, parseFloat(event.ticketPrice));
+      }, parseFloat(event.ticketPrice || '0'));
 
       // Open Stripe payment modal here
       console.log('Event payment intent created:', paymentIntent);
@@ -190,12 +200,11 @@ const MemberDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      await ConciergeService.initiateVoiceCall({
-        userId: user.id,
-        memberName: user.username,
-        memberTier: user.membershipTier || 'bronze',
-        callType: 'general_inquiry',
-        priority: 'normal'
+      await twilioConciergeService.sendConciergeRequest({
+        message: `Voice call request from ${user.username}`,
+        priority: 'medium',
+        category: 'general',
+        membershipTier: user.membershipTier || 'bronze'
       });
     } catch (error) {
       alert('Concierge call failed. Please try again.');

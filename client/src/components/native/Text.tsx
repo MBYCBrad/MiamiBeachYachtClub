@@ -1,25 +1,16 @@
 import React from 'react';
-import { Text as RNText, TextProps } from 'react-native';
 import { cn } from '@/lib/utils';
 
-interface CustomTextProps extends TextProps {
+interface CustomTextProps extends React.HTMLAttributes<HTMLSpanElement> {
   className?: string;
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-export const Text: React.FC<CustomTextProps> = ({ className, style, children, ...props }) => {
+export const Text: React.FC<CustomTextProps> = ({ className, children, style, ...props }) => {
   return (
-    <RNText
-      style={[
-        {
-          fontFamily: 'system',
-          fontSize: 16,
-          color: '#ffffff',
-        },
-        style
-      ]}
-      {...props}
-    >
+    <span className={cn('text-white', className)} style={style} {...props}>
       {children}
-    </RNText>
+    </span>
   );
 };

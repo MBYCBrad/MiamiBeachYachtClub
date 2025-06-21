@@ -1,126 +1,196 @@
-import { apiRequest } from "@/lib/queryClient";
-import { MembershipTier, calculateEventPrice, calculateServicePrice } from "@shared/membership";
+// Stripe Integration for MBYC Cross-Platform PWA
+import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { apiRequest } from '@/lib/queryClient';
 
-export interface PaymentIntentRequest {
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+
+// Initialize Stripe with publishable key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+export interface PaymentIntentData {
   amount: number;
-  currency: string;
+  currency?: string;
   metadata?: Record<string, string>;
 }
 
-export interface PaymentIntentResponse {
-  clientSecret: string;
-  paymentIntentId: string;
-}
-
-export interface ServiceBookingPayment {
+export interface ServiceBookingData {
   serviceId: number;
-  userId: number;
-  datetime: Date;
-  memberTier: MembershipTier;
+  bookingDate: string;
+  totalPrice: number;
 }
 
-export interface EventRegistrationPayment {
+export interface EventRegistrationData {
   eventId: number;
-  userId: number;
-  memberTier: MembershipTier;
-  ticketQuantity: number;
+  ticketCount: number;
+  totalPrice: number;
 }
 
-export class StripeService {
-  static async createServicePaymentIntent(
-    booking: ServiceBookingPayment,
-    basePrice: number
-  ): Promise<PaymentIntentResponse> {
-    const adjustedPrice = calculateServicePrice(basePrice, booking.memberTier);
-    const amountInCents = Math.round(adjustedPrice * 100);
+class StripeService {
+  private stripe: Stripe | null = null;
 
-    const response = await apiRequest("POST", "/api/payments/service-intent", {
-      amount: amountInCents,
-      currency: "usd",
-      metadata: {
-        type: "service_booking",
-        serviceId: booking.serviceId.toString(),
-        userId: booking.userId.toString(),
-        datetime: booking.datetime.toISOString(),
-        memberTier: booking.memberTier,
-        originalPrice: basePrice.toString(),
-        adjustedPrice: adjustedPrice.toString()
+  async getStripe(): Promise<Stripe> {
+    if (!this.stripe) {
+      this.stripe = await stripePromise;
+      if (!this.stripe) {
+        throw new Error('Failed to initialize Stripe');
       }
-    });
-
-    return await response.json();
+    }
+    return this.stripe;
   }
 
-  static async createEventPaymentIntent(
-    registration: EventRegistrationPayment,
-    baseTicketPrice: number
-  ): Promise<PaymentIntentResponse> {
-    const adjustedPrice = calculateEventPrice(baseTicketPrice, registration.memberTier);
-    const totalAmount = adjustedPrice * registration.ticketQuantity;
-    const amountInCents = Math.round(totalAmount * 100);
-
-    const response = await apiRequest("POST", "/api/payments/event-intent", {
-      amount: amountInCents,
-      currency: "usd",
-      metadata: {
-        type: "event_registration",
-        eventId: registration.eventId.toString(),
-        userId: registration.userId.toString(),
-        memberTier: registration.memberTier,
-        ticketQuantity: registration.ticketQuantity.toString(),
-        originalPrice: baseTicketPrice.toString(),
-        adjustedPrice: adjustedPrice.toString(),
-        totalAmount: totalAmount.toString()
-      }
-    });
-
-    return await response.json();
-  }
-
-  static async confirmPayment(paymentIntentId: string): Promise<boolean> {
+  // Create Payment Intent for Service Bookings
+  async createServicePaymentIntent(bookingData: ServiceBookingData): Promise<string> {
     try {
-      const response = await apiRequest("POST", "/api/payments/confirm", {
-        paymentIntentId
-      });
-      
-      const result = await response.json();
-      return result.success;
+      const response = await apiRequest('POST', '/api/payments/create-service-payment', bookingData);
+      const { clientSecret } = await response.json();
+      return clientSecret;
     } catch (error) {
-      console.error("Payment confirmation failed:", error);
-      return false;
+      console.error('Error creating service payment intent:', error);
+      throw new Error('Failed to create payment intent for service booking');
     }
   }
 
-  static async getPaymentStatus(paymentIntentId: string): Promise<string> {
-    const response = await apiRequest("GET", `/api/payments/status/${paymentIntentId}`);
-    const result = await response.json();
-    return result.status;
-  }
-
-  static async processRefund(paymentIntentId: string, amount?: number): Promise<boolean> {
+  // Create Payment Intent for Event Registration
+  async createEventPaymentIntent(registrationData: EventRegistrationData): Promise<string> {
     try {
-      const response = await apiRequest("POST", "/api/payments/refund", {
-        paymentIntentId,
-        amount: amount ? Math.round(amount * 100) : undefined
-      });
-      
-      const result = await response.json();
-      return result.success;
+      const response = await apiRequest('POST', '/api/payments/create-event-payment', registrationData);
+      const { clientSecret } = await response.json();
+      return clientSecret;
     } catch (error) {
-      console.error("Refund processing failed:", error);
-      return false;
+      console.error('Error creating event payment intent:', error);
+      throw new Error('Failed to create payment intent for event registration');
     }
   }
 
-  static formatPrice(cents: number): string {
-    return (cents / 100).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    });
+  // Process Service Booking Payment
+  async processServicePayment(
+    serviceBooking: ServiceBookingData,
+    paymentMethodId?: string
+  ): Promise<{ success: boolean; booking?: any; error?: string }> {
+    try {
+      const stripe = await this.getStripe();
+      const clientSecret = await this.createServicePaymentIntent(serviceBooking);
+
+      const result = await stripe.confirmPayment({
+        clientSecret,
+        confirmParams: {
+          payment_method: paymentMethodId || undefined,
+          return_url: `${window.location.origin}/services/booking-success`,
+        },
+        redirect: 'if_required'
+      });
+
+      if (result.error) {
+        return { success: false, error: result.error.message };
+      }
+
+      if (result.paymentIntent?.status === 'succeeded') {
+        // Create service booking record
+        const bookingResponse = await apiRequest('POST', '/api/service-bookings', {
+          ...serviceBooking,
+          stripePaymentIntentId: result.paymentIntent.id,
+          status: 'confirmed'
+        });
+        
+        const booking = await bookingResponse.json();
+        return { success: true, booking };
+      }
+
+      return { success: false, error: 'Payment not completed' };
+    } catch (error) {
+      console.error('Service payment error:', error);
+      return { success: false, error: 'Payment processing failed' };
+    }
   }
 
-  static calculateMembershipSavings(originalPrice: number, memberTier: MembershipTier): number {
-    const adjustedPrice = calculateServicePrice(originalPrice, memberTier);
-    return originalPrice - adjustedPrice;
+  // Process Event Registration Payment
+  async processEventPayment(
+    eventRegistration: EventRegistrationData,
+    paymentMethodId?: string
+  ): Promise<{ success: boolean; registration?: any; error?: string }> {
+    try {
+      const stripe = await this.getStripe();
+      const clientSecret = await this.createEventPaymentIntent(eventRegistration);
+
+      const result = await stripe.confirmPayment({
+        clientSecret,
+        confirmParams: {
+          payment_method: paymentMethodId || undefined,
+          return_url: `${window.location.origin}/events/registration-success`,
+        },
+        redirect: 'if_required'
+      });
+
+      if (result.error) {
+        return { success: false, error: result.error.message };
+      }
+
+      if (result.paymentIntent?.status === 'succeeded') {
+        // Create event registration record
+        const registrationResponse = await apiRequest('POST', '/api/event-registrations', {
+          ...eventRegistration,
+          stripePaymentIntentId: result.paymentIntent.id,
+          status: 'confirmed'
+        });
+        
+        const registration = await registrationResponse.json();
+        return { success: true, registration };
+      }
+
+      return { success: false, error: 'Payment not completed' };
+    } catch (error) {
+      console.error('Event payment error:', error);
+      return { success: false, error: 'Payment processing failed' };
+    }
+  }
+
+  // Create Payment Sheet for mobile-optimized payments
+  async createPaymentSheet(amount: number, currency = 'usd') {
+    try {
+      const stripe = await this.getStripe();
+      
+      const response = await apiRequest('POST', '/api/payments/create-payment-intent', {
+        amount: Math.round(amount * 100), // Convert to cents
+        currency
+      });
+      
+      const { clientSecret } = await response.json();
+      
+      return {
+        clientSecret,
+        stripe
+      };
+    } catch (error) {
+      console.error('Error creating payment sheet:', error);
+      throw new Error('Failed to initialize payment');
+    }
+  }
+
+  // Retrieve Payment Method for saved cards
+  async getSavedPaymentMethods(): Promise<any[]> {
+    try {
+      const response = await apiRequest('GET', '/api/payments/payment-methods');
+      return await response.json();
+    } catch (error) {
+      console.error('Error retrieving payment methods:', error);
+      return [];
+    }
+  }
+
+  // Save Payment Method for future use
+  async savePaymentMethod(paymentMethodId: string): Promise<boolean> {
+    try {
+      await apiRequest('POST', '/api/payments/save-payment-method', {
+        paymentMethodId
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving payment method:', error);
+      return false;
+    }
   }
 }
+
+export const stripeService = new StripeService();

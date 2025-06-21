@@ -6,7 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
-import RoleBasedNavigator from "@/navigation/RoleBasedNavigator";
+import { BottomTabNavigator } from "@/navigation/BottomTabNavigator";
+import { useState } from "react";
 import AuthPage from "@/pages/auth-page";
 import YachtDetail from "@/pages/yacht-detail";
 import ServiceDetail from "@/pages/service-detail";
@@ -15,9 +16,16 @@ import CheckoutPage from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
+  const [activeTab, setActiveTab] = useState('bookings');
+
   return (
     <Switch>
-      <ProtectedRoute path="/" component={RoleBasedNavigator} />
+      <ProtectedRoute path="/" component={() => (
+        <BottomTabNavigator 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+        />
+      )} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
       <ProtectedRoute path="/events/:id" component={EventDetail} />

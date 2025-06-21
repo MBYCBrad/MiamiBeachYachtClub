@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
+import { setupTwilioRoutes } from "./twilio";
 import Stripe from "stripe";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
@@ -11,12 +12,15 @@ import {
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-01-27.acacia",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
+  
+  // Setup Twilio concierge routes
+  setupTwilioRoutes(app);
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
@@ -103,6 +107,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/yachts/owner", requireAuth, async (req, res) => {
+    try {
+      if (req.user!.role !== UserRole.YACHT_OWNER && req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const yachts = await storage.getYachtsByOwner(req.user!.id);
+      res.json(yachts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/yachts/owner/:ownerId", requireAuth, async (req, res) => {
     try {
       const ownerId = parseInt(req.params.ownerId);
@@ -154,6 +170,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(service);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/services/provider", requireAuth, async (req, res) => {
+    try {
+      if (req.user!.role !== UserRole.SERVICE_PROVIDER && req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const services = await storage.getServicesByProvider(req.user!.id);
+      res.json(services);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
