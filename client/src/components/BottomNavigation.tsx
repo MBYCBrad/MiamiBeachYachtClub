@@ -18,7 +18,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
     { id: 'trips', icon: Calendar, label: 'Trips' },
     { id: 'favorites', icon: Heart, label: 'Favorites' },
     { id: 'messages', icon: MessageCircle, label: 'Messages' },
-    { id: 'menu', icon: Menu, label: 'Profile' }
+    { id: 'menu', icon: User, label: 'Profile' }
   ];
 
   const menuItems = [
@@ -54,43 +54,41 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10"
       >
-        <div className="flex justify-center items-center px-4 py-2 pb-safe">
-          <div className="flex space-x-8">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = item.id === 'menu' ? isMenuOpen : currentView === item.id;
-              
-              return (
-                <motion.button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all duration-300 ${
-                    isActive 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                  whileTap={{ scale: 0.95 }}
-                  whileHover={{ scale: 1.05 }}
+        <div className="flex justify-around items-center w-full px-4 py-2 pb-safe">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.id === 'menu' ? isMenuOpen : currentView === item.id;
+            
+            return (
+              <motion.button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`flex flex-col items-center justify-center p-2 transition-all duration-300 ${
+                  isActive 
+                    ? 'text-purple-400' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <motion.div
+                  animate={{ rotate: item.id === 'menu' && isMenuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
                 >
+                  <Icon size={24} className="mb-1" />
+                </motion.div>
+                <span className="text-xs font-medium">{item.label}</span>
+                
+                {isActive && item.id !== 'menu' && (
                   <motion.div
-                    animate={{ rotate: item.id === 'menu' && isMenuOpen ? 90 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Icon size={24} className="mb-1" />
-                  </motion.div>
-                  <span className="text-xs font-medium">{item.label}</span>
-                  
-                  {isActive && item.id !== 'menu' && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute -bottom-1 w-8 h-1 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
-          </div>
+                    layoutId="activeTab"
+                    className="absolute -bottom-1 w-6 h-0.5 bg-purple-400 rounded-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </motion.button>
+            );
+          })}
         </div>
       </motion.div>
 
