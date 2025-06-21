@@ -30,7 +30,6 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
-    { id: 'events', icon: Calendar, label: 'Events', badge: null },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
   ];
 

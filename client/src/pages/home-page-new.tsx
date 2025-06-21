@@ -54,8 +54,7 @@ export default function HomePage() {
         return <MemberTrips currentView={currentView} setCurrentView={setCurrentView} />;
       case 'favorites':
         return <MemberFavorites currentView={currentView} setCurrentView={setCurrentView} />;
-      case 'events':
-        return <EventsPage currentView={currentView} setCurrentView={setCurrentView} />;
+
       case 'messages':
         return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'profile':

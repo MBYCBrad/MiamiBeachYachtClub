@@ -329,7 +329,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
                     <div className="relative overflow-hidden">
                       <motion.img
-                        src={`https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=800&h=600&fit=crop`}
+                        src={event.imageUrl ? `/api/media/${event.imageUrl}` : `/api/media/pexels-mali-42092_1750537277229.jpg`}
                         alt={event.title}
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                         whileHover={{ scale: 1.1 }}
@@ -382,7 +382,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
-                              className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white border-none shadow-lg shadow-cyan-500/25"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             >
                               Register
                             </Button>
