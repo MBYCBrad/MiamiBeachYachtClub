@@ -758,45 +758,75 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       {stat.label}
                     </motion.div>
                     
-                    {/* Decorative Diamonds on Left */}
+                    {/* Rolls Royce Starfield Effect */}
                     <motion.div
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2"
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       transition={{ 
-                        duration: 1, 
-                        delay: 1 + index * 0.2,
-                        ease: "easeOut"
+                        duration: 2, 
+                        delay: 1 + index * 0.2
                       }}
                     >
+                      {/* Multiple twinkling stars scattered across the card */}
+                      {Array.from({ length: 8 }, (_, starIndex) => (
+                        <motion.div
+                          key={starIndex}
+                          className="absolute w-1 h-1 bg-white rounded-full"
+                          style={{
+                            left: `${15 + (starIndex * 12) % 70}%`,
+                            top: `${20 + (starIndex * 17) % 60}%`,
+                            boxShadow: "0 0 4px rgba(255, 255, 255, 0.9)"
+                          }}
+                          animate={{
+                            opacity: [0, 1, 0],
+                            scale: [0.5, 1.5, 0.5]
+                          }}
+                          transition={{
+                            duration: 2 + starIndex * 0.3,
+                            repeat: Infinity,
+                            delay: starIndex * 0.4 + index * 0.2,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      ))}
+                      
+                      {/* Larger accent stars */}
                       <motion.div
-                        className="w-3 h-3 bg-gradient-to-r from-yellow-400 to-yellow-300 transform rotate-45 mb-2"
-                        animate={{
-                          scale: [0.8, 1.2, 0.8],
-                          opacity: [0.7, 1, 0.7]
-                        }}
-                        transition={{ 
-                          duration: 4, 
-                          repeat: Infinity,
-                          delay: index * 0.5
-                        }}
+                        className="absolute w-1.5 h-1.5 bg-gray-200 rounded-full"
                         style={{
-                          boxShadow: "0 0 8px rgba(251, 191, 36, 0.5)"
+                          left: "25%",
+                          top: "35%",
+                          boxShadow: "0 0 6px rgba(229, 231, 235, 0.9)"
+                        }}
+                        animate={{
+                          opacity: [0.3, 1, 0.3],
+                          scale: [0.8, 1.2, 0.8]
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.5,
+                          ease: "easeInOut"
                         }}
                       />
+                      
                       <motion.div
-                        className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-cyan-300 transform rotate-45"
-                        animate={{
-                          scale: [1, 0.6, 1],
-                          opacity: [0.6, 1, 0.6]
-                        }}
-                        transition={{ 
-                          duration: 3, 
-                          repeat: Infinity,
-                          delay: 0.5 + index * 0.3
-                        }}
+                        className="absolute w-1 h-1 bg-gray-300 rounded-full"
                         style={{
-                          boxShadow: "0 0 6px rgba(34, 211, 238, 0.5)"
+                          left: "75%",
+                          top: "65%",
+                          boxShadow: "0 0 4px rgba(209, 213, 219, 0.8)"
+                        }}
+                        animate={{
+                          opacity: [0.2, 1, 0.2],
+                          scale: [0.6, 1.3, 0.6]
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          delay: 1 + index * 0.3,
+                          ease: "easeInOut"
                         }}
                       />
                     </motion.div>
