@@ -171,8 +171,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
       {/* Search Bar */}
       <motion.div 
         className={cn(
-          "bg-white rounded-full shadow-lg border border-gray-200 flex items-center transition-all duration-300",
-          activeField ? "shadow-xl scale-105" : "hover:shadow-md"
+          "bg-white/10 backdrop-blur-md rounded-full shadow-2xl border border-white/20 flex items-center transition-all duration-300 h-16",
+          activeField ? "shadow-2xl scale-105 bg-white/20 border-purple-400/50" : "hover:shadow-xl hover:bg-white/15"
         )}
         layout
       >
@@ -180,60 +180,60 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
         <button
           onClick={() => setActiveField(activeField === 'where' ? null : 'where')}
           className={cn(
-            "flex-1 text-left px-6 py-4 rounded-full transition-colors",
-            activeField === 'where' ? "bg-gray-100" : "hover:bg-gray-50"
+            "flex-1 text-left px-6 py-3 rounded-full transition-colors",
+            activeField === 'where' ? "bg-white/10" : "hover:bg-white/5"
           )}
         >
-          <div className="font-semibold text-gray-900">Where</div>
-          <div className="text-sm text-gray-500 truncate">
+          <div className="font-semibold text-white">Where</div>
+          <div className="text-sm text-gray-300 truncate">
             {searchCriteria.location || 'Search destinations'}
           </div>
         </button>
 
-        <div className="w-px h-8 bg-gray-300" />
+        <div className="w-px h-8 bg-white/20" />
 
         {/* Check in */}
         <button
           onClick={() => setActiveField(activeField === 'checkin' ? null : 'checkin')}
           className={cn(
-            "flex-1 text-left px-6 py-4 transition-colors",
-            activeField === 'checkin' || activeField === 'checkout' ? "bg-gray-100" : "hover:bg-gray-50"
+            "flex-1 text-left px-6 py-3 transition-colors",
+            activeField === 'checkin' || activeField === 'checkout' ? "bg-white/10" : "hover:bg-white/5"
           )}
         >
-          <div className="font-semibold text-gray-900">Check in</div>
-          <div className="text-sm text-gray-500">
+          <div className="font-semibold text-white">Check in</div>
+          <div className="text-sm text-gray-300">
             {searchCriteria.checkIn ? format(searchCriteria.checkIn, 'MMM d') : 'Add dates'}
           </div>
         </button>
 
-        <div className="w-px h-8 bg-gray-300" />
+        <div className="w-px h-8 bg-white/20" />
 
         {/* Check out */}
         <button
           onClick={() => setActiveField(activeField === 'checkout' ? null : 'checkout')}
           className={cn(
-            "flex-1 text-left px-6 py-4 transition-colors",
-            activeField === 'checkin' || activeField === 'checkout' ? "bg-gray-100" : "hover:bg-gray-50"
+            "flex-1 text-left px-6 py-3 transition-colors",
+            activeField === 'checkin' || activeField === 'checkout' ? "bg-white/10" : "hover:bg-white/5"
           )}
         >
-          <div className="font-semibold text-gray-900">Check out</div>
-          <div className="text-sm text-gray-500">
+          <div className="font-semibold text-white">Check out</div>
+          <div className="text-sm text-gray-300">
             {searchCriteria.checkOut ? format(searchCriteria.checkOut, 'MMM d') : 'Add dates'}
           </div>
         </button>
 
-        <div className="w-px h-8 bg-gray-300" />
+        <div className="w-px h-8 bg-white/20" />
 
         {/* Who */}
         <button
           onClick={() => setActiveField(activeField === 'who' ? null : 'who')}
           className={cn(
-            "flex-1 text-left px-6 py-4 transition-colors",
-            activeField === 'who' ? "bg-gray-100" : "hover:bg-gray-50"
+            "flex-1 text-left px-6 py-3 transition-colors",
+            activeField === 'who' ? "bg-white/10" : "hover:bg-white/5"
           )}
         >
-          <div className="font-semibold text-gray-900">Who</div>
-          <div className="text-sm text-gray-500 truncate">
+          <div className="font-semibold text-white">Who</div>
+          <div className="text-sm text-gray-300 truncate">
             {getGuestText()}
           </div>
         </button>
@@ -241,10 +241,10 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
         {/* Search Button */}
         <Button
           onClick={handleSearch}
-          className="mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-4"
+          className="mr-3 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-full p-3 shadow-lg"
           size="icon"
         >
-          <Search size={20} />
+          <Search size={18} />
         </Button>
       </motion.div>
 
@@ -256,23 +256,23 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full mt-2 left-0 right-0 bg-white rounded-3xl shadow-2xl border border-gray-200 z-50 overflow-hidden"
+            className="absolute top-full mt-2 left-0 right-0 bg-black/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-500/30 z-50 overflow-hidden"
           >
             {/* Where Dropdown */}
             {activeField === 'where' && (
               <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Suggested destinations</h3>
+                <h3 className="text-lg font-semibold mb-4 text-white">Suggested destinations</h3>
                 <div className="space-y-3">
                   {locations.map((location) => (
                     <button
                       key={location.id}
                       onClick={() => handleLocationSelect(location.name)}
-                      className="w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                      className="w-full flex items-center space-x-4 p-3 rounded-xl hover:bg-white/10 transition-colors text-left"
                     >
                       <div className="text-2xl">{location.icon}</div>
                       <div>
-                        <div className="font-medium text-gray-900">{location.name}</div>
-                        <div className="text-sm text-gray-500">{location.description}</div>
+                        <div className="font-medium text-white">{location.name}</div>
+                        <div className="text-sm text-gray-300">{location.description}</div>
                       </div>
                     </button>
                   ))}
@@ -284,10 +284,10 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             {(activeField === 'checkin' || activeField === 'checkout') && (
               <div className="p-6">
                 <Tabs value={dateSelection} onValueChange={(v) => setDateSelection(v as any)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="dates">Dates</TabsTrigger>
-                    <TabsTrigger value="months">Months</TabsTrigger>
-                    <TabsTrigger value="flexible">Flexible</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3 mb-6 bg-white/10 border-purple-500/30">
+                    <TabsTrigger value="dates" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Dates</TabsTrigger>
+                    <TabsTrigger value="months" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Months</TabsTrigger>
+                    <TabsTrigger value="flexible" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Flexible</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="dates">
@@ -295,7 +295,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                       {/* Current Month */}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-semibold text-lg">
+                          <h3 className="font-semibold text-lg text-white">
                             {format(calendarMonth, 'MMMM yyyy')}
                           </h3>
                           <div className="flex space-x-2">
@@ -303,7 +303,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                               onClick={prevMonth}
                               variant="ghost"
                               size="sm"
-                              className="p-2"
+                              className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
                             >
                               <ChevronLeft size={16} />
                             </Button>
@@ -311,7 +311,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                               onClick={nextMonth}
                               variant="ghost"
                               size="sm"
-                              className="p-2"
+                              className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
                             >
                               <ChevronRight size={16} />
                             </Button>
@@ -322,7 +322,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
                           onSelect={(date) => handleDateSelect(date, activeField)}
                           month={calendarMonth}
-                          className="w-full"
+                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected]:bg-purple-600 [&_.rdp-head_cell]:text-gray-300"
                           disabled={(date) => date < new Date()}
                         />
                       </div>
@@ -330,7 +330,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                       {/* Next Month */}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-semibold text-lg">
+                          <h3 className="font-semibold text-lg text-white">
                             {format(addDays(calendarMonth, 32), 'MMMM yyyy')}
                           </h3>
                         </div>
@@ -339,7 +339,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
                           onSelect={(date) => handleDateSelect(date, activeField)}
                           month={addDays(calendarMonth, 32)}
-                          className="w-full"
+                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected]:bg-purple-600 [&_.rdp-head_cell]:text-gray-300"
                           disabled={(date) => date < new Date()}
                         />
                       </div>
@@ -359,7 +359,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           key={option.label}
                           variant="outline"
                           size="sm"
-                          className="rounded-full"
+                          className="rounded-full border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
                         >
                           {option.label}
                         </Button>
@@ -377,8 +377,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   {/* Adults */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900">Adults</div>
-                      <div className="text-sm text-gray-500">Ages 13 or above</div>
+                      <div className="font-medium text-white">Adults</div>
+                      <div className="text-sm text-gray-300">Ages 13 or above</div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Button
@@ -386,18 +386,18 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.adults === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
-                      <span className="w-8 text-center font-medium">
+                      <span className="w-8 text-center font-medium text-white">
                         {searchCriteria.guests.adults}
                       </span>
                       <Button
                         onClick={() => handleGuestChange('adults', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
                       >
                         <Plus size={16} />
                       </Button>
@@ -407,8 +407,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   {/* Children */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900">Children</div>
-                      <div className="text-sm text-gray-500">Ages 2-12</div>
+                      <div className="font-medium text-white">Children</div>
+                      <div className="text-sm text-gray-300">Ages 2-12</div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Button
@@ -416,18 +416,18 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.children === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
-                      <span className="w-8 text-center font-medium">
+                      <span className="w-8 text-center font-medium text-white">
                         {searchCriteria.guests.children}
                       </span>
                       <Button
                         onClick={() => handleGuestChange('children', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
                       >
                         <Plus size={16} />
                       </Button>
@@ -437,8 +437,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   {/* Infants */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900">Infants</div>
-                      <div className="text-sm text-gray-500">Under 2</div>
+                      <div className="font-medium text-white">Infants</div>
+                      <div className="text-sm text-gray-300">Under 2</div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Button
@@ -446,18 +446,18 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.infants === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
-                      <span className="w-8 text-center font-medium">
+                      <span className="w-8 text-center font-medium text-white">
                         {searchCriteria.guests.infants}
                       </span>
                       <Button
                         onClick={() => handleGuestChange('infants', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
                       >
                         <Plus size={16} />
                       </Button>
@@ -467,8 +467,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   {/* Pets */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900">Pets</div>
-                      <div className="text-sm text-gray-500 underline cursor-pointer">
+                      <div className="font-medium text-white">Pets</div>
+                      <div className="text-sm text-gray-300 underline cursor-pointer hover:text-white">
                         Bringing a service animal?
                       </div>
                     </div>
@@ -478,18 +478,18 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         disabled={searchCriteria.guests.pets === 0}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10 disabled:opacity-50"
                       >
                         <Minus size={16} />
                       </Button>
-                      <span className="w-8 text-center font-medium">
+                      <span className="w-8 text-center font-medium text-white">
                         {searchCriteria.guests.pets}
                       </span>
                       <Button
                         onClick={() => handleGuestChange('pets', true)}
                         variant="outline"
                         size="sm"
-                        className="rounded-full w-8 h-8 p-0"
+                        className="rounded-full w-8 h-8 p-0 border-white/20 text-gray-300 hover:text-white hover:bg-white/10"
                       >
                         <Plus size={16} />
                       </Button>
