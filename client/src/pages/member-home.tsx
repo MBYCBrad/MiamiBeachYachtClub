@@ -196,7 +196,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 pt-8 pb-6 sm:pt-6 sm:pb-5 md:pt-4 md:pb-4 lg:pt-4 lg:pb-4 flex justify-center">
+        <div className="px-4 pt-12 pb-8 sm:pt-10 sm:pb-6 md:pt-8 md:pb-5 lg:pt-6 lg:pb-4 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
