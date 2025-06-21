@@ -358,6 +358,19 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 
                 <div className="space-y-4">
                   <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Username</label>
+                    {isEditingProfile ? (
+                      <input
+                        type="text"
+                        defaultValue={user?.username}
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
+                      />
+                    ) : (
+                      <div className="text-white font-medium">{user?.username}</div>
+                    )}
+                  </div>
+                  
+                  <div>
                     <label className="text-sm text-gray-400 mb-1 block">Email Address</label>
                     {isEditingProfile ? (
                       <input
