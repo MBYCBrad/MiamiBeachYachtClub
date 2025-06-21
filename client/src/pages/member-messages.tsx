@@ -152,7 +152,11 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4"
+            className="text-5xl md:text-6xl font-bold text-blue-400 mb-4"
+            style={{
+              textShadow: '0 0 20px #60a5fa, 0 0 40px #3b82f6, 0 0 60px #1d4ed8',
+              filter: 'drop-shadow(0 0 10px #60a5fa)'
+            }}
           >
             Messages
           </motion.h1>
