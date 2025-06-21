@@ -573,8 +573,8 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           >
             <IconComponent 
               isActive={isActive} 
-              size={36}
-              className="transition-all duration-300 sm:scale-125"
+              size={72}
+              className="transition-all duration-300"
             />
             <span className={cn(
               "text-xs sm:text-sm font-medium transition-colors duration-300",
