@@ -7,6 +7,9 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { db, pool } from "./db";
+import { eq, and } from "drizzle-orm";
+import connectPg from "connect-pg-simple";
 
 const MemoryStore = createMemoryStore(session);
 
@@ -639,4 +642,289 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+const PostgresSessionStore = connectPg(session);
+
+export class DatabaseStorage implements IStorage {
+  public sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ 
+      pool, 
+      createTableIfMissing: true 
+    });
+  }
+
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  async updateUser(id: number, userUpdate: Partial<InsertUser>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(userUpdate)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        stripeCustomerId,
+        stripeSubscriptionId: stripeSubscriptionId || null
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  // Yacht methods
+  async getYachts(filters?: { available?: boolean, maxSize?: number, location?: string }): Promise<Yacht[]> {
+    let baseQuery = db.select().from(yachts);
+    
+    if (filters?.available !== undefined) {
+      return await baseQuery.where(eq(yachts.isAvailable, filters.available));
+    }
+    
+    return await baseQuery;
+  }
+
+  async getYacht(id: number): Promise<Yacht | undefined> {
+    const [yacht] = await db.select().from(yachts).where(eq(yachts.id, id));
+    return yacht || undefined;
+  }
+
+  async getYachtsByOwner(ownerId: number): Promise<Yacht[]> {
+    return await db.select().from(yachts).where(eq(yachts.ownerId, ownerId));
+  }
+
+  async createYacht(insertYacht: InsertYacht): Promise<Yacht> {
+    const [yacht] = await db.insert(yachts).values(insertYacht).returning();
+    return yacht;
+  }
+
+  async updateYacht(id: number, yachtUpdate: Partial<InsertYacht>): Promise<Yacht | undefined> {
+    const [updatedYacht] = await db
+      .update(yachts)
+      .set(yachtUpdate as any)
+      .where(eq(yachts.id, id))
+      .returning();
+    return updatedYacht || undefined;
+  }
+
+  async deleteYacht(id: number): Promise<boolean> {
+    const result = await db.delete(yachts).where(eq(yachts.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Service methods
+  async getServices(filters?: { category?: string, available?: boolean }): Promise<Service[]> {
+    let baseQuery = db.select().from(services);
+    
+    if (filters?.available !== undefined) {
+      return await baseQuery.where(eq(services.isAvailable, filters.available));
+    }
+    
+    return await baseQuery;
+  }
+
+  async getService(id: number): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service || undefined;
+  }
+
+  async getServicesByProvider(providerId: number): Promise<Service[]> {
+    return await db.select().from(services).where(eq(services.providerId, providerId));
+  }
+
+  async createService(insertService: InsertService): Promise<Service> {
+    const [service] = await db.insert(services).values(insertService).returning();
+    return service;
+  }
+
+  async updateService(id: number, serviceUpdate: Partial<InsertService>): Promise<Service | undefined> {
+    const [updatedService] = await db
+      .update(services)
+      .set(serviceUpdate)
+      .where(eq(services.id, id))
+      .returning();
+    return updatedService || undefined;
+  }
+
+  async deleteService(id: number): Promise<boolean> {
+    const result = await db.delete(services).where(eq(services.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Event methods
+  async getEvents(filters?: { active?: boolean, upcoming?: boolean }): Promise<Event[]> {
+    return await db.select().from(events);
+  }
+
+  async getEvent(id: number): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event || undefined;
+  }
+
+  async getEventsByHost(hostId: number): Promise<Event[]> {
+    return await db.select().from(events).where(eq(events.hostId, hostId));
+  }
+
+  async createEvent(insertEvent: InsertEvent): Promise<Event> {
+    const [event] = await db.insert(events).values(insertEvent).returning();
+    return event;
+  }
+
+  async updateEvent(id: number, eventUpdate: Partial<InsertEvent>): Promise<Event | undefined> {
+    const [updatedEvent] = await db
+      .update(events)
+      .set(eventUpdate)
+      .where(eq(events.id, id))
+      .returning();
+    return updatedEvent || undefined;
+  }
+
+  async deleteEvent(id: number): Promise<boolean> {
+    const result = await db.delete(events).where(eq(events.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Booking methods
+  async getBookings(filters?: { userId?: number, yachtId?: number, status?: string }): Promise<Booking[]> {
+    let baseQuery = db.select().from(bookings);
+    
+    if (filters?.userId) {
+      return await baseQuery.where(eq(bookings.userId, filters.userId));
+    }
+    
+    return await baseQuery;
+  }
+
+  async getBooking(id: number): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+    return booking || undefined;
+  }
+
+  async createBooking(insertBooking: InsertBooking): Promise<Booking> {
+    const [booking] = await db.insert(bookings).values(insertBooking).returning();
+    return booking;
+  }
+
+  async updateBooking(id: number, bookingUpdate: Partial<InsertBooking>): Promise<Booking | undefined> {
+    const [updatedBooking] = await db
+      .update(bookings)
+      .set(bookingUpdate)
+      .where(eq(bookings.id, id))
+      .returning();
+    return updatedBooking || undefined;
+  }
+
+  async cancelBooking(id: number): Promise<boolean> {
+    const [updatedBooking] = await db
+      .update(bookings)
+      .set({ status: 'cancelled' })
+      .where(eq(bookings.id, id))
+      .returning();
+    return !!updatedBooking;
+  }
+
+  // Service Booking methods
+  async getServiceBookings(filters?: { userId?: number, serviceId?: number, status?: string }): Promise<ServiceBooking[]> {
+    let baseQuery = db.select().from(serviceBookings);
+    
+    if (filters?.userId) {
+      return await baseQuery.where(eq(serviceBookings.userId, filters.userId));
+    }
+    
+    return await baseQuery;
+  }
+
+  async getServiceBooking(id: number): Promise<ServiceBooking | undefined> {
+    const [booking] = await db.select().from(serviceBookings).where(eq(serviceBookings.id, id));
+    return booking || undefined;
+  }
+
+  async createServiceBooking(insertBooking: InsertServiceBooking): Promise<ServiceBooking> {
+    const [booking] = await db.insert(serviceBookings).values(insertBooking).returning();
+    return booking;
+  }
+
+  async updateServiceBooking(id: number, bookingUpdate: Partial<InsertServiceBooking>): Promise<ServiceBooking | undefined> {
+    const [updatedBooking] = await db
+      .update(serviceBookings)
+      .set(bookingUpdate)
+      .where(eq(serviceBookings.id, id))
+      .returning();
+    return updatedBooking || undefined;
+  }
+
+  // Event Registration methods
+  async getEventRegistrations(filters?: { userId?: number, eventId?: number, status?: string }): Promise<EventRegistration[]> {
+    let baseQuery = db.select().from(eventRegistrations);
+    
+    if (filters?.userId) {
+      return await baseQuery.where(eq(eventRegistrations.userId, filters.userId));
+    }
+    
+    return await baseQuery;
+  }
+
+  async getEventRegistration(id: number): Promise<EventRegistration | undefined> {
+    const [registration] = await db.select().from(eventRegistrations).where(eq(eventRegistrations.id, id));
+    return registration || undefined;
+  }
+
+  async createEventRegistration(insertRegistration: InsertEventRegistration): Promise<EventRegistration> {
+    const [registration] = await db.insert(eventRegistrations).values(insertRegistration).returning();
+    return registration;
+  }
+
+  async updateEventRegistration(id: number, regUpdate: Partial<InsertEventRegistration>): Promise<EventRegistration | undefined> {
+    const [updatedRegistration] = await db
+      .update(eventRegistrations)
+      .set(regUpdate)
+      .where(eq(eventRegistrations.id, id))
+      .returning();
+    return updatedRegistration || undefined;
+  }
+
+  // Review methods
+  async getReviews(filters?: { userId?: number, serviceId?: number, yachtId?: number }): Promise<Review[]> {
+    let baseQuery = db.select().from(reviews);
+    
+    if (filters?.userId) {
+      return await baseQuery.where(eq(reviews.userId, filters.userId));
+    }
+    
+    return await baseQuery;
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const [review] = await db.insert(reviews).values(insertReview).returning();
+    return review;
+  }
+}
+
+export const storage = new DatabaseStorage();

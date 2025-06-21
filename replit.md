@@ -22,10 +22,11 @@ Monaco Bay Yacht Club (MBYC) is a luxury yacht membership platform built as a fu
 - **Session Management**: Express sessions with PostgreSQL store
 
 ### Database Architecture
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: PostgreSQL with Drizzle ORM (Live Database Connected)
 - **Schema**: Comprehensive relational schema with users, yachts, services, events, bookings, and reviews
 - **Migrations**: Drizzle Kit for schema management and migrations
 - **Connection**: Neon Database serverless PostgreSQL
+- **Storage**: DatabaseStorage class replacing in-memory storage with PostgreSQL persistence
 
 ## Key Components
 
@@ -118,6 +119,10 @@ Monaco Bay Yacht Club (MBYC) is a luxury yacht membership platform built as a fu
 ```
 Changelog:
 - June 21, 2025. Initial setup
+- June 21, 2025. PostgreSQL database successfully integrated and connected
+  - DatabaseStorage class implemented replacing in-memory storage
+  - All database tables created and operational
+  - API endpoints verified working with live database
 ```
 
 ## User Preferences
