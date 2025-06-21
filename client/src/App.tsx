@@ -14,6 +14,7 @@ import EventDetail from "@/pages/event-detail";
 import EventsPage from "@/pages/events-page";
 import CheckoutPage from "@/pages/checkout";
 import AdminDashboard from "@/pages/admin-dashboard";
+import YachtOwnerDashboard from "@/pages/yacht-owner-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
+      <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />

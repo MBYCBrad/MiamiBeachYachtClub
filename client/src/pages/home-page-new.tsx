@@ -36,7 +36,9 @@ export default function HomePage() {
       case 'member':
         return renderMemberContent();
       case 'yacht_owner':
-        return <YachtOwnerDashboard />;
+        // Redirect yacht owner users to the new yacht owner dashboard
+        window.location.href = '/yacht-owner';
+        return null;
       case 'service_provider':
         return <ServiceProviderDashboard />;
       case 'admin':

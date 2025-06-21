@@ -364,6 +364,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // YACHT OWNER ROUTES
+  app.get("/api/yacht-owner/stats", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      
+      // Get yacht owner's yachts
+      const allYachts = await storage.getYachts();
+      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
+      
+      // Get bookings for owner's yachts
+      const yachtIds = ownerYachts.map(y => y.id);
+      const allBookings = await storage.getBookings();
+      const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
+      
+      // Calculate revenue (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentBookings = ownerBookings.filter(b => new Date(b.startTime) >= thirtyDaysAgo);
+      
+      const monthlyRevenue = recentBookings.reduce((total, booking) => {
+        const yacht = ownerYachts.find(y => y.id === booking.yachtId);
+        if (yacht && yacht.pricePerHour) {
+          const hours = 8; // Assume 8-hour day bookings
+          return total + (parseInt(yacht.pricePerHour) * hours);
+        }
+        return total;
+      }, 0);
+      
+      const stats = {
+        totalYachts: ownerYachts.length,
+        totalBookings: ownerBookings.length,
+        monthlyRevenue,
+        avgRating: 4.8, // Would calculate from reviews
+        occupancyRate: ownerBookings.length > 0 ? Math.round((ownerBookings.length / (ownerYachts.length * 30)) * 100) : 0,
+        pendingMaintenance: ownerYachts.filter(y => !y.isAvailable).length
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner stats:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/yacht-owner/yachts", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      const allYachts = await storage.getYachts();
+      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
+      res.json(ownerYachts);
+    } catch (error: any) {
+      console.error('Error fetching owner yachts:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/yacht-owner/bookings", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      const allYachts = await storage.getYachts();
+      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
+      const yachtIds = ownerYachts.map(y => y.id);
+      
+      const allBookings = await storage.getBookings();
+      const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
+      
+      // Enhance bookings with yacht and user info
+      const enhancedBookings = await Promise.all(
+        ownerBookings.map(async (booking) => {
+          const yacht = ownerYachts.find(y => y.id === booking.yachtId);
+          const user = await storage.getUser(booking.userId);
+          return {
+            ...booking,
+            yacht,
+            user
+          };
+        })
+      );
+      
+      res.json(enhancedBookings);
+    } catch (error: any) {
+      console.error('Error fetching owner bookings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/yacht-owner/revenue", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      const allYachts = await storage.getYachts();
+      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
+      const yachtIds = ownerYachts.map(y => y.id);
+      
+      const allBookings = await storage.getBookings();
+      const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
+      
+      // Generate monthly revenue data
+      const monthlyData = [];
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        
+        const monthBookings = ownerBookings.filter(b => {
+          const bookingDate = new Date(b.startTime);
+          return bookingDate >= monthStart && bookingDate <= monthEnd;
+        });
+        
+        const revenue = monthBookings.reduce((total, booking) => {
+          const yacht = ownerYachts.find(y => y.id === booking.yachtId);
+          if (yacht && yacht.pricePerHour) {
+            return total + (parseInt(yacht.pricePerHour) * 8);
+          }
+          return total;
+        }, 0);
+        
+        monthlyData.push({
+          month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          revenue,
+          bookings: monthBookings.length
+        });
+      }
+      
+      res.json(monthlyData);
+    } catch (error: any) {
+      console.error('Error fetching revenue data:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // BOOKING ROUTES
   app.get("/api/bookings", requireAuth, async (req, res) => {
     try {
