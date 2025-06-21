@@ -5,22 +5,22 @@ import { Button } from "@/components/ui/button";
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
 
-// High-quality yacht images from Unsplash
+// Authentic yacht images from storage bucket
 const YACHT_IMAGES = [
-  "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop&crop=center", // Luxury yacht at sea
-  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop&crop=center", // White yacht on blue water
-  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center", // Motor yacht deck view
-  "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&h=600&fit=crop&crop=center", // Sailing yacht with sails
-  "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop&crop=center", // Modern luxury yacht
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&crop=center", // Yacht at marina
-  "https://images.unsplash.com/photo-1606851094655-9533075b2f99?w=800&h=600&fit=crop&crop=center", // Yacht interior luxury
-  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&crop=center", // Yacht on ocean
-  "https://images.unsplash.com/photo-1607675985280-17da4b45ede0?w=800&h=600&fit=crop&crop=center", // Sleek yacht design
-  "https://images.unsplash.com/photo-1593698054469-2997c85cc973?w=800&h=600&fit=crop&crop=center"  // Premium yacht bow
+  "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg", // Luxury mega yacht
+  "/api/media/pexels-goumbik-296278_1750537277229.jpg", // White sport yacht
+  "/api/media/pexels-mali-42092_1750537277229.jpg", // Marina luxury yacht
+  "/api/media/pexels-mikebirdy-144634_1750537277230.jpg", // Harbor motor yacht
+  "/api/media/pexels-pixabay-163236_1750537277230.jpg", // Modern sport cruiser
+  "/api/media/pexels-mali-42091_1750537294323.jpg", // Premium superyacht
+  "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg", // Luxury mega yacht
+  "/api/media/pexels-goumbik-296278_1750537277229.jpg", // White sport yacht
+  "/api/media/pexels-mali-42092_1750537277229.jpg", // Marina luxury yacht
+  "/api/media/pexels-mikebirdy-144634_1750537277230.jpg"  // Harbor motor yacht
 ];
 
 const getYachtImage = (yachtId: number) => {
-  return YACHT_IMAGES[yachtId % YACHT_IMAGES.length];
+  return YACHT_IMAGES[(yachtId - 1) % YACHT_IMAGES.length];
 };
 
 interface YachtCardProps {
