@@ -97,7 +97,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
-      <div className="relative h-[45vh] sm:h-[50vh] lg:h-[55vh] overflow-hidden">
+      <div className="relative h-[65vh] sm:h-[70vh] lg:h-[75vh] overflow-hidden">
         {videoLoading ? (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
         ) : heroVideo ? (
@@ -138,7 +138,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
 
         {/* Hero Content */}
-        <div className="absolute inset-0 flex items-start justify-center text-center px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16">
+        <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +146,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
             className="max-w-4xl mx-auto w-full"
           >
             <motion.div
-              className="mb-1 sm:mb-2"
+              className="mb-2 sm:mb-3"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
@@ -154,11 +154,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               <img 
                 src="/api/media/MBYC-LOGO-WHITE_1750532808484.png" 
                 alt="Miami Beach Yacht Club Logo"
-                className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto mx-auto"
+                className="w-64 sm:w-80 md:w-96 lg:w-[500px] h-auto mx-auto"
               />
             </motion.div>
             <motion.p 
-              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-2 sm:mb-3"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -171,29 +171,38 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="relative w-full max-w-4xl mx-auto mb-6"
+              className="relative w-full max-w-4xl mx-auto"
             >
               <AirbnbSearchBar 
                 onSearch={handleSearch}
                 className="shadow-2xl"
               />
             </motion.div>
-            
-            {/* Tab Navigation directly below search */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.0 }}
-              className="flex justify-center"
-            >
-              <TabNavigation 
-                activeTab={selectedCategory}
-                onTabChange={setSelectedCategory}
-              />
-            </motion.div>
           </motion.div>
         </div>
       </div>
+
+      {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
+      <motion.div 
+        className="relative z-40 -mt-20 border-none"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 1.0 }}
+        style={{
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
+          backdropFilter: 'blur(40px) brightness(1.1)',
+          WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
+        }}
+      >
+        <div className="px-4 py-1 flex justify-center">
+          <TabNavigation 
+            activeTab={selectedCategory}
+            onTabChange={setSelectedCategory}
+          />
+        </div>
+      </motion.div>
 
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
