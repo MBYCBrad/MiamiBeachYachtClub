@@ -166,25 +166,26 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Discover extraordinary yachts and premium experiences
             </motion.p>
             
-            {/* Airbnb-Style Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="relative w-full max-w-4xl mx-auto"
-            >
-              <AirbnbSearchBar 
-                onSearch={handleSearch}
-                className="shadow-2xl"
-              />
-            </motion.div>
           </motion.div>
         </div>
+
+        {/* Search Bar Overlay - Positioned at bottom of hero */}
+        <motion.div 
+          className="absolute bottom-8 left-4 right-4 z-30"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.8 }}
+        >
+          <AirbnbSearchBar 
+            onSearch={handleSearch}
+            className="shadow-2xl"
+          />
+        </motion.div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Positioned below hero section */}
+      {/* 3D Animated Tab Navigation - Positioned below hero section with blur transition */}
       <motion.div 
-        className="relative z-40 -mt-12 sm:-mt-8 md:-mt-4 lg:-mt-2 border-none"
+        className="relative z-40 -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
@@ -196,7 +197,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 pt-12 pb-8 sm:pt-10 sm:pb-6 md:pt-8 md:pb-5 lg:pt-6 lg:pb-4 flex justify-center">
+        <div className="px-4 pt-20 pb-8 sm:pt-18 sm:pb-6 md:pt-16 md:pb-5 lg:pt-14 lg:pb-4 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
