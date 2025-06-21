@@ -59,7 +59,6 @@ interface YachtResult {
 }
 
 export default function SearchResults({ currentView, setCurrentView, searchCriteria }: SearchResultsProps) {
-  const [viewType, setViewType] = useState<'list' | 'map'>('list');
   const [sortBy, setSortBy] = useState('recommended');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
 
@@ -196,38 +195,6 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-800/50 border border-purple-500/30 rounded-lg p-1">
-              <Button
-                onClick={() => setViewType('list')}
-                variant={viewType === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                className={cn(
-                  "px-3",
-                  viewType === 'list' 
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
-                    : "text-gray-300 hover:text-white"
-                )}
-              >
-                <List size={16} className="mr-2" />
-                List
-              </Button>
-              <Button
-                onClick={() => setViewType('map')}
-                variant={viewType === 'map' ? 'default' : 'ghost'}
-                size="sm"
-                className={cn(
-                  "px-3",
-                  viewType === 'map' 
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
-                    : "text-gray-300 hover:text-white"
-                )}
-              >
-                <Map size={16} className="mr-2" />
-                Map
-              </Button>
-            </div>
-
             {/* Filters */}
             <Button variant="outline" className="flex items-center space-x-2 border-purple-500/30 bg-gray-800/50 text-gray-300 hover:text-white hover:border-purple-400">
               <Filter size={16} />
