@@ -201,10 +201,15 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
       {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
       <motion.div 
-        className="relative z-40 bg-black/80 backdrop-blur-md border-b border-gray-800/50 -mt-16"
+        className="relative z-40 bg-black/90 backdrop-blur-xl -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
+        style={{
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.8))',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)'
+        }}
       >
         <div className="px-4 py-1 flex justify-center">
           <TabNavigation 
