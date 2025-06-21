@@ -144,10 +144,19 @@ Changelog:
   - Seamless video background system with loading states and error handling
 - June 21, 2025. Enhanced 3D animated navigation icons implemented
   - Complete 3D animated icon system for bottom navigation
-  - Explore icon redesigned as detailed nautical anchor with water ripple effects
+  - Explore icon redesigned as detailed sailor's captain hat with gold emblem and rocking animation
   - All icons display colors from start and animate only when clicked/active
   - Purple/blue hamburger menu matching brand colors
   - Smooth motion animations with proper state management and performance optimization
+- June 21, 2025. Airbnb-style square card grid system implemented
+  - Complete transformation of all yacht, service, and event cards to square UI format
+  - 3 cards per row on mobile, scaling up to 6 per row on desktop for optimal browsing
+  - Apple-style rounded edges (12px border radius) for modern aesthetic
+  - Purple outline animations with glow effects on hover/tap interactions
+  - Real-time thumb scrolling with visible gradient scrollbar for smooth navigation
+  - Compact information display optimized for square format with truncated text
+  - Price formatting simplified (e.g., $2K/hr) for better mobile readability
+  - Cross-platform responsive design matching Airbnb's card interaction patterns
 ```
 
 ## User Preferences

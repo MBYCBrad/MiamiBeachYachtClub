@@ -224,108 +224,90 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
             >
               {filteredYachts.map((yacht, index) => (
                 <motion.div
                   key={yacht.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  className="group cursor-pointer"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                  }}
                   onClick={() => setSelectedYacht(yacht)}
                 >
-                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10">
-                    <div className="relative overflow-hidden">
-                      <motion.img
-                        src={getYachtImage(index)}
-                        alt={yacht.name}
-                        className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                        whileHover={{ scale: 1.1 }}
+                  {/* Purple Outline Animation */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
+                    initial={false}
+                    animate={{
+                      borderColor: "rgba(168, 85, 247, 0)",
+                    }}
+                    whileHover={{
+                      borderColor: "rgba(168, 85, 247, 0.6)",
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
+                    }}
+                  />
+
+                  {/* Yacht Image */}
+                  <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+                    <img
+                      src={getYachtImage(index)}
+                      alt={yacht.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    {/* Like Button */}
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(yacht.id);
+                      }}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        className={cn(
+                          "h-3 w-3 transition-colors duration-200",
+                          likedItems.has(yacht.id) ? "fill-red-500 text-red-500" : "text-white"
+                        )}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      {/* Like Button */}
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(yacht.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Heart 
-                          className={cn(
-                            "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(yacht.id) ? "fill-red-500 text-red-500" : "text-white"
-                          )}
-                        />
-                      </motion.button>
+                    </motion.button>
 
-                      {/* Badges */}
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        {yacht.amenities?.includes('fuel') && (
-                          <Badge className="bg-green-600/80 text-white backdrop-blur-sm">
-                            <Fuel className="h-3 w-3 mr-1" />
-                            Fuel Included
-                          </Badge>
-                        )}
-                        {yacht.amenities?.includes('crew') && (
-                          <Badge className="bg-blue-600/80 text-white backdrop-blur-sm">
-                            <Users className="h-3 w-3 mr-1" />
-                            Crew Included
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Quick Info */}
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="flex items-center justify-between text-white">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">4.9</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm">
-                            <MapPin className="h-4 w-4" />
-                            {yacht.location}
-                          </div>
-                        </div>
-                      </div>
+                    {/* Rating Badge */}
+                    <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-black/40 px-1.5 py-0.5 rounded-full">
+                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                      <span className="text-white text-xs font-medium">4.9</span>
                     </div>
+                  </div>
 
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="space-y-2 sm:space-y-3">
-                        <div>
-                          <h3 className="font-bold text-lg sm:text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-1">
-                            {yacht.name}
-                          </h3>
-                          <p className="text-gray-400 text-xs sm:text-sm">
-                            {yacht.size}ft • {yacht.capacity} guests
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="text-white">
-                            <span className="text-xl sm:text-2xl font-bold">${yacht.pricePerHour}</span>
-                            <span className="text-gray-400 text-xs sm:text-sm ml-1">/hour</span>
-                          </div>
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25 text-xs sm:text-sm px-3 sm:px-4"
-                            >
-                              Book Now
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Yacht Info */}
+                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                        {yacht.name}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {yacht.location}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-xs font-bold text-white">
+                        ${yacht.pricePerHour ? Math.round(parseFloat(yacht.pricePerHour)/100) + 'K' : 'Ask'}
+                        <span className="text-xs text-gray-400 font-normal">/hr</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {yacht.size}ft
+                      </span>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -338,80 +320,88 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
             >
               {filteredServices.map((service, index) => (
                 <motion.div
                   key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  className="group cursor-pointer"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                  }}
                 >
-                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
-                    <div className="relative overflow-hidden">
-                      <motion.img
-                        src={getServiceImage(index)}
-                        alt={service.name}
-                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                        whileHover={{ scale: 1.1 }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(service.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Heart 
-                          className={cn(
-                            "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(service.id) ? "fill-red-500 text-red-500" : "text-white"
-                          )}
-                        />
-                      </motion.button>
+                  {/* Purple Outline Animation */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
+                    initial={false}
+                    animate={{
+                      borderColor: "rgba(168, 85, 247, 0)",
+                    }}
+                    whileHover={{
+                      borderColor: "rgba(168, 85, 247, 0.6)",
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
+                    }}
+                  />
 
-                      <Badge className="absolute top-3 left-3 bg-purple-600/80 text-white backdrop-blur-sm">
+                  {/* Service Image */}
+                  <div className="relative h-3/5 bg-gradient-to-br from-blue-900/30 to-purple-900/30">
+                    <img
+                      src={getServiceImage(index)}
+                      alt={service.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    <div className="absolute top-1 left-1">
+                      <span className="px-2 py-0.5 bg-blue-600/80 text-white text-xs rounded-full font-medium">
                         {service.category}
-                      </Badge>
+                      </span>
                     </div>
 
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-bold text-lg text-white group-hover:text-blue-300 transition-colors duration-300">
-                            {service.name}
-                          </h3>
-                          <p className="text-gray-400 text-sm line-clamp-2">
-                            {service.description}
-                          </p>
-                        </div>
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(service.id);
+                      }}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        className={cn(
+                          "h-3 w-3 transition-colors duration-200",
+                          likedItems.has(service.id) ? "fill-red-500 text-red-500" : "text-white"
+                        )}
+                      />
+                    </motion.button>
+                  </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="text-white">
-                            <span className="text-xl font-bold">${service.pricePerSession}</span>
-                            <span className="text-gray-400 text-sm ml-1">/session</span>
-                          </div>
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none shadow-lg shadow-blue-500/25"
-                            >
-                              Book Service
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Service Info */}
+                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {service.description}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-xs font-bold text-white">
+                        ${service.pricePerSession ? Math.round(parseFloat(service.pricePerSession)/10) + '0' : 'Ask'}
+                        <span className="text-xs text-gray-400 font-normal">/hr</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {service.duration ? `${service.duration}m` : 'Custom'}
+                      </span>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -424,82 +414,89 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
             >
               {filteredEvents.map((event, index) => (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  className="group cursor-pointer"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                  }}
                 >
-                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
-                    <div className="relative overflow-hidden">
-                      <motion.img
-                        src={`https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=800&h=600&fit=crop`}
-                        alt={event.title}
-                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                        whileHover={{ scale: 1.1 }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(event.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Heart 
-                          className={cn(
-                            "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(event.id) ? "fill-red-500 text-red-500" : "text-white"
-                          )}
-                        />
-                      </motion.button>
+                  {/* Purple Outline Animation */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
+                    initial={false}
+                    animate={{
+                      borderColor: "rgba(168, 85, 247, 0)",
+                    }}
+                    whileHover={{
+                      borderColor: "rgba(168, 85, 247, 0.6)",
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
+                    }}
+                  />
 
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="text-white text-sm">
-                          {new Date(event.startTime).toLocaleDateString()}
-                        </div>
+                  {/* Event Image */}
+                  <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-pink-900/30">
+                    <img
+                      src={`https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=800&h=600&fit=crop`}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    <div className="absolute top-1 left-1">
+                      <div className="bg-purple-600/80 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                        <Calendar size={10} className="inline mr-1" />
+                        {new Date(event.startTime).toLocaleDateString()}
                       </div>
                     </div>
 
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-bold text-lg text-white group-hover:text-cyan-300 transition-colors duration-300">
-                            {event.title}
-                          </h3>
-                          <p className="text-gray-400 text-sm line-clamp-2">
-                            {event.description}
-                          </p>
-                        </div>
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(event.id);
+                      }}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        className={cn(
+                          "h-3 w-3 transition-colors duration-200",
+                          likedItems.has(event.id) ? "fill-red-500 text-red-500" : "text-white"
+                        )}
+                      />
+                    </motion.button>
+                  </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="text-white">
-                            <span className="text-xl font-bold">${event.ticketPrice}</span>
-                            <span className="text-gray-400 text-sm ml-1">/ticket</span>
-                          </div>
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white border-none shadow-lg shadow-cyan-500/25"
-                            >
-                              Register
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Event Info */}
+                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                        {event.title}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {event.location || 'Exclusive Event'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-xs font-bold text-white">
+                        {event.ticketPrice ? `$${event.ticketPrice}` : 'Free'}
+                        <span className="text-xs text-gray-400 font-normal">/person</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {event.capacity ? `${event.capacity} spots` : 'Limited'}
+                      </span>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
