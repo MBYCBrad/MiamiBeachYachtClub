@@ -157,7 +157,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
                         <span className="font-medium">{item.label}</span>
                       </div>
                       {item.badge && (
-                        <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
                           {item.badge}
                         </div>
                       )}
