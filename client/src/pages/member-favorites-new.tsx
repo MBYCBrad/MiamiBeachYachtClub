@@ -245,10 +245,10 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-bold text-blue-400 mb-4"
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent mb-4"
             style={{
-              textShadow: '0 0 20px #60a5fa, 0 0 40px #3b82f6, 0 0 60px #1d4ed8',
-              filter: 'drop-shadow(0 0 10px #60a5fa)'
+              textShadow: '0 0 30px rgba(96, 165, 250, 0.8), 0 0 60px rgba(147, 51, 234, 0.6), 0 0 90px rgba(59, 130, 246, 0.4)',
+              filter: 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.9)) drop-shadow(0 0 40px rgba(147, 51, 234, 0.7))'
             }}
           >
             Your Favorites
