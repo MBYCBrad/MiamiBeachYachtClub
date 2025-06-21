@@ -113,7 +113,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
             </video>
             
             {/* Seamless Edge Transition */}
-            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/60 via-black/30 via-black/10 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black via-black/80 via-black/50 via-black/20 to-transparent" />
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/80 via-black/40 via-black/20 to-transparent" />
             <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/60 via-black/30 via-black/10 to-transparent" />
             <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black/60 via-black/30 via-black/10 to-transparent" />
@@ -166,35 +166,31 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Discover extraordinary yachts and premium experiences
             </motion.p>
             
-            {/* Airbnb-Style Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="relative w-full max-w-4xl mx-auto"
-            >
-              <AirbnbSearchBar 
-                onSearch={handleSearch}
-                className="shadow-2xl"
-              />
-            </motion.div>
           </motion.div>
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Positioned below hero section */}
+      {/* Search Bar - Positioned above tab navigation */}
       <motion.div 
-        className="relative z-40 mt-2 sm:mt-1 md:-mt-2 lg:-mt-4 border-none"
+        className="relative z-50 -mt-20 px-4 flex justify-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.8 }}
+      >
+        <div className="w-full max-w-4xl">
+          <AirbnbSearchBar 
+            onSearch={handleSearch}
+            className="shadow-2xl"
+          />
+        </div>
+      </motion.div>
+
+      {/* 3D Animated Tab Navigation - Positioned below search bar */}
+      <motion.div 
+        className="relative z-40 mt-4 sm:mt-6 md:mt-8 lg:mt-8 border-none bg-black"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
-        style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4), rgba(0,0,0,0.8), rgba(0,0,0,1))',
-          backdropFilter: 'blur(60px) brightness(1.2)',
-          WebkitBackdropFilter: 'blur(60px) brightness(1.2)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
-        }}
       >
         <div className="px-4 py-6 sm:py-5 md:py-4 lg:py-4 flex justify-center">
           <TabNavigation 
