@@ -111,7 +111,7 @@ export default function SimpleMemberDashboard() {
                     </Text>
                     <Button 
                       onClick={() => handleServiceBooking(service.id)}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
                       Book Service
                     </Button>

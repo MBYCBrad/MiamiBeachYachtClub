@@ -162,7 +162,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
             </span>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl"
             >
               Book
             </Button>

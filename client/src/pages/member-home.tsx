@@ -294,7 +294,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
-                              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none shadow-lg shadow-blue-500/25"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             >
                               Book Service
                             </Button>
