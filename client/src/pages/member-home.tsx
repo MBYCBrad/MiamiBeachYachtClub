@@ -138,7 +138,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
 
         {/* Hero Content */}
-        <div className="absolute inset-0 flex items-start justify-center text-center px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16">
+        <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -184,16 +184,16 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
       {/* 3D Animated Tab Navigation - Positioned below hero section */}
       <motion.div 
-        className="relative z-40 -mt-8 border-none"
+        className="relative z-40 -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
-          backdropFilter: 'blur(40px) brightness(1.1)',
-          WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.4), rgba(0,0,0,0.8), rgba(0,0,0,1))',
+          backdropFilter: 'blur(60px) brightness(1.2)',
+          WebkitBackdropFilter: 'blur(60px) brightness(1.2)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
         }}
       >
         <div className="px-4 py-4 flex justify-center">
