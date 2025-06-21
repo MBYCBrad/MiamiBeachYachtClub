@@ -291,62 +291,65 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   </TabsList>
 
                   <TabsContent value="dates">
-                    <div className="flex space-x-8">
-                      {/* Current Month */}
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-semibold text-lg text-white">
-                            {format(calendarMonth, 'MMMM yyyy')}
-                          </h3>
-                          <div className="flex space-x-2">
-                            <Button
-                              onClick={prevMonth}
-                              variant="ghost"
-                              size="sm"
-                              className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
-                            >
-                              <ChevronLeft size={16} />
-                            </Button>
-                            <Button
-                              onClick={nextMonth}
-                              variant="ghost"
-                              size="sm"
-                              className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
-                            >
-                              <ChevronRight size={16} />
-                            </Button>
+                    <div className="flex justify-center">
+                      <div className="flex space-x-8 max-w-[700px]">
+                        {/* Current Month */}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-semibold text-lg text-white">
+                              {format(calendarMonth, 'MMMM yyyy')}
+                            </h3>
+                            <div className="flex space-x-2">
+                              <Button
+                                onClick={prevMonth}
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
+                              >
+                                <ChevronLeft size={16} />
+                              </Button>
+                              <Button
+                                onClick={nextMonth}
+                                variant="ghost"
+                                size="sm"
+                                className="p-2 text-gray-300 hover:text-white hover:bg-white/10"
+                              >
+                                <ChevronRight size={16} />
+                              </Button>
+                            </div>
                           </div>
+                          <Calendar
+                            mode="single"
+                            selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
+                            onSelect={(date) => handleDateSelect(date, activeField)}
+                            month={calendarMonth}
+                            className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
+                            disabled={(date) => date < new Date()}
+                          />
                         </div>
-                        <Calendar
-                          mode="single"
-                          selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
-                          onSelect={(date) => handleDateSelect(date, activeField)}
-                          month={calendarMonth}
-                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
-                          disabled={(date) => date < new Date()}
-                        />
-                      </div>
 
-                      {/* Next Month */}
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-semibold text-lg text-white">
-                            {format(addDays(calendarMonth, 32), 'MMMM yyyy')}
-                          </h3>
+                        {/* Next Month */}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-semibold text-lg text-white">
+                              {format(addDays(calendarMonth, 32), 'MMMM yyyy')}
+                            </h3>
+                          </div>
+                          <Calendar
+                            mode="single"
+                            selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
+                            onSelect={(date) => handleDateSelect(date, activeField)}
+                            month={addDays(calendarMonth, 32)}
+                            className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
+                            disabled={(date) => date < new Date()}
+                          />
                         </div>
-                        <Calendar
-                          mode="single"
-                          selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
-                          onSelect={(date) => handleDateSelect(date, activeField)}
-                          month={addDays(calendarMonth, 32)}
-                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
-                          disabled={(date) => date < new Date()}
-                        />
                       </div>
                     </div>
 
                     {/* Quick Date Options */}
-                    <div className="flex space-x-2 mt-6 flex-wrap">
+                    <div className="flex justify-center">
+                      <div className="flex space-x-2 mt-6 flex-wrap justify-center">
                       {[
                         { label: 'Exact dates', days: 0 },
                         { label: '± 1 day', days: 1 },
@@ -364,6 +367,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           {option.label}
                         </Button>
                       ))}
+                      </div>
                     </div>
                   </TabsContent>
                 </Tabs>
