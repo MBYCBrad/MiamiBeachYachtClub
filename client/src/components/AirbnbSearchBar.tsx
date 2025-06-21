@@ -256,7 +256,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 w-[800px] max-w-[90vw] bg-black/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-500/30 z-[9999] overflow-hidden"
+            className="absolute top-full mt-2 left-0 right-0 mx-auto w-full max-w-[800px] bg-black/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-500/30 z-[9999] overflow-hidden"
           >
             {/* Where Dropdown */}
             {activeField === 'where' && (
