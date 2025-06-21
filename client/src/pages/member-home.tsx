@@ -16,9 +16,12 @@ import {
   Fuel,
   Shield,
   Calendar,
-  Filter
+  Filter,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
-import VideoBackground from '@/components/VideoBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
@@ -53,6 +56,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
   const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
@@ -97,7 +102,38 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     <div className="min-h-screen bg-black text-white overflow-auto">
       {/* Hero Video Background */}
       <div className="relative h-[60vh] overflow-hidden">
-        <VideoBackground showControls={true} overlay={true} />
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+        >
+          <source src="https://player.vimeo.com/external/451878268.hd.mp4?s=ea6d8a05c6ad9c53d41cfbc74b2a7f45bd0f9d46&profile_id=175" type="video/mp4" />
+        </video>
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-purple-900/20 to-black/80" />
+        
+        {/* Video Controls */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
+          >
+            {isVideoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMuted(!isMuted)}
+            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+        </div>
 
         {/* Hero Content */}
         <div className="absolute inset-0 flex items-center justify-center text-center px-4">
