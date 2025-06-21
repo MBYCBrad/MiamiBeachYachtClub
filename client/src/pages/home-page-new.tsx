@@ -40,7 +40,9 @@ export default function HomePage() {
       case 'service_provider':
         return <ServiceProviderDashboard />;
       case 'admin':
-        return <AdminDashboard />;
+        // Redirect admin users to the new admin dashboard
+        window.location.href = '/admin';
+        return null;
       default:
         return renderMemberContent();
     }

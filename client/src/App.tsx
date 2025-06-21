@@ -13,12 +13,14 @@ import ServiceDetail from "@/pages/service-detail";
 import EventDetail from "@/pages/event-detail";
 import EventsPage from "@/pages/events-page";
 import CheckoutPage from "@/pages/checkout";
+import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
