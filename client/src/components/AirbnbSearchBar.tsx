@@ -89,8 +89,17 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
   });
   
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [dateSelection, setDateSelection] = useState<'dates' | 'months' | 'flexible'>('dates');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | undefined>(undefined);
   const searchBarRef = useRef<HTMLDivElement>(null);
+
+  // Available 4-hour time slots
+  const timeSlots = [
+    { id: 'morning', label: 'Morning Charter', time: '8:00 AM - 12:00 PM', description: 'Perfect for sunrise cruising' },
+    { id: 'midday', label: 'Midday Charter', time: '12:00 PM - 4:00 PM', description: 'Ideal for lunch and swimming' },
+    { id: 'afternoon', label: 'Afternoon Charter', time: '4:00 PM - 8:00 PM', description: 'Great for sunset viewing' },
+    { id: 'evening', label: 'Evening Charter', time: '6:00 PM - 10:00 PM', description: 'Perfect for dinner cruises' }
+  ];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -108,24 +117,15 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
     setActiveField('checkin');
   };
 
-  const handleDateSelect = (date: Date | undefined, type: 'checkin' | 'checkout') => {
+  const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
-    
-    setSearchCriteria(prev => {
-      const newCriteria = { ...prev };
-      if (type === 'checkin') {
-        newCriteria.checkIn = date;
-        // Auto-advance to checkout if not set
-        if (!prev.checkOut) {
-          setActiveField('checkout');
-        }
-      } else {
-        newCriteria.checkOut = date;
-        // Auto-advance to guests
-        setActiveField('who');
-      }
-      return newCriteria;
-    });
+    setSelectedDate(date);
+    setSearchCriteria(prev => ({ ...prev, checkIn: date, checkOut: date }));
+  };
+
+  const handleTimeSlotSelect = (timeSlotId: string) => {
+    setSelectedTimeSlot(timeSlotId);
+    setActiveField('who');
   };
 
   const handleGuestChange = (type: keyof typeof searchCriteria.guests, increment: boolean) => {
@@ -179,9 +179,9 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   <div className="font-semibold text-white text-base">Where to?</div>
                   <div className="text-sm text-gray-300 mt-0.5">
                     {searchCriteria.location ? `${searchCriteria.location} • ` : 'Anywhere • '}
-                    {searchCriteria.checkIn && searchCriteria.checkOut ? 
-                      `${format(searchCriteria.checkIn, 'MMM d')} - ${format(searchCriteria.checkOut, 'MMM d')} • ` : 
-                      'Any week • '
+                    {selectedDate && selectedTimeSlot ? 
+                      `${format(selectedDate, 'MMM d')} ${timeSlots.find(slot => slot.id === selectedTimeSlot)?.time} • ` : 
+                      'Any date & time • '
                     }
                     {getTotalGuests() > 0 ? `${getTotalGuests()} guests` : 'Add guests'}
                   </div>
@@ -221,31 +221,20 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
 
         <div className="w-px h-8 bg-white/20" />
 
-        {/* Check in */}
+        {/* Date & Time */}
         <button
           onClick={() => setActiveField(activeField === 'checkin' ? null : 'checkin')}
           className={cn(
-            "flex-1 text-left px-6 py-3 transition-colors hover:bg-white/5"
+            "flex-1 text-left px-6 py-3 transition-colors hover:bg-white/5",
+            activeField === 'checkin' ? "bg-white/10" : ""
           )}
         >
-          <div className="font-semibold text-white">Check in</div>
+          <div className="font-semibold text-white">Date & Time</div>
           <div className="text-sm text-gray-300">
-            {searchCriteria.checkIn ? format(searchCriteria.checkIn, 'MMM d') : 'Add dates'}
-          </div>
-        </button>
-
-        <div className="w-px h-8 bg-white/20" />
-
-        {/* Check out */}
-        <button
-          onClick={() => setActiveField(activeField === 'checkout' ? null : 'checkout')}
-          className={cn(
-            "flex-1 text-left px-6 py-3 transition-colors hover:bg-white/5"
-          )}
-        >
-          <div className="font-semibold text-white">Check out</div>
-          <div className="text-sm text-gray-300">
-            {searchCriteria.checkOut ? format(searchCriteria.checkOut, 'MMM d') : 'Add dates'}
+            {selectedDate && selectedTimeSlot ? 
+              `${format(selectedDate, 'MMM d')} • ${timeSlots.find(slot => slot.id === selectedTimeSlot)?.time.split(' - ')[0]}` : 
+              'Select charter slot'
+            }
           </div>
         </button>
 
@@ -307,17 +296,23 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
               </div>
             )}
 
-            {/* Date Dropdowns */}
+            {/* Date and Time Selection */}
             {(activeField === 'checkin' || activeField === 'checkout') && (
               <div className="p-6">
-                <Tabs value={dateSelection} onValueChange={(v) => setDateSelection(v as any)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6 bg-white/10 border-purple-500/30">
-                    <TabsTrigger value="dates" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Dates</TabsTrigger>
-                    <TabsTrigger value="months" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Months</TabsTrigger>
-                    <TabsTrigger value="flexible" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-300">Flexible</TabsTrigger>
-                  </TabsList>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2 text-white">Select Your Charter Date & Time</h3>
+                  <p className="text-sm text-gray-300">Choose a date and 4-hour time slot for your yacht experience</p>
+                </div>
 
-                  <TabsContent value="dates">
+                {/* Two-Step Process */}
+                <div className="space-y-8">
+                  {/* Step 1: Date Selection */}
+                  <div>
+                    <h4 className="text-md font-medium mb-4 text-white flex items-center">
+                      <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm mr-3">1</span>
+                      Choose your date
+                    </h4>
+                    
                     <div className="flex justify-center">
                       <div className="flex flex-col md:flex-row md:space-x-8 space-y-6 md:space-y-0 max-w-[700px] w-full">
                         {/* Current Month */}
@@ -329,8 +324,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           </div>
                           <Calendar
                             mode="single"
-                            selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
-                            onSelect={(date) => handleDateSelect(date, activeField)}
+                            selected={selectedDate}
+                            onSelect={handleDateSelect}
                             month={calendarMonth}
                             onMonthChange={setCalendarMonth}
                             className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white [&_.rdp-nav_button]:text-gray-300 [&_.rdp-nav_button:hover]:text-white [&_.rdp-nav_button:hover]:bg-white/10"
@@ -340,15 +335,15 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
 
                         {/* Next Month - Hidden on mobile */}
                         <div className="hidden md:block flex-1">
-                          <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center justify-center mb-4">
                             <h3 className="font-semibold text-lg text-white">
                               {format(addDays(calendarMonth, 32), 'MMMM yyyy')}
                             </h3>
                           </div>
                           <Calendar
                             mode="single"
-                            selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
-                            onSelect={(date) => handleDateSelect(date, activeField)}
+                            selected={selectedDate}
+                            onSelect={handleDateSelect}
                             month={addDays(calendarMonth, 32)}
                             className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
                             disabled={(date) => date < new Date()}
@@ -356,31 +351,39 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Quick Date Options */}
-                    <div className="flex justify-center">
-                      <div className="flex space-x-2 mt-6 flex-wrap justify-center">
-                      {[
-                        { label: 'Exact dates', days: 0 },
-                        { label: '± 1 day', days: 1 },
-                        { label: '± 2 days', days: 2 },
-                        { label: '± 3 days', days: 3 },
-                        { label: '± 7 days', days: 7 },
-                        { label: '± 14 days', days: 14 }
-                      ].map((option) => (
-                        <Button
-                          key={option.label}
-                          variant="outline"
-                          size="sm"
-                          className="rounded-full border-gray-600 bg-gray-800 text-white hover:text-white hover:bg-gray-700 hover:border-gray-500"
-                        >
-                          {option.label}
-                        </Button>
-                      ))}
+                  {/* Step 2: Time Slot Selection - Only show if date is selected */}
+                  {selectedDate && (
+                    <div>
+                      <h4 className="text-md font-medium mb-4 text-white flex items-center">
+                        <span className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm mr-3">2</span>
+                        Select your 4-hour time slot
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {timeSlots.map((slot) => (
+                          <motion.button
+                            key={slot.id}
+                            onClick={() => handleTimeSlotSelect(slot.id)}
+                            className={cn(
+                              "p-4 rounded-xl border-2 transition-all duration-200 text-left",
+                              selectedTimeSlot === slot.id 
+                                ? "border-purple-500 bg-purple-500/20" 
+                                : "border-gray-600 bg-gray-800/50 hover:border-purple-400 hover:bg-purple-500/10"
+                            )}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="font-semibold text-white">{slot.label}</div>
+                            <div className="text-purple-300 text-sm mt-1">{slot.time}</div>
+                            <div className="text-gray-400 text-xs mt-2">{slot.description}</div>
+                          </motion.button>
+                        ))}
                       </div>
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  )}
+                </div>
               </div>
             )}
 
