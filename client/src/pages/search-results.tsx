@@ -21,7 +21,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 
 interface SearchResultsProps {
   currentView: string;
@@ -151,10 +150,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
     }
   };
 
-  const handleNewSearch = (criteria: any) => {
-    // Handle new search from the search bar
-    console.log('New search:', criteria);
-  };
+
 
   const getTotalGuests = () => {
     if (!searchCriteria) return 0;
@@ -167,11 +163,19 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-xl border-b border-purple-500/30 shadow-2xl">
+    <div className="min-h-screen bg-black">
+      {/* Back to Explore Breadcrumb */}
+      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-xl border-b border-gray-800 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <AirbnbSearchBar onSearch={handleNewSearch} />
+          <button
+            onClick={() => setCurrentView('home')}
+            className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-sm font-medium">Back to Explore</span>
+          </button>
         </div>
       </div>
 
