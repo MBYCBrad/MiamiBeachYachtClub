@@ -183,26 +183,19 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       </div>
 
       {/* 3D Animated Tab Navigation - Below search bar */}
-      <motion.div 
-        className="relative z-40 -mt-8 border-none"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.0 }}
-        style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
-          backdropFilter: 'blur(40px) brightness(1.1)',
-          WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
-        }}
-      >
-        <div className="px-4 py-3 flex justify-center">
+      <div className="absolute inset-x-0 z-40" style={{ top: 'calc(45vh + 80px)' }}>
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+          className="flex justify-center px-4 py-2"
+        >
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
           />
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
