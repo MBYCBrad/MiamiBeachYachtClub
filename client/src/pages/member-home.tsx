@@ -166,14 +166,18 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
             transition={{ duration: 1, ease: "easeOut" }}
             className="max-w-4xl mx-auto w-full"
           >
-            <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
+            <motion.div
+              className="mb-2 sm:mb-3"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
             >
-              MBYC
-            </motion.h1>
+              <img 
+                src="/api/media/MBYC-LOGO-WHITE_1750532808484.png" 
+                alt="Miami Beach Yacht Club Logo"
+                className="w-64 sm:w-80 md:w-96 lg:w-[500px] h-auto mx-auto"
+              />
+            </motion.div>
             <motion.p 
               className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 30 }}
