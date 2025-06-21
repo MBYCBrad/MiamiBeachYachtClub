@@ -215,24 +215,26 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         }}
       />
 
-      {/* Navigation Icons - Separate layer with no blur effects */}
+      {/* Navigation Icons - Fixed position at bottom */}
       <motion.div 
-        className="absolute left-0 right-0 flex justify-center px-4"
+        className="fixed bottom-20 left-0 right-0 flex justify-center px-4"
         style={{ 
-          top: 'calc(100vh - 140px)',
-          zIndex: 9999,
+          zIndex: 10000,
           isolation: 'isolate',
           transform: 'translateZ(0)',
-          willChange: 'transform'
+          willChange: 'transform',
+          pointerEvents: 'none'
         }}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.2 }}
       >
-        <TabNavigation 
-          activeTab={selectedCategory}
-          onTabChange={setSelectedCategory}
-        />
+        <div style={{ pointerEvents: 'auto' }}>
+          <TabNavigation 
+            activeTab={selectedCategory}
+            onTabChange={setSelectedCategory}
+          />
+        </div>
       </motion.div>
 
       {/* Content */}
