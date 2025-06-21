@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 
 // Import original member pages
 import MemberHome from '@/pages/member-home';
-import MemberMessages from '@/pages/member-messages';
-import MemberFavorites from '@/pages/member-favorites';
+import MemberTrips from '@/pages/member-trips';
+import MemberMessages from '@/pages/member-messages-new';
+import MemberFavorites from '@/pages/member-favorites-new';
 import MemberProfile from '@/pages/member-profile';
 
 // Import dashboard components for other roles
@@ -47,7 +48,7 @@ export default function HomePage() {
       case 'explore':
         return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
       case 'trips':
-        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
+        return <MemberTrips currentView={currentView} setCurrentView={setCurrentView} />;
       case 'favorites':
         return <MemberFavorites currentView={currentView} setCurrentView={setCurrentView} />;
       case 'messages':
