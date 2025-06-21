@@ -57,14 +57,13 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
       }}
       whileTap={{ scale: 0.98 }}
       className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 cursor-pointer overflow-hidden
-        hover:shadow-[0_20px_50px_rgba(168,85,247,0.6),0_20px_50px_rgba(59,130,246,0.4)] 
-        hover:border-purple-400/80
+        hover:shadow-[0_0_40px_rgba(168,85,247,0.5),0_0_60px_rgba(59,130,246,0.3),0_0_80px_rgba(139,92,246,0.2)] 
+        hover:border-transparent
         hover:bg-gray-800/50
-        before:absolute before:inset-0 before:bg-gradient-to-br before:from-purple-600/20 before:via-purple-500/10 before:to-blue-600/20 before:opacity-0 before:transition-all before:duration-500
+        before:absolute before:inset-0 before:rounded-2xl before:p-[2px] before:bg-gradient-to-r before:from-purple-500 before:via-blue-500 before:to-purple-600 before:opacity-0 before:transition-opacity before:duration-500
         hover:before:opacity-100
-        after:absolute after:inset-0 after:bg-gradient-to-tl after:from-blue-600/15 after:via-transparent after:to-purple-600/15 after:opacity-0 after:transition-all after:duration-500
-        hover:after:opacity-100
-        [&:hover]:after:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.8),inset_0_0_0_1px_rgba(59,130,246,0.6)]"
+        after:absolute after:inset-[2px] after:rounded-2xl after:bg-gray-800/90 after:opacity-0 after:transition-opacity after:duration-500
+        hover:after:opacity-100"
     >
       <div className="relative z-10">
         <div className="relative overflow-hidden rounded-t-2xl">
