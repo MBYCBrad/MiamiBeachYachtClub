@@ -216,9 +216,9 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-xl border-b border-purple-500/30 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <AirbnbSearchBar onSearch={handleNewSearch} />
         </div>
@@ -228,11 +228,11 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-2xl font-semibold text-white">
               Over {mockResults.length * 100} yacht charters
             </h1>
             {searchCriteria && (
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-300 mt-1">
                 {searchCriteria.location && `${searchCriteria.location} • `}
                 {getDateRange() && `${getDateRange()} • `}
                 {getTotalGuests() > 0 && `${getTotalGuests()} guests`}
@@ -242,12 +242,17 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
           <div className="flex items-center space-x-4">
             {/* View Toggle */}
-            <div className="flex items-center bg-white border border-gray-300 rounded-lg p-1">
+            <div className="flex items-center bg-gray-800/50 border border-purple-500/30 rounded-lg p-1">
               <Button
                 onClick={() => setViewType('list')}
                 variant={viewType === 'list' ? 'default' : 'ghost'}
                 size="sm"
-                className="px-3"
+                className={cn(
+                  "px-3",
+                  viewType === 'list' 
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
+                    : "text-gray-300 hover:text-white"
+                )}
               >
                 <List size={16} className="mr-2" />
                 List
@@ -256,7 +261,12 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                 onClick={() => setViewType('map')}
                 variant={viewType === 'map' ? 'default' : 'ghost'}
                 size="sm"
-                className="px-3"
+                className={cn(
+                  "px-3",
+                  viewType === 'map' 
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
+                    : "text-gray-300 hover:text-white"
+                )}
               >
                 <Map size={16} className="mr-2" />
                 Map
@@ -264,7 +274,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
             </div>
 
             {/* Filters */}
-            <Button variant="outline" className="flex items-center space-x-2">
+            <Button variant="outline" className="flex items-center space-x-2 border-purple-500/30 bg-gray-800/50 text-gray-300 hover:text-white hover:border-purple-400">
               <Filter size={16} />
               <span>Filters</span>
             </Button>
@@ -281,9 +291,9 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+                className="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl border border-purple-500/20 hover:border-purple-400/50 transition-all duration-200"
               >
-                <Card className="border-none shadow-none">
+                <Card className="border-none shadow-none bg-transparent">
                   <div className="relative">
                     {/* Image */}
                     <div className="aspect-square overflow-hidden rounded-t-xl">
@@ -312,14 +322,14 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
                     {/* Guest Favorite Badge */}
                     {yacht.isGuestFavorite && (
-                      <Badge className="absolute top-3 left-3 bg-white text-gray-900 hover:bg-white">
+                      <Badge className="absolute top-3 left-3 bg-white/90 text-gray-900 hover:bg-white">
                         Guest favourite
                       </Badge>
                     )}
 
                     {/* Superhost Badge */}
                     {yacht.host.isSuperhost && (
-                      <Badge className="absolute bottom-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white">
+                      <Badge className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
                         Superhost
                       </Badge>
                     )}
@@ -328,24 +338,24 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                   <CardContent className="p-4">
                     {/* Location & Rating */}
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 truncate">
+                      <h3 className="font-semibold text-white truncate">
                         {yacht.location}
                       </h3>
                       <div className="flex items-center space-x-1">
-                        <Star size={14} className="fill-current text-gray-900" />
-                        <span className="text-sm font-medium text-gray-900">
+                        <Star size={14} className="fill-current text-yellow-400" />
+                        <span className="text-sm font-medium text-white">
                           {yacht.rating}
                         </span>
                       </div>
                     </div>
 
                     {/* Yacht Details */}
-                    <p className="text-gray-600 text-sm mb-2 truncate">
+                    <p className="text-gray-300 text-sm mb-2 truncate">
                       {yacht.name}
                     </p>
 
                     {/* Specs */}
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
+                    <div className="flex items-center space-x-4 text-xs text-gray-400 mb-3">
                       <span>{yacht.size}</span>
                       <span>•</span>
                       <span>{yacht.type}</span>
@@ -358,14 +368,14 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                       {yacht.amenities.slice(0, 4).map((amenity, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center text-gray-500"
+                          className="flex items-center text-purple-400"
                           title={amenity}
                         >
                           {getAmenityIcon(amenity)}
                         </div>
                       ))}
                       {yacht.amenities.length > 4 && (
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-400">
                           +{yacht.amenities.length - 4} more
                         </span>
                       )}
@@ -373,10 +383,10 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
                     {/* Price */}
                     <div className="flex items-baseline space-x-1">
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-white">
                         ${yacht.price.toLocaleString()}
                       </span>
-                      <span className="text-sm text-gray-600">/ day</span>
+                      <span className="text-sm text-gray-300">/ day</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -387,7 +397,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="px-8">
+          <Button variant="outline" size="lg" className="px-8 border-purple-500/30 bg-gray-800/50 text-white hover:bg-purple-600/20 hover:border-purple-400">
             Continue exploring
           </Button>
         </div>
