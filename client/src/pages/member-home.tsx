@@ -199,19 +199,9 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Navigation Icons - Positioned absolutely above everything */}
-      <div className="absolute bottom-20 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto">
-          <TabNavigation 
-            activeTab={selectedCategory}
-            onTabChange={setSelectedCategory}
-          />
-        </div>
-      </div>
-
-      {/* Blur Background Layer */}
+      {/* 3D Animated Tab Navigation with enhanced z-index */}
       <motion.div 
-        className="relative z-30 -mt-20 border-none"
+        className="relative -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
@@ -220,11 +210,17 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           backdropFilter: 'blur(40px) brightness(1.1)',
           WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
+          isolation: 'isolate'
         }}
       >
-        <div className="px-4 py-1 flex justify-center">
-          <div style={{ height: '60px' }}></div>
+        <div className="px-4 py-1 flex justify-center relative" style={{ zIndex: 1000 }}>
+          <div style={{ position: 'relative', zIndex: 1000, isolation: 'isolate' }}>
+            <TabNavigation 
+              activeTab={selectedCategory}
+              onTabChange={setSelectedCategory}
+            />
+          </div>
         </div>
       </motion.div>
 
