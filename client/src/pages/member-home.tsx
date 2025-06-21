@@ -28,16 +28,7 @@ import { cn } from '@/lib/utils';
 import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
 
-const YACHT_IMAGES = [
-  "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1582719366682-5a7e5e44c0d7?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=800&h=600&fit=crop"
-];
+
 
 const SERVICE_IMAGES = [
   "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
@@ -82,9 +73,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     });
   };
 
-  const getYachtImage = (index: number) => {
-    return YACHT_IMAGES[index % YACHT_IMAGES.length];
-  };
+
 
   const getServiceImage = (index: number) => {
     return SERVICE_IMAGES[index % SERVICE_IMAGES.length];
@@ -422,7 +411,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               
               <div className="relative">
                 <img
-                  src={getYachtImage(selectedYacht.id - 1)}
+                  src={selectedYacht.imageUrl || `https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop&crop=center`}
                   alt={selectedYacht.name}
                   className="w-full h-80 object-cover rounded-lg"
                 />

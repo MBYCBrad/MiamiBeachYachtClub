@@ -5,6 +5,24 @@ import { Button } from "@/components/ui/button";
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
 
+// High-quality yacht images from Unsplash
+const YACHT_IMAGES = [
+  "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop&crop=center", // Luxury yacht at sea
+  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop&crop=center", // White yacht on blue water
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center", // Motor yacht deck view
+  "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&h=600&fit=crop&crop=center", // Sailing yacht with sails
+  "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop&crop=center", // Modern luxury yacht
+  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&crop=center", // Yacht at marina
+  "https://images.unsplash.com/photo-1606851094655-9533075b2f99?w=800&h=600&fit=crop&crop=center", // Yacht interior luxury
+  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&crop=center", // Yacht on ocean
+  "https://images.unsplash.com/photo-1607675985280-17da4b45ede0?w=800&h=600&fit=crop&crop=center", // Sleek yacht design
+  "https://images.unsplash.com/photo-1593698054469-2997c85cc973?w=800&h=600&fit=crop&crop=center"  // Premium yacht bow
+];
+
+const getYachtImage = (yachtId: number) => {
+  return YACHT_IMAGES[yachtId % YACHT_IMAGES.length];
+};
+
 interface YachtCardProps {
   yacht: Yacht;
   index?: number;
@@ -48,7 +66,7 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
       <div className="relative z-10">
         <div className="relative overflow-hidden rounded-t-2xl">
           <motion.img 
-            src={yacht.imageUrl || 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300'} 
+            src={yacht.imageUrl || getYachtImage(yacht.id)} 
             alt={yacht.name}
             className="w-full h-48 object-cover"
             whileHover={{ 
