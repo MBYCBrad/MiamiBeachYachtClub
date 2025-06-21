@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Search, Filter, Heart } from 'lucide-react';
+import { Search, Filter, Heart, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Yacht } from '@shared/schema';
@@ -91,7 +91,8 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 min-w-full"
+              className="flex gap-4 pb-4 min-w-full"
+              style={{ width: 'max-content' }}
             >
               {filteredYachts.map((yacht, index) => (
                 <motion.div
@@ -101,8 +102,10 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  className="group relative bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer flex-shrink-0"
                   style={{
+                    width: '280px',
+                    height: '320px',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
                   }}
                 >
@@ -120,36 +123,48 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
                   />
 
                   {/* Yacht Image */}
-                  <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+                  <div className="relative h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute top-1 right-1 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-1"
+                      className="absolute top-3 right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2"
                     >
-                      <Heart size={12} />
+                      <Heart size={16} />
                     </Button>
+                    
+                    {/* Rating Badge */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-white text-sm font-medium">4.9</span>
+                    </div>
                   </div>
 
                   {/* Yacht Info */}
-                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                  <div className="p-4 flex flex-col justify-between flex-1">
                     <div>
-                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                      <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors mb-1">
                         {yacht.name}
                       </h3>
-                      <p className="text-gray-400 text-xs truncate">
+                      <p className="text-gray-400 text-sm mb-2">
                         {yacht.location}
+                      </p>
+                      <p className="text-gray-300 text-sm">
+                        {yacht.size}ft • {yacht.capacity} guests
                       </p>
                     </div>
                     
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xs font-bold text-white">
-                        ${yacht.pricePerHour ? Math.round(parseFloat(yacht.pricePerHour)/100) + 'K' : 'Ask'}
-                        <span className="text-xs text-gray-400 font-normal">/hr</span>
+                    <div className="flex justify-between items-center mt-4">
+                      <span className="text-lg font-bold text-white">
+                        ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
+                        <span className="text-sm text-gray-400 font-normal">/hour</span>
                       </span>
-                      <span className="text-xs text-gray-400">
-                        {yacht.size}ft
-                      </span>
+                      <Button 
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-4"
+                      >
+                        Book
+                      </Button>
                     </div>
                   </div>
                 </motion.div>

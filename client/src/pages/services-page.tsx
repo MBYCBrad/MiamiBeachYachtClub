@@ -91,7 +91,8 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 min-w-full"
+              className="flex gap-4 pb-4 min-w-full"
+              style={{ width: 'max-content' }}
             >
               {filteredServices.map((service, index) => (
                 <motion.div
@@ -101,8 +102,10 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  className="group relative bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer flex-shrink-0"
                   style={{
+                    width: '280px',
+                    height: '320px',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
                   }}
                 >
