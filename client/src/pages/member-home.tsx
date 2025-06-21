@@ -125,12 +125,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               <source src={heroVideo.url} type={heroVideo.mimeType || "video/mp4"} />
             </video>
             
-            {/* Blur Edge Transition */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm" />
-            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/40 to-transparent" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/40 to-transparent" />
+            {/* Seamless Edge Transition */}
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/60 via-black/30 via-black/10 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/80 via-black/40 via-black/20 to-transparent" />
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/60 via-black/30 via-black/10 to-transparent" />
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black/60 via-black/30 via-black/10 to-transparent" />
           </>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black" />
@@ -168,7 +167,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
             className="max-w-4xl mx-auto"
           >
             <motion.h1 
-              className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
+              className="text-5xl md:text-7xl font-bold mb-3 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
@@ -176,7 +175,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Luxury Awaits
             </motion.h1>
             <motion.p 
-              className="text-xl md:text-2xl text-gray-200 mb-8"
+              className="text-xl md:text-2xl text-gray-200 mb-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -207,7 +206,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="px-4 py-6 flex justify-center">
+        <div className="px-4 py-3 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
