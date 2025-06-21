@@ -88,90 +88,88 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
       {/* Events Grid */}
       <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-800 rounded-2xl h-64 sm:h-72 animate-pulse" />
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="aspect-square bg-gray-800 rounded-xl animate-pulse" />
             ))}
           </div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          >
-            {filteredEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover-lift card-hover"
-              >
-                {/* Event Image */}
-                <div className="relative h-48 bg-gradient-to-br from-purple-900/30 to-pink-900/30">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <div className="bg-purple-600/80 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      <Calendar size={12} className="inline mr-1" />
-                      {formatDate(event.startTime)}
+          <div className="overflow-x-auto scroll-container">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 min-w-full"
+            >
+              {filteredEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                  }}
+                >
+                  {/* Purple Outline Animation */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
+                    initial={false}
+                    animate={{
+                      borderColor: "rgba(168, 85, 247, 0)",
+                    }}
+                    whileHover={{
+                      borderColor: "rgba(168, 85, 247, 0.6)",
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
+                    }}
+                  />
+
+                  {/* Event Image */}
+                  <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-pink-900/30">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-1 left-1">
+                      <div className="bg-purple-600/80 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                        <Calendar size={10} className="inline mr-1" />
+                        {formatDate(event.startTime)}
+                      </div>
                     </div>
+                    {event.ticketPrice && (
+                      <div className="absolute top-1 right-1 bg-black/40 px-1.5 py-0.5 rounded-full">
+                        <span className="text-white text-xs font-medium">
+                          ${event.ticketPrice}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  {event.ticketPrice && (
-                    <div className="absolute top-3 right-3 bg-black/40 px-2 py-1 rounded-full">
-                      <span className="text-white text-xs font-medium">
-                        ${event.ticketPrice}
+
+                  {/* Event Info */}
+                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                        {event.title}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {event.location || 'Exclusive Event'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-xs font-bold text-white">
+                        {event.ticketPrice ? `$${event.ticketPrice}` : 'Free'}
+                        <span className="text-xs text-gray-400 font-normal">/person</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {event.capacity ? `${event.capacity} spots` : 'Limited'}
                       </span>
                     </div>
-                  )}
-                </div>
-
-                {/* Event Info */}
-                <div className="p-4">
-                  <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors mb-2">
-                    {event.title}
-                  </h3>
-                  
-                  {event.description && (
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between text-gray-400 text-sm mb-4">
-                    {event.location && (
-                      <div className="flex items-center">
-                        <MapPin size={14} className="mr-1" />
-                        <span>{event.location}</span>
-                      </div>
-                    )}
-                    {event.capacity && (
-                      <div className="flex items-center">
-                        <Users size={14} className="mr-1" />
-                        <span>{event.capacity} guests</span>
-                      </div>
-                    )}
                   </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-400">
-                      {new Date(event.startTime).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 rounded-xl px-6"
-                    >
-                      Register
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         )}
       </div>
     </div>

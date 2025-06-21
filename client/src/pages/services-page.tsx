@@ -77,75 +77,89 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
         </div>
       </div>
 
-      {/* Services Grid */}
-      <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
+      {/* Services Grid - Airbnb Style */}
+      <div className="px-3 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-800 rounded-2xl h-56 sm:h-64 animate-pulse" />
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="aspect-square bg-gray-800 rounded-xl animate-pulse" />
             ))}
           </div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-          >
-            {filteredServices.map((service, index) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover-lift card-hover"
-              >
-                {/* Service Image */}
-                <div className="relative h-40 bg-gradient-to-br from-blue-900/30 to-purple-900/30">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="px-3 py-1 bg-blue-600/80 text-white text-xs rounded-full font-medium">
-                      {service.category}
-                    </span>
-                  </div>
-                  {service.rating && (
-                    <div className="absolute top-3 right-3 flex items-center space-x-1 bg-black/40 px-2 py-1 rounded-full">
-                      <Star size={12} className="text-yellow-400 fill-current" />
-                      <span className="text-white text-xs font-medium">{service.rating}</span>
+          <div className="overflow-x-auto scroll-container">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 min-w-full"
+            >
+              {filteredServices.map((service, index) => (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  style={{
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                  }}
+                >
+                  {/* Purple Outline Animation */}
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
+                    initial={false}
+                    animate={{
+                      borderColor: "rgba(168, 85, 247, 0)",
+                    }}
+                    whileHover={{
+                      borderColor: "rgba(168, 85, 247, 0.6)",
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
+                    }}
+                  />
+
+                  {/* Service Image */}
+                  <div className="relative h-3/5 bg-gradient-to-br from-blue-900/30 to-purple-900/30">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute top-1 left-1">
+                      <span className="px-2 py-0.5 bg-blue-600/80 text-white text-xs rounded-full font-medium">
+                        {service.category}
+                      </span>
                     </div>
-                  )}
-                </div>
-
-                {/* Service Info */}
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors mb-2">
-                    {service.name}
-                  </h3>
-                  
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                    {service.description}
-                  </p>
-
-                  <div className="flex items-center text-gray-400 text-xs mb-3">
-                    <span>{service.duration ? `${service.duration} minutes` : 'Custom duration'}</span>
+                    {service.rating && (
+                      <div className="absolute top-1 right-1 flex items-center space-x-0.5 bg-black/40 px-1.5 py-0.5 rounded-full">
+                        <Star size={10} className="text-yellow-400 fill-current" />
+                        <span className="text-white text-xs font-medium">{service.rating}</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-white">
-                      ${service.pricePerSession ? parseFloat(service.pricePerSession).toLocaleString() : 'Contact'}
-                      {service.pricePerSession && <span className="text-sm text-gray-400 font-normal">/session</span>}
-                    </span>
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6"
-                    >
-                      Book Now
-                    </Button>
+
+                  {/* Service Info */}
+                  <div className="p-2 h-2/5 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {service.description}
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-xs font-bold text-white">
+                        ${service.pricePerSession ? Math.round(parseFloat(service.pricePerSession)/10) + '0' : 'Ask'}
+                        <span className="text-xs text-gray-400 font-normal">/hr</span>
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {service.duration ? `${service.duration}m` : 'Custom'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         )}
       </div>
     </div>
