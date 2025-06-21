@@ -73,7 +73,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
                 className={`flex flex-col items-center justify-center p-2 transition-all duration-300 ${
                   isActive 
                     ? 'text-purple-400' 
-                    : 'text-gray-400 hover:text-white'
+                    : 'text-white hover:text-purple-300'
                 }`}
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}

@@ -8,21 +8,21 @@ interface Animated3DIconProps {
   className?: string;
 }
 
-// 3D Explore Icon (Waves/Ocean)
+// 3D Explore Icon (Yacht Steering Wheel)
 export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24, className }) => {
   const controls = useAnimation();
 
   useEffect(() => {
     if (isActive) {
       controls.start({
+        rotateZ: [0, 360],
         scale: [1, 1.1, 1],
-        rotateY: [0, 10, -10, 0],
-        transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+        transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
       });
     } else {
       controls.start({
+        rotateZ: 0,
         scale: 1,
-        rotateY: 0,
         transition: { duration: 0.3 }
       });
     }
@@ -43,42 +43,64 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
       >
         <defs>
-          <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#60a5fa" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#3b82f6" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#1d4ed8" : "#374151"} />
+          <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="50%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
+          </linearGradient>
+          <linearGradient id="wheelCenter" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f3f4f6" />
+            <stop offset="50%" stopColor="#e5e7eb" />
+            <stop offset="100%" stopColor="#d1d5db" />
           </linearGradient>
         </defs>
         
-        {/* Wave Layers */}
-        <motion.path
-          d="M2 20 Q8 16 16 20 T30 20 V28 H2 Z"
-          fill="url(#waveGradient)"
-          animate={isActive ? { d: ["M2 20 Q8 16 16 20 T30 20 V28 H2 Z", "M2 18 Q8 22 16 18 T30 18 V28 H2 Z", "M2 20 Q8 16 16 20 T30 20 V28 H2 Z"] } : {}}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
+        {/* Outer Wheel Ring */}
+        <circle cx="16" cy="16" r="12" fill="url(#wheelGradient)" stroke="#1e40af" strokeWidth="1" />
+        <circle cx="16" cy="16" r="10" fill="none" stroke="#1e40af" strokeWidth="0.5" />
         
-        <motion.path
-          d="M2 24 Q8 20 16 24 T30 24 V28 H2 Z"
-          fill={isActive ? "#3b82f6" : "#4b5563"}
-          opacity="0.7"
-          animate={isActive ? { d: ["M2 24 Q8 20 16 24 T30 24 V28 H2 Z", "M2 22 Q8 26 16 22 T30 22 V28 H2 Z", "M2 24 Q8 20 16 24 T30 24 V28 H2 Z"] } : {}}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        />
-
-        {/* Floating Elements */}
-        <motion.circle
-          cx="10" cy="12" r="1.5"
-          fill={isActive ? "#fbbf24" : "#6b7280"}
-          animate={isActive ? { y: [0, -2, 0], opacity: [0.7, 1, 0.7] } : {}}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.circle
-          cx="22" cy="10" r="1"
-          fill={isActive ? "#f59e0b" : "#6b7280"}
-          animate={isActive ? { y: [0, -1, 0], opacity: [0.5, 1, 0.5] } : {}}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        />
+        {/* Wheel Spokes */}
+        <g stroke="url(#wheelCenter)" strokeWidth="2" strokeLinecap="round">
+          <line x1="16" y1="6" x2="16" y2="10" />
+          <line x1="16" y1="22" x2="16" y2="26" />
+          <line x1="6" y1="16" x2="10" y2="16" />
+          <line x1="22" y1="16" x2="26" y2="16" />
+          <line x1="10.3" y1="10.3" x2="12.6" y2="12.6" />
+          <line x1="19.4" y1="19.4" x2="21.7" y2="21.7" />
+          <line x1="21.7" y1="10.3" x2="19.4" y2="12.6" />
+          <line x1="12.6" y1="19.4" x2="10.3" y2="21.7" />
+        </g>
+        
+        {/* Center Hub */}
+        <circle cx="16" cy="16" r="4" fill="url(#wheelCenter)" stroke="#6b7280" strokeWidth="1" />
+        <circle cx="16" cy="16" r="2" fill="#374151" />
+        
+        {/* Wheel Grips */}
+        <circle cx="16" cy="6" r="1.5" fill="#f59e0b" />
+        <circle cx="26" cy="16" r="1.5" fill="#f59e0b" />
+        <circle cx="16" cy="26" r="1.5" fill="#f59e0b" />
+        <circle cx="6" cy="16" r="1.5" fill="#f59e0b" />
+        
+        {/* Animation Effects */}
+        {isActive && (
+          <>
+            <motion.circle
+              cx="16" cy="16" r="14"
+              fill="none"
+              stroke="#60a5fa"
+              strokeWidth="0.5"
+              opacity="0.5"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.circle
+              cx="16" cy="16" r="1"
+              fill="#fbbf24"
+              animate={{ scale: [1, 1.5, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </>
+        )}
       </svg>
     </motion.div>
   );
@@ -120,32 +142,32 @@ export const Trips3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24
       >
         <defs>
           <linearGradient id="calendarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#f3f4f6" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#e5e7eb" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#d1d5db" : "#374151"} />
+            <stop offset="0%" stopColor="#f3f4f6" />
+            <stop offset="50%" stopColor="#e5e7eb" />
+            <stop offset="100%" stopColor="#d1d5db" />
           </linearGradient>
         </defs>
         
         {/* Calendar Base */}
         <rect x="6" y="8" width="20" height="18" rx="2" fill="url(#calendarGradient)" />
-        <rect x="6" y="8" width="20" height="5" rx="2" fill={isActive ? "#8b5cf6" : "#4b5563"} />
+        <rect x="6" y="8" width="20" height="5" rx="2" fill="#8b5cf6" />
         
         {/* Calendar Rings */}
-        <rect x="10" y="4" width="2" height="8" rx="1" fill={isActive ? "#6b7280" : "#4b5563"} />
-        <rect x="20" y="4" width="2" height="8" rx="1" fill={isActive ? "#6b7280" : "#4b5563"} />
+        <rect x="10" y="4" width="2" height="8" rx="1" fill="#6b7280" />
+        <rect x="20" y="4" width="2" height="8" rx="1" fill="#6b7280" />
         
         {/* Calendar Dates */}
         <motion.circle
           cx="12" cy="18" r="1.5"
-          fill={isActive ? "#8b5cf6" : "#6b7280"}
+          fill="#8b5cf6"
           animate={isActive ? { scale: [1, 1.2, 1] } : {}}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         />
-        <circle cx="16" cy="18" r="1" fill={isActive ? "#d1d5db" : "#6b7280"} />
-        <circle cx="20" cy="18" r="1" fill={isActive ? "#d1d5db" : "#6b7280"} />
-        <circle cx="12" cy="22" r="1" fill={isActive ? "#d1d5db" : "#6b7280"} />
-        <circle cx="16" cy="22" r="1" fill={isActive ? "#d1d5db" : "#6b7280"} />
-        <circle cx="20" cy="22" r="1" fill={isActive ? "#d1d5db" : "#6b7280"} />
+        <circle cx="16" cy="18" r="1" fill="#d1d5db" />
+        <circle cx="20" cy="18" r="1" fill="#d1d5db" />
+        <circle cx="12" cy="22" r="1" fill="#d1d5db" />
+        <circle cx="16" cy="22" r="1" fill="#d1d5db" />
+        <circle cx="20" cy="22" r="1" fill="#d1d5db" />
       </svg>
     </motion.div>
   );
@@ -187,9 +209,9 @@ export const Favorites3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size 
       >
         <defs>
           <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#f87171" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#ef4444" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#dc2626" : "#374151"} />
+            <stop offset="0%" stopColor="#f87171" />
+            <stop offset="50%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#dc2626" />
           </linearGradient>
         </defs>
         
@@ -280,14 +302,14 @@ export const Messages3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size =
       >
         <defs>
           <linearGradient id="chatGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#60a5fa" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#3b82f6" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#1d4ed8" : "#374151"} />
+            <stop offset="0%" stopColor="#60a5fa" />
+            <stop offset="50%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
           <linearGradient id="chatGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#a78bfa" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#8b5cf6" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#7c3aed" : "#374151"} />
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
         
@@ -383,9 +405,9 @@ export const Menu3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24,
       >
         <defs>
           <linearGradient id="menuGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#f3f4f6" : "#6b7280"} />
-            <stop offset="50%" stopColor={isActive ? "#e5e7eb" : "#4b5563"} />
-            <stop offset="100%" stopColor={isActive ? "#d1d5db" : "#374151"} />
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
         
