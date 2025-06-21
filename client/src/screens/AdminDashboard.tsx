@@ -55,7 +55,7 @@ interface AdminStats {
   };
   topYachts: Array<{ yacht: Yacht; bookings: number; revenue: number }>;
   topServices: Array<{ service: Service; bookings: number; revenue: number }>;
-  membershipDistribution: Record<MembershipTier, number>;
+  membershipDistribution: Record<keyof typeof MembershipTier, number>;
   recentActivity: Array<{
     id: string;
     type: 'booking' | 'registration' | 'payment' | 'cancellation';
@@ -604,7 +604,7 @@ const AdminDashboard: React.FC = () => {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel className="text-white">Membership Tier</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                                     <FormControl>
                                       <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                                         <SelectValue />
@@ -989,7 +989,7 @@ const AdminDashboard: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-white">Membership Tier</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                             <SelectValue />

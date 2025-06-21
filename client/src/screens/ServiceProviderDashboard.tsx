@@ -212,7 +212,7 @@ const ServiceProviderDashboard: React.FC = () => {
   const getBookingsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     return bookings.filter(booking => 
-      booking.datetime.toISOString().split('T')[0] === dateStr
+      booking.bookingDate.toISOString().split('T')[0] === dateStr
     );
   };
 
@@ -416,7 +416,7 @@ const ServiceProviderDashboard: React.FC = () => {
                               <FormItem>
                                 <FormLabel className="text-white">Price per Session ($)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-700 border-gray-600 text-white" />
+                                  <Input {...field} value={field.value || ""} type="number" className="bg-gray-700 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -432,6 +432,7 @@ const ServiceProviderDashboard: React.FC = () => {
                                   <Input 
                                     type="number" 
                                     {...field} 
+                                    value={field.value || ""}
                                     onChange={(e) => field.onChange(parseInt(e.target.value))}
                                     className="bg-gray-700 border-gray-600 text-white" 
                                   />
@@ -449,7 +450,7 @@ const ServiceProviderDashboard: React.FC = () => {
                             <FormItem>
                               <FormLabel className="text-white">Description</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-700 border-gray-600 text-white" />
+                                <Textarea {...field} value={field.value || ""} className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -463,7 +464,7 @@ const ServiceProviderDashboard: React.FC = () => {
                             <FormItem>
                               <FormLabel className="text-white">Service Image URL</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="https://..." className="bg-gray-700 border-gray-600 text-white" />
+                                <Input {...field} value={field.value || ""} placeholder="https://..." className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -566,7 +567,7 @@ const ServiceProviderDashboard: React.FC = () => {
                     <Calendar
                       mode="single"
                       selected={selectedDate}
-                      onSelect={setSelectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
                       className="rounded-md border border-gray-600"
                     />
                   </CardContent>
@@ -582,7 +583,7 @@ const ServiceProviderDashboard: React.FC = () => {
                     <div className="space-y-4">
                       {getBookingsForDate(selectedDate || new Date()).map((booking) => {
                         const service = services.find(s => s.id === booking.serviceId);
-                        const bookingTime = new Date(booking.datetime);
+                        const bookingTime = new Date(booking.bookingDate);
 
                         return (
                           <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">
@@ -681,7 +682,7 @@ const ServiceProviderDashboard: React.FC = () => {
                   <div className="space-y-4">
                     {pendingBookings.map((booking) => {
                       const service = services.find(s => s.id === booking.serviceId);
-                      const bookingTime = new Date(booking.datetime);
+                      const bookingTime = new Date(booking.bookingDate);
 
                       return (
                         <div key={booking.id} className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">
@@ -767,7 +768,7 @@ const ServiceProviderDashboard: React.FC = () => {
                     <FormItem>
                       <FormLabel className="text-white">Price ($)</FormLabel>
                       <FormControl>
-                        <Input {...field} type="number" className="bg-gray-700 border-gray-600 text-white" />
+                        <Input {...field} value={field.value || ""} type="number" className="bg-gray-700 border-gray-600 text-white" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -782,7 +783,7 @@ const ServiceProviderDashboard: React.FC = () => {
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
-                        checked={field.value}
+                        checked={field.value || false}
                         onCheckedChange={field.onChange}
                         className="border-gray-600"
                       />

@@ -363,7 +363,7 @@ const AuthPage: React.FC = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-white">Membership Tier</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                                 <FormControl>
                                   <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
                                     <SelectValue />

@@ -457,7 +457,7 @@ const YachtOwnerDashboard: React.FC = () => {
                             <FormItem>
                               <FormLabel className="text-white">Description</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-700 border-gray-600 text-white" />
+                                <Textarea {...field} value={field.value || ""} className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -471,7 +471,7 @@ const YachtOwnerDashboard: React.FC = () => {
                             <FormItem>
                               <FormLabel className="text-white">Image URL</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="https://..." className="bg-gray-700 border-gray-600 text-white" />
+                                <Input {...field} value={field.value || ""} placeholder="https://..." className="bg-gray-700 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -574,7 +574,7 @@ const YachtOwnerDashboard: React.FC = () => {
                     <Calendar
                       mode="single"
                       selected={selectedDate}
-                      onSelect={setSelectedDate}
+                      onSelect={(date) => date && setSelectedDate(date)}
                       className="rounded-md border border-gray-600"
                     />
                   </CardContent>
@@ -806,7 +806,7 @@ const YachtOwnerDashboard: React.FC = () => {
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
                       <Checkbox
-                        checked={field.value}
+                        checked={field.value || false}
                         onCheckedChange={field.onChange}
                         className="border-gray-600"
                       />

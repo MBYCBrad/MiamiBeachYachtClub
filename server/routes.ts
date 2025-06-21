@@ -324,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Advanced booking conflict detection
       const existingBookings = await storage.getBookings({ 
-        yachtId: validatedData.yachtId,
+        yachtId: validatedData.yachtId!,
         status: 'confirmed'
       });
       
