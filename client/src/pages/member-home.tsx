@@ -206,9 +206,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
         style={{
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8), rgba(0,0,0,0.9))',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)'
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
+          backdropFilter: 'blur(40px) brightness(1.1)',
+          WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
       >
         <div className="px-4 py-1 flex justify-center">
