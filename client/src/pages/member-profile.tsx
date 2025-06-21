@@ -1317,7 +1317,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 }}
               />
               
-              <CardContent className="relative p-8 h-32 flex flex-col justify-between">
+              <CardContent className="relative p-6 h-36 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <motion.div
                     animate={{ 
@@ -1325,9 +1325,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       rotate: [0, 5, -5, 0]
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="p-3 bg-blue-500/30 rounded-xl backdrop-blur-sm"
+                    className="p-2 bg-blue-500/30 rounded-xl backdrop-blur-sm"
                   >
-                    <Calendar className="h-8 w-8 text-blue-300" />
+                    <Calendar className="h-6 w-6 text-blue-300" />
                   </motion.div>
                   
                   {/* Live booking count */}
@@ -1344,9 +1344,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   </motion.div>
                 </div>
                 
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-1">Yacht Bookings</h3>
-                  <p className="text-blue-200 text-sm">Manage your reservations</p>
+                <div className="mt-2">
+                  <h3 className="text-lg font-bold text-white mb-1 leading-tight">Yacht Bookings</h3>
+                  <p className="text-blue-200 text-sm leading-tight">Manage your reservations</p>
                 </div>
               </CardContent>
             </Card>
@@ -1389,7 +1389,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 }}
               />
               
-              <CardContent className="relative p-8 h-32 flex flex-col justify-between">
+              <CardContent className="relative p-6 h-36 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <motion.div
                     animate={{ 
@@ -1397,9 +1397,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       rotate: [0, -5, 5, 0]
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="p-3 bg-purple-500/30 rounded-xl backdrop-blur-sm"
+                    className="p-2 bg-purple-500/30 rounded-xl backdrop-blur-sm"
                   >
-                    <Heart className="h-8 w-8 text-purple-300 fill-current" />
+                    <Heart className="h-6 w-6 text-purple-300 fill-current" />
                   </motion.div>
                   
                   {/* Live favorites count */}
@@ -1416,56 +1416,16 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   </motion.div>
                 </div>
                 
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-1">My Wishlist</h3>
-                  <p className="text-purple-200 text-sm">Dream yacht collection</p>
+                <div className="mt-2">
+                  <h3 className="text-lg font-bold text-white mb-1 leading-tight">My Wishlist</h3>
+                  <p className="text-purple-200 text-sm leading-tight">Dream yacht collection</p>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
         </div>
 
-        {/* Secondary Actions Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.1 }}
-          className="grid grid-cols-4 gap-4 mt-6"
-        >
-          {[
-            { icon: PartyPopper, label: "Events", color: "from-emerald-600 to-teal-600", view: "events" },
-            { icon: Target, label: "Services", color: "from-orange-600 to-red-600", view: "services" },
-            { icon: Bell, label: "Messages", color: "from-yellow-600 to-amber-600", view: "messages" },
-            { icon: Gift, label: "Rewards", color: "from-indigo-600 to-purple-600", view: "profile" }
-          ].map((action, index) => (
-            <motion.div
-              key={action.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 2.2 + index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.95 }}
-              className="cursor-pointer"
-              onClick={() => setCurrentView(action.view)}
-            >
-              <Card className="bg-gray-900/60 border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
-                <CardContent className="p-4 text-center">
-                  <motion.div
-                    animate={{ 
-                      rotate: [0, 5, -5, 0],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
-                    className={`p-3 bg-gradient-to-r ${action.color}/20 rounded-lg mx-auto mb-2 w-fit`}
-                  >
-                    <action.icon className={`h-6 w-6 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`} />
-                  </motion.div>
-                  <div className="text-sm font-medium text-white">{action.label}</div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
+
       </motion.div>
 
       {/* Logout Button */}
