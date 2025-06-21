@@ -15,8 +15,8 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
   useEffect(() => {
     if (isActive) {
       controls.start({
-        y: [0, -2, 0],
-        scale: [1, 1.05, 1],
+        y: [0, -3, 0],
+        scale: [1, 1.1, 1],
         transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
       });
     } else {
@@ -111,6 +111,7 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
         {isActive && (
           <>
             <motion.circle
+              key="ripple1"
               cx="16" cy="28" r="8"
               fill="none"
               stroke="#60a5fa"
@@ -120,6 +121,7 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.circle
+              key="ripple2"
               cx="16" cy="28" r="12"
               fill="none"
               stroke="#3b82f6"
