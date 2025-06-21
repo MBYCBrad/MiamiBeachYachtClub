@@ -119,10 +119,10 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 h-full w-80 bg-black/80 backdrop-blur-xl border-l border-gray-700/30 z-50"
+              className="fixed top-0 right-0 h-full w-80 bg-black/20 backdrop-blur-2xl border-l border-white/10 z-50"
             >
               {/* Menu Header */}
-              <div className="p-6 border-b border-gray-800">
+              <div className="p-6 border-b border-white/10">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
                     <User size={20} className="text-white" />
@@ -167,7 +167,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               </div>
 
               {/* Logout Button */}
-              <div className="p-6 border-t border-gray-700/30">
+              <div className="p-6 border-t border-white/10">
                 <Button
                   onClick={handleLogout}
                   disabled={logoutMutation.isPending}
