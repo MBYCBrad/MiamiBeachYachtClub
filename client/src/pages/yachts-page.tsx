@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Search, Filter, Heart, Star } from 'lucide-react';
+import { Search, Filter, Heart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Yacht } from '@shared/schema';
@@ -77,100 +77,72 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
         </div>
       </div>
 
-      {/* Yachts Grid - Airbnb Style */}
-      <div className="px-3 sm:px-6 lg:px-8 pb-20 sm:pb-24">
+      {/* Yachts Grid */}
+      <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="aspect-square bg-gray-800 rounded-xl animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-gray-800 rounded-2xl h-64 sm:h-72 lg:h-80 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto scroll-container">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex gap-4 pb-4 min-w-full"
-              style={{ width: 'max-content' }}
-            >
-              {filteredYachts.map((yacht, index) => (
-                <motion.div
-                  key={yacht.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="group relative bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer flex-shrink-0"
-                  style={{
-                    width: '280px',
-                    height: '320px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                  }}
-                >
-                  {/* Purple Outline Animation */}
-                  <motion.div
-                    className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
-                    initial={false}
-                    animate={{
-                      borderColor: "rgba(168, 85, 247, 0)",
-                    }}
-                    whileHover={{
-                      borderColor: "rgba(168, 85, 247, 0.6)",
-                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
-                    }}
-                  />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+          >
+            {filteredYachts.map((yacht, index) => (
+              <motion.div
+                key={yacht.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover-lift card-hover"
+              >
+                {/* Yacht Image */}
+                <div className="relative h-40 sm:h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="absolute top-2 sm:top-3 right-2 sm:right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-1.5 sm:p-2"
+                  >
+                    <Heart size={16} />
+                  </Button>
+                </div>
 
-                  {/* Yacht Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                {/* Yacht Info */}
+                <div className="p-3 sm:p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-purple-400 transition-colors line-clamp-1">
+                      {yacht.name}
+                    </h3>
+                    <span className="text-xs sm:text-sm text-gray-400 ml-2">
+                      {yacht.size}ft
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-400 text-xs sm:text-sm mb-3 truncate">
+                    {yacht.location}
+                  </p>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+                      ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
+                      <span className="text-xs sm:text-sm text-gray-400 font-normal">/hour</span>
+                    </span>
                     <Button
                       size="sm"
-                      variant="ghost"
-                      className="absolute top-3 right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-3 sm:px-4 lg:px-6 text-xs sm:text-sm"
                     >
-                      <Heart size={16} />
+                      Book
                     </Button>
-                    
-                    {/* Rating Badge */}
-                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-white text-sm font-medium">4.9</span>
-                    </div>
                   </div>
-
-                  {/* Yacht Info */}
-                  <div className="p-4 flex flex-col justify-between flex-1">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors mb-1">
-                        {yacht.name}
-                      </h3>
-                      <p className="text-gray-400 text-sm mb-2">
-                        {yacht.location}
-                      </p>
-                      <p className="text-gray-300 text-sm">
-                        {yacht.size}ft • {yacht.capacity} guests
-                      </p>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-lg font-bold text-white">
-                        ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
-                        <span className="text-sm text-gray-400 font-normal">/hour</span>
-                      </span>
-                      <Button 
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-4"
-                      >
-                        Book
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         )}
       </div>
     </div>

@@ -1,210 +1,250 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Star, MapPin, Clock, Users, Calendar, DollarSign } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { useQuery } from '@tanstack/react-query';
+import { useHeroVideo } from '@/hooks/use-hero-video';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import AirbnbSearchBar from '@/components/AirbnbSearchBar';
+import { TabNavigation } from '@/components/AnimatedTabIcons';
+import { 
+  Search, 
+  Heart, 
+  Star, 
+  MapPin, 
+  Users, 
+  Waves,
+  Fuel,
+  Shield,
+  Calendar,
+  Filter,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import type { Yacht, Service, Event as EventType } from '@shared/schema';
+
+const YACHT_IMAGES = [
+  "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1582719366682-5a7e5e44c0d7?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=800&h=600&fit=crop"
+];
+
+const SERVICE_IMAGES = [
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1567327286077-e5de925ca8b7?w=800&h=600&fit=crop"
+];
 
 interface MemberHomeProps {
   currentView: string;
   setCurrentView: (view: string) => void;
 }
 
-const categories = [
-  { id: 'yachts', label: 'Yachts', icon: '⛵', color: 'text-blue-400' },
-  { id: 'services', label: 'Services', icon: '🛠️', color: 'text-purple-400' },
-  { id: 'events', label: 'Events', icon: '🎉', color: 'text-pink-400' },
-];
-
-const yachtImages = [
-  "/api/placeholder/400/300",
-  "/api/placeholder/400/301", 
-  "/api/placeholder/400/302",
-  "/api/placeholder/400/303",
-  "/api/placeholder/400/304",
-  "/api/placeholder/400/305",
-];
-
-const serviceImages = [
-  "/api/placeholder/400/306",
-  "/api/placeholder/400/307",
-  "/api/placeholder/400/308",
-];
-
-const getYachtImage = (index: number) => yachtImages[index % yachtImages.length];
-const getServiceImage = (index: number) => serviceImages[index % serviceImages.length];
-
 export default function MemberHome({ currentView, setCurrentView }: MemberHomeProps) {
+  const { user } = useAuth();
+  const { data: heroVideo, isLoading: videoLoading } = useHeroVideo();
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
-  const [selectedYacht, setSelectedYacht] = useState<any>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
+  const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
-  const { data: yachts = [], isLoading: yachtsLoading } = useQuery({
-    queryKey: ['/api/yachts'],
-  });
+  const handleSearch = (criteria: any) => {
+    // Navigate to search results with criteria
+    setCurrentView('search-results');
+  };
 
-  const { data: services = [], isLoading: servicesLoading } = useQuery({
-    queryKey: ['/api/services'],
-  });
-
-  const { data: events = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['/api/events'],
-  });
-
-  const filteredYachts = yachts.filter((yacht: any) => yacht.isAvailable);
-  const filteredServices = services.slice(0, 6);
-  const filteredEvents = events.slice(0, 6);
+  const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
+  const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
+  const { data: events = [] } = useQuery<EventType[]>({ queryKey: ['/api/events'] });
 
   const toggleLike = (id: number) => {
     setLikedItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
+      const newLiked = new Set(prev);
+      if (newLiked.has(id)) {
+        newLiked.delete(id);
       } else {
-        newSet.add(id);
+        newLiked.add(id);
       }
-      return newSet;
+      return newLiked;
     });
   };
 
+  const getYachtImage = (index: number) => {
+    return YACHT_IMAGES[index % YACHT_IMAGES.length];
+  };
+
+  const getServiceImage = (index: number) => {
+    return SERVICE_IMAGES[index % SERVICE_IMAGES.length];
+  };
+
+  const filteredYachts = yachts.filter(yacht => 
+    yacht.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    yacht.location?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredServices = services.filter(service =>
+    service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    service.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredEvents = events.filter(event =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Hero Video Section */}
-      <div className="relative h-[60vh] overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          src="/api/media/15768404-uhd_4096_2160_24fps_1750523880240.mp4"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Hero Video Background */}
+      <div className="relative h-[65vh] sm:h-[70vh] lg:h-[75vh] overflow-hidden">
+        {videoLoading ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
+        ) : heroVideo ? (
+          <>
+            <video
+              className="absolute inset-0 w-full h-full object-cover scale-110"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            >
+              <source src={heroVideo.url} type={heroVideo.mimeType || "video/mp4"} />
+            </video>
+            
+            {/* Seamless Edge Transition */}
+            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/60 via-black/30 via-black/10 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/80 via-black/40 via-black/20 to-transparent" />
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black/60 via-black/30 via-black/10 to-transparent" />
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black/60 via-black/30 via-black/10 to-transparent" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black" />
+        )}
         
+        {/* Enhanced Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-purple-900/10 to-black/70" />
+        
+        {/* Video Controls */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsVideoPlaying(!isVideoPlaying)}
+            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
+          >
+            {isVideoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMuted(!isMuted)}
+            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
+        </div>
+
         {/* Hero Content */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
+        <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="max-w-4xl mx-auto w-full"
           >
-            Miami Beach Yacht Club
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl"
-          >
-            Experience luxury yachting in Miami Beach with exclusive access to premium vessels and concierge services
-          </motion.p>
-          
-          {/* Search Bar */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="w-full max-w-md bg-black/30 backdrop-blur-sm rounded-full p-2 flex items-center gap-3"
-          >
-            <div className="text-gray-300 pl-4">🔍</div>
-            <input
-              type="text"
-              placeholder="Where to? • Any week"
-              className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
-            />
+            <motion.h1 
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, delay: 0.2 }}
+            >
+              Luxury Awaits
+            </motion.h1>
+            <motion.p 
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+            >
+              Discover extraordinary yachts and premium experiences
+            </motion.p>
+            
+            {/* Airbnb-Style Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="relative w-full max-w-4xl mx-auto"
+            >
+              <AirbnbSearchBar 
+                onSearch={handleSearch}
+                className="shadow-2xl"
+              />
+            </motion.div>
           </motion.div>
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="sticky top-0 z-40 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
-        <div className="flex justify-center items-center px-4 py-3">
-          <div className="flex gap-1 bg-gray-800/50 rounded-full p-1">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 text-sm font-medium",
-                  selectedCategory === category.id
-                    ? "bg-white text-gray-900"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700/50"
-                )}
-              >
-                <span className="text-lg">{category.icon}</span>
-                {category.label}
-              </button>
-            ))}
-          </div>
+      {/* 3D Animated Tab Navigation */}
+      <motion.div 
+        className="sticky top-0 z-40 bg-black/80 backdrop-blur-md border-b border-gray-800"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="px-4 py-3 flex justify-center">
+          <TabNavigation 
+            activeTab={selectedCategory}
+            onTabChange={setSelectedCategory}
+          />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Content Sections */}
-      <div className="px-4 py-6">
+      {/* Content */}
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <AnimatePresence mode="wait">
           {selectedCategory === 'yachts' && (
             <motion.div
               key="yachts"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Premium yachts in Miami Beach</h2>
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white underline text-sm"
-                  onClick={() => setCurrentView('yachts')}
+              {filteredYachts.map((yacht, index) => (
+                <motion.div
+                  key={yacht.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedYacht(yacht)}
                 >
-                  Show all
-                </Button>
-              </div>
-              
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
-              >
-                {filteredYachts.map((yacht: any, index: number) => (
-                  <motion.div
-                    key={yacht.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
-                    style={{
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                    }}
-                    onClick={() => setSelectedYacht(yacht)}
-                  >
-                    {/* Purple Outline Animation */}
-                    <motion.div
-                      className="absolute inset-0 rounded-xl border-2 border-purple-500/0 group-hover:border-purple-500/60 transition-all duration-300"
-                      initial={false}
-                      animate={{
-                        borderColor: "rgba(168, 85, 247, 0)",
-                      }}
-                      whileHover={{
-                        borderColor: "rgba(168, 85, 247, 0.6)",
-                        boxShadow: "0 0 20px rgba(168, 85, 247, 0.3)",
-                      }}
-                    />
-
-                    {/* Yacht Image */}
-                    <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-                      <img
+                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10">
+                    <div className="relative overflow-hidden">
+                      <motion.img
                         src={getYachtImage(index)}
                         alt={yacht.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        whileHover={{ scale: 1.1 }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
                       {/* Like Button */}
                       <motion.button
@@ -212,241 +252,256 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           e.stopPropagation();
                           toggleLike(yacht.id);
                         }}
-                        className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                       >
                         <Heart 
                           className={cn(
-                            "h-3 w-3 transition-colors duration-200",
+                            "h-5 w-5 transition-colors duration-200",
                             likedItems.has(yacht.id) ? "fill-red-500 text-red-500" : "text-white"
                           )}
                         />
                       </motion.button>
-                      
-                      {/* Rating Badge */}
-                      <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-black/40 px-1.5 py-0.5 rounded-full">
-                        <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                        <span className="text-white text-xs font-medium">4.9</span>
+
+                      {/* Badges */}
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {yacht.amenities?.includes('fuel') && (
+                          <Badge className="bg-green-600/80 text-white backdrop-blur-sm">
+                            <Fuel className="h-3 w-3 mr-1" />
+                            Fuel Included
+                          </Badge>
+                        )}
+                        {yacht.amenities?.includes('crew') && (
+                          <Badge className="bg-blue-600/80 text-white backdrop-blur-sm">
+                            <Users className="h-3 w-3 mr-1" />
+                            Crew Included
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Quick Info */}
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="flex items-center justify-between text-white">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm font-medium">4.9</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <MapPin className="h-4 w-4" />
+                            {yacht.location}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Yacht Info */}
-                    <div className="p-2 h-2/5 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
-                          {yacht.name}
-                        </h3>
-                        <p className="text-gray-400 text-xs truncate">
-                          {yacht.location}
-                        </p>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="space-y-2 sm:space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg sm:text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-1">
+                            {yacht.name}
+                          </h3>
+                          <p className="text-gray-400 text-xs sm:text-sm">
+                            {yacht.size}ft • {yacht.capacity} guests
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-white">
+                            <span className="text-xl sm:text-2xl font-bold">${yacht.pricePerHour}</span>
+                            <span className="text-gray-400 text-xs sm:text-sm ml-1">/hour</span>
+                          </div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25 text-xs sm:text-sm px-3 sm:px-4"
+                            >
+                              Book Now
+                            </Button>
+                          </motion.div>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-xs font-bold text-white">
-                          ${yacht.pricePerHour ? Math.round(parseFloat(yacht.pricePerHour)/100) + 'K' : 'Ask'}
-                          <span className="text-xs text-gray-400 font-normal">/hr</span>
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {yacht.size}ft
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </motion.div>
           )}
 
           {selectedCategory === 'services' && (
             <motion.div
               key="services"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Premium Services</h2>
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white underline text-sm"
-                  onClick={() => setCurrentView('services')}
+              {filteredServices.map((service, index) => (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className="group cursor-pointer"
                 >
-                  Show all
-                </Button>
-              </div>
-              
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
-              >
-                {filteredServices.map((service: any, index: number) => (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
-                    style={{
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                    }}
-                  >
-                    {/* Service Image */}
-                    <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-                      <img
+                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
+                    <div className="relative overflow-hidden">
+                      <motion.img
                         src={getServiceImage(index)}
                         alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                        whileHover={{ scale: 1.1 }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
-                      {/* Like Button */}
                       <motion.button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleLike(service.id);
                         }}
-                        className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                       >
                         <Heart 
                           className={cn(
-                            "h-3 w-3 transition-colors duration-200",
+                            "h-5 w-5 transition-colors duration-200",
                             likedItems.has(service.id) ? "fill-red-500 text-red-500" : "text-white"
                           )}
                         />
                       </motion.button>
+
+                      <Badge className="absolute top-3 left-3 bg-purple-600/80 text-white backdrop-blur-sm">
+                        {service.category}
+                      </Badge>
                     </div>
 
-                    {/* Service Info */}
-                    <div className="p-2 h-2/5 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
-                          {service.name}
-                        </h3>
-                        <p className="text-gray-400 text-xs truncate">
-                          {service.category}
-                        </p>
-                      </div>
-                      
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-xs font-bold text-white">
-                          ${service.price ? Math.round(parseFloat(service.price)/100) + 'K' : 'Ask'}
-                        </span>
-                        <div className="flex items-center gap-0.5">
-                          <Star className="h-2 w-2 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-gray-400">4.8</span>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-white group-hover:text-blue-300 transition-colors duration-300">
+                            {service.name}
+                          </h3>
+                          <p className="text-gray-400 text-sm line-clamp-2">
+                            {service.description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-white">
+                            <span className="text-xl font-bold">${service.pricePerSession}</span>
+                            <span className="text-gray-400 text-sm ml-1">/session</span>
+                          </div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-none shadow-lg shadow-blue-500/25"
+                            >
+                              Book Service
+                            </Button>
+                          </motion.div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </motion.div>
           )}
 
           {selectedCategory === 'events' && (
             <motion.div
               key="events"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Exclusive Events</h2>
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white underline text-sm"
-                  onClick={() => setCurrentView('events')}
+              {filteredEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className="group cursor-pointer"
                 >
-                  Show all
-                </Button>
-              </div>
-              
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4"
-              >
-                {filteredEvents.map((event: any, index: number) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group relative aspect-square bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
-                    style={{
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-                    }}
-                  >
-                    {/* Event Image */}
-                    <div className="relative h-3/5 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-                      <img
-                        src={getServiceImage(index)}
-                        alt={event.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
+                    <div className="relative overflow-hidden">
+                      <motion.img
+                        src={`https://images.unsplash.com/photo-1566473965997-3de9c817e938?w=800&h=600&fit=crop`}
+                        alt={event.title}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                        whileHover={{ scale: 1.1 }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
-                      {/* Like Button */}
                       <motion.button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleLike(event.id);
                         }}
-                        className="absolute top-1 right-1 p-1 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                       >
                         <Heart 
                           className={cn(
-                            "h-3 w-3 transition-colors duration-200",
+                            "h-5 w-5 transition-colors duration-200",
                             likedItems.has(event.id) ? "fill-red-500 text-red-500" : "text-white"
                           )}
                         />
                       </motion.button>
-                      
-                      {/* Date Badge */}
-                      <div className="absolute top-1 left-1 bg-black/40 px-1.5 py-0.5 rounded-full">
-                        <span className="text-white text-xs font-medium">
-                          {new Date(event.date).getDate()}
-                        </span>
+
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="text-white text-sm">
+                          {new Date(event.startTime).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Event Info */}
-                    <div className="p-2 h-2/5 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors truncate">
-                          {event.name}
-                        </h3>
-                        <p className="text-gray-400 text-xs truncate">
-                          {event.location}
-                        </p>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-white group-hover:text-cyan-300 transition-colors duration-300">
+                            {event.title}
+                          </h3>
+                          <p className="text-gray-400 text-sm line-clamp-2">
+                            {event.description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-white">
+                            <span className="text-xl font-bold">${event.ticketPrice}</span>
+                            <span className="text-gray-400 text-sm ml-1">/ticket</span>
+                          </div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white border-none shadow-lg shadow-cyan-500/25"
+                            >
+                              Register
+                            </Button>
+                          </motion.div>
+                        </div>
                       </div>
-                      
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-xs font-bold text-white">
-                          ${event.price ? Math.round(parseFloat(event.price)) : 'Free'}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {event.maxCapacity - event.currentCapacity} spots
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
@@ -454,58 +509,58 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
       {/* Yacht Detail Modal */}
       <Dialog open={!!selectedYacht} onOpenChange={() => setSelectedYacht(null)}>
-        <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
-          <DialogHeader>
-            <DialogTitle className="text-white text-xl">
-              {selectedYacht?.name}
-            </DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
           {selectedYacht && (
-            <div className="space-y-4">
-              <div className="relative h-64 rounded-lg overflow-hidden">
+            <div className="space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-white">
+                  {selectedYacht.name}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="relative">
                 <img
-                  src={getYachtImage(selectedYacht.id % yachtImages.length)}
+                  src={getYachtImage(selectedYacht.id - 1)}
                   alt={selectedYacht.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-80 object-cover rounded-lg"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-lg" />
               </div>
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <MapPin className="h-4 w-4" />
-                  {selectedYacht.location}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-white">Specifications</h3>
+                  <div className="space-y-2 text-gray-300">
+                    <p><span className="font-medium">Length:</span> {selectedYacht.size}ft</p>
+                    <p><span className="font-medium">Capacity:</span> {selectedYacht.capacity} guests</p>
+                    <p><span className="font-medium">Location:</span> {selectedYacht.location}</p>
+                    <p><span className="font-medium">Description:</span> {selectedYacht.description || 'Luxury yacht experience'}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Users className="h-4 w-4" />
-                  {selectedYacht.capacity} guests
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <DollarSign className="h-4 w-4" />
-                  ${selectedYacht.pricePerHour}/hour
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <span className="h-4 w-4">⚡</span>
-                  {selectedYacht.size}ft yacht
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-white">Pricing</h3>
+                  <div className="text-3xl font-bold text-white">
+                    ${selectedYacht.pricePerHour}<span className="text-lg text-gray-400">/hour</span>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg">
+                    Book This Yacht
+                  </Button>
                 </div>
               </div>
-              
+
               {selectedYacht.amenities && (
-                <div>
-                  <h4 className="text-white font-medium mb-2">Amenities</h4>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-white">Amenities</h3>
                   <div className="flex flex-wrap gap-2">
-                    {Object.keys(selectedYacht.amenities).map((amenity) => (
-                      <Badge key={amenity} variant="secondary" className="bg-gray-700 text-gray-200">
+                    {selectedYacht.amenities.map((amenity, index) => (
+                      <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-200">
                         {amenity}
                       </Badge>
                     ))}
                   </div>
                 </div>
               )}
-              
-              <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                Book Now
-              </Button>
             </div>
           )}
         </DialogContent>
