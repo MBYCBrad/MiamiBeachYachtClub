@@ -268,7 +268,15 @@ export class MemStorage implements IStorage {
       membershipTier: insertUser.membershipTier ?? MembershipTier.BRONZE,
       createdAt: new Date(),
       stripeCustomerId: null,
-      stripeSubscriptionId: null
+      stripeSubscriptionId: null,
+      phone: insertUser.phone || null,
+      location: insertUser.location || null,
+      language: insertUser.language || 'en',
+      notifications: insertUser.notifications || {
+        bookings: true,
+        events: true,
+        marketing: false
+      }
     };
     this.users.set(id, user);
     return user;

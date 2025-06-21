@@ -39,7 +39,15 @@ export async function seedDatabase() {
         email: "member@mbyc.com",
         password: hashedPassword,
         role: UserRole.MEMBER,
-        membershipTier: MembershipTier.PLATINUM
+        membershipTier: MembershipTier.PLATINUM,
+        phone: "+1 (305) 555-0123",
+        location: "Miami Beach, FL",
+        language: "en",
+        notifications: {
+          bookings: true,
+          events: true,
+          marketing: false
+        }
       },
       {
         username: "bronze_member",

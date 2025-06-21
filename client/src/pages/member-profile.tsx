@@ -69,10 +69,10 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   
   // Form state management with real user data
   const [formData, setFormData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
-    phone: '+1 (305) 555-0123',
-    location: 'Miami Beach, FL',
+    username: '',
+    email: '',
+    phone: '',
+    location: '',
     language: 'en',
     notifications: {
       bookings: true,
@@ -84,18 +84,25 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   // Update form data when user data changes
   React.useEffect(() => {
     if (user) {
-      setFormData(prev => ({
-        ...prev,
+      setFormData({
         username: user.username || '',
-        email: user.email || ''
-      }));
+        email: user.email || '',
+        phone: user.phone || '+1 (305) 555-0123',
+        location: user.location || 'Miami Beach, FL',
+        language: user.language || 'en',
+        notifications: user.notifications || {
+          bookings: true,
+          events: true,
+          marketing: false
+        }
+      });
     }
   }, [user]);
 
   // Real-time profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: Partial<typeof formData>) => {
-      const response = await apiRequest('PATCH', `/api/user/${user?.id}`, updates);
+      const response = await apiRequest('PATCH', '/api/profile', updates);
       return response.json();
     },
     onSuccess: (updatedUser) => {
