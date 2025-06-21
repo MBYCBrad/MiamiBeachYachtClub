@@ -6,24 +6,22 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
-import HomePage from "@/pages/home-page";
+import RoleBasedNavigator from "@/navigation/RoleBasedNavigator";
 import AuthPage from "@/pages/auth-page";
 import YachtDetail from "@/pages/yacht-detail";
 import ServiceDetail from "@/pages/service-detail";
 import EventDetail from "@/pages/event-detail";
 import CheckoutPage from "@/pages/checkout";
-import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/" component={RoleBasedNavigator} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
       <ProtectedRoute path="/events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
