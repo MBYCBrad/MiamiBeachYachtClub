@@ -59,7 +59,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10"
+        className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10 rounded-t-2xl"
       >
         <div className="flex justify-around items-center w-full px-4 py-2 pb-safe">
           {navItems.map((item) => {
