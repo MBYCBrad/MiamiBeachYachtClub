@@ -172,7 +172,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
             >
-              Luxury Awaits
+              MBYC
             </motion.h1>
             <motion.p 
               className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
