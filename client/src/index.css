@@ -150,6 +150,20 @@ html, body {
     background: linear-gradient(45deg, #7c3aed, #2563eb);
   }
 
+  /* Premium animation keyframes */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) skewX(-12deg);
+    }
+    100% {
+      transform: translateX(200%) skewX(-12deg);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s ease-in-out;
+  }
+
   /* Hide scrollbar for horizontal scroll areas */
   .no-scrollbar {
     -ms-overflow-style: none;

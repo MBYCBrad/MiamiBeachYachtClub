@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import YachtCard from '@/components/yacht-card';
 import { 
   Shield, 
   Users, 
@@ -714,42 +715,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {yachts.map((yacht) => (
-                  <Card key={yacht.id} className="bg-gray-800/50 border-purple-800/30">
-                    <div className="aspect-video relative rounded-t-lg overflow-hidden">
-                      <img 
-                        src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
-                        alt={yacht.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Badge className={yacht.isAvailable ? "bg-green-600" : "bg-red-600"}>
-                          {yacht.isAvailable ? "Available" : "Unavailable"}
-                        </Badge>
-                      </div>
-                    </div>
-                    <CardHeader>
-                      <CardTitle className="text-white">{yacht.name}</CardTitle>
-                      <CardDescription className="text-gray-300">
-                        {yacht.size}ft • {yacht.capacity} guests
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-between items-center">
-                        <div className="text-gray-400 text-sm">
-                          Owner ID: {yacht.ownerId}
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => deleteYachtMutation.mutate(yacht.id)}
-                          className="border-red-600 text-red-400 hover:bg-red-600/20"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                {yachts.map((yacht, index) => (
+                  <YachtCard key={yacht.id} yacht={yacht} index={index} />
                 ))}
               </div>
             </TabsContent>

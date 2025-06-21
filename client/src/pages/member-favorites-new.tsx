@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
 
 const YACHT_IMAGES = [
@@ -114,58 +115,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   };
 
   const renderYachtCard = (yacht: Yacht, index: number) => (
-    <motion.div
-      key={yacht.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-    >
-      <Card className="bg-gray-900/50 border-gray-800 hover-lift overflow-hidden">
-        <div className="relative h-48">
-          <img
-            src={YACHT_IMAGES[index % YACHT_IMAGES.length]}
-            alt={yacht.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <Button
-            onClick={() => handleRemoveFavorite('yacht', yacht.id)}
-            size="sm"
-            variant="ghost"
-            className="absolute top-3 right-3 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-full p-2"
-          >
-            <Heart size={20} className="fill-current" />
-          </Button>
-        </div>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-bold text-white">{yacht.name}</h3>
-            <span className="text-sm text-gray-400">{yacht.size}ft</span>
-          </div>
-          <div className="flex items-center text-gray-400 text-sm mb-3">
-            <MapPin size={14} className="mr-1" />
-            <span>{yacht.location}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-bold text-white">
-              ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
-              <span className="text-sm text-gray-400 font-normal">/hour</span>
-            </span>
-            <div className="flex space-x-2">
-              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                <Share size={16} />
-              </Button>
-              <Button
-                size="sm"
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl"
-              >
-                Book Now
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <YachtCard key={yacht.id} yacht={yacht} index={index} />
   );
 
   const renderServiceCard = (service: Service, index: number) => (

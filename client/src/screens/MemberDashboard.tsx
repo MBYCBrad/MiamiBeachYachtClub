@@ -25,6 +25,7 @@ import { getMembershipBenefits, canBookYacht, calculateEventPrice, calculateServ
 import { TokenManager } from '@shared/tokens';
 import { stripeService } from '@/services/stripe';
 import { twilioConciergeService } from '@/services/twilio';
+import YachtCard from '@/components/yacht-card';
 
 interface ConciergeService {
   requestConcierge: (request: {
@@ -354,67 +355,8 @@ const MemberDashboard: React.FC = () => {
             {/* Yacht Bookings Tab */}
             <TabsContent value="bookings" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredYachts.map((yacht) => (
-                  <Card key={yacht.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
-                    <div className="aspect-video relative rounded-t-lg overflow-hidden">
-                      <img 
-                        src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
-                        alt={yacht.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2 right-2 flex space-x-1">
-                        <Badge className="bg-green-600">
-                          <Fuel className="w-3 h-3 mr-1" />
-                          Fuel Included
-                        </Badge>
-                        <Badge className="bg-blue-600">
-                          <UserCheck className="w-3 h-3 mr-1" />
-                          Crew Included
-                        </Badge>
-                      </div>
-                    </div>
-                    <CardHeader>
-                      <CardTitle className="text-white">{yacht.name}</CardTitle>
-                      <CardDescription className="text-gray-300">
-                        {yacht.size}ft • {yacht.capacity} guests
-                      </CardDescription>
-                      <div className="flex items-center text-sm text-gray-400">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {yacht.location}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-300 text-sm mb-4">{yacht.description}</p>
-                      
-                      {/* Amenities */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {yacht.amenities?.slice(0, 3).map((amenity, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {amenity}
-                          </Badge>
-                        ))}
-                        {yacht.amenities && yacht.amenities.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{yacht.amenities.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-400">
-                          <Clock className="w-4 h-4 inline mr-1" />
-                          Tokens: {TokenManager.calculateTokensForBooking(4)} per 4hrs
-                        </div>
-                        <Button 
-                          onClick={() => handleYachtBooking(yacht, 4)}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                          disabled={!tokenBalance || tokenBalance.currentTokens < TokenManager.calculateTokensForBooking(4)}
-                        >
-                          Book Now
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                {filteredYachts.map((yacht, index) => (
+                  <YachtCard key={yacht.id} yacht={yacht} index={index} />
                 ))}
               </div>
             </TabsContent>
