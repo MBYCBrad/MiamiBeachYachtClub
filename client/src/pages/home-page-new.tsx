@@ -16,7 +16,7 @@ import AdminDashboard from '@/screens/AdminDashboard';
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [currentView, setCurrentView] = useState('home');
+  const [currentView, setCurrentView] = useState('explore');
 
   if (!user) {
     return (
@@ -44,12 +44,18 @@ export default function HomePage() {
 
   const renderMemberContent = () => {
     switch (currentView) {
-      case 'messages':
-        return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'explore':
+        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'trips':
+        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
       case 'favorites':
         return <MemberFavorites currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'messages':
+        return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'profile':
         return <MemberProfile currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'notifications':
+        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
       default:
         return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
     }

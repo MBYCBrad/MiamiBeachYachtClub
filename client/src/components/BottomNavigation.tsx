@@ -14,17 +14,16 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const { user, logoutMutation } = useAuth();
 
   const navItems = [
-    { id: 'home', icon: Waves, label: 'Yachts' },
-    { id: 'home', icon: Wrench, label: 'Services' },
-    { id: 'home', icon: Calendar, label: 'Events' },
+    { id: 'explore', icon: Waves, label: 'Explore' },
+    { id: 'trips', icon: Calendar, label: 'Trips' },
+    { id: 'favorites', icon: Heart, label: 'Favorites' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages' },
     { id: 'menu', icon: Menu, label: 'Menu' }
   ];
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 3 },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
-    { id: 'favorites', icon: Heart, label: 'Favorites', badge: null },
   ];
 
   const handleNavClick = (itemId: string) => {
@@ -110,11 +109,11 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
 
             {/* Menu Panel */}
             <motion.div
-              initial={{ opacity: 0, y: 300 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 300 }}
+              initial={{ opacity: 0, x: 300 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-20 left-4 right-4 bg-gray-900/95 backdrop-blur-xl border border-gray-800 rounded-2xl z-50"
+              className="fixed top-0 right-0 h-full w-80 bg-gray-900/95 backdrop-blur-xl border-l border-gray-800 z-50"
             >
               {/* Menu Header */}
               <div className="p-6 border-b border-gray-800">
