@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
+import { useHeroVideo } from '@/hooks/use-hero-video';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -53,6 +54,7 @@ interface MemberHomeProps {
 
 export default function MemberHome({ currentView, setCurrentView }: MemberHomeProps) {
   const { user } = useAuth();
+  const { data: heroVideo, isLoading: videoLoading } = useHeroVideo();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
@@ -109,15 +111,21 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
       <div className="relative h-[60vh] overflow-visible">
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-        >
-          <source src="https://player.vimeo.com/external/451878268.hd.mp4?s=ea6d8a05c6ad9c53d41cfbc74b2a7f45bd0f9d46&profile_id=175" type="video/mp4" />
-        </video>
+        {videoLoading ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
+        ) : heroVideo ? (
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            loop
+            muted={isMuted}
+            playsInline
+          >
+            <source src={heroVideo.url} type={heroVideo.mimeType || "video/mp4"} />
+          </video>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black" />
+        )}
         
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-purple-900/20 to-black/80" />

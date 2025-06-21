@@ -5,7 +5,10 @@ import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
 import { notificationService } from "./notifications";
 import { auditService, auditMiddleware } from "./audit";
+import { mediaStorageService } from "./media-storage";
 import Stripe from "stripe";
+import path from "path";
+import fs from "fs";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
@@ -39,6 +42,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     next();
   };
+
+  // Media asset serving routes
+  app.get("/api/media/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const filePath = mediaStorageService.getAssetPath(filename);
+      
+      if (!mediaStorageService.fileExists(filename)) {
+        return res.status(404).json({ message: "Media asset not found" });
+      }
+
+      const stats = mediaStorageService.getFileStats(filename);
+      if (!stats) {
+        return res.status(404).json({ message: "File not accessible" });
+      }
+
+      // Set appropriate headers for video streaming
+      const mimeType = filename.endsWith('.mp4') ? 'video/mp4' : 
+                      filename.endsWith('.webm') ? 'video/webm' : 
+                      'application/octet-stream';
+
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Length', stats.size);
+      res.setHeader('Accept-Ranges', 'bytes');
+
+      // Handle range requests for video streaming
+      const range = req.headers.range;
+      if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
+        const chunksize = (end - start) + 1;
+
+        res.status(206);
+        res.setHeader('Content-Range', `bytes ${start}-${end}/${stats.size}`);
+        res.setHeader('Content-Length', chunksize);
+
+        const stream = fs.createReadStream(filePath, { start, end });
+        stream.pipe(res);
+      } else {
+        const stream = fs.createReadStream(filePath);
+        stream.pipe(res);
+      }
+    } catch (error) {
+      console.error('Error serving media asset:', error);
+      res.status(500).json({ message: "Error serving media asset" });
+    }
+  });
+
+  // Get active hero video
+  app.get("/api/media/hero/active", async (req, res) => {
+    try {
+      const heroVideo = await mediaStorageService.getActiveHeroVideo();
+      if (!heroVideo) {
+        return res.status(404).json({ message: "No active hero video found" });
+      }
+      res.json(heroVideo);
+    } catch (error) {
+      console.error('Error fetching active hero video:', error);
+      res.status(500).json({ message: "Error fetching hero video" });
+    }
+  });
+
+  // Get all media assets
+  app.get("/api/media", async (req, res) => {
+    try {
+      const { category, type, isActive } = req.query;
+      const filters: any = {};
+      
+      if (category) filters.category = category as string;
+      if (type) filters.type = type as string;
+      if (isActive !== undefined) filters.isActive = isActive === 'true';
+
+      const assets = await mediaStorageService.getAllMediaAssets(filters);
+      res.json(assets);
+    } catch (error) {
+      console.error('Error fetching media assets:', error);
+      res.status(500).json({ message: "Error fetching media assets" });
+    }
+  });
 
   // Placeholder image service for demo data
   app.get("/api/placeholder/:type", (req, res) => {

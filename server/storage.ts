@@ -1,9 +1,9 @@
 import { 
-  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews,
+  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
-  type Review, type InsertReview, UserRole, MembershipTier
+  type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -69,6 +69,13 @@ export interface IStorage {
   // Review methods
   getReviews(filters?: { userId?: number, serviceId?: number, yachtId?: number }): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
+
+  // Media Asset methods
+  getMediaAssets(filters?: { category?: string, type?: string, isActive?: boolean }): Promise<MediaAsset[]>;
+  getMediaAsset(id: number): Promise<MediaAsset | undefined>;
+  createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
+  updateMediaAsset(id: number, asset: Partial<InsertMediaAsset>): Promise<MediaAsset | undefined>;
+  deleteMediaAsset(id: number): Promise<boolean>;
 
   sessionStore: session.Store;
 }
@@ -924,6 +931,48 @@ export class DatabaseStorage implements IStorage {
   async createReview(insertReview: InsertReview): Promise<Review> {
     const [review] = await db.insert(reviews).values(insertReview).returning();
     return review;
+  }
+
+  // Media Asset methods
+  async getMediaAssets(filters?: { category?: string, type?: string, isActive?: boolean }): Promise<MediaAsset[]> {
+    let query = db.select().from(mediaAssets);
+    
+    if (filters) {
+      const conditions = [];
+      if (filters.category) conditions.push(eq(mediaAssets.category, filters.category));
+      if (filters.type) conditions.push(eq(mediaAssets.type, filters.type));
+      if (filters.isActive !== undefined) conditions.push(eq(mediaAssets.isActive, filters.isActive));
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+    }
+    
+    return await query;
+  }
+
+  async getMediaAsset(id: number): Promise<MediaAsset | undefined> {
+    const [asset] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, id));
+    return asset || undefined;
+  }
+
+  async createMediaAsset(insertAsset: InsertMediaAsset): Promise<MediaAsset> {
+    const [asset] = await db.insert(mediaAssets).values(insertAsset).returning();
+    return asset;
+  }
+
+  async updateMediaAsset(id: number, assetUpdate: Partial<InsertMediaAsset>): Promise<MediaAsset | undefined> {
+    const [updatedAsset] = await db
+      .update(mediaAssets)
+      .set(assetUpdate)
+      .where(eq(mediaAssets.id, id))
+      .returning();
+    return updatedAsset || undefined;
+  }
+
+  async deleteMediaAsset(id: number): Promise<boolean> {
+    const result = await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 
