@@ -322,7 +322,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
                           onSelect={(date) => handleDateSelect(date, activeField)}
                           month={calendarMonth}
-                          className="w-full [&_.rdp-caption]:hidden [&_.rdp-nav]:hidden [&_.rdp-table]:text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-head_cell]:font-medium"
+                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
                           disabled={(date) => date < new Date()}
                         />
                       </div>
@@ -339,7 +339,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           selected={activeField === 'checkin' ? searchCriteria.checkIn : searchCriteria.checkOut}
                           onSelect={(date) => handleDateSelect(date, activeField)}
                           month={addDays(calendarMonth, 32)}
-                          className="w-full [&_.rdp-caption]:hidden [&_.rdp-nav]:hidden [&_.rdp-table]:text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-head_cell]:font-medium"
+                          className="w-full text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-day_button:hover]:bg-white/10 [&_.rdp-day_selected_.rdp-day_button]:bg-purple-600 [&_.rdp-day_selected_.rdp-day_button]:text-white [&_.rdp-head_cell]:text-gray-300 [&_.rdp-caption_label]:text-white"
                           disabled={(date) => date < new Date()}
                         />
                       </div>
