@@ -8,20 +8,20 @@ interface Animated3DIconProps {
   className?: string;
 }
 
-// 3D Explore Icon (Anchor)
+// 3D Explore Icon (Captain's Hat)
 export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24, className }) => {
   const controls = useAnimation();
 
   useEffect(() => {
     if (isActive) {
       controls.start({
-        y: [0, -3, 0],
-        scale: [1, 1.1, 1],
-        transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+        rotateY: [0, 5, -5, 0],
+        scale: [1, 1.05, 1],
+        transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
       });
     } else {
       controls.start({
-        y: 0,
+        rotateY: 0,
         scale: 1,
         transition: { duration: 0.3 }
       });
@@ -43,92 +43,78 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
       >
         <defs>
-          <linearGradient id="anchorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#60a5fa" />
-            <stop offset="50%" stopColor="#3b82f6" />
+          <linearGradient id="hatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="50%" stopColor="#1e40af" />
             <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
-          <linearGradient id="anchorChain" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f3f4f6" />
-            <stop offset="50%" stopColor="#e5e7eb" />
-            <stop offset="100%" stopColor="#d1d5db" />
+          <linearGradient id="visorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#111827" />
+            <stop offset="50%" stopColor="#1f2937" />
+            <stop offset="100%" stopColor="#374151" />
+          </linearGradient>
+          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
           </linearGradient>
         </defs>
         
-        {/* Anchor Ring/Shackle */}
-        <circle cx="16" cy="6" r="3" fill="none" stroke="url(#anchorChain)" strokeWidth="2" />
+        {/* Hat Crown (main body) */}
+        <ellipse cx="16" cy="14" rx="12" ry="8" fill="url(#hatGradient)" />
+        <ellipse cx="16" cy="14" rx="10" ry="6.5" fill="url(#hatGradient)" opacity="0.8" />
         
-        {/* Anchor Shank (main vertical shaft) */}
-        <rect x="15" y="9" width="2" height="14" rx="1" fill="url(#anchorGradient)" />
+        {/* Hat Visor */}
+        <ellipse cx="16" cy="20" rx="14" ry="3" fill="url(#visorGradient)" />
+        <ellipse cx="16" cy="19.5" rx="13" ry="2.5" fill="url(#visorGradient)" opacity="0.9" />
         
-        {/* Anchor Stock (horizontal crossbar at top) */}
-        <rect x="8" y="8.5" width="16" height="1.5" rx="0.75" fill="url(#anchorGradient)" />
-        <circle cx="8" cy="9.25" r="1" fill="url(#anchorGradient)" />
-        <circle cx="24" cy="9.25" r="1" fill="url(#anchorGradient)" />
+        {/* Hat Band */}
+        <rect x="6" y="16" width="20" height="3" rx="1.5" fill="url(#goldGradient)" />
         
-        {/* Anchor Crown (bottom horizontal part) */}
-        <rect x="12" y="22" width="8" height="1.5" rx="0.75" fill="url(#anchorGradient)" />
-        
-        {/* Left Fluke */}
-        <path
-          d="M12 22.75 L8 26 L8 28 L10 28 L10 26.5 L14 23.5 Z"
-          fill="url(#anchorGradient)"
-          stroke="#1e40af"
+        {/* Captain's Emblem/Badge */}
+        <motion.circle
+          cx="16" cy="12" r="3"
+          fill="url(#goldGradient)"
+          stroke="#fbbf24"
           strokeWidth="0.5"
+          animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+          transition={{ duration: 2, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
         />
         
-        {/* Right Fluke */}
+        {/* Anchor symbol on emblem */}
         <path
-          d="M20 22.75 L24 26 L24 28 L22 28 L22 26.5 L18 23.5 Z"
-          fill="url(#anchorGradient)"
-          stroke="#1e40af"
-          strokeWidth="0.5"
+          d="M16 10 L16 14 M14 12 L18 12 M14 13.5 Q14 14.5 15 14.5 M18 13.5 Q18 14.5 17 14.5"
+          stroke="#1e3a8a"
+          strokeWidth="0.8"
+          strokeLinecap="round"
         />
         
-        {/* Fluke Tips (sharp points) */}
-        <polygon points="8,26 6,27 8,28" fill="#1e40af" />
-        <polygon points="24,26 26,27 24,28" fill="#1e40af" />
+        {/* Hat Shine/Highlight */}
+        <ellipse cx="13" cy="10" rx="3" ry="2" fill="rgba(255,255,255,0.2)" />
         
-        {/* Anchor Shading for 3D effect */}
-        <rect x="15.5" y="9" width="0.8" height="14" rx="0.4" fill="rgba(255,255,255,0.3)" />
-        <rect x="8.3" y="8.8" width="15.4" height="0.7" rx="0.35" fill="rgba(255,255,255,0.2)" />
+        {/* Captain's Stars */}
+        <motion.g
+          animate={isActive ? { opacity: [0.7, 1, 0.7] } : { opacity: 0.8 }}
+          transition={{ duration: 1.8, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
+        >
+          <polygon points="10,17.5 10.5,18.5 9.5,18.5" fill="#fbbf24" />
+          <polygon points="22,17.5 22.5,18.5 21.5,18.5" fill="#fbbf24" />
+        </motion.g>
         
-        {/* Chain Links above anchor */}
-        <motion.ellipse
-          cx="16" cy="2" rx="1.5" ry="0.8"
-          fill="none" stroke="url(#anchorChain)" strokeWidth="1"
-          animate={isActive ? { y: [0, -1, 0] } : {}}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.ellipse
-          cx="16" cy="4" rx="1.2" ry="0.6"
-          fill="none" stroke="url(#anchorChain)" strokeWidth="0.8"
-          animate={isActive ? { y: [0, -0.5, 0] } : {}}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-        />
-        
-        {/* Water Ripples Animation */}
+        {/* Floating particles when active */}
         {isActive && (
           <>
             <motion.circle
-              key="ripple1"
-              cx="16" cy="28" r="8"
-              fill="none"
-              stroke="#60a5fa"
-              strokeWidth="0.5"
-              opacity="0.3"
-              animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
+              cx="8" cy="8" r="0.8"
+              fill="#fbbf24"
+              animate={{ y: [0, -3, 0], opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.circle
-              key="ripple2"
-              cx="16" cy="28" r="12"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="0.3"
-              opacity="0.2"
-              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              cx="24" cy="6" r="0.6"
+              fill="#f59e0b"
+              animate={{ y: [0, -2, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             />
           </>
         )}
@@ -191,11 +177,21 @@ export const Trips3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24
         <motion.circle
           cx="12" cy="18" r="1.5"
           fill="#8b5cf6"
-          animate={isActive ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          animate={isActive ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+          transition={{ duration: 1.5, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
         />
-        <circle cx="16" cy="18" r="1" fill="#d1d5db" />
-        <circle cx="20" cy="18" r="1" fill="#d1d5db" />
+        <motion.circle 
+          cx="16" cy="18" r="1" 
+          fill="#d1d5db"
+          animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+          transition={{ duration: 1.8, repeat: isActive ? Infinity : 0, ease: "easeInOut", delay: 0.2 }}
+        />
+        <motion.circle 
+          cx="20" cy="18" r="1" 
+          fill="#d1d5db"
+          animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+          transition={{ duration: 2, repeat: isActive ? Infinity : 0, ease: "easeInOut", delay: 0.4 }}
+        />
         <circle cx="12" cy="22" r="1" fill="#d1d5db" />
         <circle cx="16" cy="22" r="1" fill="#d1d5db" />
         <circle cx="20" cy="22" r="1" fill="#d1d5db" />
@@ -251,10 +247,9 @@ export const Favorites3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size 
           d="M16 26 C12 22, 6 18, 6 12 C6 8, 9 6, 12 8 C14 6, 16 7, 16 10 C16 7, 18 6, 20 8 C23 6, 26 8, 26 12 C26 18, 20 22, 16 26 Z"
           fill="url(#heartGradient)"
           animate={isActive ? { 
-            scale: [1, 1.1, 1],
-            filter: ["drop-shadow(0 2px 4px rgba(0,0,0,0.3))", "drop-shadow(0 4px 8px rgba(239, 68, 68, 0.4))", "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"]
-          } : {}}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            scale: [1, 1.1, 1]
+          } : { scale: 1 }}
+          transition={{ duration: 1.5, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
         />
         
         {/* Heart Shine */}
