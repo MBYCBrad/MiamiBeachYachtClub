@@ -57,10 +57,10 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
       }}
       whileTap={{ scale: 0.98 }}
       className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 cursor-pointer overflow-hidden
-        hover:shadow-[0_20px_50px_rgba(168,85,247,0.4),0_20px_50px_rgba(79,70,229,0.3),0_20px_50px_rgba(59,130,246,0.2)] 
-        hover:border-indigo-400/60
+        hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
+        hover:border-purple-400/60
         hover:bg-gray-800/50
-        before:absolute before:inset-0 before:bg-gradient-to-br before:from-purple-600/0 before:via-indigo-600/5 before:to-blue-600/0 before:opacity-0 before:transition-opacity before:duration-500
+        before:absolute before:inset-0 before:bg-gradient-to-r before:from-purple-600/0 before:via-purple-600/5 before:to-blue-600/0 before:opacity-0 before:transition-opacity before:duration-500
         hover:before:opacity-100"
     >
       <div className="relative z-10">
