@@ -96,6 +96,16 @@ export default function HomePage() {
                   {user?.membershipTier && getMembershipBadge(user.membershipTier)}
                 </div>
               </div>
+              {user?.role === UserRole.ADMIN && (
+                <Button
+                  onClick={() => window.location.href = '/admin'}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                >
+                  Admin Panel
+                </Button>
+              )}
               <Button
                 onClick={() => logoutMutation.mutate()}
                 variant="outline"

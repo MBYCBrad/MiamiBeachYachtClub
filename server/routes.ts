@@ -399,6 +399,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // USER MANAGEMENT ROUTES (Admin only)
+  app.get("/api/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const updatedUser = await storage.updateUser(userId, updates);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

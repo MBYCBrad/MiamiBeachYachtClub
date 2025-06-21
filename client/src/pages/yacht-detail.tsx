@@ -1,16 +1,34 @@
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, Anchor, Users, Ruler, MapPin, Star, Calendar, Clock } from "lucide-react";
+import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import type { Yacht } from "@shared/schema";
 
 export default function YachtDetail() {
   const { id } = useParams();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const { user } = useAuth();
   
   const { data: yacht, isLoading } = useQuery<Yacht>({
     queryKey: [`/api/yachts/${id}`],
     enabled: !!id
   });
+
+  const handleBookNow = () => {
+    if (!yacht) return;
+    
+    // Free yacht bookings for members
+    toast({
+      title: "Booking Confirmed",
+      description: `Your booking for ${yacht.name} has been confirmed. A club representative will contact you shortly.`,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -157,8 +175,13 @@ export default function YachtDetail() {
                 </div>
               </div>
 
-              <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 font-semibold py-3 mb-4">
-                Reserve Now
+              <Button 
+                onClick={handleBookNow}
+                disabled={!yacht.isAvailable}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 font-semibold py-3 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Anchor className="mr-2 h-4 w-4" />
+                {yacht.isAvailable ? 'Reserve Now' : 'Unavailable'}
               </Button>
 
               <p className="text-xs text-gray-500 text-center">

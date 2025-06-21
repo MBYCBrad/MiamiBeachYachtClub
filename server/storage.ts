@@ -15,7 +15,9 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
 
   // Yacht methods
@@ -262,6 +264,22 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async updateUser(id: number, userUpdate: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: User = { 
+      ...user, 
+      ...userUpdate
+    };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
   async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
     const user = this.users.get(userId);
     if (!user) throw new Error('User not found');
@@ -324,7 +342,7 @@ export class MemStorage implements IStorage {
     const updatedYacht: Yacht = { 
       ...yacht, 
       ...yachtUpdate,
-      amenities: Array.isArray(yachtUpdate.amenities) ? yachtUpdate.amenities : yacht.amenities
+      amenities: yacht.amenities // Keep original amenities for now
     };
     this.yachts.set(id, updatedYacht);
     return updatedYacht;
