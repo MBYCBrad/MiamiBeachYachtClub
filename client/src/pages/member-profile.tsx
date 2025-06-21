@@ -37,7 +37,9 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface MemberProfileProps {
   currentView: string;
@@ -62,6 +64,83 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const { user, logoutMutation } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  // Form state management with real user data
+  const [formData, setFormData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    phone: '+1 (305) 555-0123',
+    location: 'Miami Beach, FL',
+    language: 'en',
+    notifications: {
+      bookings: true,
+      events: true,
+      marketing: false
+    }
+  });
+
+  // Update form data when user data changes
+  React.useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        username: user.username || '',
+        email: user.email || ''
+      }));
+    }
+  }, [user]);
+
+  // Real-time profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updates: Partial<typeof formData>) => {
+      const response = await apiRequest('PATCH', `/api/user/${user?.id}`, updates);
+      return response.json();
+    },
+    onSuccess: (updatedUser) => {
+      // Update the user cache
+      queryClient.setQueryData(['/api/user'], updatedUser);
+      toast({
+        title: "Profile Updated",
+        description: "Your changes have been saved successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to save changes.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle form field changes with real-time updates
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Debounced real-time update to database
+    const updates = { [field]: value };
+    updateProfileMutation.mutate(updates);
+  };
+
+  // Handle nested notification changes
+  const handleNotificationChange = (key: string, value: boolean) => {
+    const updatedNotifications = {
+      ...formData.notifications,
+      [key]: value
+    };
+    
+    setFormData(prev => ({
+      ...prev,
+      notifications: updatedNotifications
+    }));
+    
+    updateProfileMutation.mutate({ notifications: updatedNotifications });
+  };
 
   // Fetch real data for analytics and recommendations
   const { data: bookings = [] } = useQuery({ queryKey: ['/api/bookings'] }) as { data: any[] };
@@ -334,11 +413,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     {isEditingProfile ? (
                       <input
                         type="text"
-                        defaultValue={user?.username}
+                        value={formData.username}
+                        onChange={(e) => handleFieldChange('username', e.target.value)}
                         className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
                       />
                     ) : (
-                      <div className="text-white font-medium">{user?.username}</div>
+                      <div className="text-white font-medium">{formData.username}</div>
                     )}
                   </div>
                   
@@ -347,11 +427,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     {isEditingProfile ? (
                       <input
                         type="email"
-                        defaultValue={user?.email}
+                        value={formData.email}
+                        onChange={(e) => handleFieldChange('email', e.target.value)}
                         className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
                       />
                     ) : (
-                      <div className="text-white font-medium">{user?.email}</div>
+                      <div className="text-white font-medium">{formData.email}</div>
                     )}
                   </div>
                   
@@ -360,11 +441,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     {isEditingProfile ? (
                       <input
                         type="tel"
-                        defaultValue="+1 (305) 555-0123"
+                        value={formData.phone}
+                        onChange={(e) => handleFieldChange('phone', e.target.value)}
                         className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
                       />
                     ) : (
-                      <div className="text-white font-medium">+1 (305) 555-0123</div>
+                      <div className="text-white font-medium">{formData.phone}</div>
                     )}
                   </div>
                 </div>
@@ -407,11 +489,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     {isEditingProfile ? (
                       <input
                         type="text"
-                        defaultValue="Miami Beach, FL"
+                        value={formData.location}
+                        onChange={(e) => handleFieldChange('location', e.target.value)}
                         className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-green-500 focus:outline-none transition-colors"
                       />
                     ) : (
-                      <div className="text-white font-medium">Miami Beach, FL</div>
+                      <div className="text-white font-medium">{formData.location}</div>
                     )}
                   </div>
                   
@@ -465,7 +548,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       <label className="flex items-center gap-3">
                         <input 
                           type="checkbox" 
-                          defaultChecked 
+                          checked={formData.notifications.bookings}
+                          onChange={(e) => handleNotificationChange('bookings', e.target.checked)}
                           disabled={!isEditingProfile}
                           className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
                         />
@@ -474,7 +558,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       <label className="flex items-center gap-3">
                         <input 
                           type="checkbox" 
-                          defaultChecked 
+                          checked={formData.notifications.events}
+                          onChange={(e) => handleNotificationChange('events', e.target.checked)}
                           disabled={!isEditingProfile}
                           className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
                         />
@@ -483,6 +568,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       <label className="flex items-center gap-3">
                         <input 
                           type="checkbox" 
+                          checked={formData.notifications.marketing}
+                          onChange={(e) => handleNotificationChange('marketing', e.target.checked)}
                           disabled={!isEditingProfile}
                           className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
                         />
@@ -494,13 +581,19 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   <div>
                     <label className="text-sm text-gray-400 mb-1 block">Preferred Language</label>
                     {isEditingProfile ? (
-                      <select className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none transition-colors">
+                      <select 
+                        value={formData.language}
+                        onChange={(e) => handleFieldChange('language', e.target.value)}
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none transition-colors"
+                      >
                         <option value="en">English</option>
                         <option value="es">Español</option>
                         <option value="fr">Français</option>
                       </select>
                     ) : (
-                      <div className="text-white font-medium">English</div>
+                      <div className="text-white font-medium">
+                        {formData.language === 'en' ? 'English' : formData.language === 'es' ? 'Español' : 'Français'}
+                      </div>
                     )}
                   </div>
                 </div>

@@ -618,6 +618,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // USER PROFILE UPDATE ROUTE (for authenticated users to update their own profile)
+  app.patch("/api/profile", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const updates = req.body;
+      
+      // Only allow certain fields to be updated by the user themselves
+      const allowedFields = ['username', 'email', 'phone', 'location', 'language', 'notifications'];
+      const filteredUpdates: any = {};
+      
+      allowedFields.forEach(field => {
+        if (updates[field] !== undefined) {
+          filteredUpdates[field] = updates[field];
+        }
+      });
+      
+      const updatedUser = await storage.updateUser(userId, filteredUpdates);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(updatedUser);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Initialize notification service with WebSocket support

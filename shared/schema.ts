@@ -26,6 +26,18 @@ export const users = pgTable("users", {
   membershipTier: text("membership_tier"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  phone: text("phone"),
+  location: text("location"),
+  language: text("language").default("en"),
+  notifications: jsonb("notifications").$type<{
+    bookings: boolean;
+    events: boolean;
+    marketing: boolean;
+  }>().default({
+    bookings: true,
+    events: true,
+    marketing: false
+  }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
