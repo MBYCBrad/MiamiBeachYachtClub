@@ -3,8 +3,10 @@ import { useAuth } from '@/hooks/use-auth';
 import BottomNavigation from '@/components/BottomNavigation';
 import { motion } from 'framer-motion';
 
-// Import new member pages
-import MemberHome from '@/pages/member-home';
+// Import new pages
+import YachtsPage from '@/pages/yachts-page';
+import ServicesPage from '@/pages/services-page';
+import EventsPage from '@/pages/events-page';
 import MemberMessages from '@/pages/member-messages';
 import MemberFavorites from '@/pages/member-favorites';
 import MemberProfile from '@/pages/member-profile';
@@ -16,7 +18,7 @@ import AdminDashboard from '@/screens/AdminDashboard';
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [currentView, setCurrentView] = useState('home');
+  const [currentView, setCurrentView] = useState('yachts');
 
   if (!user) {
     return (
@@ -44,9 +46,12 @@ export default function HomePage() {
 
   const renderMemberContent = () => {
     switch (currentView) {
-      case 'home':
-      case 'search':
-        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'yachts':
+        return <YachtsPage currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'services':
+        return <ServicesPage currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'events':
+        return <EventsPage currentView={currentView} setCurrentView={setCurrentView} />;
       case 'messages':
         return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'favorites':
@@ -54,7 +59,7 @@ export default function HomePage() {
       case 'profile':
         return <MemberProfile currentView={currentView} setCurrentView={setCurrentView} />;
       default:
-        return <MemberHome currentView={currentView} setCurrentView={setCurrentView} />;
+        return <YachtsPage currentView={currentView} setCurrentView={setCurrentView} />;
     }
   };
 
