@@ -61,6 +61,12 @@ interface YachtResult {
 export default function SearchResults({ currentView, setCurrentView, searchCriteria }: SearchResultsProps) {
   const [sortBy, setSortBy] = useState('recommended');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    priceRange: { min: 0, max: 10000 },
+    yachtSize: 'any',
+    amenities: [] as string[],
+  });
 
   // Fetch real yacht data from API
   const { data: yachtsData = [], isLoading, error } = useQuery({
@@ -91,19 +97,52 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
     }
   }));
 
-  // Filter results based on search criteria
+  // Filter results based on search criteria and filters
   const filteredResults = searchResults.filter(yacht => {
-    if (!searchCriteria) return true;
-    
-    // Filter by location if provided
-    if (searchCriteria.location && searchCriteria.location !== 'Anywhere') {
-      const locationMatch = yacht.location.toLowerCase().includes(searchCriteria.location.toLowerCase());
-      if (!locationMatch) return false;
+    // Search criteria filters
+    if (searchCriteria) {
+      // Filter by location if provided
+      if (searchCriteria.location && searchCriteria.location !== 'Anywhere') {
+        const locationMatch = yacht.location.toLowerCase().includes(searchCriteria.location.toLowerCase());
+        if (!locationMatch) return false;
+      }
+      
+      // Filter by guest capacity
+      const totalGuests = searchCriteria.guests.adults + searchCriteria.guests.children + searchCriteria.guests.infants;
+      if (totalGuests > yacht.capacity) return false;
     }
     
-    // Filter by guest capacity
-    const totalGuests = searchCriteria.guests.adults + searchCriteria.guests.children + searchCriteria.guests.infants;
-    if (totalGuests > yacht.capacity) return false;
+    // Additional filters
+    // Filter by price range
+    if (yacht.price < filters.priceRange.min || yacht.price > filters.priceRange.max) {
+      return false;
+    }
+    
+    // Filter by yacht size
+    if (filters.yachtSize !== 'any') {
+      const yachtSizeNum = parseInt(yacht.size);
+      switch (filters.yachtSize) {
+        case 'small':
+          if (yachtSizeNum >= 60) return false;
+          break;
+        case 'medium':
+          if (yachtSizeNum < 60 || yachtSizeNum >= 100) return false;
+          break;
+        case 'large':
+          if (yachtSizeNum < 100) return false;
+          break;
+      }
+    }
+    
+    // Filter by amenities
+    if (filters.amenities.length > 0) {
+      const hasAllAmenities = filters.amenities.every(amenity => 
+        yacht.amenities.some(yachtAmenity => 
+          yachtAmenity.toLowerCase().includes(amenity.toLowerCase())
+        )
+      );
+      if (!hasAllAmenities) return false;
+    }
     
     // Only show available yachts
     return yacht.available;
@@ -196,12 +235,122 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
           <div className="flex items-center space-x-4">
             {/* Filters */}
-            <Button variant="outline" className="flex items-center space-x-2 border-purple-500/30 bg-gray-800/50 text-gray-300 hover:text-white hover:border-purple-400">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "flex items-center space-x-2 border-purple-500/30 bg-gray-800/50 text-gray-300 hover:text-white hover:border-purple-400",
+                showFilters && "bg-purple-600/20 border-purple-400 text-white"
+              )}
+            >
               <Filter size={16} />
               <span>Filters</span>
             </Button>
           </div>
         </div>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-6"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Price Range */}
+              <div className="space-y-3">
+                <label className="text-white font-medium">Price Range (4 hours)</label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-300 text-sm">$</span>
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filters.priceRange.min}
+                      onChange={(e) => setFilters({
+                        ...filters,
+                        priceRange: { ...filters.priceRange, min: parseInt(e.target.value) || 0 }
+                      })}
+                      className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                    />
+                    <span className="text-gray-400">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filters.priceRange.max}
+                      onChange={(e) => setFilters({
+                        ...filters,
+                        priceRange: { ...filters.priceRange, max: parseInt(e.target.value) || 10000 }
+                      })}
+                      className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Yacht Size */}
+              <div className="space-y-3">
+                <label className="text-white font-medium">Yacht Size</label>
+                <select
+                  value={filters.yachtSize}
+                  onChange={(e) => setFilters({ ...filters, yachtSize: e.target.value })}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                >
+                  <option value="any">Any Size</option>
+                  <option value="small">Small (Under 60ft)</option>
+                  <option value="medium">Medium (60-100ft)</option>
+                  <option value="large">Large (100ft+)</option>
+                </select>
+              </div>
+
+              {/* Amenities */}
+              <div className="space-y-3">
+                <label className="text-white font-medium">Amenities</label>
+                <div className="space-y-2">
+                  {['WiFi', 'Kitchen', 'Water Sports', 'Dining'].map((amenity) => (
+                    <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={filters.amenities.includes(amenity)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFilters({
+                              ...filters,
+                              amenities: [...filters.amenities, amenity]
+                            });
+                          } else {
+                            setFilters({
+                              ...filters,
+                              amenities: filters.amenities.filter(a => a !== amenity)
+                            });
+                          }
+                        }}
+                        className="rounded border-gray-600 bg-gray-700 text-purple-600"
+                      />
+                      <span className="text-gray-300">{amenity}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            <div className="mt-6 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setFilters({
+                  priceRange: { min: 0, max: 10000 },
+                  yachtSize: 'any',
+                  amenities: [],
+                })}
+                className="border-gray-600 text-gray-300 hover:text-white"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         {/* No Results Message */}
         {filteredResults.length === 0 && (
