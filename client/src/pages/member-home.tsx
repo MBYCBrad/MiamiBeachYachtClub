@@ -171,30 +171,28 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="relative w-full max-w-4xl mx-auto"
+              className="relative w-full max-w-4xl mx-auto mb-6"
             >
               <AirbnbSearchBar 
                 onSearch={handleSearch}
                 className="shadow-2xl"
               />
             </motion.div>
+            
+            {/* Tab Navigation directly below search */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+              className="flex justify-center"
+            >
+              <TabNavigation 
+                activeTab={selectedCategory}
+                onTabChange={setSelectedCategory}
+              />
+            </motion.div>
           </motion.div>
         </div>
-      </div>
-
-      {/* 3D Animated Tab Navigation - Below search bar */}
-      <div className="absolute inset-x-0 z-40" style={{ top: 'calc(45vh + 80px)' }}>
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0 }}
-          className="flex justify-center px-4 py-2"
-        >
-          <TabNavigation 
-            activeTab={selectedCategory}
-            onTabChange={setSelectedCategory}
-          />
-        </motion.div>
       </div>
 
       {/* Content */}
