@@ -199,14 +199,14 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation */}
+      {/* 3D Animated Tab Navigation - Positioned within blur area */}
       <motion.div 
-        className="sticky top-0 z-40 bg-black/80 backdrop-blur-md border-b border-gray-800"
-        initial={{ opacity: 0, y: -20 }}
+        className="absolute bottom-4 left-0 right-0 z-40 bg-black/60 backdrop-blur-lg mx-4 rounded-2xl border border-gray-700/30"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.6, delay: 1.0 }}
       >
-        <div className="px-4 py-3 flex justify-center">
+        <div className="px-3 py-2 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
@@ -214,8 +214,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </motion.div>
 
-      {/* Content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      {/* Content - Added top padding to account for overlay navigation */}
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pt-20">
         <AnimatePresence mode="wait">
           {selectedCategory === 'yachts' && (
             <motion.div
