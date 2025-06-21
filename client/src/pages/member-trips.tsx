@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Booking, ServiceBooking, EventRegistration } from '@shared/schema';
+import type { Booking, ServiceBooking, EventRegistration, MediaAsset } from '@shared/schema';
 
 interface MemberTripsProps {
   currentView: string;
@@ -15,6 +15,10 @@ interface MemberTripsProps {
 
 export default function MemberTrips({ currentView, setCurrentView }: MemberTripsProps) {
   const [activeTab, setActiveTab] = useState('upcoming');
+
+  const { data: heroVideo } = useQuery<MediaAsset>({
+    queryKey: ['/api/media/hero/active']
+  });
 
   const { data: yachtBookings = [], isLoading: yachtLoading } = useQuery<Booking[]>({
     queryKey: ['/api/bookings', { status: 'confirmed' }]
@@ -69,18 +73,60 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      {/* Header */}
-      <div className="relative pt-12 pb-6 px-4">
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-bold text-gradient-animate mb-2"
-        >
-          Your Trips
-        </motion.h1>
-        <p className="text-gray-300">
-          Manage your yacht bookings and experiences
-        </p>
+      {/* Video Cover Header */}
+      <div className="relative h-96 overflow-hidden">
+        {/* Hero Video Background */}
+        {heroVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={heroVideo.url} type="video/mp4" />
+          </video>
+        )}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
+
+        {/* Header Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-bold text-white mb-4"
+          >
+            Your Trips
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
+          >
+            Manage your yacht bookings and exclusive experiences
+          </motion.p>
+          
+          {/* Stats overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex space-x-8 text-center"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{upcomingYachtBookings.length}</div>
+              <div className="text-sm text-gray-300">Upcoming Trips</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{pastYachtBookings.length}</div>
+              <div className="text-sm text-gray-300">Completed</div>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Tabs */}
