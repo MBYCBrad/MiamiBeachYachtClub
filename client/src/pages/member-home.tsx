@@ -213,7 +213,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 py-1 flex justify-center">
+        <div className="px-4 py-1 flex justify-center relative z-50">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
