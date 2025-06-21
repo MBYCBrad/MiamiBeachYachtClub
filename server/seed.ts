@@ -13,34 +13,8 @@ async function hashPassword(password: string) {
 }
 
 async function createEventsData(createdUsers: any[]) {
-  // Create exclusive MBYC member-only yacht rental add-on experiences
+  // Create exclusive MBYC member-only fleet parties
   const eventData = [
-    // Yacht Charter Add-On Experiences
-    {
-      title: "Private Chef Dinner Party Add-On",
-      description: "Transform your yacht charter into a Michelin-starred dining experience. Our executive chef creates a personalized 7-course tasting menu featuring locally-sourced ingredients, premium wagyu beef, fresh lobster, and curated wine pairings. Perfect for intimate celebrations, anniversaries, or impressing business clients during your charter.",
-      startTime: new Date("2025-07-15T19:00:00Z"),
-      endTime: new Date("2025-07-15T23:00:00Z"),
-      location: "Add-On to Any Yacht Charter",
-      capacity: 12,
-      ticketPrice: "485.00",
-      imageUrl: "/api/media/pexels-goumbik-296278_1750537277229.jpg",
-      hostId: createdUsers.find(u => u.username === "chef_service")?.id,
-      isActive: true
-    },
-    {
-      title: "Sunset Photography Session Add-On",
-      description: "Capture magical moments during your yacht charter with our professional photographer specializing in luxury lifestyle and yacht photography. Includes 2-hour session during golden hour, 50+ edited high-resolution images, same-day preview gallery, and complimentary champagne service while shooting. Perfect for proposals, family portraits, or social media content.",
-      startTime: new Date("2025-07-20T18:30:00Z"),
-      endTime: new Date("2025-07-20T20:30:00Z"),
-      location: "Add-On to Any Yacht Charter",
-      capacity: 8,
-      ticketPrice: "650.00",
-      imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
-      hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
-      isActive: true
-    },
-    
     // Monthly Member Group Yacht Parties - All 6 Yachts Together
     {
       title: "White Party Marina Social - All Fleet Event",
@@ -692,66 +666,6 @@ export async function seedDatabase() {
         ticketPrice: "225.00",
         imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
         hostId: createdUsers.find(u => u.username === "admin")?.id,
-        isActive: true
-      },
-      {
-        title: "Premium Water Sports Package",
-        description: "Elevate your yacht charter with our exclusive water sports collection: jet skis, paddleboards, snorkeling gear, floating loungers, and professional instruction. Includes waterproof camera rental, towel service, and safety equipment. Add dolphin watching excursion to encounter Miami's resident dolphin pods in their natural habitat.",
-        startTime: new Date("2025-07-25T11:00:00Z"),
-        endTime: new Date("2025-07-25T16:00:00Z"),
-        location: "Add-On to Any Yacht Charter",
-        capacity: 10,
-        ticketPrice: "385.00",
-        imageUrl: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg",
-        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        isActive: true
-      },
-      {
-        title: "Onboard Spa & Wellness Experience",
-        description: "Transform your yacht into a floating spa sanctuary. Professional massage therapists provide couples massages, aromatherapy treatments, and guided meditation sessions on deck. Includes premium organic spa products, healthy superfood smoothies, yoga mats, and ambient music curation. Ideal for wellness retreats or romantic getaways.",
-        startTime: new Date("2025-08-01T14:00:00Z"),
-        endTime: new Date("2025-08-01T18:00:00Z"),
-        location: "Add-On to Any Yacht Charter",
-        capacity: 6,
-        ticketPrice: "575.00",
-        imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
-        hostId: createdUsers.find(u => u.username === "spa_provider")?.id,
-        isActive: true
-      },
-      {
-        title: "Live Music & Entertainment Package",
-        description: "Bring world-class entertainment aboard your charter with our curated musicians: acoustic guitarist for intimate moments, saxophone player for sunset cocktails, or full jazz trio for sophisticated gatherings. Includes premium sound system setup, wireless microphones, and song requests. Perfect for celebrations, corporate events, or romantic evenings.",
-        startTime: new Date("2025-08-08T17:00:00Z"),
-        endTime: new Date("2025-08-08T22:00:00Z"),
-        location: "Add-On to Any Yacht Charter",
-        capacity: 20,
-        ticketPrice: "750.00",
-        imageUrl: "/api/media/pexels-mali-42091_1750537294323.jpg",
-        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        isActive: true
-      },
-      {
-        title: "Gourmet Picnic & Island Exploration",
-        description: "Combine your yacht charter with an exclusive island adventure. We anchor at secluded sandbar or private beach while our team sets up a luxury picnic with gourmet sandwiches, fresh fruit platters, premium cheeses, and chilled rosé. Includes beach games, snorkeling equipment, and professional photography of your island experience.",
-        startTime: new Date("2025-08-12T12:00:00Z"),
-        endTime: new Date("2025-08-12T17:00:00Z"),
-        location: "Private Islands & Sandbars",
-        capacity: 15,
-        ticketPrice: "445.00",
-        imageUrl: "/api/media/pexels-mali-42092_1750537277229.jpg",
-        hostId: createdUsers.find(u => u.username === "chef_service")?.id,
-        isActive: true
-      },
-      {
-        title: "Celebration & Party Enhancement",
-        description: "Turn your yacht charter into an unforgettable celebration with professional party planning, custom decorations matching your theme, premium bar service with signature cocktails, party games, and DJ services. Includes balloon arrangements, custom cake service, and special occasion photography. Perfect for birthdays, bachelorette parties, or milestone celebrations.",
-        startTime: new Date("2025-08-18T15:00:00Z"),
-        endTime: new Date("2025-08-18T21:00:00Z"),
-        location: "Add-On to Any Yacht Charter",
-        capacity: 25,
-        ticketPrice: "695.00",
-        imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
-        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
         isActive: true
       },
       {
