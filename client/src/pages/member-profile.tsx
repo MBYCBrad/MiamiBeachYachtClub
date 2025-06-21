@@ -758,7 +758,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       {stat.label}
                     </motion.div>
                     
-                    {/* Decorative Stars on Left */}
+                    {/* Decorative Diamonds on Left */}
                     <motion.div
                       className="absolute left-2 top-1/2 transform -translate-y-1/2"
                       initial={{ opacity: 0, scale: 0 }}
@@ -770,31 +770,35 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       }}
                     >
                       <motion.div
+                        className="w-3 h-3 bg-gradient-to-r from-yellow-400 to-yellow-300 transform rotate-45 mb-2"
                         animate={{
-                          rotate: [0, 360],
-                          scale: [0.8, 1.2, 0.8]
+                          scale: [0.8, 1.2, 0.8],
+                          opacity: [0.7, 1, 0.7]
                         }}
                         transition={{ 
                           duration: 4, 
                           repeat: Infinity,
                           delay: index * 0.5
                         }}
-                      >
-                        <Sparkles className="h-3 w-3 text-yellow-400 mb-2" />
-                      </motion.div>
+                        style={{
+                          boxShadow: "0 0 8px rgba(251, 191, 36, 0.5)"
+                        }}
+                      />
                       <motion.div
+                        className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-cyan-300 transform rotate-45"
                         animate={{
-                          rotate: [360, 0],
-                          scale: [1, 0.6, 1]
+                          scale: [1, 0.6, 1],
+                          opacity: [0.6, 1, 0.6]
                         }}
                         transition={{ 
                           duration: 3, 
                           repeat: Infinity,
                           delay: 0.5 + index * 0.3
                         }}
-                      >
-                        <Sparkles className="h-2 w-2 text-cyan-400" />
-                      </motion.div>
+                        style={{
+                          boxShadow: "0 0 6px rgba(34, 211, 238, 0.5)"
+                        }}
+                      />
                     </motion.div>
                   </CardContent>
                 </Card>
