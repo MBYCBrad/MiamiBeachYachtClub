@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme colors */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(262, 83%, 58%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* MBYC Custom Colors */
+  --yacht-purple: hsl(262, 83%, 58%);
+  --yacht-blue: hsl(218, 91%, 60%);
+  --yacht-coral: hsl(0, 84%, 60%);
+  --yacht-silver: hsl(210, 20%, 98%);
+  --yacht-dark: hsl(240, 10%, 3.9%);
+  --yacht-card: hsl(240, 3.7%, 15.9%);
+  --yacht-accent: hsl(240, 3.7%, 15.9%);
+}
+
+.dark {
+  /* Dark theme colors with MBYC luxury aesthetic */
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(262, 83%, 58%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+
+  /* MBYC Dark Theme Colors */
+  --yacht-purple: hsl(262, 83%, 58%);
+  --yacht-blue: hsl(218, 91%, 60%);
+  --yacht-coral: hsl(0, 84%, 60%);
+  --yacht-silver: hsl(210, 20%, 98%);
+  --yacht-dark: hsl(235, 39%, 7%);
+  --yacht-card: hsl(235, 39%, 12%);
+  --yacht-accent: hsl(235, 20%, 20%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply dark;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    background: linear-gradient(135deg, hsl(240, 10%, 3.9%) 0%, hsl(235, 39%, 7%) 50%, hsl(235, 20%, 20%) 100%);
+    min-height: 100vh;
+  }
+
+  /* MBYC Custom Utility Classes */
+  .yacht-purple {
+    color: var(--yacht-purple);
+  }
+
+  .yacht-blue {
+    color: var(--yacht-blue);
+  }
+
+  .yacht-silver {
+    color: var(--yacht-silver);
+  }
+
+  .bg-yacht-purple {
+    background-color: var(--yacht-purple);
+  }
+
+  .bg-yacht-blue {
+    background-color: var(--yacht-blue);
+  }
+
+  .bg-yacht-dark {
+    background-color: var(--yacht-dark);
+  }
+
+  .bg-yacht-card {
+    background-color: var(--yacht-card);
+  }
+
+  .bg-yacht-accent {
+    background-color: var(--yacht-accent);
+  }
+
+  .border-yacht-purple {
+    border-color: var(--yacht-purple);
+  }
+
+  .border-yacht-accent {
+    border-color: var(--yacht-accent);
+  }
+}
+
+@layer components {
+  /* Custom animations for luxury feel */
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  /* Luxury button gradients */
+  .btn-yacht-gradient {
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700;
+    @apply transition-all duration-300 transform hover:scale-105;
+    @apply shadow-lg hover:shadow-2xl hover:shadow-purple-600/30;
+  }
+
+  /* Yacht club card styling */
+  .yacht-card {
+    @apply bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/30;
+    @apply hover:border-purple-600/50 transition-all duration-300;
+    @apply hover:shadow-2xl hover:shadow-purple-600/20 transform hover:scale-105;
+  }
+
+  /* Glass morphism effect */
+  .glass-morphism {
+    backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(17, 25, 40, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.125);
+  }
+
+  /* Line clamping */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Custom keyframes for animations */
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 5px var(--yacht-purple), 0 0 10px var(--yacht-purple);
+    }
+    100% {
+      box-shadow: 0 0 10px var(--yacht-purple), 0 0 20px var(--yacht-purple), 0 0 30px var(--yacht-blue);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Scrollbar styling for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--yacht-dark);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--yacht-purple);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--yacht-blue);
+  }
+
+  /* Custom focus styles */
+  .focus-yacht {
+    @apply focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none transition-all duration-300;
+  }
+
+  /* Text gradients */
+  .text-gradient-yacht {
+    background: linear-gradient(135deg, var(--yacht-silver), var(--yacht-purple), var(--yacht-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Backdrop blur utilities */
+  .backdrop-blur-luxury {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+/* FontAwesome icon animations */
+.fa-anchor, .fa-concierge-bell, .fa-glass-cheers {
+  transition: all 0.3s ease;
+}
+
+.fa-anchor:hover, .fa-concierge-bell:hover, .fa-glass-cheers:hover {
+  transform: scale(1.1);
+}
+
+/* Custom tab indicator */
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--yacht-purple), var(--yacht-blue));
+  border-radius: 1px;
+}
+
+/* Loading spinner custom colors */
+.animate-spin {
+  border-color: var(--yacht-purple) transparent var(--yacht-purple) transparent;
+}
+
+/* Custom selection colors */
+::selection {
+  background-color: var(--yacht-purple);
+  color: var(--yacht-silver);
+}
+
+::-moz-selection {
+  background-color: var(--yacht-purple);
+  color: var(--yacht-silver);
+}
