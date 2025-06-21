@@ -384,8 +384,27 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.2 }}
-        className="px-6 -mt-16 relative z-10 mb-12"
+        className="px-6 mt-6 mb-12"
       >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="p-3 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
+            >
+              <Trophy className="h-6 w-6 text-indigo-400" />
+            </motion.div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Member Analytics</h2>
+              <p className="text-gray-400">Your yacht club achievements and insights</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-4 gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
