@@ -69,6 +69,7 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
             src={yacht.imageUrl || getYachtImage(yacht.id)} 
             alt={yacht.name}
             className="w-full h-48 object-cover"
+            key={yacht.id}
             whileHover={{ 
               scale: 1.1,
               transition: { 
