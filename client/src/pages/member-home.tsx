@@ -182,9 +182,9 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
+      {/* 3D Animated Tab Navigation - Positioned below hero section */}
       <motion.div 
-        className="relative z-40 -mt-20 border-none"
+        className="relative z-40 -mt-8 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
@@ -196,7 +196,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 py-1 flex justify-center">
+        <div className="px-4 py-4 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
