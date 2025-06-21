@@ -24,6 +24,7 @@ import {
   Edit,
   ChevronRight
 } from 'lucide-react';
+import VideoBackground from '@/components/VideoBackground';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -111,10 +112,11 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
   return (
     <div className="min-h-screen bg-black text-white overflow-auto pb-20">
-      {/* Header with Gradient Background */}
+      {/* Header with Video Background */}
       <div className="relative h-64 overflow-hidden">
+        <VideoBackground showControls={false} overlay={false} />
         <div className={cn("absolute inset-0 bg-gradient-to-br", membershipColors[user?.membershipTier as keyof typeof membershipColors] || 'from-purple-600 to-blue-600')} />
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/30" />
         
         {/* Profile Content */}
         <div className="relative h-full flex flex-col justify-end p-6">
