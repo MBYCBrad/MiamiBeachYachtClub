@@ -32,7 +32,8 @@ import {
   Plus,
   ArrowRight,
   Clock,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -60,6 +61,7 @@ const membershipIcons = {
 export default function MemberProfile({ currentView, setCurrentView }: MemberProfileProps) {
   const { user, logoutMutation } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   // Fetch real data for analytics and recommendations
   const { data: bookings = [] } = useQuery({ queryKey: ['/api/bookings'] }) as { data: any[] };
@@ -258,11 +260,11 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               </motion.div>
             </motion.div>
             
-            {/* Profile Info */}
+            {/* Simplified Avatar Info for Hero */}
             <div className="flex-1 space-y-4">
               <div>
                 <motion.h1 
-                  className="text-5xl font-bold text-white mb-2"
+                  className="text-3xl md:text-5xl font-bold text-white mb-2"
                   animate={{
                     textShadow: [
                       "0 0 20px rgba(139, 92, 246, 0.5)",
@@ -282,56 +284,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   <div className="p-2 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-lg">
                     <Crown className="h-5 w-5 text-amber-400" />
                   </div>
-                  <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white border-white/30 backdrop-blur-md text-lg px-4 py-2">
+                  <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white border-white/30 backdrop-blur-md text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
                     {user?.membershipTier} MEMBER
                   </Badge>
-                </motion.div>
-              </div>
-              
-              {/* Contact Info with Icons */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <motion.div
-                  whileHover={{ x: 5 }}
-                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
-                >
-                  <Mail className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <div className="text-sm text-gray-400">Email</div>
-                    <div className="text-white font-medium">{user?.email}</div>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ x: 5 }}
-                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
-                >
-                  <MapPin className="h-5 w-5 text-green-400" />
-                  <div>
-                    <div className="text-sm text-gray-400">Location</div>
-                    <div className="text-white font-medium">Miami Beach, FL</div>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ x: 5 }}
-                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
-                >
-                  <Phone className="h-5 w-5 text-purple-400" />
-                  <div>
-                    <div className="text-sm text-gray-400">Member ID</div>
-                    <div className="text-white font-medium">MBYC-{user?.id?.toString().padStart(6, '0')}</div>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ x: 5 }}
-                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
-                >
-                  <Calendar className="h-5 w-5 text-orange-400" />
-                  <div>
-                    <div className="text-sm text-gray-400">Joined</div>
-                    <div className="text-white font-medium">January 2023</div>
-                  </div>
                 </motion.div>
               </div>
             </div>
@@ -378,6 +333,304 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           </motion.div>
         </div>
       </div>
+
+      {/* Enhanced Profile Information Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.1 }}
+        className="px-4 md:px-6 mt-8 mb-12"
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-4">
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="p-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
+            >
+              <User className="h-6 w-6 text-blue-400" />
+            </motion.div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white">Profile Information</h2>
+              <p className="text-gray-400 text-sm md:text-base">Manage your account details and preferences</p>
+            </div>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsEditingProfile(!isEditingProfile)}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-md rounded-lg border border-purple-500/30 text-white hover:from-purple-600/30 hover:to-blue-600/30 transition-all duration-300"
+          >
+            <Edit className="h-4 w-4" />
+            <span className="text-sm md:text-base">{isEditingProfile ? 'Save Changes' : 'Edit Profile'}</span>
+          </motion.button>
+        </div>
+
+        {/* Profile Details Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Personal Information */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group"
+          >
+            <Card className="relative bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 hover:border-blue-500/50 transition-all duration-500 overflow-hidden h-full">
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/5 to-cyan-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              />
+              
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-blue-400" />
+                    Contact Details
+                  </h3>
+                  {isEditingProfile && (
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <Edit className="h-4 w-4 text-gray-400" />
+                    </motion.div>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Email Address</label>
+                    {isEditingProfile ? (
+                      <input
+                        type="email"
+                        defaultValue={user?.email}
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
+                      />
+                    ) : (
+                      <div className="text-white font-medium">{user?.email}</div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Phone Number</label>
+                    {isEditingProfile ? (
+                      <input
+                        type="tel"
+                        defaultValue="+1 (305) 555-0123"
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none transition-colors"
+                      />
+                    ) : (
+                      <div className="text-white font-medium">+1 (305) 555-0123</div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Location & Membership */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group"
+          >
+            <Card className="relative bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 hover:border-green-500/50 transition-all duration-500 overflow-hidden h-full">
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-blue-600/5 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              />
+              
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-green-400" />
+                    Location & Status
+                  </h3>
+                  {isEditingProfile && (
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+                    >
+                      <Edit className="h-4 w-4 text-gray-400" />
+                    </motion.div>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Location</label>
+                    {isEditingProfile ? (
+                      <input
+                        type="text"
+                        defaultValue="Miami Beach, FL"
+                        className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-green-500 focus:outline-none transition-colors"
+                      />
+                    ) : (
+                      <div className="text-white font-medium">Miami Beach, FL</div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Member Since</label>
+                    <div className="text-white font-medium">January 2023</div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Member ID</label>
+                    <div className="text-white font-medium font-mono">MBYC-{user?.id?.toString().padStart(6, '0')}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Preferences & Settings */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            whileHover={{ scale: 1.02, y: -5 }}
+            className="group md:col-span-2 lg:col-span-1"
+          >
+            <Card className="relative bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 hover:border-purple-500/50 transition-all duration-500 overflow-hidden h-full">
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-pink-600/5 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              />
+              
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-purple-400" />
+                    Preferences
+                  </h3>
+                  {isEditingProfile && (
+                    <motion.div
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+                    >
+                      <Edit className="h-4 w-4 text-gray-400" />
+                    </motion.div>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Notification Preferences</label>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3">
+                        <input 
+                          type="checkbox" 
+                          defaultChecked 
+                          disabled={!isEditingProfile}
+                          className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
+                        />
+                        <span className="text-white text-sm">Booking confirmations</span>
+                      </label>
+                      <label className="flex items-center gap-3">
+                        <input 
+                          type="checkbox" 
+                          defaultChecked 
+                          disabled={!isEditingProfile}
+                          className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
+                        />
+                        <span className="text-white text-sm">Event invitations</span>
+                      </label>
+                      <label className="flex items-center gap-3">
+                        <input 
+                          type="checkbox" 
+                          disabled={!isEditingProfile}
+                          className="w-4 h-4 rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
+                        />
+                        <span className="text-white text-sm">Marketing updates</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-400 mb-1 block">Preferred Language</label>
+                    {isEditingProfile ? (
+                      <select className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none transition-colors">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                      </select>
+                    ) : (
+                      <div className="text-white font-medium">English</div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Quick Actions Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-8 p-4 md:p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/50"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="p-2 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-lg"
+              >
+                <Zap className="h-5 w-5 text-cyan-400" />
+              </motion.div>
+              <div>
+                <h4 className="text-white font-semibold text-sm md:text-base">Quick Actions</h4>
+                <p className="text-gray-400 text-xs md:text-sm">Manage your account efficiently</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600/20 backdrop-blur-md rounded-lg border border-blue-500/30 text-blue-400 hover:bg-blue-600/30 transition-all duration-300 text-sm"
+              >
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">Security</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 bg-green-600/20 backdrop-blur-md rounded-lg border border-green-500/30 text-green-400 hover:bg-green-600/30 transition-all duration-300 text-sm"
+              >
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden sm:inline">Billing</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 bg-purple-600/20 backdrop-blur-md rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-600/30 transition-all duration-300 text-sm"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="hidden sm:inline">Notifications</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 bg-orange-600/20 backdrop-blur-md rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-600/30 transition-all duration-300 text-sm"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Export</span>
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
 
       {/* Advanced Analytics Dashboard */}
       <motion.div
