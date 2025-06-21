@@ -148,6 +148,14 @@ Changelog:
   - All icons display colors from start and animate only when clicked/active
   - Purple/blue hamburger menu matching brand colors
   - Smooth motion animations with proper state management and performance optimization
+- June 21, 2025. Profile page completely redesigned for MBYC Coin collection focus
+  - Clean, organized dark mode UI centered around gamified coin collection system
+  - Simplified hero section with MBYC Coin counter prominently displayed
+  - Events section transformed to show coin rewards for participation
+  - Services section redesigned to highlight coin earnings from bookings
+  - Removed overwhelming complex animations and features for clean user experience
+  - Simple savings summary replaced complex analytics showcase
+  - Profile now encourages engagement through clear coin collection mechanics
 ```
 
 ## User Preferences
