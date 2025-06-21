@@ -175,35 +175,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         {/* Header Content */}
         <div className="relative h-96 flex flex-col justify-between p-8">
           {/* Top Status Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-between items-start"
-          >
-            <div className="flex items-center gap-4">
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                className="p-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20"
-              >
-                <Crown className="h-6 w-6 text-amber-400" />
-              </motion.div>
-              <div>
-                <div className="text-lg font-bold text-white">Elite Member</div>
-                <div className="text-sm text-gray-300">Since 2023</div>
-              </div>
-            </div>
-            
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm text-white">Online</span>
-              </div>
-            </motion.div>
-          </motion.div>
+
 
           {/* Main Profile Section */}
           <motion.div
