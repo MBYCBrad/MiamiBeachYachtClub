@@ -63,8 +63,10 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    priceRange: { min: 0, max: 10000 },
     yachtSize: 'any',
+    capacity: undefined as string | undefined,
+    yachtType: undefined as string | undefined,
+    location: undefined as string | undefined,
     amenities: [] as string[],
   });
 
@@ -113,11 +115,6 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
     }
     
     // Additional filters
-    // Filter by price range
-    if (yacht.price < filters.priceRange.min || yacht.price > filters.priceRange.max) {
-      return false;
-    }
-    
     // Filter by yacht size
     if (filters.yachtSize !== 'any') {
       const yachtSizeNum = parseInt(yacht.size);
@@ -132,6 +129,43 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
           if (yachtSizeNum < 100) return false;
           break;
       }
+    }
+
+    // Filter by guest capacity
+    if (filters.capacity) {
+      switch (filters.capacity) {
+        case 'small':
+          if (yacht.capacity < 2 || yacht.capacity > 6) return false;
+          break;
+        case 'medium':
+          if (yacht.capacity < 7 || yacht.capacity > 12) return false;
+          break;
+        case 'large':
+          if (yacht.capacity < 13) return false;
+          break;
+      }
+    }
+
+    // Filter by yacht type
+    if (filters.yachtType) {
+      const yachtTypeMatch = yacht.type.toLowerCase().includes(filters.yachtType.toLowerCase());
+      if (!yachtTypeMatch) return false;
+    }
+
+    // Filter by location
+    if (filters.location) {
+      const locationKeywords = {
+        'miami': ['miami', 'beach'],
+        'fort': ['fort', 'lauderdale'],
+        'key': ['key', 'biscayne'],
+        'aventura': ['aventura']
+      };
+      
+      const keywords = locationKeywords[filters.location as keyof typeof locationKeywords] || [filters.location];
+      const locationMatch = keywords.some(keyword => 
+        yacht.location.toLowerCase().includes(keyword.toLowerCase())
+      );
+      if (!locationMatch) return false;
     }
     
     // Filter by amenities
@@ -257,38 +291,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
             exit={{ opacity: 0, y: -20 }}
             className="bg-gray-800/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 mb-6"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Price Range */}
-              <div className="space-y-3">
-                <label className="text-white font-medium">Price Range (4 hours)</label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-300 text-sm">$</span>
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.priceRange.min}
-                      onChange={(e) => setFilters({
-                        ...filters,
-                        priceRange: { ...filters.priceRange, min: parseInt(e.target.value) || 0 }
-                      })}
-                      className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
-                    />
-                    <span className="text-gray-400">-</span>
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.priceRange.max}
-                      onChange={(e) => setFilters({
-                        ...filters,
-                        priceRange: { ...filters.priceRange, max: parseInt(e.target.value) || 10000 }
-                      })}
-                      className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
-                    />
-                  </div>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Yacht Size */}
               <div className="space-y-3">
                 <label className="text-white font-medium">Yacht Size</label>
@@ -304,34 +307,89 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                 </select>
               </div>
 
-              {/* Amenities */}
+              {/* Guest Capacity */}
               <div className="space-y-3">
-                <label className="text-white font-medium">Amenities</label>
-                <div className="space-y-2">
-                  {['WiFi', 'Kitchen', 'Water Sports', 'Dining'].map((amenity) => (
-                    <label key={amenity} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={filters.amenities.includes(amenity)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setFilters({
-                              ...filters,
-                              amenities: [...filters.amenities, amenity]
-                            });
-                          } else {
-                            setFilters({
-                              ...filters,
-                              amenities: filters.amenities.filter(a => a !== amenity)
-                            });
-                          }
-                        }}
-                        className="rounded border-gray-600 bg-gray-700 text-purple-600"
-                      />
-                      <span className="text-gray-300">{amenity}</span>
-                    </label>
-                  ))}
-                </div>
+                <label className="text-white font-medium">Guest Capacity</label>
+                <select
+                  value={filters.capacity || 'any'}
+                  onChange={(e) => setFilters({ ...filters, capacity: e.target.value === 'any' ? undefined : e.target.value })}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                >
+                  <option value="any">Any Capacity</option>
+                  <option value="small">2-6 Guests</option>
+                  <option value="medium">7-12 Guests</option>
+                  <option value="large">13+ Guests</option>
+                </select>
+              </div>
+
+              {/* Yacht Type */}
+              <div className="space-y-3">
+                <label className="text-white font-medium">Yacht Type</label>
+                <select
+                  value={filters.yachtType || 'any'}
+                  onChange={(e) => setFilters({ ...filters, yachtType: e.target.value === 'any' ? undefined : e.target.value })}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                >
+                  <option value="any">Any Type</option>
+                  <option value="motor">Motor Yacht</option>
+                  <option value="sailing">Sailing Yacht</option>
+                  <option value="catamaran">Catamaran</option>
+                  <option value="luxury">Luxury Yacht</option>
+                  <option value="sport">Sport Yacht</option>
+                </select>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-3">
+                <label className="text-white font-medium">Marina Location</label>
+                <select
+                  value={filters.location || 'any'}
+                  onChange={(e) => setFilters({ ...filters, location: e.target.value === 'any' ? undefined : e.target.value })}
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white w-full"
+                >
+                  <option value="any">Any Marina</option>
+                  <option value="miami">Miami Beach Marina</option>
+                  <option value="fort">Fort Lauderdale</option>
+                  <option value="key">Key Biscayne</option>
+                  <option value="aventura">Aventura Marina</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Amenities Grid */}
+            <div className="mt-6">
+              <label className="text-white font-medium mb-3 block">Amenities & Features</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[
+                  'WiFi', 'Kitchen', 'Bar', 'Dining Area', 'Water Sports', 'Snorkeling Gear',
+                  'Fishing Equipment', 'Sound System', 'Air Conditioning', 'Sun Deck',
+                  'Swimming Platform', 'Jet Ski', 'Paddleboard', 'Kayak', 'BBQ Grill',
+                  'Captain Included', 'Crew Service', 'Towels & Linens', 'Ice & Cooler',
+                  'Bluetooth Audio', 'TV/Entertainment', 'Floating Mats', 'Umbrella/Shade',
+                  'Safety Equipment'
+                ].map((amenity) => (
+                  <label key={amenity} className="flex items-center space-x-2 cursor-pointer bg-gray-700/30 p-2 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={filters.amenities.includes(amenity)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFilters({
+                            ...filters,
+                            amenities: [...filters.amenities, amenity]
+                          });
+                        } else {
+                          setFilters({
+                            ...filters,
+                            amenities: filters.amenities.filter(a => a !== amenity)
+                          });
+                        }
+                      }}
+                      className="rounded border-gray-600 bg-gray-700 text-purple-600"
+                    />
+                    <span className="text-gray-300 text-sm">{amenity}</span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -340,8 +398,10 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
               <Button
                 variant="outline"
                 onClick={() => setFilters({
-                  priceRange: { min: 0, max: 10000 },
                   yachtSize: 'any',
+                  capacity: undefined,
+                  yachtType: undefined,
+                  location: undefined,
                   amenities: [],
                 })}
                 className="border-gray-600 text-gray-300 hover:text-white"
