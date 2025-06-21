@@ -553,7 +553,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   ];
 
   return (
-    <div className={cn("flex space-x-6", className)}>
+    <div className={cn("flex space-x-12", className)}>
       {tabs.map((tab) => {
         const IconComponent = tab.icon;
         const isActive = activeTab === tab.id;
@@ -563,7 +563,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "flex flex-col items-center space-y-2 px-4 py-2 rounded-xl transition-all duration-300",
+              "flex flex-col items-center space-y-4 px-8 py-6 rounded-2xl transition-all duration-300",
               isActive 
                 ? "text-white" 
                 : "text-gray-400 hover:text-gray-300"
@@ -573,11 +573,11 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           >
             <IconComponent 
               isActive={isActive} 
-              size={32}
+              size={160}
               className="transition-all duration-300"
             />
             <span className={cn(
-              "text-sm font-medium transition-colors duration-300",
+              "text-lg font-medium transition-colors duration-300",
               isActive ? "text-white" : "text-gray-400"
             )}>
               {tab.label}
@@ -587,7 +587,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
             {isActive && (
               <motion.div
                 layoutId="activeTab"
-                className="w-8 h-0.5 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
+                className="w-16 h-1 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}

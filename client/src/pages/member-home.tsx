@@ -190,7 +190,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="px-4 py-6 flex justify-center">
+        <div className="px-4 py-12 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
