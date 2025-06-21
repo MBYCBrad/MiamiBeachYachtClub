@@ -154,11 +154,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               <img 
                 src="/api/media/MBYC-LOGO-WHITE_1750532808484.png" 
                 alt="Miami Beach Yacht Club Logo"
-                className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto mx-auto"
+                className="w-64 sm:w-80 md:w-96 lg:w-[500px] h-auto mx-auto"
               />
             </motion.div>
             <motion.p 
-              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-2 sm:mb-3"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
