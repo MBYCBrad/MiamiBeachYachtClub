@@ -173,7 +173,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
 
         {/* Header Content */}
-        <div className="relative h-96 flex flex-col justify-between p-8">
+        <div className="relative h-64 flex flex-col justify-end p-6 pb-8">
           {/* Top Status Bar */}
 
 
@@ -199,9 +199,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 className="absolute -inset-4 bg-gradient-to-r from-purple-500/40 via-blue-500/40 to-cyan-500/40 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"
               />
               
-              <Avatar className="relative h-32 w-32 border-4 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
+              <Avatar className="relative h-24 w-24 border-3 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
                 <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-4xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-2xl font-bold">
                   {user?.username?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -212,14 +212,14 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   scale: [1, 1.2, 1],
                   boxShadow: [
                     "0 0 0 0 rgba(34, 197, 94, 0.4)",
-                    "0 0 0 10px rgba(34, 197, 94, 0)",
+                    "0 0 0 8px rgba(34, 197, 94, 0)",
                     "0 0 0 0 rgba(34, 197, 94, 0)"
                   ]
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-950 flex items-center justify-center"
+                className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-gray-950 flex items-center justify-center"
               >
-                <div className="w-3 h-3 bg-white rounded-full" />
+                <div className="w-2 h-2 bg-white rounded-full" />
               </motion.div>
               
               {/* Edit Button Overlay */}
@@ -233,10 +233,10 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             </motion.div>
             
             {/* Simplified Avatar Info for Hero */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-2">
               <div>
                 <motion.h1 
-                  className="text-3xl md:text-5xl font-bold text-white mb-2"
+                  className="text-2xl md:text-4xl font-bold text-white mb-1"
                   animate={{
                     textShadow: [
                       "0 0 20px rgba(139, 92, 246, 0.5)",
@@ -251,12 +251,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="inline-flex items-center gap-3 mb-4"
+                  className="inline-flex items-center gap-2 mb-2"
                 >
-                  <div className="p-2 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-lg">
-                    <Crown className="h-5 w-5 text-amber-400" />
+                  <div className="p-1.5 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-lg">
+                    <Crown className="h-4 w-4 text-amber-400" />
                   </div>
-                  <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white border-white/30 backdrop-blur-md text-sm md:text-lg px-3 md:px-4 py-1 md:py-2">
+                  <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white border-white/30 backdrop-blur-md text-sm px-3 py-1">
                     {user?.membershipTier} MEMBER
                   </Badge>
                 </motion.div>
