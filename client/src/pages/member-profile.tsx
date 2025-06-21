@@ -605,28 +605,28 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.2 }}
-        className="px-6 mt-6 mb-12"
+        className="px-4 md:px-6 mt-6 mb-12"
       >
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <motion.div
               animate={{ 
                 scale: [1, 1.1, 1],
                 rotate: [0, 5, -5, 0]
               }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="p-3 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
+              className="p-2 md:p-3 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
             >
-              <Trophy className="h-6 w-6 text-indigo-400" />
+              <Trophy className="h-5 w-5 md:h-6 md:w-6 text-indigo-400" />
             </motion.div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Member Analytics</h2>
-              <p className="text-gray-400">Your yacht club achievements and insights</p>
+              <h2 className="text-xl md:text-2xl font-bold text-white">Member Analytics</h2>
+              <p className="text-sm md:text-base text-gray-400">Your yacht club achievements and insights</p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -675,7 +675,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
                   />
                   
-                  <CardContent className="p-6 relative text-center">
+                  <CardContent className="p-4 md:p-6 relative text-center">
                     {/* Icon with Advanced Animation */}
                     <motion.div
                       animate={{ 
@@ -702,12 +702,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                                       stat.color === 'text-yellow-400' ? '#facc15' : '#a855f7'}40, transparent)`
                         }}
                       />
-                      <Icon className={cn("h-10 w-10 mx-auto relative z-10", stat.color)} />
+                      <Icon className={cn("h-8 w-8 md:h-10 md:w-10 mx-auto relative z-10", stat.color)} />
                     </motion.div>
                     
                     {/* Value with Counting Animation */}
                     <motion.div 
-                      className="text-4xl font-bold text-white mb-2 relative"
+                      className="text-2xl md:text-4xl font-bold text-white mb-2 relative"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ 
@@ -749,7 +749,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     
                     {/* Label with Hover Effect */}
                     <motion.div 
-                      className="text-sm text-gray-400 uppercase tracking-wider font-medium"
+                      className="text-xs md:text-sm text-gray-400 uppercase tracking-wider font-medium"
                       whileHover={{ 
                         color: "#ffffff",
                         scale: 1.05
