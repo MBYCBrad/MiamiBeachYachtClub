@@ -20,8 +20,6 @@ import {
   Shield,
   Calendar,
   Filter,
-  Play,
-  Pause,
   Volume2,
   VolumeX
 } from 'lucide-react';
@@ -60,7 +58,6 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -138,16 +135,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         {/* Enhanced Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-purple-900/10 to-black/70" />
         
-        {/* Video Controls */}
-        <div className="absolute top-4 right-4 flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
-          >
-            {isVideoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
+        {/* Sound Control */}
+        <div className="absolute top-4 right-4">
           <Button
             variant="ghost"
             size="sm"
