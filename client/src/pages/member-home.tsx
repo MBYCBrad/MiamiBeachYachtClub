@@ -203,24 +203,12 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Positioned above blur effect */}
+      {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
       <motion.div 
-        className="relative z-40 -mt-12 border-none"
+        className="relative z-40 -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
-      >
-        <div className="px-4 py-6 flex justify-center">
-          <TabNavigation 
-            activeTab={selectedCategory}
-            onTabChange={setSelectedCategory}
-          />
-        </div>
-      </motion.div>
-
-      {/* Blur overlay section */}
-      <motion.div 
-        className="relative z-30 -mt-4 border-none"
         style={{
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6), rgba(0,0,0,0.9))',
           backdropFilter: 'blur(40px) brightness(1.1)',
@@ -229,7 +217,12 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="h-16"></div>
+        <div className="px-4 py-1 flex justify-center">
+          <TabNavigation 
+            activeTab={selectedCategory}
+            onTabChange={setSelectedCategory}
+          />
+        </div>
       </motion.div>
 
       {/* Content */}
