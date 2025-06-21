@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import AirbnbSearchBar from '@/components/AirbnbSearchBar';
+import { TabNavigation } from '@/components/AnimatedTabIcons';
 import { 
   Search, 
   Heart, 
@@ -182,40 +183,18 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* Category Pills */}
+      {/* 3D Animated Tab Navigation */}
       <motion.div 
         className="sticky top-0 z-40 bg-black/80 backdrop-blur-md border-b border-gray-800"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="px-4 py-4">
-          <div className="flex gap-3 overflow-x-auto no-scrollbar">
-            {[
-              { id: 'yachts', label: 'Yachts', icon: Waves },
-              { id: 'services', label: 'Services', icon: Shield },
-              { id: 'events', label: 'Events', icon: Calendar }
-            ].map((category) => {
-              const Icon = category.icon;
-              return (
-                <motion.button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={cn(
-                    "flex items-center gap-2 px-6 py-3 rounded-full whitespace-nowrap transition-all duration-300 font-medium",
-                    selectedCategory === category.id
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25"
-                      : "bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white"
-                  )}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Icon className="h-4 w-4" />
-                  {category.label}
-                </motion.button>
-              );
-            })}
-          </div>
+        <div className="px-4 py-6 flex justify-center">
+          <TabNavigation 
+            activeTab={selectedCategory}
+            onTabChange={setSelectedCategory}
+          />
         </div>
       </motion.div>
 
