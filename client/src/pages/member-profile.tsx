@@ -313,21 +313,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         transition={{ duration: 1, delay: 0.1 }}
         className="px-4 md:px-6 mt-8 mb-12"
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-          <div className="flex items-center gap-4">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0]
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="p-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
-            >
-              <User className="h-6 w-6 text-blue-400" />
-            </motion.div>
-
-          </div>
-          
+        <div className="flex justify-end mb-8">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
