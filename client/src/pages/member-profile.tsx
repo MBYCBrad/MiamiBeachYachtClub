@@ -67,6 +67,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
+  // Stable avatar seed that only updates when editing is complete
+  const [stableAvatarSeed, setStableAvatarSeed] = useState(user?.username || 'default');
+  
   // Form state management with real user data
   const [formData, setFormData] = useState({
     username: '',
@@ -96,8 +99,17 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           marketing: false
         }
       });
+      // Set initial stable avatar seed
+      setStableAvatarSeed(user.username || 'default');
     }
   }, [user]);
+
+  // Update avatar seed only when editing mode is toggled off (save)
+  React.useEffect(() => {
+    if (!isEditingProfile && formData.username) {
+      setStableAvatarSeed(formData.username);
+    }
+  }, [isEditingProfile, formData.username]);
 
   // Real-time profile update mutation
   const updateProfileMutation = useMutation({
@@ -286,9 +298,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               />
               
               <Avatar className="relative h-24 w-24 border-3 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${stableAvatarSeed}`} />
                 <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-2xl font-bold">
-                  {user?.username?.charAt(0).toUpperCase()}
+                  {stableAvatarSeed?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               
