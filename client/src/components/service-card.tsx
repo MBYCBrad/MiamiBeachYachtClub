@@ -41,7 +41,9 @@ export default function ServiceCard({ service }: ServiceCardProps) {
             <span className="text-lg font-bold text-white">${service.pricePerSession}</span>
             <span className="text-sm text-gray-400">/ session</span>
           </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
+          <Button 
+            onClick={() => window.location.href = `/services/${service.id}`}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
             Book Now
           </Button>
         </div>

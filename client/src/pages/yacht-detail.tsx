@@ -20,14 +20,43 @@ export default function YachtDetail() {
     enabled: !!id
   });
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     if (!yacht) return;
     
-    // Free yacht bookings for members
-    toast({
-      title: "Booking Confirmed",
-      description: `Your booking for ${yacht.name} has been confirmed. A club representative will contact you shortly.`,
-    });
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          yachtId: yacht.id,
+          startTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
+          endTime: new Date(Date.now() + 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000).toISOString(), // 8 hours later
+          status: 'confirmed'
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Booking Confirmed",
+          description: `Your booking for ${yacht.name} has been confirmed. Check your trips for details.`,
+        });
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Booking Failed",
+          description: error.message || "Unable to create booking",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Booking Failed",
+        description: "Network error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {

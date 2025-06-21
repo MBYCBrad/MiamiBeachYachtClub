@@ -37,7 +37,9 @@ export default function EventCard({ event }: EventCardProps) {
         <p className="text-xs text-gray-400 mb-2">{formatDate(event.startTime)}</p>
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-500">From ${event.ticketPrice || '0'} / guest</p>
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
+          <Button 
+            onClick={() => window.location.href = `/events/${event.id}`}
+            size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
             Register
           </Button>
         </div>

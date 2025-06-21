@@ -38,6 +38,7 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
 
   return (
     <motion.div
+      onClick={() => window.location.href = `/yachts/${yacht.id}`}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 

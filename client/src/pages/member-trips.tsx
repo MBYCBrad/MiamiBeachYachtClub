@@ -317,11 +317,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="flex items-center text-gray-300">
                           <Calendar size={16} className="mr-2" />
-                          <span className="text-sm">{formatDate(booking.startDate)}</span>
+                          <span className="text-sm">{formatDate(booking.startTime.toString())}</span>
                         </div>
                         <div className="flex items-center text-gray-300">
                           <Users size={16} className="mr-2" />
-                          <span className="text-sm">{booking.guestCount} guests</span>
+                          <span className="text-sm">Private booking</span>
                         </div>
                       </div>
 
