@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
 import { notificationService } from "./notifications";
-import { auditService } from "./audit";
 import Stripe from "stripe";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
@@ -756,7 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const events = await storage.getEvents();
         results.events = events
           .filter(event => 
-            event.title.toLowerCase().includes(searchTerm) ||
+            event.name.toLowerCase().includes(searchTerm) ||
             event.description?.toLowerCase().includes(searchTerm) ||
             event.location?.toLowerCase().includes(searchTerm)
           )

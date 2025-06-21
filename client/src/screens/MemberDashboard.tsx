@@ -1,289 +1,561 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  Anchor, 
   Search, 
+  Calendar, 
+  Clock, 
+  Users, 
   Star, 
-  Heart,
-  Globe,
-  Menu,
-  User,
-  ChevronRight,
-  ChevronLeft
+  CreditCard, 
+  Phone, 
+  MessageCircle,
+  Filter,
+  MapPin,
+  Fuel,
+  UserCheck
 } from 'lucide-react';
-import { getMembershipBenefits, canBookYacht } from '@shared/membership';
-import { queryClient } from '@/lib/queryClient';
-import type { Yacht, Service, Event } from '@shared/schema';
+import { getMembershipBenefits, canBookYacht, calculateEventPrice, calculateServicePrice, type MembershipTier } from '@shared/membership';
+import { TokenManager } from '@shared/tokens';
+import { stripeService } from '@/services/stripe';
+import { twilioConciergeService } from '@/services/twilio';
 
-export default function MemberDashboard() {
-  const { user } = useAuth();
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
-  const [guests, setGuests] = useState('');
-  const [searchDestination, setSearchDestination] = useState('');
+interface ConciergeService {
+  requestConcierge: (request: {
+    message: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    category: string;
+  }) => Promise<{ success: boolean; messageId?: string; error?: string }>;
+}
+import type { Yacht, Service, Event, User } from '@shared/schema';
+import { 
+  ensureMembershipTier, 
+  safeParseFloat, 
+  safeString,
+  convertEventToExtended,
+  convertServiceToExtended,
+  createExtendedTokenBalance,
+  type ExtendedEvent,
+  type ExtendedService
+} from '@/lib/compatibility';
 
-  // Fetch data
+interface TokenBalance {
+  currentTokens: number;
+  monthlyAllocation: number;
+  lastReset: Date;
+}
+
+const MemberDashboard: React.FC = () => {
+  const { user, logoutMutation } = useAuth();
+  const [activeTab, setActiveTab] = useState<'bookings' | 'services' | 'experiences'>('bookings');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [yachtFilters, setYachtFilters] = useState({
+    maxSize: 200,
+    location: '',
+    amenities: [] as string[]
+  });
+
+  // Fetch member's token balance
+  const { data: tokenBalance } = useQuery<TokenBalance>({
+    queryKey: ['/api/tokens/balance'],
+    enabled: !!user
+  });
+
+  // Fetch available yachts with membership tier filtering
   const { data: yachts = [], isLoading: yachtsLoading } = useQuery<Yacht[]>({
-    queryKey: ['/api/yachts'],
+    queryKey: ['/api/yachts', user?.membershipTier],
+    enabled: !!user
   });
 
-  const { data: events = [] } = useQuery<Event[]>({
+  // Fetch available services
+  const { data: services = [], isLoading: servicesLoading } = useQuery<Service[]>({
+    queryKey: ['/api/services'],
+    enabled: !!user
+  });
+
+  // Fetch upcoming events
+  const { data: events = [], isLoading: eventsLoading } = useQuery<Event[]>({
     queryKey: ['/api/events'],
+    enabled: !!user
   });
 
-  // Filter yachts based on membership tier
-  const availableYachts = yachts.filter(yacht => {
+  // Filter yachts based on membership tier and search criteria
+  const filteredYachts = yachts.filter(yacht => {
     if (!user?.membershipTier) return false;
-    return canBookYacht(user.membershipTier as any, yacht.size || 0);
+    
+    // Check membership tier yacht size restrictions
+    const canBook = canBookYacht(user.membershipTier as MembershipTier, yacht.size);
+    if (!canBook) return false;
+
+    // Apply search filter
+    if (searchQuery && !yacht.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    // Apply size filter
+    if (yacht.size > yachtFilters.maxSize) return false;
+
+    // Apply location filter
+    if (yachtFilters.location && !yacht.location.toLowerCase().includes(yachtFilters.location.toLowerCase())) {
+      return false;
+    }
+
+    return true;
   });
 
-  const handleYachtBooking = async (yacht: Yacht) => {
-    if (!checkInDate || !checkOutDate) {
-      alert('Please select check-in and check-out dates');
+  // Filter services based on search
+  const filteredServices = services.filter(service => {
+    if (!searchQuery) return true;
+    return service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           service.category.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  // Filter events based on search and upcoming dates
+  const filteredEvents = events.filter(event => {
+    const eventDate = new Date(event.startTime);
+    const isUpcoming = eventDate >= new Date();
+    
+    if (!isUpcoming) return false;
+    
+    if (!searchQuery) return true;
+    return event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           (event.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  const membershipBenefits = user?.membershipTier ? getMembershipBenefits(user.membershipTier as MembershipTier) : null;
+
+  const handleYachtBooking = async (yacht: Yacht, duration: number) => {
+    if (!user || !tokenBalance) return;
+
+    const tokensRequired = TokenManager.calculateTokensForBooking(duration);
+    
+    if (tokenBalance.currentTokens < tokensRequired) {
+      alert(`Insufficient tokens. You need ${tokensRequired} tokens but only have ${tokenBalance.currentTokens}.`);
       return;
     }
 
     try {
+      // Create booking without payment (free for members)
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           yachtId: yacht.id,
-          startTime: new Date(checkInDate).toISOString(),
-          endTime: new Date(checkOutDate).toISOString(),
-          status: 'confirmed',
-        }),
+          userId: user.id,
+          startTime: selectedDate.toISOString(),
+          duration: duration,
+          tokensUsed: tokensRequired
+        })
       });
 
       if (response.ok) {
-        queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
         alert('Yacht booked successfully!');
+        // Refresh token balance and bookings
+      } else {
+        alert('Booking failed. Please try again.');
       }
     } catch (error) {
-      console.error('Booking error:', error);
+      alert('Booking error. Please contact concierge.');
     }
   };
 
-  if (yachtsLoading) {
-    return <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="animate-spin w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full"></div>
-    </div>;
-  }
+  const handleServiceBooking = async (service: Service) => {
+    if (!user) return;
+
+    try {
+      const adjustedPrice = calculateServicePrice(parseFloat(service.pricePerSession || '0'), user.membershipTier as any);
+      const paymentIntent = await stripeService.createServicePaymentIntent({
+        serviceId: service.id,
+        userId: user.id,
+        bookingDate: selectedDate.toISOString(),
+        datetime: selectedDate.toISOString(),
+        totalPrice: parseFloat(service.pricePerSession || '0')
+      });
+
+      // Open Stripe payment modal here
+      console.log('Payment intent created:', paymentIntent);
+    } catch (error) {
+      alert('Payment setup failed. Please try again.');
+    }
+  };
+
+  const handleEventRegistration = async (event: Event, ticketQuantity: number = 1) => {
+    if (!user) return;
+
+    try {
+      const adjustedPrice = calculateEventPrice(parseFloat(event.ticketPrice || '0'), user.membershipTier as any);
+      const paymentIntent = await stripeService.createEventPaymentIntent({
+        eventId: event.id,
+        userId: user.id,
+        memberTier: user.membershipTier as any,
+        ticketQuantity,
+        amount: parseFloat(event.ticketPrice || '0')
+      });
+
+      // Open Stripe payment modal here
+      console.log('Event payment intent created:', paymentIntent);
+    } catch (error) {
+      alert('Registration setup failed. Please try again.');
+    }
+  };
+
+  const initiateVoiceCall = async () => {
+    if (!user) return;
+
+    try {
+      await twilioConciergeService.sendConciergeRequest({
+        message: `Voice call request from ${user.username}`,
+        priority: 'medium',
+        category: 'general',
+        membershipTier: user.membershipTier || 'bronze'
+      });
+    } catch (error) {
+      alert('Concierge call failed. Please try again.');
+    }
+  };
+
+  const startConciergeChat = async () => {
+    if (!user) return;
+
+    try {
+      const result = await twilioConciergeService.sendConciergeRequest({
+        message: 'Hello, I need assistance with my yacht club membership.',
+        priority: 'medium',
+        category: 'general',
+        membershipTier: user.membershipTier || 'bronze'
+      });
+      // Open chat interface with result
+      console.log('Chat started:', result);
+    } catch (error) {
+      alert('Chat service unavailable. Please try calling.');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header exactly like Airbnb */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="px-6 lg:px-20">
-          <div className="flex items-center justify-between h-20">
-            {/* Airbnb Logo */}
-            <div className="flex items-center">
-              <div className="text-red-500 text-2xl font-bold flex items-center">
-                <svg viewBox="0 0 32 32" className="w-8 h-8 mr-2 fill-current">
-                  <path d="M16 1c2 0 3 1 3 3v2h2c2 0 3 1 3 3v16c0 2-1 3-3 3H11c-2 0-3-1-3-3V9c0-2 1-3 3-3h2V4c0-2 1-3 3-3z"/>
-                </svg>
-                airbnb
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-purple-800/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                <Anchor className="text-white text-lg" />
               </div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                Miami Beach Yacht Club
+              </h1>
             </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <button className="text-gray-900 hover:text-gray-600 font-medium border-b-2 border-red-500 pb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                </svg>
-                Homes
-              </button>
-              <button className="text-gray-600 hover:text-gray-900 font-medium flex items-center pb-4">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
-                </svg>
-                <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded mr-2">NEW</span>
-                Experiences
-              </button>
-              <button className="text-gray-600 hover:text-gray-900 font-medium flex items-center pb-4">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd"/>
-                </svg>
-                <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded mr-2">NEW</span>
-                Services
-              </button>
-            </nav>
-
-            {/* Right side */}
+            {/* Member Info & Tokens */}
             <div className="flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-gray-900 font-medium">
-                Become a host
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
-                <Globe className="w-4 h-4" />
-              </button>
-              <div className="flex items-center border border-gray-300 rounded-full py-2 px-4 hover:shadow-md transition-shadow cursor-pointer">
-                <Menu className="w-4 h-4 mr-3" />
-                <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+              <div className="text-white text-sm">
+                <div className="flex items-center space-x-2">
+                  <span>Welcome, {user?.username}</span>
+                  <Badge className="bg-gradient-to-r from-purple-600 to-blue-600">
+                    {user?.membershipTier?.toUpperCase()}
+                  </Badge>
                 </div>
+                {tokenBalance && (
+                  <div className="text-xs text-gray-400 mt-1">
+                    Tokens: {tokenBalance.currentTokens}/{tokenBalance.monthlyAllocation}
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Search Bar - Exact Airbnb Style */}
-        <div className="px-6 lg:px-20 pb-6">
-          <div className="bg-white border border-gray-300 rounded-full shadow-lg max-w-4xl mx-auto">
-            <div className="flex items-center">
-              <div className="flex-1 px-8 py-4 hover:bg-gray-50 rounded-full cursor-pointer">
-                <div className="text-xs font-semibold text-gray-900 mb-1">Where</div>
-                <input
-                  type="text"
-                  placeholder="Search destinations"
-                  value={searchDestination}
-                  onChange={(e) => setSearchDestination(e.target.value)}
-                  className="w-full text-sm text-gray-600 placeholder-gray-400 border-none outline-none bg-transparent"
-                />
-              </div>
-              <div className="w-px h-12 bg-gray-300"></div>
-              <div className="flex-1 px-8 py-4 hover:bg-gray-50 cursor-pointer">
-                <div className="text-xs font-semibold text-gray-900 mb-1">Check in</div>
-                <div className="text-sm text-gray-400">Add dates</div>
-              </div>
-              <div className="w-px h-12 bg-gray-300"></div>
-              <div className="flex-1 px-8 py-4 hover:bg-gray-50 cursor-pointer">
-                <div className="text-xs font-semibold text-gray-900 mb-1">Check out</div>
-                <div className="text-sm text-gray-400">Add dates</div>
-              </div>
-              <div className="w-px h-12 bg-gray-300"></div>
-              <div className="flex-1 px-8 py-4 hover:bg-gray-50 rounded-full cursor-pointer">
-                <div className="text-xs font-semibold text-gray-900 mb-1">Who</div>
-                <div className="text-sm text-gray-400">Add guests</div>
-              </div>
-              <button className="bg-red-500 hover:bg-red-600 text-white p-4 rounded-full mr-2 transition-colors">
-                <Search className="w-4 h-4" />
-              </button>
+              {/* Concierge Access */}
+              {membershipBenefits?.conciergeAccess && (
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    onClick={initiateVoiceCall}
+                    size="sm" 
+                    variant="outline"
+                    className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                  >
+                    <Phone className="w-4 h-4 mr-1" />
+                    Call
+                  </Button>
+                  <Button 
+                    onClick={startConciergeChat}
+                    size="sm" 
+                    variant="outline"
+                    className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-1" />
+                    Chat
+                  </Button>
+                </div>
+              )}
+
+              <Button
+                onClick={() => logoutMutation.mutate()}
+                variant="outline"
+                size="sm"
+                className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+              >
+                Logout
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="px-6 lg:px-20 py-8">
-        {/* Popular Yachts Section - Exact Airbnb Style */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Popular yachts in Monaco Bay
-            </h2>
-            <div className="flex items-center">
-              <button className="p-2 border border-gray-300 rounded-full mr-2 hover:shadow-md">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button className="p-2 border border-gray-300 rounded-full hover:shadow-md">
-                <ChevronRight className="w-4 h-4" />
-              </button>
+      <main className="pt-16 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Search Bar */}
+          <div className="py-6">
+            <div className="flex items-center bg-gray-800/50 backdrop-blur-sm rounded-full px-6 py-3 border border-purple-800/30">
+              <Search className="w-5 h-5 text-gray-400 mr-3" />
+              <Input
+                type="text"
+                placeholder="Search yachts, services, events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent text-white placeholder-gray-400 border-none flex-1"
+              />
+              <Filter className="w-5 h-5 text-gray-400 ml-3" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-            {availableYachts.slice(0, 6).map((yacht) => (
-              <div key={yacht.id} className="group cursor-pointer">
-                <div className="relative mb-3">
-                  <img
-                    src={yacht.imageUrl || "https://images.unsplash.com/photo-1540946485063-a40da27545f8?auto=format&fit=crop&w=800&q=80"}
-                    alt={yacht.name}
-                    className="w-full h-64 object-cover rounded-xl"
-                  />
-                  <button className="absolute top-3 right-3 p-2 hover:scale-110 transition-transform">
-                    <Heart className="w-6 h-6 text-white hover:text-red-500 fill-gray-700 hover:fill-red-500" />
-                  </button>
-                  <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-md text-xs font-medium shadow-sm">
-                    Guest favourite
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 truncate text-sm">{yacht.name}</h3>
-                    <div className="flex items-center">
-                      <Star className="w-3 h-3 text-black fill-current" />
-                      <span className="ml-1 text-sm">4.{Math.floor(Math.random() * 10)}</span>
-                    </div>
-                  </div>
-                  <p className="text-gray-500 text-sm">{yacht.location || "Monaco Bay"}</p>
-                  <p className="text-gray-500 text-sm">Jul 15-20</p>
-                  <div className="flex items-baseline">
-                    <span className="font-semibold text-gray-900">${yacht.size * 50} CAD</span>
-                    <span className="text-gray-500 text-sm ml-1">for 2 nights</span>
-                    <div className="flex items-center ml-2">
-                      <Star className="w-3 h-3 text-black fill-current" />
-                      <span className="text-xs ml-1">4.{Math.floor(Math.random() * 10)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+          {/* Three-Tab Navigation */}
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 border border-purple-800/30">
+              <TabsTrigger 
+                value="bookings" 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600"
+              >
+                <Anchor className="w-4 h-4 mr-2" />
+                Yacht Bookings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="services"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                Premium Services
+              </TabsTrigger>
+              <TabsTrigger 
+                value="experiences"
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Exclusive Events
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Events Section - Exact Airbnb Style */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Available next month in Monaco Bay
-            </h2>
-            <div className="flex items-center">
-              <button className="p-2 border border-gray-300 rounded-full mr-2 hover:shadow-md">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button className="p-2 border border-gray-300 rounded-full hover:shadow-md">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+            {/* Yacht Bookings Tab */}
+            <TabsContent value="bookings" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredYachts.map((yacht) => (
+                  <Card key={yacht.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
+                    <div className="aspect-video relative rounded-t-lg overflow-hidden">
+                      <img 
+                        src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
+                        alt={yacht.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 flex space-x-1">
+                        <Badge className="bg-green-600">
+                          <Fuel className="w-3 h-3 mr-1" />
+                          Fuel Included
+                        </Badge>
+                        <Badge className="bg-blue-600">
+                          <UserCheck className="w-3 h-3 mr-1" />
+                          Crew Included
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardHeader>
+                      <CardTitle className="text-white">{yacht.name}</CardTitle>
+                      <CardDescription className="text-gray-300">
+                        {yacht.size}ft • {yacht.capacity} guests
+                      </CardDescription>
+                      <div className="flex items-center text-sm text-gray-400">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {yacht.location}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-300 text-sm mb-4">{yacht.description}</p>
+                      
+                      {/* Amenities */}
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {yacht.amenities?.slice(0, 3).map((amenity, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {amenity}
+                          </Badge>
+                        ))}
+                        {yacht.amenities && yacht.amenities.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{yacht.amenities.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-            {events.slice(0, 6).map((event) => (
-              <div key={event.id} className="group cursor-pointer">
-                <div className="relative mb-3">
-                  <img
-                    src={event.imageUrl || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80"}
-                    alt={event.title}
-                    className="w-full h-64 object-cover rounded-xl"
-                  />
-                  <button className="absolute top-3 right-3 p-2 hover:scale-110 transition-transform">
-                    <Heart className="w-6 h-6 text-white hover:text-red-500 fill-gray-700 hover:fill-red-500" />
-                  </button>
-                  <div className="absolute top-3 left-3 bg-white px-2 py-1 rounded-md text-xs font-medium shadow-sm">
-                    Guest favourite
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900 truncate text-sm">{event.title}</h3>
-                    <div className="flex items-center">
-                      <Star className="w-3 h-3 text-black fill-current" />
-                      <span className="ml-1 text-sm">4.{Math.floor(Math.random() * 10)}</span>
-                    </div>
-                  </div>
-                  <p className="text-gray-500 text-sm">{event.location}</p>
-                  <p className="text-gray-500 text-sm">
-                    {new Date(event.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                  <div className="flex items-baseline">
-                    <span className="font-semibold text-gray-900">${event.ticketPrice || '99'} CAD</span>
-                    <span className="text-gray-500 text-sm ml-1">per ticket</span>
-                    <div className="flex items-center ml-2">
-                      <Star className="w-3 h-3 text-black fill-current" />
-                      <span className="text-xs ml-1">4.{Math.floor(Math.random() * 10)}</span>
-                    </div>
-                  </div>
-                </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-400">
+                          <Clock className="w-4 h-4 inline mr-1" />
+                          Tokens: {TokenManager.calculateTokensForBooking(4)} per 4hrs
+                        </div>
+                        <Button 
+                          onClick={() => handleYachtBooking(yacht, 4)}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          disabled={!tokenBalance || tokenBalance.currentTokens < TokenManager.calculateTokensForBooking(4)}
+                        >
+                          Book Now
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </TabsContent>
+
+            {/* Premium Services Tab */}
+            <TabsContent value="services" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredServices.map((service) => {
+                  const originalPrice = parseFloat(service.pricePerSession || '0');
+                  const memberPrice = user?.membershipTier ? calculateServicePrice(originalPrice, user.membershipTier as MembershipTier) : originalPrice;
+                  const savings = originalPrice - memberPrice;
+
+                  return (
+                    <Card key={service.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
+                      <div className="aspect-video relative rounded-t-lg overflow-hidden">
+                        <img 
+                          src={service.imageUrl || '/service-placeholder.jpg'} 
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                        />
+                        {savings > 0 && (
+                          <div className="absolute top-2 left-2">
+                            <Badge className="bg-green-600">
+                              Save ${savings.toFixed(0)}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                      <CardHeader>
+                        <CardTitle className="text-white">{service.name}</CardTitle>
+                        <CardDescription className="text-gray-300">
+                          {service.category} • {service.duration}hrs
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-300 text-sm mb-4">{service.description}</p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="text-white">
+                            {savings > 0 ? (
+                              <div>
+                                <span className="text-lg font-semibold">${memberPrice.toFixed(0)}</span>
+                                <span className="text-sm text-gray-400 line-through ml-2">${originalPrice.toFixed(0)}</span>
+                              </div>
+                            ) : (
+                              <span className="text-lg font-semibold">${memberPrice.toFixed(0)}</span>
+                            )}
+                          </div>
+                          <Button 
+                            onClick={() => handleServiceBooking(service)}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          >
+                            <CreditCard className="w-4 h-4 mr-1" />
+                            Book Service
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+
+            {/* Exclusive Events Tab */}
+            <TabsContent value="experiences" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEvents.map((event) => {
+                  const originalPrice = parseFloat(event.ticketPrice || '0');
+                  const memberPrice = user?.membershipTier ? calculateEventPrice(originalPrice, user.membershipTier as MembershipTier) : originalPrice;
+                  const savings = originalPrice - memberPrice;
+                  const eventDate = new Date(event.startTime);
+
+                  return (
+                    <Card key={event.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
+                      <div className="aspect-video relative rounded-t-lg overflow-hidden">
+                        <img 
+                          src={event.imageUrl || '/event-placeholder.jpg'} 
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                        {savings > 0 && (
+                          <div className="absolute top-2 left-2">
+                            <Badge className="bg-green-600">
+                              Member Discount: {membershipBenefits?.eventDiscounts}%
+                            </Badge>
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-purple-600">
+                            Event
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardHeader>
+                        <CardTitle className="text-white">{event.title}</CardTitle>
+                        <CardDescription className="text-gray-300">
+                          {eventDate.toLocaleDateString('en-US', { 
+                            weekday: 'long',
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </CardDescription>
+                        <div className="flex items-center text-sm text-gray-400">
+                          <MapPin className="w-4 h-4 mr-1" />
+                          {event.location}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-300 text-sm mb-4">{event.description}</p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="text-white">
+                            {savings > 0 ? (
+                              <div>
+                                <span className="text-lg font-semibold">${memberPrice.toFixed(0)}</span>
+                                <span className="text-sm text-gray-400 line-through ml-2">${originalPrice.toFixed(0)}</span>
+                              </div>
+                            ) : (
+                              <span className="text-lg font-semibold">${memberPrice.toFixed(0)}</span>
+                            )}
+                          </div>
+                          <Button 
+                            onClick={() => handleEventRegistration(event)}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          >
+                            <Calendar className="w-4 h-4 mr-1" />
+                            Register
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </main>
     </div>
   );
-}
+};
+
+export default MemberDashboard;
