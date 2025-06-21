@@ -167,6 +167,11 @@ Changelog:
   - Form data now properly loads from database with fallback defaults
   - All profile changes save automatically as user types with proper error handling
   - Maintained clean minimal design without visual clutter or unnecessary animations
+- June 21, 2025. Yacht concierge services refined to member experience focus
+  - Removed all maintenance and technical support services (owner/admin responsibility)
+  - Finalized 7 yacht concierge categories: Beauty & Grooming, Culinary, Wellness & Spa, Photography & Media, Entertainment, Water Sports, Concierge & Lifestyle
+  - Services now exclusively focus on member yacht experiences and luxury amenities
+  - Updated service provider dashboard to reflect member-focused service categories
 ```
 
 ## User Preferences

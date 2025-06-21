@@ -56,7 +56,6 @@ const SERVICE_CATEGORIES = [
   'Photography & Media',
   'Entertainment',
   'Water Sports',
-  'Technical Support',
   'Concierge & Lifestyle'
 ];
 

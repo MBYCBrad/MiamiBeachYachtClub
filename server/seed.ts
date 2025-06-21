@@ -431,31 +431,7 @@ export async function seedDatabase() {
         reviewCount: 156
       },
 
-      // Technical Support Services
-      {
-        name: "Professional Yacht Detailing",
-        description: "Comprehensive yacht maintenance and detailing services ensuring your vessel remains pristine with premium care.",
-        category: "Technical Support",
-        pricePerSession: "425.00",
-        duration: 6,
-        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
-        isAvailable: true,
-        rating: "4.8",
-        reviewCount: 89
-      },
-      {
-        name: "Marine Electronics & Navigation",
-        description: "Expert installation and maintenance of marine electronics, GPS systems, and yacht navigation equipment.",
-        category: "Technical Support",
-        pricePerSession: "650.00",
-        duration: 4,
-        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800",
-        isAvailable: true,
-        rating: "4.9",
-        reviewCount: 156
-      },
+
 
       // Concierge & Lifestyle Services  
       {
