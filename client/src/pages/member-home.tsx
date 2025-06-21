@@ -199,9 +199,9 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* Blur Background - No icons */}
+      {/* 3D Animated Tab Navigation */}
       <motion.div 
-        className="relative -mt-20 border-none"
+        className="relative z-50 -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
@@ -210,26 +210,10 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           backdropFilter: 'blur(40px) brightness(1.1)',
           WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          height: '60px'
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)'
         }}
-      />
-
-      {/* Navigation Icons - Fixed position at bottom */}
-      <motion.div 
-        className="fixed bottom-20 left-0 right-0 flex justify-center px-4"
-        style={{ 
-          zIndex: 10000,
-          isolation: 'isolate',
-          transform: 'translateZ(0)',
-          willChange: 'transform',
-          pointerEvents: 'none'
-        }}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.2 }}
       >
-        <div style={{ pointerEvents: 'auto' }}>
+        <div className="px-4 py-1 flex justify-center relative z-50">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}

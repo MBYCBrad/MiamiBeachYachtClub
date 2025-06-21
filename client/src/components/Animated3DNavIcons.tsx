@@ -44,19 +44,19 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
       >
         <defs>
           <linearGradient id="hatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1e3a8a" />
-            <stop offset="50%" stopColor="#1e40af" />
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="50%" stopColor="#2563eb" />
             <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
           <linearGradient id="visorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#111827" />
-            <stop offset="50%" stopColor="#1f2937" />
-            <stop offset="100%" stopColor="#374151" />
+            <stop offset="0%" stopColor="#1f2937" />
+            <stop offset="50%" stopColor="#374151" />
+            <stop offset="100%" stopColor="#4b5563" />
           </linearGradient>
           <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fbbf24" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#d97706" />
+            <stop offset="0%" stopColor="#fcd34d" />
+            <stop offset="50%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
         </defs>
         
@@ -159,9 +159,9 @@ export const Trips3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24
       >
         <defs>
           <linearGradient id="calendarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f3f4f6" />
-            <stop offset="50%" stopColor="#e5e7eb" />
-            <stop offset="100%" stopColor="#d1d5db" />
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="50%" stopColor="#f3f4f6" />
+            <stop offset="100%" stopColor="#e5e7eb" />
           </linearGradient>
         </defs>
         
@@ -236,9 +236,9 @@ export const Favorites3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size 
       >
         <defs>
           <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f87171" />
-            <stop offset="50%" stopColor="#ef4444" />
-            <stop offset="100%" stopColor="#dc2626" />
+            <stop offset="0%" stopColor="#ff6b9d" />
+            <stop offset="50%" stopColor="#f87171" />
+            <stop offset="100%" stopColor="#ef4444" />
           </linearGradient>
         </defs>
         

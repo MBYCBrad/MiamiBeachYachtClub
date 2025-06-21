@@ -45,19 +45,19 @@ export const YachtIcon: React.FC<AnimatedIconProps> = ({ isActive, size = 24, cl
         {/* Yacht Hull - Main Body */}
         <defs>
           <linearGradient id="yachtHull" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#e6e6fa" : "#a0a0a0"} />
-            <stop offset="50%" stopColor={isActive ? "#d8d8ff" : "#888888"} />
-            <stop offset="100%" stopColor={isActive ? "#c0c0ff" : "#666666"} />
+            <stop offset="0%" stopColor={isActive ? "#e6e6fa" : "#d4a574"} />
+            <stop offset="50%" stopColor={isActive ? "#d8d8ff" : "#c49763"} />
+            <stop offset="100%" stopColor={isActive ? "#c0c0ff" : "#b88952"} />
           </linearGradient>
           
           <linearGradient id="yachtDeck" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#f0f8ff" : "#b0b0b0"} />
-            <stop offset="100%" stopColor={isActive ? "#e0e6ff" : "#909090"} />
+            <stop offset="0%" stopColor={isActive ? "#f0f8ff" : "#f0f8ff"} />
+            <stop offset="100%" stopColor={isActive ? "#e0e6ff" : "#e0e6ff"} />
           </linearGradient>
 
           <linearGradient id="yachtSail" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={isActive ? "#ffffff" : "#cccccc"} />
-            <stop offset="100%" stopColor={isActive ? "#f5f5ff" : "#aaaaaa"} />
+            <stop offset="0%" stopColor={isActive ? "#ffffff" : "#ffffff"} />
+            <stop offset="100%" stopColor={isActive ? "#f5f5ff" : "#f5f5ff"} />
           </linearGradient>
         </defs>
 
