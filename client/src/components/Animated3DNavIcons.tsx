@@ -8,20 +8,20 @@ interface Animated3DIconProps {
   className?: string;
 }
 
-// 3D Explore Icon (Yacht Steering Wheel)
+// 3D Explore Icon (Anchor)
 export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24, className }) => {
   const controls = useAnimation();
 
   useEffect(() => {
     if (isActive) {
       controls.start({
-        rotateZ: [0, 360],
-        scale: [1, 1.1, 1],
-        transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+        y: [0, -2, 0],
+        scale: [1, 1.05, 1],
+        transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
       });
     } else {
       controls.start({
-        rotateZ: 0,
+        y: 0,
         scale: 1,
         transition: { duration: 0.3 }
       });
@@ -43,61 +43,80 @@ export const Explore3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 
         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
       >
         <defs>
-          <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="anchorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#60a5fa" />
             <stop offset="50%" stopColor="#3b82f6" />
             <stop offset="100%" stopColor="#1d4ed8" />
           </linearGradient>
-          <linearGradient id="wheelCenter" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="anchorChain" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#f3f4f6" />
             <stop offset="50%" stopColor="#e5e7eb" />
             <stop offset="100%" stopColor="#d1d5db" />
           </linearGradient>
         </defs>
         
-        {/* Outer Wheel Ring */}
-        <circle cx="16" cy="16" r="12" fill="url(#wheelGradient)" stroke="#1e40af" strokeWidth="1" />
-        <circle cx="16" cy="16" r="10" fill="none" stroke="#1e40af" strokeWidth="0.5" />
+        {/* Anchor Chain */}
+        <rect x="15" y="4" width="2" height="8" rx="1" fill="url(#anchorChain)" />
+        <circle cx="16" cy="4" r="2" fill="none" stroke="url(#anchorChain)" strokeWidth="1.5" />
         
-        {/* Wheel Spokes */}
-        <g stroke="url(#wheelCenter)" strokeWidth="2" strokeLinecap="round">
-          <line x1="16" y1="6" x2="16" y2="10" />
-          <line x1="16" y1="22" x2="16" y2="26" />
-          <line x1="6" y1="16" x2="10" y2="16" />
-          <line x1="22" y1="16" x2="26" y2="16" />
-          <line x1="10.3" y1="10.3" x2="12.6" y2="12.6" />
-          <line x1="19.4" y1="19.4" x2="21.7" y2="21.7" />
-          <line x1="21.7" y1="10.3" x2="19.4" y2="12.6" />
-          <line x1="12.6" y1="19.4" x2="10.3" y2="21.7" />
-        </g>
+        {/* Anchor Crossbar */}
+        <rect x="10" y="11" width="12" height="2" rx="1" fill="url(#anchorGradient)" />
         
-        {/* Center Hub */}
-        <circle cx="16" cy="16" r="4" fill="url(#wheelCenter)" stroke="#6b7280" strokeWidth="1" />
-        <circle cx="16" cy="16" r="2" fill="#374151" />
+        {/* Anchor Shaft */}
+        <rect x="15" y="12" width="2" height="12" rx="1" fill="url(#anchorGradient)" />
         
-        {/* Wheel Grips */}
-        <circle cx="16" cy="6" r="1.5" fill="#f59e0b" />
-        <circle cx="26" cy="16" r="1.5" fill="#f59e0b" />
-        <circle cx="16" cy="26" r="1.5" fill="#f59e0b" />
-        <circle cx="6" cy="16" r="1.5" fill="#f59e0b" />
+        {/* Anchor Flukes (curved arms) */}
+        <path
+          d="M16 24 Q12 22 10 26 Q12 28 16 24"
+          fill="url(#anchorGradient)"
+          stroke="#1e40af"
+          strokeWidth="0.5"
+        />
+        <path
+          d="M16 24 Q20 22 22 26 Q20 28 16 24"
+          fill="url(#anchorGradient)"
+          stroke="#1e40af"
+          strokeWidth="0.5"
+        />
         
-        {/* Animation Effects */}
+        {/* Anchor Tips */}
+        <circle cx="10" cy="26" r="1.5" fill="#1e40af" />
+        <circle cx="22" cy="26" r="1.5" fill="#1e40af" />
+        
+        {/* Rope/Chain Links */}
+        <motion.circle
+          cx="16" cy="6" r="0.8"
+          fill="#f59e0b"
+          animate={isActive ? { scale: [1, 1.2, 1] } : {}}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.circle
+          cx="16" cy="8" r="0.6"
+          fill="#fbbf24"
+          animate={isActive ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+        />
+        
+        {/* Water Ripples Animation */}
         {isActive && (
           <>
             <motion.circle
-              cx="16" cy="16" r="14"
+              cx="16" cy="28" r="8"
               fill="none"
               stroke="#60a5fa"
               strokeWidth="0.5"
-              opacity="0.5"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              opacity="0.3"
+              animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.circle
-              cx="16" cy="16" r="1"
-              fill="#fbbf24"
-              animate={{ scale: [1, 1.5, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              cx="16" cy="28" r="12"
+              fill="none"
+              stroke="#3b82f6"
+              strokeWidth="0.3"
+              opacity="0.2"
+              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
             />
           </>
         )}
