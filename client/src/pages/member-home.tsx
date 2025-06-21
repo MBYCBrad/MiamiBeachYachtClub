@@ -199,7 +199,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation with enhanced z-index */}
+      {/* Blur Background - No icons */}
       <motion.div 
         className="relative -mt-20 border-none"
         initial={{ opacity: 0, y: -10 }}
@@ -211,17 +211,28 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitBackdropFilter: 'blur(40px) brightness(1.1)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 100%)',
-          isolation: 'isolate'
+          height: '60px'
         }}
+      />
+
+      {/* Navigation Icons - Separate layer with no blur effects */}
+      <motion.div 
+        className="absolute left-0 right-0 flex justify-center px-4"
+        style={{ 
+          top: 'calc(100vh - 140px)',
+          zIndex: 9999,
+          isolation: 'isolate',
+          transform: 'translateZ(0)',
+          willChange: 'transform'
+        }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 1.2 }}
       >
-        <div className="px-4 py-1 flex justify-center relative" style={{ zIndex: 1000 }}>
-          <div style={{ position: 'relative', zIndex: 1000, isolation: 'isolate' }}>
-            <TabNavigation 
-              activeTab={selectedCategory}
-              onTabChange={setSelectedCategory}
-            />
-          </div>
-        </div>
+        <TabNavigation 
+          activeTab={selectedCategory}
+          onTabChange={setSelectedCategory}
+        />
       </motion.div>
 
       {/* Content */}
