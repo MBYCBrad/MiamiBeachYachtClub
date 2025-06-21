@@ -184,7 +184,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
       {/* 3D Animated Tab Navigation - Positioned below hero section */}
       <motion.div 
-        className="relative z-40 -mt-12 border-none"
+        className="relative z-40 mt-2 sm:mt-1 md:-mt-2 lg:-mt-4 border-none"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
@@ -196,7 +196,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,1) 100%)'
         }}
       >
-        <div className="px-4 py-4 flex justify-center">
+        <div className="px-4 py-6 sm:py-5 md:py-4 lg:py-4 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
