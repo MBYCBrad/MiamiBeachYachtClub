@@ -119,7 +119,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 h-full w-80 bg-gray-900/95 backdrop-blur-xl border-l border-gray-800 z-50"
+              className="fixed top-0 right-0 h-full w-80 bg-black/80 backdrop-blur-xl border-l border-gray-700/30 z-50"
             >
               {/* Menu Header */}
               <div className="p-6 border-b border-gray-800">
@@ -167,11 +167,11 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               </div>
 
               {/* Logout Button */}
-              <div className="p-6 border-t border-gray-800">
+              <div className="p-6 border-t border-gray-700/30">
                 <Button
                   onClick={handleLogout}
                   disabled={logoutMutation.isPending}
-                  className="w-full bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 border border-red-600/30 rounded-xl py-3"
+                  className="w-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 hover:from-purple-600/30 hover:to-blue-600/30 text-purple-300 hover:text-purple-200 border border-purple-500/30 rounded-xl py-3"
                 >
                   <LogOut size={18} className="mr-2" />
                   {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
