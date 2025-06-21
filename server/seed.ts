@@ -237,12 +237,50 @@ export async function seedDatabase() {
     const createdYachts = await db.insert(yachts).values(yachtData).returning();
     console.log(`✅ Created ${createdYachts.length} luxury yachts`);
 
-    // Create comprehensive premium services across all categories
+    // Create comprehensive yacht concierge services across all categories
     const serviceData = [
+      // Beauty & Grooming Services
+      {
+        name: "Onboard Hair Styling & Cuts",
+        description: "Professional hair styling, cuts, and color services delivered directly to your yacht by celebrity stylists with premium salon equipment.",
+        category: "Beauty & Grooming",
+        pricePerSession: "350.00",
+        duration: 2,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800",
+        isAvailable: true,
+        rating: "4.9",
+        reviewCount: 156
+      },
+      {
+        name: "Professional Makeup Artist",
+        description: "Expert makeup application for special events, photo shoots, or evening occasions using premium cosmetics and techniques.",
+        category: "Beauty & Grooming", 
+        pricePerSession: "285.00",
+        duration: 1.5,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800",
+        isAvailable: true,
+        rating: "4.8",
+        reviewCount: 98
+      },
+      {
+        name: "Luxury Nail Services",
+        description: "Complete manicure and pedicure services with premium products, nail art, gel applications, and spa treatments onboard.",
+        category: "Beauty & Grooming",
+        pricePerSession: "195.00", 
+        duration: 1.5,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=800",
+        isAvailable: true,
+        rating: "4.7",
+        reviewCount: 142
+      },
+
       // Culinary Services
       {
         name: "Executive Chef Service",
-        description: "World-class culinary experiences featuring Michelin-starred chefs who create personalized gourmet menus using the finest ingredients.",
+        description: "World-class private chefs offering personalized culinary experiences with premium ingredients and exquisite presentation for yacht dining.",
         category: "Culinary",
         pricePerSession: "850.00",
         duration: 4,
@@ -250,38 +288,154 @@ export async function seedDatabase() {
         imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
         isAvailable: true,
         rating: "4.9",
-        reviewCount: 127
+        reviewCount: 234
       },
       {
-        name: "Private Sommelier & Wine Pairing",
-        description: "Expert wine selection and pairing services with rare vintages and premium spirits for sophisticated dining experiences.",
+        name: "Gourmet Prepared Meals",
+        description: "Pre-prepared gourmet meals designed by Michelin-starred chefs, delivered fresh to your yacht with premium packaging.",
         category: "Culinary",
         pricePerSession: "450.00",
-        duration: 3,
+        duration: 0.5,
         providerId: createdUsers.find(u => u.username === "chef_service")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800",
+        imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
         isAvailable: true,
-        rating: "4.8",
-        reviewCount: 94
+        rating: "4.8", 
+        reviewCount: 187
       },
       {
-        name: "Gourmet Catering & Bar Service",
-        description: "Complete catering services with professional bartenders, premium ingredients, and customized menus for all occasions.",
+        name: "Premium Catering Service",
+        description: "Complete catering solutions for yacht events with professional staff, premium ingredients, and custom menus for any occasion.",
         category: "Culinary",
+        pricePerSession: "750.00",
+        duration: 6,
+        providerId: createdUsers.find(u => u.username === "chef_service")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+        isAvailable: true,
+        rating: "4.9",
+        reviewCount: 203
+      },
+
+      // Wellness & Spa Services
+      {
+        name: "Therapeutic Massage Therapy",
+        description: "Professional massage services including Swedish, deep tissue, and hot stone treatments delivered directly to your yacht.",
+        category: "Wellness & Spa",
+        pricePerSession: "385.00",
+        duration: 1.5,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+        isAvailable: true,
+        rating: "4.9",
+        reviewCount: 324
+      },
+      {
+        name: "Luxury Spa Treatments",
+        description: "Full-service spa treatments including facials, body wraps, aromatherapy, and rejuvenation packages onboard.",
+        category: "Wellness & Spa",
+        pricePerSession: "485.00",
+        duration: 2.5,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+        isAvailable: true,
+        rating: "4.8",
+        reviewCount: 267
+      },
+      {
+        name: "Personal Training & Fitness",
+        description: "Certified personal trainers providing customized fitness programs, yoga, and wellness coaching on deck.",
+        category: "Wellness & Spa",
+        pricePerSession: "295.00",
+        duration: 1,
+        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+        isAvailable: true,
+        rating: "4.7",
+        reviewCount: 145
+      },
+
+      // Photography & Videography
+      {
+        name: "Professional Yacht Photography",
+        description: "Expert photographers capturing luxury yacht experiences, events, and lifestyle moments with premium equipment.",
+        category: "Photography & Media",
         pricePerSession: "650.00",
+        duration: 3,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1554048612-b6a482b22e62?w=800",
+        isAvailable: true,
+        rating: "4.9",
+        reviewCount: 178
+      },
+      {
+        name: "Cinematic Videography Services",
+        description: "Professional videography for yacht events, luxury lifestyle content, and promotional materials with 4K quality.",
+        category: "Photography & Media",
+        pricePerSession: "850.00",
+        duration: 4,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800",
+        isAvailable: true,
+        rating: "4.8",
+        reviewCount: 134
+      },
+
+      // Entertainment Services
+      {
+        name: "Private DJ & Music Services",
+        description: "Professional DJs and live music entertainment for yacht parties and special events with premium sound systems.",
+        category: "Entertainment",
+        pricePerSession: "750.00",
         duration: 6,
         providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+        imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+        isAvailable: true,
+        rating: "4.8",
+        reviewCount: 167
+      },
+      {
+        name: "Live Band Performance",
+        description: "Professional musicians and bands providing live entertainment for yacht events and celebrations.",
+        category: "Entertainment",
+        pricePerSession: "1250.00",
+        duration: 4,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800",
+        isAvailable: true,
+        rating: "4.9",
+        reviewCount: 89
+      },
+
+      // Water Sports & Activities
+      {
+        name: "Water Sports Equipment & Instruction",
+        description: "Complete water sports services including jet ski rentals, paddleboarding, snorkeling gear, and professional instruction.",
+        category: "Water Sports",
+        pricePerSession: "425.00",
+        duration: 3,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
         isAvailable: true,
         rating: "4.7",
         reviewCount: 203
       },
-      
-      // Maintenance & Technical Services
+      {
+        name: "Diving & Snorkeling Excursions",
+        description: "Guided diving and snorkeling tours with professional instructors, equipment rental, and underwater photography.",
+        category: "Water Sports",
+        pricePerSession: "650.00",
+        duration: 4,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        isAvailable: true,
+        rating: "4.8",
+        reviewCount: 156
+      },
+
+      // Technical Support Services
       {
         name: "Professional Yacht Detailing",
-        description: "Comprehensive yacht maintenance and detailing services ensuring your vessel remains in pristine condition with premium care and attention to detail.",
-        category: "Maintenance",
+        description: "Comprehensive yacht maintenance and detailing services ensuring your vessel remains pristine with premium care.",
+        category: "Technical Support",
         pricePerSession: "425.00",
         duration: 6,
         providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
@@ -291,118 +445,42 @@ export async function seedDatabase() {
         reviewCount: 89
       },
       {
-        name: "Marine Engine & Systems Service",
-        description: "Expert mechanical services for yacht engines, electrical systems, and navigation equipment by certified marine technicians.",
-        category: "Maintenance",
-        pricePerSession: "750.00",
-        duration: 8,
+        name: "Marine Electronics & Navigation",
+        description: "Expert installation and maintenance of marine electronics, GPS systems, and yacht navigation equipment.",
+        category: "Technical Support",
+        pricePerSession: "650.00",
+        duration: 4,
         providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
         imageUrl: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=800",
         isAvailable: true,
         rating: "4.9",
         reviewCount: 156
       },
-      {
-        name: "Interior Design & Refurbishment",
-        description: "Luxury yacht interior design services with premium materials, custom furnishings, and sophisticated aesthetic upgrades.",
-        category: "Maintenance",
-        pricePerSession: "1850.00",
-        duration: 12,
-        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800",
-        isAvailable: true,
-        rating: "4.6",
-        reviewCount: 71
-      },
 
-      // Wellness & Spa Services
+      // Concierge & Lifestyle Services  
       {
-        name: "Onboard Spa & Wellness Treatments",
-        description: "Professional spa services including massages, facials, and wellness treatments delivered directly to your yacht.",
-        category: "Wellness",
-        pricePerSession: "385.00",
-        duration: 2,
-        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
-        isAvailable: true,
-        rating: "4.9",
-        reviewCount: 324
-      },
-      {
-        name: "Personal Fitness & Yoga Instruction",
-        description: "Private fitness training and yoga sessions on deck with certified instructors and premium equipment.",
-        category: "Wellness",
-        pricePerSession: "285.00",
-        duration: 1,
-        providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+        name: "Personal Concierge Service",
+        description: "Dedicated concierge for restaurant reservations, entertainment booking, shopping, and exclusive access arrangements.",
+        category: "Concierge & Lifestyle",
+        pricePerSession: "425.00",
+        duration: 4,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800",
         isAvailable: true,
         rating: "4.8",
-        reviewCount: 187
-      },
-
-      // Event Planning & Entertainment
-      {
-        name: "Luxury Event Planning",
-        description: "Exclusive event coordination for yacht parties, corporate gatherings, and special celebrations with premium vendors and personalized service.",
-        category: "Events",
-        pricePerSession: "1250.00",
-        duration: 8,
-        providerId: createdUsers.find(u => u.username === "entertainment_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800",
-        isAvailable: true,
-        rating: "5.0",
-        reviewCount: 156
+        reviewCount: 256
       },
       {
-        name: "Live Entertainment & DJ Services",
-        description: "Professional musicians, DJs, and performers for yacht parties and special events with premium sound systems.",
-        category: "Entertainment",
-        pricePerSession: "950.00",
-        duration: 4,
-        providerId: createdUsers.find(u => u.username === "entertainment_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800",
+        name: "Yacht Provisioning Service",
+        description: "Complete provisioning with premium groceries, beverages, linens, and amenities stocked before your arrival.",
+        category: "Concierge & Lifestyle",
+        pricePerSession: "350.00",
+        duration: 2,
+        providerId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
         isAvailable: true,
         rating: "4.7",
-        reviewCount: 245
-      },
-      {
-        name: "Photography & Videography",
-        description: "Professional yacht photography and videography services for events, celebrations, and marketing purposes.",
-        category: "Photography",
-        pricePerSession: "750.00",
-        duration: 4,
-        providerId: createdUsers.find(u => u.username === "entertainment_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800",
-        isAvailable: true,
-        rating: "4.8",
-        reviewCount: 198
-      },
-
-      // Security & Safety Services
-      {
-        name: "Executive Security & Protection",
-        description: "Professional security services with trained maritime security personnel for high-profile guests and events.",
-        category: "Security",
-        pricePerSession: "1450.00",
-        duration: 8,
-        providerId: createdUsers.find(u => u.username === "security_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
-        isAvailable: true,
-        rating: "4.9",
-        reviewCount: 112
-      },
-      {
-        name: "Safety Inspection & Certification",
-        description: "Comprehensive safety inspections and certification services ensuring compliance with maritime regulations.",
-        category: "Safety",
-        pricePerSession: "650.00",
-        duration: 4,
-        providerId: createdUsers.find(u => u.username === "security_provider")?.id,
-        imageUrl: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800",
-        isAvailable: true,
-        rating: "4.8",
-        reviewCount: 87
+        reviewCount: 189
       }
     ];
 

@@ -50,18 +50,14 @@ interface ServiceAnalytics {
 }
 
 const SERVICE_CATEGORIES = [
-  'Chef & Catering',
-  'Spa & Wellness', 
-  'Photography',
+  'Beauty & Grooming',
+  'Culinary',
+  'Wellness & Spa',
+  'Photography & Media',
   'Entertainment',
   'Water Sports',
-  'Hair & Beauty',
-  'Massage Therapy',
-  'Personal Training',
-  'Event Planning',
-  'Cleaning & Maintenance',
-  'Navigation & Captain Services',
-  'Concierge Services'
+  'Technical Support',
+  'Concierge & Lifestyle'
 ];
 
 const ServiceProviderDashboard: React.FC = () => {
