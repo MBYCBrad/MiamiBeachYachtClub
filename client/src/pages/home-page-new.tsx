@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 // Import original member pages
 import MemberHome from '@/pages/member-home';
 import MemberTrips from '@/pages/member-trips';
-import MemberMessages from '@/pages/member-messages-simple';
+import MemberMessages from '@/pages/member-messages';
 import MemberFavorites from '@/pages/member-favorites-new';
 import MemberProfile from '@/pages/member-profile';
 import MemberNotifications from '@/pages/member-notifications';

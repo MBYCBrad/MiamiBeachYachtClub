@@ -196,11 +196,10 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-900/50 border-gray-700 text-white placeholder-gray-400 rounded-xl focus:border-purple-500 transition-all duration-300"
-            />
-          </div>
+            className="pl-10 bg-gray-900/50 border-gray-700 text-white placeholder-gray-400 rounded-xl focus:border-purple-500 transition-all duration-300"
+          />
         </div>
-      </motion.div>
+      </div>
 
       {!selectedConversation ? (
         /* Conversations List */
