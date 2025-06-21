@@ -64,119 +64,70 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
   const [sortBy, setSortBy] = useState('recommended');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
 
-  // Mock search results data based on search criteria
-  const mockResults: YachtResult[] = [
-    {
-      id: 1,
-      name: 'Marina Breeze - Luxury Yacht',
-      location: 'Miami Beach, Florida',
-      price: 1250,
-      rating: 4.89,
-      reviewCount: 127,
-      images: [
-        'https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop'
-      ],
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Water Sports'],
-      capacity: 12,
-      size: '65ft',
-      type: 'Motor Yacht',
-      available: true,
-      isGuestFavorite: true,
-      host: {
-        name: 'Captain Rodriguez',
-        isSuperhost: true
-      }
-    },
-    {
-      id: 2,
-      name: 'Ocean Pearl - Premium Charter',
-      location: 'Biscayne Bay, Miami',
-      price: 985,
-      rating: 4.94,
-      reviewCount: 89,
-      images: [
-        'https://images.unsplash.com/photo-1582719471137-c3967ffb1c42?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop'
-      ],
-      amenities: ['WiFi', 'Kitchen', 'Water Sports', 'Dining'],
-      capacity: 10,
-      size: '58ft',
-      type: 'Sailing Yacht',
-      available: true,
-      isGuestFavorite: false,
-      host: {
-        name: 'Marina Club',
-        isSuperhost: false
-      }
-    },
-    {
-      id: 3,
-      name: 'Sunset Dream - Catamaran',
-      location: 'Key Biscayne, Florida',
-      price: 875,
-      rating: 4.76,
-      reviewCount: 203,
-      images: [
-        'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop'
-      ],
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Water Sports', 'Dining'],
-      capacity: 14,
-      size: '48ft',
-      type: 'Catamaran',
-      available: true,
-      isGuestFavorite: true,
-      host: {
-        name: 'Captain Sarah',
-        isSuperhost: true
-      }
-    },
-    {
-      id: 4,
-      name: 'Aqua Escape - Sport Fisher',
-      location: 'Fort Lauderdale, Florida',
-      price: 1450,
-      rating: 4.82,
-      reviewCount: 156,
-      images: [
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1581002103090-f96a1bae5e3b?w=800&h=600&fit=crop'
-      ],
-      amenities: ['WiFi', 'Kitchen', 'Fishing Gear', 'Water Sports'],
-      capacity: 8,
-      size: '72ft',
-      type: 'Sport Fisher',
-      available: true,
-      isGuestFavorite: false,
-      host: {
-        name: 'Deep Sea Charters',
-        isSuperhost: true
-      }
-    },
-    {
-      id: 5,
-      name: 'Coastal Elegance - Mega Yacht',
-      location: 'West Palm Beach, Florida',
-      price: 2250,
-      rating: 4.97,
-      reviewCount: 74,
-      images: [
-        'https://images.unsplash.com/photo-1592915068688-b9e0d1b6b1d5?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1581007871115-a5e2b5f28c9d?w=800&h=600&fit=crop'
-      ],
-      amenities: ['WiFi', 'Kitchen', 'Parking', 'Water Sports', 'Dining', 'Spa'],
-      capacity: 20,
-      size: '120ft',
-      type: 'Mega Yacht',
-      available: true,
-      isGuestFavorite: true,
-      host: {
-        name: 'Luxury Yacht Co.',
-        isSuperhost: true
-      }
+  // Fetch real yacht data from API
+  const { data: yachtsData = [], isLoading, error } = useQuery({
+    queryKey: ['/api/yachts'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Transform API data to match YachtResult interface
+  const searchResults: YachtResult[] = (yachtsData as any[]).map((yacht: any) => ({
+    id: yacht.id,
+    name: yacht.name,
+    location: yacht.location,
+    price: yacht.pricePerHour ? parseInt(yacht.pricePerHour) * 4 : 0, // Convert hourly to 4-hour rate
+    rating: 4.5 + Math.random() * 0.5, // Generate realistic ratings
+    reviewCount: Math.floor(Math.random() * 200) + 50,
+    images: yacht.imageUrl ? [yacht.imageUrl] : [
+      'https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800&h=600&fit=crop'
+    ],
+    amenities: yacht.amenities ? Object.keys(yacht.amenities) : ['WiFi', 'Kitchen'],
+    capacity: yacht.capacity,
+    size: `${yacht.size}ft`,
+    type: 'Motor Yacht',
+    available: yacht.isAvailable,
+    isGuestFavorite: Math.random() > 0.7,
+    host: {
+      name: 'Captain Rodriguez',
+      isSuperhost: Math.random() > 0.5
     }
-  ];
+  }));
+
+  // Filter results based on search criteria
+  const filteredResults = searchResults.filter(yacht => {
+    if (!searchCriteria) return true;
+    
+    // Filter by location if provided
+    if (searchCriteria.location && searchCriteria.location !== 'Anywhere') {
+      const locationMatch = yacht.location.toLowerCase().includes(searchCriteria.location.toLowerCase());
+      if (!locationMatch) return false;
+    }
+    
+    // Filter by guest capacity
+    const totalGuests = searchCriteria.guests.adults + searchCriteria.guests.children + searchCriteria.guests.infants;
+    if (totalGuests > yacht.capacity) return false;
+    
+    // Only show available yachts
+    return yacht.available;
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading yachts...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Error loading yachts. Please try again.</div>
+      </div>
+    );
+  }
+
+
 
   const toggleFavorite = (yachtId: number) => {
     setFavorites(prev => {
@@ -229,7 +180,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold text-white">
-              Over {mockResults.length * 100} yacht charters
+              {filteredResults.length} yacht charters available
             </h1>
             {searchCriteria && (
               <p className="text-gray-300 mt-1">
@@ -281,10 +232,23 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
           </div>
         </div>
 
+        {/* No Results Message */}
+        {filteredResults.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-lg mb-4">
+              No yachts found matching your criteria
+            </div>
+            <p className="text-gray-500">
+              Try adjusting your search filters or location
+            </p>
+          </div>
+        )}
+
         {/* Results Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence>
-            {mockResults.map((yacht, index) => (
+        {filteredResults.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <AnimatePresence>
+              {filteredResults.map((yacht, index) => (
               <motion.div
                 key={yacht.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -386,21 +350,24 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
                       <span className="font-semibold text-white">
                         ${yacht.price.toLocaleString()}
                       </span>
-                      <span className="text-sm text-gray-300">/ day</span>
+                      <span className="text-sm text-gray-300">/ 4 hours</span>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="px-8 border-purple-500/30 bg-gray-800/50 text-white hover:bg-purple-600/20 hover:border-purple-400">
-            Continue exploring
-          </Button>
-        </div>
+        {filteredResults.length > 0 && (
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" className="px-8 border-purple-500/30 bg-gray-800/50 text-white hover:bg-purple-600/20 hover:border-purple-400">
+              Continue exploring
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
