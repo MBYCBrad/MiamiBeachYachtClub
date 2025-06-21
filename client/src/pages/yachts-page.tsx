@@ -35,17 +35,17 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
         </div>
 
         {/* Header Content */}
-        <div className="relative z-10 pt-12 pb-8 px-4">
-          <div className="flex justify-between items-start mb-8">
-            <div>
+        <div className="relative z-10 pt-8 sm:pt-12 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-start mb-6 sm:mb-8">
+            <div className="flex-1">
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl font-bold text-gradient-animate mb-2"
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-animate mb-2"
               >
                 Luxury Yachts
               </motion.h1>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-sm sm:text-base lg:text-lg">
                 Discover extraordinary yachts and premium experiences
               </p>
             </div>
@@ -59,30 +59,30 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
             transition={{ delay: 0.2 }}
             className="relative"
           >
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               type="text"
-              placeholder="Search yachts, locations, events..."
+              placeholder="Search yachts, locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-16 py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-lg focus:bg-white/20 focus:border-purple-500 transition-all duration-300"
+              className="pl-10 sm:pl-12 pr-12 sm:pr-16 py-3 sm:py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-sm sm:text-base lg:text-lg focus:bg-white/20 focus:border-purple-500 transition-all duration-300"
             />
             <Button
               size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl p-2"
             >
-              <Filter size={16} />
+              <Filter size={14} />
             </Button>
           </motion.div>
         </div>
       </div>
 
       {/* Yachts Grid */}
-      <div className="px-4 pb-24">
+      <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-800 rounded-2xl h-80 animate-pulse" />
+              <div key={i} className="bg-gray-800 rounded-2xl h-64 sm:h-72 lg:h-80 animate-pulse" />
             ))}
           </div>
         ) : (
@@ -90,7 +90,7 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
             {filteredYachts.map((yacht, index) => (
               <motion.div
@@ -101,42 +101,42 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
                 className="group relative bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover-lift card-hover"
               >
                 {/* Yacht Image */}
-                <div className="relative h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+                <div className="relative h-40 sm:h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="absolute top-3 right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-2"
+                    className="absolute top-2 sm:top-3 right-2 sm:right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-1.5 sm:p-2"
                   >
-                    <Heart size={18} />
+                    <Heart size={16} />
                   </Button>
                 </div>
 
                 {/* Yacht Info */}
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
+                    <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-purple-400 transition-colors line-clamp-1">
                       {yacht.name}
                     </h3>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-xs sm:text-sm text-gray-400 ml-2">
                       {yacht.size}ft
                     </span>
                   </div>
                   
-                  <p className="text-gray-400 text-sm mb-3">
+                  <p className="text-gray-400 text-xs sm:text-sm mb-3 truncate">
                     {yacht.location}
                   </p>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold text-white">
+                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
                       ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
-                      <span className="text-sm text-gray-400 font-normal">/hour</span>
+                      <span className="text-xs sm:text-sm text-gray-400 font-normal">/hour</span>
                     </span>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-6"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-3 sm:px-4 lg:px-6 text-xs sm:text-sm"
                     >
-                      Book Now
+                      Book
                     </Button>
                   </div>
                 </div>

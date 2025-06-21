@@ -35,17 +35,17 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
         </div>
 
         {/* Header Content */}
-        <div className="relative z-10 pt-12 pb-8 px-4">
-          <div className="flex justify-between items-start mb-8">
-            <div>
+        <div className="relative z-10 pt-8 sm:pt-12 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-start mb-6 sm:mb-8">
+            <div className="flex-1">
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl font-bold text-gradient-animate mb-2"
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-animate mb-2"
               >
                 Premium Services
               </motion.h1>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-sm sm:text-base lg:text-lg">
                 Professional yacht services and exclusive experiences
               </p>
             </div>
@@ -59,30 +59,30 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
             transition={{ delay: 0.2 }}
             className="relative"
           >
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               type="text"
-              placeholder="Search services, categories..."
+              placeholder="Search services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-16 py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-lg focus:bg-white/20 focus:border-blue-500 transition-all duration-300"
+              className="pl-10 sm:pl-12 pr-12 sm:pr-16 py-3 sm:py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-sm sm:text-base lg:text-lg focus:bg-white/20 focus:border-blue-500 transition-all duration-300"
             />
             <Button
               size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl p-2"
             >
-              <Filter size={16} />
+              <Filter size={14} />
             </Button>
           </motion.div>
         </div>
       </div>
 
       {/* Services Grid */}
-      <div className="px-4 pb-24">
+      <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-800 rounded-2xl h-64 animate-pulse" />
+              <div key={i} className="bg-gray-800 rounded-2xl h-56 sm:h-64 animate-pulse" />
             ))}
           </div>
         ) : (
@@ -90,7 +90,7 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
             {filteredServices.map((service, index) => (
               <motion.div

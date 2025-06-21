@@ -110,7 +110,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
-      <div className="relative h-[60vh] overflow-hidden">
+      <div className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] overflow-hidden">
         {videoLoading ? (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
         ) : heroVideo ? (
@@ -159,15 +159,15 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
 
         {/* Hero Content */}
-        <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+        <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="max-w-4xl mx-auto"
+            className="max-w-4xl mx-auto w-full"
           >
             <motion.h1 
-              className="text-5xl md:text-7xl font-bold mb-3 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
@@ -175,7 +175,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               Luxury Awaits
             </motion.h1>
             <motion.p 
-              className="text-xl md:text-2xl text-gray-200 mb-4"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -188,7 +188,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="relative max-w-4xl mx-auto"
+              className="relative w-full max-w-4xl mx-auto"
             >
               <AirbnbSearchBar 
                 onSearch={handleSearch}
@@ -215,7 +215,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       </motion.div>
 
       {/* Content */}
-      <div className="px-4 py-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <AnimatePresence mode="wait">
           {selectedCategory === 'yachts' && (
             <motion.div
@@ -224,7 +224,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
               {filteredYachts.map((yacht, index) => (
                 <motion.div
@@ -241,7 +241,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       <motion.img
                         src={getYachtImage(index)}
                         alt={yacht.name}
-                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                         whileHover={{ scale: 1.1 }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -295,21 +295,21 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       </div>
                     </div>
 
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="space-y-2 sm:space-y-3">
                         <div>
-                          <h3 className="font-bold text-xl text-white group-hover:text-purple-300 transition-colors duration-300">
+                          <h3 className="font-bold text-lg sm:text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-1">
                             {yacht.name}
                           </h3>
-                          <p className="text-gray-400 text-sm">
+                          <p className="text-gray-400 text-xs sm:text-sm">
                             {yacht.size}ft • {yacht.capacity} guests
                           </p>
                         </div>
 
                         <div className="flex items-center justify-between">
                           <div className="text-white">
-                            <span className="text-2xl font-bold">${yacht.pricePerHour}</span>
-                            <span className="text-gray-400 text-sm ml-1">/hour</span>
+                            <span className="text-xl sm:text-2xl font-bold">${yacht.pricePerHour}</span>
+                            <span className="text-gray-400 text-xs sm:text-sm ml-1">/hour</span>
                           </div>
                           <motion.div
                             whileHover={{ scale: 1.05 }}
@@ -317,7 +317,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25 text-xs sm:text-sm px-3 sm:px-4"
                             >
                               Book Now
                             </Button>
@@ -338,7 +338,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
               {filteredServices.map((service, index) => (
                 <motion.div
@@ -424,7 +424,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
               {filteredEvents.map((event, index) => (
                 <motion.div

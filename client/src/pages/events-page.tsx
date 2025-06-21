@@ -43,17 +43,17 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
         </div>
 
         {/* Header Content */}
-        <div className="relative z-10 pt-12 pb-8 px-4">
-          <div className="flex justify-between items-start mb-8">
-            <div>
+        <div className="relative z-10 pt-8 sm:pt-12 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-start mb-6 sm:mb-8">
+            <div className="flex-1">
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl font-bold text-gradient-animate mb-2"
+                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-animate mb-2"
               >
                 Exclusive Events
               </motion.h1>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-sm sm:text-base lg:text-lg">
                 Unforgettable experiences and luxury gatherings
               </p>
             </div>
@@ -67,30 +67,30 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
             transition={{ delay: 0.2 }}
             className="relative"
           >
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               type="text"
-              placeholder="Search events, experiences..."
+              placeholder="Search events..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-16 py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-lg focus:bg-white/20 focus:border-purple-500 transition-all duration-300"
+              className="pl-10 sm:pl-12 pr-12 sm:pr-16 py-3 sm:py-4 bg-white/10 border-white/20 text-white placeholder-gray-400 rounded-2xl text-sm sm:text-base lg:text-lg focus:bg-white/20 focus:border-purple-500 transition-all duration-300"
             />
             <Button
               size="sm"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 rounded-xl"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 rounded-xl p-2"
             >
-              <Filter size={16} />
+              <Filter size={14} />
             </Button>
           </motion.div>
         </div>
       </div>
 
       {/* Events Grid */}
-      <div className="px-4 pb-24">
+      <div className="px-4 sm:px-6 lg:px-8 pb-20 sm:pb-24">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-800 rounded-2xl h-72 animate-pulse" />
+              <div key={i} className="bg-gray-800 rounded-2xl h-64 sm:h-72 animate-pulse" />
             ))}
           </div>
         ) : (
@@ -98,7 +98,7 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
             {filteredEvents.map((event, index) => (
               <motion.div
