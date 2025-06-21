@@ -11,6 +11,7 @@ import AuthPage from "@/pages/auth-page";
 import YachtDetail from "@/pages/yacht-detail";
 import ServiceDetail from "@/pages/service-detail";
 import EventDetail from "@/pages/event-detail";
+import EventsPage from "@/pages/events-page";
 import CheckoutPage from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
@@ -18,6 +19,7 @@ function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/events" component={EventsPage} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
       <ProtectedRoute path="/events/:id" component={EventDetail} />

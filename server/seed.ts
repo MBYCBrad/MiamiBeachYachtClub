@@ -12,14 +12,168 @@ async function hashPassword(password: string) {
   return `${buf.toString("hex")}.${salt}`;
 }
 
+async function createEventsData(createdUsers: any[]) {
+  // Create exclusive MBYC member-only yacht rental add-on experiences
+  const eventData = [
+    // Yacht Charter Add-On Experiences
+    {
+      title: "Private Chef Dinner Party Add-On",
+      description: "Transform your yacht charter into a Michelin-starred dining experience. Our executive chef creates a personalized 7-course tasting menu featuring locally-sourced ingredients, premium wagyu beef, fresh lobster, and curated wine pairings. Perfect for intimate celebrations, anniversaries, or impressing business clients during your charter.",
+      startTime: new Date("2025-07-15T19:00:00Z"),
+      endTime: new Date("2025-07-15T23:00:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 12,
+      ticketPrice: "485.00",
+      imageUrl: "/api/media/pexels-goumbik-296278_1750537277229.jpg",
+      hostId: createdUsers.find(u => u.username === "chef_service")?.id,
+      isActive: true
+    },
+    {
+      title: "Sunset Photography Session Add-On",
+      description: "Capture magical moments during your yacht charter with our professional photographer specializing in luxury lifestyle and yacht photography. Includes 2-hour session during golden hour, 50+ edited high-resolution images, same-day preview gallery, and complimentary champagne service while shooting. Perfect for proposals, family portraits, or social media content.",
+      startTime: new Date("2025-07-20T18:30:00Z"),
+      endTime: new Date("2025-07-20T20:30:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 8,
+      ticketPrice: "650.00",
+      imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
+      hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+      isActive: true
+    },
+    
+    // Monthly Member Group Yacht Parties - All 6 Yachts Together
+    {
+      title: "White Party Marina Social - All Fleet Event",
+      description: "The ultimate MBYC member experience! All 6 yachts line up together in the marina for an exclusive white-themed party. Members move freely between Marina Breeze, Ocean Paradise, Sunset Dreams, Luxury Escape, Sea Goddess, and Captain's Choice. Features synchronized music, floating walkways between yachts, premium open bars on each vessel, and gourmet food stations. Dress code: All white attire required.",
+      startTime: new Date("2025-07-26T17:00:00Z"),
+      endTime: new Date("2025-07-26T23:00:00Z"),
+      location: "MBYC Marina - All 6 Yachts Formation",
+      capacity: 180,
+      ticketPrice: "295.00",
+      imageUrl: "/api/media/pexels-mali-42091_1750537294323.jpg",
+      hostId: createdUsers.find(u => u.username === "admin")?.id,
+      isActive: true
+    },
+    {
+      title: "Tropical Sunset Fleet Party",
+      description: "Monthly tropical-themed celebration with all MBYC yachts anchored together in formation. Members enjoy island-inspired cocktails, Caribbean cuisine, steel drum bands, and limbo contests across the entire fleet. Each yacht features different tropical experiences: tiki bars, reggae music, Hawaiian luau games, and sunset yoga sessions. Complimentary lei greeting and tropical attire encouraged.",
+      startTime: new Date("2025-08-16T16:30:00Z"),
+      endTime: new Date("2025-08-16T22:30:00Z"),
+      location: "MBYC Marina - Full Fleet Formation",
+      capacity: 180,
+      ticketPrice: "265.00",
+      imageUrl: "/api/media/pexels-mali-42092_1750537277229.jpg",
+      hostId: createdUsers.find(u => u.username === "admin")?.id,
+      isActive: true
+    },
+    {
+      title: "Masquerade Mystery Night - Fleet Social",
+      description: "Elegant masquerade ball spanning all 6 yachts with interactive mystery game. Members receive clues leading them between vessels while enjoying champagne, classical music, and gourmet hors d'oeuvres. Professional actors create an immersive mystery experience as members network and solve puzzles across the entire fleet. Venetian masks provided, formal attire required.",
+      startTime: new Date("2025-09-13T19:00:00Z"),
+      endTime: new Date("2025-09-14T01:00:00Z"),
+      location: "MBYC Marina - All Yachts Connected",
+      capacity: 180,
+      ticketPrice: "385.00",
+      imageUrl: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg",
+      hostId: createdUsers.find(u => u.username === "admin")?.id,
+      isActive: true
+    },
+    {
+      title: "Oktoberfest on the Water - Fleet Celebration",
+      description: "Bavarian-themed party across all MBYC yachts with authentic German beer, bratwurst, pretzels, and live polka music. Each yacht represents a different German region with specialized food and beer selections. Members participate in yacht-to-yacht beer pong tournaments, traditional folk dancing, and lederhosen contests. Traditional German attire encouraged, authentic beer steins provided.",
+      startTime: new Date("2025-10-11T15:00:00Z"),
+      endTime: new Date("2025-10-11T21:00:00Z"),
+      location: "MBYC Marina - Oktoberfest Fleet Setup",
+      capacity: 180,
+      ticketPrice: "225.00",
+      imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
+      hostId: createdUsers.find(u => u.username === "admin")?.id,
+      isActive: true
+    },
+    {
+      title: "Premium Water Sports Package",
+      description: "Elevate your yacht charter with our exclusive water sports collection: jet skis, paddleboards, snorkeling gear, floating loungers, and professional instruction. Includes waterproof camera rental, towel service, and safety equipment. Add dolphin watching excursion to encounter Miami's resident dolphin pods in their natural habitat.",
+      startTime: new Date("2025-07-25T11:00:00Z"),
+      endTime: new Date("2025-07-25T16:00:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 10,
+      ticketPrice: "385.00",
+      imageUrl: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg",
+      hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+      isActive: true
+    },
+    {
+      title: "Onboard Spa & Wellness Experience",
+      description: "Transform your yacht into a floating spa sanctuary. Professional massage therapists provide couples massages, aromatherapy treatments, and guided meditation sessions on deck. Includes premium organic spa products, healthy superfood smoothies, yoga mats, and ambient music curation. Ideal for wellness retreats or romantic getaways.",
+      startTime: new Date("2025-08-01T14:00:00Z"),
+      endTime: new Date("2025-08-01T18:00:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 6,
+      ticketPrice: "575.00",
+      imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
+      hostId: createdUsers.find(u => u.username === "spa_provider")?.id,
+      isActive: true
+    },
+    {
+      title: "Live Music & Entertainment Package",
+      description: "Bring world-class entertainment aboard your charter with our curated musicians: acoustic guitarist for intimate moments, saxophone player for sunset cocktails, or full jazz trio for sophisticated gatherings. Includes premium sound system setup, wireless microphones, and song requests. Perfect for celebrations, corporate events, or romantic evenings.",
+      startTime: new Date("2025-08-08T17:00:00Z"),
+      endTime: new Date("2025-08-08T22:00:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 20,
+      ticketPrice: "750.00",
+      imageUrl: "/api/media/pexels-mali-42091_1750537294323.jpg",
+      hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+      isActive: true
+    },
+    {
+      title: "Gourmet Picnic & Island Exploration",
+      description: "Combine your yacht charter with an exclusive island adventure. We anchor at secluded sandbar or private beach while our team sets up a luxury picnic with gourmet sandwiches, fresh fruit platters, premium cheeses, and chilled rosé. Includes beach games, snorkeling equipment, and professional photography of your island experience.",
+      startTime: new Date("2025-08-12T12:00:00Z"),
+      endTime: new Date("2025-08-12T17:00:00Z"),
+      location: "Private Islands & Sandbars",
+      capacity: 15,
+      ticketPrice: "445.00",
+      imageUrl: "/api/media/pexels-mali-42092_1750537277229.jpg",
+      hostId: createdUsers.find(u => u.username === "chef_service")?.id,
+      isActive: true
+    },
+    {
+      title: "Celebration & Party Enhancement",
+      description: "Turn your yacht charter into an unforgettable celebration with professional party planning, custom decorations matching your theme, premium bar service with signature cocktails, party games, and DJ services. Includes balloon arrangements, custom cake service, and special occasion photography. Perfect for birthdays, bachelorette parties, or milestone celebrations.",
+      startTime: new Date("2025-08-18T15:00:00Z"),
+      endTime: new Date("2025-08-18T21:00:00Z"),
+      location: "Add-On to Any Yacht Charter",
+      capacity: 25,
+      ticketPrice: "695.00",
+      imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
+      hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+      isActive: true
+    }
+  ];
+
+  const createdEvents = await db.insert(events).values(eventData).returning();
+  console.log(`✅ Created ${createdEvents.length} exclusive yacht experiences`);
+}
+
 export async function seedDatabase() {
   console.log("🌊 Seeding Miami Beach Yacht Club database...");
 
   try {
     // Check if users already exist
     const existingUsers = await db.select().from(users);
-    if (existingUsers.length > 0) {
+    const existingEvents = await db.select().from(events);
+    
+    if (existingUsers.length > 0 && existingEvents.length > 0) {
       console.log("✅ Database already seeded");
+      return;
+    }
+    
+    // If events are missing, we need to reseed them
+    if (existingUsers.length > 0 && existingEvents.length === 0) {
+      console.log("🔄 Reseeding events data...");
+      await createEventsData(existingUsers);
+      console.log("✅ Events reseeded successfully");
       return;
     }
 
@@ -463,91 +617,141 @@ export async function seedDatabase() {
     const createdServices = await db.insert(services).values(serviceData).returning();
     console.log(`✅ Created ${createdServices.length} premium services`);
 
-    // Create comprehensive exclusive events across all categories
+    // Create exclusive MBYC member-only yacht rental add-on experiences
     const eventData = [
-      // Upcoming Premium Events
+      // Yacht Charter Add-On Experiences
       {
-        title: "Sunset Cocktail Cruise",
-        description: "Join us for an elegant evening aboard our flagship yacht as we cruise through the stunning waters of Biscayne Bay. Enjoy premium cocktails and gourmet hors d'oeuvres while watching the sun set over Miami's skyline.",
-        startTime: new Date("2025-07-15T18:00:00Z"),
-        endTime: new Date("2025-07-15T21:00:00Z"),
-        location: "Miami Beach Marina",
-        capacity: 50,
-        ticketPrice: "185.00",
-        imageUrl: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=800",
-        hostId: createdUsers.find(u => u.username === "demo_member")?.id,
+        title: "Private Chef Dinner Party Add-On",
+        description: "Transform your yacht charter into a Michelin-starred dining experience. Our executive chef creates a personalized 7-course tasting menu featuring locally-sourced ingredients, premium wagyu beef, fresh lobster, and curated wine pairings. Perfect for intimate celebrations, anniversaries, or impressing business clients during your charter.",
+        startTime: new Date("2025-07-15T19:00:00Z"),
+        endTime: new Date("2025-07-15T23:00:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 12,
+        ticketPrice: "485.00",
+        imageUrl: "/api/media/pexels-goumbik-296278_1750537277229.jpg",
+        hostId: createdUsers.find(u => u.username === "chef_service")?.id,
         isActive: true
       },
       {
-        title: "Wine Tasting & Jazz Evening",
-        description: "An exclusive wine tasting event featuring rare vintages from premier wineries around the world. Live jazz music creates the perfect ambiance for this sophisticated gathering.",
-        startTime: new Date("2025-07-22T19:00:00Z"),
-        endTime: new Date("2025-07-22T22:00:00Z"),
-        location: "Star Island Private Club",
-        capacity: 35,
+        title: "Sunset Photography Session Add-On",
+        description: "Capture magical moments during your yacht charter with our professional photographer specializing in luxury lifestyle and yacht photography. Includes 2-hour session during golden hour, 50+ edited high-resolution images, same-day preview gallery, and complimentary champagne service while shooting. Perfect for proposals, family portraits, or social media content.",
+        startTime: new Date("2025-07-20T18:30:00Z"),
+        endTime: new Date("2025-07-20T20:30:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 8,
+        ticketPrice: "650.00",
+        imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
+        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        isActive: true
+      },
+      
+      // Monthly Member Group Yacht Parties - All 6 Yachts Together
+      {
+        title: "White Party Marina Social - All Fleet Event",
+        description: "The ultimate MBYC member experience! All 6 yachts line up together in the marina for an exclusive white-themed party. Members move freely between Marina Breeze, Ocean Paradise, Sunset Dreams, Luxury Escape, Sea Goddess, and Captain's Choice. Features synchronized music, floating walkways between yachts, premium open bars on each vessel, and gourmet food stations. Dress code: All white attire required.",
+        startTime: new Date("2025-07-26T17:00:00Z"),
+        endTime: new Date("2025-07-26T23:00:00Z"),
+        location: "MBYC Marina - All 6 Yachts Formation",
+        capacity: 180,
         ticketPrice: "295.00",
-        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+        imageUrl: "/api/media/pexels-mali-42091_1750537294323.jpg",
         hostId: createdUsers.find(u => u.username === "admin")?.id,
         isActive: true
       },
       {
-        title: "Platinum Members Gala",
-        description: "An ultra-exclusive black-tie gala aboard our most luxurious super yacht. Features world-class entertainment, Michelin-starred dining, and networking opportunities with Miami's elite.",
-        startTime: new Date("2025-08-05T19:30:00Z"),
-        endTime: new Date("2025-08-06T01:00:00Z"),
-        location: "Fisher Island Club",
-        capacity: 120,
-        ticketPrice: "750.00",
-        imageUrl: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800",
+        title: "Tropical Sunset Fleet Party",
+        description: "Monthly tropical-themed celebration with all MBYC yachts anchored together in formation. Members enjoy island-inspired cocktails, Caribbean cuisine, steel drum bands, and limbo contests across the entire fleet. Each yacht features different tropical experiences: tiki bars, reggae music, Hawaiian luau games, and sunset yoga sessions. Complimentary lei greeting and tropical attire encouraged.",
+        startTime: new Date("2025-08-16T16:30:00Z"),
+        endTime: new Date("2025-08-16T22:30:00Z"),
+        location: "MBYC Marina - Full Fleet Formation",
+        capacity: 180,
+        ticketPrice: "265.00",
+        imageUrl: "/api/media/pexels-mali-42092_1750537277229.jpg",
         hostId: createdUsers.find(u => u.username === "admin")?.id,
         isActive: true
       },
       {
-        title: "Corporate Yacht Charter Showcase",
-        description: "Exclusive corporate event showcasing our premium yacht charter services. Perfect for business networking with luxury amenities and professional presentations.",
-        startTime: new Date("2025-07-28T16:00:00Z"),
-        endTime: new Date("2025-07-28T20:00:00Z"),
-        location: "Miami Yacht & Biscayne Bay",
-        capacity: 80,
-        ticketPrice: "395.00",
-        imageUrl: "https://images.unsplash.com/photo-1567662378494-47b22a2ae96a?w=800",
-        hostId: createdUsers.find(u => u.username === "yacht_owner_1")?.id,
-        isActive: true
-      },
-      {
-        title: "Summer Regatta Weekend",
-        description: "Annual summer regatta featuring competitive sailing, luxury yacht exhibitions, and celebration parties. Multi-day event with accommodations on participating yachts.",
-        startTime: new Date("2025-08-12T09:00:00Z"),
-        endTime: new Date("2025-08-14T18:00:00Z"),
-        location: "Biscayne Bay Racing Circuit",
-        capacity: 200,
-        ticketPrice: "1250.00",
-        imageUrl: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=800",
+        title: "Masquerade Mystery Night - Fleet Social",
+        description: "Elegant masquerade ball spanning all 6 yachts with interactive mystery game. Members receive clues leading them between vessels while enjoying champagne, classical music, and gourmet hors d'oeuvres. Professional actors create an immersive mystery experience as members network and solve puzzles across the entire fleet. Venetian masks provided, formal attire required.",
+        startTime: new Date("2025-09-13T19:00:00Z"),
+        endTime: new Date("2025-09-14T01:00:00Z"),
+        location: "MBYC Marina - All Yachts Connected",
+        capacity: 180,
+        ticketPrice: "385.00",
+        imageUrl: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg",
         hostId: createdUsers.find(u => u.username === "admin")?.id,
         isActive: true
       },
       {
-        title: "Wellness & Spa Retreat",
-        description: "Rejuvenating wellness weekend featuring onboard spa treatments, yoga sessions, healthy gourmet cuisine, and meditation workshops in a serene marine environment.",
-        startTime: new Date("2025-07-31T10:00:00Z"),
-        endTime: new Date("2025-08-01T16:00:00Z"),
-        location: "Key Biscayne Anchorage",
-        capacity: 40,
-        ticketPrice: "850.00",
-        imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+        title: "Oktoberfest on the Water - Fleet Celebration",
+        description: "Bavarian-themed party across all MBYC yachts with authentic German beer, bratwurst, pretzels, and live polka music. Each yacht represents a different German region with specialized food and beer selections. Members participate in yacht-to-yacht beer pong tournaments, traditional folk dancing, and lederhosen contests. Traditional German attire encouraged, authentic beer steins provided.",
+        startTime: new Date("2025-10-11T15:00:00Z"),
+        endTime: new Date("2025-10-11T21:00:00Z"),
+        location: "MBYC Marina - Oktoberfest Fleet Setup",
+        capacity: 180,
+        ticketPrice: "225.00",
+        imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
+        hostId: createdUsers.find(u => u.username === "admin")?.id,
+        isActive: true
+      },
+      {
+        title: "Premium Water Sports Package",
+        description: "Elevate your yacht charter with our exclusive water sports collection: jet skis, paddleboards, snorkeling gear, floating loungers, and professional instruction. Includes waterproof camera rental, towel service, and safety equipment. Add dolphin watching excursion to encounter Miami's resident dolphin pods in their natural habitat.",
+        startTime: new Date("2025-07-25T11:00:00Z"),
+        endTime: new Date("2025-07-25T16:00:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 10,
+        ticketPrice: "385.00",
+        imageUrl: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg",
+        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        isActive: true
+      },
+      {
+        title: "Onboard Spa & Wellness Experience",
+        description: "Transform your yacht into a floating spa sanctuary. Professional massage therapists provide couples massages, aromatherapy treatments, and guided meditation sessions on deck. Includes premium organic spa products, healthy superfood smoothies, yoga mats, and ambient music curation. Ideal for wellness retreats or romantic getaways.",
+        startTime: new Date("2025-08-01T14:00:00Z"),
+        endTime: new Date("2025-08-01T18:00:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 6,
+        ticketPrice: "575.00",
+        imageUrl: "/api/media/pexels-pixabay-163236_1750537277230.jpg",
         hostId: createdUsers.find(u => u.username === "spa_provider")?.id,
         isActive: true
       },
       {
-        title: "Culinary Excellence Series",
-        description: "Monthly culinary event featuring guest celebrity chefs, wine pairings, and interactive cooking demonstrations aboard our luxury fleet.",
-        startTime: new Date("2025-08-20T18:30:00Z"),
-        endTime: new Date("2025-08-20T22:30:00Z"),
-        location: "Star Island Marina",
-        capacity: 60,
-        ticketPrice: "425.00",
-        imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800",
+        title: "Live Music & Entertainment Package",
+        description: "Bring world-class entertainment aboard your charter with our curated musicians: acoustic guitarist for intimate moments, saxophone player for sunset cocktails, or full jazz trio for sophisticated gatherings. Includes premium sound system setup, wireless microphones, and song requests. Perfect for celebrations, corporate events, or romantic evenings.",
+        startTime: new Date("2025-08-08T17:00:00Z"),
+        endTime: new Date("2025-08-08T22:00:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 20,
+        ticketPrice: "750.00",
+        imageUrl: "/api/media/pexels-mali-42091_1750537294323.jpg",
+        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
+        isActive: true
+      },
+      {
+        title: "Gourmet Picnic & Island Exploration",
+        description: "Combine your yacht charter with an exclusive island adventure. We anchor at secluded sandbar or private beach while our team sets up a luxury picnic with gourmet sandwiches, fresh fruit platters, premium cheeses, and chilled rosé. Includes beach games, snorkeling equipment, and professional photography of your island experience.",
+        startTime: new Date("2025-08-12T12:00:00Z"),
+        endTime: new Date("2025-08-12T17:00:00Z"),
+        location: "Private Islands & Sandbars",
+        capacity: 15,
+        ticketPrice: "445.00",
+        imageUrl: "/api/media/pexels-mali-42092_1750537277229.jpg",
         hostId: createdUsers.find(u => u.username === "chef_service")?.id,
+        isActive: true
+      },
+      {
+        title: "Celebration & Party Enhancement",
+        description: "Turn your yacht charter into an unforgettable celebration with professional party planning, custom decorations matching your theme, premium bar service with signature cocktails, party games, and DJ services. Includes balloon arrangements, custom cake service, and special occasion photography. Perfect for birthdays, bachelorette parties, or milestone celebrations.",
+        startTime: new Date("2025-08-18T15:00:00Z"),
+        endTime: new Date("2025-08-18T21:00:00Z"),
+        location: "Add-On to Any Yacht Charter",
+        capacity: 25,
+        ticketPrice: "695.00",
+        imageUrl: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg",
+        hostId: createdUsers.find(u => u.username === "demo_provider")?.id,
         isActive: true
       },
       {
