@@ -199,14 +199,14 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </div>
       </div>
 
-      {/* 3D Animated Tab Navigation - Positioned right below hero with minimal spacing */}
+      {/* 3D Animated Tab Navigation - Pulled up very close to search bar */}
       <motion.div 
-        className="relative z-40 bg-black/80 backdrop-blur-md border-b border-gray-800/50 -mt-2"
+        className="relative z-40 bg-black/80 backdrop-blur-md border-b border-gray-800/50 -mt-16"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0 }}
       >
-        <div className="px-4 py-2 flex justify-center">
+        <div className="px-4 py-1 flex justify-center">
           <TabNavigation 
             activeTab={selectedCategory}
             onTabChange={setSelectedCategory}
