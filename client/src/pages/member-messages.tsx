@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import type { MediaAsset } from '@shared/schema';
 
 interface Message {
   id: number;
@@ -103,6 +105,10 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   const [searchQuery, setSearchQuery] = useState('');
   const [newMessage, setNewMessage] = useState('');
 
+  const { data: heroVideo } = useQuery<MediaAsset>({
+    queryKey: ['/api/media/hero/active']
+  });
+
   const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.role.toLowerCase().includes(searchQuery.toLowerCase())
@@ -122,36 +128,74 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
   return (
     <div className="min-h-screen bg-black text-white overflow-auto pb-20">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="sticky top-0 z-40 bg-black/80 backdrop-blur-md border-b border-gray-800"
-      >
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Messages
-            </h1>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-full"
-              >
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+      {/* Video Cover Header */}
+      <div className="relative h-96 overflow-hidden">
+        {/* Hero Video Background */}
+        {heroVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={heroVideo.url} type="video/mp4" />
+          </video>
+        )}
 
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
+
+        {/* Header Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-bold text-white mb-4"
+          >
+            Messages
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
+          >
+            Connect with yacht owners, service providers, and concierge
+          </motion.p>
+          
+          {/* Stats overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex space-x-6 text-center"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{conversations.filter(c => c.unread > 0).length}</div>
+              <div className="text-sm text-gray-300">Unread</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{conversations.filter(c => c.online).length}</div>
+              <div className="text-sm text-gray-300">Online</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{conversations.length}</div>
+              <div className="text-sm text-gray-300">Total</div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="px-6 py-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-gray-900/50 border-gray-700 text-white placeholder-gray-400 rounded-xl focus:border-purple-500 transition-all duration-300"
             />
           </div>
