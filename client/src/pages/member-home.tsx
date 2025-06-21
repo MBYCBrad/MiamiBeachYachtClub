@@ -110,7 +110,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
-      <div className="relative h-[50vh] sm:h-[60vh] lg:h-[70vh] overflow-hidden">
+      <div className="relative h-[65vh] sm:h-[70vh] lg:h-[75vh] overflow-hidden">
         {videoLoading ? (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
         ) : heroVideo ? (

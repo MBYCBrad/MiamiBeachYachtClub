@@ -171,24 +171,21 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
       {/* Mobile Search Bar */}
       <div className="md:hidden">
         <motion.div 
-          className={cn(
-            "bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 transition-all duration-300 relative z-40",
-            activeField ? "shadow-2xl bg-white/20 border-purple-400/50" : "hover:shadow-xl hover:bg-white/15"
-          )}
+          className="bg-transparent backdrop-blur-sm rounded-full shadow-lg border border-white/30 transition-all duration-300 relative z-40 hover:border-white/50 hover:bg-white/5"
           layout
         >
-          {/* Mobile Collapsed Search */}
-          {!activeField && (
-            <button
-              onClick={() => setActiveField('where')}
-              className="w-full p-4 text-left"
-            >
+          {/* Mobile Compact Search */}
+          <button
+            onClick={() => setActiveField('where')}
+            className="w-full py-4 px-5 text-left"
+          >
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Search className="h-5 w-5 text-purple-400" />
                 <div>
-                  <div className="font-semibold text-white">Where to?</div>
-                  <div className="text-sm text-gray-300">
-                    {searchCriteria.location ? `${searchCriteria.location} • ` : ''}
+                  <div className="font-semibold text-white text-base">Where to?</div>
+                  <div className="text-sm text-gray-300 mt-0.5">
+                    {searchCriteria.location ? `${searchCriteria.location} • ` : 'Anywhere • '}
                     {searchCriteria.checkIn && searchCriteria.checkOut ? 
                       `${format(searchCriteria.checkIn, 'MMM d')} - ${format(searchCriteria.checkOut, 'MMM d')} • ` : 
                       'Any week • '
@@ -197,81 +194,13 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                   </div>
                 </div>
               </div>
-            </button>
-          )}
-
-          {/* Mobile Expanded Search */}
-          {activeField && (
-            <div className="p-4 space-y-4">
-              {/* Where Field */}
-              <div className={cn(
-                "p-3 rounded-xl border transition-colors",
-                activeField === 'where' ? "border-purple-400 bg-white/10" : "border-white/20"
-              )}>
-                <div className="font-semibold text-white mb-2">Where</div>
-                <input
-                  type="text"
-                  placeholder="Search destinations"
-                  value={searchCriteria.location}
-                  onChange={(e) => setSearchCriteria(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full bg-transparent text-white placeholder-gray-400 outline-none"
-                  autoFocus={activeField === 'where'}
-                />
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                <Search className="h-5 w-5 text-white" />
               </div>
-
-              {/* Dates */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setActiveField('checkin')}
-                  className={cn(
-                    "p-3 rounded-xl border text-left transition-colors",
-                    activeField === 'checkin' ? "border-purple-400 bg-white/10" : "border-white/20"
-                  )}
-                >
-                  <div className="font-semibold text-white">Check in</div>
-                  <div className="text-sm text-gray-300">
-                    {searchCriteria.checkIn ? format(searchCriteria.checkIn, 'MMM d') : 'Add date'}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveField('checkout')}
-                  className={cn(
-                    "p-3 rounded-xl border text-left transition-colors",
-                    activeField === 'checkout' ? "border-purple-400 bg-white/10" : "border-white/20"
-                  )}
-                >
-                  <div className="font-semibold text-white">Check out</div>
-                  <div className="text-sm text-gray-300">
-                    {searchCriteria.checkOut ? format(searchCriteria.checkOut, 'MMM d') : 'Add date'}
-                  </div>
-                </button>
-              </div>
-
-              {/* Guests */}
-              <button
-                onClick={() => setActiveField('who')}
-                className={cn(
-                  "w-full p-3 rounded-xl border text-left transition-colors",
-                  activeField === 'who' ? "border-purple-400 bg-white/10" : "border-white/20"
-                )}
-              >
-                <div className="font-semibold text-white">Who</div>
-                <div className="text-sm text-gray-300">
-                  {getTotalGuests() > 0 ? getGuestText() : 'Add guests'}
-                </div>
-              </button>
-
-              {/* Search Button */}
-              <Button
-                onClick={handleSearch}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl"
-              >
-                <Search className="h-5 w-5 mr-2" />
-                Search
-              </Button>
             </div>
-          )}
+          </button>
+
+
         </motion.div>
       </div>
 

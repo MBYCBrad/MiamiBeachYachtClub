@@ -553,7 +553,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   ];
 
   return (
-    <div className={cn("flex space-x-6", className)}>
+    <div className={cn("flex space-x-3 sm:space-x-6", className)}>
       {tabs.map((tab) => {
         const IconComponent = tab.icon;
         const isActive = activeTab === tab.id;
@@ -563,7 +563,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "flex flex-col items-center space-y-2 px-4 py-2 rounded-xl transition-all duration-300",
+              "flex flex-col items-center space-y-1 sm:space-y-2 px-2 sm:px-4 py-2 rounded-xl transition-all duration-300",
               isActive 
                 ? "text-white" 
                 : "text-gray-400 hover:text-gray-300"
@@ -573,11 +573,11 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           >
             <IconComponent 
               isActive={isActive} 
-              size={64}
-              className="transition-all duration-300"
+              size={36}
+              className="transition-all duration-300 sm:scale-125"
             />
             <span className={cn(
-              "text-sm font-medium transition-colors duration-300",
+              "text-xs sm:text-sm font-medium transition-colors duration-300",
               isActive ? "text-white" : "text-gray-400"
             )}>
               {tab.label}
