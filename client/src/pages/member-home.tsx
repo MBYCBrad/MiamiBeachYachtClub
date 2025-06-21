@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
 
 const YACHT_IMAGES = [
@@ -227,106 +228,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
             >
               {filteredYachts.map((yacht, index) => (
-                <motion.div
-                  key={yacht.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
-                  className="group cursor-pointer"
-                  onClick={() => setSelectedYacht(yacht)}
-                >
-                  <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10">
-                    <div className="relative overflow-hidden">
-                      <motion.img
-                        src={getYachtImage(index)}
-                        alt={yacht.name}
-                        className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                        whileHover={{ scale: 1.1 }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      {/* Like Button */}
-                      <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(yacht.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Heart 
-                          className={cn(
-                            "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(yacht.id) ? "fill-red-500 text-red-500" : "text-white"
-                          )}
-                        />
-                      </motion.button>
-
-                      {/* Badges */}
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        {yacht.amenities?.includes('fuel') && (
-                          <Badge className="bg-green-600/80 text-white backdrop-blur-sm">
-                            <Fuel className="h-3 w-3 mr-1" />
-                            Fuel Included
-                          </Badge>
-                        )}
-                        {yacht.amenities?.includes('crew') && (
-                          <Badge className="bg-blue-600/80 text-white backdrop-blur-sm">
-                            <Users className="h-3 w-3 mr-1" />
-                            Crew Included
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Quick Info */}
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="flex items-center justify-between text-white">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span className="text-sm font-medium">4.9</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm">
-                            <MapPin className="h-4 w-4" />
-                            {yacht.location}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="space-y-2 sm:space-y-3">
-                        <div>
-                          <h3 className="font-bold text-lg sm:text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-1">
-                            {yacht.name}
-                          </h3>
-                          <p className="text-gray-400 text-xs sm:text-sm">
-                            {yacht.size}ft • {yacht.capacity} guests
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="text-white">
-                            <span className="text-xl sm:text-2xl font-bold">${yacht.pricePerHour}</span>
-                            <span className="text-gray-400 text-xs sm:text-sm ml-1">/hour</span>
-                          </div>
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25 text-xs sm:text-sm px-3 sm:px-4"
-                            >
-                              Book Now
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                <YachtCard key={yacht.id} yacht={yacht} index={index} />
               ))}
             </motion.div>
           )}

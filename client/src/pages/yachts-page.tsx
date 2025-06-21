@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, Heart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import YachtCard from '@/components/yacht-card';
 import type { Yacht } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
 
@@ -93,54 +94,7 @@ export default function YachtsPage({ currentView, setCurrentView }: YachtsPagePr
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
             {filteredYachts.map((yacht, index) => (
-              <motion.div
-                key={yacht.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative bg-gray-900/50 rounded-2xl overflow-hidden border border-gray-800 hover-lift card-hover"
-              >
-                {/* Yacht Image */}
-                <div className="relative h-40 sm:h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="absolute top-2 sm:top-3 right-2 sm:right-3 text-white hover:text-red-400 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full p-1.5 sm:p-2"
-                  >
-                    <Heart size={16} />
-                  </Button>
-                </div>
-
-                {/* Yacht Info */}
-                <div className="p-3 sm:p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-purple-400 transition-colors line-clamp-1">
-                      {yacht.name}
-                    </h3>
-                    <span className="text-xs sm:text-sm text-gray-400 ml-2">
-                      {yacht.size}ft
-                    </span>
-                  </div>
-                  
-                  <p className="text-gray-400 text-xs sm:text-sm mb-3 truncate">
-                    {yacht.location}
-                  </p>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-                      ${yacht.pricePerHour ? parseFloat(yacht.pricePerHour).toLocaleString() : 'Contact'}
-                      <span className="text-xs sm:text-sm text-gray-400 font-normal">/hour</span>
-                    </span>
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-3 sm:px-4 lg:px-6 text-xs sm:text-sm"
-                    >
-                      Book
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+              <YachtCard key={yacht.id} yacht={yacht} index={index} />
             ))}
           </motion.div>
         )}

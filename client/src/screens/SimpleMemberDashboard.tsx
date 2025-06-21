@@ -8,6 +8,7 @@ import { Anchor, Calendar, Star, CreditCard, Phone } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Text } from '@/components/native/Text';
 import { View } from '@/components/native/View';
+import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event } from '@shared/schema';
 
 export default function SimpleMemberDashboard() {
@@ -81,27 +82,8 @@ export default function SimpleMemberDashboard() {
             <Text className="text-white">Loading yachts...</Text>
           ) : (
             <View className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {yachts.map((yacht) => (
-                <Card key={yacht.id} className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">{yacht.name}</CardTitle>
-                    <CardDescription className="text-slate-300">
-                      {yacht.size}ft • {yacht.capacity} guests
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Text className="text-slate-300 mb-4">{yacht.location}</Text>
-                    <Text className="text-purple-400 font-bold mb-4">
-                      ${yacht.pricePerHour}/hour
-                    </Text>
-                    <Button 
-                      onClick={() => handleYachtBooking(yacht.id)}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                    >
-                      Book Now
-                    </Button>
-                  </CardContent>
-                </Card>
+              {yachts.map((yacht, index) => (
+                <YachtCard key={yacht.id} yacht={yacht} index={index} />
               ))}
             </View>
           )}

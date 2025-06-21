@@ -503,64 +503,9 @@ const YachtOwnerDashboard: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {yachts.map((yacht) => {
-                  const yachtBookings = getBookingsForYacht(yacht.id);
-                  const yachtAnalytics = analytics?.[yacht.id];
-
-                  return (
-                    <Card key={yacht.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
-                      <div className="aspect-video relative rounded-t-lg overflow-hidden">
-                        <img 
-                          src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
-                          alt={yacht.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2 right-2">
-                          <Badge className={yacht.isAvailable ? "bg-green-600" : "bg-red-600"}>
-                            {yacht.isAvailable ? "Available" : "Unavailable"}
-                          </Badge>
-                        </div>
-                        <div className="absolute top-2 left-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditYacht(yacht)}
-                            className="border-white/20 bg-black/50 text-white hover:bg-white/20"
-                          >
-                            <Edit className="w-3 h-3 mr-1" />
-                            Edit
-                          </Button>
-                        </div>
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="text-white">{yacht.name}</CardTitle>
-                        <CardDescription className="text-gray-300">
-                          {yacht.size}ft • {yacht.capacity} guests
-                        </CardDescription>
-                        <div className="flex items-center text-sm text-gray-400">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {yacht.location}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">This Month:</span>
-                            <span className="text-white">{yachtBookings.length} bookings</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Utilization:</span>
-                            <span className="text-white">{yachtAnalytics?.utilization?.toFixed(1) || 0}%</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Revenue:</span>
-                            <span className="text-white">${yachtAnalytics?.revenue?.toLocaleString() || 0}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {yachts.map((yacht, index) => (
+                  <YachtCard key={yacht.id} yacht={yacht} index={index} />
+                ))}
               </div>
             </TabsContent>
 
