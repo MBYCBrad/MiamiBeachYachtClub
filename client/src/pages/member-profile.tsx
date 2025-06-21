@@ -730,21 +730,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                         {stat.value}
                       </motion.div>
                       
-                      {/* Sparkle Effect */}
-                      <motion.div
-                        className="absolute -top-2 -right-2"
-                        animate={{
-                          rotate: [0, 360],
-                          scale: [0, 1, 0]
-                        }}
-                        transition={{ 
-                          duration: 2, 
-                          repeat: Infinity,
-                          delay: 1 + index * 0.5
-                        }}
-                      >
-                        <Sparkles className="h-4 w-4 text-yellow-400" />
-                      </motion.div>
+
                     </motion.div>
                     
                     {/* Label with Hover Effect */}
