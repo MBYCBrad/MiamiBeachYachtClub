@@ -138,345 +138,186 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
   return (
     <div className="min-h-screen bg-gray-950 text-white overflow-auto pb-20">
-      {/* Clean Hero Section with MBYC Coin Focus */}
-      <div className="relative h-80 overflow-hidden">
-        <div className="absolute inset-0">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="w-full h-full object-cover opacity-40"
-          >
-            <source src="/api/media/15768404-uhd_4096_2160_24fps_1750523880240.mp4" type="video/mp4" />
-          </video>
-        </div>
-        
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/90 to-gray-950" />
-        
-        <div className="relative h-full flex flex-col justify-between p-6">
-          {/* Top - MBYC Coin Counter */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex justify-between items-center"
-          >
-            <div className="flex items-center gap-3">
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="p-3 bg-gradient-to-r from-amber-500/30 to-yellow-500/30 rounded-full"
-              >
-                <Coins className="h-6 w-6 text-amber-400" />
-              </motion.div>
-              <div>
-                <div className="text-2xl font-bold text-amber-400">0</div>
-                <div className="text-gray-400 text-sm">MBYC Coins</div>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-green-600/40 to-emerald-600/40 text-green-300 border-green-500/30 px-4 py-2">
-              Elite Status
+      {/* Simple Profile Header */}
+      <div className="relative bg-gradient-to-b from-gray-900 to-gray-950 p-6">
+        <div className="flex items-center gap-6">
+          <Avatar className="h-24 w-24 border-3 border-white/20">
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
+            <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white text-3xl font-bold">
+              {user?.username?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-white mb-2">{user?.username}</h1>
+            <Badge className="bg-gradient-to-r from-purple-600/60 to-pink-600/60 text-white mb-3">
+              {user?.membershipTier} MEMBER
             </Badge>
-          </motion.div>
-
-          {/* Center - Profile */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex items-center gap-6"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative"
-            >
-              <Avatar className="h-20 w-20 border-3 border-white/30">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white text-2xl font-bold">
-                  {user?.username?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -top-1 -right-1 h-6 w-6 bg-amber-500 rounded-full flex items-center justify-center">
-                <Crown className="h-3 w-3 text-gray-900" />
+            <div className="space-y-1 text-gray-400">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span>{user?.email}</span>
               </div>
-            </motion.div>
-            
-            <div>
-              <h1 className="text-3xl font-bold text-white">{user?.username}</h1>
-              <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white mt-2">
-                {user?.membershipTier} MEMBER
-              </Badge>
-              <p className="text-gray-400 mt-1">{user?.email}</p>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                <span>Miami Beach, FL</span>
+              </div>
             </div>
-          </motion.div>
-
-          {/* Bottom - Scroll Hint */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-center"
-          >
-            <div className="flex items-center justify-center gap-2 text-gray-400">
-              <Sparkles className="h-4 w-4 text-cyan-400" />
-              <span className="text-sm">Scroll for exclusive insights</span>
-              <Sparkles className="h-4 w-4 text-purple-400" />
-            </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Clean Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="px-6 -mt-8 relative z-10 mb-8"
-      >
-        <div className="grid grid-cols-4 gap-3">
+      {/* Account Stats */}
+      <div className="px-6 mb-8">
+        <div className="grid grid-cols-4 gap-4">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                whileHover={{ y: -4, scale: 1.02 }}
-              >
-                <Card className="bg-gray-900/80 border-gray-700/50 text-center hover:border-gray-600/50 transition-all duration-300">
-                  <CardContent className="p-4">
-                    <Icon className={cn("h-6 w-6 mx-auto mb-2", stat.color)} />
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wide">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Card key={stat.label} className="bg-gray-900/60 border-gray-700/50 text-center">
+                <CardContent className="p-4">
+                  <Icon className={cn("h-5 w-5 mx-auto mb-2", stat.color)} />
+                  <div className="text-xl font-bold text-white">{stat.value}</div>
+                  <div className="text-xs text-gray-400 uppercase tracking-wide">{stat.label}</div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
-      </motion.div>
+      </div>
 
-      {/* MBYC Coin Events & Experiences */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="px-6 mb-8"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl">
-              <PartyPopper className="h-6 w-6 text-purple-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">Earn MBYC Coins</h2>
-              <p className="text-gray-400">Join events & experiences</p>
-            </div>
-          </div>
-          
+      {/* Recent Activity */}
+      <div className="px-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-white">Recent Activity</h2>
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-purple-400 hover:text-purple-300"
-            onClick={() => setCurrentView('events')}
+            className="text-gray-400 hover:text-white"
+            onClick={() => setCurrentView('trips')}
           >
-            See All <ArrowRight className="h-4 w-4 ml-1" />
+            View All <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
         
-        <div className="space-y-4">
-          {[
-            { id: 1, title: "Sunset Cocktail Cruise", coins: 50, date: "Tomorrow 6:00 PM" },
-            { id: 2, title: "Miami Vice Night", coins: 75, date: "This Weekend" },
-            { id: 3, title: "VIP Marina Party", coins: 100, date: "Next Week" }
-          ].map((event, index) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-              whileHover={{ x: 6, scale: 1.01 }}
-              className="cursor-pointer"
-              onClick={() => setCurrentView('events')}
-            >
-              <Card className="bg-gray-900/60 border-gray-700/50 hover:border-purple-500/40 transition-all duration-300">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-purple-600/20 rounded-lg">
-                        <Calendar className="h-5 w-5 text-purple-400" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-white">{event.title}</h3>
-                        <p className="text-sm text-gray-400">{event.date}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <Coins className="h-4 w-4 text-amber-400" />
-                        <span className="text-amber-400 font-bold">+{event.coins}</span>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Premium Services for MBYC Coins */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="px-6 mb-8"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 rounded-xl">
-              <Target className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">Premium Services</h2>
-              <p className="text-gray-400">Book services to earn coins</p>
-            </div>
-          </div>
+        <div className="space-y-3">
+          <Card className="bg-gray-900/60 border-gray-700/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-blue-600/20 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">Booked Marina Breeze</h3>
+                  <p className="text-sm text-gray-400">Yesterday at 3:30 PM</p>
+                </div>
+                <Badge className="bg-green-600/20 text-green-400 border-green-600/30">
+                  Confirmed
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
           
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="text-emerald-400 hover:text-emerald-300"
-            onClick={() => setCurrentView('services')}
-          >
-            See All <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
+          <Card className="bg-gray-900/60 border-gray-700/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-purple-600/20 rounded-lg">
+                  <Heart className="h-5 w-5 text-purple-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">Added Ocean Majesty to favorites</h3>
+                  <p className="text-sm text-gray-400">2 days ago</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            { id: 1, name: "Chef Experience", coins: 25, price: "$350" },
-            { id: 2, name: "Premium Concierge", coins: 15, price: "$200" },
-            { id: 3, name: "Spa Services", coins: 20, price: "$280" },
-            { id: 4, name: "Photography", coins: 10, price: "$150" }
-          ].map((service, index) => (
-            <motion.div
-              key={service.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-              whileHover={{ scale: 1.03, y: -4 }}
-              className="cursor-pointer"
-              onClick={() => setCurrentView('services')}
-            >
-              <Card className="bg-gray-900/60 border-gray-700/50 hover:border-emerald-500/40 transition-all duration-300">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-white">{service.name}</h3>
-                      <div className="flex items-center gap-1">
-                        <Coins className="h-4 w-4 text-amber-400" />
-                        <span className="text-amber-400 font-bold">+{service.coins}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-emerald-400 font-semibold">{service.price}</span>
-                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-xs px-3">
-                        Book Now
-                      </Button>
-                    </div>
+      </div>
+
+      {/* Account Settings */}
+      <div className="px-6 mb-8">
+        <h2 className="text-xl font-bold text-white mb-4">Account Settings</h2>
+        <div className="space-y-3">
+          <Card className="bg-gray-900/60 border-gray-700/50 hover:border-gray-600/50 transition-colors cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-600/20 rounded-lg">
+                    <User className="h-5 w-5 text-blue-400" />
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                  <div>
+                    <h3 className="font-semibold text-white">Edit Profile</h3>
+                    <p className="text-sm text-gray-400">Update your personal information</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-900/60 border-gray-700/50 hover:border-gray-600/50 transition-colors cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-600/20 rounded-lg">
+                    <Settings className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Preferences</h3>
+                    <p className="text-sm text-gray-400">Notifications and privacy settings</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-900/60 border-gray-700/50 hover:border-gray-600/50 transition-colors cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-600/20 rounded-lg">
+                    <CreditCard className="h-5 w-5 text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Payment Methods</h3>
+                    <p className="text-sm text-gray-400">Manage your billing information</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-gray-400" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8 }}
-        className="px-6 mb-8"
-      >
-        <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
+      <div className="px-6 mb-8">
+        <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-4">
-          <motion.div 
-            whileHover={{ scale: 1.02, y: -2 }} 
-            whileTap={{ scale: 0.98 }}
+          <Button 
+            className="h-16 bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => setCurrentView('trips')}
           >
-            <Button 
-              className="w-full h-16 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-              onClick={() => setCurrentView('trips')}
-            >
-              <div className="flex flex-col items-center gap-1">
-                <Calendar className="h-5 w-5" />
-                <span className="text-sm font-medium">Book Yacht</span>
-              </div>
-            </Button>
-          </motion.div>
-          
-          <motion.div 
-            whileHover={{ scale: 1.02, y: -2 }} 
-            whileTap={{ scale: 0.98 }}
-          >
-            <Button 
-              className="w-full h-16 bg-gradient-to-br from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 text-white border-0"
-              onClick={() => setCurrentView('favorites')}
-            >
-              <div className="flex flex-col items-center gap-1">
-                <Heart className="h-5 w-5" />
-                <span className="text-sm font-medium">My Wishlist</span>
-              </div>
-            </Button>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Simple MBYC Savings Summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.0 }}
-        className="px-6 mb-8"
-      >
-        <Card className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border-green-500/30 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-500/20 rounded-xl">
-                  <DollarSign className="h-6 w-6 text-green-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">MBYC Savings</h3>
-                  <p className="text-green-400 text-sm">vs. Yacht Ownership</p>
-                </div>
-              </div>
-              
-              <div className="text-right">
-                <div className="text-3xl font-bold text-green-400">
-                  ${savings.totalSaved.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-400">saved this year</div>
-              </div>
+            <div className="flex flex-col items-center gap-1">
+              <Calendar className="h-5 w-5" />
+              <span className="text-sm font-medium">View Bookings</span>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </Button>
+          
+          <Button 
+            className="h-16 bg-purple-600 hover:bg-purple-700 text-white"
+            onClick={() => setCurrentView('favorites')}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Heart className="h-5 w-5" />
+              <span className="text-sm font-medium">My Favorites</span>
+            </div>
+          </Button>
+        </div>
+      </div>
 
       {/* Logout Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.2 }}
-        className="px-6 mt-8 mb-8"
-      >
+      <div className="px-6 mt-8 mb-8">
         <Button
           onClick={() => setShowLogoutDialog(true)}
           variant="outline"
@@ -485,7 +326,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           <LogOut className="h-5 w-5 mr-2" />
           Sign Out
         </Button>
-      </motion.div>
+      </div>
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
