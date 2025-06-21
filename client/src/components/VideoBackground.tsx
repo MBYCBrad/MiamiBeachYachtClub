@@ -8,8 +8,8 @@ interface VideoBackgroundProps {
   overlay?: boolean;
 }
 
-// Premium yacht video URL - using high quality yacht footage
-const YACHT_VIDEO_URL = "https://player.vimeo.com/external/451878268.hd.mp4?s=ea6d8a05c6ad9c53d41cfbc74b2a7f45bd0f9d46&profile_id=175";
+// Premium yacht video URL - luxury yacht sailing footage
+const YACHT_VIDEO_URL = "https://cdn.pixabay.com/video/2021/08/09/84471-589909209_large.mp4";
 
 export default function VideoBackground({ 
   className = "absolute inset-0 w-full h-full object-cover", 
@@ -30,8 +30,8 @@ export default function VideoBackground({
         poster="https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1920&h=1080&fit=crop"
       >
         <source src={YACHT_VIDEO_URL} type="video/mp4" />
-        <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4" />
-        <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4" type="video/mp4" />
+        <source src="https://cdn.pixabay.com/video/2022/12/06/142834-778398531_large.mp4" type="video/mp4" />
+        <source src="https://cdn.pixabay.com/video/2019/07/25/25277-356128877_large.mp4" type="video/mp4" />
       </video>
       
       {/* Fallback image for browsers that don't support video */}
