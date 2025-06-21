@@ -110,25 +110,34 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
-      <div className="relative h-[60vh] overflow-visible">
+      <div className="relative h-[60vh] overflow-hidden">
         {videoLoading ? (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black animate-pulse" />
         ) : heroVideo ? (
-          <video
-            className="absolute inset-0 w-full h-full object-cover"
-            autoPlay
-            loop
-            muted={isMuted}
-            playsInline
-          >
-            <source src={heroVideo.url} type={heroVideo.mimeType || "video/mp4"} />
-          </video>
+          <>
+            <video
+              className="absolute inset-0 w-full h-full object-cover scale-110"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            >
+              <source src={heroVideo.url} type={heroVideo.mimeType || "video/mp4"} />
+            </video>
+            
+            {/* Blur Edge Transition */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm" />
+            <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/40 to-transparent" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/40 to-transparent" />
+          </>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black" />
         )}
         
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-purple-900/20 to-black/80" />
+        {/* Enhanced Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-purple-900/10 to-black/70" />
         
         {/* Video Controls */}
         <div className="absolute top-4 right-4 flex gap-2">
