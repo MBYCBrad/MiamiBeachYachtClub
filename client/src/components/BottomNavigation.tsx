@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Waves, Wrench, Calendar, Menu, X, User, MessageCircle, Bell, Heart, LogOut } from 'lucide-react';
+import { X, User, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { 
+  Explore3DIcon, 
+  Trips3DIcon, 
+  Favorites3DIcon, 
+  Messages3DIcon, 
+  Menu3DIcon 
+} from '@/components/Animated3DNavIcons';
 
 interface BottomNavigationProps {
   currentView: string;
@@ -14,11 +21,11 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const { user, logoutMutation } = useAuth();
 
   const navItems = [
-    { id: 'explore', icon: Waves, label: 'Explore' },
-    { id: 'trips', icon: Calendar, label: 'Trips' },
-    { id: 'favorites', icon: Heart, label: 'Favorites' },
-    { id: 'messages', icon: MessageCircle, label: 'Messages' },
-    { id: 'menu', icon: Menu, label: '' }
+    { id: 'explore', icon: Explore3DIcon, label: 'Explore' },
+    { id: 'trips', icon: Trips3DIcon, label: 'Trips' },
+    { id: 'favorites', icon: Favorites3DIcon, label: 'Favorites' },
+    { id: 'messages', icon: Messages3DIcon, label: 'Messages' },
+    { id: 'menu', icon: Menu3DIcon, label: '' }
   ];
 
   const menuItems = [
@@ -56,7 +63,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
       >
         <div className="flex justify-around items-center w-full px-4 py-2 pb-safe">
           {navItems.map((item) => {
-            const Icon = item.icon;
+            const IconComponent = item.icon;
             const isActive = item.id === 'menu' ? isMenuOpen : currentView === item.id;
             
             return (
@@ -71,12 +78,13 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <motion.div
-                  animate={{ rotate: item.id === 'menu' && isMenuOpen ? 90 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Icon size={24} className="mb-1" />
-                </motion.div>
+                <div className="mb-1">
+                  <IconComponent 
+                    isActive={isActive} 
+                    size={28}
+                    className="transition-all duration-300"
+                  />
+                </div>
                 <span className="text-xs font-medium">{item.label}</span>
                 
                 {isActive && item.id !== 'menu' && (
