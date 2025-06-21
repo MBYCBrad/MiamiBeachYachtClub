@@ -131,7 +131,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
       {/* Advanced Profile Header with Dynamic Background */}
       <div className="relative overflow-hidden">
         {/* Dynamic Video Background */}
-        <div className="absolute inset-0 h-80">
+        <div className="absolute inset-0 h-96">
           <video 
             autoPlay 
             loop 
@@ -171,7 +171,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
 
         {/* Header Content */}
-        <div className="relative h-80 flex flex-col justify-between p-6">
+        <div className="relative h-96 flex flex-col justify-between p-8">
           {/* Top Status Bar */}
           <motion.div
             initial={{ opacity: 0, y: -30 }}
@@ -210,29 +210,129 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             transition={{ duration: 1, delay: 0.3 }}
             className="flex items-center gap-8"
           >
-            {/* Simplified Avatar */}
-            <Avatar className="h-20 w-20 border-3 border-white/30">
-              <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white text-2xl font-bold">
-                {user?.username?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            {/* Avatar with Advanced Styling */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative group"
+            >
+              {/* Glowing Ring */}
+              <motion.div
+                animate={{ 
+                  rotate: [0, 360],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-4 bg-gradient-to-r from-purple-500/40 via-blue-500/40 to-cyan-500/40 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"
+              />
+              
+              <Avatar className="relative h-32 w-32 border-4 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-4xl font-bold">
+                  {user?.username?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* Status Indicator */}
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  boxShadow: [
+                    "0 0 0 0 rgba(34, 197, 94, 0.4)",
+                    "0 0 0 10px rgba(34, 197, 94, 0)",
+                    "0 0 0 0 rgba(34, 197, 94, 0)"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-950 flex items-center justify-center"
+              >
+                <div className="w-3 h-3 bg-white rounded-full" />
+              </motion.div>
+              
+              {/* Edit Button Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-sm"
+              >
+                <Edit className="h-6 w-6 text-white" />
+              </motion.div>
+            </motion.div>
             
-            {/* Simplified Profile Info */}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white mb-2">{user?.username}</h1>
-              <Badge className="bg-gradient-to-r from-purple-600/60 to-pink-600/60 text-white mb-3">
-                {user?.membershipTier} MEMBER
-              </Badge>
-              <div className="space-y-1 text-gray-300">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  <span className="text-sm">{user?.email}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-sm">Miami Beach, FL</span>
-                </div>
+            {/* Profile Info */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <motion.h1 
+                  className="text-5xl font-bold text-white mb-2"
+                  animate={{
+                    textShadow: [
+                      "0 0 20px rgba(139, 92, 246, 0.5)",
+                      "0 0 40px rgba(59, 130, 246, 0.7)",
+                      "0 0 20px rgba(139, 92, 246, 0.5)"
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  {user?.username}
+                </motion.h1>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="inline-flex items-center gap-3 mb-4"
+                >
+                  <div className="p-2 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-lg">
+                    <Crown className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <Badge className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 text-white border-white/30 backdrop-blur-md text-lg px-4 py-2">
+                    {user?.membershipTier} MEMBER
+                  </Badge>
+                </motion.div>
+              </div>
+              
+              {/* Contact Info with Icons */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <motion.div
+                  whileHover={{ x: 5 }}
+                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
+                >
+                  <Mail className="h-5 w-5 text-blue-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">Email</div>
+                    <div className="text-white font-medium">{user?.email}</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ x: 5 }}
+                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
+                >
+                  <MapPin className="h-5 w-5 text-green-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">Location</div>
+                    <div className="text-white font-medium">Miami Beach, FL</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ x: 5 }}
+                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
+                >
+                  <Phone className="h-5 w-5 text-purple-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">Member ID</div>
+                    <div className="text-white font-medium">MBYC-{user?.id?.toString().padStart(6, '0')}</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ x: 5 }}
+                  className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10"
+                >
+                  <Calendar className="h-5 w-5 text-orange-400" />
+                  <div>
+                    <div className="text-sm text-gray-400">Joined</div>
+                    <div className="text-white font-medium">January 2023</div>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </motion.div>
@@ -284,9 +384,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.2 }}
-        className="px-6 -mt-8 relative z-10 mb-20"
+        className="px-6 -mt-16 relative z-10 mb-12"
       >
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -335,10 +435,129 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
                   />
                   
-                  <CardContent className="p-4 text-center">
-                    <Icon className={cn("h-6 w-6 mx-auto mb-3", stat.color)} />
-                    <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wide">{stat.label}</div>
+                  <CardContent className="p-6 relative text-center">
+                    {/* Icon with Advanced Animation */}
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity,
+                        delay: index * 0.3
+                      }}
+                      className="mb-4 relative"
+                    >
+                      <motion.div
+                        className="absolute inset-0 rounded-full blur-xl opacity-30"
+                        animate={{
+                          scale: [1, 1.5, 1],
+                          opacity: [0.3, 0.6, 0.3]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                        style={{
+                          background: `radial-gradient(circle, ${stat.color === 'text-blue-400' ? '#3b82f6' : 
+                                      stat.color === 'text-red-400' ? '#ef4444' : 
+                                      stat.color === 'text-yellow-400' ? '#facc15' : '#a855f7'}40, transparent)`
+                        }}
+                      />
+                      <Icon className={cn("h-10 w-10 mx-auto relative z-10", stat.color)} />
+                    </motion.div>
+                    
+                    {/* Value with Counting Animation */}
+                    <motion.div 
+                      className="text-4xl font-bold text-white mb-2 relative"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ 
+                        duration: 0.8, 
+                        delay: 0.5 + index * 0.1,
+                        type: "spring",
+                        bounce: 0.5
+                      }}
+                    >
+                      <motion.div
+                        animate={{
+                          textShadow: [
+                            "0 0 10px rgba(255, 255, 255, 0.3)",
+                            "0 0 20px rgba(147, 51, 234, 0.6)",
+                            "0 0 10px rgba(255, 255, 255, 0.3)"
+                          ]
+                        }}
+                        transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
+                      >
+                        {stat.value}
+                      </motion.div>
+                      
+                      {/* Sparkle Effect */}
+                      <motion.div
+                        className="absolute -top-2 -right-2"
+                        animate={{
+                          rotate: [0, 360],
+                          scale: [0, 1, 0]
+                        }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity,
+                          delay: 1 + index * 0.5
+                        }}
+                      >
+                        <Sparkles className="h-4 w-4 text-yellow-400" />
+                      </motion.div>
+                    </motion.div>
+                    
+                    {/* Label with Hover Effect */}
+                    <motion.div 
+                      className="text-sm text-gray-400 uppercase tracking-wider font-medium"
+                      whileHover={{ 
+                        color: "#ffffff",
+                        scale: 1.05
+                      }}
+                    >
+                      {stat.label}
+                    </motion.div>
+                    
+                    {/* Progress Ring for Interactive Feel */}
+                    <motion.div
+                      className="absolute bottom-2 right-2 w-8 h-8"
+                      initial={{ rotate: -90, scale: 0 }}
+                      animate={{ rotate: 270, scale: 1 }}
+                      transition={{ 
+                        duration: 1.5, 
+                        delay: 0.8 + index * 0.2,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="16"
+                          cy="16"
+                          r="12"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="transparent"
+                          className="text-gray-700"
+                        />
+                        <motion.circle
+                          cx="16"
+                          cy="16"
+                          r="12"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="transparent"
+                          strokeLinecap="round"
+                          className={stat.color}
+                          initial={{ strokeDasharray: "0 100" }}
+                          animate={{ strokeDasharray: "75 100" }}
+                          transition={{ 
+                            duration: 2, 
+                            delay: 1 + index * 0.2,
+                            ease: "easeOut"
+                          }}
+                        />
+                      </svg>
+                    </motion.div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -352,7 +571,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.8 }}
-        className="px-6 mb-24"
+        className="px-6 mb-12"
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -553,7 +772,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1.2 }}
-        className="px-6 mb-28"
+        className="px-6 mb-12"
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
