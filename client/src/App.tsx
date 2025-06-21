@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
 import { BottomTabNavigator } from "@/navigation/BottomTabNavigator";
+import NotificationCenter from "@/components/NotificationCenter";
 import { useState } from "react";
 import AuthPage from "@/pages/auth-page";
 import YachtDetail from "@/pages/yacht-detail";

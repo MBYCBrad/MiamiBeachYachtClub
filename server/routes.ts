@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
+import { notificationService } from "./notifications";
 import Stripe from "stripe";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
@@ -56,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // YACHT ROUTES
   app.get("/api/yachts", async (req, res) => {
     try {
-      const { available, maxSize, location } = req.query;
+      const { available, maxSize, location, startDate, endDate } = req.query;
       const filters: any = {};
       
       if (available !== undefined) filters.available = available === 'true';
@@ -75,7 +76,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.maxSize = Math.min(filters.maxSize || Infinity, userLimit);
       }
 
-      const yachts = await storage.getYachts(filters);
+      let yachts = await storage.getYachts(filters);
+
+      // Real-time availability filtering for date ranges
+      if (startDate && endDate) {
+        const requestStart = new Date(startDate as string);
+        const requestEnd = new Date(endDate as string);
+        
+        const availableYachts = [];
+        
+        for (const yacht of yachts) {
+          const existingBookings = await storage.getBookings({ 
+            yachtId: yacht.id,
+            status: 'confirmed'
+          });
+          
+          const hasConflict = existingBookings.some(booking => {
+            const bookingStart = new Date(booking.startTime);
+            const bookingEnd = new Date(booking.endTime);
+            return (
+              (requestStart >= bookingStart && requestStart < bookingEnd) ||
+              (requestEnd > bookingStart && requestEnd <= bookingEnd) ||
+              (requestStart <= bookingStart && requestEnd >= bookingEnd)
+            );
+          });
+
+          if (!hasConflict) {
+            availableYachts.push({
+              ...yacht,
+              availableForDates: true,
+              conflictingBookings: 0
+            });
+          } else {
+            // Include yacht but mark as unavailable for transparency
+            availableYachts.push({
+              ...yacht,
+              availableForDates: false,
+              conflictingBookings: existingBookings.length
+            });
+          }
+        }
+        
+        yachts = availableYachts;
+      }
+
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -277,6 +321,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Yacht not found" });
       }
 
+      // Advanced booking conflict detection
+      const existingBookings = await storage.getBookings({ 
+        yachtId: validatedData.yachtId,
+        status: 'confirmed'
+      });
+      
+      const startDate = new Date(validatedData.startTime!);
+      const endDate = new Date(validatedData.endTime!);
+      
+      const hasConflict = existingBookings.some(booking => {
+        const bookingStart = new Date(booking.startTime);
+        const bookingEnd = new Date(booking.endTime);
+        return (
+          (startDate >= bookingStart && startDate < bookingEnd) ||
+          (endDate > bookingStart && endDate <= bookingEnd) ||
+          (startDate <= bookingStart && endDate >= bookingEnd)
+        );
+      });
+
+      if (hasConflict) {
+        return res.status(409).json({ 
+          message: "Yacht is not available for the selected dates. Please choose different dates." 
+        });
+      }
+
       if (req.user!.role === UserRole.MEMBER) {
         const tierLimits = {
           [MembershipTier.BRONZE]: 40,
@@ -297,6 +366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         totalPrice: "0.00" // Free for members
       });
+
+      // Send real-time notification to yacht owner
+      await notificationService.notifyBookingCreated(booking);
+
       res.status(201).json(booking);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -342,6 +415,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         totalPrice: service.pricePerSession
       });
+
+      // Send real-time notification to service provider
+      await notificationService.notifyServiceBooked(booking);
+
       res.status(201).json(booking);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -391,6 +468,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         totalPrice
       });
+
+      // Send real-time notification to event host
+      await notificationService.notifyEventRegistration(registration);
+
       res.status(201).json(registration);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -454,5 +535,250 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+
+  // Initialize notification service with WebSocket support
+  notificationService.initialize(httpServer);
+
+  // Add notification status endpoint
+  app.get("/api/notifications/status", requireAuth, (req, res) => {
+    const stats = notificationService.getConnectionStats();
+    res.json(stats);
+  });
+
+  // ANALYTICS ROUTES - Advanced Business Intelligence
+  app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const totalUsers = (await storage.getAllUsers()).length;
+      const totalYachts = (await storage.getYachts()).length;
+      const totalServices = (await storage.getServices()).length;
+      const totalEvents = (await storage.getEvents()).length;
+      const totalBookings = (await storage.getBookings()).length;
+      const totalServiceBookings = (await storage.getServiceBookings()).length;
+      const totalEventRegistrations = (await storage.getEventRegistrations()).length;
+
+      // Calculate real revenue metrics
+      const serviceBookings = await storage.getServiceBookings();
+      const eventRegistrations = await storage.getEventRegistrations();
+      
+      const serviceRevenue = serviceBookings.reduce((sum, booking) => {
+        return sum + (parseFloat(booking.totalPrice || "0"));
+      }, 0);
+      
+      const eventRevenue = eventRegistrations.reduce((sum, registration) => {
+        return sum + (parseFloat(registration.totalPrice || "0"));
+      }, 0);
+      
+      const totalRevenue = serviceRevenue + eventRevenue;
+
+      // Calculate membership tier distribution
+      const users = await storage.getAllUsers();
+      const membershipDistribution = users.reduce((acc: any, user) => {
+        if (user.membershipTier) {
+          acc[user.membershipTier] = (acc[user.membershipTier] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      // Calculate booking trends (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentBookings = (await storage.getBookings()).filter(booking => 
+        booking.createdAt && new Date(booking.createdAt) >= thirtyDaysAgo
+      );
+
+      // Calculate top performing yachts
+      const bookings = await storage.getBookings();
+      const yachtPerformance: { [key: number]: number } = {};
+      bookings.forEach(booking => {
+        if (booking.yachtId) {
+          yachtPerformance[booking.yachtId] = (yachtPerformance[booking.yachtId] || 0) + 1;
+        }
+      });
+
+      const yachts = await storage.getYachts();
+      const topYachts = Object.entries(yachtPerformance)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5)
+        .map(([yachtId, bookingCount]) => {
+          const yacht = yachts.find(y => y.id === parseInt(yachtId));
+          return {
+            yachtName: yacht?.name || "Unknown Yacht",
+            bookingCount,
+            yachtSize: yacht?.size || 0
+          };
+        });
+
+      res.json({
+        totalUsers,
+        totalYachts,
+        totalServices,
+        totalEvents,
+        totalBookings,
+        totalServiceBookings,
+        totalEventRegistrations,
+        totalRevenue: totalRevenue.toFixed(2),
+        serviceRevenue: serviceRevenue.toFixed(2),
+        eventRevenue: eventRevenue.toFixed(2),
+        membershipDistribution,
+        recentBookings: recentBookings.length,
+        averageBookingValue: totalBookings > 0 ? (totalRevenue / totalBookings).toFixed(2) : "0",
+        topYachts,
+        occupancyRate: yachts.length > 0 ? ((totalBookings / (yachts.length * 30)) * 100).toFixed(1) : "0"
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Advanced yacht availability calendar endpoint
+  app.get("/api/analytics/yacht-calendar/:id", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.id);
+      const { startDate, endDate } = req.query;
+      
+      const start = startDate ? new Date(startDate as string) : new Date();
+      const end = endDate ? new Date(endDate as string) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+      const bookings = await storage.getBookings({ yachtId });
+      const calendar = [];
+      
+      const currentDate = new Date(start);
+      while (currentDate <= end) {
+        const dayBookings = bookings.filter(booking => {
+          const bookingStart = new Date(booking.startTime);
+          const bookingEnd = new Date(booking.endTime);
+          const dayStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+          const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+          
+          return (bookingStart < dayEnd && bookingEnd > dayStart);
+        });
+
+        calendar.push({
+          date: currentDate.toISOString().split('T')[0],
+          available: dayBookings.length === 0,
+          bookings: dayBookings.map(booking => ({
+            id: booking.id,
+            startTime: booking.startTime,
+            endTime: booking.endTime,
+            status: booking.status
+          }))
+        });
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      res.json(calendar);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // AUDIT AND COMPLIANCE ROUTES
+  app.get("/api/audit/logs", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { userId, resource, action, startDate, endDate, success } = req.query;
+      const filters: any = {};
+      
+      if (userId) filters.userId = parseInt(userId as string);
+      if (resource) filters.resource = resource as string;
+      if (action) filters.action = action as string;
+      if (startDate) filters.startDate = new Date(startDate as string);
+      if (endDate) filters.endDate = new Date(endDate as string);
+      if (success !== undefined) filters.success = success === 'true';
+
+      const logs = await auditService.getAuditLogs(filters);
+      res.json(logs);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/audit/security-events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const events = await auditService.getSecurityEvents();
+      res.json(events);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/audit/compliance-report", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const end = endDate ? new Date(endDate as string) : new Date();
+      
+      const report = await auditService.getComplianceReport(start, end);
+      res.json(report);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ADVANCED SEARCH AND FILTERING
+  app.get("/api/search", requireAuth, async (req, res) => {
+    try {
+      const { query, type, limit } = req.query;
+      const searchTerm = (query as string)?.toLowerCase() || '';
+      const maxResults = parseInt(limit as string) || 20;
+      const results: any = {
+        yachts: [],
+        services: [],
+        events: [],
+        users: []
+      };
+
+      if (!type || type === 'yachts') {
+        const yachts = await storage.getYachts();
+        results.yachts = yachts
+          .filter(yacht => 
+            yacht.name.toLowerCase().includes(searchTerm) ||
+            yacht.description?.toLowerCase().includes(searchTerm) ||
+            yacht.location?.toLowerCase().includes(searchTerm)
+          )
+          .slice(0, maxResults);
+      }
+
+      if (!type || type === 'services') {
+        const services = await storage.getServices();
+        results.services = services
+          .filter(service => 
+            service.name.toLowerCase().includes(searchTerm) ||
+            service.description?.toLowerCase().includes(searchTerm) ||
+            service.category?.toLowerCase().includes(searchTerm)
+          )
+          .slice(0, maxResults);
+      }
+
+      if (!type || type === 'events') {
+        const events = await storage.getEvents();
+        results.events = events
+          .filter(event => 
+            event.name.toLowerCase().includes(searchTerm) ||
+            event.description?.toLowerCase().includes(searchTerm) ||
+            event.location?.toLowerCase().includes(searchTerm)
+          )
+          .slice(0, maxResults);
+      }
+
+      if ((!type || type === 'users') && req.user?.role === UserRole.ADMIN) {
+        const users = await storage.getAllUsers();
+        results.users = users
+          .filter(user => 
+            user.username.toLowerCase().includes(searchTerm) ||
+            user.email?.toLowerCase().includes(searchTerm)
+          )
+          .slice(0, maxResults);
+      }
+
+      await auditService.logAction(req, 'search', 'global', undefined, { query: searchTerm, type, resultsCount: Object.values(results).flat().length });
+      res.json(results);
+    } catch (error: any) {
+      await auditService.logAction(req, 'search', 'global', undefined, { query: req.query.query }, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

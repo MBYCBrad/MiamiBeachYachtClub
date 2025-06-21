@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@shared/schema';
 import { Anchor, CalendarDays, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import AppHeader from '@/components/AppHeader';
 
 interface TabItem {
   key: string;
@@ -66,6 +67,9 @@ export const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+      {/* App Header with Notifications */}
+      <AppHeader />
+      
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden">
         <ActiveComponent />
