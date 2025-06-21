@@ -17,14 +17,18 @@ export interface PaymentIntentData {
 
 export interface ServiceBookingData {
   serviceId: number;
+  userId: number;
   bookingDate: string;
+  datetime: string;
   totalPrice: number;
 }
 
 export interface EventRegistrationData {
   eventId: number;
-  ticketCount: number;
-  totalPrice: number;
+  userId: number;
+  memberTier: string;
+  ticketQuantity: number;
+  amount: number;
 }
 
 class StripeService {

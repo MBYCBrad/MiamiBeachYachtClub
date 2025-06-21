@@ -1,4 +1,5 @@
 import { Express } from "express";
+import express from "express";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { calculateEventPrice, calculateServicePrice } from "@shared/membership";
@@ -8,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-05-28.basil",
 });
 
 export async function setupPaymentRoutes(app: Express) {
@@ -30,7 +31,7 @@ export async function setupPaymentRoutes(app: Express) {
       }
 
       const basePrice = parseFloat(service.pricePerSession || '0');
-      const adjustedPrice = calculateServicePrice(basePrice, user.membershipTier);
+      const adjustedPrice = calculateServicePrice(basePrice, (user.membershipTier || 'bronze') as any);
       const amountInCents = Math.round(adjustedPrice * 100);
 
       const paymentIntent = await stripe.paymentIntents.create({
@@ -76,7 +77,7 @@ export async function setupPaymentRoutes(app: Express) {
       }
 
       const basePrice = parseFloat(event.ticketPrice || '0');
-      const adjustedPrice = calculateEventPrice(basePrice, user.membershipTier);
+      const adjustedPrice = calculateEventPrice(basePrice, (user.membershipTier || 'bronze') as any);
       const totalAmount = adjustedPrice * ticketQuantity;
       const amountInCents = Math.round(totalAmount * 100);
 
@@ -136,8 +137,8 @@ export async function setupPaymentRoutes(app: Express) {
             eventId: parseInt(metadata.eventId),
             userId: parseInt(metadata.userId),
             status: 'confirmed',
-            ticketQuantity: parseInt(metadata.ticketQuantity),
-            totalPaid: metadata.totalAmount,
+            ticketCount: parseInt(metadata.ticketQuantity),
+            totalPrice: metadata.totalAmount,
             stripePaymentIntentId: paymentIntentId
           });
         }
@@ -211,7 +212,7 @@ export async function setupPaymentRoutes(app: Express) {
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      event = stripe.webhooks.constructEvent(req.body, sig!, webhookSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);

@@ -17,7 +17,7 @@ interface BottomTabNavigatorProps {
 }
 
 // Import role-based dashboard components
-import SimpleMemberDashboard from '@/screens/SimpleMemberDashboard';
+import MemberDashboard from '@/screens/MemberDashboard';
 import YachtOwnerDashboard from '@/screens/YachtOwnerDashboard';
 import ServiceProviderDashboard from '@/screens/ServiceProviderDashboard';
 import AdminDashboard from '@/screens/AdminDashboard';
@@ -39,7 +39,7 @@ export const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
         icon: Anchor,
         component: user.role === UserRole.YACHT_OWNER ? YachtOwnerDashboard :
                   user.role === UserRole.ADMIN ? AdminDashboard :
-                  SimpleMemberDashboard
+                  MemberDashboard
       },
       {
         key: 'services',
@@ -47,14 +47,14 @@ export const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
         icon: Sparkles,
         component: user.role === UserRole.SERVICE_PROVIDER ? ServiceProviderDashboard :
                   user.role === UserRole.ADMIN ? AdminDashboard :
-                  SimpleMemberDashboard
+                  MemberDashboard
       },
       {
         key: 'experiences',
         label: 'Experiences',
         icon: CalendarDays,
         component: user.role === UserRole.ADMIN ? AdminDashboard :
-                  SimpleMemberDashboard
+                  MemberDashboard
       }
     ];
 
@@ -62,7 +62,7 @@ export const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
   };
 
   const tabs = getTabsForRole();
-  const ActiveComponent = tabs.find(tab => tab.key === activeTab)?.component || SimpleMemberDashboard;
+  const ActiveComponent = tabs.find(tab => tab.key === activeTab)?.component || MemberDashboard;
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black">

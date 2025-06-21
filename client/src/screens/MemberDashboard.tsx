@@ -21,10 +21,18 @@ import {
   Fuel,
   UserCheck
 } from 'lucide-react';
-import { getMembershipBenefits, canBookYacht, calculateEventPrice, calculateServicePrice } from '@shared/membership';
+import { getMembershipBenefits, canBookYacht, calculateEventPrice, calculateServicePrice, type MembershipTier } from '@shared/membership';
 import { TokenManager } from '@shared/tokens';
 import { stripeService } from '@/services/stripe';
 import { twilioConciergeService } from '@/services/twilio';
+
+interface ConciergeService {
+  requestConcierge: (request: {
+    message: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    category: string;
+  }) => Promise<{ success: boolean; messageId?: string; error?: string }>;
+}
 import type { Yacht, Service, Event, User } from '@shared/schema';
 import { 
   ensureMembershipTier, 
@@ -83,7 +91,7 @@ const MemberDashboard: React.FC = () => {
     if (!user?.membershipTier) return false;
     
     // Check membership tier yacht size restrictions
-    const canBook = canBookYacht(user.membershipTier, yacht.size);
+    const canBook = canBookYacht(user.membershipTier as MembershipTier, yacht.size);
     if (!canBook) return false;
 
     // Apply search filter
@@ -111,24 +119,24 @@ const MemberDashboard: React.FC = () => {
 
   // Filter events based on search and upcoming dates
   const filteredEvents = events.filter(event => {
-    const eventDate = new Date(event.startDate);
+    const eventDate = new Date(event.startTime);
     const isUpcoming = eventDate >= new Date();
     
     if (!isUpcoming) return false;
     
     if (!searchQuery) return true;
     return event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           event.category.toLowerCase().includes(searchQuery.toLowerCase());
+           (event.description || '').toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const membershipBenefits = user?.membershipTier ? getMembershipBenefits(user.membershipTier) : null;
+  const membershipBenefits = user?.membershipTier ? getMembershipBenefits(user.membershipTier as MembershipTier) : null;
 
   const handleYachtBooking = async (yacht: Yacht, duration: number) => {
     if (!user || !tokenBalance) return;
 
     const tokensRequired = TokenManager.calculateTokensForBooking(duration);
     
-    if (!TokenManager.hasEnoughTokens(tokenBalance, tokensRequired)) {
+    if (tokenBalance.currentTokens < tokensRequired) {
       alert(`Insufficient tokens. You need ${tokensRequired} tokens but only have ${tokenBalance.currentTokens}.`);
       return;
     }
@@ -166,9 +174,10 @@ const MemberDashboard: React.FC = () => {
       const paymentIntent = await stripeService.createServicePaymentIntent({
         serviceId: service.id,
         userId: user.id,
-        datetime: selectedDate,
-        memberTier: user.membershipTier as any
-      }, parseFloat(service.pricePerSession || '0'));
+        bookingDate: selectedDate.toISOString(),
+        datetime: selectedDate.toISOString(),
+        totalPrice: parseFloat(service.pricePerSession || '0')
+      });
 
       // Open Stripe payment modal here
       console.log('Payment intent created:', paymentIntent);
@@ -186,8 +195,9 @@ const MemberDashboard: React.FC = () => {
         eventId: event.id,
         userId: user.id,
         memberTier: user.membershipTier as any,
-        ticketQuantity
-      }, parseFloat(event.ticketPrice || '0'));
+        ticketQuantity,
+        amount: parseFloat(event.ticketPrice || '0')
+      });
 
       // Open Stripe payment modal here
       console.log('Event payment intent created:', paymentIntent);
@@ -215,12 +225,14 @@ const MemberDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const conversationId = await ConciergeService.startChatConversation(
-        user.id,
-        'Hello, I need assistance with my yacht club membership.'
-      );
-      // Open chat interface with conversationId
-      console.log('Chat started:', conversationId);
+      const result = await twilioConciergeService.sendConciergeRequest({
+        message: 'Hello, I need assistance with my yacht club membership.',
+        priority: 'medium',
+        category: 'general',
+        membershipTier: user.membershipTier || 'bronze'
+      });
+      // Open chat interface with result
+      console.log('Chat started:', result);
     } catch (error) {
       alert('Chat service unavailable. Please try calling.');
     }
@@ -411,8 +423,8 @@ const MemberDashboard: React.FC = () => {
             <TabsContent value="services" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredServices.map((service) => {
-                  const originalPrice = parseFloat(service.price);
-                  const memberPrice = user?.membershipTier ? calculateServicePrice(originalPrice, user.membershipTier) : originalPrice;
+                  const originalPrice = parseFloat(service.pricePerSession || '0');
+                  const memberPrice = user?.membershipTier ? calculateServicePrice(originalPrice, user.membershipTier as MembershipTier) : originalPrice;
                   const savings = originalPrice - memberPrice;
 
                   return (
@@ -470,10 +482,10 @@ const MemberDashboard: React.FC = () => {
             <TabsContent value="experiences" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredEvents.map((event) => {
-                  const originalPrice = parseFloat(event.ticketPrice);
-                  const memberPrice = user?.membershipTier ? calculateEventPrice(originalPrice, user.membershipTier) : originalPrice;
+                  const originalPrice = parseFloat(event.ticketPrice || '0');
+                  const memberPrice = user?.membershipTier ? calculateEventPrice(originalPrice, user.membershipTier as MembershipTier) : originalPrice;
                   const savings = originalPrice - memberPrice;
-                  const eventDate = new Date(event.startDate);
+                  const eventDate = new Date(event.startTime);
 
                   return (
                     <Card key={event.id} className="bg-gray-800/50 border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
@@ -492,7 +504,7 @@ const MemberDashboard: React.FC = () => {
                         )}
                         <div className="absolute top-2 right-2">
                           <Badge className="bg-purple-600">
-                            {event.category}
+                            Event
                           </Badge>
                         </div>
                       </div>

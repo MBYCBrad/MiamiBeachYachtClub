@@ -44,8 +44,8 @@ export class TwilioService {
 
       const message = await twilioClient.messages.create({
         body: messageBody,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: process.env.CONCIERGE_PHONE_NUMBER || process.env.TWILIO_PHONE_NUMBER // Fallback for demo
+        from: process.env.TWILIO_PHONE_NUMBER || "+1234567890",
+        to: process.env.CONCIERGE_PHONE_NUMBER || process.env.TWILIO_PHONE_NUMBER || "+1234567890" // Fallback for demo
       });
 
       // Log the concierge request
@@ -138,16 +138,16 @@ export class TwilioService {
       // Send to emergency contact
       const message = await twilioClient.messages.create({
         body: messageBody,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: process.env.EMERGENCY_PHONE_NUMBER || process.env.CONCIERGE_PHONE_NUMBER || process.env.TWILIO_PHONE_NUMBER
+        from: process.env.TWILIO_PHONE_NUMBER || "+1234567890",
+        to: process.env.EMERGENCY_PHONE_NUMBER || process.env.CONCIERGE_PHONE_NUMBER || process.env.TWILIO_PHONE_NUMBER || "+1234567890"
       });
 
       // Also call emergency contact if number is provided
       if (process.env.EMERGENCY_PHONE_NUMBER) {
         await twilioClient.calls.create({
           twiml: `<Response><Say voice="alice">Emergency alert from Miami Beach Yacht Club. Member ${user.username} requires immediate assistance at ${location}. Please check your messages for details.</Say></Response>`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: process.env.EMERGENCY_PHONE_NUMBER
+          from: process.env.TWILIO_PHONE_NUMBER || "+1234567890",
+          to: process.env.EMERGENCY_PHONE_NUMBER!
         });
       }
 
