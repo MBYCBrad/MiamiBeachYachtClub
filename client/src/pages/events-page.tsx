@@ -5,7 +5,6 @@ import { Search, Filter, Calendar, MapPin, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Event } from '@shared/schema';
-import HamburgerMenu from '@/components/HamburgerMenu';
 
 interface EventsPageProps {
   currentView: string;
@@ -57,7 +56,7 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
                 Unforgettable experiences and luxury gatherings
               </p>
             </div>
-            <HamburgerMenu currentView={currentView} setCurrentView={setCurrentView} />
+            <div className="w-8 h-8"></div>
           </div>
 
           {/* Search Bar */}
@@ -163,7 +162,7 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
                     </div>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 rounded-xl px-6"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-6"
                     >
                       Register
                     </Button>
