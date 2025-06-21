@@ -326,7 +326,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
 
                   <TabsContent value="dates">
                     <div className="flex justify-center">
-                      <div className="flex space-x-8 max-w-[700px]">
+                      <div className="flex flex-col md:flex-row md:space-x-8 space-y-6 md:space-y-0 max-w-[700px] w-full">
                         {/* Current Month */}
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-4">
@@ -362,8 +362,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                           />
                         </div>
 
-                        {/* Next Month */}
-                        <div className="flex-1">
+                        {/* Next Month - Hidden on mobile */}
+                        <div className="hidden md:block flex-1">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-semibold text-lg text-white">
                               {format(addDays(calendarMonth, 32), 'MMMM yyyy')}
