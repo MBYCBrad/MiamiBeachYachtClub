@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import YachtCard from '@/components/yacht-card';
-import type { Yacht, Service, Event as EventType, MediaAsset } from '@shared/schema';
+import type { Yacht, Service, Event as EventType, MediaAsset, Favorite } from '@shared/schema';
 
 const YACHT_IMAGES = [
   "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop",
@@ -68,30 +68,89 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
     queryKey: ['/api/events']
   });
 
-  // Mock favorite items (in a real app, this would come from a favorites API)
-  const favoriteYachts = yachts.slice(0, 3);
-  const favoriteServices = services.slice(0, 2);
-  const favoriteEvents = events.slice(0, 2);
+  // Real-time favorites data from database
+  const { data: userFavorites = [], isLoading: favoritesLoading } = useQuery<Favorite[]>({
+    queryKey: ['/api/favorites']
+  });
 
-  const removeFavoriteMutation = useMutation({
-    mutationFn: async ({ type, id }: { type: string; id: number }) => {
-      return await apiRequest('DELETE', `/api/favorites/${type}/${id}`);
+  // Extract favorite items based on database favorites
+  const favoriteYachtIds = userFavorites.filter(f => f.yachtId).map(f => f.yachtId);
+  const favoriteServiceIds = userFavorites.filter(f => f.serviceId).map(f => f.serviceId);
+  const favoriteEventIds = userFavorites.filter(f => f.eventId).map(f => f.eventId);
+
+  const favoriteYachts = yachts.filter(yacht => favoriteYachtIds.includes(yacht.id));
+  const favoriteServices = services.filter(service => favoriteServiceIds.includes(service.id));
+  const favoriteEvents = events.filter(event => favoriteEventIds.includes(event.id));
+
+  // Add favorite mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async ({ yachtId, serviceId, eventId }: { yachtId?: number; serviceId?: number; eventId?: number }) => {
+      const response = await apiRequest('POST', '/api/favorites', { yachtId, serviceId, eventId });
+      return await response.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Removed from favorites",
-        description: "Item has been removed from your favorites",
-      });
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: "Item has been added to your favorites",
+      });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to remove from favorites",
+        description: "Failed to add item to favorites",
         variant: "destructive",
       });
     }
   });
+
+  // Remove favorite mutation
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async ({ yachtId, serviceId, eventId }: { yachtId?: number; serviceId?: number; eventId?: number }) => {
+      const params = new URLSearchParams();
+      if (yachtId) params.append('yachtId', yachtId.toString());
+      if (serviceId) params.append('serviceId', serviceId.toString());
+      if (eventId) params.append('eventId', eventId.toString());
+      
+      const response = await apiRequest('DELETE', `/api/favorites?${params.toString()}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: "Item has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove item from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const toggleFavorite = (type: 'yacht' | 'service' | 'event', id: number) => {
+    const isCurrentlyFavorite = 
+      (type === 'yacht' && favoriteYachtIds.includes(id)) ||
+      (type === 'service' && favoriteServiceIds.includes(id)) ||
+      (type === 'event' && favoriteEventIds.includes(id));
+
+    if (isCurrentlyFavorite) {
+      removeFavoriteMutation.mutate({
+        yachtId: type === 'yacht' ? id : undefined,
+        serviceId: type === 'service' ? id : undefined,
+        eventId: type === 'event' ? id : undefined
+      });
+    } else {
+      addFavoriteMutation.mutate({
+        yachtId: type === 'yacht' ? id : undefined,
+        serviceId: type === 'service' ? id : undefined,
+        eventId: type === 'event' ? id : undefined
+      });
+    }
+  };
 
   const filteredYachts = favoriteYachts.filter(yacht =>
     yacht.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,7 +174,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   ];
 
   const handleRemoveFavorite = (type: string, id: number) => {
-    removeFavoriteMutation.mutate({ type, id });
+    toggleFavorite(type as 'yacht' | 'service' | 'event', id);
   };
 
   const renderYachtCard = (yacht: Yacht, index: number) => (

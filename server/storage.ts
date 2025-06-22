@@ -1,9 +1,9 @@
 import { 
-  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets,
+  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
-  type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, UserRole, MembershipTier
+  type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, type Favorite, type InsertFavorite, UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -76,6 +76,12 @@ export interface IStorage {
   createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
   updateMediaAsset(id: number, asset: Partial<InsertMediaAsset>): Promise<MediaAsset | undefined>;
   deleteMediaAsset(id: number): Promise<boolean>;
+
+  // Favorites methods
+  getUserFavorites(userId: number): Promise<Favorite[]>;
+  addFavorite(favorite: InsertFavorite): Promise<Favorite>;
+  removeFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean>;
+  isFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean>;
 
   sessionStore: session.Store;
 }
@@ -981,6 +987,38 @@ export class DatabaseStorage implements IStorage {
   async deleteMediaAsset(id: number): Promise<boolean> {
     const result = await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  // Favorites methods
+  async getUserFavorites(userId: number): Promise<Favorite[]> {
+    return await db.select().from(favorites).where(eq(favorites.userId, userId));
+  }
+
+  async addFavorite(favorite: InsertFavorite): Promise<Favorite> {
+    const [newFavorite] = await db.insert(favorites).values(favorite).returning();
+    return newFavorite;
+  }
+
+  async removeFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean> {
+    const conditions = [eq(favorites.userId, userId)];
+    
+    if (yachtId) conditions.push(eq(favorites.yachtId, yachtId));
+    if (serviceId) conditions.push(eq(favorites.serviceId, serviceId));
+    if (eventId) conditions.push(eq(favorites.eventId, eventId));
+    
+    const result = await db.delete(favorites).where(and(...conditions));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async isFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean> {
+    const conditions = [eq(favorites.userId, userId)];
+    
+    if (yachtId) conditions.push(eq(favorites.yachtId, yachtId));
+    if (serviceId) conditions.push(eq(favorites.serviceId, serviceId));
+    if (eventId) conditions.push(eq(favorites.eventId, eventId));
+    
+    const [favorite] = await db.select().from(favorites).where(and(...conditions));
+    return !!favorite;
   }
 }
 

@@ -1057,6 +1057,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(stats);
   });
 
+  // FAVORITES ROUTES - Real-time database integration
+  app.get("/api/favorites", requireAuth, async (req, res) => {
+    try {
+      const userFavorites = await storage.getUserFavorites(req.user!.id);
+      res.json(userFavorites);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/favorites", requireAuth, async (req, res) => {
+    try {
+      const { yachtId, serviceId, eventId } = req.body;
+      
+      if (!yachtId && !serviceId && !eventId) {
+        return res.status(400).json({ message: "Must specify yachtId, serviceId, or eventId" });
+      }
+
+      const favorite = await storage.addFavorite({
+        userId: req.user!.id,
+        yachtId: yachtId || null,
+        serviceId: serviceId || null,
+        eventId: eventId || null
+      });
+
+      res.status(201).json(favorite);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/favorites", requireAuth, async (req, res) => {
+    try {
+      const { yachtId, serviceId, eventId } = req.query;
+      
+      const success = await storage.removeFavorite(
+        req.user!.id,
+        yachtId ? parseInt(yachtId as string) : undefined,
+        serviceId ? parseInt(serviceId as string) : undefined,
+        eventId ? parseInt(eventId as string) : undefined
+      );
+
+      if (success) {
+        res.json({ message: "Favorite removed successfully" });
+      } else {
+        res.status(404).json({ message: "Favorite not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/favorites/check", requireAuth, async (req, res) => {
+    try {
+      const { yachtId, serviceId, eventId } = req.query;
+      
+      const isFavorite = await storage.isFavorite(
+        req.user!.id,
+        yachtId ? parseInt(yachtId as string) : undefined,
+        serviceId ? parseInt(serviceId as string) : undefined,
+        eventId ? parseInt(eventId as string) : undefined
+      );
+
+      res.json({ isFavorite });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // ANALYTICS ROUTES - Advanced Business Intelligence
   app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
