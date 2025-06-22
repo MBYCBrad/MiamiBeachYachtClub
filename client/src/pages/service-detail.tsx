@@ -11,13 +11,20 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Service } from "@shared/schema";
 import { useState } from "react";
 
-export default function ServiceDetail() {
-  const { id } = useParams();
+interface ServiceDetailProps {
+  serviceId?: string;
+  onBack?: () => void;
+}
+
+export default function ServiceDetail({ serviceId, onBack }: ServiceDetailProps) {
+  const { id: paramId } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('14:00');
+  
+  const id = serviceId || paramId;
   
   const { data: service, isLoading } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
@@ -39,7 +46,12 @@ export default function ServiceDetail() {
         title: "Service Booked Successfully!",
         description: `Your ${service?.name} booking has been confirmed for ${new Date(selectedDate + 'T' + selectedTime).toLocaleDateString()}.`,
       });
-      setLocation('/trips');
+      // Navigate back or to trips page
+      if (onBack) {
+        onBack();
+      } else {
+        setLocation('/trips');
+      }
     },
     onError: (error: any) => {
       toast({
@@ -60,9 +72,16 @@ export default function ServiceDetail() {
       return;
     }
 
-    // Use selected date or default to tomorrow if no date selected
-    const bookingDate = selectedDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const bookingDateTime = `${bookingDate}T${selectedTime}:00.000Z`;
+    if (!selectedDate) {
+      toast({
+        title: "Date Required",
+        description: "Please select a date for your service booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const bookingDateTime = `${selectedDate}T${selectedTime}:00.000Z`;
     
     createServiceBookingMutation.mutate({
       serviceId: service.id,

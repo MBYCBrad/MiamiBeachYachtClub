@@ -52,6 +52,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [showServiceBooking, setShowServiceBooking] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -59,7 +61,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     setCurrentView('search-results');
   };
 
-  const handleServiceBooking = async (service: Service) => {
+  const handleServiceBooking = (service: Service) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -69,44 +71,9 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       return;
     }
 
-    try {
-      // Create service booking directly in database
-      const bookingDate = new Date();
-      bookingDate.setDate(bookingDate.getDate() + 1); // Tomorrow
-      
-      const response = await fetch('/api/service-bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceId: service.id,
-          bookingDate: bookingDate.toISOString(),
-          status: 'confirmed'
-        })
-      });
-
-      if (response.ok) {
-        const booking = await response.json();
-        toast({
-          title: "Service Booked Successfully!",
-          description: `Your ${service.name} booking has been confirmed for ${bookingDate.toLocaleDateString()}.`,
-        });
-        setCurrentView('trips');
-      } else {
-        const error = await response.text();
-        toast({
-          title: "Booking Failed",
-          description: error || "Failed to book service. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Service booking error:', error);
-      toast({
-        title: "Booking Failed",
-        description: "Network error. Please try again.",
-        variant: "destructive",
-      });
-    }
+    // Open booking modal for proper confirmation
+    setSelectedService(service);
+    setShowServiceBooking(true);
   };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
@@ -505,6 +472,99 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Service Booking Modal */}
+      <Dialog open={showServiceBooking} onOpenChange={setShowServiceBooking}>
+        <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 text-white">
+          {selectedService && (
+            <div className="space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-white">
+                  Book {selectedService.name}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">Service Details</h3>
+                  <p className="text-gray-300 mb-3">{selectedService.description}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Price per session:</span>
+                    <span className="text-2xl font-bold text-white">${selectedService.pricePerSession}</span>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-4">Select Date & Time</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
+                      <input 
+                        type="date" 
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Time</label>
+                      <select className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none">
+                        <option value="09:00">9:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="14:00">2:00 PM</option>
+                        <option value="15:00">3:00 PM</option>
+                        <option value="16:00">4:00 PM</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Booking Summary</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-gray-300">
+                      <span>Service fee:</span>
+                      <span>${selectedService.pricePerSession}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-300">
+                      <span>Processing fee:</span>
+                      <span>$5.00</span>
+                    </div>
+                    <div className="border-t border-gray-700 pt-2">
+                      <div className="flex justify-between font-semibold text-white">
+                        <span>Total:</span>
+                        <span>${(parseFloat(selectedService.pricePerSession || '0') + 5).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowServiceBooking(false)}
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      toast({
+                        title: "Redirecting to Payment",
+                        description: "You will be redirected to secure payment processing.",
+                      });
+                      setShowServiceBooking(false);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  >
+                    Proceed to Payment
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>
