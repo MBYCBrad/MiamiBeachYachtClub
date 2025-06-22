@@ -141,7 +141,7 @@ const PremiumAuthPage: React.FC = () => {
           onLoadedData={() => setIsVideoLoaded(true)}
           className="w-full h-full object-cover"
         >
-          <source src="/api/media/video/15768404-uhd_4096_2160_24fps_1750523880240.mp4" type="video/mp4" />
+          <source src="/api/media/video/15768404-uhd_4096_2160_24fps_1750553179622.mp4" type="video/mp4" />
         </video>
         
         {/* Video Overlay */}
