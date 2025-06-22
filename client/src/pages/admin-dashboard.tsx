@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   BarChart3, 
   Users, 
@@ -39,6 +41,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 
 interface AdminStats {
@@ -115,6 +129,260 @@ const ActivityCard = ({ activity, index }: any) => (
     <span className="text-xs text-gray-500">{activity.time}</span>
   </motion.div>
 );
+
+// Edit User Component
+function EditUserDialog({ user: userData }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: userData.username || '',
+    email: userData.email || '',
+    role: userData.role || '',
+    membershipTier: userData.membershipTier || ''
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/admin/users/${userData.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit User</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="username" className="text-gray-300">Username</Label>
+            <Input
+              id="username"
+              value={formData.username}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <Input
+              id="email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="role" className="text-gray-300">Role</Label>
+            <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                <SelectItem value="service_provider">Service Provider</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="tier" className="text-gray-300">Membership Tier</Label>
+            <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="Bronze">Bronze</SelectItem>
+                <SelectItem value="Silver">Silver</SelectItem>
+                <SelectItem value="Gold">Gold</SelectItem>
+                <SelectItem value="Platinum">Platinum</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => updateUserMutation.mutate(formData)} 
+            disabled={updateUserMutation.isPending}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {updateUserMutation.isPending ? "Updating..." : "Update User"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete User Component
+function DeleteUserDialog({ user: userData }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/admin/users/${userData.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete User</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {userData.username}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteUserMutation.mutate()} 
+            disabled={deleteUserMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Yacht Component
+function EditYachtDialog({ yacht }: { yacht: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: yacht.name || '',
+    location: yacht.location || '',
+    size: yacht.size || 0,
+    capacity: yacht.capacity || 0,
+    description: yacht.description || '',
+    isAvailable: yacht.isAvailable ?? true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateYachtMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/admin/yachts/${yacht.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
+      toast({ title: "Success", description: "Yacht updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Yacht</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="location" className="text-gray-300">Location</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="size" className="text-gray-300">Size (ft)</Label>
+              <Input
+                id="size"
+                type="number"
+                value={formData.size}
+                onChange={(e) => setFormData({...formData, size: parseInt(e.target.value) || 0})}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+              <Input
+                id="capacity"
+                type="number"
+                value={formData.capacity}
+                onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => updateYachtMutation.mutate(formData)} 
+            disabled={updateYachtMutation.isPending}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {updateYachtMutation.isPending ? "Updating..." : "Update Yacht"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
@@ -529,9 +797,8 @@ export default function AdminDashboard() {
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <EditUserDialog user={user} />
+                        <DeleteUserDialog user={user} />
                       </div>
                     </td>
                   </motion.tr>
@@ -628,9 +895,7 @@ export default function AdminDashboard() {
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditYachtDialog yacht={yacht} />
                   </div>
                 </div>
               </CardContent>

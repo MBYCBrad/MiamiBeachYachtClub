@@ -1190,6 +1190,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ADMIN API ROUTES - Complete dashboard functionality
+  app.get("/api/admin/stats", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      const yachts = await storage.getYachts();
+      const services = await storage.getServices();
+      const events = await storage.getEvents();
+      const bookings = await storage.getBookings();
+      const serviceBookings = await storage.getServiceBookings();
+      const eventRegistrations = await storage.getEventRegistrations();
+
+      // Calculate revenue from bookings and service bookings
+      const totalRevenue = [...bookings, ...serviceBookings, ...eventRegistrations]
+        .reduce((sum, item) => sum + parseFloat(item.totalPrice || '0'), 0);
+
+      // Calculate membership breakdown
+      const membershipBreakdown = ['Bronze', 'Silver', 'Gold', 'Platinum'].map(tier => {
+        const count = users.filter(user => user.membershipTier === tier).length;
+        return {
+          tier,
+          count,
+          percentage: users.length > 0 ? Math.round((count / users.length) * 100) : 0
+        };
+      });
+
+      const stats = {
+        totalUsers: users.length,
+        totalBookings: bookings.length + serviceBookings.length + eventRegistrations.length,
+        totalRevenue: Math.round(totalRevenue),
+        activeServices: services.filter(s => s.isAvailable !== false).length,
+        monthlyGrowth: 15,
+        membershipBreakdown
+      };
+
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const yachts = await storage.getYachts();
+      res.json(yachts);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const services = await storage.getServices();
+      res.json(services);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const events = await storage.getEvents();
+      res.json(events);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/payments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookings = await storage.getBookings();
+      const serviceBookings = await storage.getServiceBookings();
+      const eventRegistrations = await storage.getEventRegistrations();
+
+      // Combine all payment transactions
+      const payments = [
+        ...bookings.map(b => ({
+          id: `booking-${b.id}`,
+          type: 'Yacht Booking',
+          amount: parseFloat(b.totalPrice || '0'),
+          status: b.status,
+          date: b.createdAt,
+          customer: `User ${b.userId}`
+        })),
+        ...serviceBookings.map(sb => ({
+          id: `service-${sb.id}`,
+          type: 'Service Booking', 
+          amount: parseFloat(sb.totalPrice || '0'),
+          status: sb.status,
+          date: sb.createdAt,
+          customer: `User ${sb.userId}`
+        })),
+        ...eventRegistrations.map(er => ({
+          id: `event-${er.id}`,
+          type: 'Event Registration',
+          amount: parseFloat(er.totalPrice || '0'),
+          status: er.status,
+          date: er.createdAt,
+          customer: `User ${er.userId}`
+        }))
+      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      res.json(payments);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const user = await storage.updateUser(parseInt(id), updates);
+      res.json(user);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteUser(parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const yacht = await storage.updateYacht(parseInt(id), updates);
+      res.json(yacht);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/services/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const service = await storage.updateService(parseInt(id), updates);
+      res.json(service);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const event = await storage.updateEvent(parseInt(id), updates);
+      res.json(event);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ANALYTICS ROUTES - Advanced Business Intelligence
   app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
@@ -1273,6 +1443,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin user management endpoints
+  app.put("/api/admin/users/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const userId = parseInt(req.params.id);
+      const updateData = req.body;
+      const user = await storage.updateUser(userId, updateData);
+      res.json(user);
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Error updating user: ' + error.message });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const userId = parseInt(req.params.id);
+      await storage.deleteUser(userId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ message: 'Error deleting user: ' + error.message });
+    }
+  });
+
+  // Admin yacht management endpoints
+  app.put("/api/admin/yachts/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const yachtId = parseInt(req.params.id);
+      const updateData = req.body;
+      const yacht = await storage.updateYacht(yachtId, updateData);
+      res.json(yacht);
+    } catch (error: any) {
+      console.error('Error updating yacht:', error);
+      res.status(500).json({ message: 'Error updating yacht: ' + error.message });
+    }
+  });
+
+  // Admin service management endpoints
+  app.put("/api/admin/services/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const serviceId = parseInt(req.params.id);
+      const updateData = req.body;
+      const service = await storage.updateService(serviceId, updateData);
+      res.json(service);
+    } catch (error: any) {
+      console.error('Error updating service:', error);
+      res.status(500).json({ message: 'Error updating service: ' + error.message });
+    }
+  });
+
+  // Admin event management endpoints
+  app.put("/api/admin/events/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const eventId = parseInt(req.params.id);
+      const updateData = req.body;
+      const event = await storage.updateEvent(eventId, updateData);
+      res.json(event);
+    } catch (error: any) {
+      console.error('Error updating event:', error);
+      res.status(500).json({ message: 'Error updating event: ' + error.message });
     }
   });
 

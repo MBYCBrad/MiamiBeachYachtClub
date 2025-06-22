@@ -91,6 +91,20 @@ export interface IStorage {
   updateMessageStatus(messageId: number, status: string): Promise<Message | undefined>;
   updateMessageTwilioSid(messageId: number, twilioSid: string): Promise<Message | undefined>;
 
+  // Admin methods
+  updateUser(id: number, updates: Partial<User>): Promise<User>;
+  deleteUser(id: number): Promise<void>;
+  updateYacht(id: number, updates: Partial<Yacht>): Promise<Yacht>;
+  updateService(id: number, updates: Partial<Service>): Promise<Service>;
+  updateEvent(id: number, updates: Partial<Event>): Promise<Event>;
+
+  // Media methods
+  getMediaAssets(filters?: any): Promise<MediaAsset[]>;
+  getMediaAsset(id: number): Promise<MediaAsset | undefined>;
+  createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset>;
+  updateMediaAsset(id: number, updates: Partial<InsertMediaAsset>): Promise<MediaAsset | null>;
+  deleteMediaAsset(id: number): Promise<boolean>;
+
   sessionStore: session.Store;
 }
 
@@ -1101,6 +1115,77 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.id, messageId))
       .returning();
     return updatedMessage || undefined;
+  }
+
+  // Admin methods
+  async updateUser(id: number, updates: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateYacht(id: number, updates: Partial<Yacht>): Promise<Yacht> {
+    const [yacht] = await db
+      .update(yachts)
+      .set(updates)
+      .where(eq(yachts.id, id))
+      .returning();
+    return yacht;
+  }
+
+  async updateService(id: number, updates: Partial<Service>): Promise<Service> {
+    const [service] = await db
+      .update(services)
+      .set(updates)
+      .where(eq(services.id, id))
+      .returning();
+    return service;
+  }
+
+  async updateEvent(id: number, updates: Partial<Event>): Promise<Event> {
+    const [event] = await db
+      .update(events)
+      .set(updates)
+      .where(eq(events.id, id))
+      .returning();
+    return event;
+  }
+
+  // Media methods - simplified to avoid circular dependencies
+  async getMediaAssets(filters?: any): Promise<MediaAsset[]> {
+    const query = db.select().from(mediaAssets);
+    return await query;
+  }
+
+  async getMediaAsset(id: number): Promise<MediaAsset | undefined> {
+    const [asset] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, id));
+    return asset;
+  }
+
+  async createMediaAsset(asset: InsertMediaAsset): Promise<MediaAsset> {
+    const [newAsset] = await db.insert(mediaAssets).values(asset).returning();
+    return newAsset;
+  }
+
+  async updateMediaAsset(id: number, updates: Partial<InsertMediaAsset>): Promise<MediaAsset | null> {
+    const [updatedAsset] = await db
+      .update(mediaAssets)
+      .set(updates)
+      .where(eq(mediaAssets.id, id))
+      .returning();
+    return updatedAsset || null;
+  }
+
+  async deleteMediaAsset(id: number): Promise<boolean> {
+    const result = await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
 
