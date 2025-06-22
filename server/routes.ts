@@ -676,6 +676,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check yacht availability
+  app.post("/api/bookings/check-availability", requireAuth, async (req, res) => {
+    try {
+      const { yachtId, startDate, startTime, endDate, endTime } = req.body;
+      
+      if (!yachtId || !startDate || !startTime || !endDate || !endTime) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Construct full datetime strings
+      const startDateTime = `${startDate}T${startTime}:00`;
+      const endDateTime = `${endDate}T${endTime}:00`;
+      
+      // Get existing confirmed bookings for this yacht
+      const existingBookings = await storage.getBookings({ 
+        yachtId: parseInt(yachtId),
+        status: 'confirmed'
+      });
+      
+      const requestStart = new Date(startDateTime);
+      const requestEnd = new Date(endDateTime);
+      
+      // Check for conflicts
+      const hasConflict = existingBookings.some(booking => {
+        const bookingStart = new Date(booking.startTime);
+        const bookingEnd = new Date(booking.endTime);
+        return (
+          (requestStart >= bookingStart && requestStart < bookingEnd) ||
+          (requestEnd > bookingStart && requestEnd <= bookingEnd) ||
+          (requestStart <= bookingStart && requestEnd >= bookingEnd)
+        );
+      });
+
+      res.json({ available: !hasConflict });
+    } catch (error: any) {
+      console.error('Availability check error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/bookings", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
     try {
       const validatedData = insertBookingSchema.parse(req.body);

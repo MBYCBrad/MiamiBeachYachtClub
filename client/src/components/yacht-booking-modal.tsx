@@ -117,13 +117,27 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
 
     setAvailabilityLoading(true);
     try {
-      const [startTime, endTime] = bookingData.timeSlot.split('-');
+      // Map time slots to actual times
+      const timeSlotMap: Record<string, { start: string; end: string }> = {
+        'morning': { start: '09:00', end: '13:00' },
+        'afternoon': { start: '13:00', end: '17:00' },
+        'evening': { start: '17:00', end: '21:00' },
+        'night': { start: '21:00', end: '01:00' }
+      };
+
+      const timeMapping = timeSlotMap[bookingData.timeSlot];
+      if (!timeMapping) {
+        throw new Error('Invalid time slot selected');
+      }
+
       const response = await apiRequest('POST', '/api/bookings/check-availability', {
         yachtId: yacht.id,
         startDate: bookingData.startDate,
-        startTime: startTime,
-        endDate: bookingData.startDate,
-        endTime: endTime
+        startTime: timeMapping.start,
+        endDate: bookingData.timeSlot === 'night' ? 
+          new Date(new Date(bookingData.startDate).getTime() + 86400000).toISOString().split('T')[0] : 
+          bookingData.startDate,
+        endTime: timeMapping.end
       });
       const result = await response.json();
       setIsAvailable(result.available);
@@ -145,7 +159,14 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       return await response.json();
     },
     onSuccess: (newBooking: Booking) => {
+      // Invalidate all booking-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/trips'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
+      
+      // Reset availability status so it rechecks on next attempt
+      setIsAvailable(null);
+      
       setCurrentStep(4);
       toast({
         title: "Booking Confirmed!",
@@ -162,15 +183,29 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
   });
 
   const handleBookingSubmit = () => {
-    if (!yacht || !user || !bookingData.timeSlot) return;
+    if (!yacht || !user || !bookingData.timeSlot || !bookingData.startDate) return;
 
-    const [startTime, endTime] = bookingData.timeSlot.split('-');
+    // Map time slots to actual times (same as availability check)
+    const timeSlotMap: Record<string, { start: string; end: string }> = {
+      'morning': { start: '09:00', end: '13:00' },
+      'afternoon': { start: '13:00', end: '17:00' },
+      'evening': { start: '17:00', end: '21:00' },
+      'night': { start: '21:00', end: '01:00' }
+    };
+
+    const timeMapping = timeSlotMap[bookingData.timeSlot];
+    if (!timeMapping) return;
+
+    const startDate = bookingData.startDate;
+    const endDate = bookingData.timeSlot === 'night' ? 
+      new Date(new Date(bookingData.startDate).getTime() + 86400000).toISOString().split('T')[0] : 
+      bookingData.startDate;
     
     const bookingPayload: InsertBooking = {
       userId: user.id,
       yachtId: yacht.id,
-      startTime: new Date(`${bookingData.startDate}T${startTime}:00`),
-      endTime: new Date(`${bookingData.startDate}T${endTime}:00`),
+      startTime: new Date(`${startDate}T${timeMapping.start}:00`),
+      endTime: new Date(`${endDate}T${timeMapping.end}:00`),
       guestCount: bookingData.guestCount,
       totalPrice: "0.00",
       status: 'confirmed',
