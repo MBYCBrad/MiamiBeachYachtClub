@@ -37,6 +37,12 @@ export const getQueryFn: <T>(options: {
       return null;
     }
 
+    // Handle authentication redirects gracefully
+    if (res.status === 401 && window.location.pathname !== "/auth") {
+      window.location.href = "/auth";
+      return null;
+    }
+
     await throwIfResNotOk(res);
     return await res.json();
   };
@@ -47,11 +53,14 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 30 * 60 * 1000, // 30 minutes for ultra-fast loading
+      gcTime: 60 * 60 * 1000, // 1 hour in memory
+      retry: 1,
+      networkMode: 'online'
     },
     mutations: {
       retry: false,
-    },
+      networkMode: 'online'
+    }
   },
 });

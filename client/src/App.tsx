@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -5,6 +6,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
+import { usePrefetchData } from "@/hooks/use-prefetch";
+import { usePerformanceMonitor, preloadCriticalResources } from "@/hooks/use-performance-monitor";
+import { useInstantCache } from "@/hooks/use-instant-cache";
 
 import HomePage from "@/pages/home-page-new";
 import AuthPage from "@/pages/auth-page";
@@ -38,13 +42,27 @@ function Router() {
   );
 }
 
+function AppContent() {
+  // Performance monitoring and optimization
+  usePerformanceMonitor();
+  usePrefetchData();
+  useInstantCache();
+  
+  // Preload critical resources immediately
+  useEffect(() => {
+    preloadCriticalResources();
+  }, []);
+  
+  return <Router />;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <AppContent />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

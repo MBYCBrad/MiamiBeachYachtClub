@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Star } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import YachtBookingModal from './yacht-booking-modal';
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
+import { useOptimizedImage } from '@/hooks/use-optimized-images';
 
 // Authentic yacht images from storage bucket
 const YACHT_IMAGES = [
@@ -29,9 +30,12 @@ interface YachtCardProps {
   index?: number;
 }
 
-export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
+const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  
+  const yachtImage = getYachtImage(yacht.id);
+  const { imageSrc, isLoading } = useOptimizedImage(yachtImage);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -72,20 +76,27 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
     >
       <div className="relative z-10">
         <div className="relative overflow-hidden rounded-t-2xl">
-          <motion.img 
-            src={yacht.imageUrl || getYachtImage(yacht.id)} 
-            alt={yacht.name}
-            className="w-full h-48 object-cover"
-            key={yacht.id}
-            whileHover={{ 
-              scale: 1.1,
-              transition: { 
-                type: "spring", 
-                stiffness: 300, 
-                damping: 20 
-              }
-            }}
-          />
+          {isLoading ? (
+            <div className="w-full h-48 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+              <div className="text-gray-600">Loading...</div>
+            </div>
+          ) : (
+            <motion.img 
+              src={imageSrc || yachtImage} 
+              alt={yacht.name}
+              className="w-full h-48 object-cover"
+              key={yacht.id}
+              loading="eager"
+              whileHover={{ 
+                scale: 1.1,
+                transition: { 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 20 
+                }
+              }}
+            />
+          )}
           
           {/* Animated overlay on hover */}
           <motion.div
@@ -319,4 +330,6 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
       />
     </motion.div>
   );
-}
+});
+
+export default YachtCard;

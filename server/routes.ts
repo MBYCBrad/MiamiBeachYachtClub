@@ -43,7 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  // Media asset serving routes
+  // Media asset serving routes with aggressive caching
   app.get("/api/media/:filename", async (req, res) => {
     try {
       const { filename } = req.params;
@@ -58,9 +58,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "File not accessible" });
       }
 
+      // Aggressive caching headers for media assets
+      const isImage = filename.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+      const isVideo = filename.match(/\.(mp4|webm|mov)$/i);
+      
+      if (isImage) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year
+        res.setHeader('ETag', `"${stats.mtime.getTime()}-${stats.size}"`);
+      } else if (isVideo) {
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours
+      }
+
       // Set appropriate headers for video streaming
       const mimeType = filename.endsWith('.mp4') ? 'video/mp4' : 
                       filename.endsWith('.webm') ? 'video/webm' : 
+                      filename.endsWith('.jpg') || filename.endsWith('.jpeg') ? 'image/jpeg' :
+                      filename.endsWith('.png') ? 'image/png' :
                       'application/octet-stream';
 
       res.setHeader('Content-Type', mimeType);
@@ -186,6 +199,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // YACHT ROUTES
   app.get("/api/yachts", async (req, res) => {
     try {
+      // Add aggressive caching headers for yacht data
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60'); // 5 minutes with stale cache
+      res.setHeader('ETag', `"yachts-${Date.now()}"`);
+      
       const { available, maxSize, location, startDate, endDate } = req.query;
       const filters: any = {};
       
@@ -308,6 +325,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SERVICE ROUTES
   app.get("/api/services", async (req, res) => {
     try {
+      // Add caching headers for services
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+      res.setHeader('ETag', `"services-${Date.now()}"`);
+      
       const { category, available } = req.query;
       const filters: any = {};
       
@@ -374,6 +395,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // EVENT ROUTES
   app.get("/api/events", async (req, res) => {
     try {
+      // Add caching headers for events
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+      res.setHeader('ETag', `"events-${Date.now()}"`);
+      
       const { active, upcoming } = req.query;
       const filters: any = {};
       

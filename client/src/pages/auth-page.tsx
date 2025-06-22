@@ -103,6 +103,21 @@ const PremiumAuthPage: React.FC = () => {
     loginMutation.mutate({
       username: data.username,
       password: data.password,
+    }, {
+      onSuccess: (user) => {
+        // Immediately redirect after successful login
+        setTimeout(() => {
+          if (user.role === UserRole.ADMIN) {
+            setLocation('/admin');
+          } else if (user.role === UserRole.YACHT_OWNER) {
+            setLocation('/yacht-owner');
+          } else if (user.role === UserRole.SERVICE_PROVIDER) {
+            setLocation('/service-provider');
+          } else {
+            setLocation('/');
+          }
+        }, 100);
+      }
     });
   };
 
