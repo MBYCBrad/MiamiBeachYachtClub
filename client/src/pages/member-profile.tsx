@@ -544,7 +544,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-pink-600/5 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               />
               
-              <CardContent className="p-6 relative">
+              <div className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Settings className="h-5 w-5 text-purple-400" />
@@ -616,72 +616,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     )}
                   </div>
                 </div>
-              </CardContent>
+              </div>
             </Card>
           </motion.div>
         </div>
 
-        {/* Quick Actions Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-8 p-4 md:p-6 bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/50"
-        >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="p-2 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-lg"
-              >
-                <Zap className="h-5 w-5 text-cyan-400" />
-              </motion.div>
-              <div>
-                <h4 className="text-white font-semibold text-sm md:text-base">Quick Actions</h4>
-                <p className="text-gray-400 text-xs md:text-sm">Manage your account efficiently</p>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600/20 backdrop-blur-md rounded-lg border border-blue-500/30 text-blue-400 hover:bg-blue-600/30 transition-all duration-300 text-sm"
-              >
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline">Security</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-3 py-2 bg-green-600/20 backdrop-blur-md rounded-lg border border-green-500/30 text-green-400 hover:bg-green-600/30 transition-all duration-300 text-sm"
-              >
-                <CreditCard className="h-4 w-4" />
-                <span className="hidden sm:inline">Billing</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-3 py-2 bg-purple-600/20 backdrop-blur-md rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-600/30 transition-all duration-300 text-sm"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Notifications</span>
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-3 py-2 bg-orange-600/20 backdrop-blur-md rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-600/30 transition-all duration-300 text-sm"
-              >
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Export</span>
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
+
       </motion.div>
 
       {/* Advanced Analytics Dashboard */}
