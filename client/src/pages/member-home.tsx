@@ -562,7 +562,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                     Cancel
                   </Button>
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
                       if (!bookingDate) {
                         toast({
                           title: "Date Required",
@@ -572,24 +572,47 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                         return;
                       }
                       
-                      const amount = parseFloat(selectedService.pricePerSession || '0') + 5; // Add processing fee
                       const bookingDateTime = `${bookingDate}T${bookingTime}:00.000Z`;
                       
-                      // Create URL with booking parameters
-                      const params = new URLSearchParams({
-                        serviceId: selectedService.id.toString(),
-                        serviceName: selectedService.name,
-                        amount: amount.toString(),
-                        bookingDate: bookingDateTime,
-                        bookingTime: bookingTime
-                      });
-                      
-                      setShowServiceBooking(false);
-                      window.location.href = `/checkout?${params.toString()}`;
+                      try {
+                        // Create the service booking directly
+                        const response = await fetch('/api/service-bookings', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          credentials: 'include',
+                          body: JSON.stringify({
+                            serviceId: selectedService.id,
+                            bookingDate: bookingDateTime,
+                            status: 'confirmed'
+                          })
+                        });
+
+                        if (!response.ok) {
+                          throw new Error('Failed to create booking');
+                        }
+
+                        const booking = await response.json();
+                        
+                        toast({
+                          title: "Service Booked Successfully!",
+                          description: `Your ${selectedService.name} booking has been confirmed for ${new Date(bookingDate).toLocaleDateString()} at ${bookingTime}.`,
+                        });
+                        
+                        setShowServiceBooking(false);
+                        setCurrentView('trips'); // Navigate to trips to see the booking
+                      } catch (error) {
+                        toast({
+                          title: "Booking Failed",
+                          description: "Unable to complete booking. Please try again.",
+                          variant: "destructive",
+                        });
+                      }
                     }}
                     className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   >
-                    Proceed to Payment
+                    Confirm Booking
                   </Button>
                 </div>
               </div>

@@ -153,7 +153,7 @@ export default function Checkout() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get service booking data from URL params or localStorage
+    // Get service booking data from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const bookingData = {
       serviceId: parseInt(urlParams.get('serviceId') || '0'),
@@ -163,7 +163,9 @@ export default function Checkout() {
       bookingTime: urlParams.get('bookingTime') || ''
     };
 
-    if (!bookingData.serviceId || !bookingData.amount) {
+    const clientSecretFromUrl = urlParams.get('clientSecret');
+
+    if (!bookingData.serviceId || !bookingData.amount || !clientSecretFromUrl) {
       toast({
         title: "Invalid Booking Data",
         description: "Please start the booking process again.",
@@ -174,28 +176,7 @@ export default function Checkout() {
     }
 
     setServiceData(bookingData);
-
-    // Create payment intent
-    apiRequest('POST', '/api/create-payment-intent', {
-      amount: Math.round(bookingData.amount * 100), // Convert to cents
-      description: `${bookingData.serviceName} booking`,
-      metadata: {
-        serviceId: bookingData.serviceId,
-        bookingDate: bookingData.bookingDate
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      setClientSecret(data.clientSecret);
-    })
-    .catch(error => {
-      toast({
-        title: "Payment Setup Failed",
-        description: "Unable to initialize payment. Please try again.",
-        variant: "destructive",
-      });
-      setLocation('/');
-    });
+    setClientSecret(clientSecretFromUrl);
   }, []);
 
   if (!clientSecret || !serviceData) {
