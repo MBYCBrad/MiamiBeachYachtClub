@@ -698,17 +698,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requestStart = new Date(startDateTime);
       const requestEnd = new Date(endDateTime);
       
-      // Check for conflicts
+      // Check for conflicts with existing bookings
       const hasConflict = existingBookings.some(booking => {
         const bookingStart = new Date(booking.startTime);
         const bookingEnd = new Date(booking.endTime);
-        return (
-          (requestStart >= bookingStart && requestStart < bookingEnd) ||
-          (requestEnd > bookingStart && requestEnd <= bookingEnd) ||
-          (requestStart <= bookingStart && requestEnd >= bookingEnd)
-        );
+        
+        // Two time ranges overlap if:
+        // 1. New booking starts before existing ends AND
+        // 2. New booking ends after existing starts
+        return requestStart < bookingEnd && requestEnd > bookingStart;
       });
-
       res.json({ available: !hasConflict });
     } catch (error: any) {
       console.error('Availability check error:', error);

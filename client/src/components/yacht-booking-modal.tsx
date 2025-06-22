@@ -85,6 +85,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
 
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [timeSlotAvailability, setTimeSlotAvailability] = useState<Record<string, boolean>>({});
 
   // Booking steps
   const steps = [
@@ -93,6 +94,42 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     { id: 3, title: 'Review', completed: currentStep > 3 },
     { id: 4, title: 'Confirmation', completed: false }
   ];
+
+  // Check all time slot availability when date changes
+  const checkAllTimeSlotAvailability = async (selectedDate: string) => {
+    if (!yacht || !selectedDate) return;
+
+    const timeSlotMap: Record<string, { start: string; end: string }> = {
+      'morning': { start: '09:00', end: '13:00' },
+      'afternoon': { start: '13:00', end: '17:00' },
+      'evening': { start: '17:00', end: '21:00' },
+      'night': { start: '21:00', end: '01:00' }
+    };
+
+    const availability: Record<string, boolean> = {};
+    
+    for (const [slotName, timeMapping] of Object.entries(timeSlotMap)) {
+      try {
+        const endDate = slotName === 'night' ? 
+          new Date(new Date(selectedDate).getTime() + 86400000).toISOString().split('T')[0] : 
+          selectedDate;
+
+        const response = await apiRequest('POST', '/api/bookings/check-availability', {
+          yachtId: yacht.id,
+          startDate: selectedDate,
+          startTime: timeMapping.start,
+          endDate: endDate,
+          endTime: timeMapping.end
+        });
+        const result = await response.json();
+        availability[slotName] = result.available;
+      } catch (error) {
+        availability[slotName] = false;
+      }
+    }
+    
+    setTimeSlotAvailability(availability);
+  };
 
   // Reset form when modal opens
   React.useEffect(() => {
@@ -108,8 +145,16 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         experienceType: 'leisure_tour'
       });
       setIsAvailable(null);
+      setTimeSlotAvailability({});
     }
   }, [isOpen, user?.phone]);
+
+  // Check availability when date changes
+  React.useEffect(() => {
+    if (bookingData.startDate) {
+      checkAllTimeSlotAvailability(bookingData.startDate);
+    }
+  }, [bookingData.startDate, yacht]);
 
   // Check availability
   const checkAvailability = async () => {
@@ -312,33 +357,70 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               <div>
                 <Label className="text-gray-300">Choose Your 4-Hour Time Slot</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                  {timeSlots.map((slot) => (
-                    <motion.div
-                      key={slot.value}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setBookingData({...bookingData, timeSlot: slot.value})}
-                      className={`relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-300
-                        ${bookingData.timeSlot === slot.value 
-                          ? 'border-purple-500 bg-purple-500/20' 
-                          : 'border-gray-600 bg-gray-700/30 hover:border-gray-500'
+                  {timeSlots.map((slot) => {
+                    const isAvailable = timeSlotAvailability[slot.value];
+                    const isBooked = bookingData.startDate && isAvailable === false;
+                    const isLoading = bookingData.startDate && isAvailable === undefined;
+                    
+                    return (
+                      <motion.div
+                        key={slot.value}
+                        whileHover={!isBooked ? { scale: 1.02 } : {}}
+                        whileTap={!isBooked ? { scale: 0.98 } : {}}
+                        onClick={() => {
+                          if (!isBooked) {
+                            setBookingData({...bookingData, timeSlot: slot.value});
+                          }
+                        }}
+                        className={`relative p-3 rounded-lg border-2 transition-all duration-300 ${
+                          isBooked 
+                            ? 'border-red-500/50 bg-red-500/10 cursor-not-allowed opacity-75'
+                            : bookingData.timeSlot === slot.value 
+                            ? 'border-purple-500 bg-purple-500/20 cursor-pointer' 
+                            : 'border-gray-600 bg-gray-700/30 hover:border-gray-500 cursor-pointer'
                         }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg">{slot.icon}</span>
-                          <div>
-                            <h4 className="font-medium text-white text-sm">{slot.label}</h4>
-                            <p className="text-xs text-purple-300 font-medium">{slot.timeRange}</p>
-                            <p className="text-xs text-gray-400">{slot.description}</p>
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg">{slot.icon}</span>
+                            <div>
+                              <h4 className={`font-medium text-sm ${isBooked ? 'text-gray-500' : 'text-white'}`}>
+                                {slot.label}
+                              </h4>
+                              <p className={`text-xs font-medium ${isBooked ? 'text-gray-500' : 'text-purple-300'}`}>
+                                {slot.timeRange}
+                              </p>
+                              <p className="text-xs text-gray-400">{slot.description}</p>
+                            </div>
                           </div>
+                        {/* Status Indicators */}
+                        <div className="flex flex-col items-end space-y-1">
+                          {bookingData.timeSlot === slot.value && !isBooked && (
+                            <CheckCircle className="w-5 h-5 text-purple-400" />
+                          )}
+                          
+                          {isLoading && (
+                            <div className="flex items-center space-x-1">
+                              <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs text-blue-400">Checking...</span>
+                            </div>
+                          )}
+                          
+                          {isBooked && (
+                            <div className="bg-red-500 text-white text-xs px-2 py-1 rounded font-medium">
+                              Already Booked
+                            </div>
+                          )}
+                          
+                          {isAvailable === true && !isBooked && (
+                            <div className="bg-green-500 text-white text-xs px-2 py-1 rounded font-medium">
+                              Available
+                            </div>
+                          )}
                         </div>
-                        {bookingData.timeSlot === slot.value && (
-                          <CheckCircle className="w-5 h-5 text-purple-400" />
-                        )}
                       </div>
                     </motion.div>
-                  ))}
+                  );})}
                 </div>
               </div>
 

@@ -245,6 +245,14 @@ Changelog:
   - Improved visual hierarchy with time ranges prominently displayed in purple text
   - Enhanced distinction between time slots and experience types to eliminate confusion
   - Maintained 4-hour booking structure while adding clearer category-based booking experiences
+- June 22, 2025. Complete yacht availability system and real-time booking updates implemented
+  - Added missing check-availability API endpoint with conflict detection algorithm
+  - Fixed time slot mapping from frontend names (morning, afternoon) to actual times (09:00-13:00, 13:00-17:00)
+  - Implemented proper conflict detection checking existing confirmed bookings against new requests
+  - Added real-time query invalidation for bookings, trips, and yacht data when new bookings are created
+  - Verified system correctly identifies conflicts (yacht 1 unavailable June 23rd due to existing 10:00-18:00 booking)
+  - Confirmed availability checking works correctly for open dates (June 24th shows available)
+  - Real-time booking updates ensure immediate reflection of new bookings across the application
 
 ## Member Experience Feature Status
 
