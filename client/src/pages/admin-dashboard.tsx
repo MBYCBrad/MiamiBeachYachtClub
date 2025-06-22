@@ -31,7 +31,8 @@ import {
   Database,
   Save,
   RotateCcw,
-  Trash2
+  Trash2,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -417,6 +418,523 @@ export default function AdminDashboard() {
     </motion.div>
   );
 
+  const renderUsers = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            User Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage member accounts, permissions, and memberships
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+            <Users className="h-4 w-4 mr-2" />
+            Add User
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Users Table */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <Users className="h-5 w-5 mr-2 text-purple-500" />
+            Member Directory
+          </CardTitle>
+          <CardDescription>All registered yacht club members</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(users as any[])?.map((user: any, index: number) => (
+                  <motion.tr
+                    key={user.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-white font-medium">{user.username}</p>
+                          <p className="text-sm text-gray-400">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={`${
+                        user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                        user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                        'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                      }`}>
+                        {user.membershipTier}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderYachts = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Fleet Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht fleet, availability, and specifications
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-600">
+            <Anchor className="h-4 w-4 mr-2" />
+            Add Yacht
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Yachts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {(yachts as any[])?.map((yacht: any, index: number) => (
+          <motion.div
+            key={yacht.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                <img 
+                  src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                  alt={yacht.name}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4">
+                  <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                    {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-400">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{yacht.location}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-gray-400">
+                    <span className="text-sm">Size: {yacht.size}ft</span>
+                    <span className="text-sm">Capacity: {yacht.capacity}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
+                  <div className="flex items-center space-x-2">
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  const renderServices = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Service Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht concierge services and providers
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-orange-600 to-red-600">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Add Service
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Services Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {(services as any[])?.map((service: any, index: number) => (
+          <motion.div
+            key={service.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                <img 
+                  src={service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                  alt={service.name}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                    {service.category}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-orange-400 font-semibold">${service.price}</span>
+                  <div className="flex items-center space-x-2">
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  const renderEvents = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Event Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht club events and member experiences
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-violet-600 to-purple-600">
+            <CalendarDays className="h-4 w-4 mr-2" />
+            Add Event
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Events Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {(events as any[])?.map((event: any, index: number) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-violet-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                <img 
+                  src={event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                  alt={event.title}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                    {event.capacity} spots
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{event.description}</p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-400">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{new Date(event.eventDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center text-gray-400">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{event.startTime} - {event.endTime}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-violet-400 font-semibold">${event.ticketPrice || '0'}</span>
+                  <div className="flex items-center space-x-2">
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
+  const renderPayments = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Payment Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Track transactions, revenue, and payment analytics
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-green-600 to-teal-600">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-green-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Payments Table */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-green-500" />
+            Recent Transactions
+          </CardTitle>
+          <CardDescription>Latest payment activity and revenue tracking</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction ID</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Service</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(payments as any[])?.map((payment: any, index: number) => (
+                  <motion.tr
+                    key={payment.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <span className="text-gray-300 font-mono text-sm">{payment.stripePaymentIntentId || `TXN-${payment.id}`}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-white">{payment.customerName || payment.user?.username || 'Unknown'}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-400">{payment.description || 'Yacht Service'}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-green-400 font-semibold">${(payment.amount / 100).toFixed(2)}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-400">{new Date(payment.createdAt).toLocaleDateString()}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={`${
+                        payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        'bg-red-500/20 text-red-400 border-red-500/30'
+                      }`}>
+                        {payment.status}
+                      </Badge>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
   const renderSettings = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -528,13 +1046,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="flex h-screen">
+      <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <motion.div
           initial={{ x: -300, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 30 }}
-          className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative"
+          className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0"
         >
           {/* Logo */}
           <div className="p-6 border-b border-gray-700/50">
@@ -644,24 +1162,16 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 overflow-y-auto p-8">
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'settings' && renderSettings()}
-            {(activeSection === 'users' || activeSection === 'yachts' || activeSection === 'services' || activeSection === 'events' || activeSection === 'payments') && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-8"
-              >
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-4">🚧</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
-                  <p className="text-gray-400">This section is under development</p>
-                </div>
-              </motion.div>
-            )}
+            {activeSection === 'users' && renderUsers()}
+            {activeSection === 'yachts' && renderYachts()}
+            {activeSection === 'services' && renderServices()}
+            {activeSection === 'events' && renderEvents()}
+            {activeSection === 'payments' && renderPayments()}
           </AnimatePresence>
         </div>
       </div>
