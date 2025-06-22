@@ -158,138 +158,54 @@ const PremiumAuthPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="relative z-20 min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="w-full max-w-md mx-auto space-y-8">
           
-          {/* Left Side - Hero Content */}
+          {/* Logo Section */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="text-center space-y-6"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="flex items-center justify-center space-x-3"
           >
-            {/* Logo Section */}
             <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="flex items-center justify-center space-x-3 mb-8"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="relative"
             >
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                className="relative"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
-                  <Anchor className="text-white text-2xl" />
-                </div>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-1 border border-purple-400/30 rounded-full"
-                />
-              </motion.div>
-              <div>
-                <motion.h1
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
-                >
-                  Miami Beach Yacht Club
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="text-purple-300 text-sm font-medium"
-                >
-                  Luxury Yacht Experiences
-                </motion.p>
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
+                <Anchor className="text-white text-2xl" />
               </div>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-1 border border-purple-400/30 rounded-full"
+              />
             </motion.div>
-
-            {/* Main Headlines */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="space-y-6"
-            >
-              <h2 className="text-6xl lg:text-7xl font-bold text-white leading-tight">
-                Experience
-                <br />
-                <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Luxury
-                </span>
-                <br />
-                <motion.span
-                  animate={{ 
-                    textShadow: [
-                      "0 0 20px rgba(147, 51, 234, 0.5)",
-                      "0 0 40px rgba(59, 130, 246, 0.5)",
-                      "0 0 20px rgba(147, 51, 234, 0.5)"
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="text-white"
-                >
-                  On The Water
-                </motion.span>
-              </h2>
+            <div>
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
+              >
+                Miami Beach Yacht Club
+              </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.9 }}
-                className="text-2xl text-gray-200 leading-relaxed max-w-2xl font-light"
+                transition={{ delay: 0.7 }}
+                className="text-purple-300 text-sm font-medium"
               >
-                Join Miami's most exclusive yacht club. Access premium vessels, 
-                world-class concierge services, and unforgettable experiences on 
-                the beautiful waters of Biscayne Bay.
+                Luxury Yacht Experiences
               </motion.p>
-            </motion.div>
-
-            {/* Premium Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-              className="flex justify-center"
-            >
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-md lg:max-w-2xl">
-                {[
-                  { number: "50+", label: "Luxury Yachts", icon: Anchor, color: "from-purple-500 to-pink-500" },
-                  { number: "24/7", label: "Concierge", icon: Sparkles, color: "from-blue-500 to-cyan-500" },
-                  { number: "500+", label: "Elite Members", icon: Crown, color: "from-yellow-500 to-orange-500" },
-                  { number: "100%", label: "Satisfaction", icon: CheckCircle, color: "from-green-500 to-emerald-500" }
-                ].map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 1.4 + index * 0.1, duration: 0.6 }}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    className="text-center group cursor-pointer"
-                  >
-                    <div className={`w-12 h-12 mx-auto mb-2 bg-gradient-to-br ${stat.color} rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                      <stat.icon className="text-white text-base" />
-                    </div>
-                    <div className="text-xl font-bold text-white mb-1 group-hover:scale-105 transition-transform">
-                      {stat.number}
-                    </div>
-                    <div className="text-xs text-gray-300 group-hover:text-white transition-colors">
-                      {stat.label}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            </div>
           </motion.div>
 
-          {/* Right Side - Authentication Form */}
+          {/* Authentication Form */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-            className="w-full max-w-lg mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
+            className="w-full"
           >
             <Card className="bg-black/40 backdrop-blur-2xl border border-purple-500/20 shadow-2xl">
               <CardContent className="p-8">
