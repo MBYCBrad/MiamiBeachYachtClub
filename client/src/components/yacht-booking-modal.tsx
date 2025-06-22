@@ -110,6 +110,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         availability[slot] = data.available;
       });
       
+      console.log('Setting availability data:', availability);
       setTimeSlotAvailability(availability);
     } catch (error) {
       console.error('Error fetching availability:', error);
@@ -314,6 +315,18 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const isBooked = bookingData.startDate && isAvailable === false;
                     const hasDataLoaded = bookingData.startDate && Object.keys(timeSlotAvailability).length > 0;
                     
+                    // Debug logging
+                    if (slot.value === 'morning') {
+                      console.log('Debug slot data:', {
+                        slotValue: slot.value,
+                        isAvailable,
+                        isBooked,
+                        hasDataLoaded,
+                        timeSlotAvailability,
+                        startDate: bookingData.startDate
+                      });
+                    }
+                    
                     return (
                       <motion.div
                         key={slot.value}
@@ -351,16 +364,21 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                             <CheckCircle className="w-5 h-5 text-purple-400" />
                           )}
                           
-                          {/* Show status only when we have availability data for this specific yacht and date */}
-                          {hasDataLoaded && isBooked && (
-                            <div className="bg-red-500 text-white text-xs px-2 py-1 rounded font-medium">
-                              Already Booked
+                          {/* Always show availability status when we have data */}
+                          {hasDataLoaded && (
+                            <div className={`text-xs px-2 py-1 rounded font-medium ${
+                              isAvailable 
+                                ? 'bg-green-500 text-white' 
+                                : 'bg-red-500 text-white'
+                            }`}>
+                              {isAvailable ? 'Available' : 'Already Booked'}
                             </div>
                           )}
                           
-                          {hasDataLoaded && isAvailable === true && !isBooked && (
-                            <div className="bg-green-500 text-white text-xs px-2 py-1 rounded font-medium">
-                              Available
+                          {/* Show loading state when no data yet */}
+                          {bookingData.startDate && !hasDataLoaded && (
+                            <div className="text-xs px-2 py-1 rounded font-medium bg-blue-500 text-white">
+                              Loading...
                             </div>
                           )}
                         </div>
