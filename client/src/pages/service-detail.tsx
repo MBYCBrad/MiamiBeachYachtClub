@@ -51,16 +51,18 @@ export default function ServiceDetail() {
   });
 
   const handleBookNow = () => {
-    if (!service || !user || !selectedDate) {
+    if (!service || !user) {
       toast({
-        title: "Missing Information",
-        description: "Please select a date for your service booking.",
+        title: "Authentication Required",
+        description: "Please log in to book this service.",
         variant: "destructive",
       });
       return;
     }
-    
-    const bookingDateTime = `${selectedDate}T${selectedTime}:00.000Z`;
+
+    // Use selected date or default to tomorrow if no date selected
+    const bookingDate = selectedDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const bookingDateTime = `${bookingDate}T${selectedTime}:00.000Z`;
     
     createServiceBookingMutation.mutate({
       serviceId: service.id,
@@ -235,13 +237,12 @@ export default function ServiceDetail() {
 
               <Button 
                 onClick={handleBookNow}
-                disabled={!service.isAvailable || !selectedDate || createServiceBookingMutation.isPending}
+                disabled={!service.isAvailable || createServiceBookingMutation.isPending}
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 font-semibold py-3 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
                 {createServiceBookingMutation.isPending ? 'Booking...' : 
-                 !service.isAvailable ? 'Unavailable' :
-                 !selectedDate ? 'Select Date First' : 'Book Now'}
+                 !service.isAvailable ? 'Unavailable' : 'Book Now'}
               </Button>
 
               <p className="text-xs text-gray-500 text-center mb-4">
