@@ -165,26 +165,26 @@ const PremiumAuthPage: React.FC = () => {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.2, ease: "easeOut" }}
-            className="text-center lg:text-left space-y-8"
+            className="text-center space-y-6"
           >
             {/* Logo Section */}
             <motion.div
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="flex items-center justify-center lg:justify-start space-x-4 mb-12"
+              className="flex items-center justify-center space-x-3 mb-8"
             >
               <motion.div
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 className="relative"
               >
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
-                  <Anchor className="text-white text-3xl" />
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
+                  <Anchor className="text-white text-2xl" />
                 </div>
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-2 border-2 border-purple-400/30 rounded-full"
+                  className="absolute -inset-1 border border-purple-400/30 rounded-full"
                 />
               </motion.div>
               <div>
@@ -192,15 +192,15 @@ const PremiumAuthPage: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
+                  className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
                 >
-                  Monaco Bay Yacht Club
+                  Miami Beach Yacht Club
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.7 }}
-                  className="text-purple-300 text-lg font-medium"
+                  className="text-purple-300 text-sm font-medium"
                 >
                   Luxury Yacht Experiences
                 </motion.p>
@@ -241,9 +241,9 @@ const PremiumAuthPage: React.FC = () => {
                 transition={{ delay: 0.9 }}
                 className="text-2xl text-gray-200 leading-relaxed max-w-2xl font-light"
               >
-                Join Monaco's most exclusive yacht club. Access premium vessels, 
+                Join Miami's most exclusive yacht club. Access premium vessels, 
                 world-class concierge services, and unforgettable experiences on 
-                the pristine waters of the Mediterranean.
+                the beautiful waters of Biscayne Bay.
               </motion.p>
             </motion.div>
 
