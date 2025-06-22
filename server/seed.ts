@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, yachts, services, events } from "@shared/schema";
+import { users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, messages, favorites } from "@shared/schema";
 import { UserRole, MembershipTier } from "@shared/schema";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
@@ -134,22 +134,13 @@ export async function seedDatabase() {
   console.log("🌊 Seeding Miami Beach Yacht Club database...");
 
   try {
-    // Check if users already exist
-    const existingUsers = await db.select().from(users);
-    const existingEvents = await db.select().from(events);
-    
-    if (existingUsers.length > 0 && existingEvents.length > 0) {
+    // Check if database is already seeded
+    const existingUsers = await db.select().from(users).limit(1);
+    if (existingUsers.length > 0) {
       console.log("✅ Database already seeded");
       return;
     }
-    
-    // If events are missing, we need to reseed them
-    if (existingUsers.length > 0 && existingEvents.length === 0) {
-      console.log("🔄 Reseeding events data...");
-      await createEventsData(existingUsers);
-      console.log("✅ Events reseeded successfully");
-      return;
-    }
+
 
     // Create demo users with different roles and membership tiers
     const hashedPassword = await hashPassword("password");
@@ -385,7 +376,7 @@ export async function seedDatabase() {
         description: "Expert makeup application for special events, photo shoots, or evening occasions using premium cosmetics and techniques.",
         category: "Beauty & Grooming", 
         pricePerSession: "285.00",
-        duration: 1.5,
+        duration: 2,
         providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
         imageUrl: "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800",
         isAvailable: true,
@@ -397,7 +388,7 @@ export async function seedDatabase() {
         description: "Complete manicure and pedicure services with premium products, nail art, gel applications, and spa treatments onboard.",
         category: "Beauty & Grooming",
         pricePerSession: "195.00", 
-        duration: 1.5,
+        duration: 2,
         providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
         imageUrl: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=800",
         isAvailable: true,
@@ -423,7 +414,7 @@ export async function seedDatabase() {
         description: "Pre-prepared gourmet meals designed by Michelin-starred chefs, delivered fresh to your yacht with premium packaging.",
         category: "Culinary",
         pricePerSession: "450.00",
-        duration: 0.5,
+        duration: 1,
         providerId: createdUsers.find(u => u.username === "chef_service")?.id,
         imageUrl: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800",
         isAvailable: true,
@@ -449,7 +440,7 @@ export async function seedDatabase() {
         description: "Professional massage services including Swedish, deep tissue, and hot stone treatments delivered directly to your yacht.",
         category: "Wellness & Spa",
         pricePerSession: "385.00",
-        duration: 1.5,
+        duration: 2,
         providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
         imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
         isAvailable: true,
@@ -461,7 +452,7 @@ export async function seedDatabase() {
         description: "Full-service spa treatments including facials, body wraps, aromatherapy, and rejuvenation packages onboard.",
         category: "Wellness & Spa",
         pricePerSession: "485.00",
-        duration: 2.5,
+        duration: 3,
         providerId: createdUsers.find(u => u.username === "spa_provider")?.id,
         imageUrl: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
         isAvailable: true,
