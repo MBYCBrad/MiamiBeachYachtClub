@@ -415,7 +415,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectContent className="bg-gray-800 border-gray-600 z-50">
                       {Array.from({ length: yacht.capacity }, (_, i) => (
                         <SelectItem key={i + 1} value={(i + 1).toString()}>
                           {i + 1} {i + 1 === 1 ? 'Guest' : 'Guests'}

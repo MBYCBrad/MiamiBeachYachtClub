@@ -330,6 +330,10 @@ Changelog:
   - "Book Now" button now properly opens booking modal without navigation interference
   - "Details" button provides dedicated yacht detail page navigation
   - Cleaner UX with explicit button actions instead of conflicting click handlers
+- June 22, 2025. Fixed guest dropdown UI layering issue in yacht booking modal
+  - Added proper z-index (z-50) to SelectContent component to ensure dropdown appears above modal elements
+  - Resolved visual overlap issues where dropdown was covered by other UI components
+  - Guest selection dropdown now displays cleanly without layering conflicts
 
 ## Member Experience Feature Status
 
