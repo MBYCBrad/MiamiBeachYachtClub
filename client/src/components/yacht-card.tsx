@@ -119,7 +119,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
 
   return (
     <motion.div
-      onClick={openBookingModal}
+      onClick={() => window.location.href = `/yachts/${yacht.id}`}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 
@@ -312,10 +312,22 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
               <span className="text-sm text-gray-400 block group-hover:text-purple-300 transition-colors duration-300">with membership</span>
             </motion.div>
             <motion.div
-              className="text-center text-sm text-gray-400 group-hover:text-purple-300 transition-colors duration-300 font-medium"
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ 
+                scale: 1.05,
+                transition: { type: "spring", stiffness: 400 }
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full"
             >
-              Click to book this yacht
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openBookingModal();
+                }}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
+              >
+                Book Now
+              </Button>
             </motion.div>
           </motion.div>
 
