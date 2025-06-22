@@ -27,7 +27,7 @@ function Router() {
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
-      <ProtectedRoute path="/services/:id" component={ServiceDetail} />
+      <ProtectedRoute path="/services/:id" component={() => <ServiceDetail serviceId={0} onBack={() => {}} />} />
       <ProtectedRoute path="/events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
       <Route path="/auth" component={AuthPage} />

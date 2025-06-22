@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroVideo } from '@/hooks/use-hero-video';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const { user } = useAuth();
   const { data: heroVideo, isLoading: videoLoading } = useHeroVideo();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
@@ -54,6 +56,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showServiceBooking, setShowServiceBooking] = useState(false);
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingTime, setBookingTime] = useState('09:00');
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -505,13 +509,19 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
                       <input 
                         type="date" 
+                        value={bookingDate}
+                        onChange={(e) => setBookingDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
                         className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">Time</label>
-                      <select className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none">
+                      <select 
+                        value={bookingTime}
+                        onChange={(e) => setBookingTime(e.target.value)}
+                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
+                      >
                         <option value="09:00">9:00 AM</option>
                         <option value="10:00">10:00 AM</option>
                         <option value="11:00">11:00 AM</option>
@@ -553,11 +563,29 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   </Button>
                   <Button
                     onClick={() => {
-                      toast({
-                        title: "Redirecting to Payment",
-                        description: "You will be redirected to secure payment processing.",
+                      if (!bookingDate) {
+                        toast({
+                          title: "Date Required",
+                          description: "Please select a date for your booking.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      const amount = parseFloat(selectedService.pricePerSession || '0') + 5; // Add processing fee
+                      const bookingDateTime = `${bookingDate}T${bookingTime}:00.000Z`;
+                      
+                      // Create URL with booking parameters
+                      const params = new URLSearchParams({
+                        serviceId: selectedService.id.toString(),
+                        serviceName: selectedService.name,
+                        amount: amount.toString(),
+                        bookingDate: bookingDateTime,
+                        bookingTime: bookingTime
                       });
+                      
                       setShowServiceBooking(false);
+                      window.location.href = `/checkout?${params.toString()}`;
                     }}
                     className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   >
