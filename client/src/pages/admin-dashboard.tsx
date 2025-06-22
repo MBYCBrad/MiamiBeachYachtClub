@@ -35,6 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/use-auth";
 
 interface AdminStats {
   totalUsers: number;
@@ -140,6 +141,7 @@ const RecentActivityItem = ({ activity, index }) => (
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const { user, logoutMutation } = useAuth();
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
@@ -1516,7 +1518,12 @@ export default function AdminDashboard() {
                 <p className="text-sm font-medium text-white truncate">Admin User</p>
                 <p className="text-xs text-gray-400">System Administrator</p>
               </div>
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-400 hover:text-white"
+                onClick={() => logoutMutation.mutate()}
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </div>

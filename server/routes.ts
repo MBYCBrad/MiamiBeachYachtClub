@@ -495,6 +495,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SERVICE PROVIDER ROUTES
+  app.get("/api/service-provider/stats", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      
+      // Get service provider's services
+      const allServices = await storage.getServices();
+      const providerServices = allServices.filter(s => s.providerId === providerId);
+      
+      // Get bookings for provider's services
+      const serviceIds = providerServices.map(s => s.id);
+      const allServiceBookings = await storage.getServiceBookings();
+      const providerBookings = allServiceBookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
+      
+      // Calculate revenue (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentBookings = providerBookings.filter(b => new Date(b.bookingDate) >= thirtyDaysAgo);
+      
+      const monthlyRevenue = recentBookings.reduce((total, booking) => {
+        const service = providerServices.find(s => s.id === booking.serviceId);
+        if (service && service.pricePerSession) {
+          return total + parseFloat(service.pricePerSession);
+        }
+        return total;
+      }, 0);
+      
+      const stats = {
+        totalServices: providerServices.length,
+        totalBookings: providerBookings.length,
+        monthlyRevenue,
+        avgRating: 4.8, // Would calculate from reviews
+        completionRate: Math.round((providerBookings.filter(b => b.status === 'completed').length / Math.max(providerBookings.length, 1)) * 100),
+        activeClients: new Set(providerBookings.map(b => b.userId)).size
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Error fetching service provider stats:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/service-provider/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      const allServices = await storage.getServices();
+      const providerServices = allServices.filter(s => s.providerId === providerId);
+      res.json(providerServices);
+    } catch (error: any) {
+      console.error('Error fetching provider services:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/service-provider/bookings", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      const allServices = await storage.getServices();
+      const providerServices = allServices.filter(s => s.providerId === providerId);
+      const serviceIds = providerServices.map(s => s.id);
+      
+      const allServiceBookings = await storage.getServiceBookings();
+      const providerBookings = allServiceBookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
+      
+      // Enhance bookings with service and user info
+      const enhancedBookings = await Promise.all(
+        providerBookings.map(async (booking) => {
+          const service = providerServices.find(s => s.id === booking.serviceId);
+          const user = await storage.getUser(booking.userId);
+          return {
+            ...booking,
+            service,
+            user
+          };
+        })
+      );
+      
+      res.json(enhancedBookings);
+    } catch (error: any) {
+      console.error('Error fetching provider bookings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // BOOKING ROUTES
   app.get("/api/bookings", requireAuth, async (req, res) => {
     try {

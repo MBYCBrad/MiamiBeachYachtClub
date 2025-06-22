@@ -40,7 +40,9 @@ export default function HomePage() {
         window.location.href = '/yacht-owner';
         return null;
       case 'service_provider':
-        return <ServiceProviderDashboard />;
+        // Redirect service provider users to the new service provider dashboard
+        window.location.href = '/service-provider';
+        return null;
       case 'admin':
         // Redirect admin users to the new admin dashboard
         window.location.href = '/admin';

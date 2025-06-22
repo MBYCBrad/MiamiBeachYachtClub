@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { 
   BarChart3, 
-  Anchor, 
+  Briefcase, 
   CalendarDays, 
   DollarSign, 
   Settings, 
@@ -25,8 +25,13 @@ import {
   Plus,
   MapPin,
   Shield,
-  Wrench,
+  Utensils,
+  Scissors,
+  Heart,
   Camera,
+  Music,
+  Waves,
+  Coffee,
   MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,24 +41,118 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 
-interface YachtOwnerStats {
-  totalYachts: number;
+interface ServiceProviderStats {
+  totalServices: number;
   totalBookings: number;
   monthlyRevenue: number;
   avgRating: number;
-  occupancyRate: number;
-  pendingMaintenance: number;
+  completionRate: number;
+  activeClients: number;
 }
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-blue-500 to-cyan-500' },
-  { id: 'fleet', label: 'My Fleet', icon: Anchor, color: 'from-emerald-500 to-teal-500' },
-  { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-purple-500 to-pink-500' },
+  { id: 'services', label: 'My Services', icon: Briefcase, color: 'from-purple-500 to-pink-500' },
+  { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-emerald-500 to-teal-500' },
   { id: 'revenue', label: 'Revenue', icon: DollarSign, color: 'from-green-500 to-emerald-500' },
-  { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
+  { id: 'clients', label: 'Clients', icon: Users, color: 'from-orange-500 to-red-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-violet-500 to-indigo-500' },
-  { id: 'gallery', label: 'Gallery', icon: Camera, color: 'from-pink-500 to-rose-500' },
+  { id: 'profile', label: 'Profile', icon: Crown, color: 'from-pink-500 to-rose-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
+];
+
+const serviceCategories = [
+  {
+    id: 'beauty_grooming',
+    name: 'Beauty & Grooming',
+    icon: Scissors,
+    color: 'from-pink-500 to-rose-500',
+    services: [
+      'Hair Styling & Cuts',
+      'Makeup Artist',
+      'Manicure & Pedicure',
+      'Massage Therapy',
+      'Personal Styling'
+    ]
+  },
+  {
+    id: 'culinary',
+    name: 'Culinary Services',
+    icon: Utensils,
+    color: 'from-orange-500 to-red-500',
+    services: [
+      'Private Chef',
+      'Bartender Services',
+      'Wine Sommelier',
+      'Catering & Events',
+      'Specialty Cuisine'
+    ]
+  },
+  {
+    id: 'wellness_spa',
+    name: 'Wellness & Spa',
+    icon: Heart,
+    color: 'from-green-500 to-emerald-500',
+    services: [
+      'Spa Treatments',
+      'Yoga Instructor',
+      'Fitness Trainer',
+      'Meditation Guide',
+      'Wellness Coaching'
+    ]
+  },
+  {
+    id: 'photography_media',
+    name: 'Photography & Media',
+    icon: Camera,
+    color: 'from-purple-500 to-indigo-500',
+    services: [
+      'Professional Photography',
+      'Videography',
+      'Drone Services',
+      'Social Media Content',
+      'Event Documentation'
+    ]
+  },
+  {
+    id: 'entertainment',
+    name: 'Entertainment',
+    icon: Music,
+    color: 'from-blue-500 to-cyan-500',
+    services: [
+      'Live Music Performance',
+      'DJ Services',
+      'Entertainment Host',
+      'Cultural Experiences',
+      'Party Planning'
+    ]
+  },
+  {
+    id: 'water_sports',
+    name: 'Water Sports',
+    icon: Waves,
+    color: 'from-teal-500 to-blue-500',
+    services: [
+      'Diving Instruction',
+      'Water Sports Equipment',
+      'Fishing Guide',
+      'Jet Ski Rental',
+      'Snorkeling Tours'
+    ]
+  },
+  {
+    id: 'concierge_lifestyle',
+    name: 'Concierge & Lifestyle',
+    icon: Coffee,
+    color: 'from-amber-500 to-orange-500',
+    services: [
+      'Personal Concierge',
+      'Transportation',
+      'Shopping Services',
+      'Event Planning',
+      'VIP Experiences'
+    ]
+  }
 ];
 
 const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
@@ -64,7 +163,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
     whileHover={{ y: -5, scale: 1.02 }}
     className="group relative overflow-hidden"
   >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
@@ -93,111 +192,127 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
         
         {/* Sparkle effect */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Sparkles className="h-4 w-4 text-emerald-400 animate-pulse" />
+          <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
         </div>
       </CardContent>
     </Card>
   </motion.div>
 );
 
-const YachtCard = ({ yacht, index }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay: 0.1 + index * 0.1, type: "spring", stiffness: 200, damping: 20 }}
-    whileHover={{ y: -8, scale: 1.03 }}
-    className="group relative overflow-hidden"
-  >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
-      <div className="aspect-video bg-gradient-to-br from-emerald-500/20 to-teal-500/20 relative overflow-hidden">
-        {yacht.imageUrl && (
-          <img 
-            src={`/api/media/${yacht.imageUrl}`} 
-            alt={yacht.name}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        
-        {/* Status Badge */}
-        <div className="absolute top-4 right-4">
-          <Badge className={`${yacht.isAvailable === false ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30'}`}>
-            {yacht.isAvailable === false ? 'Maintenance' : 'Available'}
-          </Badge>
-        </div>
-        
-        {/* Rating */}
-        <div className="absolute top-4 left-4 flex items-center space-x-1 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1">
-          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-          <span className="text-white text-sm font-medium">4.8</span>
-        </div>
-        
-        {/* Yacht Info */}
-        <div className="absolute bottom-4 left-4">
-          <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
-          <div className="flex items-center space-x-4 text-emerald-300 text-sm">
-            <span>{yacht.size}ft</span>
-            <span>•</span>
-            <span>{yacht.capacity} guests</span>
-            <span>•</span>
-            <span>{yacht.location}</span>
-          </div>
-        </div>
-      </div>
-      
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-gray-400 text-sm">Monthly Revenue</span>
-              <p className="text-white font-bold text-lg">${(yacht.pricePerHour ? parseInt(yacht.pricePerHour) * 120 : 15000).toLocaleString()}</p>
-            </div>
-            <div>
-              <span className="text-gray-400 text-sm">Bookings</span>
-              <p className="text-emerald-400 font-bold text-lg">{12 + index * 3}</p>
-            </div>
+const ServiceCategoryCard = ({ category, index }: any) => {
+  const Icon = category.icon;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: 0.1 + index * 0.1, type: "spring", stiffness: 200, damping: 20 }}
+      whileHover={{ y: -8, scale: 1.03 }}
+      className="group relative overflow-hidden"
+    >
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
+        <div className={`h-32 bg-gradient-to-br ${category.color} relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          
+          {/* Icon */}
+          <div className="absolute top-4 left-4 p-3 rounded-xl bg-white/20 backdrop-blur-sm">
+            <Icon className="h-8 w-8 text-white" />
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Button size="sm" variant="outline" className="flex-1 border-gray-600 hover:border-emerald-500">
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
-            </Button>
-            <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
-              <CalendarDays className="h-4 w-4" />
-            </Button>
+          {/* Category Info */}
+          <div className="absolute bottom-4 left-4">
+            <h3 className="text-white font-bold text-xl mb-1">{category.name}</h3>
+            <p className="text-white/80 text-sm">{category.services.length} service types</p>
           </div>
         </div>
-      </CardContent>
-      
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
-    </Card>
+        
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              {category.services.slice(0, 3).map((service: string, idx: number) => (
+                <div key={idx} className="flex items-center space-x-2 text-sm text-gray-300">
+                  <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${category.color}`} />
+                  <span>{service}</span>
+                </div>
+              ))}
+              {category.services.length > 3 && (
+                <div className="text-xs text-gray-400 pl-4">
+                  +{category.services.length - 3} more services
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-2 pt-2">
+              <Button size="sm" variant="outline" className="flex-1 border-gray-600 hover:border-purple-500">
+                <Eye className="h-4 w-4 mr-2" />
+                View Services
+              </Button>
+              <Button size="sm" className={`bg-gradient-to-r ${category.color}`}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+        
+        {/* Animated background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+      </Card>
+    </motion.div>
+  );
+};
+
+const BookingCard = ({ booking, index }: any) => (
+  <motion.div
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay: 0.1 + index * 0.1 }}
+    className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group"
+  >
+    <div className="flex items-center space-x-4">
+      <Avatar className="h-12 w-12 ring-2 ring-purple-500/20 group-hover:ring-purple-400/40 transition-all">
+        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
+          {booking.clientName?.charAt(0) || 'C'}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <p className="text-white font-medium">{booking.clientName}</p>
+        <p className="text-sm text-gray-400">{booking.serviceName} • {booking.date}</p>
+      </div>
+    </div>
+    
+    <div className="flex items-center space-x-4">
+      <div className="text-right">
+        <p className="text-white font-bold">${booking.amount}</p>
+        <Badge className={`${
+          booking.status === 'completed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+          booking.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+          'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+        }`}>
+          {booking.status}
+        </Badge>
+      </div>
+      <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+        <MoreVertical className="h-4 w-4" />
+      </Button>
+    </div>
   </motion.div>
 );
 
-export default function YachtOwnerDashboard() {
+export default function ServiceProviderDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const { user, logoutMutation } = useAuth();
 
-  const { data: stats } = useQuery<YachtOwnerStats>({
-    queryKey: ['/api/yacht-owner/stats'],
+  const { data: stats } = useQuery<ServiceProviderStats>({
+    queryKey: ['/api/service-provider/stats'],
   });
 
-  const { data: yachts } = useQuery({
-    queryKey: ['/api/yacht-owner/yachts'],
+  const { data: services } = useQuery({
+    queryKey: ['/api/service-provider/services'],
   });
 
   const { data: bookings } = useQuery({
-    queryKey: ['/api/yacht-owner/bookings'],
-  });
-
-  const { data: revenue } = useQuery({
-    queryKey: ['/api/yacht-owner/revenue'],
+    queryKey: ['/api/service-provider/bookings'],
   });
 
   const renderOverview = () => (
@@ -214,7 +329,7 @@ export default function YachtOwnerDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold text-white mb-2"
           >
-            Yacht Owner Dashboard
+            Service Provider Dashboard
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
@@ -222,7 +337,7 @@ export default function YachtOwnerDashboard() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Manage your yacht portfolio and optimize revenue
+            Manage your yacht concierge services and client relationships
           </motion.p>
         </div>
         
@@ -232,13 +347,13 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-lg hover:shadow-emerald-600/30">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-600/30">
             <Plus className="h-4 w-4 mr-2" />
-            Add Yacht
+            Add Service
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Bell className="h-4 w-4 mr-2" />
-            Alerts
+            Notifications
           </Button>
         </motion.div>
       </div>
@@ -246,40 +361,40 @@ export default function YachtOwnerDashboard() {
       {/* Key Performance Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Fleet"
-          value={stats?.totalYachts || '3'}
+          title="Active Services"
+          value={stats?.totalServices || '8'}
           change={null}
-          icon={Anchor}
-          gradient="from-emerald-500 to-teal-500"
+          icon={Briefcase}
+          gradient="from-purple-500 to-pink-500"
           delay={0}
         />
         <StatCard
           title="Monthly Revenue"
-          value={`$${(stats?.monthlyRevenue || 45000).toLocaleString()}`}
-          change={18}
+          value={`$${(stats?.monthlyRevenue || 12500).toLocaleString()}`}
+          change={25}
           icon={DollarSign}
           gradient="from-green-500 to-emerald-500"
           delay={0.1}
         />
         <StatCard
-          title="Active Bookings"
-          value={stats?.totalBookings || '27'}
-          change={23}
+          title="Client Bookings"
+          value={stats?.totalBookings || '34'}
+          change={18}
           icon={CalendarDays}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-blue-500 to-cyan-500"
           delay={0.2}
         />
         <StatCard
           title="Avg Rating"
-          value={`${stats?.avgRating || 4.8}/5`}
-          change={5}
+          value={`${stats?.avgRating || 4.9}/5`}
+          change={3}
           icon={Star}
           gradient="from-yellow-500 to-orange-500"
           delay={0.3}
         />
       </div>
 
-      {/* Fleet Performance */}
+      {/* Service Performance & Recent Bookings */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -289,30 +404,33 @@ export default function YachtOwnerDashboard() {
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2 text-emerald-500" />
-              Fleet Performance
+              <TrendingUp className="h-5 w-5 mr-2 text-purple-500" />
+              Service Performance
             </CardTitle>
-            <CardDescription>Revenue and occupancy trends</CardDescription>
+            <CardDescription>Top performing service categories</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {["Marina Breeze", "Ocean Dreams", "Sunset Voyager"].map((yacht, index) => (
-                <div key={yacht} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
-                      <Anchor className="h-5 w-5 text-white" />
+              {serviceCategories.slice(0, 4).map((category, index) => {
+                const Icon = category.icon;
+                return (
+                  <div key={category.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${category.color}`}>
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">{category.name}</p>
+                        <p className="text-sm text-gray-400">{3 + index} active services</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white font-medium">{yacht}</p>
-                      <p className="text-sm text-gray-400">{85 + index * 5}% occupancy</p>
+                    <div className="text-right">
+                      <p className="text-white font-bold">${(2 + index).toLocaleString()}k</p>
+                      <p className="text-xs text-green-400">+{15 + index * 5}%</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold">${(15 + index * 5).toLocaleString()}k</p>
-                    <p className="text-xs text-green-400">+{12 + index * 3}%</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -320,39 +438,19 @@ export default function YachtOwnerDashboard() {
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
-              <CalendarDays className="h-5 w-5 mr-2 text-purple-500" />
+              <CalendarDays className="h-5 w-5 mr-2 text-blue-500" />
               Recent Bookings
             </CardTitle>
-            <CardDescription>Latest reservations and guest activity</CardDescription>
+            <CardDescription>Latest client service requests</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1,2,3].map((booking, index) => (
-                <motion.div
-                  key={booking}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300"
-                >
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
-                        M{booking}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-white font-medium">Member {booking}</p>
-                      <p className="text-sm text-gray-400">Marina Breeze • 3 days</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold">${1200 + booking * 300}</p>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                      Confirmed
-                    </Badge>
-                  </div>
-                </motion.div>
+              {[
+                { clientName: 'Marina Guest', serviceName: 'Private Chef', date: 'Today 3:00 PM', amount: 450, status: 'confirmed' },
+                { clientName: 'Yacht Elite', serviceName: 'Spa Treatment', date: 'Tomorrow 10:00 AM', amount: 320, status: 'pending' },
+                { clientName: 'Ocean Luxury', serviceName: 'Photography', date: 'Dec 23, 2:00 PM', amount: 280, status: 'completed' }
+              ].map((booking, index) => (
+                <BookingCard key={index} booking={booking} index={index} />
               ))}
             </div>
           </CardContent>
@@ -361,7 +459,7 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  const renderFleet = () => (
+  const renderServices = () => (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -375,7 +473,7 @@ export default function YachtOwnerDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold text-white mb-2"
           >
-            My Yacht Fleet
+            Service Portfolio
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
@@ -383,7 +481,7 @@ export default function YachtOwnerDashboard() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Manage your yachts, bookings, and maintenance schedules
+            Manage your yacht concierge service offerings across all categories
           </motion.p>
         </div>
         
@@ -393,62 +491,26 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-lg hover:shadow-emerald-600/30">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-600/30">
             <Plus className="h-4 w-4 mr-2" />
-            Add New Yacht
+            Create New Service
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
         </motion.div>
       </div>
 
-      {/* Fleet Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Yachts"
-          value="3"
-          change={null}
-          icon={Anchor}
-          gradient="from-emerald-500 to-teal-500"
-          delay={0}
-        />
-        <StatCard
-          title="Available Now"
-          value="2"
-          change={null}
-          icon={Activity}
-          gradient="from-green-500 to-emerald-500"
-          delay={0.1}
-        />
-        <StatCard
-          title="In Maintenance"
-          value="1"
-          change={null}
-          icon={Wrench}
-          gradient="from-orange-500 to-red-500"
-          delay={0.2}
-        />
-        <StatCard
-          title="Avg Occupancy"
-          value="87%"
-          change={12}
-          icon={TrendingUp}
-          gradient="from-purple-500 to-pink-500"
-          delay={0.3}
-        />
-      </div>
-
-      {/* Yacht Grid */}
+      {/* Service Categories Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        {(yachts as any[])?.map((yacht: any, index: number) => (
-          <YachtCard key={yacht.id} yacht={yacht} index={index} />
+        {serviceCategories.map((category, index) => (
+          <ServiceCategoryCard key={category.id} category={category} index={index} />
         ))}
       </motion.div>
     </motion.div>
@@ -465,7 +527,7 @@ export default function YachtOwnerDashboard() {
           className="w-80 bg-gray-900/80 backdrop-blur-xl border-r border-gray-700/50 min-h-screen relative overflow-hidden"
         >
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 via-transparent to-teal-900/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-pink-900/20" />
           
           {/* Logo */}
           <div className="p-8 border-b border-gray-700/50">
@@ -475,12 +537,12 @@ export default function YachtOwnerDashboard() {
               transition={{ delay: 0.2 }}
               className="flex items-center space-x-3"
             >
-              <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 shadow-lg">
-                <Crown className="h-8 w-8 text-white" />
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg">
+                <Briefcase className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">Yacht Owner</h2>
-                <p className="text-sm text-gray-400">Fleet Management</p>
+                <h2 className="text-xl font-bold text-white">Service Provider</h2>
+                <p className="text-sm text-gray-400">Concierge Management</p>
               </div>
             </motion.div>
           </div>
@@ -490,10 +552,10 @@ export default function YachtOwnerDashboard() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search fleet features..."
+                placeholder="Search services..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-emerald-500"
+                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
               />
             </div>
           </div>
@@ -514,7 +576,7 @@ export default function YachtOwnerDashboard() {
                     onClick={() => setActiveSection(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                       isActive 
-                        ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/30 text-white shadow-lg' 
+                        ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                     whileHover={{ scale: 1.02 }}
@@ -541,7 +603,7 @@ export default function YachtOwnerDashboard() {
                         animate={{ scale: 1 }}
                         className="ml-auto"
                       >
-                        <Zap className="h-4 w-4 text-emerald-400" />
+                        <Zap className="h-4 w-4 text-purple-400" />
                       </motion.div>
                     )}
                   </motion.button>
@@ -553,14 +615,14 @@ export default function YachtOwnerDashboard() {
           {/* User Profile */}
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-12 w-12 ring-2 ring-emerald-500/30">
-                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white font-semibold">
-                  YO
+              <Avatar className="h-12 w-12 ring-2 ring-purple-500/30">
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-semibold">
+                  SP
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user?.username || 'Yacht Owner'}</p>
-                <p className="text-xs text-gray-400">Fleet Manager</p>
+                <p className="text-sm font-medium text-white truncate">{user?.username || 'Service Provider'}</p>
+                <p className="text-xs text-gray-400">Concierge Specialist</p>
               </div>
               <Button 
                 variant="ghost" 
@@ -578,7 +640,7 @@ export default function YachtOwnerDashboard() {
         <div className="flex-1 p-8">
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
-            {activeSection === 'fleet' && renderFleet()}
+            {activeSection === 'services' && renderServices()}
             {activeSection === 'bookings' && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -588,7 +650,7 @@ export default function YachtOwnerDashboard() {
                 <div className="text-center py-20">
                   <CalendarDays className="h-16 w-16 text-gray-500 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-white mb-2">Booking Management</h2>
-                  <p className="text-gray-400">Manage yacht reservations and guest communications</p>
+                  <p className="text-gray-400">Manage client bookings and service schedules</p>
                 </div>
               </motion.div>
             )}
@@ -601,20 +663,20 @@ export default function YachtOwnerDashboard() {
                 <div className="text-center py-20">
                   <DollarSign className="h-16 w-16 text-gray-500 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-white mb-2">Revenue Analytics</h2>
-                  <p className="text-gray-400">Track earnings, pricing optimization, and financial reports</p>
+                  <p className="text-gray-400">Track earnings and optimize service pricing</p>
                 </div>
               </motion.div>
             )}
-            {activeSection === 'maintenance' && (
+            {activeSection === 'clients' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="space-y-8"
               >
                 <div className="text-center py-20">
-                  <Wrench className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-white mb-2">Maintenance Hub</h2>
-                  <p className="text-gray-400">Schedule service, track repairs, and manage yacht upkeep</p>
+                  <Users className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-white mb-2">Client Management</h2>
+                  <p className="text-gray-400">Build relationships and manage client preferences</p>
                 </div>
               </motion.div>
             )}
@@ -627,20 +689,20 @@ export default function YachtOwnerDashboard() {
                 <div className="text-center py-20">
                   <TrendingUp className="h-16 w-16 text-gray-500 mx-auto mb-4" />
                   <h2 className="text-2xl font-bold text-white mb-2">Performance Analytics</h2>
-                  <p className="text-gray-400">Deep insights into fleet performance and optimization opportunities</p>
+                  <p className="text-gray-400">Deep insights into service performance and growth opportunities</p>
                 </div>
               </motion.div>
             )}
-            {activeSection === 'gallery' && (
+            {activeSection === 'profile' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="space-y-8"
               >
                 <div className="text-center py-20">
-                  <Camera className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-white mb-2">Yacht Gallery</h2>
-                  <p className="text-gray-400">Manage yacht photos, virtual tours, and marketing content</p>
+                  <Crown className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-white mb-2">Provider Profile</h2>
+                  <p className="text-gray-400">Manage your professional profile and certifications</p>
                 </div>
               </motion.div>
             )}
@@ -652,8 +714,8 @@ export default function YachtOwnerDashboard() {
               >
                 <div className="text-center py-20">
                   <Settings className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-white mb-2">Fleet Settings</h2>
-                  <p className="text-gray-400">Configure yacht availability, pricing, and booking policies</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">Account Settings</h2>
+                  <p className="text-gray-400">Configure availability, notifications, and account preferences</p>
                 </div>
               </motion.div>
             )}
