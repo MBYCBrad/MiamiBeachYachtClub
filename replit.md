@@ -305,6 +305,13 @@ Changelog:
   - Member messages page redesigned with real-time conversation list and instant message delivery
   - Premium UI with floating particles, gradient backgrounds, and luxury yacht club theming
   - Complete end-to-end messaging experience connected to live PostgreSQL database
+- June 22, 2025. Messages page unified with standard video header design pattern
+  - Updated messages interface to match trips/favorites page structure with video header at top
+  - Consistent animated title entrance with "Messages" heading and descriptive subtitle
+  - Stats overlay cards showing active conversations count and 24/7 support availability
+  - Content properly positioned below video header: search controls and conversation list
+  - Maintained dark theme conversation cards with semi-transparent backgrounds and purple accents
+  - Full design consistency across all MBYC menu pages (Explore, Trips, Favorites, Messages)
 
 ## Member Experience Feature Status
 
