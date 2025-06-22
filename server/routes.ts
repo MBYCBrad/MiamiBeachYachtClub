@@ -910,6 +910,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SERVICE PROVIDER MANAGEMENT ROUTES
+  app.get("/api/service-provider/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const filters: any = {};
+      
+      if (req.user!.role === UserRole.SERVICE_PROVIDER) {
+        filters.providerId = req.user!.id;
+      }
+      
+      const services = await storage.getServices(filters);
+      res.json(services);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const service = await storage.getService(serviceId);
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      // Check ownership for service providers
+      if (req.user!.role === UserRole.SERVICE_PROVIDER && service.providerId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const updatedService = await storage.updateService(serviceId, req.body);
+      res.json(updatedService);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const service = await storage.getService(serviceId);
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      // Check ownership for service providers
+      if (req.user!.role === UserRole.SERVICE_PROVIDER && service.providerId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.deleteService(serviceId);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // EVENT REGISTRATION ROUTES
   app.get("/api/event-registrations", requireAuth, async (req, res) => {
     try {

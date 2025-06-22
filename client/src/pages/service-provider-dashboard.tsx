@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   BarChart3, 
   Briefcase, 
@@ -32,13 +34,18 @@ import {
   Music,
   Waves,
   Coffee,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 
 interface ServiceProviderStats {
@@ -198,6 +205,168 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
     </Card>
   </motion.div>
 );
+
+// Edit Service Component
+function EditServiceDialog({ service }: { service: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: service.name || '',
+    category: service.category || '',
+    description: service.description || '',
+    pricePerSession: service.pricePerSession || '',
+    duration: service.duration || 0,
+    isAvailable: service.isAvailable ?? true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateServiceMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/service-provider/services/${service.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      toast({ title: "Success", description: "Service updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Service</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Service Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="category" className="text-gray-300">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                <SelectItem value="Culinary">Culinary</SelectItem>
+                <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                <SelectItem value="Entertainment">Entertainment</SelectItem>
+                <SelectItem value="Water Sports">Water Sports</SelectItem>
+                <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price" className="text-gray-300">Price per Session</Label>
+              <Input
+                id="price"
+                value={formData.pricePerSession}
+                onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
+                className="bg-gray-800 border-gray-700 text-white"
+                placeholder="$150"
+              />
+            </div>
+            <div>
+              <Label htmlFor="duration" className="text-gray-300">Duration (hours)</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 0})}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => updateServiceMutation.mutate(formData)} 
+            disabled={updateServiceMutation.isPending}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete Service Component
+function DeleteServiceDialog({ service }: { service: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteServiceMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/service-provider/services/${service.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      toast({ title: "Success", description: "Service deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete Service</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {service.name}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteServiceMutation.mutate()} 
+            disabled={deleteServiceMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteServiceMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 const ServiceCategoryCard = ({ category, index }: any) => {
   const Icon = category.icon;
@@ -502,16 +671,95 @@ export default function ServiceProviderDashboard() {
         </motion.div>
       </div>
 
-      {/* Service Categories Grid */}
+      {/* Your Services Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        {serviceCategories.map((category, index) => (
-          <ServiceCategoryCard key={category.id} category={category} index={index} />
-        ))}
+        {!services ? (
+          // Loading state
+          Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl animate-pulse">
+              <div className="h-48 bg-gray-800 rounded-t-lg" />
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-800 rounded mb-2" />
+                <div className="h-3 bg-gray-800 rounded w-3/4" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (services || []).length > 0 ? (
+          // Real services from database
+          (services || []).map((service: any, index: number) => (
+            <motion.div
+              key={service.id}
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.1 + index * 0.1, type: "spring", stiffness: 200, damping: 20 }}
+              whileHover={{ y: -8, scale: 1.03 }}
+              className="group relative overflow-hidden"
+            >
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
+                <div className="h-48 relative overflow-hidden">
+                  <img 
+                    src={service.imageUrl || '/service-placeholder.jpg'} 
+                    alt={service.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Service Status */}
+                  <div className="absolute top-4 right-4">
+                    <Badge className={service.isAvailable ? "bg-green-600" : "bg-red-600"}>
+                      {service.isAvailable ? "Available" : "Unavailable"}
+                    </Badge>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="absolute top-4 left-4 flex space-x-2">
+                    <EditServiceDialog service={service} />
+                    <DeleteServiceDialog service={service} />
+                  </div>
+                  
+                  {/* Service Info */}
+                  <div className="absolute bottom-4 left-4">
+                    <h3 className="text-white font-bold text-xl mb-1">{service.name}</h3>
+                    <p className="text-white/80 text-sm">{service.category}</p>
+                  </div>
+                </div>
+                
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <p className="text-gray-300 text-sm line-clamp-2">{service.description}</p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-white font-bold text-lg">{service.pricePerSession}</div>
+                      <div className="text-gray-400 text-sm">{service.duration}h duration</div>
+                    </div>
+                    
+                    {service.rating && (
+                      <div className="flex items-center space-x-2">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                        <span className="text-white font-medium">{service.rating}</span>
+                        <span className="text-gray-400 text-sm">({service.reviewCount} reviews)</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))
+        ) : (
+          // Empty state
+          <div className="col-span-full text-center py-12">
+            <div className="text-gray-400 text-lg mb-4">No services found</div>
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Service
+            </Button>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
