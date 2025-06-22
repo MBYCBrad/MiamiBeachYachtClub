@@ -95,40 +95,34 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     { id: 4, title: 'Confirmation', completed: false }
   ];
 
-  // Check all time slot availability when date changes
+  // Get all time slot availability instantly from database
   const checkAllTimeSlotAvailability = async (selectedDate: string) => {
     if (!yacht || !selectedDate) return;
 
-    const timeSlotMap: Record<string, { start: string; end: string }> = {
-      'morning': { start: '09:00', end: '13:00' },
-      'afternoon': { start: '13:00', end: '17:00' },
-      'evening': { start: '17:00', end: '21:00' },
-      'night': { start: '21:00', end: '01:00' }
-    };
-
-    const availability: Record<string, boolean> = {};
-    
-    for (const [slotName, timeMapping] of Object.entries(timeSlotMap)) {
-      try {
-        const endDate = slotName === 'night' ? 
-          new Date(new Date(selectedDate).getTime() + 86400000).toISOString().split('T')[0] : 
-          selectedDate;
-
-        const response = await apiRequest('POST', '/api/bookings/check-availability', {
-          yachtId: yacht.id,
-          startDate: selectedDate,
-          startTime: timeMapping.start,
-          endDate: endDate,
-          endTime: timeMapping.end
-        });
-        const result = await response.json();
-        availability[slotName] = result.available;
-      } catch (error) {
-        availability[slotName] = false;
-      }
+    try {
+      const response = await apiRequest('POST', '/api/bookings/check-all-availability', {
+        yachtId: yacht.id,
+        date: selectedDate
+      });
+      const result = await response.json();
+      
+      // Convert server response to simple boolean format for UI
+      const availability: Record<string, boolean> = {};
+      Object.entries(result.availability).forEach(([slot, data]: [string, any]) => {
+        availability[slot] = data.available;
+      });
+      
+      setTimeSlotAvailability(availability);
+    } catch (error) {
+      console.error('Error fetching availability:', error);
+      // Set all slots as unavailable on error
+      setTimeSlotAvailability({
+        morning: false,
+        afternoon: false,
+        evening: false,
+        night: false
+      });
     }
-    
-    setTimeSlotAvailability(availability);
   };
 
   // Reset form when modal opens

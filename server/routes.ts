@@ -676,7 +676,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check yacht availability
+  // Get yacht availability for date - enhanced check-availability endpoint
+  app.post("/api/bookings/check-all-availability", requireAuth, async (req, res) => {
+    try {
+      const { yachtId, date } = req.body;
+      
+      if (!yachtId || !date) {
+        return res.status(400).json({ message: "Missing yacht ID or date" });
+      }
+
+      // Get all confirmed bookings for this yacht
+      const existingBookings = await storage.getBookings({ 
+        yachtId: parseInt(yachtId),
+        status: 'confirmed'
+      });
+      
+      // Filter bookings that overlap with the requested date
+      const requestDate = new Date(date);
+      const nextDay = new Date(requestDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      const relevantBookings = existingBookings.filter(booking => {
+        const bookingStart = new Date(booking.startTime);
+        const bookingEnd = new Date(booking.endTime);
+        return (
+          (bookingStart >= requestDate && bookingStart < nextDay) ||
+          (bookingEnd > requestDate && bookingEnd <= nextDay) ||
+          (bookingStart <= requestDate && bookingEnd >= nextDay)
+        );
+      });
+
+      // Define time slots
+      const timeSlots = [
+        { name: 'morning', start: '09:00', end: '13:00' },
+        { name: 'afternoon', start: '13:00', end: '17:00' },
+        { name: 'evening', start: '17:00', end: '21:00' },
+        { name: 'night', start: '21:00', end: '01:00' }
+      ];
+
+      const availability: Record<string, { available: boolean; bookedBy?: string }> = {};
+      
+      for (const slot of timeSlots) {
+        const slotStart = new Date(`${date}T${slot.start}:00`);
+        const slotEnd = slot.name === 'night' 
+          ? new Date(`${date}T23:59:59`)
+          : new Date(`${date}T${slot.end}:00`);
+        
+        // Check if any booking conflicts with this slot
+        const conflictingBooking = relevantBookings.find(booking => {
+          const bookingStart = new Date(booking.startTime);
+          const bookingEnd = new Date(booking.endTime);
+          return slotStart < bookingEnd && slotEnd > bookingStart;
+        });
+        
+        if (conflictingBooking) {
+          // Get the user who made the booking
+          const booker = await storage.getUser(conflictingBooking.userId);
+          availability[slot.name] = {
+            available: false,
+            bookedBy: booker?.username || 'Another member'
+          };
+        } else {
+          availability[slot.name] = { available: true };
+        }
+      }
+
+      res.json({ availability });
+    } catch (error: any) {
+      console.error('Availability check error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Check yacht availability (legacy endpoint for individual checks)
   app.post("/api/bookings/check-availability", requireAuth, async (req, res) => {
     try {
       const { yachtId, startDate, startTime, endDate, endTime } = req.body;
