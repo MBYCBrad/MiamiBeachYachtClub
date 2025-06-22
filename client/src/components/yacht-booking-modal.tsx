@@ -21,6 +21,119 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
 
+// Stripe Payment Component for Concierge Services
+const ServicePaymentForm = ({ 
+  selectedServices, 
+  onPaymentSuccess, 
+  onPaymentError,
+  isProcessing,
+  setIsProcessing 
+}: {
+  selectedServices: {serviceId: number, price: number, name: string}[],
+  onPaymentSuccess: (paymentIntent: any) => void,
+  onPaymentError: (error: string) => void,
+  isProcessing: boolean,
+  setIsProcessing: (processing: boolean) => void
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { user } = useAuth();
+  
+  const totalAmount = selectedServices.reduce((sum, s) => sum + s.price, 0);
+
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements || !user) return;
+
+    setIsProcessing(true);
+
+    try {
+      // Create payment intent
+      const response = await apiRequest('POST', '/api/create-payment-intent', {
+        amount: totalAmount,
+        description: `Concierge services: ${selectedServices.map(s => s.name).join(', ')}`
+      });
+      
+      const { clientSecret } = await response.json();
+      
+      // Confirm payment
+      const cardElement = elements.getElement(CardElement);
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement!,
+          billing_details: {
+            name: user.username,
+            email: user.email
+          }
+        }
+      });
+
+      if (error) {
+        onPaymentError(error.message || 'Payment failed');
+      } else if (paymentIntent.status === 'succeeded') {
+        onPaymentSuccess(paymentIntent);
+      }
+    } catch (error: any) {
+      onPaymentError(error.message || 'Payment processing failed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (selectedServices.length === 0) return null;
+
+  return (
+    <div className="bg-gray-800/50 rounded-lg p-4 space-y-4">
+      <h4 className="font-medium text-white flex items-center">
+        <span className="text-xl mr-2">💳</span>
+        Payment for Concierge Services
+      </h4>
+      
+      <div className="space-y-2">
+        {selectedServices.map((service, index) => (
+          <div key={index} className="flex justify-between text-sm">
+            <span className="text-gray-300">{service.name}</span>
+            <span className="text-purple-400">${service.price}</span>
+          </div>
+        ))}
+        <div className="border-t border-gray-600 pt-2">
+          <div className="flex justify-between font-medium text-lg">
+            <span className="text-white">Total:</span>
+            <span className="text-purple-400">${totalAmount}</span>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handlePayment} className="space-y-4">
+        <div className="bg-gray-700 p-3 rounded-lg">
+          <CardElement 
+            options={{
+              style: {
+                base: {
+                  color: '#ffffff',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '16px',
+                  '::placeholder': {
+                    color: '#9CA3AF'
+                  }
+                }
+              }
+            }}
+          />
+        </div>
+        
+        <Button 
+          type="submit" 
+          disabled={!stripe || isProcessing}
+          className="w-full bg-purple-600 hover:bg-purple-700"
+        >
+          {isProcessing ? 'Processing Payment...' : `Pay $${totalAmount} for Services`}
+        </Button>
+      </form>
+    </div>
+  );
+};
+
 interface YachtBookingModalProps {
   yacht: Yacht;
   isOpen: boolean;
