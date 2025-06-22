@@ -15,117 +15,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Yacht, Booking, InsertBooking } from "@shared/schema";
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import ServicePaymentForm from './service-payment-form';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+// Interface definitions for yacht booking modal
 
-// ServicePaymentForm component for handling Stripe payments
-function ServicePaymentForm({ selectedServices, onPaymentSuccess, onPaymentError, isProcessing, setIsProcessing }: {
-  selectedServices: {serviceId: number, price: number, name: string}[];
-  onPaymentSuccess: (paymentIntent: any) => void;
-  onPaymentError: (error: string) => void;
-  isProcessing: boolean;
-  setIsProcessing: (processing: boolean) => void;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  const totalAmount = selectedServices.reduce((sum, s) => sum + s.price, 0);
 
-  useEffect(() => {
-    const createPaymentIntent = async () => {
-      try {
-        const response = await apiRequest('POST', '/api/create-payment-intent', {
-          amount: totalAmount,
-          description: `Concierge services: ${selectedServices.map(s => s.name).join(', ')}`,
-          serviceIds: selectedServices.map(s => s.serviceId)
-        });
-        const { clientSecret } = await response.json();
-        setClientSecret(clientSecret);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error creating payment intent:', error);
-        onPaymentError('Failed to initialize payment');
-        setLoading(false);
-      }
-    };
-
-    if (totalAmount > 0) {
-      createPaymentIntent();
-    }
-  }, [totalAmount]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!stripe || !elements || !clientSecret || isProcessing) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: window.location.href,
-        },
-        redirect: 'if_required'
-      });
-
-      if (error) {
-        onPaymentError(error.message || 'Payment failed');
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        onPaymentSuccess(paymentIntent);
-      }
-    } catch (error) {
-      onPaymentError('An unexpected error occurred');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-4">
-        <div className="animate-spin w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full"></div>
-        <span className="ml-2 text-gray-300">Preparing payment...</span>
-      </div>
-    );
-  }
-
-  if (!clientSecret) {
-    return (
-      <div className="text-red-400 text-sm">
-        Failed to initialize payment. Please try again.
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="text-center mb-4">
-        <div className="text-lg font-bold text-white">Total: ${totalAmount}</div>
-      </div>
-      
-      <PaymentElement 
-        options={{
-          layout: 'tabs'
-        }}
-      />
-      
-      <button
-        disabled={!stripe || !elements || isProcessing}
-        className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors"
-      >
-        {isProcessing ? 'Processing...' : `Pay $${totalAmount} for Services`}
-      </button>
-    </form>
-  );
-}
 
 interface YachtBookingModalProps {
   yacht: Yacht;
@@ -734,28 +628,26 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     {/* Stripe Payment Form */}
                     <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4">
                       <h5 className="font-medium text-white mb-3">Payment for Concierge Services</h5>
-                      <Elements stripe={stripePromise}>
-                        <ServicePaymentForm 
-                          selectedServices={selectedServices}
-                          onPaymentSuccess={(paymentIntent) => {
-                            setPaymentCompleted(true);
-                            setPaymentIntentId(paymentIntent.id);
-                            toast({
-                              title: "Payment Successful",
-                              description: `Your payment of $${selectedServices.reduce((sum, s) => sum + s.price, 0)} for concierge services has been processed.`,
-                            });
-                          }}
-                          onPaymentError={(error) => {
-                            toast({
-                              title: "Payment Failed",
-                              description: error,
-                              variant: "destructive"
-                            });
-                          }}
-                          isProcessing={paymentProcessing}
-                          setIsProcessing={setPaymentProcessing}
-                        />
-                      </Elements>
+                      <ServicePaymentForm 
+                        selectedServices={selectedServices}
+                        onPaymentSuccess={(paymentIntent) => {
+                          setPaymentCompleted(true);
+                          setPaymentIntentId(paymentIntent.id);
+                          toast({
+                            title: "Payment Successful",
+                            description: `Your payment of $${selectedServices.reduce((sum, s) => sum + s.price, 0)} for concierge services has been processed.`,
+                          });
+                        }}
+                        onPaymentError={(error) => {
+                          toast({
+                            title: "Payment Failed",
+                            description: error,
+                            variant: "destructive"
+                          });
+                        }}
+                        isProcessing={paymentProcessing}
+                        setIsProcessing={setPaymentProcessing}
+                      />
                     </div>
                   </div>
                 )}
