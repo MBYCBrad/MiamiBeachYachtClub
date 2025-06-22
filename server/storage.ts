@@ -1,9 +1,10 @@
 import { 
-  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites,
+  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
-  type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, type Favorite, type InsertFavorite, UserRole, MembershipTier
+  type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, type Favorite, type InsertFavorite, 
+  type Message, type InsertMessage, UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -82,6 +83,13 @@ export interface IStorage {
   addFavorite(favorite: InsertFavorite): Promise<Favorite>;
   removeFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean>;
   isFavorite(userId: number, yachtId?: number, serviceId?: number, eventId?: number): Promise<boolean>;
+
+  // Message methods
+  getMessages(conversationId: string): Promise<Message[]>;
+  getUserConversations(userId: number): Promise<{ conversationId: string, lastMessage: Message, unreadCount: number }[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  updateMessageStatus(messageId: number, status: string): Promise<Message | undefined>;
+  updateMessageTwilioSid(messageId: number, twilioSid: string): Promise<Message | undefined>;
 
   sessionStore: session.Store;
 }
@@ -1019,6 +1027,80 @@ export class DatabaseStorage implements IStorage {
     
     const [favorite] = await db.select().from(favorites).where(and(...conditions));
     return !!favorite;
+  }
+
+  // Message methods
+  async getMessages(conversationId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt);
+  }
+
+  async getUserConversations(userId: number): Promise<{ conversationId: string, lastMessage: Message, unreadCount: number }[]> {
+    // Get all conversations where user is sender or recipient
+    const userMessages = await db.select().from(messages)
+      .where(
+        and(
+          eq(messages.senderId, userId)
+        )
+      );
+
+    const recipientMessages = await db.select().from(messages)
+      .where(eq(messages.recipientId, userId));
+
+    // Group by conversation and get last message
+    const conversationMap = new Map();
+    
+    [...userMessages, ...recipientMessages].forEach(msg => {
+      if (!conversationMap.has(msg.conversationId) || 
+          msg.createdAt! > conversationMap.get(msg.conversationId).createdAt!) {
+        conversationMap.set(msg.conversationId, msg);
+      }
+    });
+
+    // Convert to array format with unread counts
+    const conversations = [];
+    for (const [conversationId, lastMessage] of Array.from(conversationMap)) {
+      const unreadCount = await db.select().from(messages)
+        .where(
+          and(
+            eq(messages.conversationId, conversationId),
+            eq(messages.recipientId, userId),
+            eq(messages.status, 'sent')
+          )
+        );
+      
+      conversations.push({
+        conversationId,
+        lastMessage,
+        unreadCount: unreadCount.length
+      });
+    }
+
+    return conversations;
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values([message]).returning();
+    return newMessage;
+  }
+
+  async updateMessageStatus(messageId: number, status: string): Promise<Message | undefined> {
+    const [updatedMessage] = await db
+      .update(messages)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(messages.id, messageId))
+      .returning();
+    return updatedMessage || undefined;
+  }
+
+  async updateMessageTwilioSid(messageId: number, twilioSid: string): Promise<Message | undefined> {
+    const [updatedMessage] = await db
+      .update(messages)
+      .set({ twilioSid, updatedAt: new Date() })
+      .where(eq(messages.id, messageId))
+      .returning();
+    return updatedMessage || undefined;
   }
 }
 

@@ -217,6 +217,32 @@ export const insertFavoriteSchema = createInsertSchema(favorites).omit({
   createdAt: true,
 });
 
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  senderId: integer("sender_id").references(() => users.id).notNull(),
+  recipientId: integer("recipient_id").references(() => users.id),
+  conversationId: text("conversation_id").notNull(), // For grouping messages
+  content: text("content").notNull(),
+  messageType: text("message_type").notNull().default("text"), // text, sms, notification
+  status: text("status").notNull().default("sent"), // sent, delivered, read
+  twilioSid: text("twilio_sid"), // Twilio message SID for SMS tracking
+  metadata: jsonb("metadata").$type<{
+    yachtId?: number;
+    serviceId?: number;
+    bookingId?: number;
+    phoneNumber?: string;
+    smsStatus?: string;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -238,3 +264,5 @@ export type MediaAsset = typeof mediaAssets.$inferSelect;
 export type InsertMediaAsset = z.infer<typeof insertMediaAssetSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;

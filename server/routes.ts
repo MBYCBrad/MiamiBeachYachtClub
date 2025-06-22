@@ -13,7 +13,7 @@ import fs from "fs";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
-  insertReviewSchema, UserRole, MembershipTier
+  insertReviewSchema, insertMessageSchema, UserRole, MembershipTier
 } from "@shared/schema";
 
 // Initialize Stripe
@@ -1123,6 +1123,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ isFavorite });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // MESSAGES ROUTES - Real-time messaging with Twilio integration
+  app.get("/api/messages/conversations", requireAuth, async (req, res) => {
+    try {
+      const conversations = await storage.getUserConversations(req.user!.id);
+      res.json(conversations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/messages/:conversationId", requireAuth, async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      const messages = await storage.getMessages(conversationId);
+      res.json(messages);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/messages", requireAuth, async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse({
+        ...req.body,
+        senderId: req.user!.id
+      });
+
+      const message = await storage.createMessage(messageData);
+      
+      // Send real-time notification (if notification service supports it)
+      try {
+        if (notificationService && typeof notificationService.broadcast === 'function') {
+          notificationService.broadcast({
+            type: 'message',
+            data: message
+          });
+        }
+      } catch (error) {
+        console.log('Notification service not available:', error);
+      }
+
+      res.status(201).json(message);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/messages/:id/status", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const message = await storage.updateMessageStatus(parseInt(id), status);
+      
+      if (message) {
+        res.json(message);
+      } else {
+        res.status(404).json({ message: "Message not found" });
+      }
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   });
 
