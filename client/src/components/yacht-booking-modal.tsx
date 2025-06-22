@@ -305,7 +305,17 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const isBooked = slotData?.available === false;
                     const hasDataLoaded = Object.keys(timeSlotAvailability).length > 0;
                     
-
+                    // Debug logging for first slot only
+                    if (slot.value === 'morning') {
+                      console.log('Slot display debug:', {
+                        slotValue: slot.value,
+                        slotData,
+                        isAvailable,
+                        isBooked,
+                        hasDataLoaded,
+                        timeSlotAvailability
+                      });
+                    }
                     
                     return (
                       <motion.div
@@ -345,7 +355,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                           )}
                           
                           {/* Real-time availability status from database */}
-                          {timeSlotAvailability[slot.value] && (
+                          {hasDataLoaded && timeSlotAvailability[slot.value] && (
                             <div className={`text-xs px-2 py-1 rounded font-medium ${
                               timeSlotAvailability[slot.value].available
                                 ? 'bg-green-500 text-white' 
