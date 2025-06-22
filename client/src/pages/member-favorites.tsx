@@ -86,7 +86,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-auto pb-20">
+    <div className="min-h-screen bg-black text-white overflow-auto pb-32">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

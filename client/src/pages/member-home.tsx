@@ -95,7 +95,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   );
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-32">
       {/* Hero Video Background */}
       <div className="relative h-[65vh] sm:h-[70vh] lg:h-[75vh] overflow-hidden">
         {videoLoading ? (

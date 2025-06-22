@@ -24,6 +24,9 @@ export default function YachtDetail() {
     if (!yacht) return;
     
     try {
+      const startTime = new Date(Date.now() + 24 * 60 * 60 * 1000); // Tomorrow
+      const endTime = new Date(startTime.getTime() + 8 * 60 * 60 * 1000); // 8 hours later
+      
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -31,9 +34,10 @@ export default function YachtDetail() {
         },
         body: JSON.stringify({
           yachtId: yacht.id,
-          startTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
-          endTime: new Date(Date.now() + 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000).toISOString(), // 8 hours later
-          status: 'confirmed'
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          status: 'confirmed',
+          totalPrice: "0.00"
         })
       });
 

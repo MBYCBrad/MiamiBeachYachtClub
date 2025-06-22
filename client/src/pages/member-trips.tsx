@@ -72,7 +72,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   );
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-screen bg-black text-white pb-32">
       {/* Video Cover Header */}
       <div className="relative h-96 overflow-hidden">
         {/* Hero Video Background */}
