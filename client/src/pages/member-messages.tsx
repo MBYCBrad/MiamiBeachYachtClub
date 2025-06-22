@@ -36,11 +36,14 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   ) || [];
 
   const handleNewConversation = () => {
-    const conciergeConversationId = `user_${user?.id}_concierge`;
-    setSelectedConversation(conciergeConversationId);
+    const adminConversationId = `user_${user?.id}_admin`;
+    setSelectedConversation(adminConversationId);
   };
 
   const getConversationName = (conversationId: string) => {
+    if (conversationId.includes('admin')) {
+      return 'MBYC Admin';
+    }
     if (conversationId.includes('concierge')) {
       return 'MBYC Concierge';
     }
@@ -48,6 +51,9 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   };
 
   const getConversationRole = (conversationId: string) => {
+    if (conversationId.includes('admin')) {
+      return 'Club Administrator';
+    }
     if (conversationId.includes('concierge')) {
       return 'Premium Concierge Service';
     }
@@ -56,10 +62,10 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="h-screen bg-black flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full" />
-          <p className="text-sm text-gray-500">Loading conversations...</p>
+          <p className="text-sm text-gray-400">Loading conversations...</p>
         </div>
       </div>
     );
@@ -67,18 +73,18 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
   if (selectedConversation) {
     return (
-      <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="h-screen bg-black">
         <div className="h-full flex flex-col">
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-gray-900 border-b border-gray-800 p-4">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
                 onClick={() => setSelectedConversation(null)}
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                className="text-gray-400 hover:text-white"
               >
                 ← Back to Messages
               </Button>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-xl font-semibold text-white">
                 {getConversationName(selectedConversation)}
               </h1>
               <div className="w-20" />
@@ -98,11 +104,27 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="h-full flex flex-col">
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+    <div className="h-screen bg-black">
+      {/* Floating particles background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-purple-400 rounded-full opacity-30 animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="h-full flex flex-col relative z-10">
+        <div className="bg-gray-900 border-b border-gray-800 p-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
+            <h1 className="text-2xl font-bold text-white">Messages</h1>
             <Button
               onClick={handleNewConversation}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
@@ -118,7 +140,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+              className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
             />
           </div>
         </div>
@@ -127,11 +149,11 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           {filteredConversations.length === 0 ? (
             <div className="text-center py-12">
               <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-medium text-white mb-2">
                 No conversations yet
               </h3>
-              <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                Start your first conversation with our premium concierge service. We're here 24/7 to assist with your yacht club experience.
+              <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+                Start your first conversation with MBYC Admin. We're here 24/7 to assist with your yacht club experience.
               </p>
               <Button
                 onClick={handleNewConversation}
@@ -151,7 +173,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card 
-                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600"
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900 border-gray-800"
                     onClick={() => setSelectedConversation(conversation.conversationId)}
                   >
                     <CardContent className="p-4">
@@ -164,7 +186,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                            <h3 className="font-semibold text-white truncate">
                               {getConversationName(conversation.conversationId)}
                             </h3>
                             <div className="flex items-center space-x-2">
@@ -173,23 +195,23 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                                   {conversation.unreadCount}
                                 </Badge>
                               )}
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <Badge variant="outline" className="bg-green-900 text-green-400 border-green-700">
                                 <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                                 Online
                               </Badge>
                             </div>
                           </div>
                           
-                          <p className="text-sm text-gray-500 mb-1">
+                          <p className="text-sm text-gray-400 mb-1">
                             {getConversationRole(conversation.conversationId)}
                           </p>
                           
                           {conversation.lastMessage && (
                             <>
-                              <p className="text-sm text-gray-700 dark:text-gray-300 truncate mb-2">
+                              <p className="text-sm text-gray-300 truncate mb-2">
                                 {conversation.lastMessage.content}
                               </p>
-                              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <div className="flex items-center space-x-2 text-xs text-gray-400">
                                 <Clock className="h-3 w-3" />
                                 <span>
                                   {formatDistanceToNow(new Date(conversation.lastMessage.createdAt), { addSuffix: true })}
