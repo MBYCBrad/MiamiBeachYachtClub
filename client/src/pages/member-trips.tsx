@@ -68,11 +68,20 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   };
 
   const getServicesForBooking = (booking: Booking) => {
+    // Match services by booking date for same user
     const bookingDate = new Date(booking.startTime).toDateString();
-    return serviceBookings.filter(sb => 
-      sb.userId === booking.userId && 
-      new Date(sb.bookingDate).toDateString() === bookingDate
-    );
+    return serviceBookings.filter(sb => {
+      // Check if service booking is for same user and same date
+      const sameUserAndDate = sb.userId === booking.userId && 
+        new Date(sb.bookingDate).toDateString() === bookingDate;
+      
+      // Also check if service booking is within 1 day of yacht booking (for related services)
+      const timeDiff = Math.abs(new Date(sb.bookingDate).getTime() - new Date(booking.startTime).getTime());
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      const nearBookingDate = sb.userId === booking.userId && timeDiff <= oneDayMs;
+      
+      return sameUserAndDate || nearBookingDate;
+    });
   };
 
   const getServiceIcon = (category: string) => {
@@ -306,22 +315,38 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     >
                       <Card className="bg-gradient-to-br from-gray-900/95 to-gray-800/80 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-500 backdrop-blur-xl overflow-hidden">
                         <CardContent className="p-8">
-                          {/* Trip Header */}
+                          {/* Trip Header with Yacht Image */}
                           <div className="flex justify-between items-start mb-6">
-                            <div className="flex items-center space-x-4">
-                              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
-                                <Sailboat className="text-white" size={28} />
-                              </div>
+                            <div className="flex items-center space-x-6">
+                              {yacht?.imageUrl ? (
+                                <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-lg">
+                                  <img 
+                                    src={yacht.imageUrl} 
+                                    alt={yacht.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                </div>
+                              ) : (
+                                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                                  <Sailboat className="text-white" size={28} />
+                                </div>
+                              )}
                               <div>
-                                <h3 className="text-2xl font-bold text-white mb-1">
+                                <h3 className="text-3xl font-bold text-white mb-2">
                                   {yacht?.name || `Yacht Booking #${booking.id}`}
                                 </h3>
-                                <div className="flex items-center space-x-3">
-                                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                                    <CheckCircle size={12} className="mr-1" />
+                                <div className="flex items-center space-x-4">
+                                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30 px-3 py-1">
+                                    <CheckCircle size={14} className="mr-1" />
                                     Confirmed
                                   </Badge>
-                                  <span className="text-sm text-gray-400">{timeUntilTrip}</span>
+                                  <span className="text-sm text-gray-300 font-medium">{timeUntilTrip}</span>
+                                  {yacht && (
+                                    <Badge variant="outline" className="text-purple-300 border-purple-500/40">
+                                      {yacht.size}ft • {yacht.capacity} guests
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -407,16 +432,27 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                             </div>
                           )}
 
-                          {/* Enhanced Concierge Services */}
+                          {/* Premium Concierge Services Experience */}
                           {bookedServices.length > 0 && (
-                            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 rounded-xl p-5 mb-6 border border-yellow-500/20">
-                              <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
-                                <Crown size={18} className="mr-2 text-yellow-400" />
-                                Concierge Services
-                                <Badge className="ml-3 bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-                                  {bookedServices.length} Premium Services
-                                </Badge>
-                              </h4>
+                            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 rounded-xl p-6 mb-6 border border-yellow-500/20 shadow-xl">
+                              <div className="flex items-center justify-between mb-6">
+                                <h4 className="text-xl font-bold text-white flex items-center">
+                                  <Crown size={20} className="mr-2 text-yellow-400" />
+                                  Premium Concierge Services
+                                </h4>
+                                <div className="flex items-center space-x-3">
+                                  <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 px-3 py-1">
+                                    {bookedServices.length} Services Included
+                                  </Badge>
+                                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30 px-3 py-1">
+                                    ${bookedServices.reduce((total, sb) => {
+                                      const service = getServiceById(sb.serviceId);
+                                      const price = service?.pricePerSession;
+                                      return total + (price ? parseFloat(String(price)) : 0);
+                                    }, 0).toFixed(0)} Total Value
+                                  </Badge>
+                                </div>
+                              </div>
                               <div className="space-y-3">
                                 {bookedServices.map((serviceBooking) => {
                                   const service = getServiceById(serviceBooking.serviceId);
@@ -431,21 +467,29 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                         className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-all duration-200"
                                         onClick={() => toggleServiceExpansion(service.id)}
                                       >
-                                        <div className="flex items-center space-x-3">
-                                          <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
-                                            <ServiceIcon size={20} className="text-yellow-400" />
+                                        <div className="flex items-center space-x-4">
+                                          <div className="w-14 h-14 bg-gradient-to-br from-yellow-500/30 to-orange-500/20 rounded-xl flex items-center justify-center border border-yellow-500/40 shadow-lg">
+                                            <ServiceIcon size={24} className="text-yellow-300" />
                                           </div>
-                                          <div>
-                                            <h5 className="font-semibold text-white text-lg">{service.name}</h5>
-                                            <p className="text-sm text-gray-400">{service.category}</p>
+                                          <div className="flex-1">
+                                            <h5 className="font-bold text-white text-xl mb-1">{service.name}</h5>
+                                            <div className="flex items-center space-x-2">
+                                              <Badge variant="outline" className="text-xs text-yellow-300 border-yellow-500/40">
+                                                {service.category}
+                                              </Badge>
+                                              <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                                                Paid & Confirmed
+                                              </Badge>
+                                            </div>
                                           </div>
                                         </div>
                                         <div className="flex items-center space-x-3">
-                                          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                                            ${service.pricePerSession}
-                                          </Badge>
+                                          <div className="text-right">
+                                            <div className="text-2xl font-bold text-green-400">${service.pricePerSession}</div>
+                                            <div className="text-xs text-gray-400">Premium Service</div>
+                                          </div>
                                           <ChevronDown 
-                                            size={16} 
+                                            size={18} 
                                             className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
                                           />
                                         </div>
@@ -505,6 +549,45 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             </div>
                           )}
+
+                          {/* Enhanced Action Center */}
+                          <div className="bg-gradient-to-r from-gray-800/40 to-gray-900/20 rounded-xl p-6 border border-gray-700/30">
+                            <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                              <Compass size={18} className="mr-2 text-blue-400" />
+                              Trip Management
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <Button
+                                onClick={() => startRating(booking)}
+                                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg h-12"
+                              >
+                                <Star size={16} className="mr-2" />
+                                Rate Experience
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setCurrentView('messages')}
+                                className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12"
+                              >
+                                <MessageCircle size={16} className="mr-2" />
+                                Message Captain
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setCurrentView('messages')}
+                                className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12"
+                              >
+                                <Phone size={16} className="mr-2" />
+                                Contact Marina
+                              </Button>
+                            </div>
+                            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                              <p className="text-sm text-blue-300 flex items-center">
+                                <Crown size={14} className="mr-2" />
+                                Need assistance? Our concierge team is available 24/7 to enhance your yacht experience.
+                              </p>
+                            </div>
+                          </div>
                         </CardContent>
                       </Card>
                     </motion.div>

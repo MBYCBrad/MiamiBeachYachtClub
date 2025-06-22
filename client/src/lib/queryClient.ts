@@ -50,17 +50,16 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
+      queryFn: getQueryFn({ on401: "returnNull" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 30 * 60 * 1000, // 30 minutes for ultra-fast loading
-      gcTime: 60 * 60 * 1000, // 1 hour in memory
-      retry: 1,
-      networkMode: 'online'
+      staleTime: 15 * 60 * 1000, // 15 minutes stale time
+      gcTime: 60 * 60 * 1000, // 1 hour memory retention
+      retry: 2,
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
     },
     mutations: {
-      retry: false,
-      networkMode: 'online'
+      retry: false
     }
   },
 });
