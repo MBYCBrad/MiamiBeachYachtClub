@@ -252,33 +252,35 @@ const PremiumAuthPage: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.8 }}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12"
+              className="flex justify-center"
             >
-              {[
-                { number: "50+", label: "Luxury Yachts", icon: Anchor, color: "from-purple-500 to-pink-500" },
-                { number: "24/7", label: "Concierge", icon: Sparkles, color: "from-blue-500 to-cyan-500" },
-                { number: "500+", label: "Elite Members", icon: Crown, color: "from-yellow-500 to-orange-500" },
-                { number: "100%", label: "Satisfaction", icon: CheckCircle, color: "from-green-500 to-emerald-500" }
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.4 + index * 0.1, duration: 0.6 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="text-center group cursor-pointer"
-                >
-                  <div className={`w-16 h-16 mx-auto mb-3 bg-gradient-to-br ${stat.color} rounded-full flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300`}>
-                    <stat.icon className="text-white text-xl" />
-                  </div>
-                  <div className="text-3xl font-bold text-white mb-2 group-hover:scale-110 transition-transform">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm text-gray-300 group-hover:text-white transition-colors">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-md lg:max-w-2xl">
+                {[
+                  { number: "50+", label: "Luxury Yachts", icon: Anchor, color: "from-purple-500 to-pink-500" },
+                  { number: "24/7", label: "Concierge", icon: Sparkles, color: "from-blue-500 to-cyan-500" },
+                  { number: "500+", label: "Elite Members", icon: Crown, color: "from-yellow-500 to-orange-500" },
+                  { number: "100%", label: "Satisfaction", icon: CheckCircle, color: "from-green-500 to-emerald-500" }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.4 + index * 0.1, duration: 0.6 }}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    className="text-center group cursor-pointer"
+                  >
+                    <div className={`w-12 h-12 mx-auto mb-2 bg-gradient-to-br ${stat.color} rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                      <stat.icon className="text-white text-base" />
+                    </div>
+                    <div className="text-xl font-bold text-white mb-1 group-hover:scale-105 transition-transform">
+                      {stat.number}
+                    </div>
+                    <div className="text-xs text-gray-300 group-hover:text-white transition-colors">
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           </motion.div>
 
