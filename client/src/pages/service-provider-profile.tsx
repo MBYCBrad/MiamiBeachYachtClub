@@ -54,18 +54,154 @@ export default function ServiceProviderProfile({ providerId, onBack }: ServicePr
   const [guestCount, setGuestCount] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
 
-  // Mock data - in real app this would come from API
-  const provider: ServiceProvider = {
-    id: parseInt(providerId || '1'),
-    name: "Caitlin",
-    bio: "I style brides and wedding parties independently or with high-end hair and makeup teams.",
-    location: "Miami Beach, FL",
-    avatar: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
-    rating: 4.9,
-    reviewCount: 127,
-    responseTime: "within an hour",
-    languages: ["English", "Spanish"],
-    verified: true,
+  // Get actual service provider data from API
+  const { data: services } = useQuery({
+    queryKey: ['/api/services'],
+  });
+
+  // Find the actual service provider based on providerId
+  const actualService = services?.find((s: any) => s.providerId.toString() === providerId);
+  
+  const getProviderData = (service: any): ServiceProvider => {
+    if (!service) {
+      return {
+        id: parseInt(providerId || '1'),
+        name: "Service Provider",
+        bio: "Professional service provider",
+        location: "Miami Beach, FL",
+        avatar: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
+        rating: 4.5,
+        reviewCount: 50,
+        responseTime: "within 2 hours",
+        languages: ["English"],
+        verified: true,
+        services: []
+      };
+    }
+
+    // Create provider profile based on service type
+    switch (service.category) {
+      case 'Group Transportation':
+        return {
+          id: parseInt(providerId || '1'),
+          name: "Marcus Rodriguez",
+          bio: "Professional chauffeur and transportation specialist with 15+ years of experience in luxury fleet management. Specializing in extended wheelbase Mercedes S-Class and BMW 7-Series limousines.",
+          location: "Miami Beach, FL",
+          avatar: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
+          rating: 4.8,
+          reviewCount: 89,
+          responseTime: "within 30 minutes",
+          languages: ["English", "Spanish"],
+          verified: true,
+          services: [
+            {
+              id: 1,
+              name: "Airport Transfer",
+              description: "Luxury transportation to/from Miami International Airport with professional chauffeur service.",
+              price: "$150",
+              duration: "1 way",
+              maxGuests: 4,
+              features: ["Professional chauffeur", "Luxury vehicle", "Meet & greet service", "Flight tracking"],
+              image: "/api/media/pexels-mali-42092_1750537277229.jpg"
+            },
+            {
+              id: 2,
+              name: "City Tour",
+              description: "Comprehensive Miami city tour in luxury limousine with knowledgeable driver guide.",
+              price: "$400",
+              duration: "4 hrs",
+              maxGuests: 6,
+              features: ["Expert guide", "Multiple stops", "Refreshments included", "Photo opportunities"],
+              image: "/api/media/pexels-goumbik-296278_1750537277229.jpg"
+            },
+            {
+              id: 3,
+              name: "Event Transportation",
+              description: "Full-day luxury transportation for special events, weddings, or corporate functions.",
+              price: "$650",
+              duration: "8 hrs",
+              maxGuests: 8,
+              features: ["All-day service", "Multiple vehicles available", "Event coordination", "Premium service"],
+              image: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg"
+            }
+          ]
+        };
+      
+      case 'Beauty & Grooming':
+        return {
+          id: parseInt(providerId || '1'),
+          name: "Caitlin Rodriguez",
+          bio: "I style brides and wedding parties independently or with high-end hair and makeup teams.",
+          location: "Miami Beach, FL",
+          avatar: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
+          rating: 4.9,
+          reviewCount: 127,
+          responseTime: "within an hour",
+          languages: ["English", "Spanish"],
+          verified: true,
+          services: [
+            {
+              id: 1,
+              name: "Blowout and style",
+              description: "Enjoy a wash and choose a style, either a blowdry or curls.",
+              price: "$100",
+              duration: "1 hr",
+              maxGuests: 1,
+              features: ["Professional styling", "Premium products", "Touch-up included"],
+              image: "/api/media/pexels-mali-42092_1750537277229.jpg"
+            },
+            {
+              id: 2,
+              name: "Formal hairstyle",
+              description: "Get an event-ready style for a wedding, prom, dinner, graduation, or other special occasion.",
+              price: "$150",
+              duration: "1 hr",
+              maxGuests: 1,
+              features: ["Event styling", "Hair accessories", "Long-lasting hold", "Touch-up kit"],
+              image: "/api/media/pexels-goumbik-296278_1750537277229.jpg"
+            },
+            {
+              id: 3,
+              name: "Wedding party styling",
+              description: "Book this service for a wedding party or multiple guests attending a wedding.",
+              price: "$600",
+              duration: "4 hrs",
+              maxGuests: 6,
+              features: ["Multiple styles", "Bridal party coordination", "Touch-ups included", "Premium styling"],
+              image: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg"
+            }
+          ]
+        };
+
+      default:
+        return {
+          id: parseInt(providerId || '1'),
+          name: "Professional Service Provider",
+          bio: `Expert ${service.category.toLowerCase()} specialist providing premium yacht club services.`,
+          location: "Miami Beach, FL",
+          avatar: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
+          rating: 4.7,
+          reviewCount: 65,
+          responseTime: "within 2 hours",
+          languages: ["English"],
+          verified: true,
+          services: [
+            {
+              id: 1,
+              name: service.name,
+              description: service.description,
+              price: `$${service.price}`,
+              duration: "2 hrs",
+              maxGuests: 4,
+              features: ["Professional service", "Premium quality", "Satisfaction guaranteed"],
+              image: service.imageUrl || "/api/media/pexels-mali-42092_1750537277229.jpg"
+            }
+          ]
+        };
+    }
+  };
+
+  const provider = getProviderData(actualService);
     services: [
       {
         id: 1,
