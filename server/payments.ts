@@ -13,6 +13,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function setupPaymentRoutes(app: Express) {
+  // Generic payment intent creation (for concierge services)
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount, description } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: "Invalid amount" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          description: description || "Yacht concierge services"
+        }
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("Payment intent creation failed:", error);
+      res.status(500).json({ error: "Payment setup failed: " + error.message });
+    }
+  });
+
   // Create payment intent for service bookings
   app.post("/api/payments/service-intent", async (req, res) => {
     if (!req.isAuthenticated()) {
