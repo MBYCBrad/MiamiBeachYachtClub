@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronRight, Sparkles, DollarSign, MessageSquare, MoreHorizontal, Scissors, UtensilsCrossed, Camera, Waves, Music, Heart, Dumbbell, Coffee } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronRight, Sparkles, DollarSign, MessageSquare, MoreHorizontal, Scissors, UtensilsCrossed, Camera, Waves, Music, Heart, Dumbbell, Coffee, Send, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 import type { Booking, ServiceBooking, EventRegistration, MediaAsset, Yacht, Service } from '@shared/schema';
 
 interface MemberTripsProps {
@@ -15,6 +19,12 @@ interface MemberTripsProps {
 
 export default function MemberTrips({ currentView, setCurrentView }: MemberTripsProps) {
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [captainMessage, setCaptainMessage] = useState('');
+  const [marinaMessage, setMarinaMessage] = useState('');
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [messageType, setMessageType] = useState<'captain' | 'marina'>('captain');
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
     queryKey: ['/api/media/hero/active']
@@ -75,6 +85,79 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
       'Concierge & Lifestyle': Coffee
     };
     return iconMap[category] || Coffee;
+  };
+
+  // Message Captain mutation
+  const messageCaptainMutation = useMutation({
+    mutationFn: async ({ bookingId, message }: { bookingId: number; message: string }) => {
+      const response = await apiRequest('POST', '/api/concierge', {
+        message: `CAPTAIN MESSAGE for Booking #${bookingId}: ${message}`,
+        priority: 'high',
+        category: 'yacht_booking'
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Message Sent",
+        description: "Your message has been sent to the captain successfully",
+      });
+      setIsMessageDialogOpen(false);
+      setCaptainMessage('');
+    },
+    onError: () => {
+      toast({
+        title: "Message Failed",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Contact Marina mutation
+  const contactMarinaMutation = useMutation({
+    mutationFn: async ({ bookingId, message }: { bookingId: number; message: string }) => {
+      const response = await apiRequest('POST', '/api/concierge', {
+        message: `MARINA CONTACT for Booking #${bookingId}: ${message}`,
+        priority: 'medium',
+        category: 'yacht_booking'
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Marina Contacted",
+        description: "Your message has been sent to the marina successfully",
+      });
+      setIsMessageDialogOpen(false);
+      setMarinaMessage('');
+    },
+    onError: () => {
+      toast({
+        title: "Contact Failed",
+        description: "Failed to contact marina. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSendMessage = () => {
+    if (!selectedBooking) return;
+    
+    const message = messageType === 'captain' ? captainMessage : marinaMessage;
+    if (!message.trim()) return;
+
+    if (messageType === 'captain') {
+      messageCaptainMutation.mutate({ bookingId: selectedBooking.id, message });
+    } else {
+      contactMarinaMutation.mutate({ bookingId: selectedBooking.id, message });
+    }
+  };
+
+  const openMessageDialog = (booking: Booking, type: 'captain' | 'marina') => {
+    setSelectedBooking(booking);
+    setMessageType(type);
+    setIsMessageDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -359,28 +442,59 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             )}
 
-                            {/* Action Buttons */}
-                            <div className="flex space-x-3">
-                              <Button
-                                size="sm"
-                                className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-xl flex-1"
-                              >
-                                <MessageCircle size={16} className="mr-2" />
-                                Message Captain
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded-xl flex-1"
-                              >
-                                <Phone size={16} className="mr-2" />
-                                Contact Marina
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-600/30 rounded-xl"
-                              >
-                                <MoreHorizontal size={16} />
-                              </Button>
+                            {/* Enhanced Action Center */}
+                            <div className="space-y-4">
+                              <div className="flex space-x-3">
+                                <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      onClick={() => openMessageDialog(booking, 'captain')}
+                                      className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 text-blue-400 border border-blue-500/30 rounded-xl flex-1 h-12 transition-all duration-300 hover:scale-105"
+                                    >
+                                      <MessageCircle size={18} className="mr-2" />
+                                      <div className="text-left">
+                                        <div className="font-semibold">Message Captain</div>
+                                        <div className="text-xs text-blue-300">Direct communication</div>
+                                      </div>
+                                    </Button>
+                                  </DialogTrigger>
+                                </Dialog>
+                                
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      onClick={() => openMessageDialog(booking, 'marina')}
+                                      className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 text-green-400 border border-green-500/30 rounded-xl flex-1 h-12 transition-all duration-300 hover:scale-105"
+                                    >
+                                      <Phone size={18} className="mr-2" />
+                                      <div className="text-left">
+                                        <div className="font-semibold">Contact Marina</div>
+                                        <div className="text-xs text-green-300">Marina services</div>
+                                      </div>
+                                    </Button>
+                                  </DialogTrigger>
+                                </Dialog>
+                              </div>
+                              
+                              <div className="flex space-x-3">
+                                <Button
+                                  className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 text-purple-400 border border-purple-500/30 rounded-xl flex-1 h-10 transition-all duration-300 hover:scale-105"
+                                >
+                                  <Headphones size={16} className="mr-2" />
+                                  24/7 Concierge
+                                </Button>
+                                <Button
+                                  className="bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 text-orange-400 border border-orange-500/30 rounded-xl flex-1 h-10 transition-all duration-300 hover:scale-105"
+                                >
+                                  <Star size={16} className="mr-2" />
+                                  Rate Experience
+                                </Button>
+                                <Button
+                                  className="bg-gradient-to-r from-gray-600/20 to-slate-600/20 hover:from-gray-600/30 hover:to-slate-600/30 text-gray-400 border border-gray-500/30 rounded-xl h-10 px-3 transition-all duration-300 hover:scale-105"
+                                >
+                                  <MoreHorizontal size={16} />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </CardContent>
@@ -389,58 +503,8 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                   );
                 })}
 
-                {/* Service Bookings */}
-                {upcomingServiceBookings.map((booking, index) => (
-                  <motion.div
-                    key={`service-${booking.id}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: (upcomingYachtBookings.length + index) * 0.1 }}
-                  >
-                    <Card className="bg-gray-900/50 border-gray-800 hover-lift">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-xl font-bold text-white mb-1">
-                              Service Booking #{booking.id}
-                            </h3>
-                            <Badge className={`${getStatusColor(booking.status)} border`}>
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <ChevronRight className="text-gray-400" size={20} />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center text-gray-300">
-                            <Calendar size={16} className="mr-2" />
-                            <span className="text-sm">
-                              {booking.bookingDate ? formatDate(booking.bookingDate.toString()) : 'TBD'}
-                            </span>
-                          </div>
-                          <div className="flex items-center text-gray-300">
-                            <span className="text-sm font-semibold">
-                              ${booking.totalPrice ? parseFloat(booking.totalPrice).toLocaleString() : 'TBD'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-3">
-                          <Button
-                            size="sm"
-                            className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-xl"
-                          >
-                            <MessageCircle size={16} className="mr-2" />
-                            Message Provider
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-
                 {/* No upcoming trips */}
-                {upcomingYachtBookings.length === 0 && upcomingServiceBookings.length === 0 && (
+                {upcomingYachtBookings.length === 0 && (
                   <div className="text-center py-12">
                     <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
                     <h3 className="text-xl font-semibold text-gray-400 mb-2">No upcoming trips</h3>
@@ -516,47 +580,8 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                 </motion.div>
               ))}
 
-              {/* Past Service Bookings */}
-              {pastServiceBookings.map((booking, index) => (
-                <motion.div
-                  key={`past-service-${booking.id}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: (pastYachtBookings.length + index) * 0.1 }}
-                >
-                  <Card className="bg-gray-900/50 border-gray-800 hover-lift">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-white mb-1">
-                            Service Booking #{booking.id}
-                          </h3>
-                          <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30 border">
-                            Completed
-                          </Badge>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Star className="text-yellow-400 fill-current" size={16} />
-                          <span className="text-sm text-gray-300">Rate Service</span>
-                        </div>
-                      </div>
-
-                      <div className="flex space-x-3">
-                        <Button
-                          size="sm"
-                          className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
-                        >
-                          <Star size={16} className="mr-2" />
-                          Leave Review
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-
               {/* No past trips */}
-              {pastYachtBookings.length === 0 && pastServiceBookings.length === 0 && (
+              {pastYachtBookings.length === 0 && (
                 <div className="text-center py-12">
                   <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-400 mb-2">No past trips</h3>
@@ -567,6 +592,120 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Enhanced Messaging Dialog */}
+      <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+        <DialogContent className="bg-gray-900/95 border-gray-800 backdrop-blur-xl max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center space-x-3">
+              {messageType === 'captain' ? (
+                <>
+                  <div className="p-2 bg-blue-600/20 rounded-lg">
+                    <MessageCircle className="text-blue-400" size={20} />
+                  </div>
+                  <div>
+                    <div className="font-bold">Message Captain</div>
+                    <div className="text-sm text-gray-400">Direct communication with your yacht captain</div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-2 bg-green-600/20 rounded-lg">
+                    <Phone className="text-green-400" size={20} />
+                  </div>
+                  <div>
+                    <div className="font-bold">Contact Marina</div>
+                    <div className="text-sm text-gray-400">Reach out to marina services and support</div>
+                  </div>
+                </>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 pt-4">
+            {selectedBooking && (
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">
+                      {selectedBooking.yachtId === 1 ? 'MB' : 'YC'}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold">Marina Breeze</div>
+                    <div className="text-gray-400 text-sm">Booking #{selectedBooking.id}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <label className="text-white font-medium">Your Message</label>
+              <Textarea
+                value={messageType === 'captain' ? captainMessage : marinaMessage}
+                onChange={(e) => messageType === 'captain' ? setCaptainMessage(e.target.value) : setMarinaMessage(e.target.value)}
+                placeholder={
+                  messageType === 'captain' 
+                    ? "Send a message to your yacht captain..."
+                    : "Contact the marina about your booking..."
+                }
+                className="bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 min-h-[120px] rounded-lg resize-none"
+                rows={5}
+              />
+            </div>
+            
+            <div className="flex space-x-3 pt-2">
+              <Button
+                onClick={handleSendMessage}
+                disabled={
+                  !(messageType === 'captain' ? captainMessage.trim() : marinaMessage.trim()) ||
+                  messageCaptainMutation.isPending ||
+                  contactMarinaMutation.isPending
+                }
+                className={`
+                  ${messageType === 'captain' 
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700' 
+                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                  } 
+                  text-white border-0 rounded-xl flex-1 h-12 font-semibold transition-all duration-300
+                `}
+              >
+                {(messageCaptainMutation.isPending || contactMarinaMutation.isPending) ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Sending...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Send size={18} />
+                    <span>Send Message</span>
+                  </div>
+                )}
+              </Button>
+              
+              <Button
+                onClick={() => setIsMessageDialogOpen(false)}
+                className="bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 border border-gray-700 rounded-xl px-6 h-12"
+              >
+                Cancel
+              </Button>
+            </div>
+            
+            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-3">
+              <div className="flex items-start space-x-3">
+                <Sparkles className="text-purple-400 mt-0.5" size={16} />
+                <div className="text-sm">
+                  <div className="text-purple-300 font-medium">Premium Concierge Service</div>
+                  <div className="text-purple-400/80 text-xs mt-1">
+                    Your message will be delivered instantly via our luxury concierge service. 
+                    Response typically within 15 minutes during business hours.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
