@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { MessageInterface } from '@/components/message-interface';
 import { useConversations } from '@/hooks/use-messages';
 import { useAuth } from '@/hooks/use-auth';
+import { useQuery } from '@tanstack/react-query';
 import { 
   MessageCircle, 
   Phone, 
@@ -30,7 +31,15 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredConversations = conversations?.filter((conv: any) =>
+  // Fetch active hero video
+  const { data: heroVideo } = useQuery({
+    queryKey: ['/api/media/hero/active'],
+    staleTime: 15 * 60 * 1000, // 15 minutes
+    cacheTime: 60 * 60 * 1000, // 1 hour
+  });
+
+  const filteredConversations = conversations?.filter(conv => 
+    conv.conversationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.lastMessage?.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.conversationId.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
@@ -41,31 +50,33 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   };
 
   const getConversationName = (conversationId: string) => {
-    if (conversationId.includes('admin')) {
+    if (conversationId.includes('_admin')) {
       return 'MBYC Admin';
-    }
-    if (conversationId.includes('concierge')) {
+    } else if (conversationId.includes('_concierge')) {
       return 'MBYC Concierge';
+    } else if (conversationId.includes('_support')) {
+      return 'Customer Support';
     }
-    return 'Support Team';
+    return 'Customer Support';
   };
 
   const getConversationRole = (conversationId: string) => {
-    if (conversationId.includes('admin')) {
+    if (conversationId.includes('_admin')) {
       return 'Club Administrator';
-    }
-    if (conversationId.includes('concierge')) {
+    } else if (conversationId.includes('_concierge')) {
       return 'Premium Concierge Service';
+    } else if (conversationId.includes('_support')) {
+      return 'Customer Support';
     }
     return 'Customer Support';
   };
 
   if (isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="h-screen bg-black flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full" />
-          <p className="text-sm text-gray-500">Loading conversations...</p>
+          <p className="text-sm text-gray-400">Loading conversations...</p>
         </div>
       </div>
     );
@@ -73,18 +84,18 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
   if (selectedConversation) {
     return (
-      <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="h-screen bg-black">
         <div className="h-full flex flex-col">
-          <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-gray-900 border-b border-gray-800 p-4">
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
                 onClick={() => setSelectedConversation(null)}
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                className="text-gray-400 hover:text-white"
               >
                 ← Back to Messages
               </Button>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h1 className="text-xl font-semibold text-white">
                 {getConversationName(selectedConversation)}
               </h1>
               <div className="w-20" />
@@ -104,9 +115,25 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="h-screen bg-black relative overflow-hidden">
+      {/* Video Background Header */}
+      {heroVideo && (
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            className="w-full h-full object-cover"
+            style={{ filter: 'brightness(0.3)' }}
+          >
+            <source src={`/api/media/${heroVideo.filename}`} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
+        </div>
+      )}
+
       {/* Floating particles background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
@@ -121,10 +148,10 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
         ))}
       </div>
       
-      <div className="h-full flex flex-col relative z-10">
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+      <div className="h-full flex flex-col relative z-20">
+        <div className="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 p-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
+            <h1 className="text-2xl font-bold text-white">Messages</h1>
             <Button
               onClick={handleNewConversation}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
@@ -140,7 +167,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+              className="pl-10 bg-gray-800/80 backdrop-blur-sm border-gray-700 text-white placeholder-gray-400"
             />
           </div>
         </div>
@@ -173,12 +200,12 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card 
-                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900 border-gray-800"
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900/90 backdrop-blur-sm border-gray-800"
                     onClick={() => setSelectedConversation(conversation.conversationId)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start space-x-4">
-                        <Avatar className="h-12 w-12 ring-2 ring-purple-100 dark:ring-purple-900">
+                        <Avatar className="h-12 w-12 ring-2 ring-purple-500">
                           <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-semibold">
                             {getConversationName(conversation.conversationId).charAt(0)}
                           </AvatarFallback>
@@ -195,7 +222,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                                   {conversation.unreadCount}
                                 </Badge>
                               )}
-                              <Badge variant="outline" className="bg-green-900 text-green-400 border-green-700">
+                              <Badge variant="outline" className="bg-green-900/80 text-green-400 border-green-700">
                                 <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                                 Online
                               </Badge>
@@ -220,23 +247,6 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                             </>
                           )}
                         </div>
-                        
-                        <div className="flex flex-col items-center space-y-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                          >
-                            <Phone className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                          >
-                            <Video className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -244,23 +254,6 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
               ))}
             </div>
           )}
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
-              <MessageCircle className="h-4 w-4" />
-              <span>24/7 Concierge Support</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Phone className="h-4 w-4" />
-              <span>+1 (305) 555-MBYC</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
-              <span>Premium Member Services</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
