@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
+import { setupPaymentRoutes } from "./payments";
 import { notificationService } from "./notifications";
 import { auditService, auditMiddleware } from "./audit";
 import { mediaStorageService } from "./media-storage";
@@ -26,6 +27,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup Twilio concierge routes
   setupTwilioRoutes(app);
+  
+  // Setup payment routes with Stripe Connect
+  setupPaymentRoutes(app);
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {

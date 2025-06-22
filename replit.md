@@ -269,6 +269,14 @@ Changelog:
   - Services marked as "pending" and associated with yacht booking for coordinated delivery
   - Enhanced review step shows selected services summary with individual and total pricing
   - Integration maintains free yacht rental while adding optional premium service add-ons
+- June 22, 2025. Multi-tenant Stripe Connect payment system implemented for service provider routing
+  - Service provider payments automatically route to their individual Stripe Connect accounts
+  - Yacht owner/admin payments route to main Miami Beach Yacht Club account  
+  - Platform takes 10-20% application fees automatically deducted from transfers
+  - Fallback to platform account when service providers haven't completed Stripe onboarding
+  - Connect account creation and onboarding link endpoints for service providers and yacht owners
+  - Enhanced error handling and logging for payment debugging and monitoring
+  - Payment routing works seamlessly whether providers have Connect accounts or not
 
 ## Member Experience Feature Status
 

@@ -77,15 +77,23 @@ export async function setupPaymentRoutes(app: Express) {
       let applicationFeeAmount = 0;
 
       if (serviceIds && serviceIds.length > 0) {
-        // Get the service provider for the first service (assuming all services from same provider)
-        const service = await storage.getService(serviceIds[0]);
-        if (service && service.providerId) {
-          const provider = await storage.getUser(service.providerId);
-          if (provider?.stripeAccountId && provider.stripeAccountStatus === 'active') {
-            destinationAccount = provider.stripeAccountId;
-            // Take 10% platform fee
-            applicationFeeAmount = Math.round(amount * 100 * 0.10);
+        try {
+          // Get the service provider for the first service (assuming all services from same provider)
+          const service = await storage.getService(serviceIds[0]);
+          if (service && service.providerId) {
+            const provider = await storage.getUser(service.providerId);
+            if (provider?.stripeAccountId && provider.stripeAccountStatus === 'active') {
+              destinationAccount = provider.stripeAccountId;
+              // Take 10% platform fee
+              applicationFeeAmount = Math.round(amount * 100 * 0.10);
+              console.log(`💰 Routing payment to service provider account: ${destinationAccount}`);
+            } else {
+              console.log(`📋 Service provider ${provider?.username || 'unknown'} doesn't have active Stripe account, using platform account`);
+            }
           }
+        } catch (error) {
+          console.error("Error checking service provider Stripe account:", error);
+          // Continue with platform account as fallback
         }
       }
 
@@ -98,7 +106,7 @@ export async function setupPaymentRoutes(app: Express) {
           service_type: "yacht_concierge",
           timestamp: new Date().toISOString()
         },
-        statement_descriptor: "MBYC CONCIERGE",
+
         receipt_email: req.isAuthenticated() ? req.user?.email : undefined
       };
 
@@ -110,15 +118,26 @@ export async function setupPaymentRoutes(app: Express) {
         paymentIntentData.application_fee_amount = applicationFeeAmount;
       }
 
+      console.log(`🔄 Creating payment intent for $${amount} with routing:`, destinationAccount ? 'service provider' : 'platform');
+      
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+      console.log(`✅ Payment intent created successfully: ${paymentIntent.id}`);
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
-        destinationAccount: destinationAccount
+        destinationAccount: destinationAccount,
+        routingType: destinationAccount ? 'service_provider' : 'platform'
       });
     } catch (error: any) {
-      console.error("Payment intent creation failed:", error);
+      console.error("❌ Payment intent creation failed:", error);
+      console.error("Error details:", {
+        message: error.message,
+        type: error.type,
+        code: error.code,
+        requestBody: req.body
+      });
       res.status(500).json({ error: "Payment setup failed: " + error.message });
     }
   });
@@ -173,7 +192,7 @@ export async function setupPaymentRoutes(app: Express) {
           service_category: "yacht_services",
           providerId: service.providerId?.toString() || 'platform'
         },
-        statement_descriptor: "MBYC SERVICE",
+
         receipt_email: user.email || undefined
       };
 
@@ -250,7 +269,7 @@ export async function setupPaymentRoutes(app: Express) {
           service_category: "yacht_events",
           hostId: event.hostId?.toString() || 'platform'
         },
-        statement_descriptor: "MBYC EVENT",
+
         receipt_email: user.email || undefined
       };
 
