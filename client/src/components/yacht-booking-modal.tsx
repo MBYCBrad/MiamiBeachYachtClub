@@ -54,28 +54,28 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
   // Time slots (4-hour blocks) with actual time ranges displayed
   const timeSlots = [
     { 
-      value: '09:00-13:00', 
+      value: 'morning', 
       label: 'Morning Cruise', 
       timeRange: '9:00 AM - 1:00 PM',
       icon: '🌅', 
       description: 'Perfect for breakfast cruises and peaceful morning waters' 
     },
     { 
-      value: '13:00-17:00', 
+      value: 'afternoon', 
       label: 'Afternoon Adventure', 
       timeRange: '1:00 PM - 5:00 PM',
       icon: '☀️', 
       description: 'Ideal for lunch cruises and swimming activities' 
     },
     { 
-      value: '17:00-21:00', 
+      value: 'evening', 
       label: 'Sunset Experience', 
       timeRange: '5:00 PM - 9:00 PM',
       icon: '🌅', 
       description: 'Romantic sunset views and evening dining' 
     },
     { 
-      value: '21:00-01:00', 
+      value: 'night', 
       label: 'Night Party', 
       timeRange: '9:00 PM - 1:00 AM',
       icon: '🌙', 
@@ -303,9 +303,9 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const slotData = timeSlotAvailability[slot.value];
                     const isAvailable = slotData?.available;
                     const isBooked = slotData?.available === false;
-                    const hasDataLoaded = Object.keys(timeSlotAvailability).length > 0;
                     
-
+                    // Debug: Force show availability badges
+                    console.log(`Slot ${slot.value}:`, slotData, 'Available:', isAvailable, 'Booked:', isBooked);
                     
                     return (
                       <motion.div
@@ -343,7 +343,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                             <CheckCircle className="w-5 h-5 text-purple-400" />
                           )}
                           
-                          {/* Always show availability status when data exists */}
+                          {/* Real-time availability status from database */}
                           {timeSlotAvailability[slot.value] && (
                             <div className={`text-xs px-2 py-1 rounded font-medium ${
                               timeSlotAvailability[slot.value].available
