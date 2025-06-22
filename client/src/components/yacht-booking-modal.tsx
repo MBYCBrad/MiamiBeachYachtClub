@@ -83,7 +83,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     }
   ];
 
-  const [timeSlotAvailability, setTimeSlotAvailability] = useState<Record<string, boolean>>({});
+  const [timeSlotAvailability, setTimeSlotAvailability] = useState<Record<string, {available: boolean, bookedBy?: string}>>({});
 
   // Booking steps
   const steps = [
@@ -93,7 +93,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     { id: 4, title: 'Confirmation', completed: false }
   ];
 
-  // Get all time slot availability instantly from database
+  // Real-time availability check from database
   const checkAllTimeSlotAvailability = async (selectedDate: string) => {
     if (!yacht || !selectedDate) return;
 
@@ -104,22 +104,12 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       });
       const result = await response.json();
       
-      // Convert server response to simple boolean format for UI
-      const availability: Record<string, boolean> = {};
-      Object.entries(result.availability).forEach(([slot, data]: [string, any]) => {
-        availability[slot] = data.available;
-      });
-      
-      setTimeSlotAvailability(availability);
+      // Set the raw availability data directly
+      setTimeSlotAvailability(result.availability);
+      console.log('Real-time availability for', selectedDate, ':', result.availability);
     } catch (error) {
       console.error('Error fetching availability:', error);
-      // Set all slots as unavailable on error
-      setTimeSlotAvailability({
-        morning: false,
-        afternoon: false,
-        evening: false,
-        night: false
-      });
+      setTimeSlotAvailability({});
     }
   };
 
@@ -310,24 +300,25 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                 <Label className="text-gray-300">Choose Your 4-Hour Time Slot</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                   {timeSlots.map((slot) => {
-                    const isAvailable = timeSlotAvailability[slot.value];
-                    const isBooked = bookingData.startDate && isAvailable === false;
-                    const hasDataLoaded = bookingData.startDate && Object.keys(timeSlotAvailability).length > 0;
+                    const slotData = timeSlotAvailability[slot.value];
+                    const isAvailable = slotData?.available;
+                    const isBooked = slotData?.available === false;
+                    const hasDataLoaded = Object.keys(timeSlotAvailability).length > 0;
                     
 
                     
                     return (
                       <motion.div
                         key={slot.value}
-                        whileHover={timeSlotAvailability[slot.value] !== false ? { scale: 1.02 } : {}}
-                        whileTap={timeSlotAvailability[slot.value] !== false ? { scale: 0.98 } : {}}
+                        whileHover={isAvailable ? { scale: 1.02 } : {}}
+                        whileTap={isAvailable ? { scale: 0.98 } : {}}
                         onClick={() => {
-                          if (timeSlotAvailability[slot.value] !== false) {
+                          if (isAvailable) {
                             setBookingData({...bookingData, timeSlot: slot.value});
                           }
                         }}
                         className={`relative p-3 rounded-lg border-2 transition-all duration-300 ${
-                          timeSlotAvailability[slot.value] === false
+                          isBooked
                             ? 'border-red-500/50 bg-red-500/10 cursor-not-allowed opacity-75'
                             : bookingData.timeSlot === slot.value 
                             ? 'border-purple-500 bg-purple-500/20 cursor-pointer' 
@@ -349,18 +340,18 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                           </div>
                         {/* Status Indicators */}
                         <div className="flex flex-col items-end space-y-1">
-                          {bookingData.timeSlot === slot.value && timeSlotAvailability[slot.value] !== false && (
+                          {bookingData.timeSlot === slot.value && isAvailable && (
                             <CheckCircle className="w-5 h-5 text-purple-400" />
                           )}
                           
-                          {/* Show availability status */}
-                          {bookingData.startDate && timeSlotAvailability.hasOwnProperty(slot.value) && (
+                          {/* Real-time availability status from database */}
+                          {timeSlotAvailability[slot.value] && (
                             <div className={`text-xs px-2 py-1 rounded font-medium ${
-                              timeSlotAvailability[slot.value] === true
+                              timeSlotAvailability[slot.value].available
                                 ? 'bg-green-500 text-white' 
                                 : 'bg-red-500 text-white'
                             }`}>
-                              {timeSlotAvailability[slot.value] === true ? 'Available' : 'Already Booked'}
+                              {timeSlotAvailability[slot.value].available ? 'Available' : 'Already Booked'}
                             </div>
                           )}
                         </div>
@@ -414,10 +405,10 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               </Alert>
 
               {/* Instant Availability Display */}
-              {bookingData.startDate && bookingData.timeSlot && timeSlotAvailability.hasOwnProperty(bookingData.timeSlot) && (
-                <Alert className={`${timeSlotAvailability[bookingData.timeSlot] === true ? 'border-green-500/50 bg-green-500/10' : 'border-red-500/50 bg-red-500/10'}`}>
-                  <AlertDescription className={timeSlotAvailability[bookingData.timeSlot] === true ? 'text-green-400' : 'text-red-400'}>
-                    {timeSlotAvailability[bookingData.timeSlot] === true
+              {bookingData.startDate && bookingData.timeSlot && timeSlotAvailability[bookingData.timeSlot] && (
+                <Alert className={`${timeSlotAvailability[bookingData.timeSlot]?.available ? 'border-green-500/50 bg-green-500/10' : 'border-red-500/50 bg-red-500/10'}`}>
+                  <AlertDescription className={timeSlotAvailability[bookingData.timeSlot]?.available ? 'text-green-400' : 'text-red-400'}>
+                    {timeSlotAvailability[bookingData.timeSlot]?.available
                       ? '✓ Yacht is available for your selected date and time slot!'
                       : '✗ Sorry, this yacht is not available for the selected date and time. Please choose a different slot.'
                     }
@@ -428,7 +419,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               <div className="flex justify-end">
                 <Button
                   onClick={() => setCurrentStep(2)}
-                  disabled={timeSlotAvailability[bookingData.timeSlot] !== true || !bookingData.startDate || !bookingData.timeSlot}
+                  disabled={!timeSlotAvailability[bookingData.timeSlot]?.available || !bookingData.startDate || !bookingData.timeSlot}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   Continue
