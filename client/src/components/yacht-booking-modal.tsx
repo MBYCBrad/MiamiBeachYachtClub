@@ -304,8 +304,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const isAvailable = slotData?.available;
                     const isBooked = slotData?.available === false;
                     
-                    // Debug: Force show availability badges
-                    console.log(`Slot ${slot.value}:`, slotData, 'Available:', isAvailable, 'Booked:', isBooked);
+
                     
                     return (
                       <motion.div
