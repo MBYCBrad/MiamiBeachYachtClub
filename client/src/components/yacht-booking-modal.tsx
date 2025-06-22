@@ -170,6 +170,9 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
   });
 
   const [selectedServices, setSelectedServices] = useState<{serviceId: number, price: number, name: string}[]>([]);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState<string>('');
 
   // Fetch available concierge services
   const { data: services = [] } = useQuery<any[]>({
@@ -255,6 +258,9 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       });
       setTimeSlotAvailability({});
       setSelectedServices([]);
+      setPaymentCompleted(false);
+      setPaymentProcessing(false);
+      setPaymentIntentId('');
     }
   }, [isOpen, user?.phone]);
 
@@ -274,17 +280,17 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       return await response.json();
     },
     onSuccess: async (newBooking: Booking) => {
-      // Create service bookings if any services were selected
-      if (selectedServices.length > 0) {
+      // Create service bookings if any services were selected and payment completed
+      if (selectedServices.length > 0 && paymentCompleted) {
         try {
           for (const service of selectedServices) {
             await apiRequest('POST', '/api/service-bookings', {
               userId: user!.id,
               serviceId: service.serviceId,
               bookingDate: bookingData.startDate,
-              status: 'pending',
+              status: 'confirmed',
               totalPrice: service.price.toString(),
-              specialRequests: `Associated with yacht booking for ${yacht.name}`
+              specialRequests: `Associated with yacht booking #${newBooking.id} for ${yacht.name}. Payment ID: ${paymentIntentId}`
             });
           }
         } catch (error) {
@@ -335,16 +341,25 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     const timeMapping = timeSlotMap[bookingData.timeSlot];
     if (!timeMapping) return;
 
-    const startDate = bookingData.startDate;
-    const endDate = bookingData.timeSlot === 'night' ? 
-      new Date(new Date(bookingData.startDate).getTime() + 86400000).toISOString().split('T')[0] : 
-      bookingData.startDate;
+    // Ensure proper date formatting
+    const baseDate = new Date(bookingData.startDate);
+    const startDateTime = new Date(baseDate);
+    startDateTime.setHours(parseInt(timeMapping.start.split(':')[0]), parseInt(timeMapping.start.split(':')[1]), 0, 0);
+    
+    const endDateTime = new Date(baseDate);
+    if (bookingData.timeSlot === 'night' && timeMapping.end === '01:00') {
+      // Night slot ends next day at 1 AM
+      endDateTime.setDate(endDateTime.getDate() + 1);
+      endDateTime.setHours(1, 0, 0, 0);
+    } else {
+      endDateTime.setHours(parseInt(timeMapping.end.split(':')[0]), parseInt(timeMapping.end.split(':')[1]), 0, 0);
+    }
     
     const bookingPayload: InsertBooking = {
       userId: user.id,
       yachtId: yacht.id,
-      startTime: new Date(`${startDate}T${timeMapping.start}:00`),
-      endTime: new Date(`${endDate}T${timeMapping.end}:00`),
+      startTime: startDateTime,
+      endTime: endDateTime,
       guestCount: bookingData.guestCount,
       totalPrice: "0.00",
       status: 'confirmed',
@@ -716,25 +731,40 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                 })}
               </div>
 
-              {/* Selected Services Summary */}
+              {/* Payment Section for Selected Services */}
               {selectedServices.length > 0 && (
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                  <h4 className="font-medium text-purple-300 mb-2">Selected Services</h4>
-                  <div className="space-y-1">
-                    {selectedServices.map((service, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span className="text-gray-300">{service.name}</span>
-                        <span className="text-purple-400">${service.price}</span>
-                      </div>
-                    ))}
-                    <div className="border-t border-purple-500/30 pt-2 mt-2">
-                      <div className="flex justify-between font-medium">
-                        <span className="text-white">Total Add-ons:</span>
-                        <span className="text-purple-400">${selectedServices.reduce((sum, s) => sum + s.price, 0)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Elements stripe={stripePromise}>
+                  <ServicePaymentForm 
+                    selectedServices={selectedServices}
+                    onPaymentSuccess={(paymentIntent) => {
+                      setPaymentCompleted(true);
+                      setPaymentIntentId(paymentIntent.id);
+                      toast({
+                        title: "Payment Successful",
+                        description: `Your payment of $${selectedServices.reduce((sum, s) => sum + s.price, 0)} for concierge services has been processed.`,
+                      });
+                    }}
+                    onPaymentError={(error) => {
+                      toast({
+                        title: "Payment Failed",
+                        description: error,
+                        variant: "destructive"
+                      });
+                    }}
+                    isProcessing={paymentProcessing}
+                    setIsProcessing={setPaymentProcessing}
+                  />
+                </Elements>
+              )}
+
+              {/* Payment Success Message */}
+              {paymentCompleted && selectedServices.length > 0 && (
+                <Alert className="border-green-500/50 bg-green-500/10">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <AlertDescription className="text-green-400">
+                    Payment successful! Your concierge services are confirmed and will be coordinated with your yacht booking.
+                  </AlertDescription>
+                </Alert>
               )}
 
               <Alert className="border-green-500/50 bg-green-500/10">
@@ -750,9 +780,12 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                 </Button>
                 <Button
                   onClick={() => setCurrentStep(4)}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  disabled={selectedServices.length > 0 && !paymentCompleted}
+                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
                 >
-                  {selectedServices.length > 0 ? 'Review Booking' : 'Skip Services'}
+                  {selectedServices.length > 0 
+                    ? (paymentCompleted ? 'Review Booking' : 'Complete Payment First') 
+                    : 'Skip Services'}
                 </Button>
               </div>
             </motion.div>
