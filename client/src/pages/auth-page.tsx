@@ -139,14 +139,21 @@ const PremiumAuthPage: React.FC = () => {
           loop
           playsInline
           onLoadedData={() => setIsVideoLoaded(true)}
+          onError={(e) => console.error('Video error:', e)}
           className="w-full h-full object-cover"
+          style={{ opacity: isVideoLoaded ? 1 : 0 }}
         >
           <source src="/api/media/video/15768404-uhd_4096_2160_24fps_1750523880240.mp4" type="video/mp4" />
         </video>
         
-        {/* Video Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-purple-900/60 to-blue-900/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/50" />
+        {/* Fallback gradient background when video is loading */}
+        {!isVideoLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
+        )}
+        
+        {/* Video Overlay - very light to show video clearly */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-purple-900/5 to-blue-900/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
       </div>
 
       {/* Floating Particles */}
