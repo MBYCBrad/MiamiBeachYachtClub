@@ -312,6 +312,11 @@ Changelog:
   - Content properly positioned below video header: search controls and conversation list
   - Maintained dark theme conversation cards with semi-transparent backgrounds and purple accents
   - Full design consistency across all MBYC menu pages (Explore, Trips, Favorites, Messages)
+- June 22, 2025. Profile page cleanup - removed cluttering interface elements
+  - Removed Preferences section with notification settings and language selection
+  - Removed Quick Actions Bar with Security, Billing, Notifications, and Export buttons
+  - Streamlined profile interface focusing on core member information and customization options
+  - Maintained essential functionality while eliminating visual clutter for better user experience
 
 ## Member Experience Feature Status
 
