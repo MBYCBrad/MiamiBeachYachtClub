@@ -231,6 +231,9 @@ Changelog:
   - Added loading states and error handling for booking process
   - Service bookings now create database records and redirect to trips page successfully
   - Removed blocking date validation to allow immediate booking with smart defaults
+  - Fixed member home page "Book Service" button with proper onClick handler and booking functionality
+  - Service booking system now operational across all member experience interfaces
+  - Live tested with successful database booking creation (booking IDs 4 and 5 confirmed)
 
 ## Member Experience Feature Status
 

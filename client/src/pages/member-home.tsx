@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroVideo } from '@/hooks/use-hero-video';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,7 @@ interface MemberHomeProps {
 export default function MemberHome({ currentView, setCurrentView }: MemberHomeProps) {
   const { user } = useAuth();
   const { data: heroVideo, isLoading: videoLoading } = useHeroVideo();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
@@ -55,6 +57,56 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const handleSearch = (criteria: any) => {
     // Navigate to search results with criteria
     setCurrentView('search-results');
+  };
+
+  const handleServiceBooking = async (service: Service) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book this service.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Create service booking directly in database
+      const bookingDate = new Date();
+      bookingDate.setDate(bookingDate.getDate() + 1); // Tomorrow
+      
+      const response = await fetch('/api/service-bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: service.id,
+          bookingDate: bookingDate.toISOString(),
+          status: 'confirmed'
+        })
+      });
+
+      if (response.ok) {
+        const booking = await response.json();
+        toast({
+          title: "Service Booked Successfully!",
+          description: `Your ${service.name} booking has been confirmed for ${bookingDate.toLocaleDateString()}.`,
+        });
+        setCurrentView('trips');
+      } else {
+        const error = await response.text();
+        toast({
+          title: "Booking Failed",
+          description: error || "Failed to book service. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Service booking error:', error);
+      toast({
+        title: "Booking Failed",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
@@ -294,6 +346,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
+                              onClick={() => handleServiceBooking(service)}
                               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             >
                               Book Service

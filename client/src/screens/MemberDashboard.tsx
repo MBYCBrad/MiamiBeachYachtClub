@@ -171,19 +171,29 @@ const MemberDashboard: React.FC = () => {
     if (!user) return;
 
     try {
-      const adjustedPrice = calculateServicePrice(parseFloat(service.pricePerSession || '0'), user.membershipTier as any);
-      const paymentIntent = await stripeService.createServicePaymentIntent({
-        serviceId: service.id,
-        userId: user.id,
-        bookingDate: selectedDate.toISOString(),
-        datetime: selectedDate.toISOString(),
-        totalPrice: parseFloat(service.pricePerSession || '0')
+      // Create service booking directly in database
+      const bookingDate = selectedDate.toISOString();
+      
+      const response = await fetch('/api/service-bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceId: service.id,
+          bookingDate: bookingDate,
+          status: 'confirmed'
+        })
       });
 
-      // Open Stripe payment modal here
-      console.log('Payment intent created:', paymentIntent);
+      if (response.ok) {
+        const booking = await response.json();
+        alert(`Service "${service.name}" booked successfully! Booking ID: ${booking.id}`);
+      } else {
+        const error = await response.text();
+        alert(`Booking failed: ${error}`);
+      }
     } catch (error) {
-      alert('Payment setup failed. Please try again.');
+      console.error('Service booking error:', error);
+      alert('Booking failed. Please try again.');
     }
   };
 
