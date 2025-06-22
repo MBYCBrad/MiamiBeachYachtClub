@@ -6,6 +6,10 @@ import YachtBookingModal from './yacht-booking-modal';
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
 import { useOptimizedImage } from '@/hooks/use-optimized-images';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 // Authentic yacht images from storage bucket
 const YACHT_IMAGES = [
@@ -31,24 +35,91 @@ interface YachtCardProps {
 }
 
 const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const yachtImage = getYachtImage(yacht.id);
   const { imageSrc, isLoading } = useOptimizedImage(yachtImage);
 
+  // Get user's favorites
+  const { data: userFavorites = [] } = useQuery({
+    queryKey: ['/api/favorites'],
+    enabled: !!user,
+  });
+
+  const isFavorite = Array.isArray(userFavorites) && userFavorites.some((fav: any) => fav.yachtId === yacht.id);
+
+  // Add favorite mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/favorites', { yachtId: yacht.id });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: `${yacht.name} has been added to your favorites`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add yacht to favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Remove favorite mutation
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('DELETE', `/api/favorites?yachtId=${yacht.id}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: `${yacht.name} has been removed from your favorites`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove yacht from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isFavorite) {
+      removeFavoriteMutation.mutate();
+    } else {
+      addFavoriteMutation.mutate();
+    }
   };
 
-  const openBookingModal = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const openBookingModal = () => {
     setIsBookingModalOpen(true);
   };
 
   return (
     <motion.div
+      onClick={openBookingModal}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 
@@ -67,7 +138,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
         }
       }}
       whileTap={{ scale: 0.98 }}
-      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden
+      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden cursor-pointer
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60
         hover:bg-gray-800/50
@@ -112,7 +183,8 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
           {/* Premium Favorite Button */}
           <motion.button
             onClick={toggleFavorite}
-            className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20 group/heart"
+            disabled={addFavoriteMutation.isPending || removeFavoriteMutation.isPending}
+            className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20 group/heart disabled:opacity-50"
             whileHover={{ 
               scale: 1.1,
               backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -239,40 +311,12 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
               </motion.span>
               <span className="text-sm text-gray-400 block group-hover:text-purple-300 transition-colors duration-300">with membership</span>
             </motion.div>
-            <div className="flex space-x-2">
-              <motion.div
-                whileHover={{ 
-                  scale: 1.05,
-                  transition: { type: "spring", stiffness: 400 }
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = `/yachts/${yacht.id}`;
-                  }}
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-                >
-                  View Details
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ 
-                  scale: 1.05,
-                  transition: { type: "spring", stiffness: 400 }
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button 
-                  onClick={openBookingModal}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
-                >
-                  Book Now
-                </Button>
-              </motion.div>
-            </div>
+            <motion.div
+              className="text-center text-sm text-gray-400 group-hover:text-purple-300 transition-colors duration-300 font-medium"
+              whileHover={{ scale: 1.02 }}
+            >
+              Click to book this yacht
+            </motion.div>
           </motion.div>
 
           {/* Amenities */}
