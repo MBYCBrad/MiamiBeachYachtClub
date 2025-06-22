@@ -117,9 +117,17 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
     setIsBookingModalOpen(true);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only navigate if the click is not on an interactive element
+    const target = e.target as HTMLElement;
+    if (!target.closest('button')) {
+      window.location.href = `/yachts/${yacht.id}`;
+    }
+  };
+
   return (
     <motion.div
-      onClick={() => window.location.href = `/yachts/${yacht.id}`}
+      onClick={handleCardClick}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 
