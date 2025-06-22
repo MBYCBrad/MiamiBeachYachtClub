@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronRight, Sparkles, DollarSign, MessageSquare, MoreHorizontal, Scissors, UtensilsCrossed, Camera, Waves, Music, Heart, Dumbbell, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { Booking, ServiceBooking, EventRegistration, MediaAsset } from '@shared/schema';
+import type { Booking, ServiceBooking, EventRegistration, MediaAsset, Yacht, Service } from '@shared/schema';
 
 interface MemberTripsProps {
   currentView: string;
@@ -31,6 +31,51 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const { data: eventRegistrations = [], isLoading: eventLoading } = useQuery<EventRegistration[]>({
     queryKey: ['/api/event-registrations', { status: 'confirmed' }]
   });
+
+  // Fetch yacht details for comprehensive display
+  const { data: yachts = [] } = useQuery<Yacht[]>({
+    queryKey: ['/api/yachts']
+  });
+
+  // Fetch service details for service breakdown
+  const { data: services = [] } = useQuery<Service[]>({
+    queryKey: ['/api/services']
+  });
+
+  // Helper function to get yacht details by ID
+  const getYachtById = (yachtId: number | null) => {
+    if (!yachtId) return null;
+    return yachts.find(yacht => yacht.id === yachtId);
+  };
+
+  // Helper function to get service details by ID
+  const getServiceById = (serviceId: number | null) => {
+    if (!serviceId) return null;
+    return services.find(service => service.id === serviceId);
+  };
+
+  // Helper function to get services for a user on the same day as booking
+  const getServicesForBooking = (booking: Booking) => {
+    const bookingDate = new Date(booking.startTime).toDateString();
+    return serviceBookings.filter(sb => 
+      sb.userId === booking.userId && 
+      new Date(sb.bookingDate).toDateString() === bookingDate
+    );
+  };
+
+  // Service category icons mapping
+  const getServiceIcon = (category: string) => {
+    const iconMap: { [key: string]: any } = {
+      'Beauty & Grooming': Scissors,
+      'Culinary': UtensilsCrossed,
+      'Wellness & Spa': Heart,
+      'Photography & Media': Camera,
+      'Entertainment': Music,
+      'Water Sports': Waves,
+      'Concierge & Lifestyle': Coffee
+    };
+    return iconMap[category] || Coffee;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -156,68 +201,193 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Yacht Bookings */}
-                {upcomingYachtBookings.map((booking, index) => (
-                  <motion.div
-                    key={`yacht-${booking.id}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card className="bg-gray-900/50 border-gray-800 hover-lift">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="text-xl font-bold text-white mb-1">
-                              Yacht Booking #{booking.id}
-                            </h3>
-                            <Badge className={`${getStatusColor(booking.status)} border`}>
-                              {booking.status}
-                            </Badge>
+                {/* Enhanced Yacht Bookings with Comprehensive Details */}
+                {upcomingYachtBookings.map((booking, index) => {
+                  const yacht = getYachtById(booking.yachtId);
+                  const bookingServices = getServicesForBooking(booking);
+                  const servicesTotal = bookingServices.reduce((sum, sb) => sum + parseFloat(sb.totalPrice || '0'), 0);
+                  
+                  return (
+                    <motion.div
+                      key={`yacht-${booking.id}`}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      whileHover={{ y: -5, scale: 1.02 }}
+                      className="mb-6"
+                    >
+                      <Card className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 backdrop-blur-sm overflow-hidden">
+                        <CardContent className="p-0">
+                          {/* Enhanced Header with Yacht Image */}
+                          <div className="relative h-48 bg-gradient-to-r from-purple-900 to-blue-900">
+                            <div className="absolute inset-0 bg-black/40"></div>
+                            <img 
+                              src={yacht?.imageUrl || "/api/media/pexels-mali-42092_1750537277229.jpg"}
+                              alt={yacht?.name || "Yacht"}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-4 left-4 flex items-center space-x-3">
+                              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
+                              <Badge className="bg-green-600/30 text-green-300 border border-green-500/50 backdrop-blur-sm">
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                              </Badge>
+                            </div>
+                            <div className="absolute bottom-4 left-4">
+                              <h3 className="text-2xl font-bold text-white mb-1">{yacht?.name || "Luxury Yacht"}</h3>
+                              <p className="text-blue-200 text-sm">{yacht?.size}ft • Luxury Yacht • Booking #{booking.id}</p>
+                            </div>
                           </div>
-                          <ChevronRight className="text-gray-400" size={20} />
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center text-gray-300">
-                            <Calendar size={16} className="mr-2" />
-                            <span className="text-sm">{formatDate(booking.startTime.toString())}</span>
-                          </div>
-                          <div className="flex items-center text-gray-300">
-                            <Clock size={16} className="mr-2" />
-                            <span className="text-sm">{formatTime(booking.startTime.toString())}</span>
-                          </div>
-                          <div className="flex items-center text-gray-300">
-                            <Users size={16} className="mr-2" />
-                            <span className="text-sm">Party booking</span>
-                          </div>
-                          <div className="flex items-center text-gray-300">
-                            <span className="text-sm font-semibold">
-                              ${booking.totalPrice ? parseFloat(booking.totalPrice).toLocaleString() : 'TBD'}
-                            </span>
-                          </div>
-                        </div>
+                          <div className="p-6">
+                            {/* Trip Details Grid */}
+                            <div className="grid grid-cols-2 gap-6 mb-6">
+                              <div className="space-y-3">
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-purple-600/20 rounded-lg">
+                                    <Calendar size={18} className="text-purple-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-400 text-sm">Date</p>
+                                    <p className="text-white font-semibold">{formatDate(booking.startTime.toString())}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-blue-600/20 rounded-lg">
+                                    <Clock size={18} className="text-blue-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-400 text-sm">Time</p>
+                                    <p className="text-white font-semibold">{formatTime(booking.startTime.toString())} - {formatTime(booking.endTime.toString())}</p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-cyan-600/20 rounded-lg">
+                                    <Users size={18} className="text-cyan-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-400 text-sm">Guests</p>
+                                    <p className="text-white font-semibold">{booking.guestCount} people</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-green-600/20 rounded-lg">
+                                    <DollarSign size={18} className="text-green-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-400 text-sm">Yacht Cost</p>
+                                    <p className="text-green-400 font-bold text-lg">FREE</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
 
-                        <div className="flex space-x-3">
-                          <Button
-                            size="sm"
-                            className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-xl"
-                          >
-                            <MessageCircle size={16} className="mr-2" />
-                            Message Host
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded-xl"
-                          >
-                            <Phone size={16} className="mr-2" />
-                            Contact
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                            {/* Yacht Specifications */}
+                            <div className="mb-6">
+                              <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                                <Waves className="mr-2 text-blue-400" size={20} />
+                                Yacht Specifications
+                              </h4>
+                              <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-xl p-4 border border-blue-500/20">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="text-center">
+                                    <p className="text-2xl font-bold text-blue-400">{yacht?.size}ft</p>
+                                    <p className="text-gray-400 text-sm">Length</p>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="text-2xl font-bold text-cyan-400">{yacht?.capacity}</p>
+                                    <p className="text-gray-400 text-sm">Max Capacity</p>
+                                  </div>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-gray-700">
+                                  <p className="text-white text-center"><span className="text-gray-400">Type:</span> Luxury Yacht</p>
+                                  {yacht?.location && <p className="text-white text-center mt-1"><span className="text-gray-400">Location:</span> {yacht.location}</p>}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Concierge Services Section - Only show if services exist */}
+                            {bookingServices.length > 0 && (
+                              <div className="mb-6">
+                                <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                                  <Sparkles className="mr-2 text-yellow-400" size={20} />
+                                  Concierge Services Added
+                                </h4>
+                                <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-500/20">
+                                  <div className="grid grid-cols-1 gap-3">
+                                    {bookingServices.map((serviceBooking) => {
+                                      const service = getServiceById(serviceBooking.serviceId);
+                                      const ServiceIcon = service && service.category ? getServiceIcon(service.category) : Coffee;
+                                      
+                                      return (
+                                        <div key={serviceBooking.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                                          <div className="flex items-center space-x-3">
+                                            <div className="p-2 bg-purple-600/20 rounded-lg">
+                                              <ServiceIcon size={16} className="text-purple-400" />
+                                            </div>
+                                            <div>
+                                              <p className="text-white font-medium">{service?.name || "Premium Service"}</p>
+                                              <p className="text-gray-400 text-sm">{service?.category || "Concierge"}</p>
+                                            </div>
+                                          </div>
+                                          <p className="text-green-400 font-semibold">${parseFloat(serviceBooking.totalPrice || '0').toFixed(0)}</p>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                  <div className="mt-3 pt-3 border-t border-gray-700">
+                                    <div className="flex justify-between items-center">
+                                      <p className="text-white font-semibold">Services Total:</p>
+                                      <p className="text-green-400 font-bold text-lg">${servicesTotal.toFixed(0)}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Special Requests */}
+                            {booking.specialRequests && (
+                              <div className="mb-6">
+                                <h4 className="text-lg font-semibold text-white mb-2 flex items-center">
+                                  <MessageSquare className="mr-2 text-blue-400" size={18} />
+                                  Special Requests
+                                </h4>
+                                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                                  <p className="text-blue-200">{booking.specialRequests}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex space-x-3">
+                              <Button
+                                size="sm"
+                                className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-xl flex-1"
+                              >
+                                <MessageCircle size={16} className="mr-2" />
+                                Message Captain
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded-xl flex-1"
+                              >
+                                <Phone size={16} className="mr-2" />
+                                Contact Marina
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-600/30 rounded-xl"
+                              >
+                                <MoreHorizontal size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
 
                 {/* Service Bookings */}
                 {upcomingServiceBookings.map((booking, index) => (
