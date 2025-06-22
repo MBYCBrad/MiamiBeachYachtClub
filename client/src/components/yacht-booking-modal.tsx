@@ -51,6 +51,14 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     experienceType: 'leisure_tour'
   });
 
+  const [selectedServices, setSelectedServices] = useState<{serviceId: number, price: number, name: string}[]>([]);
+
+  // Fetch available concierge services
+  const { data: services = [] } = useQuery<any[]>({
+    queryKey: ['/api/services'],
+    enabled: currentStep === 3, // Only load when on concierge services step
+  });
+
   // Time slots (4-hour blocks) with actual time ranges displayed
   const timeSlots = [
     { 
@@ -89,8 +97,9 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
   const steps = [
     { id: 1, title: 'Date & Time', completed: currentStep > 1 },
     { id: 2, title: 'Guest Details', completed: currentStep > 2 },
-    { id: 3, title: 'Review', completed: currentStep > 3 },
-    { id: 4, title: 'Confirmation', completed: false }
+    { id: 3, title: 'Concierge Services', completed: currentStep > 3 },
+    { id: 4, title: 'Review', completed: currentStep > 4 },
+    { id: 5, title: 'Confirmation', completed: false }
   ];
 
   // Real-time availability check from database
@@ -127,6 +136,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         experienceType: 'leisure_tour'
       });
       setTimeSlotAvailability({});
+      setSelectedServices([]);
     }
   }, [isOpen, user?.phone]);
 
@@ -145,19 +155,43 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       const response = await apiRequest('POST', '/api/bookings', booking);
       return await response.json();
     },
-    onSuccess: (newBooking: Booking) => {
+    onSuccess: async (newBooking: Booking) => {
+      // Create service bookings if any services were selected
+      if (selectedServices.length > 0) {
+        try {
+          for (const service of selectedServices) {
+            await apiRequest('POST', '/api/service-bookings', {
+              userId: user!.id,
+              serviceId: service.serviceId,
+              bookingDate: bookingData.startDate,
+              status: 'pending',
+              totalPrice: service.price.toString(),
+              specialRequests: `Associated with yacht booking for ${yacht.name}`
+            });
+          }
+        } catch (error) {
+          console.error('Error creating service bookings:', error);
+        }
+      }
+
       // Invalidate all booking-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
       queryClient.invalidateQueries({ queryKey: ['/api/trips'] });
       queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
       
       // Reset availability status so it rechecks on next attempt
       setTimeSlotAvailability({});
       
-      setCurrentStep(4);
+      setCurrentStep(5);
+      
+      const servicesText = selectedServices.length > 0 
+        ? ` with ${selectedServices.length} concierge service${selectedServices.length > 1 ? 's' : ''}`
+        : '';
+      
       toast({
         title: "Booking Confirmed!",
-        description: `Your yacht booking #${newBooking.id} has been confirmed.`,
+        description: `Your yacht booking #${newBooking.id} has been confirmed${servicesText}.`,
       });
     },
     onError: (error: Error) => {
@@ -169,7 +203,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     }
   });
 
-  const handleBookingSubmit = () => {
+  const handleBookingSubmit = async () => {
     if (!yacht || !user || !bookingData.timeSlot || !bookingData.startDate) return;
 
     // Map time slots to actual times (same as availability check)
@@ -199,6 +233,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       specialRequests: bookingData.specialRequests
     };
 
+    // Create yacht booking
     createBookingMutation.mutate(bookingPayload);
   };
 
@@ -490,7 +525,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                   disabled={!bookingData.contactPhone}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
-                  Review Booking
+                  Continue
                 </Button>
               </div>
             </motion.div>
@@ -499,6 +534,115 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
           {currentStep === 3 && (
             <motion.div
               key="step3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4"
+            >
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">Add Concierge Services (Optional)</h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  Enhance your yacht experience with premium concierge services. All services will be coordinated during your 4-hour rental.
+                </p>
+              </div>
+
+              {/* Services Grid */}
+              <div className="grid grid-cols-1 gap-4 max-h-80 overflow-y-auto">
+                {(services as any[]).map((service: any) => {
+                  const isSelected = selectedServices.some(s => s.serviceId === service.id);
+                  const serviceCategories: Record<string, string> = {
+                    'beauty_grooming': '💄',
+                    'culinary': '🍽️',
+                    'wellness_spa': '🧘',
+                    'photography_media': '📸',
+                    'entertainment': '🎵',
+                    'water_sports': '🏄',
+                    'concierge_lifestyle': '🛎️'
+                  };
+
+                  return (
+                    <div
+                      key={service.id}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedServices(prev => prev.filter(s => s.serviceId !== service.id));
+                        } else {
+                          setSelectedServices(prev => [...prev, {
+                            serviceId: service.id,
+                            price: service.price,
+                            name: service.name
+                          }]);
+                        }
+                      }}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                        isSelected
+                          ? 'border-purple-500 bg-purple-500/20'
+                          : 'border-gray-600 bg-gray-700/30 hover:border-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-2xl">{serviceCategories[service.category] || '🛎️'}</span>
+                          <div>
+                            <h4 className="font-medium text-white">{service.name}</h4>
+                            <p className="text-sm text-gray-400">{service.description}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-purple-400">${service.price}</div>
+                          <div className="text-xs text-gray-400">per service</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Selected Services Summary */}
+              {selectedServices.length > 0 && (
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                  <h4 className="font-medium text-purple-300 mb-2">Selected Services</h4>
+                  <div className="space-y-1">
+                    {selectedServices.map((service, index) => (
+                      <div key={index} className="flex justify-between text-sm">
+                        <span className="text-gray-300">{service.name}</span>
+                        <span className="text-purple-400">${service.price}</span>
+                      </div>
+                    ))}
+                    <div className="border-t border-purple-500/30 pt-2 mt-2">
+                      <div className="flex justify-between font-medium">
+                        <span className="text-white">Total Add-ons:</span>
+                        <span className="text-purple-400">${selectedServices.reduce((sum, s) => sum + s.price, 0)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <Info className="w-4 h-4 text-green-400" />
+                <AlertDescription className="text-green-400">
+                  Your yacht rental is complimentary. Concierge services are optional premium add-ons that will be charged separately.
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={() => setCurrentStep(2)} className="border-gray-600 text-gray-300">
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(4)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {selectedServices.length > 0 ? 'Review Booking' : 'Skip Services'}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+
+          {currentStep === 4 && (
+            <motion.div
+              key="step4"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -520,10 +664,31 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     <p className="text-white">{bookingData.guestCount} guests</p>
                   </div>
                   <div>
-                    <span className="text-gray-400">Total:</span>
+                    <span className="text-gray-400">Yacht Rental:</span>
                     <p className="text-green-400 font-bold">FREE</p>
                   </div>
                 </div>
+
+                {/* Selected Services Summary */}
+                {selectedServices.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-600">
+                    <h4 className="font-medium text-white mb-2">Selected Concierge Services</h4>
+                    <div className="space-y-1">
+                      {selectedServices.map((service, index) => (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span className="text-gray-300">{service.name}</span>
+                          <span className="text-purple-400">${service.price}</span>
+                        </div>
+                      ))}
+                      <div className="border-t border-gray-600 pt-2 mt-2">
+                        <div className="flex justify-between font-medium">
+                          <span className="text-white">Services Total:</span>
+                          <span className="text-purple-400">${selectedServices.reduce((sum, s) => sum + s.price, 0)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Alert className="border-yellow-500/50 bg-yellow-500/10">
@@ -534,7 +699,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               </Alert>
 
               <div className="flex justify-between">
-                <Button variant="outline" onClick={() => setCurrentStep(2)} className="border-gray-600 text-gray-300">
+                <Button variant="outline" onClick={() => setCurrentStep(3)} className="border-gray-600 text-gray-300">
                   Back
                 </Button>
                 <Button
@@ -548,9 +713,9 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
             </motion.div>
           )}
 
-          {currentStep === 4 && (
+          {currentStep === 5 && (
             <motion.div
-              key="step4"
+              key="step5"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center space-y-4"

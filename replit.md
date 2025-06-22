@@ -260,6 +260,15 @@ Changelog:
   - June 23rd correctly shows morning/afternoon/evening as "Already Booked" (red), night as "Available" (green)
   - June 24th shows all time slots as "Available" (green) - authentic real-time database queries
   - System pulls live booking data directly from PostgreSQL with millisecond response times
+- June 22, 2025. Integrated optional concierge services into yacht booking flow with 5-step booking process
+  - Added 3rd step "Concierge Services" before review step, allowing members to enhance yacht experiences
+  - Displays all 18 yacht concierge services from database with category icons and pricing
+  - Service selection with toggle functionality and real-time pricing calculations
+  - Services automatically book when yacht booking confirms, creating linked service bookings
+  - Updated booking flow: Date/Time → Guest Details → Concierge Services → Review → Confirmation
+  - Services marked as "pending" and associated with yacht booking for coordinated delivery
+  - Enhanced review step shows selected services summary with individual and total pricing
+  - Integration maintains free yacht rental while adding optional premium service add-ons
 
 ## Member Experience Feature Status
 
