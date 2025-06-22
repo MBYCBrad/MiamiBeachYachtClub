@@ -245,6 +245,17 @@ Changelog:
   - Improved visual hierarchy with time ranges prominently displayed in purple text
   - Enhanced distinction between time slots and experience types to eliminate confusion
   - Maintained 4-hour booking structure while adding clearer category-based booking experiences
+- June 22, 2025. Airbnb-style yacht detail page in dark mode matching MBYC theme
+  - Created comprehensive yacht detail page matching Airbnb's professional layout and functionality
+  - Implemented sophisticated image gallery with main hero image and thumbnail grid with hover effects
+  - Added sticky navigation header with Share and Save functionality (native mobile sharing support)
+  - Built detailed yacht information sections: host details, features, amenities, and guest reviews
+  - Created sticky booking sidebar with FREE pricing display and reservation integration
+  - Integrated 10 luxury yacht amenities with professional icons (WiFi, AC, kitchen, cabins, etc.)
+  - Added sample guest reviews with star ratings and user avatars
+  - Applied dark theme with gray-900 background and purple/blue accent colors matching MBYC branding
+  - Responsive design optimized for desktop and mobile with proper spacing and typography
+  - Connected to existing yacht booking modal system for seamless reservation experience
 
 ## Member Experience Feature Status
 
