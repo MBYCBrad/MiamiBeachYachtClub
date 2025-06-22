@@ -48,15 +48,39 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
     specialRequests: '',
     contactPhone: user?.phone || '',
     emergencyContact: '',
-    experienceType: 'day_cruise'
+    experienceType: 'leisure_tour'
   });
 
-  // Time slots (4-hour blocks)
+  // Time slots (4-hour blocks) with actual time ranges displayed
   const timeSlots = [
-    { value: '09:00-13:00', label: 'Morning Cruise (9:00 AM - 1:00 PM)', icon: '🌅', description: 'Perfect for breakfast cruises and peaceful morning waters' },
-    { value: '13:00-17:00', label: 'Afternoon Adventure (1:00 PM - 5:00 PM)', icon: '☀️', description: 'Ideal for lunch cruises and swimming activities' },
-    { value: '17:00-21:00', label: 'Sunset Experience (5:00 PM - 9:00 PM)', icon: '🌅', description: 'Romantic sunset views and evening dining' },
-    { value: '21:00-01:00', label: 'Night Party (9:00 PM - 1:00 AM)', icon: '🌙', description: 'Exclusive nighttime entertainment and city lights' }
+    { 
+      value: '09:00-13:00', 
+      label: 'Morning Cruise', 
+      timeRange: '9:00 AM - 1:00 PM',
+      icon: '🌅', 
+      description: 'Perfect for breakfast cruises and peaceful morning waters' 
+    },
+    { 
+      value: '13:00-17:00', 
+      label: 'Afternoon Adventure', 
+      timeRange: '1:00 PM - 5:00 PM',
+      icon: '☀️', 
+      description: 'Ideal for lunch cruises and swimming activities' 
+    },
+    { 
+      value: '17:00-21:00', 
+      label: 'Sunset Experience', 
+      timeRange: '5:00 PM - 9:00 PM',
+      icon: '🌅', 
+      description: 'Romantic sunset views and evening dining' 
+    },
+    { 
+      value: '21:00-01:00', 
+      label: 'Night Party', 
+      timeRange: '9:00 PM - 1:00 AM',
+      icon: '🌙', 
+      description: 'Exclusive nighttime entertainment and city lights' 
+    }
   ];
 
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
@@ -81,7 +105,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         specialRequests: '',
         contactPhone: user?.phone || '',
         emergencyContact: '',
-        experienceType: 'day_cruise'
+        experienceType: 'leisure_tour'
       });
       setIsAvailable(null);
     }
@@ -269,7 +293,8 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                         <div className="flex items-center space-x-2">
                           <span className="text-lg">{slot.icon}</span>
                           <div>
-                            <h4 className="font-medium text-white text-sm">{slot.label.split(' (')[0]}</h4>
+                            <h4 className="font-medium text-white text-sm">{slot.label}</h4>
+                            <p className="text-xs text-purple-300 font-medium">{slot.timeRange}</p>
                             <p className="text-xs text-gray-400">{slot.description}</p>
                           </div>
                         </div>
@@ -291,11 +316,13 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="day_cruise">Day Cruise</SelectItem>
-                      <SelectItem value="sunset_cruise">Sunset Cruise</SelectItem>
-                      <SelectItem value="party_cruise">Party Cruise</SelectItem>
+                      <SelectItem value="leisure_tour">Leisure Tour</SelectItem>
+                      <SelectItem value="swimming_excursion">Swimming & Water Sports</SelectItem>
+                      <SelectItem value="dining_experience">Fine Dining Experience</SelectItem>
                       <SelectItem value="corporate_event">Corporate Event</SelectItem>
-                      <SelectItem value="special_occasion">Special Occasion</SelectItem>
+                      <SelectItem value="celebration">Private Celebration</SelectItem>
+                      <SelectItem value="photography">Photography Session</SelectItem>
+                      <SelectItem value="fishing_charter">Fishing Charter</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -238,6 +238,13 @@ Changelog:
   - Added HTTP/2 resource prefetching for critical API endpoints
   - Optimized database queries with extended cache headers (5 minutes with stale-while-revalidate)
   - Member experience now responds in milliseconds instead of 2+ second delays
+- June 22, 2025. Enhanced yacht booking system with improved time slots and experience types
+  - Added actual time ranges display for all 4-hour time slots (9:00 AM - 1:00 PM, 1:00 PM - 5:00 PM, etc.)
+  - Replaced generic experience types with specific yacht activity categories
+  - Updated experience options: Leisure Tour, Swimming & Water Sports, Fine Dining Experience, Corporate Event, Private Celebration, Photography Session, Fishing Charter
+  - Improved visual hierarchy with time ranges prominently displayed in purple text
+  - Enhanced distinction between time slots and experience types to eliminate confusion
+  - Maintained 4-hour booking structure while adding clearer category-based booking experiences
 
 ## Member Experience Feature Status
 
