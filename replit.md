@@ -324,11 +324,12 @@ Changelog:
   - Fixed demo_member authentication issue with database reseed resolving password hash conflicts
   - All admin dashboard buttons now fully operational with live PostgreSQL integration
   - Systematic CRUD functionality ensures 100% real database content with no placeholders
-- June 22, 2025. Fixed yacht booking modal routing issue
-  - Resolved conflict between yacht card click handler and booking button functionality
-  - Updated yacht card to use smart click detection that only navigates on non-button clicks
-  - "Book Now" button now properly opens booking modal instead of routing to yacht detail page
-  - Maintained yacht detail page navigation when clicking elsewhere on the card
+- June 22, 2025. Fixed yacht booking modal routing issue with dedicated action buttons
+  - Removed card-wide click handler that was causing routing conflicts with booking modal
+  - Added separate "Book Now" and "Details" buttons for clear functionality separation
+  - "Book Now" button now properly opens booking modal without navigation interference
+  - "Details" button provides dedicated yacht detail page navigation
+  - Cleaner UX with explicit button actions instead of conflicting click handlers
 
 ## Member Experience Feature Status
 

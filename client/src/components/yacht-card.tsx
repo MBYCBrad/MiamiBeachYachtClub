@@ -117,17 +117,8 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
     setIsBookingModalOpen(true);
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Only navigate if the click is not on an interactive element
-    const target = e.target as HTMLElement;
-    if (!target.closest('button')) {
-      window.location.href = `/yachts/${yacht.id}`;
-    }
-  };
-
   return (
     <motion.div
-      onClick={handleCardClick}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 
@@ -146,7 +137,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
         }
       }}
       whileTap={{ scale: 0.98 }}
-      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden cursor-pointer
+      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60
         hover:bg-gray-800/50
@@ -300,9 +291,9 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
             <motion.span whileHover={{ scale: 1.05, color: "#10b981" }}>{yacht.capacity}</motion.span>
           </motion.p>
 
-          {/* Price and Reserve Button */}
+          {/* Price Section */}
           <motion.div 
-            className="flex items-center justify-between mb-3"
+            className="mb-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -319,21 +310,49 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
               </motion.span>
               <span className="text-sm text-gray-400 block group-hover:text-purple-300 transition-colors duration-300">with membership</span>
             </motion.div>
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div 
+            className="flex gap-2 mb-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             <motion.div
+              className="flex-1"
               whileHover={{ 
-                scale: 1.05,
+                scale: 1.02,
                 transition: { type: "spring", stiffness: 400 }
               }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Button 
                 onClick={(e) => {
                   e.stopPropagation();
                   openBookingModal();
                 }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
               >
                 Book Now
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ 
+                scale: 1.02,
+                transition: { type: "spring", stiffness: 400 }
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `/yachts/${yacht.id}`;
+                }}
+                variant="outline"
+                className="px-3 py-2 rounded-lg text-sm font-medium border-purple-500/30 hover:border-purple-400/50 text-purple-300 hover:text-purple-200 transition-all duration-300"
+              >
+                Details
               </Button>
             </motion.div>
           </motion.div>
