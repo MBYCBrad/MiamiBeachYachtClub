@@ -91,6 +91,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Video specific route for better video streaming
+  app.get("/api/media/video/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const filePath = mediaStorageService.getAssetPath(filename);
+      
+      if (!mediaStorageService.fileExists(filename)) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      const stats = mediaStorageService.getFileStats(filename);
+      if (!stats) {
+        return res.status(404).json({ message: "Video not accessible" });
+      }
+
+      // Set video-specific headers
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+
+      // Handle range requests for video streaming
+      const range = req.headers.range;
+      if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
+        const chunksize = (end - start) + 1;
+
+        res.status(206);
+        res.setHeader('Content-Range', `bytes ${start}-${end}/${stats.size}`);
+        res.setHeader('Content-Length', chunksize);
+
+        const stream = fs.createReadStream(filePath, { start, end });
+        stream.pipe(res);
+      } else {
+        res.setHeader('Content-Length', stats.size);
+        const stream = fs.createReadStream(filePath);
+        stream.pipe(res);
+      }
+    } catch (error) {
+      console.error('Error serving video:', error);
+      res.status(500).json({ message: "Error serving video" });
+    }
+  });
+
   // Get active hero video
   app.get("/api/media/hero/active", async (req, res) => {
     try {

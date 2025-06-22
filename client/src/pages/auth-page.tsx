@@ -172,39 +172,32 @@ const PremiumAuthPage: React.FC = () => {
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="flex items-center justify-center space-x-3"
+            className="flex items-center justify-center"
           >
             <motion.div
-              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileHover={{ scale: 1.05 }}
               className="relative"
             >
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
-                <Anchor className="text-white text-2xl" />
-              </div>
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute -inset-1 border border-purple-400/30 rounded-full"
+                animate={{ 
+                  scale: [1, 1.02, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl"
               />
+              <div className="relative p-4">
+                <img 
+                  src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
+                  alt="Miami Beach Yacht Club" 
+                  className="w-64 h-auto drop-shadow-2xl"
+                />
+              </div>
             </motion.div>
-            <div>
-              <motion.h1
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
-              >
-                Miami Beach Yacht Club
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className="text-purple-300 text-sm font-medium"
-              >
-                Luxury Yacht Experiences
-              </motion.p>
-            </div>
           </motion.div>
 
           {/* Authentication Form */}
