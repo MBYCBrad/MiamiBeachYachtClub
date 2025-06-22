@@ -125,23 +125,23 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/stats'],
   });
 
-  const { data: users } = useQuery({
+  const { data: users = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/users'],
   });
 
-  const { data: yachts } = useQuery({
+  const { data: yachts = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/yachts'],
   });
 
-  const { data: services } = useQuery({
+  const { data: services = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/services'],
   });
 
-  const { data: events } = useQuery({
+  const { data: events = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/events'],
   });
 
-  const { data: payments } = useQuery({
+  const { data: payments = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/payments'],
   });
 
@@ -484,7 +484,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {(users as any[])?.map((user: any, index: number) => (
+                {users?.map((user: any, index: number) => (
                   <motion.tr
                     key={user.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -589,7 +589,7 @@ export default function AdminDashboard() {
 
       {/* Yachts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(yachts as any[])?.map((yacht: any, index: number) => (
+        {yachts?.map((yacht: any, index: number) => (
           <motion.div
             key={yacht.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -686,7 +686,7 @@ export default function AdminDashboard() {
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(services as any[])?.map((service: any, index: number) => (
+        {services?.map((service: any, index: number) => (
           <motion.div
             key={service.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -774,7 +774,7 @@ export default function AdminDashboard() {
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {(events as any[])?.map((event: any, index: number) => (
+        {events?.map((event: any, index: number) => (
           <motion.div
             key={event.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -893,7 +893,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {(payments as any[])?.map((payment: any, index: number) => (
+                {payments?.map((payment: any, index: number) => (
                   <motion.tr
                     key={payment.id}
                     initial={{ opacity: 0, y: 20 }}
