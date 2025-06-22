@@ -68,14 +68,14 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const handleServiceBooking = (service: Service) => {
     if (!user) {
       toast({
-        title: "Authentication Required",
+        title: "Authentication Required", 
         description: "Please log in to book this service.",
         variant: "destructive",
       });
       return;
     }
 
-    // Open booking modal for proper confirmation
+    // Open booking modal with the selected service
     setSelectedService(service);
     setShowServiceBooking(true);
   };
