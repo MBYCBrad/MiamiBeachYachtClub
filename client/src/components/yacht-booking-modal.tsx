@@ -134,8 +134,14 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
 
   // Create booking mutation
   const createBookingMutation = useMutation({
-    mutationFn: async (booking: InsertBooking) => {
-      const response = await apiRequest('POST', '/api/bookings', booking);
+    mutationFn: async (booking: any) => {
+      // Convert Date objects to ISO strings for API
+      const apiBooking = {
+        ...booking,
+        startTime: booking.startTime instanceof Date ? booking.startTime.toISOString() : booking.startTime,
+        endTime: booking.endTime instanceof Date ? booking.endTime.toISOString() : booking.endTime
+      };
+      const response = await apiRequest('POST', '/api/bookings', apiBooking);
       return await response.json();
     },
     onSuccess: async (newBooking: Booking) => {
@@ -206,7 +212,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
       endDateTime.setHours(parseInt(timeMapping.end.split(':')[0]), parseInt(timeMapping.end.split(':')[1]), 0, 0);
     }
     
-    const bookingPayload: InsertBooking = {
+    const bookingPayload = {
       userId: user.id,
       yachtId: yacht.id,
       startTime: startDateTime,
