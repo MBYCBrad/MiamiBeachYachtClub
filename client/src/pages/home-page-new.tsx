@@ -13,6 +13,7 @@ import MemberNotifications from '@/pages/member-notifications';
 import SearchResults from '@/pages/search-results';
 import EventsPage from '@/pages/events-page';
 import ServiceDetail from '@/pages/service-detail';
+import ServiceProviderProfile from '@/pages/service-provider-profile';
 
 // Import dashboard components for other roles
 import YachtOwnerDashboard from '@/screens/YachtOwnerDashboard';
@@ -58,6 +59,12 @@ export default function HomePage() {
     if (currentView.startsWith('service/')) {
       const serviceId = currentView.split('/')[1];
       return <ServiceDetail serviceId={serviceId} onBack={() => setCurrentView('explore')} />;
+    }
+
+    // Handle service provider profile pages (Airbnb-style)
+    if (currentView.startsWith('service-provider/')) {
+      const providerId = currentView.split('/')[1];
+      return <ServiceProviderProfile providerId={providerId} onBack={() => setCurrentView('explore')} />;
     }
 
     switch (currentView) {

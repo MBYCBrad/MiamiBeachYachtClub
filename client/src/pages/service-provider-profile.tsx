@@ -36,8 +36,12 @@ interface ServiceTier {
   image: string;
 }
 
-export default function ServiceProviderProfile() {
-  const { providerId } = useParams();
+interface ServiceProviderProfileProps {
+  providerId: string;
+  onBack: () => void;
+}
+
+export default function ServiceProviderProfile({ providerId, onBack }: ServiceProviderProfileProps) {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -137,7 +141,7 @@ export default function ServiceProviderProfile() {
       });
       
       setShowBookingModal(false);
-      setLocation('/trips');
+      onBack(); // Navigate back to main page
     } catch (error) {
       toast({
         title: "Booking Failed",
@@ -154,7 +158,7 @@ export default function ServiceProviderProfile() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => setLocation('/')}
+            onClick={onBack}
             className="p-2 hover:bg-gray-800 rounded-full"
           >
             <ArrowLeft className="w-5 h-5" />

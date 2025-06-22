@@ -75,9 +75,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       return;
     }
 
-    // Open booking modal with the selected service
-    setSelectedService(service);
-    setShowServiceBooking(true);
+    // Navigate to full service provider profile page
+    setCurrentView(`service-provider/${service.providerId}`);
   };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
