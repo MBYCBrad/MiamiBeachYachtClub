@@ -305,17 +305,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const isBooked = slotData?.available === false;
                     const hasDataLoaded = Object.keys(timeSlotAvailability).length > 0;
                     
-                    // Debug logging for first slot only
-                    if (slot.value === 'morning') {
-                      console.log('Slot display debug:', {
-                        slotValue: slot.value,
-                        slotData,
-                        isAvailable,
-                        isBooked,
-                        hasDataLoaded,
-                        timeSlotAvailability
-                      });
-                    }
+
                     
                     return (
                       <motion.div
@@ -323,16 +313,15 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                         whileHover={isAvailable ? { scale: 1.02 } : {}}
                         whileTap={isAvailable ? { scale: 0.98 } : {}}
                         onClick={() => {
-                          if (isAvailable) {
-                            setBookingData({...bookingData, timeSlot: slot.value});
-                          }
+                          // Allow clicking any slot - let user see the status
+                          setBookingData({...bookingData, timeSlot: slot.value});
                         }}
-                        className={`relative p-3 rounded-lg border-2 transition-all duration-300 ${
+                        className={`relative p-3 rounded-lg border-2 transition-all duration-300 cursor-pointer ${
                           isBooked
-                            ? 'border-red-500/50 bg-red-500/10 cursor-not-allowed opacity-75'
+                            ? 'border-red-500/50 bg-red-500/10 opacity-75'
                             : bookingData.timeSlot === slot.value 
-                            ? 'border-purple-500 bg-purple-500/20 cursor-pointer' 
-                            : 'border-gray-600 bg-gray-700/30 hover:border-gray-500 cursor-pointer'
+                            ? 'border-purple-500 bg-purple-500/20' 
+                            : 'border-gray-600 bg-gray-700/30 hover:border-gray-500'
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -354,8 +343,8 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                             <CheckCircle className="w-5 h-5 text-purple-400" />
                           )}
                           
-                          {/* Real-time availability status from database */}
-                          {hasDataLoaded && timeSlotAvailability[slot.value] && (
+                          {/* Always show availability status when data exists */}
+                          {timeSlotAvailability[slot.value] && (
                             <div className={`text-xs px-2 py-1 rounded font-medium ${
                               timeSlotAvailability[slot.value].available
                                 ? 'bg-green-500 text-white' 
@@ -429,7 +418,11 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               <div className="flex justify-end">
                 <Button
                   onClick={() => setCurrentStep(2)}
-                  disabled={!timeSlotAvailability[bookingData.timeSlot]?.available || !bookingData.startDate || !bookingData.timeSlot}
+                  disabled={
+                    !bookingData.startDate || 
+                    !bookingData.timeSlot || 
+                    (timeSlotAvailability[bookingData.timeSlot] && !timeSlotAvailability[bookingData.timeSlot].available)
+                  }
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   Continue
