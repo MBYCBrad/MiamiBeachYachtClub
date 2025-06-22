@@ -1,227 +1,173 @@
-import { useState, useEffect } from 'react';
+import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { useLocation } from 'wouter';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Loader2, ArrowLeft, CreditCard } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
-// Load Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
-
-interface CheckoutFormProps {
-  serviceData: {
-    serviceId: number;
-    serviceName: string;
-    amount: number;
-    bookingDate: string;
-    bookingTime: string;
-  };
+// Load Stripe outside of component to avoid recreation
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 }
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-function CheckoutForm({ serviceData }: CheckoutFormProps) {
+const CheckoutForm = ({ amount, description }: { amount: number; description: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
 
     setIsProcessing(true);
 
-    try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/payment-success`,
-        },
-        redirect: 'if_required'
-      });
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin,
+      },
+    });
 
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        // Create the service booking in database
-        await apiRequest('POST', '/api/service-bookings', {
-          serviceId: serviceData.serviceId,
-          bookingDate: serviceData.bookingDate,
-          status: 'confirmed'
-        });
+    setIsProcessing(false);
 
-        toast({
-          title: "Payment Successful!",
-          description: `Your ${serviceData.serviceName} booking has been confirmed.`,
-        });
-        
-        setLocation('/trips');
-      }
-    } catch (error: any) {
+    if (error) {
       toast({
-        title: "Payment Error",
-        description: error.message || "An error occurred during payment processing.",
+        title: "Payment Failed",
+        description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setIsProcessing(false);
+    } else {
+      toast({
+        title: "Payment Successful",
+        description: "Thank you for your purchase!",
+      });
+      setLocation('/');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-gray-800/50 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Booking Summary</h3>
-        <div className="space-y-2">
-          <div className="flex justify-between text-gray-300">
-            <span>Service:</span>
-            <span>{serviceData.serviceName}</span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Date & Time:</span>
-            <span>{new Date(serviceData.bookingDate).toLocaleDateString()} at {serviceData.bookingTime}</span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Service fee:</span>
-            <span>${(serviceData.amount - 5).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-gray-300">
-            <span>Processing fee:</span>
-            <span>$5.00</span>
-          </div>
-          <div className="border-t border-gray-700 pt-2">
-            <div className="flex justify-between font-semibold text-white">
-              <span>Total:</span>
-              <span>${serviceData.amount.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
+    <div className="w-full max-w-md mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+      <div className="p-6 pb-4">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Complete Payment</h2>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          ${amount.toFixed(2)} - {description}
+        </p>
       </div>
-
-      <div className="bg-gray-800/50 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-white mb-4">Payment Information</h3>
-        <PaymentElement />
+      <div className="px-6 pb-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <PaymentElement />
+          <Button 
+            type="submit" 
+            disabled={!stripe || isProcessing}
+            className="w-full"
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              `Pay $${amount.toFixed(2)}`
+            )}
+          </Button>
+        </form>
       </div>
-
-      <div className="flex space-x-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setLocation('/')}
-          className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-        <Button
-          type="submit"
-          disabled={!stripe || !elements || isProcessing}
-          className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            `Pay $${serviceData.amount.toFixed(2)}`
-          )}
-        </Button>
-      </div>
-    </form>
+    </div>
   );
-}
+};
 
-export default function Checkout() {
-  const [clientSecret, setClientSecret] = useState<string>('');
-  const [serviceData, setServiceData] = useState<any>(null);
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
+export default function CheckoutPage() {
+  const [clientSecret, setClientSecret] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get service booking data from URL params
+    // Get payment details from URL params or localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    const bookingData = {
-      serviceId: parseInt(urlParams.get('serviceId') || '0'),
-      serviceName: urlParams.get('serviceName') || '',
-      amount: parseFloat(urlParams.get('amount') || '0'),
-      bookingDate: urlParams.get('bookingDate') || '',
-      bookingTime: urlParams.get('bookingTime') || ''
-    };
+    const paymentAmount = urlParams.get('amount') || localStorage.getItem('paymentAmount');
+    const paymentDescription = urlParams.get('description') || localStorage.getItem('paymentDescription');
 
-    const clientSecretFromUrl = urlParams.get('clientSecret');
-
-    if (!bookingData.serviceId || !bookingData.amount || !clientSecretFromUrl) {
-      toast({
-        title: "Invalid Booking Data",
-        description: "Please start the booking process again.",
-        variant: "destructive",
-      });
-      setLocation('/');
+    if (!paymentAmount) {
+      // Redirect to home if no payment details
+      window.location.href = '/';
       return;
     }
 
-    setServiceData(bookingData);
-    setClientSecret(clientSecretFromUrl);
+    const amountValue = parseFloat(paymentAmount);
+    setAmount(amountValue);
+    setDescription(paymentDescription || "Miami Beach Yacht Club Service");
+
+    // Create PaymentIntent
+    apiRequest("POST", "/api/create-payment-intent", {
+      amount: amountValue,
+      description: paymentDescription || "Miami Beach Yacht Club Service"
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setClientSecret(data.clientSecret);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Payment intent creation failed:', error);
+        setLoading(false);
+      });
   }, []);
 
-  if (!clientSecret || !serviceData) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-white">Setting up secure payment...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-purple-400 mx-auto mb-4" />
+          <p className="text-white">Preparing payment...</p>
         </div>
       </div>
     );
   }
 
-  const appearance = {
-    theme: 'night' as const,
-    variables: {
-      colorPrimary: '#8b5cf6',
-      colorBackground: '#1f2937',
-      colorText: '#ffffff',
-      colorDanger: '#ef4444',
-      fontFamily: 'system-ui, sans-serif',
-      spacingUnit: '4px',
-      borderRadius: '8px'
-    }
-  };
+  if (!clientSecret) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="w-full max-w-md mx-auto bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700">
+          <div className="p-6 pb-4">
+            <h2 className="text-xl font-semibold text-red-600">Payment Error</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Unable to initialize payment. Please try again.
+            </p>
+          </div>
+          <div className="px-6 pb-6">
+            <Link href="/">
+              <Button variant="outline" className="w-full">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Return Home
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Secure Payment</h1>
-          <p className="text-gray-400">Complete your service booking</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+      <div className="container mx-auto py-8">
+        <div className="mb-6">
+          <Link href="/">
+            <Button variant="ghost" className="text-white hover:text-purple-300">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+          </Link>
         </div>
-
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-          <Elements
-            stripe={stripePromise}
-            options={{
-              clientSecret,
-              appearance
-            }}
-          >
-            <CheckoutForm serviceData={serviceData} />
-          </Elements>
-        </div>
+        
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <CheckoutForm amount={amount} description={description} />
+        </Elements>
       </div>
     </div>
   );

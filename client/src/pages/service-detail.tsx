@@ -1,93 +1,32 @@
 import { useParams, useLocation } from "wouter";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Clock, DollarSign, Star, MapPin, Calendar, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
 import type { Service } from "@shared/schema";
-import { useState } from "react";
 
-interface ServiceDetailProps {
-  serviceId?: string;
-  onBack?: () => void;
-}
-
-export default function ServiceDetail({ serviceId, onBack }: ServiceDetailProps) {
-  const { id: paramId } = useParams();
+export default function ServiceDetail() {
+  const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('14:00');
-  
-  const id = serviceId || paramId;
   
   const { data: service, isLoading } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
     enabled: !!id
   });
 
-  const createServiceBookingMutation = useMutation({
-    mutationFn: async (bookingData: {
-      serviceId: number;
-      bookingDate: string;
-      status: string;
-    }) => {
-      const response = await apiRequest('POST', '/api/service-bookings', bookingData);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
-      toast({
-        title: "Service Booked Successfully!",
-        description: `Your ${service?.name} booking has been confirmed for ${new Date(selectedDate + 'T' + selectedTime).toLocaleDateString()}.`,
-      });
-      // Navigate back or to trips page
-      if (onBack) {
-        onBack();
-      } else {
-        setLocation('/trips');
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Booking Failed",
-        description: error.message || "Failed to book service. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
   const handleBookNow = () => {
-    if (!service || !user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to book this service.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!selectedDate) {
-      toast({
-        title: "Date Required",
-        description: "Please select a date for your service booking.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const bookingDateTime = `${selectedDate}T${selectedTime}:00.000Z`;
+    if (!service) return;
     
-    createServiceBookingMutation.mutate({
-      serviceId: service.id,
-      bookingDate: bookingDateTime,
-      status: 'confirmed'
-    });
+    // Store payment details for checkout
+    localStorage.setItem('paymentAmount', String(service.pricePerSession || '0'));
+    localStorage.setItem('paymentDescription', `${service.name} - ${service.category}`);
+    
+    // Navigate to checkout
+    setLocation('/checkout');
   };
 
   if (isLoading) {
@@ -227,19 +166,12 @@ export default function ServiceDetail({ serviceId, onBack }: ServiceDetailProps)
                   <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
                   <input 
                     type="date" 
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
                     className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Time</label>
-                  <select 
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
-                  >
+                  <select className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none">
                     <option value="09:00">9:00 AM</option>
                     <option value="10:00">10:00 AM</option>
                     <option value="11:00">11:00 AM</option>
@@ -256,12 +188,11 @@ export default function ServiceDetail({ serviceId, onBack }: ServiceDetailProps)
 
               <Button 
                 onClick={handleBookNow}
-                disabled={!service.isAvailable || createServiceBookingMutation.isPending}
+                disabled={!service.isAvailable}
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 font-semibold py-3 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
-                {createServiceBookingMutation.isPending ? 'Booking...' : 
-                 !service.isAvailable ? 'Unavailable' : 'Book Now'}
+                {service.isAvailable ? 'Book Now' : 'Unavailable'}
               </Button>
 
               <p className="text-xs text-gray-500 text-center mb-4">

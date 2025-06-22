@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import { Search, Filter, Star, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-auth';
-import { useToast } from '@/hooks/use-toast';
 import type { Service } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
 
@@ -16,8 +14,6 @@ interface ServicesPageProps {
 
 export default function ServicesPage({ currentView, setCurrentView }: ServicesPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { user } = useAuth();
-  const { toast } = useToast();
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services', { available: true }]
@@ -27,56 +23,6 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     service.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleServiceBooking = async (service: Service) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to book this service.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Create service booking directly in database
-      const bookingDate = new Date();
-      bookingDate.setDate(bookingDate.getDate() + 1); // Tomorrow
-      
-      const response = await fetch('/api/service-bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceId: service.id,
-          bookingDate: bookingDate.toISOString(),
-          status: 'confirmed'
-        })
-      });
-
-      if (response.ok) {
-        const booking = await response.json();
-        toast({
-          title: "Service Booked Successfully!",
-          description: `Your ${service.name} booking has been confirmed for ${bookingDate.toLocaleDateString()}.`,
-        });
-        setCurrentView('trips');
-      } else {
-        const error = await response.text();
-        toast({
-          title: "Booking Failed",
-          description: error || "Failed to book service. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Service booking error:', error);
-      toast({
-        title: "Booking Failed",
-        description: "Network error. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black text-white">

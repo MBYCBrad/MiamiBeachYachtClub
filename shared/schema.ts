@@ -164,25 +164,17 @@ export const insertServiceSchema = createInsertSchema(services).omit({
   reviewCount: true,
 });
 
-export const insertEventSchema = createInsertSchema(events, {
-  startTime: z.string().transform((str) => new Date(str)),
-  endTime: z.string().transform((str) => new Date(str)),
-}).omit({
+export const insertEventSchema = createInsertSchema(events).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertBookingSchema = createInsertSchema(bookings, {
-  startTime: z.string().transform((str) => new Date(str)),
-  endTime: z.string().transform((str) => new Date(str)),
-}).omit({
+export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertServiceBookingSchema = createInsertSchema(serviceBookings, {
-  bookingDate: z.string().transform((str) => new Date(str)),
-}).omit({
+export const insertServiceBookingSchema = createInsertSchema(serviceBookings).omit({
   id: true,
   createdAt: true,
 });

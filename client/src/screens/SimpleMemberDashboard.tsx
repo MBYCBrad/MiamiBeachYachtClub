@@ -36,34 +36,8 @@ export default function SimpleMemberDashboard() {
   };
 
   const handleServiceBooking = async (serviceId: number) => {
-    if (!user) return;
-
-    try {
-      // Create service booking directly in database
-      const bookingDate = new Date();
-      bookingDate.setDate(bookingDate.getDate() + 1); // Tomorrow
-      
-      const response = await fetch('/api/service-bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceId: serviceId,
-          bookingDate: bookingDate.toISOString(),
-          status: 'confirmed'
-        })
-      });
-
-      if (response.ok) {
-        const booking = await response.json();
-        alert(`Service booked successfully! Booking ID: ${booking.id}`);
-      } else {
-        const error = await response.text();
-        alert(`Booking failed: ${error}`);
-      }
-    } catch (error) {
-      console.error('Service booking error:', error);
-      alert('Booking failed. Please try again.');
-    }
+    console.log('Booking service:', serviceId);
+    // Simplified booking logic
   };
 
   const handleEventRegistration = async (eventId: number) => {

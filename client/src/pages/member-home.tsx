@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useHeroVideo } from '@/hooks/use-hero-video';
-import { useToast } from '@/hooks/use-toast';
-import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,36 +45,16 @@ interface MemberHomeProps {
 export default function MemberHome({ currentView, setCurrentView }: MemberHomeProps) {
   const { user } = useAuth();
   const { data: heroVideo, isLoading: videoLoading } = useHeroVideo();
-  const { toast } = useToast();
-  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [showServiceBooking, setShowServiceBooking] = useState(false);
-  const [bookingDate, setBookingDate] = useState('');
-  const [bookingTime, setBookingTime] = useState('09:00');
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
     // Navigate to search results with criteria
     setCurrentView('search-results');
-  };
-
-  const handleServiceBooking = (service: Service) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required", 
-        description: "Please log in to book this service.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Navigate to full service provider profile page
-    setCurrentView(`service-provider/${service.providerId}`);
   };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
@@ -117,7 +95,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   );
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-32">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero Video Background */}
       <div className="relative h-[65vh] sm:h-[70vh] lg:h-[75vh] overflow-hidden">
         {videoLoading ? (
@@ -316,7 +294,6 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
-                              onClick={() => handleServiceBooking(service)}
                               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             >
                               Book Service
@@ -475,146 +452,6 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   </div>
                 </div>
               )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Service Booking Modal */}
-      <Dialog open={showServiceBooking} onOpenChange={setShowServiceBooking}>
-        <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 text-white">
-          {selectedService && (
-            <div className="space-y-6">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-white">
-                  Book {selectedService.name}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-white mb-2">Service Details</h3>
-                  <p className="text-gray-300 mb-3">{selectedService.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Price per session:</span>
-                    <span className="text-2xl font-bold text-white">${selectedService.pricePerSession}</span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-white mb-4">Select Date & Time</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
-                      <input 
-                        type="date" 
-                        value={bookingDate}
-                        onChange={(e) => setBookingDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Time</label>
-                      <select 
-                        value={bookingTime}
-                        onChange={(e) => setBookingTime(e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 outline-none"
-                      >
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-white mb-3">Booking Summary</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-gray-300">
-                      <span>Service fee:</span>
-                      <span>${selectedService.pricePerSession}</span>
-                    </div>
-                    <div className="flex justify-between text-gray-300">
-                      <span>Processing fee:</span>
-                      <span>$5.00</span>
-                    </div>
-                    <div className="border-t border-gray-700 pt-2">
-                      <div className="flex justify-between font-semibold text-white">
-                        <span>Total:</span>
-                        <span>${(parseFloat(selectedService.pricePerSession || '0') + 5).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowServiceBooking(false)}
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={async () => {
-                      if (!bookingDate) {
-                        toast({
-                          title: "Date Required",
-                          description: "Please select a date for your booking.",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-                      
-                      const bookingDateTime = `${bookingDate}T${bookingTime}:00.000Z`;
-                      
-                      try {
-                        // Create the service booking directly
-                        const response = await fetch('/api/service-bookings', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          credentials: 'include',
-                          body: JSON.stringify({
-                            serviceId: selectedService.id,
-                            bookingDate: bookingDateTime,
-                            status: 'confirmed'
-                          })
-                        });
-
-                        if (!response.ok) {
-                          throw new Error('Failed to create booking');
-                        }
-
-                        const booking = await response.json();
-                        
-                        toast({
-                          title: "Service Booked Successfully!",
-                          description: `Your ${selectedService.name} booking has been confirmed for ${new Date(bookingDate).toLocaleDateString()} at ${bookingTime}.`,
-                        });
-                        
-                        setShowServiceBooking(false);
-                        setCurrentView('trips'); // Navigate to trips to see the booking
-                      } catch (error) {
-                        toast({
-                          title: "Booking Failed",
-                          description: "Unable to complete booking. Please try again.",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  >
-                    Confirm Booking
-                  </Button>
-                </div>
-              </div>
             </div>
           )}
         </DialogContent>

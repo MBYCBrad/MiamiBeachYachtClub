@@ -227,7 +227,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white overflow-auto pb-32">
+    <div className="min-h-screen bg-gray-950 text-white overflow-auto pb-20">
       {/* Advanced Profile Header with Dynamic Background */}
       <div className="relative overflow-hidden">
         {/* Dynamic Video Background */}
