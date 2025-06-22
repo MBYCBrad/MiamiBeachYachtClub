@@ -13,24 +13,110 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function setupPaymentRoutes(app: Express) {
-  // Generic payment intent creation (for concierge services)
+  // Verify Stripe account configuration on startup
+  stripe.accounts.retrieve().then(account => {
+    console.log(`🏦 Stripe platform connected: ${account.business_profile?.name || account.id}`);
+    console.log(`📧 Platform email: ${account.email}`);
+    console.log(`🌍 Country: ${account.country}`);
+  }).catch(error => {
+    console.error("❌ Stripe platform verification failed:", error.message);
+  });
+
+  // Create Stripe Connect account for service providers and yacht owners
+  app.post("/api/payments/create-connect-account", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const { role } = req.user;
+    if (role !== 'service_provider' && role !== 'yacht_owner' && role !== 'admin') {
+      return res.status(403).json({ error: "Only service providers and yacht owners can create Connect accounts" });
+    }
+
+    try {
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: req.user.email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_type: 'individual',
+        metadata: {
+          user_id: req.user.id.toString(),
+          role: req.user.role,
+          platform: 'miami_beach_yacht_club'
+        }
+      });
+
+      // Update user with Stripe account ID
+      await storage.updateUser(req.user.id, {
+        stripeAccountId: account.id,
+        stripeAccountStatus: 'pending'
+      });
+
+      res.json({ accountId: account.id, status: 'pending' });
+    } catch (error: any) {
+      console.error("Connect account creation failed:", error);
+      res.status(500).json({ error: "Account creation failed: " + error.message });
+    }
+  });
+
+  // Generic payment intent creation (for concierge services with Connect routing)
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
-      const { amount, description } = req.body;
+      const { amount, description, serviceIds } = req.body;
       
       if (!amount || amount <= 0) {
         return res.status(400).json({ error: "Invalid amount" });
       }
 
-      const paymentIntent = await stripe.paymentIntents.create({
+      // Determine destination account based on service provider
+      let destinationAccount = null;
+      let applicationFeeAmount = 0;
+
+      if (serviceIds && serviceIds.length > 0) {
+        // Get the service provider for the first service (assuming all services from same provider)
+        const service = await storage.getService(serviceIds[0]);
+        if (service && service.providerId) {
+          const provider = await storage.getUser(service.providerId);
+          if (provider?.stripeAccountId && provider.stripeAccountStatus === 'active') {
+            destinationAccount = provider.stripeAccountId;
+            // Take 10% platform fee
+            applicationFeeAmount = Math.round(amount * 100 * 0.10);
+          }
+        }
+      }
+
+      const paymentIntentData: any = {
         amount: Math.round(amount * 100), // Convert to cents
         currency: "usd",
         metadata: {
-          description: description || "Yacht concierge services"
-        }
-      });
+          description: description || "Miami Beach Yacht Club - Concierge Services",
+          business: "Miami Beach Yacht Club",
+          service_type: "yacht_concierge",
+          timestamp: new Date().toISOString()
+        },
+        statement_descriptor: "MBYC CONCIERGE",
+        receipt_email: req.isAuthenticated() ? req.user?.email : undefined
+      };
 
-      res.json({ clientSecret: paymentIntent.client_secret });
+      // Add Connect routing if service provider account exists
+      if (destinationAccount) {
+        paymentIntentData.transfer_data = {
+          destination: destinationAccount,
+        };
+        paymentIntentData.application_fee_amount = applicationFeeAmount;
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        destinationAccount: destinationAccount
+      });
     } catch (error: any) {
       console.error("Payment intent creation failed:", error);
       res.status(500).json({ error: "Payment setup failed: " + error.message });
@@ -58,7 +144,20 @@ export async function setupPaymentRoutes(app: Express) {
       const adjustedPrice = calculateServicePrice(basePrice, (user.membershipTier || 'bronze') as any);
       const amountInCents = Math.round(adjustedPrice * 100);
 
-      const paymentIntent = await stripe.paymentIntents.create({
+      // Get service provider for payment routing
+      let destinationAccount = null;
+      let applicationFeeAmount = 0;
+      
+      if (service.providerId) {
+        const provider = await storage.getUser(service.providerId);
+        if (provider?.stripeAccountId && provider.stripeAccountStatus === 'active') {
+          destinationAccount = provider.stripeAccountId;
+          // Take 15% platform fee for services
+          applicationFeeAmount = Math.round(amountInCents * 0.15);
+        }
+      }
+
+      const paymentIntentData: any = {
         amount: amountInCents,
         currency: "usd",
         customer: user.stripeCustomerId || undefined,
@@ -69,13 +168,29 @@ export async function setupPaymentRoutes(app: Express) {
           datetime: datetime,
           memberTier: user.membershipTier || 'bronze',
           originalPrice: basePrice.toString(),
-          adjustedPrice: adjustedPrice.toString()
-        }
-      });
+          adjustedPrice: adjustedPrice.toString(),
+          business: "Miami Beach Yacht Club",
+          service_category: "yacht_services",
+          providerId: service.providerId?.toString() || 'platform'
+        },
+        statement_descriptor: "MBYC SERVICE",
+        receipt_email: user.email || undefined
+      };
+
+      // Add Connect routing if service provider account exists
+      if (destinationAccount) {
+        paymentIntentData.transfer_data = {
+          destination: destinationAccount,
+        };
+        paymentIntentData.application_fee_amount = applicationFeeAmount;
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id 
+        paymentIntentId: paymentIntent.id,
+        destinationAccount: destinationAccount
       });
     } catch (error: any) {
       console.error("Service payment intent creation failed:", error);
@@ -105,7 +220,20 @@ export async function setupPaymentRoutes(app: Express) {
       const totalAmount = adjustedPrice * ticketQuantity;
       const amountInCents = Math.round(totalAmount * 100);
 
-      const paymentIntent = await stripe.paymentIntents.create({
+      // Get event host for payment routing
+      let destinationAccount = null;
+      let applicationFeeAmount = 0;
+      
+      if (event.hostId) {
+        const host = await storage.getUser(event.hostId);
+        if (host?.stripeAccountId && host.stripeAccountStatus === 'active') {
+          destinationAccount = host.stripeAccountId;
+          // Take 20% platform fee for events
+          applicationFeeAmount = Math.round(amountInCents * 0.20);
+        }
+      }
+
+      const paymentIntentData: any = {
         amount: amountInCents,
         currency: "usd",
         customer: user.stripeCustomerId || undefined,
@@ -117,13 +245,29 @@ export async function setupPaymentRoutes(app: Express) {
           ticketQuantity: ticketQuantity.toString(),
           originalPrice: basePrice.toString(),
           adjustedPrice: adjustedPrice.toString(),
-          totalAmount: totalAmount.toString()
-        }
-      });
+          totalAmount: totalAmount.toString(),
+          business: "Miami Beach Yacht Club",
+          service_category: "yacht_events",
+          hostId: event.hostId?.toString() || 'platform'
+        },
+        statement_descriptor: "MBYC EVENT",
+        receipt_email: user.email || undefined
+      };
+
+      // Add Connect routing if event host account exists
+      if (destinationAccount) {
+        paymentIntentData.transfer_data = {
+          destination: destinationAccount,
+        };
+        paymentIntentData.application_fee_amount = applicationFeeAmount;
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
 
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id 
+        paymentIntentId: paymentIntent.id,
+        destinationAccount: destinationAccount
       });
     } catch (error: any) {
       console.error("Event payment intent creation failed:", error);
@@ -221,6 +365,63 @@ export async function setupPaymentRoutes(app: Express) {
     } catch (error: any) {
       console.error("Refund processing failed:", error);
       res.status(500).json({ error: "Refund failed: " + error.message });
+    }
+  });
+
+  // Create account onboarding link for Connect accounts
+  app.post("/api/payments/create-account-link", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const { role } = req.user;
+    if (role !== 'service_provider' && role !== 'yacht_owner' && role !== 'admin') {
+      return res.status(403).json({ error: "Only service providers and yacht owners can access onboarding" });
+    }
+
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user?.stripeAccountId) {
+        return res.status(400).json({ error: "No Stripe account found. Create account first." });
+      }
+
+      const accountLink = await stripe.accountLinks.create({
+        account: user.stripeAccountId,
+        refresh_url: `${req.protocol}://${req.get('host')}/dashboard`,
+        return_url: `${req.protocol}://${req.get('host')}/dashboard`,
+        type: 'account_onboarding',
+      });
+
+      res.json({ url: accountLink.url });
+    } catch (error: any) {
+      console.error("Account link creation failed:", error);
+      res.status(500).json({ error: "Onboarding link creation failed: " + error.message });
+    }
+  });
+
+  // Stripe account verification endpoint
+  app.get("/api/payments/account-info", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(403);
+    }
+
+    try {
+      const account = await stripe.accounts.retrieve();
+      
+      res.json({
+        accountId: account.id,
+        businessName: account.business_profile?.name || "Not set",
+        email: account.email,
+        country: account.country,
+        currency: account.default_currency,
+        chargesEnabled: account.charges_enabled,
+        payoutsEnabled: account.payouts_enabled,
+        detailsSubmitted: account.details_submitted,
+        type: account.type
+      });
+    } catch (error: any) {
+      console.error("Stripe account info retrieval failed:", error);
+      res.status(500).json({ error: "Account info retrieval failed: " + error.message });
     }
   });
 

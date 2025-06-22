@@ -26,6 +26,8 @@ export const users = pgTable("users", {
   membershipTier: text("membership_tier"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  stripeAccountId: text("stripe_account_id"), // For service providers and yacht owners
+  stripeAccountStatus: text("stripe_account_status"), // pending, active, restricted
   phone: text("phone"),
   location: text("location"),
   language: text("language").default("en"),

@@ -40,7 +40,8 @@ function ServicePaymentForm({ selectedServices, onPaymentSuccess, onPaymentError
       try {
         const response = await apiRequest('POST', '/api/create-payment-intent', {
           amount: totalAmount,
-          description: `Concierge services: ${selectedServices.map(s => s.name).join(', ')}`
+          description: `Concierge services: ${selectedServices.map(s => s.name).join(', ')}`,
+          serviceIds: selectedServices.map(s => s.serviceId)
         });
         const { clientSecret } = await response.json();
         setClientSecret(clientSecret);
