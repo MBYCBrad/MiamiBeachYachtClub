@@ -225,13 +225,6 @@ Changelog:
   - Fixed bottom padding issues across all member pages (trips, favorites, profile, home)
   - Real-time notifications working with WebSocket integration for booking confirmations
   - Database synchronization confirmed across all user interaction points
-- June 22, 2025. Two-step yacht booking experience implemented with 4-hour time slots
-  - Created comprehensive yacht search page with date/time selection and 4-hour slot restrictions
-  - Redesigned yacht detail page as booking confirmation step with URL parameter integration
-  - Updated all yacht cards and home page search to redirect to proper two-step booking flow
-  - Implemented membership tier filtering in search results (Bronze 40ft, Silver 55ft, Gold 70ft, Platinum unlimited)
-  - Added booking confirmation UI with selected date/time display and yacht details
-  - Enhanced user experience with proper search-first, then book workflow as requested
 
 ## Member Experience Feature Status
 

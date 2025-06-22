@@ -53,8 +53,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
-    // Navigate to yacht search page for proper 4-hour booking flow
-    setCurrentView('/yacht-search');
+    // Navigate to search results with criteria
+    setCurrentView('search-results');
   };
 
   const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
