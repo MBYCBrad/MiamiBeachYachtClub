@@ -91,16 +91,16 @@ export function MessageInterface({
   const getMessageBubbleClass = (message: Message) => {
     return message.senderId === user?.id
       ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white ml-12"
-      : "bg-gray-800 text-gray-200 mr-12";
+      : "bg-gray-100 dark:bg-gray-800 mr-12";
   };
 
   if (isLoadingMessages) {
     return (
-      <Card className={`h-full bg-gray-900 border-gray-800 ${className}`}>
+      <Card className={`h-full ${className}`}>
         <CardContent className="flex items-center justify-center h-full">
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full" />
-            <p className="text-sm text-gray-400">Loading messages...</p>
+            <p className="text-sm text-gray-500">Loading messages...</p>
           </div>
         </CardContent>
       </Card>
@@ -108,8 +108,8 @@ export function MessageInterface({
   }
 
   return (
-    <Card className={`h-full flex flex-col bg-gray-900 border-gray-800 ${className}`}>
-      <CardHeader className="border-b border-gray-800 bg-gray-900">
+    <Card className={`h-full flex flex-col ${className}`}>
+      <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
         <CardTitle className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
@@ -118,30 +118,30 @@ export function MessageInterface({
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">{recipientName}</h3>
+              <h3 className="text-lg font-semibold">{recipientName}</h3>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-xs bg-green-900 text-green-400 border-green-700">
+                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-400 dark:border-green-700">
                   <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                   Online
                 </Badge>
-                <Button variant="outline" size="sm" className="text-purple-400 border-purple-600 hover:bg-purple-900">
+                <Button variant="outline" size="sm" className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900">
                   <Phone className="h-4 w-4 mr-1" />
                   Call
                 </Button>
               </div>
             </div>
-            <p className="text-sm text-gray-400 mt-1">MBYC Administration</p>
+            <p className="text-sm text-gray-500 mt-1">MBYC Administration</p>
           </div>
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="flex-1 p-0 bg-black">
+      <CardContent className="flex-1 p-0">
         <ScrollArea className="h-full p-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
-              <MessageCircle className="h-16 w-16 text-gray-600 mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">Start the conversation</h3>
-              <p className="text-gray-400 mb-6 max-w-sm">
+              <MessageCircle className="h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Start the conversation</h3>
+              <p className="text-gray-500 mb-6 max-w-sm">
                 Send a message to begin your conversation with {recipientName}. We're here to help with any questions about your yacht club experience.
               </p>
             </div>
@@ -166,14 +166,14 @@ export function MessageInterface({
         </ScrollArea>
       </CardContent>
 
-      <div className="border-t border-gray-800 p-4 bg-gray-900">
+      <div className="border-t p-4">
         <div className="flex space-x-2">
           <Input
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
-            className="flex-1 bg-gray-800 border-gray-700 text-white placeholder-gray-400"
+            className="flex-1"
             disabled={isSending}
           />
           <Button
