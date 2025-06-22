@@ -38,7 +38,6 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
 
   return (
     <motion.div
-      onClick={() => window.location.href = `/yachts/${yacht.id}`}
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ 
@@ -57,7 +56,7 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
         }
       }}
       whileTap={{ scale: 0.98 }}
-      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 cursor-pointer overflow-hidden
+      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60
         hover:bg-gray-800/50
@@ -229,8 +228,14 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
               }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
-                Reserve
+              <Button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `/yachts/${yacht.id}/book`;
+                }}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
+              >
+                Book Now
               </Button>
             </motion.div>
           </motion.div>

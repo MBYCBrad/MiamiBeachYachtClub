@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page-new";
 import AuthPage from "@/pages/auth-page";
 import YachtDetail from "@/pages/yacht-detail";
+import YachtBooking from "@/pages/yacht-booking";
 import ServiceDetail from "@/pages/service-detail";
 import EventDetail from "@/pages/event-detail";
 import EventsPage from "@/pages/events-page";
@@ -27,6 +28,7 @@ function Router() {
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
+      <ProtectedRoute path="/yachts/:id/book" component={YachtBooking} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
       <ProtectedRoute path="/events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />

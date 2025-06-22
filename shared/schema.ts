@@ -92,6 +92,8 @@ export const bookings = pgTable("bookings", {
   yachtId: integer("yacht_id").references(() => yachts.id),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
+  guestCount: integer("guest_count").notNull().default(1),
+  specialRequests: text("special_requests"),
   status: text("status").notNull().default('pending'), // 'pending', 'confirmed', 'cancelled'
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
