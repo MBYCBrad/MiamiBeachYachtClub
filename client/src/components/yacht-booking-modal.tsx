@@ -110,7 +110,6 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         availability[slot] = data.available;
       });
       
-      console.log('Setting availability data:', availability);
       setTimeSlotAvailability(availability);
     } catch (error) {
       console.error('Error fetching availability:', error);
@@ -315,30 +314,20 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     const isBooked = bookingData.startDate && isAvailable === false;
                     const hasDataLoaded = bookingData.startDate && Object.keys(timeSlotAvailability).length > 0;
                     
-                    // Debug logging
-                    if (slot.value === 'morning') {
-                      console.log('Debug slot data:', {
-                        slotValue: slot.value,
-                        isAvailable,
-                        isBooked,
-                        hasDataLoaded,
-                        timeSlotAvailability,
-                        startDate: bookingData.startDate
-                      });
-                    }
+
                     
                     return (
                       <motion.div
                         key={slot.value}
-                        whileHover={!isBooked ? { scale: 1.02 } : {}}
-                        whileTap={!isBooked ? { scale: 0.98 } : {}}
+                        whileHover={timeSlotAvailability[slot.value] !== false ? { scale: 1.02 } : {}}
+                        whileTap={timeSlotAvailability[slot.value] !== false ? { scale: 0.98 } : {}}
                         onClick={() => {
-                          if (!isBooked) {
+                          if (timeSlotAvailability[slot.value] !== false) {
                             setBookingData({...bookingData, timeSlot: slot.value});
                           }
                         }}
                         className={`relative p-3 rounded-lg border-2 transition-all duration-300 ${
-                          isBooked 
+                          timeSlotAvailability[slot.value] === false
                             ? 'border-red-500/50 bg-red-500/10 cursor-not-allowed opacity-75'
                             : bookingData.timeSlot === slot.value 
                             ? 'border-purple-500 bg-purple-500/20 cursor-pointer' 
@@ -360,25 +349,18 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                           </div>
                         {/* Status Indicators */}
                         <div className="flex flex-col items-end space-y-1">
-                          {bookingData.timeSlot === slot.value && !isBooked && (
+                          {bookingData.timeSlot === slot.value && timeSlotAvailability[slot.value] !== false && (
                             <CheckCircle className="w-5 h-5 text-purple-400" />
                           )}
                           
-                          {/* Always show availability status when we have data */}
-                          {hasDataLoaded && (
+                          {/* Show availability status */}
+                          {bookingData.startDate && timeSlotAvailability.hasOwnProperty(slot.value) && (
                             <div className={`text-xs px-2 py-1 rounded font-medium ${
-                              isAvailable 
+                              timeSlotAvailability[slot.value] === true
                                 ? 'bg-green-500 text-white' 
                                 : 'bg-red-500 text-white'
                             }`}>
-                              {isAvailable ? 'Available' : 'Already Booked'}
-                            </div>
-                          )}
-                          
-                          {/* Show loading state when no data yet */}
-                          {bookingData.startDate && !hasDataLoaded && (
-                            <div className="text-xs px-2 py-1 rounded font-medium bg-blue-500 text-white">
-                              Loading...
+                              {timeSlotAvailability[slot.value] === true ? 'Available' : 'Already Booked'}
                             </div>
                           )}
                         </div>
@@ -432,10 +414,10 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               </Alert>
 
               {/* Instant Availability Display */}
-              {bookingData.startDate && bookingData.timeSlot && (
-                <Alert className={`${timeSlotAvailability[bookingData.timeSlot] ? 'border-green-500/50 bg-green-500/10' : 'border-red-500/50 bg-red-500/10'}`}>
-                  <AlertDescription className={timeSlotAvailability[bookingData.timeSlot] ? 'text-green-400' : 'text-red-400'}>
-                    {timeSlotAvailability[bookingData.timeSlot] 
+              {bookingData.startDate && bookingData.timeSlot && timeSlotAvailability.hasOwnProperty(bookingData.timeSlot) && (
+                <Alert className={`${timeSlotAvailability[bookingData.timeSlot] === true ? 'border-green-500/50 bg-green-500/10' : 'border-red-500/50 bg-red-500/10'}`}>
+                  <AlertDescription className={timeSlotAvailability[bookingData.timeSlot] === true ? 'text-green-400' : 'text-red-400'}>
+                    {timeSlotAvailability[bookingData.timeSlot] === true
                       ? '✓ Yacht is available for your selected date and time slot!'
                       : '✗ Sorry, this yacht is not available for the selected date and time. Please choose a different slot.'
                     }
@@ -446,7 +428,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               <div className="flex justify-end">
                 <Button
                   onClick={() => setCurrentStep(2)}
-                  disabled={timeSlotAvailability[bookingData.timeSlot] === false || !bookingData.startDate || !bookingData.timeSlot}
+                  disabled={timeSlotAvailability[bookingData.timeSlot] !== true || !bookingData.startDate || !bookingData.timeSlot}
                   className="bg-purple-600 hover:bg-purple-700"
                 >
                   Continue
