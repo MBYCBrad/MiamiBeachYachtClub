@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronRight, Sparkles, DollarSign, MessageSquare, MoreHorizontal, Scissors, UtensilsCrossed, Camera, Waves, Music, Heart, Dumbbell, Coffee, Send, Headphones } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronDown, 
+  CheckCircle, User, Shield, Navigation, Anchor, Trophy, ArrowRight, PlayCircle, 
+  FileText, ThumbsUp, Zap, Crown, Compass, Loader2, Sailboat, Scissors, 
+  UtensilsCrossed, Camera, Waves, Music, Heart, Coffee, Send, Timer, Gem, Plus
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import type { Booking, ServiceBooking, EventRegistration, MediaAsset, Yacht, Service } from '@shared/schema';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { formatDistanceToNow, format, isToday, isTomorrow, isYesterday } from 'date-fns';
+import type { Booking, ServiceBooking, MediaAsset, Yacht, Service } from '@shared/schema';
 
 interface MemberTripsProps {
   currentView: string;
@@ -19,11 +26,14 @@ interface MemberTripsProps {
 
 export default function MemberTrips({ currentView, setCurrentView }: MemberTripsProps) {
   const [activeTab, setActiveTab] = useState('upcoming');
-  const [captainMessage, setCaptainMessage] = useState('');
-  const [marinaMessage, setMarinaMessage] = useState('');
-  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-  const [messageType, setMessageType] = useState<'captain' | 'marina'>('captain');
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  const [expandedServices, setExpandedServices] = useState<number[]>([]);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [selectedTripForRating, setSelectedTripForRating] = useState<Booking | null>(null);
   const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
@@ -31,40 +41,32 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   });
 
   const { data: yachtBookings = [], isLoading: yachtLoading } = useQuery<Booking[]>({
-    queryKey: ['/api/bookings', { status: 'confirmed' }]
+    queryKey: ['/api/bookings']
   });
 
-  const { data: serviceBookings = [], isLoading: serviceLoading } = useQuery<ServiceBooking[]>({
-    queryKey: ['/api/service-bookings', { status: 'confirmed' }]
+  const { data: serviceBookings = [] } = useQuery<ServiceBooking[]>({
+    queryKey: ['/api/service-bookings']
   });
 
-  const { data: eventRegistrations = [], isLoading: eventLoading } = useQuery<EventRegistration[]>({
-    queryKey: ['/api/event-registrations', { status: 'confirmed' }]
-  });
-
-  // Fetch yacht details for comprehensive display
   const { data: yachts = [] } = useQuery<Yacht[]>({
     queryKey: ['/api/yachts']
   });
 
-  // Fetch service details for service breakdown
   const { data: services = [] } = useQuery<Service[]>({
     queryKey: ['/api/services']
   });
 
-  // Helper function to get yacht details by ID
+  // Helper functions
   const getYachtById = (yachtId: number | null) => {
     if (!yachtId) return null;
     return yachts.find(yacht => yacht.id === yachtId);
   };
 
-  // Helper function to get service details by ID
   const getServiceById = (serviceId: number | null) => {
     if (!serviceId) return null;
     return services.find(service => service.id === serviceId);
   };
 
-  // Helper function to get services for a user on the same day as booking
   const getServicesForBooking = (booking: Booking) => {
     const bookingDate = new Date(booking.startTime).toDateString();
     return serviceBookings.filter(sb => 
@@ -73,7 +75,6 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
     );
   };
 
-  // Service category icons mapping
   const getServiceIcon = (category: string) => {
     const iconMap: { [key: string]: any } = {
       'Beauty & Grooming': Scissors,
@@ -82,128 +83,125 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
       'Photography & Media': Camera,
       'Entertainment': Music,
       'Water Sports': Waves,
-      'Concierge & Lifestyle': Coffee
+      'Concierge & Lifestyle': Crown
     };
     return iconMap[category] || Coffee;
   };
 
-  // Message Captain mutation
-  const messageCaptainMutation = useMutation({
-    mutationFn: async ({ bookingId, message }: { bookingId: number; message: string }) => {
-      const response = await apiRequest('POST', '/api/concierge', {
-        message: `CAPTAIN MESSAGE for Booking #${bookingId}: ${message}`,
-        priority: 'high',
-        category: 'yacht_booking'
-      });
-      return await response.json();
+  const getServiceDescription = (service: Service) => {
+    // Return actual description from database if available
+    return service.description || `Premium ${service.category.toLowerCase()} service designed to enhance your luxury yacht experience.`;
+  };
+
+  const onboardingSteps = [
+    {
+      title: 'Welcome Aboard!',
+      description: 'Your luxury yacht experience begins now',
+      icon: Anchor,
+      content: 'Congratulations on your upcoming yacht adventure! Our team is preparing everything for an unforgettable experience.',
+    },
+    {
+      title: 'Pre-Boarding Checklist',
+      description: 'Essential items and preparation',
+      icon: CheckCircle,
+      content: 'Please bring: Valid ID, comfortable attire, sunscreen, and any personal items. We provide towels, refreshments, and safety equipment.',
+    },
+    {
+      title: 'Safety Briefing',
+      description: 'Your safety is our priority',
+      icon: Shield,
+      content: 'Our certified captain will conduct a safety briefing covering life jackets, emergency procedures, and yacht protocols.',
+    },
+    {
+      title: 'Meet Your Crew',
+      description: 'Professional maritime experts',
+      icon: Users,
+      content: 'Your dedicated crew includes a certified captain, first mate, and concierge team committed to exceptional service.',
+    },
+    {
+      title: 'Ready to Sail',
+      description: 'Adventure awaits',
+      icon: Navigation,
+      content: 'Everything is prepared for your departure. Contact your captain for any last-minute questions or special requests.',
+    }
+  ];
+
+
+
+  // Rating mutation
+  const submitRatingMutation = useMutation({
+    mutationFn: async (data: { bookingId: number; rating: number; review: string }) => {
+      return apiRequest('POST', '/api/bookings/rate', data);
     },
     onSuccess: () => {
       toast({
-        title: "Message Sent",
-        description: "Your message has been sent to the captain successfully",
+        title: "Review Submitted",
+        description: "Thank you for your feedback!",
       });
-      setIsMessageDialogOpen(false);
-      setCaptainMessage('');
+      setShowRatingDialog(false);
+      setRating(0);
+      setReviewText('');
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
     },
     onError: () => {
       toast({
-        title: "Message Failed",
-        description: "Failed to send message. Please try again.",
+        title: "Review Failed",
+        description: "Unable to submit review. Please try again.",
         variant: "destructive",
       });
     }
   });
 
-  // Contact Marina mutation
-  const contactMarinaMutation = useMutation({
-    mutationFn: async ({ bookingId, message }: { bookingId: number; message: string }) => {
-      const response = await apiRequest('POST', '/api/concierge', {
-        message: `MARINA CONTACT for Booking #${bookingId}: ${message}`,
-        priority: 'medium',
-        category: 'yacht_booking'
-      });
-      return await response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Marina Contacted",
-        description: "Your message has been sent to the marina successfully",
-      });
-      setIsMessageDialogOpen(false);
-      setMarinaMessage('');
-    },
-    onError: () => {
-      toast({
-        title: "Contact Failed",
-        description: "Failed to contact marina. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const handleSendMessage = () => {
-    if (!selectedBooking) return;
-    
-    const message = messageType === 'captain' ? captainMessage : marinaMessage;
-    if (!message.trim()) return;
-
-    if (messageType === 'captain') {
-      messageCaptainMutation.mutate({ bookingId: selectedBooking.id, message });
-    } else {
-      contactMarinaMutation.mutate({ bookingId: selectedBooking.id, message });
-    }
+  // Formatting functions
+  const formatDateSmart = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isToday(date)) return 'Today';
+    if (isTomorrow(date)) return 'Tomorrow';
+    if (isYesterday(date)) return 'Yesterday';
+    return format(date, 'EEEE, MMMM d, yyyy');
   };
 
-  const openMessageDialog = (booking: Booking, type: 'captain' | 'marina') => {
-    setSelectedBooking(booking);
-    setMessageType(type);
-    setIsMessageDialogOpen(true);
+  const formatTimeRange = (startTime: string, endTime: string) => {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const startFormatted = format(start, 'h:mm a');
+    const endFormatted = format(end, 'h:mm a');
+    return `${startFormatted} - ${endFormatted}`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+  const getDurationHours = (startTime: string, endTime: string) => {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60));
   };
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const toggleServiceExpansion = (serviceId: number) => {
+    setExpandedServices(prev => 
+      prev.includes(serviceId) 
+        ? prev.filter(id => id !== serviceId)
+        : [...prev, serviceId]
+    );
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'cancelled': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
+  const startOnboarding = (booking: Booking) => {
+    setShowOnboarding(true);
+    setOnboardingStep(0);
   };
 
-  const isUpcoming = (date: Date) => {
-    return new Date(date) > new Date();
+  const startRating = (booking: Booking) => {
+    setSelectedTripForRating(booking);
+    setShowRatingDialog(true);
   };
 
-  const upcomingYachtBookings = yachtBookings.filter(booking => isUpcoming(booking.startTime));
-  const pastYachtBookings = yachtBookings.filter(booking => !isUpcoming(booking.startTime));
-  
-  const upcomingServiceBookings = serviceBookings.filter(booking => 
-    booking.bookingDate && isUpcoming(booking.bookingDate)
-  );
-  const pastServiceBookings = serviceBookings.filter(booking => 
-    booking.bookingDate && !isUpcoming(booking.bookingDate)
-  );
+  // Separate upcoming and past bookings
+  const now = new Date();
+  const upcomingYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) > now);
+  const pastYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) <= now);
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      {/* Video Cover Header */}
+      {/* Cinematic Video Header */}
       <div className="relative h-96 overflow-hidden">
-        {/* Hero Video Background */}
         {heroVideo && (
           <video
             autoPlay
@@ -216,18 +214,16 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
           </video>
         )}
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
 
-        {/* Header Content */}
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
           <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-bold text-gradient-animate mb-4"
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4"
           >
-            Your Trips
+            Your Yacht Adventures
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -235,10 +231,9 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
           >
-            Manage your yacht bookings and exclusive experiences
+            Luxury yacht experiences crafted for perfection
           </motion.p>
           
-          {/* Stats overlay */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -247,461 +242,568 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
           >
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
               <div className="text-2xl font-bold text-white">{upcomingYachtBookings.length}</div>
-              <div className="text-sm text-gray-300">Upcoming Trips</div>
+              <div className="text-sm text-gray-300">Upcoming Adventures</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
               <div className="text-2xl font-bold text-white">{pastYachtBookings.length}</div>
-              <div className="text-sm text-gray-300">Completed</div>
+              <div className="text-sm text-gray-300">Memories Created</div>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="px-4 mb-6">
+      {/* Enhanced Trip Content */}
+      <div className="px-4 -mt-8 relative z-10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 rounded-xl">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 rounded-xl backdrop-blur-sm">
             <TabsTrigger 
               value="upcoming" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg"
             >
+              <PlayCircle size={16} className="mr-2" />
               Upcoming
             </TabsTrigger>
             <TabsTrigger 
               value="past" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg"
             >
-              Past
+              <Trophy size={16} className="mr-2" />
+              Past Adventures
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upcoming" className="mt-6">
-            {(yachtLoading || serviceLoading || eventLoading) ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="bg-gray-800 rounded-2xl h-32 animate-pulse" />
+          <TabsContent value="upcoming" className="mt-8">
+            {yachtLoading ? (
+              <div className="space-y-6">
+                {[1, 2].map((i) => (
+                  <Card key={i} className="bg-gray-800/30 rounded-xl border-0">
+                    <CardContent className="p-8">
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-6 bg-gray-700 rounded w-1/3"></div>
+                        <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="h-20 bg-gray-700 rounded"></div>
+                          <div className="h-20 bg-gray-700 rounded"></div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : (
-              <div className="space-y-4">
-                {/* Enhanced Yacht Bookings with Comprehensive Details */}
+              <div className="space-y-6">
                 {upcomingYachtBookings.map((booking, index) => {
                   const yacht = getYachtById(booking.yachtId);
-                  const bookingServices = getServicesForBooking(booking);
-                  const servicesTotal = bookingServices.reduce((sum, sb) => sum + parseFloat(sb.totalPrice || '0'), 0);
+                  const bookedServices = getServicesForBooking(booking);
+                  const timeUntilTrip = formatDistanceToNow(new Date(booking.startTime), { addSuffix: true });
                   
                   return (
                     <motion.div
-                      key={`yacht-${booking.id}`}
-                      initial={{ opacity: 0, y: 30 }}
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      whileHover={{ y: -5, scale: 1.02 }}
-                      className="mb-6"
+                      transition={{ delay: index * 0.15 }}
                     >
-                      <Card className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 backdrop-blur-sm overflow-hidden">
-                        <CardContent className="p-0">
-                          {/* Enhanced Header with Yacht Image */}
-                          <div className="relative h-48 bg-gradient-to-r from-purple-900 to-blue-900">
-                            <div className="absolute inset-0 bg-black/40"></div>
-                            <img 
-                              src={yacht?.imageUrl || "/api/media/pexels-mali-42092_1750537277229.jpg"}
-                              alt={yacht?.name || "Yacht"}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute top-4 left-4 flex items-center space-x-3">
-                              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
-                              <Badge className="bg-green-600/30 text-green-300 border border-green-500/50 backdrop-blur-sm">
-                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                              </Badge>
+                      <Card className="bg-gradient-to-br from-gray-900/95 to-gray-800/80 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-500 backdrop-blur-xl overflow-hidden">
+                        <CardContent className="p-8">
+                          {/* Trip Header */}
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+                                <Sailboat className="text-white" size={28} />
+                              </div>
+                              <div>
+                                <h3 className="text-2xl font-bold text-white mb-1">
+                                  {yacht?.name || `Yacht Booking #${booking.id}`}
+                                </h3>
+                                <div className="flex items-center space-x-3">
+                                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                                    <CheckCircle size={12} className="mr-1" />
+                                    Confirmed
+                                  </Badge>
+                                  <span className="text-sm text-gray-400">{timeUntilTrip}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="absolute bottom-4 left-4">
-                              <h3 className="text-2xl font-bold text-white mb-1">{yacht?.name || "Luxury Yacht"}</h3>
-                              <p className="text-blue-200 text-sm">{yacht?.size}ft • Luxury Yacht • Booking #{booking.id}</p>
+                            <Button
+                              onClick={() => startOnboarding(booking)}
+                              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg"
+                            >
+                              <PlayCircle size={16} className="mr-2" />
+                              Begin Experience
+                            </Button>
+                          </div>
+
+                          {/* Trip Details Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-xl p-4 border border-purple-500/20">
+                              <div className="flex items-center text-purple-300 mb-2">
+                                <Calendar size={18} className="mr-2" />
+                                <span className="font-medium">Date</span>
+                              </div>
+                              <div className="text-white font-semibold">{formatDateSmart(booking.startTime.toString())}</div>
+                              <div className="text-gray-400 text-sm">
+                                {format(new Date(booking.startTime), 'EEEE')}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-xl p-4 border border-blue-500/20">
+                              <div className="flex items-center text-blue-300 mb-2">
+                                <Clock size={18} className="mr-2" />
+                                <span className="font-medium">Time</span>
+                              </div>
+                              <div className="text-white font-semibold">
+                                {formatTimeRange(booking.startTime.toString(), booking.endTime.toString())}
+                              </div>
+                              <div className="text-gray-400 text-sm">
+                                {getDurationHours(booking.startTime.toString(), booking.endTime.toString())} hours
+                              </div>
+                            </div>
+                            
+                            <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-xl p-4 border border-green-500/20">
+                              <div className="flex items-center text-green-300 mb-2">
+                                <Users size={18} className="mr-2" />
+                                <span className="font-medium">Party</span>
+                              </div>
+                              <div className="text-white font-semibold">{booking.guestCount} guests</div>
+                              <div className="text-gray-400 text-sm">Private charter</div>
+                            </div>
+                            
+                            <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 rounded-xl p-4 border border-yellow-500/20">
+                              <div className="flex items-center text-yellow-300 mb-2">
+                                <MapPin size={18} className="mr-2" />
+                                <span className="font-medium">Marina</span>
+                              </div>
+                              <div className="text-white font-semibold">{yacht?.location || 'Miami Marina'}</div>
+                              <div className="text-gray-400 text-sm">{yacht?.size}ft vessel</div>
                             </div>
                           </div>
 
-                          <div className="p-6">
-                            {/* Trip Details Grid */}
-                            <div className="grid grid-cols-2 gap-6 mb-6">
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-3">
-                                  <div className="p-2 bg-purple-600/20 rounded-lg">
-                                    <Calendar size={18} className="text-purple-400" />
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-400 text-sm">Date</p>
-                                    <p className="text-white font-semibold">{formatDate(booking.startTime.toString())}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                  <div className="p-2 bg-blue-600/20 rounded-lg">
-                                    <Clock size={18} className="text-blue-400" />
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-400 text-sm">Time</p>
-                                    <p className="text-white font-semibold">{formatTime(booking.startTime.toString())} - {formatTime(booking.endTime.toString())}</p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="space-y-3">
-                                <div className="flex items-center space-x-3">
-                                  <div className="p-2 bg-cyan-600/20 rounded-lg">
-                                    <Users size={18} className="text-cyan-400" />
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-400 text-sm">Guests</p>
-                                    <p className="text-white font-semibold">{booking.guestCount} people</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                  <div className="p-2 bg-green-600/20 rounded-lg">
-                                    <DollarSign size={18} className="text-green-400" />
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-400 text-sm">Yacht Cost</p>
-                                    <p className="text-green-400 font-bold text-lg">FREE</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Yacht Specifications */}
-                            <div className="mb-6">
-                              <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                                <Waves className="mr-2 text-blue-400" size={20} />
+                          {/* Yacht Specifications */}
+                          {yacht && (
+                            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/30 rounded-xl p-5 mb-6 border border-gray-700/30">
+                              <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                <Compass size={18} className="mr-2 text-purple-400" />
                                 Yacht Specifications
                               </h4>
-                              <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 rounded-xl p-4 border border-blue-500/20">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="text-center">
-                                    <p className="text-2xl font-bold text-blue-400">{yacht?.size}ft</p>
-                                    <p className="text-gray-400 text-sm">Length</p>
-                                  </div>
-                                  <div className="text-center">
-                                    <p className="text-2xl font-bold text-cyan-400">{yacht?.capacity}</p>
-                                    <p className="text-gray-400 text-sm">Max Capacity</p>
-                                  </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-purple-400">{yacht.size}ft</div>
+                                  <div className="text-xs text-gray-400">Length</div>
                                 </div>
-                                <div className="mt-3 pt-3 border-t border-gray-700">
-                                  <p className="text-white text-center"><span className="text-gray-400">Type:</span> Luxury Yacht</p>
-                                  {yacht?.location && <p className="text-white text-center mt-1"><span className="text-gray-400">Location:</span> {yacht.location}</p>}
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-blue-400">{yacht.capacity}</div>
+                                  <div className="text-xs text-gray-400">Max Guests</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-green-400">Luxury</div>
+                                  <div className="text-xs text-gray-400">Class</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-yellow-400">Premium</div>
+                                  <div className="text-xs text-gray-400">Service</div>
                                 </div>
                               </div>
                             </div>
+                          )}
 
-                            {/* Concierge Services Section - Only show if services exist */}
-                            {bookingServices.length > 0 && (
-                              <div className="mb-6">
-                                <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                                  <Sparkles className="mr-2 text-yellow-400" size={20} />
-                                  Concierge Services Added
-                                </h4>
-                                <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-500/20">
-                                  <div className="grid grid-cols-1 gap-3">
-                                    {bookingServices.map((serviceBooking) => {
-                                      const service = getServiceById(serviceBooking.serviceId);
-                                      const ServiceIcon = service && service.category ? getServiceIcon(service.category) : Coffee;
-                                      
-                                      return (
-                                        <div key={serviceBooking.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
-                                          <div className="flex items-center space-x-3">
-                                            <div className="p-2 bg-purple-600/20 rounded-lg">
-                                              <ServiceIcon size={16} className="text-purple-400" />
-                                            </div>
-                                            <div>
-                                              <p className="text-white font-medium">{service?.name || "Premium Service"}</p>
-                                              <p className="text-gray-400 text-sm">{service?.category || "Concierge"}</p>
-                                            </div>
+                          {/* Enhanced Concierge Services */}
+                          {bookedServices.length > 0 && (
+                            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/5 rounded-xl p-5 mb-6 border border-yellow-500/20">
+                              <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                <Crown size={18} className="mr-2 text-yellow-400" />
+                                Concierge Services
+                                <Badge className="ml-3 bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                                  {bookedServices.length} Premium Services
+                                </Badge>
+                              </h4>
+                              <div className="space-y-3">
+                                {bookedServices.map((serviceBooking) => {
+                                  const service = getServiceById(serviceBooking.serviceId);
+                                  if (!service) return null;
+                                  
+                                  const ServiceIcon = getServiceIcon(service.category);
+                                  const isExpanded = expandedServices.includes(service.id);
+                                  
+                                  return (
+                                    <div key={service.id} className="border border-gray-700/30 rounded-lg overflow-hidden">
+                                      <div 
+                                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-all duration-200"
+                                        onClick={() => toggleServiceExpansion(service.id)}
+                                      >
+                                        <div className="flex items-center space-x-3">
+                                          <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
+                                            <ServiceIcon size={20} className="text-yellow-400" />
                                           </div>
-                                          <p className="text-green-400 font-semibold">${parseFloat(serviceBooking.totalPrice || '0').toFixed(0)}</p>
+                                          <div>
+                                            <h5 className="font-semibold text-white text-lg">{service.name}</h5>
+                                            <p className="text-sm text-gray-400">{service.category}</p>
+                                          </div>
                                         </div>
-                                      );
-                                    })}
-                                  </div>
-                                  <div className="mt-3 pt-3 border-t border-gray-700">
-                                    <div className="flex justify-between items-center">
-                                      <p className="text-white font-semibold">Services Total:</p>
-                                      <p className="text-green-400 font-bold text-lg">${servicesTotal.toFixed(0)}</p>
+                                        <div className="flex items-center space-x-3">
+                                          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                                            ${service.pricePerSession}
+                                          </Badge>
+                                          <ChevronDown 
+                                            size={16} 
+                                            className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
+                                          />
+                                        </div>
+                                      </div>
+                                      
+                                      <AnimatePresence>
+                                        {isExpanded && (
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="overflow-hidden"
+                                          >
+                                            <div className="px-4 pb-4 border-t border-gray-700/30">
+                                              <div className="mt-4 p-4 bg-gradient-to-r from-gray-800/50 to-gray-900/30 rounded-lg">
+                                                <p className="text-gray-300 leading-relaxed mb-3">
+                                                  {getServiceDescription(service)}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                  <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                                    <span className="flex items-center">
+                                                      <Timer size={12} className="mr-1" />
+                                                      {service.duration ? `${service.duration} min` : '1-2 hours'}
+                                                    </span>
+                                                    <span>•</span>
+                                                    <span className="flex items-center">
+                                                      <Gem size={12} className="mr-1" />
+                                                      Premium quality
+                                                    </span>
+                                                  </div>
+                                                  <Badge variant="outline" className="text-xs text-green-300 border-green-500/30">
+                                                    Confirmed
+                                                  </Badge>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Special Requests */}
-                            {booking.specialRequests && (
-                              <div className="mb-6">
-                                <h4 className="text-lg font-semibold text-white mb-2 flex items-center">
-                                  <MessageSquare className="mr-2 text-blue-400" size={18} />
-                                  Special Requests
-                                </h4>
-                                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
-                                  <p className="text-blue-200">{booking.specialRequests}</p>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Enhanced Action Center */}
-                            <div className="space-y-4">
-                              <div className="flex space-x-3">
-                                <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      onClick={() => openMessageDialog(booking, 'captain')}
-                                      className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 text-blue-400 border border-blue-500/30 rounded-xl flex-1 h-12 transition-all duration-300 hover:scale-105"
-                                    >
-                                      <MessageCircle size={18} className="mr-2" />
-                                      <div className="text-left">
-                                        <div className="font-semibold">Message Captain</div>
-                                        <div className="text-xs text-blue-300">Direct communication</div>
-                                      </div>
-                                    </Button>
-                                  </DialogTrigger>
-                                </Dialog>
-                                
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      onClick={() => openMessageDialog(booking, 'marina')}
-                                      className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 text-green-400 border border-green-500/30 rounded-xl flex-1 h-12 transition-all duration-300 hover:scale-105"
-                                    >
-                                      <Phone size={18} className="mr-2" />
-                                      <div className="text-left">
-                                        <div className="font-semibold">Contact Marina</div>
-                                        <div className="text-xs text-green-300">Marina services</div>
-                                      </div>
-                                    </Button>
-                                  </DialogTrigger>
-                                </Dialog>
-                              </div>
-                              
-                              <div className="flex space-x-3">
-                                <Button
-                                  className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 text-purple-400 border border-purple-500/30 rounded-xl flex-1 h-10 transition-all duration-300 hover:scale-105"
-                                >
-                                  <Headphones size={16} className="mr-2" />
-                                  24/7 Concierge
-                                </Button>
-                                <Button
-                                  className="bg-gradient-to-r from-orange-600/20 to-yellow-600/20 hover:from-orange-600/30 hover:to-yellow-600/30 text-orange-400 border border-orange-500/30 rounded-xl flex-1 h-10 transition-all duration-300 hover:scale-105"
-                                >
-                                  <Star size={16} className="mr-2" />
-                                  Rate Experience
-                                </Button>
-                                <Button
-                                  className="bg-gradient-to-r from-gray-600/20 to-slate-600/20 hover:from-gray-600/30 hover:to-slate-600/30 text-gray-400 border border-gray-500/30 rounded-xl h-10 px-3 transition-all duration-300 hover:scale-105"
-                                >
-                                  <MoreHorizontal size={16} />
-                                </Button>
+                                  );
+                                })}
                               </div>
                             </div>
-                          </div>
+                          )}
+
+                          {/* Special Requests */}
+                          {booking.specialRequests && booking.specialRequests.trim() && (
+                            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-5 mb-6 border border-blue-500/20">
+                              <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                                <FileText size={18} className="mr-2 text-blue-400" />
+                                Special Requests
+                              </h4>
+                              <div className="bg-gray-800/50 p-4 rounded-lg">
+                                <p className="text-gray-300 leading-relaxed">{booking.specialRequests}</p>
+                              </div>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     </motion.div>
                   );
                 })}
 
-                {/* No upcoming trips */}
                 {upcomingYachtBookings.length === 0 && (
-                  <div className="text-center py-12">
-                    <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-400 mb-2">No upcoming trips</h3>
-                    <p className="text-gray-500 mb-6">Book your next luxury yacht experience</p>
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center py-16"
+                  >
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-purple-500/30">
+                      <Sailboat size={32} className="text-purple-400" />
+                    </div>
+                    <h3 className="text-2xl font-semibold text-gray-300 mb-2">No upcoming adventures</h3>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto">
+                      Ready to embark on your next luxury yacht experience? Explore our premium fleet and book your perfect getaway.
+                    </p>
                     <Button
                       onClick={() => setCurrentView('explore')}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-8"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-8 py-3"
                     >
-                      Explore Yachts
+                      <Compass size={18} className="mr-2" />
+                      Explore Yacht Fleet
                     </Button>
-                  </div>
+                  </motion.div>
                 )}
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="past" className="mt-6">
-            <div className="space-y-4">
-              {/* Past Yacht Bookings */}
-              {pastYachtBookings.map((booking, index) => (
-                <motion.div
-                  key={`past-yacht-${booking.id}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="bg-gray-900/50 border-gray-800 hover-lift">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-xl font-bold text-white mb-1">
-                            Yacht Booking #{booking.id}
-                          </h3>
-                          <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30 border">
-                            Completed
-                          </Badge>
+          <TabsContent value="past" className="mt-8">
+            <div className="space-y-6">
+              {pastYachtBookings.map((booking, index) => {
+                const yacht = getYachtById(booking.yachtId);
+                const bookedServices = getServicesForBooking(booking);
+                
+                return (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-gray-700/30 hover:border-gray-600/50 transition-all">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-14 h-14 bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-xl flex items-center justify-center border border-yellow-500/30">
+                              <Trophy size={24} className="text-yellow-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-white mb-1">
+                                {yacht?.name || `Yacht Adventure #${booking.id}`}
+                              </h3>
+                              <div className="flex items-center space-x-3">
+                                <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
+                                  Completed
+                                </Badge>
+                                <span className="text-sm text-gray-400">
+                                  {formatDateSmart(booking.startTime.toString())}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => startRating(booking)}
+                            className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30"
+                          >
+                            <Star size={16} className="mr-2" />
+                            Rate Experience
+                          </Button>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Star className="text-yellow-400 fill-current" size={16} />
-                          <span className="text-sm text-gray-300">Rate Experience</span>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="flex items-center text-gray-300">
-                          <Calendar size={16} className="mr-2" />
-                          <span className="text-sm">{formatDate(booking.startTime.toString())}</span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                          <div className="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div className="text-lg font-semibold text-white">{formatDateSmart(booking.startTime.toString())}</div>
+                            <div className="text-xs text-gray-400">Date</div>
+                          </div>
+                          <div className="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div className="text-lg font-semibold text-white">
+                              {getDurationHours(booking.startTime.toString(), booking.endTime.toString())}h
+                            </div>
+                            <div className="text-xs text-gray-400">Duration</div>
+                          </div>
+                          <div className="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div className="text-lg font-semibold text-white">{booking.guestCount}</div>
+                            <div className="text-xs text-gray-400">Guests</div>
+                          </div>
+                          <div className="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div className="text-lg font-semibold text-white">{bookedServices.length}</div>
+                            <div className="text-xs text-gray-400">Services</div>
+                          </div>
                         </div>
-                        <div className="flex items-center text-gray-300">
-                          <Users size={16} className="mr-2" />
-                          <span className="text-sm">Private booking</span>
+
+                        {bookedServices.length > 0 && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-400 mb-3">Services enjoyed:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {bookedServices.map((serviceBooking) => {
+                                const service = getServiceById(serviceBooking.serviceId);
+                                return service ? (
+                                  <Badge key={service.id} variant="outline" className="text-xs text-purple-300 border-purple-500/30">
+                                    {service.name}
+                                  </Badge>
+                                ) : null;
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex space-x-3">
+                          <Button
+                            onClick={() => startRating(booking)}
+                            className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
+                          >
+                            <Star size={16} className="mr-2" />
+                            Share Review
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="border-gray-600 text-gray-300 hover:bg-gray-800 rounded-xl"
+                            onClick={() => setCurrentView('explore')}
+                          >
+                            <Plus size={16} className="mr-2" />
+                            Book Similar
+                          </Button>
                         </div>
-                      </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
 
-                      <div className="flex space-x-3">
-                        <Button
-                          size="sm"
-                          className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
-                        >
-                          <Star size={16} className="mr-2" />
-                          Leave Review
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-gray-600 text-gray-300 hover:bg-gray-800 rounded-xl"
-                        >
-                          Book Again
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-
-              {/* No past trips */}
               {pastYachtBookings.length === 0 && (
-                <div className="text-center py-12">
-                  <Calendar size={48} className="mx-auto text-gray-600 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">No past trips</h3>
-                  <p className="text-gray-500">Your completed bookings will appear here</p>
-                </div>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-16"
+                >
+                  <div className="w-24 h-24 bg-gradient-to-br from-gray-600/20 to-gray-700/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-500/30">
+                    <Trophy size={32} className="text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-300 mb-2">No past adventures yet</h3>
+                  <p className="text-gray-500">Your completed yacht experiences will appear here</p>
+                </motion.div>
               )}
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Enhanced Messaging Dialog */}
-      <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
-        <DialogContent className="bg-gray-900/95 border-gray-800 backdrop-blur-xl max-w-md">
+      {/* Enhanced Onboarding Experience */}
+      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+        <DialogContent className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border-purple-500/30 backdrop-blur-xl max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center space-x-3">
-              {messageType === 'captain' ? (
-                <>
-                  <div className="p-2 bg-blue-600/20 rounded-lg">
-                    <MessageCircle className="text-blue-400" size={20} />
-                  </div>
-                  <div>
-                    <div className="font-bold">Message Captain</div>
-                    <div className="text-sm text-gray-400">Direct communication with your yacht captain</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="p-2 bg-green-600/20 rounded-lg">
-                    <Phone className="text-green-400" size={20} />
-                  </div>
-                  <div>
-                    <div className="font-bold">Contact Marina</div>
-                    <div className="text-sm text-gray-400">Reach out to marina services and support</div>
-                  </div>
-                </>
-              )}
+            <DialogTitle className="text-white text-2xl text-center">
+              {onboardingSteps[onboardingStep]?.title}
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 pt-4">
-            {selectedBooking && (
-              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
-                      {selectedBooking.yachtId === 1 ? 'MB' : 'YC'}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="text-white font-semibold">Marina Breeze</div>
-                    <div className="text-gray-400 text-sm">Booking #{selectedBooking.id}</div>
-                  </div>
-                </div>
+          <div className="py-6">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                {onboardingSteps[onboardingStep] && React.createElement(onboardingSteps[onboardingStep].icon, {
+                  size: 32,
+                  className: "text-white"
+                })}
               </div>
-            )}
-            
-            <div className="space-y-2">
-              <label className="text-white font-medium">Your Message</label>
-              <Textarea
-                value={messageType === 'captain' ? captainMessage : marinaMessage}
-                onChange={(e) => messageType === 'captain' ? setCaptainMessage(e.target.value) : setMarinaMessage(e.target.value)}
-                placeholder={
-                  messageType === 'captain' 
-                    ? "Send a message to your yacht captain..."
-                    : "Contact the marina about your booking..."
-                }
-                className="bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 min-h-[120px] rounded-lg resize-none"
-                rows={5}
-              />
             </div>
             
-            <div className="flex space-x-3 pt-2">
+            <div className="text-center mb-6">
+              <p className="text-lg text-purple-300 mb-2">
+                {onboardingSteps[onboardingStep]?.description}
+              </p>
+              <p className="text-gray-400 leading-relaxed">
+                {onboardingSteps[onboardingStep]?.content}
+              </p>
+            </div>
+            
+            <div className="mb-6">
+              <div className="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progress</span>
+                <span>{onboardingStep + 1} of {onboardingSteps.length}</span>
+              </div>
+              <Progress value={(onboardingStep + 1) / onboardingSteps.length * 100} className="h-2" />
+            </div>
+            
+            <div className="flex justify-between">
               <Button
-                onClick={handleSendMessage}
-                disabled={
-                  !(messageType === 'captain' ? captainMessage.trim() : marinaMessage.trim()) ||
-                  messageCaptainMutation.isPending ||
-                  contactMarinaMutation.isPending
-                }
-                className={`
-                  ${messageType === 'captain' 
-                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700' 
-                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                  } 
-                  text-white border-0 rounded-xl flex-1 h-12 font-semibold transition-all duration-300
-                `}
+                variant="outline"
+                onClick={() => setOnboardingStep(Math.max(0, onboardingStep - 1))}
+                disabled={onboardingStep === 0}
+                className="border-gray-600 text-gray-300"
               >
-                {(messageCaptainMutation.isPending || contactMarinaMutation.isPending) ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Sending...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <Send size={18} />
-                    <span>Send Message</span>
-                  </div>
-                )}
+                Previous
               </Button>
               
-              <Button
-                onClick={() => setIsMessageDialogOpen(false)}
-                className="bg-gray-700/50 hover:bg-gray-700/70 text-gray-300 border border-gray-700 rounded-xl px-6 h-12"
-              >
-                Cancel
-              </Button>
+              {onboardingStep < onboardingSteps.length - 1 ? (
+                <Button
+                  onClick={() => setOnboardingStep(onboardingStep + 1)}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Continue
+                  <ArrowRight size={16} className="ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setShowOnboarding(false)}
+                  className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  Ready to Sail!
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
+
+      {/* Enhanced Rating Dialog */}
+      <Dialog open={showRatingDialog} onOpenChange={setShowRatingDialog}>
+        <DialogContent className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border-yellow-500/30 backdrop-blur-xl max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl flex items-center space-x-3">
+              <Trophy className="text-yellow-400" size={24} />
+              <span>Share Your Experience</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-6">
+            <div className="text-center mb-6">
+              <p className="text-gray-300 mb-4">How was your luxury yacht adventure?</p>
+              <div className="flex justify-center space-x-2 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="transition-all duration-200 hover:scale-110"
+                  >
+                    <Star
+                      size={36}
+                      className={star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-600 hover:text-gray-500'}
+                    />
+                  </button>
+                ))}
+              </div>
+              {rating > 0 && (
+                <p className="text-sm text-yellow-400 font-medium">
+                  {rating === 5 ? 'Absolutely Exceptional!' : 
+                   rating === 4 ? 'Outstanding Experience!' : 
+                   rating === 3 ? 'Great Adventure!' : 
+                   rating === 2 ? 'Good Experience' : 'Needs Improvement'}
+                </p>
+              )}
             </div>
             
-            <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg p-3">
-              <div className="flex items-start space-x-3">
-                <Sparkles className="text-purple-400 mt-0.5" size={16} />
-                <div className="text-sm">
-                  <div className="text-purple-300 font-medium">Premium Concierge Service</div>
-                  <div className="text-purple-400/80 text-xs mt-1">
-                    Your message will be delivered instantly via our luxury concierge service. 
-                    Response typically within 15 minutes during business hours.
-                  </div>
-                </div>
-              </div>
+            <Textarea
+              placeholder="Share the highlights of your yacht experience..."
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              className="bg-gray-800/50 border-gray-700 text-white min-h-[120px] mb-6"
+            />
+            
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRatingDialog(false);
+                  setRating(0);
+                  setReviewText('');
+                }}
+                className="border-gray-600 text-gray-300"
+              >
+                Maybe Later
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedTripForRating && rating > 0) {
+                    submitRatingMutation.mutate({
+                      bookingId: selectedTripForRating.id,
+                      rating,
+                      review: reviewText
+                    });
+                  }
+                }}
+                disabled={submitRatingMutation.isPending || rating === 0}
+                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700"
+              >
+                {submitRatingMutation.isPending ? (
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                ) : (
+                  <ThumbsUp size={16} className="mr-2" />
+                )}
+                Submit Review
+              </Button>
             </div>
           </div>
         </DialogContent>
