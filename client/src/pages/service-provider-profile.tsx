@@ -101,6 +101,9 @@ export default function ServiceProviderProfile({ providerId, onBack }: ServicePr
   };
 
   const handleBookService = (service: ServiceTier) => {
+    console.log('Book Now clicked for service:', service.name);
+    console.log('User authenticated:', !!user);
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -110,8 +113,11 @@ export default function ServiceProviderProfile({ providerId, onBack }: ServicePr
       setLocation('/auth');
       return;
     }
+    
+    console.log('Setting selected service and opening modal');
     setSelectedService(service);
     setShowBookingModal(true);
+    console.log('Modal state should be true now');
   };
 
   const confirmBooking = async () => {
