@@ -217,6 +217,16 @@ Changelog:
   - Verified complete authentication flow from login to member dashboard redirection
   - Enhanced logo presentation with subtle glow animations and professional styling
   - Authentication system fully operational with role-based dashboard routing for all user types
+- June 22, 2025. World-class yacht booking system with dropdown modal experience
+  - Created Airbnb/Turo-style booking flow with 4-step process: Date/Time → Guest Details → Review → Confirmation
+  - Implemented dropdown modal booking form instead of full-page experience for better UX
+  - Added yacht title, image, and specs prominently displayed at top of booking form
+  - Built 4-hour time slot selection system (Morning, Afternoon, Evening, Night cruises)
+  - Removed all pricing - yacht bookings are completely FREE for MBYC members
+  - Added "Book Now" and "View Details" buttons to all yacht cards for seamless user experience
+  - Integrated real-time availability checking and booking confirmation system
+  - Enhanced member benefits highlighting throughout booking process
+  - Database schema updated to support guest count and special requests for bookings
 
 ## Member Experience Feature Status
 

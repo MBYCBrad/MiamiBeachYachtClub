@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Star } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import YachtBookingModal from './yacht-booking-modal';
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
 
@@ -30,10 +31,16 @@ interface YachtCardProps {
 
 export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
+  };
+
+  const openBookingModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsBookingModalOpen(true);
   };
 
   return (
@@ -221,23 +228,40 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
               </motion.span>
               <span className="text-sm text-gray-400 block group-hover:text-purple-300 transition-colors duration-300">with membership</span>
             </motion.div>
-            <motion.div
-              whileHover={{ 
-                scale: 1.05,
-                transition: { type: "spring", stiffness: 400 }
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.location.href = `/yachts/${yacht.id}/book`;
+            <div className="flex space-x-2">
+              <motion.div
+                whileHover={{ 
+                  scale: 1.05,
+                  transition: { type: "spring", stiffness: 400 }
                 }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
+                whileTap={{ scale: 0.95 }}
               >
-                Book Now
-              </Button>
-            </motion.div>
+                <Button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/yachts/${yacht.id}`;
+                  }}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                >
+                  View Details
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ 
+                  scale: 1.05,
+                  transition: { type: "spring", stiffness: 400 }
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  onClick={openBookingModal}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
+                >
+                  Book Now
+                </Button>
+              </motion.div>
+            </div>
           </motion.div>
 
           {/* Amenities */}
@@ -286,6 +310,13 @@ export default function YachtCard({ yacht, index = 0 }: YachtCardProps) {
           )}
         </div>
       </div>
+
+      {/* Booking Modal */}
+      <YachtBookingModal 
+        yacht={yacht}
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+      />
     </motion.div>
   );
 }
