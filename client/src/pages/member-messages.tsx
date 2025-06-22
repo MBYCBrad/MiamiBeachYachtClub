@@ -32,13 +32,12 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch active hero video
-  const { data: heroVideo } = useQuery({
+  const { data: heroVideo } = useQuery<any>({
     queryKey: ['/api/media/hero/active'],
     staleTime: 15 * 60 * 1000, // 15 minutes
-    cacheTime: 60 * 60 * 1000, // 1 hour
   });
 
-  const filteredConversations = conversations?.filter(conv => 
+  const filteredConversations = conversations?.filter((conv: any) => 
     conv.conversationId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.lastMessage?.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.conversationId.toLowerCase().includes(searchQuery.toLowerCase())
@@ -115,53 +114,67 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   }
 
   return (
-    <div className="h-screen bg-black relative overflow-hidden">
-      {/* Video Background Header */}
-      {heroVideo && (
-        <div className="absolute inset-0 z-0">
+    <div className="min-h-screen bg-black text-white pb-20">
+      {/* Video Header */}
+      <div className="relative h-96 overflow-hidden">
+        {/* Hero Video Background */}
+        {heroVideo && (
           <video
             autoPlay
             muted
             loop
-            className="w-full h-full object-cover"
-            style={{ filter: 'brightness(0.3)' }}
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
           >
             <source src={`/api/media/${heroVideo.filename}`} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
+        )}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
+
+        {/* Header Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-bold text-gradient-animate mb-4"
+          >
+            Messages
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
+          >
+            Connect with MBYC administration and concierge services
+          </motion.p>
+          
+          {/* Stats overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex space-x-8 text-center"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{filteredConversations?.length || 0}</div>
+              <div className="text-sm text-gray-300">Active Conversations</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">24/7</div>
+              <div className="text-sm text-gray-300">Support Available</div>
+            </div>
+          </motion.div>
         </div>
-      )}
-
-      {/* Floating particles background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-purple-400 rounded-full opacity-30 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
-            }}
-          />
-        ))}
       </div>
-      
-      <div className="h-full flex flex-col relative z-20">
-        <div className="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-white">Messages</h1>
-            <Button
-              onClick={handleNewConversation}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Message
-            </Button>
-          </div>
 
-          <div className="relative">
+      {/* Search and New Message Controls */}
+      <div className="px-4 py-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 relative mr-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search conversations..."
@@ -170,91 +183,99 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
               className="pl-10 bg-gray-800/80 backdrop-blur-sm border-gray-700 text-white placeholder-gray-400"
             />
           </div>
+          <Button
+            onClick={handleNewConversation}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Message
+          </Button>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {filteredConversations.length === 0 ? (
-            <div className="text-center py-12">
-              <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">
-                No conversations yet
-              </h3>
-              <p className="text-gray-400 mb-6 max-w-sm mx-auto">
-                Start your first conversation with MBYC Admin. We're here 24/7 to assist with your yacht club experience.
-              </p>
-              <Button
-                onClick={handleNewConversation}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+      {/* Conversations List */}
+      <div className="px-4">
+        {filteredConversations.length === 0 ? (
+          <div className="text-center py-12">
+            <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-white mb-2">
+              No conversations yet
+            </h3>
+            <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+              Start your first conversation with MBYC Admin. We're here 24/7 to assist with your yacht club experience.
+            </p>
+            <Button
+              onClick={handleNewConversation}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Start Conversation
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredConversations.map((conversation: any, index: number) => (
+              <motion.div
+                key={conversation.conversationId}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Start Conversation
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredConversations.map((conversation: any, index: number) => (
-                <motion.div
-                  key={conversation.conversationId}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900/90 backdrop-blur-sm border-gray-800"
+                  onClick={() => setSelectedConversation(conversation.conversationId)}
                 >
-                  <Card 
-                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900/90 backdrop-blur-sm border-gray-800"
-                    onClick={() => setSelectedConversation(conversation.conversationId)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-4">
-                        <Avatar className="h-12 w-12 ring-2 ring-purple-500">
-                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-semibold">
-                            {getConversationName(conversation.conversationId).charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-white truncate">
-                              {getConversationName(conversation.conversationId)}
-                            </h3>
-                            <div className="flex items-center space-x-2">
-                              {conversation.unreadCount > 0 && (
-                                <Badge className="bg-purple-600 text-white">
-                                  {conversation.unreadCount}
-                                </Badge>
-                              )}
-                              <Badge variant="outline" className="bg-green-900/80 text-green-400 border-green-700">
-                                <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
-                                Online
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-4">
+                      <Avatar className="h-12 w-12 ring-2 ring-purple-500">
+                        <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-semibold">
+                          {getConversationName(conversation.conversationId).charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold text-white truncate">
+                            {getConversationName(conversation.conversationId)}
+                          </h3>
+                          <div className="flex items-center space-x-2">
+                            {conversation.unreadCount > 0 && (
+                              <Badge className="bg-purple-600 text-white">
+                                {conversation.unreadCount}
                               </Badge>
-                            </div>
+                            )}
+                            <Badge variant="outline" className="bg-green-900/80 text-green-400 border-green-700">
+                              <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
+                              Online
+                            </Badge>
                           </div>
-                          
-                          <p className="text-sm text-gray-400 mb-1">
-                            {getConversationRole(conversation.conversationId)}
-                          </p>
-                          
-                          {conversation.lastMessage && (
-                            <>
-                              <p className="text-sm text-gray-300 truncate mb-2">
-                                {conversation.lastMessage.content}
-                              </p>
-                              <div className="flex items-center space-x-2 text-xs text-gray-400">
-                                <Clock className="h-3 w-3" />
-                                <span>
-                                  {formatDistanceToNow(new Date(conversation.lastMessage.createdAt), { addSuffix: true })}
-                                </span>
-                              </div>
-                            </>
-                          )}
                         </div>
+                        
+                        <p className="text-sm text-gray-400 mb-1">
+                          {getConversationRole(conversation.conversationId)}
+                        </p>
+                        
+                        {conversation.lastMessage && (
+                          <>
+                            <p className="text-sm text-gray-300 truncate mb-2">
+                              {conversation.lastMessage.content}
+                            </p>
+                            <div className="flex items-center space-x-2 text-xs text-gray-400">
+                              <Clock className="h-3 w-3" />
+                              <span>
+                                {formatDistanceToNow(new Date(conversation.lastMessage.createdAt), { addSuffix: true })}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
