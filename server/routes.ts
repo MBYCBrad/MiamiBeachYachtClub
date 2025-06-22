@@ -1736,5 +1736,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ADMIN CRUD OPERATIONS
+  
+  // Admin - Create User
+  app.post("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const newUser = await storage.createUser(req.body);
+      await auditService.logAction(req, 'create', 'user', newUser.id, req.body);
+      res.status(201).json(newUser);
+    } catch (error: any) {
+      await auditService.logAction(req, 'create', 'user', undefined, req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Update User
+  app.put("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const updatedUser = await storage.updateUser(userId, req.body);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      await auditService.logAction(req, 'update', 'user', userId, req.body);
+      res.json(updatedUser);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'user', parseInt(req.params.id), req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Delete User
+  app.delete("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const deleted = await storage.deleteUser(userId);
+      if (!deleted) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      await auditService.logAction(req, 'delete', 'user', userId);
+      res.status(204).send();
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'user', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Create Yacht
+  app.post("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const newYacht = await storage.createYacht(req.body);
+      await auditService.logAction(req, 'create', 'yacht', newYacht.id, req.body);
+      res.status(201).json(newYacht);
+    } catch (error: any) {
+      await auditService.logAction(req, 'create', 'yacht', undefined, req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Update Yacht
+  app.put("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.id);
+      const updatedYacht = await storage.updateYacht(yachtId, req.body);
+      if (!updatedYacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+      await auditService.logAction(req, 'update', 'yacht', yachtId, req.body);
+      res.json(updatedYacht);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'yacht', parseInt(req.params.id), req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Delete Yacht
+  app.delete("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.id);
+      const deleted = await storage.deleteYacht(yachtId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+      await auditService.logAction(req, 'delete', 'yacht', yachtId);
+      res.status(204).send();
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'yacht', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Create Service
+  app.post("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const newService = await storage.createService(req.body);
+      await auditService.logAction(req, 'create', 'service', newService.id, req.body);
+      res.status(201).json(newService);
+    } catch (error: any) {
+      await auditService.logAction(req, 'create', 'service', undefined, req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Update Service
+  app.put("/api/admin/services/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const updatedService = await storage.updateService(serviceId, req.body);
+      if (!updatedService) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      await auditService.logAction(req, 'update', 'service', serviceId, req.body);
+      res.json(updatedService);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'service', parseInt(req.params.id), req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Delete Service
+  app.delete("/api/admin/services/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const deleted = await storage.deleteService(serviceId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      await auditService.logAction(req, 'delete', 'service', serviceId);
+      res.status(204).send();
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'service', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Create Event
+  app.post("/api/admin/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const newEvent = await storage.createEvent(req.body);
+      await auditService.logAction(req, 'create', 'event', newEvent.id, req.body);
+      res.status(201).json(newEvent);
+    } catch (error: any) {
+      await auditService.logAction(req, 'create', 'event', undefined, req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Update Event
+  app.put("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      const updatedEvent = await storage.updateEvent(eventId, req.body);
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      await auditService.logAction(req, 'update', 'event', eventId, req.body);
+      res.json(updatedEvent);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'event', parseInt(req.params.id), req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin - Delete Event
+  app.delete("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      const deleted = await storage.deleteEvent(eventId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      await auditService.logAction(req, 'delete', 'event', eventId);
+      res.status(204).send();
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'event', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

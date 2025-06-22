@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   BarChart3, 
   Anchor, 
@@ -27,14 +27,24 @@ import {
   Shield,
   Wrench,
   Camera,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
 
 interface YachtOwnerStats {
   totalYachts: number;
@@ -43,6 +53,290 @@ interface YachtOwnerStats {
   avgRating: number;
   occupancyRate: number;
   pendingMaintenance: number;
+}
+
+const yachtFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  location: z.string().min(1, "Location is required"),
+  size: z.number().min(1, "Size must be greater than 0"),
+  capacity: z.number().min(1, "Capacity must be greater than 0"),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  amenities: z.array(z.string()).optional(),
+  pricePerHour: z.string().optional(),
+  isAvailable: z.boolean().default(true)
+});
+
+type YachtFormData = z.infer<typeof yachtFormSchema>;
+
+// Edit Yacht Dialog Component
+function EditYachtDialog({ yacht }: { yacht: any }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<YachtFormData>({
+    resolver: zodResolver(yachtFormSchema),
+    defaultValues: {
+      name: yacht.name || "",
+      location: yacht.location || "",
+      size: yacht.size || 0,
+      capacity: yacht.capacity || 0,
+      description: yacht.description || "",
+      imageUrl: yacht.imageUrl || "",
+      amenities: yacht.amenities || [],
+      pricePerHour: yacht.pricePerHour || "",
+      isAvailable: yacht.isAvailable ?? true
+    }
+  });
+
+  const editMutation = useMutation({
+    mutationFn: async (data: YachtFormData) => {
+      const response = await apiRequest("PUT", `/api/yachts/${yacht.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/yachts"] });
+      toast({
+        title: "Success",
+        description: "Yacht updated successfully",
+      });
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const onSubmit = (data: YachtFormData) => {
+    editMutation.mutate(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="bg-blue-600/20 border-blue-500/30 text-blue-400 hover:bg-blue-600/30">
+          <Edit className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Yacht</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Update yacht information and settings
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Location</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="size"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Size (ft)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        className="bg-gray-800 border-gray-700 text-white" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="capacity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Capacity</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        className="bg-gray-800 border-gray-700 text-white" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="bg-gray-800 border-gray-700 text-white" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Image URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="pricePerHour"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Price Per Hour</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="bg-gray-800 border-gray-700 text-white" placeholder="$500" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isAvailable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base text-white">Available for Booking</FormLabel>
+                    <div className="text-sm text-gray-400">
+                      Allow members to book this yacht
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={editMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                {editMutation.isPending ? "Updating..." : "Update Yacht"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete Yacht Dialog Component
+function DeleteYachtDialog({ yacht }: { yacht: any }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("DELETE", `/api/yachts/${yacht.id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/yachts"] });
+      toast({
+        title: "Success",
+        description: "Yacht deleted successfully",
+      });
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600/30">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete Yacht</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete "{yacht.name}"? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={() => deleteMutation.mutate()}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 const sidebarItems = [
@@ -190,6 +484,7 @@ export default function YachtOwnerDashboard() {
 
   const { data: yachts } = useQuery({
     queryKey: ['/api/yacht-owner/yachts'],
+    enabled: !!user && user.role === 'yacht_owner'
   });
 
   const { data: bookings } = useQuery({
@@ -440,16 +735,101 @@ export default function YachtOwnerDashboard() {
         />
       </div>
 
-      {/* Yacht Grid */}
+      {/* Owner's Yacht Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        {(yachts as any[])?.map((yacht: any, index: number) => (
-          <YachtCard key={yacht.id} yacht={yacht} index={index} />
-        ))}
+        {!yachts ? (
+          // Loading state
+          Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl animate-pulse">
+              <div className="h-48 bg-gray-800 rounded-t-lg" />
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-800 rounded mb-2" />
+                <div className="h-3 bg-gray-800 rounded w-3/4" />
+              </CardContent>
+            </Card>
+          ))
+        ) : yachts && yachts.length > 0 ? (
+          // Real yachts owned by this user
+          (yachts || []).map((yacht: any, index: number) => (
+            <motion.div
+              key={yacht.id}
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.1 + index * 0.1, type: "spring", stiffness: 200, damping: 20 }}
+              whileHover={{ y: -8, scale: 1.03 }}
+              className="group relative overflow-hidden"
+            >
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
+                <div className="h-48 relative overflow-hidden">
+                  <img 
+                    src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
+                    alt={yacht.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Yacht Status */}
+                  <div className="absolute top-4 right-4">
+                    <Badge className={yacht.isAvailable ? "bg-green-600" : "bg-red-600"}>
+                      {yacht.isAvailable ? "Available" : "Unavailable"}
+                    </Badge>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="absolute top-4 left-4 flex space-x-2">
+                    <EditYachtDialog yacht={yacht} />
+                    <DeleteYachtDialog yacht={yacht} />
+                  </div>
+                  
+                  {/* Yacht Info */}
+                  <div className="absolute bottom-4 left-4">
+                    <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
+                    <p className="text-white/80 text-sm">{yacht.location}</p>
+                  </div>
+                </div>
+                
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <p className="text-gray-300 text-sm line-clamp-2">{yacht.description}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <div className="text-white font-bold text-lg">{yacht.size}ft</div>
+                        <div className="text-gray-400 text-sm">Length</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-white font-bold text-lg">{yacht.capacity}</div>
+                        <div className="text-gray-400 text-sm">Guests</div>
+                      </div>
+                    </div>
+                    
+                    {yacht.pricePerHour && (
+                      <div className="text-center pt-2 border-t border-gray-700">
+                        <div className="text-emerald-400 font-bold text-lg">{yacht.pricePerHour}/hour</div>
+                        <div className="text-gray-400 text-sm">Rental Rate</div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))
+        ) : (
+          // Empty state - no yachts owned
+          <div className="col-span-full text-center py-12">
+            <Anchor className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <div className="text-gray-400 text-lg mb-4">No yachts in your fleet</div>
+            <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Yacht
+            </Button>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );

@@ -130,6 +130,123 @@ const ActivityCard = ({ activity, index }: any) => (
   </motion.div>
 );
 
+// Add User Dialog
+function AddUserDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'member',
+    membershipTier: 'bronze'
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/admin/users", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "Success", description: "User created successfully" });
+      setIsOpen(false);
+      setFormData({ username: '', email: '', password: '', role: 'member', membershipTier: 'bronze' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-600">
+          <Users className="h-4 w-4 mr-2" />
+          Add User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New User</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="username" className="text-gray-300">Username</Label>
+            <Input
+              id="username"
+              value={formData.username}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter username"
+            />
+          </div>
+          <div>
+            <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter email"
+            />
+          </div>
+          <div>
+            <Label htmlFor="password" className="text-gray-300">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter password"
+            />
+          </div>
+          <div>
+            <Label htmlFor="role" className="text-gray-300">Role</Label>
+            <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                <SelectItem value="service_provider">Service Provider</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="membershipTier" className="text-gray-300">Membership Tier</Label>
+            <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="bronze">Bronze</SelectItem>
+                <SelectItem value="silver">Silver</SelectItem>
+                <SelectItem value="gold">Gold</SelectItem>
+                <SelectItem value="platinum">Platinum</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => createUserMutation.mutate(formData)}
+            disabled={createUserMutation.isPending}
+            className="bg-gradient-to-r from-green-600 to-emerald-600"
+          >
+            {createUserMutation.isPending ? "Creating..." : "Create User"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Edit User Component
 function EditUserDialog({ user: userData }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -279,6 +396,168 @@ function DeleteUserDialog({ user: userData }: { user: any }) {
   );
 }
 
+// Add Yacht Dialog
+function AddYachtDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    location: '',
+    size: '',
+    capacity: '',
+    description: '',
+    imageUrl: '',
+    pricePerHour: '',
+    isAvailable: true,
+    ownerId: '',
+    amenities: ''
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createYachtMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const yachtData = {
+        ...data,
+        size: parseInt(data.size),
+        capacity: parseInt(data.capacity),
+        ownerId: data.ownerId ? parseInt(data.ownerId) : null,
+        amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : []
+      };
+      const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
+      toast({ title: "Success", description: "Yacht created successfully" });
+      setIsOpen(false);
+      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', pricePerHour: '', isAvailable: true, ownerId: '', amenities: '' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-600">
+          <Anchor className="h-4 w-4 mr-2" />
+          Add Yacht
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New Yacht</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Yacht Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter yacht name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="location" className="text-gray-300">Location</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Marina location"
+            />
+          </div>
+          <div>
+            <Label htmlFor="size" className="text-gray-300">Size (ft)</Label>
+            <Input
+              id="size"
+              type="number"
+              value={formData.size}
+              onChange={(e) => setFormData({...formData, size: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="40"
+            />
+          </div>
+          <div>
+            <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+            <Input
+              id="capacity"
+              type="number"
+              value={formData.capacity}
+              onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="12"
+            />
+          </div>
+          <div>
+            <Label htmlFor="pricePerHour" className="text-gray-300">Price per Hour</Label>
+            <Input
+              id="pricePerHour"
+              value={formData.pricePerHour}
+              onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="500"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ownerId" className="text-gray-300">Owner ID</Label>
+            <Input
+              id="ownerId"
+              type="number"
+              value={formData.ownerId}
+              onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="12"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Yacht description..."
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="amenities" className="text-gray-300">Amenities (comma separated)</Label>
+            <Input
+              id="amenities"
+              value={formData.amenities}
+              onChange={(e) => setFormData({...formData, amenities: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="WiFi, Air Conditioning, Sound System"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
+            <Input
+              id="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="/api/media/yacht-image.jpg"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => createYachtMutation.mutate(formData)}
+            disabled={createYachtMutation.isPending}
+            className="bg-gradient-to-r from-blue-600 to-cyan-600"
+          >
+            {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Edit Yacht Component
 function EditYachtDialog({ yacht }: { yacht: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -369,6 +648,16 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               className="bg-gray-800 border-gray-700 text-white"
             />
           </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isAvailable"
+              checked={formData.isAvailable}
+              onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
+              className="rounded border-gray-600"
+            />
+            <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
+          </div>
         </div>
         <DialogFooter>
           <Button 
@@ -377,6 +666,720 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
             className="bg-purple-600 hover:bg-purple-700"
           >
             {updateYachtMutation.isPending ? "Updating..." : "Update Yacht"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete Yacht Dialog
+function DeleteYachtDialog({ yacht }: { yacht: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteYachtMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/admin/yachts/${yacht.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
+      toast({ title: "Success", description: "Yacht deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete Yacht</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {yacht.name}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteYachtMutation.mutate()} 
+            disabled={deleteYachtMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteYachtMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add Service Dialog
+function AddServiceDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: '',
+    description: '',
+    pricePerSession: '',
+    duration: '',
+    providerId: '',
+    imageUrl: '',
+    isAvailable: true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createServiceMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const serviceData = {
+        ...data,
+        duration: data.duration ? parseInt(data.duration) : null,
+        providerId: data.providerId ? parseInt(data.providerId) : null
+      };
+      const response = await apiRequest("POST", "/api/admin/services", serviceData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      toast({ title: "Success", description: "Service created successfully" });
+      setIsOpen(false);
+      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '', imageUrl: '', isAvailable: true });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600">
+          <Settings className="h-4 w-4 mr-2" />
+          Add Service
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New Service</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Service Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter service name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="category" className="text-gray-300">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                <SelectItem value="Culinary">Culinary</SelectItem>
+                <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                <SelectItem value="Entertainment">Entertainment</SelectItem>
+                <SelectItem value="Water Sports">Water Sports</SelectItem>
+                <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="pricePerSession" className="text-gray-300">Price per Session</Label>
+            <Input
+              id="pricePerSession"
+              value={formData.pricePerSession}
+              onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="150"
+            />
+          </div>
+          <div>
+            <Label htmlFor="duration" className="text-gray-300">Duration (minutes)</Label>
+            <Input
+              id="duration"
+              type="number"
+              value={formData.duration}
+              onChange={(e) => setFormData({...formData, duration: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="60"
+            />
+          </div>
+          <div>
+            <Label htmlFor="providerId" className="text-gray-300">Provider ID</Label>
+            <Input
+              id="providerId"
+              type="number"
+              value={formData.providerId}
+              onChange={(e) => setFormData({...formData, providerId: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="14"
+            />
+          </div>
+          <div>
+            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
+            <Input
+              id="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="/api/media/service-image.jpg"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Service description..."
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => createServiceMutation.mutate(formData)}
+            disabled={createServiceMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-pink-600"
+          >
+            {createServiceMutation.isPending ? "Creating..." : "Create Service"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Service Dialog
+function EditServiceDialog({ service }: { service: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: service.name || '',
+    category: service.category || '',
+    description: service.description || '',
+    pricePerSession: service.pricePerSession || '',
+    duration: service.duration || 0,
+    isAvailable: service.isAvailable ?? true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateServiceMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/admin/services/${service.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      toast({ title: "Success", description: "Service updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Service</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Service Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="category" className="text-gray-300">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                <SelectItem value="Culinary">Culinary</SelectItem>
+                <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                <SelectItem value="Entertainment">Entertainment</SelectItem>
+                <SelectItem value="Water Sports">Water Sports</SelectItem>
+                <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="pricePerSession" className="text-gray-300">Price per Session</Label>
+              <Input
+                id="pricePerSession"
+                value={formData.pricePerSession}
+                onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="duration" className="text-gray-300">Duration (minutes)</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 0})}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isAvailable"
+              checked={formData.isAvailable}
+              onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
+              className="rounded border-gray-600"
+            />
+            <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => updateServiceMutation.mutate(formData)} 
+            disabled={updateServiceMutation.isPending}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete Service Dialog
+function DeleteServiceDialog({ service }: { service: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteServiceMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/admin/services/${service.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      toast({ title: "Success", description: "Service deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete Service</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {service.name}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteServiceMutation.mutate()} 
+            disabled={deleteServiceMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteServiceMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add Event Dialog
+function AddEventDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    location: '',
+    capacity: '',
+    ticketPrice: '',
+    startTime: '',
+    endTime: '',
+    imageUrl: '',
+    hostId: '',
+    isActive: true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createEventMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const eventData = {
+        ...data,
+        capacity: parseInt(data.capacity),
+        hostId: data.hostId ? parseInt(data.hostId) : null,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime)
+      };
+      const response = await apiRequest("POST", "/api/admin/events", eventData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      toast({ title: "Success", description: "Event created successfully" });
+      setIsOpen(false);
+      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', imageUrl: '', hostId: '', isActive: true });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-to-r from-orange-600 to-red-600">
+          <Calendar className="h-4 w-4 mr-2" />
+          Add Event
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New Event</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title" className="text-gray-300">Event Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter event title"
+            />
+          </div>
+          <div>
+            <Label htmlFor="location" className="text-gray-300">Location</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Event location"
+            />
+          </div>
+          <div>
+            <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+            <Input
+              id="capacity"
+              type="number"
+              value={formData.capacity}
+              onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="50"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ticketPrice" className="text-gray-300">Ticket Price</Label>
+            <Input
+              id="ticketPrice"
+              value={formData.ticketPrice}
+              onChange={(e) => setFormData({...formData, ticketPrice: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="125"
+            />
+          </div>
+          <div>
+            <Label htmlFor="startTime" className="text-gray-300">Start Time</Label>
+            <Input
+              id="startTime"
+              type="datetime-local"
+              value={formData.startTime}
+              onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="endTime" className="text-gray-300">End Time</Label>
+            <Input
+              id="endTime"
+              type="datetime-local"
+              value={formData.endTime}
+              onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="hostId" className="text-gray-300">Host ID</Label>
+            <Input
+              id="hostId"
+              type="number"
+              value={formData.hostId}
+              onChange={(e) => setFormData({...formData, hostId: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
+            <Input
+              id="imageUrl"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="/api/media/event-image.jpg"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Event description..."
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => createEventMutation.mutate(formData)}
+            disabled={createEventMutation.isPending}
+            className="bg-gradient-to-r from-orange-600 to-red-600"
+          >
+            {createEventMutation.isPending ? "Creating..." : "Create Event"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit Event Dialog
+function EditEventDialog({ event }: { event: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: event.title || '',
+    description: event.description || '',
+    location: event.location || '',
+    capacity: event.capacity || 0,
+    ticketPrice: event.ticketPrice || '',
+    startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
+    endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
+    isActive: event.isActive ?? true
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateEventMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const eventData = {
+        ...data,
+        capacity: parseInt(data.capacity) || 0,
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime)
+      };
+      const response = await apiRequest("PUT", `/api/admin/events/${event.id}`, eventData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      toast({ title: "Success", description: "Event updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Event</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title" className="text-gray-300">Event Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="location" className="text-gray-300">Location</Label>
+            <Input
+              id="location"
+              value={formData.location}
+              onChange={(e) => setFormData({...formData, location: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+            <Input
+              id="capacity"
+              type="number"
+              value={formData.capacity}
+              onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ticketPrice" className="text-gray-300">Ticket Price</Label>
+            <Input
+              id="ticketPrice"
+              value={formData.ticketPrice}
+              onChange={(e) => setFormData({...formData, ticketPrice: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="startTime" className="text-gray-300">Start Time</Label>
+            <Input
+              id="startTime"
+              type="datetime-local"
+              value={formData.startTime}
+              onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div>
+            <Label htmlFor="endTime" className="text-gray-300">End Time</Label>
+            <Input
+              id="endTime"
+              type="datetime-local"
+              value={formData.endTime}
+              onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="col-span-2 flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={formData.isActive}
+              onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+              className="rounded border-gray-600"
+            />
+            <Label htmlFor="isActive" className="text-gray-300">Event is active</Label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button 
+            onClick={() => updateEventMutation.mutate(formData)} 
+            disabled={updateEventMutation.isPending}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {updateEventMutation.isPending ? "Updating..." : "Update Event"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete Event Dialog
+function DeleteEventDialog({ event }: { event: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteEventMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/admin/events/${event.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      toast({ title: "Success", description: "Event deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete Event</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {event.title}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteEventMutation.mutate()} 
+            disabled={deleteEventMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteEventMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -718,10 +1721,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
-            <Users className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
+          <AddUserDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
@@ -843,10 +1843,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-600">
-            <Anchor className="h-4 w-4 mr-2" />
-            Add Yacht
-          </Button>
+          <AddYachtDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
@@ -896,6 +1893,7 @@ export default function AdminDashboard() {
                       <Eye className="h-4 w-4" />
                     </Button>
                     <EditYachtDialog yacht={yacht} />
+                    <DeleteYachtDialog yacht={yacht} />
                   </div>
                 </div>
               </CardContent>
@@ -938,10 +1936,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-orange-600 to-red-600">
-            <Sparkles className="h-4 w-4 mr-2" />
-            Add Service
-          </Button>
+          <AddServiceDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
@@ -976,14 +1971,13 @@ export default function AdminDashboard() {
                 <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-orange-400 font-semibold">${service.price}</span>
+                  <span className="text-orange-400 font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditServiceDialog service={service} />
+                    <DeleteServiceDialog service={service} />
                   </div>
                 </div>
               </CardContent>
@@ -1026,10 +2020,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-violet-600 to-purple-600">
-            <CalendarDays className="h-4 w-4 mr-2" />
-            Add Event
-          </Button>
+          <AddEventDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
@@ -1079,9 +2070,8 @@ export default function AdminDashboard() {
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditEventDialog event={event} />
+                    <DeleteEventDialog event={event} />
                   </div>
                 </div>
               </CardContent>

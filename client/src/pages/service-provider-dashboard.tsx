@@ -689,7 +689,7 @@ export default function ServiceProviderDashboard() {
               </CardContent>
             </Card>
           ))
-        ) : (services || []).length > 0 ? (
+        ) : services && services.length > 0 ? (
           // Real services from database
           (services || []).map((service: any, index: number) => (
             <motion.div
