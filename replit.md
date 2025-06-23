@@ -407,6 +407,17 @@ Changelog:
   - Staff management integrated into admin dashboard navigation with Shield icon and purple/indigo gradient theme
   - Complete hierarchical permission system where admin creates staff users underneath with specific role permissions
   - Real-time notifications for staff creation, updates, and deletions with audit logging throughout
+- June 23, 2025. iPhone-style customer service interface with 3-tab dark mode design completed
+  - Completely redesigned customer service page with authentic iPhone UI/UX in dark mode
+  - Implemented 3-tab layout: Contacts (all users/staff), Recents (All/Missed sub-tabs), Keypad (outbound calls)
+  - Added iPhone-style status bar with time, signal strength, and battery indicators
+  - Built bottom navigation with 5 tabs: Favorites, Recents, Contacts, Keypad (dot grid icon), Voicemail
+  - Contacts tab displays all users (members, yacht owners, service providers, staff) with role-based color coding
+  - Recents tab features All/Missed sub-tabs for comprehensive call history management
+  - Keypad tab includes authentic iPhone-style number pad with ABC letters and green call button
+  - Responsive design optimized for both mobile and desktop with max-width container
+  - Real-time database integration showing authentic user data and call history
+  - Professional dark theme with gray/black color scheme matching iPhone aesthetic
 - June 23, 2025. Expanded staff role system with 22 specific positions organized by department
   - Replaced generic role types with specific job functions across 4 departments
   - Marina & Fleet Operations: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor

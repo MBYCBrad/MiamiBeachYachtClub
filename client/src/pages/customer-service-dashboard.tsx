@@ -1,743 +1,561 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
-import { 
-  Phone, 
-  PhoneCall,
-  PhoneIncoming,
-  PhoneOutgoing,
-  User,
-  Clock,
-  Search,
-  Users,
-  AlertTriangle,
-  Headphones,
-  Ship,
-  Trash2,
-  Timer
-} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
-interface CallableMember {
-  id: number;
-  memberName: string;
-  phoneNumber: string;
-  email: string;
-  membershipTier: string;
-  location: string;
-  yachtName?: string;
-  currentTrip?: boolean;
-  bookingId?: number;
-}
-
-interface ActiveCall {
-  phoneNumber: string;
-  memberName?: string;
-  memberId?: number;
-  callSid?: string;
-  startTime: Date;
-  type: 'outbound' | 'inbound';
-}
-
-interface CallHistoryItem extends ActiveCall {
-  endTime: Date;
-  duration: number;
-  notes: string;
-}
-
-type CallStatus = 'idle' | 'ringing' | 'connected' | 'ended';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { 
+  Phone, 
+  Search,
+  PhoneCall,
+  MessageSquare,
+  User,
+  Star,
+  Clock,
+  UserCheck,
+  Mic,
+  Info,
+  PhoneIncoming,
+  PhoneOutgoing
+} from "lucide-react";
+import { motion } from "framer-motion";
+import type { PhoneCall as PhoneCallType, User as UserType } from "@shared/schema";
 
 export default function CustomerServiceDashboard() {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<'contacts' | 'recents' | 'keypad'>('contacts');
+  const [recentsSubTab, setRecentsSubTab] = useState<'all' | 'missed'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dialNumber, setDialNumber] = useState("");
   const queryClient = useQueryClient();
-  
-  // State management
-  const [activeTab, setActiveTab] = useState('members');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMember, setSelectedMember] = useState<CallableMember | null>(null);
-  const [manualPhoneNumber, setManualPhoneNumber] = useState('');
-  const [callStatus, setCallStatus] = useState<CallStatus>('idle');
-  const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
-  const [callDuration, setCallDuration] = useState(0);
-  const [callHistory, setCallHistory] = useState<CallHistoryItem[]>([]);
-  const [notes, setNotes] = useState('');
-  
-  const callTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch callable members
-  const { data: callableMembers = [] } = useQuery<CallableMember[]>({
-    queryKey: ['/api/admin/users'],
-    select: (users: any[]) => users
-      .filter(user => user.role === 'member' && user.phoneNumber)
-      .map(user => ({
-        id: user.id,
-        memberName: user.username,
-        phoneNumber: user.phoneNumber || '+1-555-0000',
-        email: user.email,
-        membershipTier: user.membershipTier || 'Bronze',
-        location: user.location || 'Miami, FL',
-        yachtName: 'Marina Breeze',
-        currentTrip: Math.random() > 0.7,
-        bookingId: user.id * 100
-      }))
+  // Fetch phone calls for recents
+  const { data: phoneCalls = [], isLoading: callsLoading } = useQuery<PhoneCallType[]>({
+    queryKey: ["/api/phone-calls"],
   });
 
-  // Emergency contacts (members currently on trips)
-  const emergencyMembers = callableMembers.filter(member => member.currentTrip);
+  // Fetch all users for contacts
+  const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
+    queryKey: ["/api/admin/users"],
+  });
 
-  // Call management functions
-  const handleCallMember = (member: CallableMember) => {
-    if (callStatus !== 'idle') return;
+  // Filter contacts based on search
+  const filteredContacts = users.filter(user => 
+    user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter recent calls
+  const filteredRecents = phoneCalls.filter(call => {
+    const matchesSearch = call.caller_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         call.phone_number?.includes(searchQuery);
     
-    setSelectedMember(member);
-    makeCallMutation.mutate({
-      phoneNumber: member.phoneNumber,
-      memberName: member.memberName,
-      memberId: member.id
-    });
-  };
-
-  const handleManualCall = () => {
-    if (!manualPhoneNumber.trim() || callStatus !== 'idle') return;
-    
-    makeCallMutation.mutate({
-      phoneNumber: manualPhoneNumber,
-      memberName: "Manual Dial"
-    });
-  };
-
-  const handleEndCall = () => {
-    if (activeCall?.callSid) {
-      endCallMutation.mutate(activeCall.callSid);
+    if (recentsSubTab === 'missed') {
+      return matchesSearch && call.status === 'missed';
     }
-  };
+    return matchesSearch;
+  });
 
-  // Twilio call mutation for outbound calls
+  // Make call mutation
   const makeCallMutation = useMutation({
-    mutationFn: async (data: { phoneNumber: string; memberName?: string; memberId?: number }) => {
-      const response = await apiRequest('POST', '/api/twilio/make-call', data);
-      return response.json();
-    },
-    onSuccess: (data, variables) => {
-      setCallStatus('ringing');
-      setActiveCall({
-        ...variables,
-        callSid: data.callSid,
-        startTime: new Date(),
-        type: 'outbound'
+    mutationFn: async (phoneNumber: string) => {
+      const response = await fetch('/api/phone-calls/outbound', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          phone_number: phoneNumber,
+          caller_name: 'Customer Service',
+          reason: 'Outbound customer service call'
+        })
       });
-      toast({
-        title: "Call Initiated",
-        description: `Calling ${variables.memberName || variables.phoneNumber}...`,
-      });
-      
-      // Start call timer
-      callTimerRef.current = setInterval(() => {
-        setCallDuration(prev => prev + 1);
-      }, 1000);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Call Failed",
-        description: error.message || "Failed to initiate call",
-        variant: "destructive",
-      });
-      setCallStatus('idle');
-    }
-  });
-
-  // End call mutation
-  const endCallMutation = useMutation({
-    mutationFn: async (callSid: string) => {
-      const response = await apiRequest('POST', '/api/twilio/end-call', { callSid });
+      if (!response.ok) throw new Error('Failed to make call');
       return response.json();
     },
     onSuccess: () => {
-      setCallStatus('ended');
-      if (callTimerRef.current) {
-        clearInterval(callTimerRef.current);
-      }
-      
-      // Add to call history
-      if (activeCall) {
-        setCallHistory(prev => [...prev, {
-          ...activeCall,
-          endTime: new Date(),
-          duration: callDuration,
-          notes: notes
-        }]);
-      }
-      
-      toast({
-        title: "Call Ended",
-        description: "Call has been terminated successfully",
-      });
-      
-      // Reset state
-      setTimeout(() => {
-        setCallStatus('idle');
-        setActiveCall(null);
-        setCallDuration(0);
-        setNotes('');
-        setSelectedMember(null);
-      }, 2000);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "End Call Failed",
-        description: error.message || "Failed to end call",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
+      setDialNumber("");
     }
   });
 
-  // Simulate call status changes
-  useEffect(() => {
-    if (callStatus === 'ringing') {
-      const timeout = setTimeout(() => {
-        setCallStatus('connected');
-        toast({
-          title: "Call Connected",
-          description: "You are now connected with the member",
-        });
-      }, 3000);
-      return () => clearTimeout(timeout);
-    }
-  }, [callStatus]);
-
-  // Filter members based on search and tab
-  const filteredMembers = callableMembers.filter((member: CallableMember) => {
-    const matchesSearch = member.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.phoneNumber.includes(searchTerm) ||
-                         (member.yachtName && member.yachtName.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    switch (activeTab) {
-      case 'emergency':
-        return matchesSearch && member.currentTrip;
-      case 'active':
-        return matchesSearch && callStatus !== 'idle';
-      case 'all':
-        return matchesSearch;
-      default:
-        return matchesSearch;
-    }
-  });
-
-  const getTierColor = (tier: string) => {
-    switch (tier.toLowerCase()) {
-      case 'platinum': return 'bg-purple-600';
-      case 'gold': return 'bg-yellow-600';
-      case 'silver': return 'bg-gray-500';
-      default: return 'bg-orange-600';
+  const handleKeypadPress = (digit: string) => {
+    if (dialNumber.length < 15) {
+      setDialNumber(prev => prev + digit);
     }
   };
 
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const handleKeypadDelete = () => {
+    setDialNumber(prev => prev.slice(0, -1));
+  };
+
+  const formatPhoneNumber = (number: string) => {
+    const cleaned = number.replace(/\D/g, '');
+    if (cleaned.length >= 10) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+    }
+    return number;
+  };
+
+  const getCallTypeIcon = (call: PhoneCallType) => {
+    if (call.status === 'missed') return <PhoneIncoming className="h-4 w-4 text-red-400" />;
+    return <PhoneCall className="h-4 w-4 text-green-400" />;
+  };
+
+  const getCallTime = (call: PhoneCallType) => {
+    const callDate = new Date(call.created_at);
+    const now = new Date();
+    const diffHours = Math.floor((now.getTime() - callDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffHours < 1) return "9:22 AM";
+    if (diffHours < 24) return "Yesterday";
+    return callDate.toLocaleDateString();
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'member': return 'text-blue-400';
+      case 'yacht_owner': return 'text-purple-400';
+      case 'service_provider': return 'text-green-400';
+      case 'admin': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex">
-      {/* Left Sidebar - Member List */}
-      <div className="w-80 bg-gray-900 border-r border-gray-800 flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-800">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-purple-600 rounded-lg">
-              <Headphones className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Customer Service</h1>
-              <p className="text-sm text-gray-400">Phone support and call management</p>
-            </div>
+    <div className="min-h-screen bg-black text-white flex flex-col max-w-md mx-auto">
+      {/* Status Bar */}
+      <div className="flex justify-between items-center px-6 py-2 text-sm font-medium">
+        <span>9:30</span>
+        <div className="flex items-center space-x-1">
+          <div className="flex space-x-1">
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="p-3 bg-green-900/20 border border-green-800 rounded-lg">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-green-400">3</p>
-                <p className="text-xs text-green-300">Agents Online</p>
-              </div>
+          <div className="ml-2 flex items-center space-x-1">
+            <div className="w-4 h-2 border border-white rounded-sm">
+              <div className="w-full h-full bg-green-500 rounded-sm"></div>
             </div>
-            <div className="p-3 bg-blue-900/20 border border-blue-800 rounded-lg">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-blue-400">5</p>
-                <p className="text-xs text-blue-300">Calls in Queue</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search members..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-gray-800 border-gray-700"
-            />
           </div>
         </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800 mx-4 mt-4">
-            <TabsTrigger value="members" className="text-xs">All Members</TabsTrigger>
-            <TabsTrigger value="emergency" className="text-xs">Emergency</TabsTrigger>
-            <TabsTrigger value="active" className="text-xs">Active</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="members" className="flex-1 px-4">
-            <ScrollArea className="h-full">
-              <div className="space-y-2">
-                {filteredMembers.map((member) => (
-                  <motion.div
-                    key={member.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`p-3 rounded-lg border transition-colors cursor-pointer ${
-                      selectedMember?.id === member.id 
-                        ? 'bg-purple-900/30 border-purple-600' 
-                        : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'
-                    }`}
-                    onClick={() => setSelectedMember(member)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-blue-600">
-                            {member.memberName.split(' ').map((n: string) => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{member.memberName}</p>
-                          <p className="text-sm text-gray-400">{member.phoneNumber}</p>
-                          <Badge className={`${getTierColor(member.membershipTier)} text-white text-xs mt-1`}>
-                            {member.membershipTier}
-                          </Badge>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCallMember(member);
-                        }}
-                        disabled={callStatus !== 'idle'}
-                        className="bg-green-600 hover:bg-green-700 p-2 h-8 w-8"
-                      >
-                        <Phone className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    {member.currentTrip && (
-                      <div className="mt-2 p-2 bg-red-900/20 rounded border-l-2 border-red-500">
-                        <div className="flex items-center gap-2 text-red-400">
-                          <Ship className="h-3 w-3" />
-                          <span className="text-xs font-medium">ACTIVE TRIP</span>
-                        </div>
-                        <p className="text-xs text-gray-300 mt-1">{member.yachtName}</p>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="emergency" className="flex-1 px-4">
-            <ScrollArea className="h-full">
-              <div className="space-y-2">
-                {emergencyMembers.map((member) => (
-                  <motion.div
-                    key={member.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-red-900/20 border border-red-800 rounded-lg"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-red-600">
-                            {member.memberName.split(' ').map((n: string) => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-red-100">{member.memberName}</p>
-                          <p className="text-sm text-red-300">{member.phoneNumber}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Ship className="h-3 w-3 text-red-400" />
-                            <span className="text-xs text-red-400">{member.yachtName}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => handleCallMember(member)}
-                        disabled={callStatus !== 'idle'}
-                        className="bg-red-600 hover:bg-red-700 p-2 h-8 w-8"
-                      >
-                        <Phone className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="active" className="flex-1 px-4">
-            <ScrollArea className="h-full">
-              {callStatus !== 'idle' && activeCall ? (
-                <div className="p-4 bg-green-900/20 border border-green-800 rounded-lg">
-                  <div className="text-center">
-                    <h3 className="text-lg font-medium text-green-100">Active Call</h3>
-                    <p className="text-green-300">{activeCall.memberName}</p>
-                    <p className="text-sm text-green-400">{activeCall.phoneNumber}</p>
-                    <div className="mt-4">
-                      <div className="text-2xl font-mono text-green-200">
-                        {formatDuration(callDuration)}
-                      </div>
-                      <Badge className="mt-2" variant={callStatus === 'connected' ? 'default' : 'secondary'}>
-                        {callStatus}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-8 text-center text-gray-400">
-                  <Phone className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No active calls</p>
-                </div>
-              )}
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+        <div className="flex items-center space-x-1">
+          <span>100%</span>
+          <div className="w-6 h-3 border border-white rounded-sm">
+            <div className="w-full h-full bg-green-500 rounded-sm"></div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {callStatus !== 'idle' && activeCall ? (
-          /* Active Call Interface */
-          <div className="flex-1 flex flex-col justify-center items-center p-8">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center max-w-md"
-            >
-              <Avatar className="h-32 w-32 mx-auto mb-6">
-                <AvatarFallback className="bg-blue-600 text-2xl">
-                  {activeCall.memberName?.split(' ').map((n: string) => n[0]).join('') || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              
-              <h2 className="text-2xl font-semibold mb-2">{activeCall.memberName}</h2>
-              <p className="text-gray-400 mb-2">{activeCall.phoneNumber}</p>
-              
-              <div className="mb-6">
-                <div className="text-4xl font-mono mb-2">{formatDuration(callDuration)}</div>
-                <Badge variant={callStatus === 'connected' ? 'default' : 'secondary'} className="text-sm">
-                  {callStatus.toUpperCase()}
-                </Badge>
-              </div>
+      {/* Header */}
+      <div className="px-6 py-4 flex items-center justify-between">
+        <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
+          ← Lists
+        </Button>
+        <h1 className="text-lg font-semibold">
+          {activeTab === 'contacts' && 'Contacts'}
+          {activeTab === 'recents' && 'Recents'}
+          {activeTab === 'keypad' && 'Keypad'}
+        </h1>
+        {activeTab === 'contacts' && (
+          <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
+            +
+          </Button>
+        )}
+        {activeTab === 'recents' && (
+          <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
+            Edit
+          </Button>
+        )}
+        {activeTab === 'keypad' && <div className="w-8"></div>}
+      </div>
 
-              <div className="flex gap-4 justify-center mb-6">
-                <Button
-                  variant="destructive"
-                  size="lg"
-                  onClick={handleEndCall}
-                  disabled={endCallMutation.isPending}
-                >
-                  <Phone className="h-5 w-5 mr-2" />
-                  End Call
-                </Button>
-              </div>
+      {/* Content Area */}
+      <div className="flex-1 px-6 pb-6">
+        {/* Contacts Tab */}
+        {activeTab === 'contacts' && (
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10 bg-gray-800/30 border-0 rounded-xl text-white placeholder-gray-400 h-12 focus:ring-0 focus:outline-none"
+              />
+              <Mic className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            </div>
 
-              <div className="w-full">
-                <Label htmlFor="call-notes" className="text-sm text-gray-400">Call Notes</Label>
-                <Textarea
-                  id="call-notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add notes about this call..."
-                  className="bg-gray-800 border-gray-600 mt-2"
-                  rows={3}
-                />
-              </div>
-            </motion.div>
-          </div>
-        ) : selectedMember ? (
-          /* Member Details */
-          <div className="flex-1 p-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-2xl"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="bg-blue-600 text-xl">
-                    {selectedMember.memberName.split(' ').map((n: string) => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="text-2xl font-semibold">{selectedMember.memberName}</h2>
-                  <p className="text-gray-400">{selectedMember.email}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge className={`${getTierColor(selectedMember.membershipTier)} text-white`}>
-                      {selectedMember.membershipTier}
-                    </Badge>
-                    {selectedMember.currentTrip && (
-                      <Badge className="bg-red-600">Active Trip</Badge>
-                    )}
+            {/* User Profile Card */}
+            <Card className="bg-gray-800/30 border-0 rounded-xl">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-lg">CS</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Customer Service</h3>
+                    <p className="text-sm text-gray-400">My Card</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Alphabet Index */}
+            <div className="fixed right-2 top-1/2 transform -translate-y-1/2 z-10">
+              <div className="flex flex-col space-y-1 text-xs font-semibold text-blue-400">
+                {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#'].map(letter => (
+                  <div key={letter} className="text-center">{letter}</div>
+                ))}
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-gray-900 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Contact Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <p className="text-sm text-gray-400">Phone</p>
-                      <p className="font-medium">{selectedMember.phoneNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Email</p>
-                      <p className="font-medium">{selectedMember.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Location</p>
-                      <p className="font-medium">{selectedMember.location}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Ship className="h-4 w-4" />
-                      Trip Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <p className="text-sm text-gray-400">Current Status</p>
-                      <p className="font-medium">
-                        {selectedMember.currentTrip ? 'On Active Trip' : 'Available'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-400">Yacht</p>
-                      <p className="font-medium">{selectedMember.yachtName}</p>
-                    </div>
-                    {selectedMember.bookingId && (
-                      <div>
-                        <p className="text-sm text-gray-400">Booking ID</p>
-                        <p className="font-medium">#{selectedMember.bookingId}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="mt-6">
-                <Button
-                  onClick={() => handleCallMember(selectedMember)}
-                  disabled={callStatus !== 'idle'}
-                  className="bg-green-600 hover:bg-green-700"
-                  size="lg"
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Call {selectedMember.memberName}
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        ) : (
-          /* Default State - Dial Pad Interface */
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="w-full max-w-4xl">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column - Dial Pad */}
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <Headphones className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-                    <h2 className="text-2xl font-semibold mb-2">Direct Dial</h2>
-                    <p className="text-gray-400">Type a phone number to make an outbound call</p>
-                  </div>
-
-                  <Card className="bg-gray-900 border-gray-700">
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
+            {/* Contacts List */}
+            <div className="space-y-1">
+              {/* Section Headers */}
+              <div className="text-2xl font-bold text-gray-300 mb-3">A</div>
+              
+              {usersLoading ? (
+                <div className="text-center text-gray-400 py-8">Loading contacts...</div>
+              ) : (
+                filteredContacts.map((user) => (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="py-3 border-b border-gray-800/50 last:border-b-0"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold text-white">
+                            {user.username?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
                         <div>
-                          <Label htmlFor="phone-input" className="text-sm text-gray-400">Phone Number</Label>
-                          <Input
-                            id="phone-input"
-                            type="tel"
-                            value={manualPhoneNumber}
-                            onChange={(e) => setManualPhoneNumber(e.target.value)}
-                            placeholder="+1 (555) 123-4567"
-                            className="bg-gray-800 border-gray-600 text-lg text-center font-mono h-12"
-                          />
+                          <h3 className="font-medium text-white">{user.username}</h3>
+                          <p className={`text-sm capitalize ${getRoleColor(user.role || '')}`}>
+                            {user.role?.replace('_', ' ')}
+                          </p>
                         </div>
-
-                        {/* Dial Pad Grid */}
-                        <div className="grid grid-cols-3 gap-3">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map((digit) => (
-                            <Button
-                              key={digit}
-                              variant="outline"
-                              className="h-12 text-lg font-semibold bg-gray-800 border-gray-600 hover:bg-gray-700"
-                              onClick={() => setManualPhoneNumber(prev => prev + digit)}
-                            >
-                              {digit}
-                            </Button>
-                          ))}
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button
-                            variant="outline"
-                            className="flex-1 bg-red-900 border-red-700 hover:bg-red-800"
-                            onClick={() => setManualPhoneNumber('')}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Clear
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="flex-1 bg-yellow-900 border-yellow-700 hover:bg-yellow-800"
-                            onClick={() => setManualPhoneNumber(prev => prev.slice(0, -1))}
-                          >
-                            ← Backspace
-                          </Button>
-                        </div>
-
-                        <Button
-                          className="w-full h-12 bg-green-600 hover:bg-green-700 text-lg font-semibold"
-                          onClick={() => handleManualCall()}
-                          disabled={!manualPhoneNumber || callStatus !== 'idle' || makeCallMutation.isPending}
-                        >
-                          <PhoneCall className="h-5 w-5 mr-2" />
-                          {makeCallMutation.isPending ? 'Calling...' : 'Call Number'}
-                        </Button>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Right Column - Stats & Recent Activity */}
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <Users className="h-16 w-16 mx-auto mb-4 text-purple-400" />
-                    <h2 className="text-2xl font-semibold mb-2">Service Overview</h2>
-                    <p className="text-gray-400">Current member status and call activity</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    <Card className="bg-gray-900 border-gray-700">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Users className="h-8 w-8 text-blue-400" />
-                            <div>
-                              <p className="text-sm text-gray-400">Total Members</p>
-                              <p className="text-xl font-semibold">{callableMembers.length}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-blue-600">Available</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-gray-900 border-gray-700">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Ship className="h-8 w-8 text-red-400" />
-                            <div>
-                              <p className="text-sm text-gray-400">Emergency Contacts</p>
-                              <p className="text-xl font-semibold">{emergencyMembers.length}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-red-600">Active Trips</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-gray-900 border-gray-700">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Phone className="h-8 w-8 text-green-400" />
-                            <div>
-                              <p className="text-sm text-gray-400">Calls Today</p>
-                              <p className="text-xl font-semibold">{callHistory.length}</p>
-                            </div>
-                          </div>
-                          <Badge className="bg-green-600">Active</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <Card className="bg-gray-900 border-gray-700">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start bg-gray-800 border-gray-600"
-                        onClick={() => setActiveTab('emergency')}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-blue-400 hover:bg-transparent p-1"
+                        onClick={() => makeCallMutation.mutate('+1-555-' + String(user.id).padStart(4, '0'))}
+                        disabled={makeCallMutation.isPending}
                       >
-                        <AlertTriangle className="h-4 w-4 mr-2 text-red-400" />
-                        View Emergency Contacts
+                        <Info className="h-5 w-5" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start bg-gray-800 border-gray-600"
-                        onClick={() => setActiveTab('members')}
-                      >
-                        <Users className="h-4 w-4 mr-2 text-blue-400" />
-                        Browse All Members
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start bg-gray-800 border-gray-600"
-                        onClick={() => setActiveTab('active')}
-                      >
-                        <PhoneCall className="h-4 w-4 mr-2 text-green-400" />
-                        View Active Calls
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
         )}
+
+        {/* Recents Tab */}
+        {activeTab === 'recents' && (
+          <div className="space-y-6">
+            {/* Sub-tabs */}
+            <div className="flex space-x-1 bg-gray-800/30 rounded-xl p-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setRecentsSubTab('all')}
+                className={`flex-1 rounded-lg h-8 text-sm font-medium ${
+                  recentsSubTab === 'all' 
+                    ? 'bg-white text-black hover:bg-white/90' 
+                    : 'text-gray-400 hover:bg-transparent hover:text-white'
+                }`}
+              >
+                All
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setRecentsSubTab('missed')}
+                className={`flex-1 rounded-lg h-8 text-sm font-medium ${
+                  recentsSubTab === 'missed' 
+                    ? 'bg-gray-600 text-white hover:bg-gray-600/90' 
+                    : 'text-gray-400 hover:bg-transparent hover:text-white'
+                }`}
+              >
+                Missed
+              </Button>
+            </div>
+
+            {/* Recent Calls List */}
+            <div className="space-y-4">
+              {callsLoading ? (
+                <div className="text-center text-gray-400 py-8">Loading recents...</div>
+              ) : filteredRecents.length === 0 ? (
+                <div className="text-center text-gray-400 py-8">
+                  {recentsSubTab === 'missed' ? 'No missed calls' : 'No recent calls'}
+                </div>
+              ) : (
+                filteredRecents.map((call) => (
+                  <motion.div
+                    key={call.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-semibold text-white">
+                          {call.caller_name?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className={`font-medium ${call.status === 'missed' ? 'text-red-400' : 'text-white'}`}>
+                            {call.caller_name || 'Unknown'}
+                          </h3>
+                          {call.status === 'missed' && <span className="text-yellow-400 text-xs font-bold">+</span>}
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          {getCallTypeIcon(call)}
+                          <p className="text-sm text-gray-400">phone</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-400">{getCallTime(call)}</span>
+                      <Button variant="ghost" size="sm" className="text-blue-400 p-1 hover:bg-transparent">
+                        <Info className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Keypad Tab */}
+        {activeTab === 'keypad' && (
+          <div className="flex flex-col items-center space-y-8 py-8">
+            {/* Display */}
+            <div className="text-center min-h-[60px] flex items-center">
+              <span className="text-3xl font-light">
+                {dialNumber ? formatPhoneNumber(dialNumber) : ''}
+              </span>
+            </div>
+
+            {/* Keypad Grid */}
+            <div className="grid grid-cols-3 gap-6 w-full max-w-xs">
+              {/* Row 1 */}
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('1')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
+              >
+                1
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('2')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">2</span>
+                <span className="text-xs font-normal">ABC</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('3')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">3</span>
+                <span className="text-xs font-normal">DEF</span>
+              </Button>
+
+              {/* Row 2 */}
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('4')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">4</span>
+                <span className="text-xs font-normal">GHI</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('5')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">5</span>
+                <span className="text-xs font-normal">JKL</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('6')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">6</span>
+                <span className="text-xs font-normal">MNO</span>
+              </Button>
+
+              {/* Row 3 */}
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('7')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">7</span>
+                <span className="text-xs font-normal">PQRS</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('8')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">8</span>
+                <span className="text-xs font-normal">TUV</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('9')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">9</span>
+                <span className="text-xs font-normal">WXYZ</span>
+              </Button>
+
+              {/* Row 4 */}
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('*')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
+              >
+                *
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('0')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
+              >
+                <span className="text-3xl font-light">0</span>
+                <span className="text-xs font-normal">+</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => handleKeypadPress('#')}
+                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
+              >
+                #
+              </Button>
+            </div>
+
+            {/* Call and Delete Buttons */}
+            <div className="flex flex-col items-center space-y-4">
+              {dialNumber && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <Button
+                      onClick={() => makeCallMutation.mutate(dialNumber)}
+                      disabled={makeCallMutation.isPending}
+                      className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
+                    >
+                      <Phone className="h-6 w-6" />
+                    </Button>
+                  </motion.div>
+                  <Button
+                    variant="ghost"
+                    onClick={handleKeypadDelete}
+                    className="text-gray-400 hover:text-white hover:bg-transparent text-lg"
+                  >
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Tab Bar */}
+      <div className="border-t border-gray-800/50 bg-black/95 backdrop-blur">
+        <div className="flex justify-around py-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 text-gray-500 hover:bg-transparent hover:text-gray-300"
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs">Favorites</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setActiveTab('recents')}
+            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
+              activeTab === 'recents' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            <Clock className="h-5 w-5" />
+            <span className="text-xs">Recents</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setActiveTab('contacts')}
+            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
+              activeTab === 'contacts' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            <UserCheck className="h-5 w-5" />
+            <span className="text-xs">Contacts</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setActiveTab('keypad')}
+            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
+              activeTab === 'keypad' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            <div className="grid grid-cols-3 gap-0.5 w-5 h-5">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="w-1 h-1 bg-current rounded-full"></div>
+              ))}
+            </div>
+            <span className="text-xs">Keypad</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 text-gray-500 hover:bg-transparent hover:text-gray-300"
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-xs">Voicemail</span>
+          </Button>
+        </div>
+        
+        {/* Home Indicator */}
+        <div className="flex justify-center pb-2">
+          <div className="w-32 h-1 bg-gray-600 rounded-full"></div>
+        </div>
       </div>
     </div>
   );
