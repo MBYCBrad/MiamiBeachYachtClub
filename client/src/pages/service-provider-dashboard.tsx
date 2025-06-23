@@ -300,7 +300,6 @@ function EditServiceDialog({ service }: { service: any }) {
       category: service.category || "",
       description: service.description || "",
       imageUrl: service.imageUrl || "",
-      images: service.images || [],
       pricePerSession: service.pricePerSession || "",
       duration: service.duration || 60,
       isAvailable: service.isAvailable ?? true
@@ -444,11 +443,17 @@ function EditServiceDialog({ service }: { service: any }) {
               <MultiImageUpload
                 label="Service Gallery"
                 onImagesUploaded={(images) => {
+                  console.log('Service images uploaded:', images);
                   form.setValue('imageUrl', images[0] || '');
                 }}
                 currentImages={service.imageUrl ? [service.imageUrl] : []}
                 maxImages={5}
               />
+              {/* Debug info */}
+              <div className="text-xs text-gray-500">
+                Debug: Service imageUrl = {service.imageUrl || 'none'}, 
+                currentImages = {JSON.stringify(service.imageUrl ? [service.imageUrl] : [])}
+              </div>
             </div>
 
             <FormField
