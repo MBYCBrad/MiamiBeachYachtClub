@@ -223,10 +223,10 @@ export default function YachtMaintenance() {
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">
             <motion.div
-              className="h-16 w-16 mx-auto mb-6"
+              className="h-24 w-24 mx-auto mb-6"
               animate={{
                 y: [0, -8, 0],
-                rotateY: [0, 5, 0, -5, 0],
+                rotateY: [0, 3, 0, -3, 0],
               }}
               transition={{
                 duration: 4,
@@ -235,39 +235,106 @@ export default function YachtMaintenance() {
               }}
             >
               <svg
-                width="64"
-                height="64"
-                viewBox="0 0 64 64"
+                width="96"
+                height="96"
+                viewBox="0 0 96 96"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                style={{ filter: 'drop-shadow(0 4px 8px rgba(139, 92, 246, 0.3))' }}
+                style={{ filter: 'drop-shadow(0 6px 12px rgba(139, 92, 246, 0.4))' }}
               >
                 <defs>
-                  <linearGradient id="yachtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="yachtHullGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#8b5cf6" />
                     <stop offset="50%" stopColor="#6366f1" />
                     <stop offset="100%" stopColor="#4f46e5" />
                   </linearGradient>
-                  <linearGradient id="sailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="yachtCabinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#f8fafc" />
                     <stop offset="50%" stopColor="#e2e8f0" />
                     <stop offset="100%" stopColor="#cbd5e1" />
+                  </linearGradient>
+                  <linearGradient id="yachtDeckGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#1f2937" />
+                    <stop offset="50%" stopColor="#374151" />
+                    <stop offset="100%" stopColor="#4b5563" />
                   </linearGradient>
                 </defs>
                 
                 {/* Water waves */}
                 <motion.path
-                  d="M8 48 Q16 44 24 48 T40 48 T56 48"
+                  d="M12 72 Q24 66 36 72 T60 72 T84 72"
                   stroke="#3b82f6"
-                  strokeWidth="2"
+                  strokeWidth="3"
                   fill="none"
-                  opacity="0.6"
+                  opacity="0.7"
                   animate={{
                     d: [
-                      "M8 48 Q16 44 24 48 T40 48 T56 48",
-                      "M8 50 Q16 46 24 50 T40 50 T56 50",
-                      "M8 48 Q16 44 24 48 T40 48 T56 48"
+                      "M12 72 Q24 66 36 72 T60 72 T84 72",
+                      "M12 75 Q24 69 36 75 T60 75 T84 75",
+                      "M12 72 Q24 66 36 72 T60 72 T84 72"
                     ]
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Yacht main hull */}
+                <motion.ellipse
+                  cx="48" cy="67" rx="28" ry="6"
+                  fill="url(#yachtHullGradient)"
+                  animate={{
+                    rx: [28, 30, 28],
+                    ry: [6, 7, 6]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Yacht deck */}
+                <rect x="28" y="52" width="40" height="15" rx="3" fill="url(#yachtDeckGradient)" />
+                
+                {/* Main cabin superstructure */}
+                <rect x="35" y="40" width="26" height="12" rx="2" fill="url(#yachtCabinGradient)" />
+                
+                {/* Bridge/pilothouse */}
+                <rect x="42" y="28" width="12" height="12" rx="2" fill="url(#yachtCabinGradient)" />
+                
+                {/* Flybridge */}
+                <rect x="38" y="22" width="20" height="6" rx="1" fill="url(#yachtDeckGradient)" />
+                
+                {/* Radar/communication tower */}
+                <rect x="47" y="16" width="2" height="12" fill="#64748b" />
+                <circle cx="48" cy="14" r="3" fill="#374151" />
+                
+                {/* Bow detail */}
+                <path d="M20 58 Q28 54 28 60 Q28 64 20 67" fill="url(#yachtHullGradient)" />
+                
+                {/* Stern detail */}
+                <path d="M76 58 Q68 54 68 60 Q68 64 76 67" fill="url(#yachtHullGradient)" />
+                
+                {/* Windows */}
+                <rect x="37" y="42" width="3" height="4" rx="1" fill="#3b82f6" opacity="0.8" />
+                <rect x="42" y="42" width="3" height="4" rx="1" fill="#3b82f6" opacity="0.8" />
+                <rect x="47" y="42" width="3" height="4" rx="1" fill="#3b82f6" opacity="0.8" />
+                <rect x="52" y="42" width="3" height="4" rx="1" fill="#3b82f6" opacity="0.8" />
+                <rect x="57" y="42" width="3" height="4" rx="1" fill="#3b82f6" opacity="0.8" />
+                
+                {/* Bridge windows */}
+                <rect x="44" y="30" width="8" height="6" rx="1" fill="#3b82f6" opacity="0.6" />
+                
+                {/* Navigation lights */}
+                <motion.circle
+                  cx="22" cy="58" r="1.5"
+                  fill="#ef4444"
+                  animate={{
+                    opacity: [0.5, 1, 0.5],
+                    scale: [1, 1.2, 1]
                   }}
                   transition={{
                     duration: 2,
@@ -275,123 +342,89 @@ export default function YachtMaintenance() {
                     ease: "easeInOut"
                   }}
                 />
-                
-                {/* Yacht hull */}
-                <motion.ellipse
-                  cx="32" cy="45" rx="18" ry="4"
-                  fill="url(#yachtGradient)"
+                <motion.circle
+                  cx="74" cy="58" r="1.5"
+                  fill="#22c55e"
                   animate={{
-                    rx: [18, 19, 18],
-                    ry: [4, 4.5, 4]
+                    opacity: [0.5, 1, 0.5],
+                    scale: [1, 1.2, 1]
                   }}
                   transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
-                {/* Yacht cabin */}
-                <rect x="26" y="36" width="12" height="9" rx="2" fill="url(#yachtGradient)" />
-                
-                {/* Main mast */}
-                <line x1="32" y1="36" x2="32" y2="12" stroke="#64748b" strokeWidth="2" />
-                
-                {/* Main sail */}
-                <motion.path
-                  d="M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z"
-                  fill="url(#sailGradient)"
-                  stroke="#94a3b8"
-                  strokeWidth="1"
-                  animate={{
-                    d: [
-                      "M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z",
-                      "M32 12 Q46 18 46 28 Q46 32 40 36 L32 36 Z",
-                      "M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z"
-                    ]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
-                {/* Jib sail */}
-                <motion.path
-                  d="M32 12 Q20 16 20 28 L26 36 L32 24 Z"
-                  fill="url(#sailGradient)"
-                  stroke="#94a3b8"
-                  strokeWidth="1"
-                  opacity="0.9"
-                  animate={{
-                    d: [
-                      "M32 12 Q20 16 20 28 L26 36 L32 24 Z",
-                      "M32 12 Q18 18 18 28 L24 36 L32 24 Z",
-                      "M32 12 Q20 16 20 28 L26 36 L32 24 Z"
-                    ]
-                  }}
-                  transition={{
-                    duration: 3,
+                    duration: 2,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: 0.5
+                    delay: 1
                   }}
                 />
                 
-                {/* Flag */}
-                <motion.rect
-                  x="32" y="12" width="8" height="5" 
-                  fill="#ef4444"
+                {/* Engine exhaust smoke */}
+                <motion.circle
+                  cx="72" cy="45" r="2"
+                  fill="#94a3b8"
+                  opacity="0.4"
                   animate={{
-                    scaleX: [1, 1.2, 1],
-                    scaleY: [1, 0.8, 1]
+                    opacity: [0.2, 0.6, 0.2],
+                    scale: [0.5, 1.5, 0.5],
+                    y: [0, -10, -20]
                   }}
                   transition={{
-                    duration: 1.5,
+                    duration: 3,
                     repeat: Infinity,
-                    ease: "easeInOut"
+                    ease: "easeOut"
                   }}
                 />
                 
                 {/* Sparkles around yacht */}
                 <motion.circle
-                  cx="20" cy="20" r="1"
+                  cx="20" cy="30" r="1.5"
                   fill="#fbbf24"
                   animate={{
                     opacity: [0, 1, 0],
-                    scale: [0.5, 1, 0.5]
+                    scale: [0.5, 1.2, 0.5]
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 2.5,
                     repeat: Infinity,
                     delay: 0
                   }}
                 />
                 <motion.circle
-                  cx="48" cy="24" r="1"
+                  cx="76" cy="35" r="1.5"
                   fill="#fbbf24"
                   animate={{
                     opacity: [0, 1, 0],
-                    scale: [0.5, 1, 0.5]
+                    scale: [0.5, 1.2, 0.5]
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 2.5,
                     repeat: Infinity,
-                    delay: 0.7
+                    delay: 0.8
                   }}
                 />
                 <motion.circle
-                  cx="52" cy="40" r="1"
+                  cx="80" cy="55" r="1.5"
                   fill="#fbbf24"
                   animate={{
                     opacity: [0, 1, 0],
-                    scale: [0.5, 1, 0.5]
+                    scale: [0.5, 1.2, 0.5]
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 2.5,
                     repeat: Infinity,
-                    delay: 1.4
+                    delay: 1.6
+                  }}
+                />
+                <motion.circle
+                  cx="16" cy="50" r="1.5"
+                  fill="#fbbf24"
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1.2, 0.5]
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    delay: 2.4
                   }}
                 />
               </svg>
