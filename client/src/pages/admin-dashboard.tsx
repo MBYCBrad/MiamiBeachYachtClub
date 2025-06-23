@@ -866,12 +866,11 @@ function AddServiceDialog() {
             </Select>
           </div>
           <div className="col-span-2">
-            <Label className="text-gray-300">Service Images</Label>
+            <Label className="text-gray-300">Service Images (Up to 10)</Label>
             <MultiImageUpload 
               onImagesUploaded={(images) => setFormData({...formData, images})}
-              currentImages={formData.images}
-              label="Service Images"
               maxImages={10}
+              initialImages={formData.images}
             />
           </div>
           <div className="col-span-2">
@@ -1006,12 +1005,11 @@ function EditServiceDialog({ service }: { service: any }) {
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-gray-300">Service Images</Label>
+            <Label className="text-gray-300">Service Images (Up to 10)</Label>
             <MultiImageUpload
-              currentImages={formData.images}
               onImagesUploaded={(images) => setFormData({...formData, images})}
               maxImages={10}
-              label="Service Images"
+              initialImages={formData.images}
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -1363,6 +1361,14 @@ function EditEventDialog({ event }: { event: any }) {
               value={formData.endTime}
               onChange={(e) => setFormData({...formData, endTime: e.target.value})}
               className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label className="text-gray-300">Event Images (Up to 10)</Label>
+            <MultiImageUpload
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+              initialImages={formData.images}
             />
           </div>
           <div className="col-span-2">
