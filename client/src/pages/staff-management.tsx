@@ -324,7 +324,7 @@ export default function StaffManagement() {
           
           <Button 
             onClick={() => setShowAddDialog(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Add Staff Member
