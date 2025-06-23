@@ -205,7 +205,7 @@ export default function CustomerServiceDashboard() {
                   onClick={() => setActiveTab(key as any)}
                   className={`flex-1 py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-3 relative ${
                     activeTab === key 
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/20' 
                       : 'text-gray-400 hover:text-white hover:bg-gray-600/50'
                   }`}
                 >
