@@ -184,7 +184,7 @@ export default function CustomerServiceDashboard() {
         </div>
 
         {/* Main Interface Card */}
-        <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Phone className="h-6 w-6 text-blue-400" />

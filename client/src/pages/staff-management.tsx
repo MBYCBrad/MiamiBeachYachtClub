@@ -382,7 +382,7 @@ export default function StaffManagement() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-gray-800/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <Shield className="h-5 w-5 text-purple-400" />
