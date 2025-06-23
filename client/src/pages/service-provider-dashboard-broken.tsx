@@ -126,7 +126,7 @@ function AddServiceDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-600/30">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
           <Plus className="h-4 w-4 mr-2" />
           Create New Service
         </Button>
@@ -549,12 +549,12 @@ interface ServiceProviderStats {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-blue-500 to-cyan-500' },
-  { id: 'services', label: 'My Services', icon: Briefcase, color: 'from-purple-500 to-pink-500' },
+  { id: 'services', label: 'My Services', icon: Briefcase, color: 'from-purple-500 to-indigo-500' },
   { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-emerald-500 to-teal-500' },
   { id: 'revenue', label: 'Revenue', icon: DollarSign, color: 'from-green-500 to-emerald-500' },
   { id: 'clients', label: 'Clients', icon: Users, color: 'from-orange-500 to-red-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-violet-500 to-indigo-500' },
-  { id: 'profile', label: 'Profile', icon: Crown, color: 'from-pink-500 to-rose-500' },
+  { id: 'profile', label: 'Profile', icon: Crown, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
 
@@ -563,7 +563,7 @@ const serviceCategories = [
     id: 'beauty_grooming',
     name: 'Beauty & Grooming',
     icon: Scissors,
-    color: 'from-pink-500 to-rose-500',
+    color: 'from-purple-500 to-indigo-500',
     services: [
       'Hair Styling & Cuts',
       'Makeup Artist',
@@ -726,7 +726,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+        <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
           <Plus className="h-4 w-4 mr-2" />
           Add Service
         </Button>
@@ -816,7 +816,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
           <Button 
             onClick={() => createServiceMutation.mutate(formData)} 
             disabled={createServiceMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-pink-600"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {createServiceMutation.isPending ? "Creating..." : "Create Service"}
           </Button>
@@ -1405,7 +1405,7 @@ export default function ServiceProviderDashboard() {
               transition={{ delay: 0.2 }}
               className="flex items-center space-x-3"
             >
-              <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg">
                 <Briefcase className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -1444,7 +1444,7 @@ export default function ServiceProviderDashboard() {
                     onClick={() => setActiveSection(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                       isActive 
-                        ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-white shadow-lg' 
+                        ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                     whileHover={{ scale: 1.02 }}

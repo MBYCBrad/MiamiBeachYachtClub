@@ -221,7 +221,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const bookingCount = Array.isArray(bookings) ? bookings.length : 0;
   const stats = [
     { label: 'Bookings', value: bookingCount.toString(), icon: Calendar, color: 'text-blue-400' },
-    { label: 'Favorites', value: '8', icon: Heart, color: 'text-pink-400' },
+    { label: 'Favorites', value: '8', icon: Heart, color: 'text-purple-400' },
     { label: 'Reviews', value: '5.0', icon: Star, color: 'text-yellow-400' },
     { label: 'Years Member', value: '2', icon: Trophy, color: 'text-purple-400' }
   ];

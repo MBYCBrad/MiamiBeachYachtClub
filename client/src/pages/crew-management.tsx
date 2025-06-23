@@ -184,11 +184,8 @@ export default function CrewManagementPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gray-700 rounded-xl">
-              <Ship className="h-8 w-8 text-white" />
-            </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">Crew Management Center</h1>
+              <h1 className="text-5xl font-bold text-white" style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}>Crew Management Center</h1>
               <p className="text-gray-300">Real-time crew coordination & yacht service delivery</p>
             </div>
           </div>

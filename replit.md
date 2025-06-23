@@ -541,6 +541,13 @@ Changelog:
   - Extended consistent large font styling to Calendar page (text-5xl with SF Pro Display font family)
   - Achieved clean, professional admin interface focusing on large typography without decorative icon elements
   - All admin pages now display unified Apple-like design language with minimal visual clutter
+- June 23, 2025. Yacht maintenance header styling improved - removed border to allow title, subtitle, and dropdown to float over black background
+  - Eliminated purple/blue gradient background and bottom border from yacht maintenance page header
+  - Title, subtitle, and yacht selection dropdown now display transparently over black background
+  - Enhanced minimalist design approach with cleaner visual hierarchy and reduced visual clutter
+- June 23, 2025. Crew management header icon styling updated to purple-to-blue gradient consistency
+  - Replaced grey background (bg-gray-700) on Ship icon container with unified purple-to-blue gradient (from-purple-600 to-indigo-600)
+  - Maintains complete visual consistency with application's gradient theme across all admin interface elements
 
 ## Member Experience Feature Status
 

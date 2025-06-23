@@ -312,11 +312,8 @@ export default function StaffManagement() {
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl">
-                <Users className="h-6 w-6 text-white" />
-              </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Staff Management</h1>
+                <h1 className="text-5xl font-bold text-white" style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}>Staff Management</h1>
                 <p className="text-gray-400">Manage MBYC staff users, roles, and permissions</p>
               </div>
             </div>
