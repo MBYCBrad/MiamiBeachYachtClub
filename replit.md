@@ -415,6 +415,14 @@ Changelog:
   - Finance & Technology: Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator
   - Updated backend API validation and frontend role selection to support all new specific positions
   - Enhanced staff management system with role-based permissions matching each position's responsibilities
+- June 23, 2025. Complete crew management system integration with staff management and visual consistency
+  - Fixed crew management system data structure integration with hierarchical staff management
+  - Updated all crew member displays to use staff data (username, role, status, location)
+  - Fixed crew filtering to use staff status values (active, inactive, suspended)
+  - Updated crew assignment dialog to properly fetch and display staff members
+  - Fixed captain and coordinator selection dropdowns with maritime role filtering
+  - Corrected crew assignment display to show staff usernames instead of legacy names
+  - Changed crew management background from purple to dark grey for visual consistency with application theme
 
 ## Member Experience Feature Status
 

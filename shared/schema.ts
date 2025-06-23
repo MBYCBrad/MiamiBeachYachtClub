@@ -292,6 +292,29 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   updatedAt: true,
 });
 
+// Staff table for hierarchical staff management
+export const staff = pgTable("staff", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  role: text("role").notNull(),
+  permissions: jsonb("permissions").$type<string[]>().default([]),
+  createdBy: integer("created_by").references(() => users.id),
+  phone: text("phone"),
+  location: text("location"),
+  lastLogin: timestamp("last_login"),
+  status: text("status").notNull().default("active"), // active, inactive, suspended
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertStaffSchema = createInsertSchema(staff).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const crewMembers = pgTable("crew_members", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -312,12 +335,13 @@ export const crewAssignments = pgTable("crew_assignments", {
   id: text("id").primaryKey(),
   bookingId: integer("booking_id").references(() => bookings.id).notNull(),
   crewMemberIds: jsonb("crew_member_ids").$type<number[]>().notNull(),
-  captainId: integer("captain_id").references(() => crewMembers.id).notNull(),
-  coordinatorId: integer("coordinator_id").references(() => crewMembers.id).notNull(),
+  captainId: integer("captain_id").references(() => staff.id).notNull(),
+  coordinatorId: integer("coordinator_id").references(() => staff.id).notNull(),
   status: text("status").notNull().default("planned"), // planned, assigned, active, completed
   briefingTime: timestamp("briefing_time").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertCrewMemberSchema = createInsertSchema(crewMembers).omit({

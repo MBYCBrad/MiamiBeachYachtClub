@@ -159,7 +159,7 @@ export default function CrewManagementPage() {
   // Show error state
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="text-red-400 text-6xl">⚠️</div>
           <p className="text-red-200">Error loading crew management data</p>
@@ -170,7 +170,7 @@ export default function CrewManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[url('/yacht-pattern.svg')] opacity-5"></div>
@@ -543,13 +543,21 @@ function CrewAssignmentDialog({
   const [briefingTime, setBriefingTime] = useState("");
   const [notes, setNotes] = useState("");
 
-  const availableCrew = (crewMembers || []).filter(m => m.status === 'active');
-  const captains = availableCrew.filter(m => m.role === 'Yacht Captain');
-  const coordinators = availableCrew.filter(m => 
-    ['First Mate', 'Service Coordinator', 'Operations Manager', 'Booking Coordinator'].includes(m.role)
+  // Fetch live staff data from the database
+  const { data: staffData = [] } = useQuery({
+    queryKey: ['/api/admin/staff'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const availableCrew = (staffData || []).filter((m: any) => m.status === 'active');
+  const captains = availableCrew.filter((m: any) => 
+    ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
   );
-  const otherCrew = availableCrew.filter(m => 
-    !['Yacht Captain', 'First Mate', 'Service Coordinator', 'Operations Manager', 'Booking Coordinator'].includes(m.role)
+  const coordinators = availableCrew.filter((m: any) => 
+    ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
+  );
+  const otherCrew = availableCrew.filter((m: any) => 
+    !['Yacht Captain', 'Marina Manager', 'Fleet Coordinator', 'Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
   );
 
   const handleAssign = () => {

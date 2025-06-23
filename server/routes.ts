@@ -3623,85 +3623,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get crew assignments
   app.get("/api/crew/assignments", async (req, res) => {
     try {
-      const bookings = await dbStorage.getBookings();
-      const users = await dbStorage.getAllUsers();
-      const yachts = await dbStorage.getYachts();
+      // Get real crew assignments from database
+      const assignments = await dbStorage.getCrewAssignments();
       
-      const assignments = bookings.filter(b => b.status === 'confirmed').slice(0, 8).map((booking, index) => {
-        const captain = users.find(u => u.role === 'Admin') || users[0];
-        const coordinator = users.find(u => u.role === 'Service Provider') || users[1];
-        const crewMembers = users.slice(2, 5);
-        const yacht = yachts.find(y => y.id === booking.yachtId);
-        
-        return {
-          id: `assignment_${booking.id}`,
-          bookingId: booking.id,
-          crewMembers: crewMembers.map(member => ({
-            id: member.id,
-            name: member.username,
-            role: ['Steward', 'Deckhand', 'Chef'][Math.floor(Math.random() * 3)],
-            specialization: 'Guest Service',
-            rating: 4.5,
-            experience: 5,
-            availability: 'assigned',
-            phone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
-            email: member.email
-          })),
-          captain: {
-            id: captain.id,
-            name: captain.username,
-            role: 'Captain',
-            specialization: 'Navigation & Safety',
-            rating: 4.9,
-            experience: 15,
-            availability: 'assigned',
-            phone: captain.phone || `+1-555-${String(captain.id).padStart(4, '0')}`,
-            email: captain.email
-          },
-          coordinator: {
-            id: coordinator.id,
-            name: coordinator.username,
-            role: 'Service Coordinator',
-            specialization: 'Guest Experience',
-            rating: 4.7,
-            experience: 8,
-            availability: 'assigned',
-            phone: coordinator.phone || `+1-555-${String(coordinator.id).padStart(4, '0')}`,
-            email: coordinator.email
-          },
-          status: ['planned', 'assigned', 'active'][index % 3],
-          briefingTime: new Date(Date.now() + (index * 2 * 60 * 60 * 1000)).toISOString(),
-          notes: `Full service coordination for ${yacht?.name || 'yacht'} experience. ${booking.guestCount} guests. Premium ${booking.member?.membershipTier || 'member'} service level.`
-        };
-      });
+      // Enhance with additional details
+      const enhancedAssignments = await Promise.all(
+        assignments.map(async (assignment) => {
+          const captain = await dbStorage.getStaffMember(assignment.captainId);
+          const coordinator = await dbStorage.getStaffMember(assignment.coordinatorId);
+          const crewMembers = await Promise.all(
+            assignment.crewMemberIds.map(id => dbStorage.getStaffMember(id))
+          );
+          
+          return {
+            ...assignment,
+            captain: captain ? {
+              id: captain.id,
+              username: captain.username,
+              role: captain.role,
+              email: captain.email,
+              phone: captain.phone,
+              location: captain.location,
+              status: captain.status
+            } : null,
+            coordinator: coordinator ? {
+              id: coordinator.id,
+              username: coordinator.username,
+              role: coordinator.role,
+              email: coordinator.email,
+              phone: coordinator.phone,
+              location: coordinator.location,
+              status: coordinator.status
+            } : null,
+            crewMembers: crewMembers.filter(Boolean).map(member => ({
+              id: member!.id,
+              username: member!.username,
+              role: member!.role,
+              email: member!.email,
+              phone: member!.phone,
+              location: member!.location,
+              status: member!.status
+            }))
+          };
+        })
+      );
       
-      res.json(assignments);
+      res.json(enhancedAssignments);
     } catch (error: any) {
+      console.error('Crew assignments fetch error:', error);
       res.status(500).json({ message: error.message });
     }
   });
 
   // Create crew assignment
-  app.post("/api/crew/assignments", async (req, res) => {
+  app.post("/api/crew/assignments", requireAuth, async (req, res) => {
     try {
       const { bookingId, captainId, coordinatorId, crewMemberIds, briefingTime, notes } = req.body;
       
-      // In a real system, this would create database records
-      // For now, we return a success response that will be handled by React Query
-      const newAssignment = {
+      if (!bookingId || !captainId || !coordinatorId) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Create crew assignment in database
+      const assignmentData = {
         id: `assignment_${bookingId}_${Date.now()}`,
-        bookingId,
-        captainId,
-        coordinatorId,
-        crewMemberIds,
-        briefingTime,
-        notes,
-        status: 'planned',
-        createdAt: new Date().toISOString()
+        bookingId: parseInt(bookingId),
+        captainId: parseInt(captainId),
+        coordinatorId: parseInt(coordinatorId),
+        crewMemberIds: crewMemberIds || [],
+        briefingTime: briefingTime ? new Date(briefingTime) : new Date(),
+        notes: notes || '',
+        status: 'planned' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
+
+      const newAssignment = await dbStorage.createCrewAssignment(assignmentData);
+      
+      // Create notification for admin
+      await dbStorage.createNotification({
+        userId: req.user!.id,
+        type: 'crew_assignment',
+        title: 'New Crew Assignment',
+        message: `Crew assigned to booking #${bookingId}`,
+        priority: 'medium',
+        isRead: false
+      });
       
       res.status(201).json(newAssignment);
     } catch (error: any) {
+      console.error('Crew assignment creation error:', error);
       res.status(500).json({ message: error.message });
     }
   });
