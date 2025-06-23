@@ -323,17 +323,7 @@ html, body {
     border-color: var(--yacht-purple) !important;
   }
 
-  /* Force ALL buttons to use purple-to-blue gradient */
-  button, .button, [role="button"], .btn {
-    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
-    color: white !important;
-    border-color: transparent !important;
-  }
 
-  button:hover, .button:hover, [role="button"]:hover, .btn:hover {
-    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
-    transform: translateY(-2px) !important;
-  }
 
   /* Force ALL gradients to use yacht club colors */
   [class*="gradient"], [style*="gradient"], .bg-gradient-to-r, .bg-gradient-to-l,
@@ -427,16 +417,16 @@ html, body {
     @apply text-white border-0;
   }
 
-  /* Admin sidebar button styling - normal state with hover gradient */
+  /* Admin sidebar button styling - dark background by default */
   .admin-nav-button {
-    background-color: var(--yacht-dark) !important;
-    color: var(--yacht-silver) !important;
-    border-color: var(--yacht-accent) !important;
+    background-color: #1f2937 !important;
+    color: #9ca3af !important;
+    border-color: #374151 !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .admin-nav-button:hover {
-    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
     color: white !important;
     border-color: transparent !important;
     transform: translateX(4px);
@@ -444,9 +434,10 @@ html, body {
 
   /* Active admin sidebar button */
   .admin-nav-button.active {
-    @apply bg-gradient-to-r from-purple-600 to-blue-600;
-    @apply text-white border-transparent;
-    @apply shadow-lg shadow-purple-600/30;
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3) !important;
   }
 
   /* Yacht club card styling */
