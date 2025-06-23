@@ -3675,6 +3675,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get service bookings for crew assignment details
+  app.get("/api/admin/service-bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { bookingId } = req.query;
+      const serviceBookings = await dbStorage.getServiceBookings(bookingId as string);
+      res.json(serviceBookings);
+    } catch (error: any) {
+      console.error('Service bookings fetch error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Create crew assignment
   app.post("/api/crew/assignments", requireAuth, async (req, res) => {
     try {

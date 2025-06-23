@@ -13,7 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
   AlertTriangle, CheckCircle2, UserPlus, Settings, 
-  Anchor, Waves, Crown, Shield, Coffee, Utensils
+  Anchor, Waves, Crown, Shield, Coffee, Utensils,
+  Sparkles, FileText
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -578,108 +579,334 @@ function CrewAssignmentDialog({
     onAssign.mutate(assignmentData);
   };
 
+  // Fetch yacht details for this booking
+  const { data: yachts = [] } = useQuery({
+    queryKey: ['/api/admin/yachts'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch all services to match with booking services
+  const { data: services = [] } = useQuery({
+    queryKey: ['/api/admin/services'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const yacht = yachts.find((y: any) => y.id === booking.yachtId);
+  const bookingServices = (booking.services || []).map((serviceId: number) => 
+    services.find((s: any) => s.id === serviceId)
+  ).filter(Boolean);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getTimeSlotName = (startTime: string) => {
+    const hour = parseInt(startTime.split(':')[0]);
+    if (hour >= 9 && hour < 13) return 'Morning Cruise';
+    if (hour >= 13 && hour < 17) return 'Afternoon Cruise';
+    if (hour >= 17 && hour < 21) return 'Evening Cruise';
+    return 'Night Cruise';
+  };
+
   return (
-    <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-2xl max-h-[80vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle>Assign Crew to Booking</DialogTitle>
-        <DialogDescription className="text-slate-400">
-          {booking.yacht.name} • {booking.member.name} • {booking.guestCount} guests
+    <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-6xl max-h-[95vh] overflow-y-auto">
+      <DialogHeader className="space-y-3 pb-6">
+        <DialogTitle className="text-2xl font-bold text-purple-400">Crew Assignment Center</DialogTitle>
+        <DialogDescription className="text-slate-300 text-base">
+          Comprehensive crew coordination for premium yacht experience
         </DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-6">
-        {/* Captain Selection */}
-        <div className="space-y-2">
-          <Label className="text-white">Captain *</Label>
-          <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
-            <SelectTrigger className="bg-slate-700 border-slate-600">
-              <SelectValue placeholder="Select captain" />
-            </SelectTrigger>
-            <SelectContent>
-              {captains.map((captain) => (
-                <SelectItem key={captain.id} value={captain.id.toString()}>
-                  {captain.username} • {captain.role} • {captain.location || 'Marina Bay'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Coordinator Selection */}
-        <div className="space-y-2">
-          <Label className="text-white">Service Coordinator *</Label>
-          <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
-            <SelectTrigger className="bg-slate-700 border-slate-600">
-              <SelectValue placeholder="Select coordinator" />
-            </SelectTrigger>
-            <SelectContent>
-              {coordinators.map((coord) => (
-                <SelectItem key={coord.id} value={coord.id.toString()}>
-                  {coord.username} • {coord.role} • {coord.location || 'Marina Bay'}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Additional Crew */}
-        <div className="space-y-2">
-          <Label className="text-white">Additional Crew</Label>
-          <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
-            {otherCrew.map((member) => (
-              <div key={member.id} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id={`crew-${member.id}`}
-                  checked={selectedCrew.includes(member.id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedCrew([...selectedCrew, member.id]);
-                    } else {
-                      setSelectedCrew(selectedCrew.filter(id => id !== member.id));
-                    }
-                  }}
-                  className="rounded border-slate-600 bg-slate-700"
-                />
-                <label htmlFor={`crew-${member.id}`} className="text-sm text-slate-300">
-                  {member.username} • {member.role} • {member.location || 'Marina Bay'}
-                </label>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Booking Details */}
+        <div className="space-y-6">
+          {/* Yacht & Booking Information */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
+                <Ship className="h-5 w-5" />
+                Yacht & Booking Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-slate-400 text-sm">Yacht</p>
+                  <p className="text-white font-semibold">{yacht?.name || booking.yacht?.name || 'Loading...'}</p>
+                  <p className="text-slate-300 text-sm">{yacht?.size || booking.yacht?.size}ft • {yacht?.capacity || booking.yacht?.capacity} guests max</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Location</p>
+                  <p className="text-white">{yacht?.location || booking.yacht?.location || 'Miami Marina'}</p>
+                </div>
               </div>
-            ))}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-slate-400 text-sm">Date</p>
+                  <p className="text-white font-semibold">{formatDate(booking.date)}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Time Slot</p>
+                  <p className="text-white">{getTimeSlotName(booking.startTime)}</p>
+                  <p className="text-slate-300 text-sm">{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-slate-400 text-sm">Member</p>
+                  <p className="text-white font-semibold">{booking.member?.name || booking.member?.username}</p>
+                  <p className="text-slate-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Guest Count</p>
+                  <p className="text-white text-2xl font-bold">{booking.guestCount}</p>
+                </div>
+              </div>
+
+              {booking.specialRequests && (
+                <div>
+                  <p className="text-slate-400 text-sm">Special Requests</p>
+                  <p className="text-slate-300 text-sm bg-slate-700/50 p-3 rounded-lg">{booking.specialRequests}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Premium Services Ordered */}
+          {bookingServices.length > 0 && (
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  Premium Services Included ({bookingServices.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {bookingServices.map((service: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                      <div>
+                        <p className="text-white font-medium">{service?.name}</p>
+                        <p className="text-slate-400 text-sm">{service?.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-green-400 font-semibold">${service?.price}</p>
+                        <p className="text-slate-400 text-xs">Premium Service</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Yacht Specifications */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Yacht Specifications
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-slate-400">Length</p>
+                  <p className="text-white">{yacht?.size || booking.yacht?.size || '50'} feet</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Type</p>
+                  <p className="text-white">{yacht?.type || booking.yacht?.type || 'Motor Yacht'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Capacity</p>
+                  <p className="text-white">{yacht?.capacity || booking.yacht?.capacity || '12'} guests</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Crew Required</p>
+                  <p className="text-white">{Math.ceil((yacht?.capacity || booking.yacht?.capacity || 12) / 8) + 1} members</p>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-slate-400 text-sm mb-2">Key Amenities</p>
+                <div className="flex flex-wrap gap-1">
+                  {(yacht?.amenities || booking.yacht?.amenities || ['Deck Space', 'Sound System', 'Kitchen', 'Bathroom', 'Seating', 'Navigation']).slice(0, 6).map((amenity: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="bg-slate-700 text-slate-300 text-xs">
+                      {amenity}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Crew Assignment */}
+        <div className="space-y-6">
+          {/* Captain Selection */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
+                <Crown className="h-5 w-5" />
+                Captain Assignment *
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
+                <SelectTrigger className="bg-slate-700 border-slate-600 h-12">
+                  <SelectValue placeholder="Select experienced captain" />
+                </SelectTrigger>
+                <SelectContent>
+                  {captains.map((captain) => (
+                    <SelectItem key={captain.id} value={captain.id.toString()}>
+                      <div className="flex flex-col py-1">
+                        <span className="font-medium">{captain.username}</span>
+                        <span className="text-sm text-slate-400">{captain.role} • {captain.location}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Service Coordinator Selection */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Service Coordinator *
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
+                <SelectTrigger className="bg-slate-700 border-slate-600 h-12">
+                  <SelectValue placeholder="Select service coordinator" />
+                </SelectTrigger>
+                <SelectContent>
+                  {coordinators.map((coordinator) => (
+                    <SelectItem key={coordinator.id} value={coordinator.id.toString()}>
+                      <div className="flex flex-col py-1">
+                        <span className="font-medium">{coordinator.username}</span>
+                        <span className="text-sm text-slate-400">{coordinator.role} • {coordinator.location}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Additional Crew Selection */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Additional Crew Members
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-48 overflow-y-auto">
+                {otherCrew.map((member) => (
+                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                    <input
+                      type="checkbox"
+                      id={`crew-${member.id}`}
+                      checked={selectedCrew.includes(member.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedCrew([...selectedCrew, member.id]);
+                        } else {
+                          setSelectedCrew(selectedCrew.filter(id => id !== member.id));
+                        }
+                      }}
+                      className="rounded border-slate-600 bg-slate-700 w-4 h-4"
+                    />
+                    <div className="flex-1">
+                      <p className="text-white text-sm font-medium">{member.username}</p>
+                      <p className="text-slate-400 text-xs">{member.role} • {member.location}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pre-Departure Briefing */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Pre-Departure Briefing
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label className="text-slate-300 text-sm">Briefing Schedule</Label>
+                <Input
+                  type="datetime-local"
+                  value={briefingTime}
+                  onChange={(e) => setBriefingTime(e.target.value)}
+                  className="bg-slate-700 border-slate-600 mt-1"
+                />
+                <p className="text-slate-400 text-xs mt-1">Recommended: 30-60 minutes before departure</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Assignment Notes & Instructions */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Crew Instructions & Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="• Safety protocols and guest preferences&#10;• Service delivery requirements&#10;• Special dietary needs or allergies&#10;• Equipment setup instructions&#10;• Emergency contact information&#10;• Member VIP status notes"
+                className="bg-slate-700 border-slate-600 min-h-[120px] text-sm"
+                rows={6}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => onAssign.mutate({ cancel: true })}
+              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+            >
+              Cancel Assignment
+            </Button>
+            <Button
+              onClick={handleAssign}
+              disabled={!selectedCaptain || !selectedCoordinator || onAssign.isPending}
+              className="bg-purple-600 hover:bg-purple-700 px-8"
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              {onAssign.isPending ? "Assigning..." : "Assign Crew Team"}
+            </Button>
           </div>
-        </div>
-
-        {/* Briefing Time */}
-        <div className="space-y-2">
-          <Label className="text-white">Briefing Time</Label>
-          <Input
-            type="datetime-local"
-            value={briefingTime}
-            onChange={(e) => setBriefingTime(e.target.value)}
-            className="bg-slate-700 border-slate-600"
-          />
-        </div>
-
-        {/* Notes */}
-        <div className="space-y-2">
-          <Label className="text-white">Assignment Notes</Label>
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Special instructions, service requirements, guest preferences..."
-            className="bg-slate-700 border-slate-600"
-            rows={3}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <Button 
-            onClick={handleAssign}
-            disabled={!selectedCaptain || !selectedCoordinator || onAssign.isPending}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            {onAssign.isPending ? "Assigning..." : "Assign Crew"}
-          </Button>
         </div>
       </div>
     </DialogContent>

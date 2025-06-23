@@ -737,6 +737,15 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async getServiceBookings(bookingId?: string): Promise<any[]> {
+    if (bookingId) {
+      const bookings = await db.select().from(serviceBookings).where(eq(serviceBookings.bookingId, parseInt(bookingId)));
+      return bookings;
+    }
+    const allBookings = await db.select().from(serviceBookings);
+    return allBookings;
+  }
+
   // Get messages for a conversation (generated from booking data)
   async getMessagesByConversation(conversationId: string): Promise<any[]> {
     const messages = [];
