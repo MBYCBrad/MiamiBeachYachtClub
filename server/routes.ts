@@ -15,7 +15,10 @@ import fs from "fs";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
-  insertReviewSchema, insertMessageSchema, insertNotificationSchema, UserRole, MembershipTier
+  insertReviewSchema, insertMessageSchema, insertNotificationSchema, 
+  insertTripLogSchema, insertMaintenanceRecordSchema, insertConditionAssessmentSchema,
+  insertMaintenanceScheduleSchema, insertYachtValuationSchema, insertUsageMetricSchema,
+  UserRole, MembershipTier
 } from "@shared/schema";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
@@ -1458,6 +1461,405 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error: any) {
       console.error('Error deleting service:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // YACHT MAINTENANCE SYSTEM API ROUTES
+  // ===========================================
+
+  // Maintenance Overview - provides comprehensive yacht maintenance dashboard data
+  app.get("/api/maintenance/overview/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const yacht = await dbStorage.getYacht(yachtId);
+      if (!yacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+
+      // Get comprehensive maintenance overview
+      const usageSummary = await dbStorage.getUsageMetricsSummary(yachtId);
+      const maintenanceRecords = await dbStorage.getMaintenanceRecords(yachtId);
+      const overdueTasks = await dbStorage.getOverdueMaintenanceTasks(yachtId);
+      const assessments = await dbStorage.getConditionAssessments(yachtId);
+      
+      const avgCondition = assessments.length > 0 
+        ? assessments.reduce((sum, a) => sum + a.conditionScore, 0) / assessments.length 
+        : 0;
+
+      const overview = {
+        ...usageSummary,
+        overdueTasks: overdueTasks.length,
+        avgCondition: Math.round(avgCondition * 10) / 10,
+        totalMaintenanceRecords: maintenanceRecords.length,
+        pendingMaintenance: maintenanceRecords.filter(r => r.status === 'pending').length
+      };
+
+      res.json(overview);
+    } catch (error: any) {
+      console.error('Error fetching maintenance overview:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Trip Logs Management
+  app.get("/api/maintenance/trip-logs/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const tripLogs = await dbStorage.getTripLogs(yachtId);
+      res.json(tripLogs);
+    } catch (error: any) {
+      console.error('Error fetching trip logs:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/trip-logs", requireAuth, async (req, res) => {
+    try {
+      const validationResult = insertTripLogSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const tripLog = await dbStorage.createTripLog(validationResult.data);
+      
+      // Create notification for new trip
+      await dbStorage.createNotification({
+        userId: req.user.id,
+        type: 'trip_started',
+        title: 'Trip Started',
+        message: `Trip log ${tripLog.id} started for yacht ${tripLog.yachtId}`,
+        priority: 'medium',
+        actionUrl: `/maintenance?yacht=${tripLog.yachtId}&tab=trips`
+      });
+
+      res.status(201).json(tripLog);
+    } catch (error: any) {
+      console.error('Error creating trip log:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/maintenance/trip-logs/:id/complete", requireAuth, async (req, res) => {
+    try {
+      const tripLogId = parseInt(req.params.id);
+      const completedTripLog = await dbStorage.completeTripLog(tripLogId, req.body);
+      
+      if (!completedTripLog) {
+        return res.status(404).json({ message: "Trip log not found" });
+      }
+
+      // Auto-create usage metrics based on trip completion
+      if (req.body.damageReported) {
+        await dbStorage.createUsageMetric({
+          yachtId: completedTripLog.yachtId,
+          tripLogId: tripLogId,
+          metricType: 'damage_incident',
+          value: 1,
+          recordedAt: req.body.endTime,
+          notes: `Damage reported during trip ${tripLogId}`
+        });
+      }
+
+      if (req.body.maintenanceRequired) {
+        await dbStorage.createMaintenanceRecord({
+          yachtId: completedTripLog.yachtId,
+          taskType: 'post_trip_maintenance',
+          description: 'Maintenance required after trip completion',
+          scheduledDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          priority: 'high',
+          estimatedCost: 500,
+          beforeCondition: 6,
+          notes: req.body.crewNotes || 'Post-trip maintenance required'
+        });
+      }
+
+      res.json(completedTripLog);
+    } catch (error: any) {
+      console.error('Error completing trip log:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Maintenance Records Management
+  app.get("/api/maintenance/records/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const records = await dbStorage.getMaintenanceRecords(yachtId);
+      res.json(records);
+    } catch (error: any) {
+      console.error('Error fetching maintenance records:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/records", requireAuth, async (req, res) => {
+    try {
+      const validationResult = insertMaintenanceRecordSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const record = await dbStorage.createMaintenanceRecord(validationResult.data);
+      
+      // Create notification for high/critical priority maintenance
+      if (record.priority === 'high' || record.priority === 'critical') {
+        await dbStorage.createNotification({
+          userId: req.user.id,
+          type: 'maintenance_scheduled',
+          title: `${record.priority.toUpperCase()} Priority Maintenance Scheduled`,
+          message: `${record.taskType.replace('_', ' ')} scheduled for yacht ${record.yachtId}`,
+          priority: record.priority === 'critical' ? 'high' : 'medium',
+          actionUrl: `/maintenance?yacht=${record.yachtId}&tab=maintenance`
+        });
+      }
+
+      res.status(201).json(record);
+    } catch (error: any) {
+      console.error('Error creating maintenance record:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/maintenance/records/:id/complete", requireAuth, async (req, res) => {
+    try {
+      const recordId = parseInt(req.params.id);
+      const completedRecord = await dbStorage.completeMaintenanceRecord(recordId, req.body);
+      
+      if (!completedRecord) {
+        return res.status(404).json({ message: "Maintenance record not found" });
+      }
+
+      // Create condition assessment after maintenance completion
+      await dbStorage.createConditionAssessment({
+        yachtId: completedRecord.yachtId,
+        componentId: completedRecord.componentId,
+        assessmentType: 'post_maintenance',
+        conditionScore: req.body.afterCondition,
+        findings: `Post-maintenance condition assessment for ${completedRecord.taskType}`,
+        recommendations: req.body.afterCondition < 7 ? 'Additional maintenance may be required' : 'Component in good condition',
+        assessedBy: req.user.username
+      });
+
+      res.json(completedRecord);
+    } catch (error: any) {
+      console.error('Error completing maintenance record:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Condition Assessments Management
+  app.get("/api/maintenance/assessments/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const assessments = await dbStorage.getConditionAssessments(yachtId);
+      res.json(assessments);
+    } catch (error: any) {
+      console.error('Error fetching condition assessments:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/assessments", requireAuth, async (req, res) => {
+    try {
+      const validationResult = insertConditionAssessmentSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const assessment = await dbStorage.createConditionAssessment(validationResult.data);
+      
+      // Auto-schedule maintenance if condition is poor
+      if (assessment.conditionScore <= 4) {
+        await dbStorage.createMaintenanceRecord({
+          yachtId: assessment.yachtId,
+          componentId: assessment.componentId,
+          taskType: 'corrective_maintenance',
+          description: `Urgent maintenance required based on condition assessment ${assessment.id}`,
+          scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next week
+          priority: 'critical',
+          estimatedCost: 1500,
+          beforeCondition: assessment.conditionScore,
+          notes: `Generated from poor condition assessment (${assessment.conditionScore}/10)`
+        });
+
+        // Create high-priority notification
+        await dbStorage.createNotification({
+          userId: req.user.id,
+          type: 'condition_alert',
+          title: 'Poor Condition Detected',
+          message: `Yacht ${assessment.yachtId} requires urgent maintenance (condition: ${assessment.conditionScore}/10)`,
+          priority: 'high',
+          actionUrl: `/maintenance?yacht=${assessment.yachtId}&tab=assessments`
+        });
+      }
+
+      res.status(201).json(assessment);
+    } catch (error: any) {
+      console.error('Error creating condition assessment:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Yacht Valuation and Sweet Spot Analysis
+  app.get("/api/maintenance/valuation/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const yacht = await dbStorage.getYacht(yachtId);
+      if (!yacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+
+      // Get latest valuation or calculate new one
+      const existingValuations = await dbStorage.getYachtValuations(yachtId);
+      let latestValuation;
+
+      if (existingValuations.length === 0 || 
+          (new Date().getTime() - new Date(existingValuations[0].valuationDate).getTime()) > 30 * 24 * 60 * 60 * 1000) {
+        // Calculate new valuation if none exists or latest is over 30 days old
+        latestValuation = await dbStorage.calculateYachtValuation(yachtId);
+      } else {
+        latestValuation = existingValuations[0];
+      }
+
+      // Build comprehensive valuation response
+      const response = {
+        currentValue: latestValuation.marketValue,
+        repairCosts: latestValuation.projectedRepairCosts,
+        sweetSpotMonths: latestValuation.sweetSpotMonths,
+        recommendation: latestValuation.recommendation,
+        conditionScore: latestValuation.conditionScore,
+        depreciationFactors: latestValuation.depreciationFactors,
+        valuationDate: latestValuation.valuationDate
+      };
+
+      res.json(response);
+    } catch (error: any) {
+      console.error('Error fetching yacht valuation:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/valuation/:yachtId/recalculate", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const newValuation = await dbStorage.calculateYachtValuation(yachtId);
+      
+      // Create notification if sweet spot is soon (≤ 6 months)
+      if (newValuation.sweetSpotMonths <= 6) {
+        await dbStorage.createNotification({
+          userId: req.user.id,
+          type: 'sweet_spot_alert',
+          title: 'Optimal Sell Time Approaching',
+          message: `Yacht ${yachtId} should be sold within ${newValuation.sweetSpotMonths} months for optimal value`,
+          priority: 'medium',
+          actionUrl: `/maintenance?yacht=${yachtId}&tab=valuation`
+        });
+      }
+
+      res.json(newValuation);
+    } catch (error: any) {
+      console.error('Error recalculating yacht valuation:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Usage Metrics Management
+  app.get("/api/maintenance/usage-metrics/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const { metricType, componentId } = req.query;
+      
+      const metrics = await dbStorage.getUsageMetrics(
+        yachtId, 
+        componentId ? parseInt(componentId as string) : undefined,
+        metricType as string
+      );
+      
+      res.json(metrics);
+    } catch (error: any) {
+      console.error('Error fetching usage metrics:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/usage-metrics", requireAuth, async (req, res) => {
+    try {
+      const validationResult = insertUsageMetricSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const metric = await dbStorage.createUsageMetric(validationResult.data);
+      res.status(201).json(metric);
+    } catch (error: any) {
+      console.error('Error creating usage metric:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Yacht Components Management
+  app.get("/api/maintenance/components/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const components = await dbStorage.getYachtComponents(yachtId);
+      res.json(components);
+    } catch (error: any) {
+      console.error('Error fetching yacht components:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Maintenance Schedules
+  app.get("/api/maintenance/schedules/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const schedules = await dbStorage.getMaintenanceSchedules(yachtId);
+      res.json(schedules);
+    } catch (error: any) {
+      console.error('Error fetching maintenance schedules:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/maintenance/schedules", requireAuth, async (req, res) => {
+    try {
+      const validationResult = insertMaintenanceScheduleSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      const schedule = await dbStorage.createMaintenanceSchedule(validationResult.data);
+      res.status(201).json(schedule);
+    } catch (error: any) {
+      console.error('Error creating maintenance schedule:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Overdue Tasks Endpoint
+  app.get("/api/maintenance/overdue/:yachtId", requireAuth, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const overdueTasks = await dbStorage.getOverdueMaintenanceTasks(yachtId);
+      res.json(overdueTasks);
+    } catch (error: any) {
+      console.error('Error fetching overdue tasks:', error);
       res.status(500).json({ message: error.message });
     }
   });

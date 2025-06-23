@@ -1,6 +1,7 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
   conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments,
+  yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
@@ -8,7 +9,12 @@ import {
   type Message, type InsertMessage, type Notification, type InsertNotification,
   type Conversation, type InsertConversation, type PhoneCall, type InsertPhoneCall,
   type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
-  type CrewAssignment, type InsertCrewAssignment, UserRole, MembershipTier
+  type CrewAssignment, type InsertCrewAssignment,
+  type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
+  type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
+  type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
+  type YachtValuation, type InsertYachtValuation,
+  UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -114,6 +120,46 @@ export interface IStorage {
   getCrewAssignment(id: string): Promise<CrewAssignment | undefined>;
   createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment>;
   updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined>;
+
+  // Yacht Maintenance System methods
+  getYachtComponents(yachtId?: number): Promise<YachtComponent[]>;
+  getYachtComponent(id: number): Promise<YachtComponent | undefined>;
+  createYachtComponent(component: InsertYachtComponent): Promise<YachtComponent>;
+  updateYachtComponent(id: number, component: Partial<InsertYachtComponent>): Promise<YachtComponent | undefined>;
+  deleteYachtComponent(id: number): Promise<boolean>;
+
+  getTripLogs(yachtId?: number, bookingId?: number): Promise<TripLog[]>;
+  getTripLog(id: number): Promise<TripLog | undefined>;
+  createTripLog(tripLog: InsertTripLog): Promise<TripLog>;
+  updateTripLog(id: number, tripLog: Partial<InsertTripLog>): Promise<TripLog | undefined>;
+  completeTripLog(id: number, endData: { endTime: Date; endLocation: string; fuelLevel: number; batteryLevel: number; waterLevel: number; wasteLevel: number; damageReported?: boolean; maintenanceRequired?: boolean; crewNotes?: string }): Promise<TripLog | undefined>;
+
+  getMaintenanceRecords(yachtId?: number, componentId?: number): Promise<MaintenanceRecord[]>;
+  getMaintenanceRecord(id: number): Promise<MaintenanceRecord | undefined>;
+  createMaintenanceRecord(record: InsertMaintenanceRecord): Promise<MaintenanceRecord>;
+  updateMaintenanceRecord(id: number, record: Partial<InsertMaintenanceRecord>): Promise<MaintenanceRecord | undefined>;
+  completeMaintenanceRecord(id: number, completion: { completedDate: Date; afterCondition: number; totalCost: number; nextMaintenanceDate?: Date }): Promise<MaintenanceRecord | undefined>;
+
+  getUsageMetrics(yachtId?: number, componentId?: number, metricType?: string): Promise<UsageMetric[]>;
+  createUsageMetric(metric: InsertUsageMetric): Promise<UsageMetric>;
+  getUsageMetricsSummary(yachtId: number): Promise<{ totalEngineHours: number; totalSunExposure: number; totalSaltExposure: number; avgUvIndex: number }>;
+
+  getConditionAssessments(yachtId?: number, componentId?: number): Promise<ConditionAssessment[]>;
+  getConditionAssessment(id: number): Promise<ConditionAssessment | undefined>;
+  createConditionAssessment(assessment: InsertConditionAssessment): Promise<ConditionAssessment>;
+  updateConditionAssessment(id: number, assessment: Partial<InsertConditionAssessment>): Promise<ConditionAssessment | undefined>;
+
+  getMaintenanceSchedules(yachtId?: number, componentId?: number): Promise<MaintenanceSchedule[]>;
+  getMaintenanceSchedule(id: number): Promise<MaintenanceSchedule | undefined>;
+  createMaintenanceSchedule(schedule: InsertMaintenanceSchedule): Promise<MaintenanceSchedule>;
+  updateMaintenanceSchedule(id: number, schedule: Partial<InsertMaintenanceSchedule>): Promise<MaintenanceSchedule | undefined>;
+  getOverdueMaintenanceTasks(yachtId?: number): Promise<MaintenanceSchedule[]>;
+
+  getYachtValuations(yachtId?: number): Promise<YachtValuation[]>;
+  getYachtValuation(id: number): Promise<YachtValuation | undefined>;
+  createYachtValuation(valuation: InsertYachtValuation): Promise<YachtValuation>;
+  updateYachtValuation(id: number, valuation: Partial<InsertYachtValuation>): Promise<YachtValuation | undefined>;
+  calculateYachtValuation(yachtId: number): Promise<YachtValuation>;
 
   sessionStore: session.SessionStore;
 }
@@ -863,6 +909,318 @@ export class DatabaseStorage implements IStorage {
         return acc;
       }, {})
     };
+  }
+
+  // Yacht Maintenance System implementation
+  async getYachtComponents(yachtId?: number): Promise<YachtComponent[]> {
+    if (yachtId) {
+      return await db.select().from(yachtComponents).where(eq(yachtComponents.yachtId, yachtId)).orderBy(desc(yachtComponents.createdAt));
+    }
+    return await db.select().from(yachtComponents).orderBy(desc(yachtComponents.createdAt));
+  }
+
+  async getYachtComponent(id: number): Promise<YachtComponent | undefined> {
+    const [component] = await db.select().from(yachtComponents).where(eq(yachtComponents.id, id));
+    return component || undefined;
+  }
+
+  async createYachtComponent(component: InsertYachtComponent): Promise<YachtComponent> {
+    const [created] = await db.insert(yachtComponents).values(component).returning();
+    return created;
+  }
+
+  async updateYachtComponent(id: number, component: Partial<InsertYachtComponent>): Promise<YachtComponent | undefined> {
+    const [updated] = await db.update(yachtComponents).set(component).where(eq(yachtComponents.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async deleteYachtComponent(id: number): Promise<boolean> {
+    const result = await db.delete(yachtComponents).where(eq(yachtComponents.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getTripLogs(yachtId?: number, bookingId?: number): Promise<TripLog[]> {
+    let query = db.select().from(tripLogs);
+    
+    if (yachtId && bookingId) {
+      query = query.where(and(eq(tripLogs.yachtId, yachtId), eq(tripLogs.bookingId, bookingId)));
+    } else if (yachtId) {
+      query = query.where(eq(tripLogs.yachtId, yachtId));
+    } else if (bookingId) {
+      query = query.where(eq(tripLogs.bookingId, bookingId));
+    }
+    
+    return await query.orderBy(desc(tripLogs.startTime));
+  }
+
+  async getTripLog(id: number): Promise<TripLog | undefined> {
+    const [tripLog] = await db.select().from(tripLogs).where(eq(tripLogs.id, id));
+    return tripLog || undefined;
+  }
+
+  async createTripLog(tripLog: InsertTripLog): Promise<TripLog> {
+    const [created] = await db.insert(tripLogs).values(tripLog).returning();
+    
+    // Create usage metrics for this trip
+    await this.createUsageMetric({
+      yachtId: tripLog.yachtId,
+      metricType: 'engine_hours',
+      value: 1, // Placeholder - would be calculated from actual trip duration
+      recordedAt: tripLog.startTime,
+      notes: `Trip log ${created.id} - engine usage`
+    });
+    
+    return created;
+  }
+
+  async updateTripLog(id: number, tripLog: Partial<InsertTripLog>): Promise<TripLog | undefined> {
+    const [updated] = await db.update(tripLogs).set(tripLog).where(eq(tripLogs.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async completeTripLog(id: number, endData: { endTime: Date; endLocation: string; fuelLevel: number; batteryLevel: number; waterLevel: number; wasteLevel: number; damageReported?: boolean; maintenanceRequired?: boolean; crewNotes?: string }): Promise<TripLog | undefined> {
+    const [updated] = await db.update(tripLogs).set({
+      endTime: endData.endTime,
+      endLocation: endData.endLocation,
+      endFuelLevel: endData.fuelLevel,
+      endBatteryLevel: endData.batteryLevel,
+      endWaterLevel: endData.waterLevel,
+      endWasteLevel: endData.wasteLevel,
+      damageReported: endData.damageReported,
+      maintenanceRequired: endData.maintenanceRequired,
+      crewNotes: endData.crewNotes,
+      status: 'completed'
+    }).where(eq(tripLogs.id, id)).returning();
+    
+    return updated || undefined;
+  }
+
+  async getMaintenanceRecords(yachtId?: number, componentId?: number): Promise<MaintenanceRecord[]> {
+    let query = db.select().from(maintenanceRecords);
+    
+    if (yachtId && componentId) {
+      query = query.where(and(eq(maintenanceRecords.yachtId, yachtId), eq(maintenanceRecords.componentId, componentId)));
+    } else if (yachtId) {
+      query = query.where(eq(maintenanceRecords.yachtId, yachtId));
+    } else if (componentId) {
+      query = query.where(eq(maintenanceRecords.componentId, componentId));
+    }
+    
+    return await query.orderBy(desc(maintenanceRecords.scheduledDate));
+  }
+
+  async getMaintenanceRecord(id: number): Promise<MaintenanceRecord | undefined> {
+    const [record] = await db.select().from(maintenanceRecords).where(eq(maintenanceRecords.id, id));
+    return record || undefined;
+  }
+
+  async createMaintenanceRecord(record: InsertMaintenanceRecord): Promise<MaintenanceRecord> {
+    const [created] = await db.insert(maintenanceRecords).values(record).returning();
+    return created;
+  }
+
+  async updateMaintenanceRecord(id: number, record: Partial<InsertMaintenanceRecord>): Promise<MaintenanceRecord | undefined> {
+    const [updated] = await db.update(maintenanceRecords).set(record).where(eq(maintenanceRecords.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async completeMaintenanceRecord(id: number, completion: { completedDate: Date; afterCondition: number; totalCost: number; nextMaintenanceDate?: Date }): Promise<MaintenanceRecord | undefined> {
+    const [updated] = await db.update(maintenanceRecords).set({
+      completedDate: completion.completedDate,
+      afterCondition: completion.afterCondition,
+      totalCost: completion.totalCost,
+      nextMaintenanceDate: completion.nextMaintenanceDate,
+      status: 'completed'
+    }).where(eq(maintenanceRecords.id, id)).returning();
+    
+    return updated || undefined;
+  }
+
+  async getUsageMetrics(yachtId?: number, componentId?: number, metricType?: string): Promise<UsageMetric[]> {
+    let query = db.select().from(usageMetrics);
+    const conditions = [];
+    
+    if (yachtId) conditions.push(eq(usageMetrics.yachtId, yachtId));
+    if (componentId) conditions.push(eq(usageMetrics.componentId, componentId));
+    if (metricType) conditions.push(eq(usageMetrics.metricType, metricType));
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(usageMetrics.recordedAt));
+  }
+
+  async createUsageMetric(metric: InsertUsageMetric): Promise<UsageMetric> {
+    const [created] = await db.insert(usageMetrics).values(metric).returning();
+    return created;
+  }
+
+  async getUsageMetricsSummary(yachtId: number): Promise<{ totalEngineHours: number; totalSunExposure: number; totalSaltExposure: number; avgUvIndex: number }> {
+    const metrics = await this.getUsageMetrics(yachtId);
+    
+    const engineHours = metrics.filter(m => m.metricType === 'engine_hours').reduce((sum, m) => sum + m.value, 0);
+    const sunExposure = metrics.filter(m => m.metricType === 'sun_exposure').reduce((sum, m) => sum + m.value, 0);
+    const saltExposure = metrics.filter(m => m.metricType === 'salt_exposure').reduce((sum, m) => sum + m.value, 0);
+    const uvMetrics = metrics.filter(m => m.metricType === 'uv_index');
+    const avgUvIndex = uvMetrics.length > 0 ? uvMetrics.reduce((sum, m) => sum + m.value, 0) / uvMetrics.length : 0;
+    
+    return {
+      totalEngineHours: engineHours,
+      totalSunExposure: sunExposure,
+      totalSaltExposure: saltExposure,
+      avgUvIndex: Math.round(avgUvIndex * 10) / 10
+    };
+  }
+
+  async getConditionAssessments(yachtId?: number, componentId?: number): Promise<ConditionAssessment[]> {
+    let query = db.select().from(conditionAssessments);
+    
+    if (yachtId && componentId) {
+      query = query.where(and(eq(conditionAssessments.yachtId, yachtId), eq(conditionAssessments.componentId, componentId)));
+    } else if (yachtId) {
+      query = query.where(eq(conditionAssessments.yachtId, yachtId));
+    } else if (componentId) {
+      query = query.where(eq(conditionAssessments.componentId, componentId));
+    }
+    
+    return await query.orderBy(desc(conditionAssessments.createdAt));
+  }
+
+  async getConditionAssessment(id: number): Promise<ConditionAssessment | undefined> {
+    const [assessment] = await db.select().from(conditionAssessments).where(eq(conditionAssessments.id, id));
+    return assessment || undefined;
+  }
+
+  async createConditionAssessment(assessment: InsertConditionAssessment): Promise<ConditionAssessment> {
+    const [created] = await db.insert(conditionAssessments).values(assessment).returning();
+    return created;
+  }
+
+  async updateConditionAssessment(id: number, assessment: Partial<InsertConditionAssessment>): Promise<ConditionAssessment | undefined> {
+    const [updated] = await db.update(conditionAssessments).set(assessment).where(eq(conditionAssessments.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async getMaintenanceSchedules(yachtId?: number, componentId?: number): Promise<MaintenanceSchedule[]> {
+    let query = db.select().from(maintenanceSchedules);
+    
+    if (yachtId && componentId) {
+      query = query.where(and(eq(maintenanceSchedules.yachtId, yachtId), eq(maintenanceSchedules.componentId, componentId)));
+    } else if (yachtId) {
+      query = query.where(eq(maintenanceSchedules.yachtId, yachtId));
+    } else if (componentId) {
+      query = query.where(eq(maintenanceSchedules.componentId, componentId));
+    }
+    
+    return await query.orderBy(asc(maintenanceSchedules.nextDueDate));
+  }
+
+  async getMaintenanceSchedule(id: number): Promise<MaintenanceSchedule | undefined> {
+    const [schedule] = await db.select().from(maintenanceSchedules).where(eq(maintenanceSchedules.id, id));
+    return schedule || undefined;
+  }
+
+  async createMaintenanceSchedule(schedule: InsertMaintenanceSchedule): Promise<MaintenanceSchedule> {
+    const [created] = await db.insert(maintenanceSchedules).values(schedule).returning();
+    return created;
+  }
+
+  async updateMaintenanceSchedule(id: number, schedule: Partial<InsertMaintenanceSchedule>): Promise<MaintenanceSchedule | undefined> {
+    const [updated] = await db.update(maintenanceSchedules).set(schedule).where(eq(maintenanceSchedules.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async getOverdueMaintenanceTasks(yachtId?: number): Promise<MaintenanceSchedule[]> {
+    const now = new Date();
+    let query = db.select().from(maintenanceSchedules).where(eq(maintenanceSchedules.nextDueDate, now));
+    
+    if (yachtId) {
+      query = query.where(and(eq(maintenanceSchedules.yachtId, yachtId), eq(maintenanceSchedules.nextDueDate, now)));
+    }
+    
+    return await query.orderBy(asc(maintenanceSchedules.nextDueDate));
+  }
+
+  async getYachtValuations(yachtId?: number): Promise<YachtValuation[]> {
+    if (yachtId) {
+      return await db.select().from(yachtValuations).where(eq(yachtValuations.yachtId, yachtId)).orderBy(desc(yachtValuations.valuationDate));
+    }
+    return await db.select().from(yachtValuations).orderBy(desc(yachtValuations.valuationDate));
+  }
+
+  async getYachtValuation(id: number): Promise<YachtValuation | undefined> {
+    const [valuation] = await db.select().from(yachtValuations).where(eq(yachtValuations.id, id));
+    return valuation || undefined;
+  }
+
+  async createYachtValuation(valuation: InsertYachtValuation): Promise<YachtValuation> {
+    const [created] = await db.insert(yachtValuations).values(valuation).returning();
+    return created;
+  }
+
+  async updateYachtValuation(id: number, valuation: Partial<InsertYachtValuation>): Promise<YachtValuation | undefined> {
+    const [updated] = await db.update(yachtValuations).set(valuation).where(eq(yachtValuations.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async calculateYachtValuation(yachtId: number): Promise<YachtValuation> {
+    const yacht = await this.getYacht(yachtId);
+    if (!yacht) throw new Error('Yacht not found');
+    
+    const usageSummary = await this.getUsageMetricsSummary(yachtId);
+    const assessments = await this.getConditionAssessments(yachtId);
+    const maintenanceRecords = await this.getMaintenanceRecords(yachtId);
+    
+    // Calculate base value (simplified algorithm)
+    const baseValue = yacht.size * 5000; // $5k per foot base
+    
+    // Depreciation factors
+    const engineDepreciation = Math.min(usageSummary.totalEngineHours * 0.001, 0.3); // Max 30% for engine hours
+    const sunDepreciation = Math.min(usageSummary.totalSunExposure * 0.0005, 0.2); // Max 20% for sun damage
+    const saltDepreciation = Math.min(usageSummary.totalSaltExposure * 0.0003, 0.15); // Max 15% for salt exposure
+    
+    // Condition factor
+    const avgCondition = assessments.length > 0 
+      ? assessments.reduce((sum, a) => sum + a.conditionScore, 0) / assessments.length / 10 
+      : 0.7;
+    
+    // Maintenance factor (well-maintained yachts retain value better)
+    const maintenanceFactor = Math.min(maintenanceRecords.length * 0.02, 0.2); // Max 20% bonus for maintenance
+    
+    const totalDepreciation = engineDepreciation + sunDepreciation + saltDepreciation;
+    const adjustedValue = baseValue * (1 - totalDepreciation) * avgCondition * (1 + maintenanceFactor);
+    
+    // Calculate repair costs (simplified)
+    const repairCosts = maintenanceRecords
+      .filter(r => r.status === 'pending')
+      .reduce((sum, r) => sum + (r.estimatedCost || 0), 0);
+    
+    // Sweet spot calculation (months until optimal sell time)
+    const currentConditionTrend = assessments.length >= 2 
+      ? (assessments[0].conditionScore - assessments[1].conditionScore) 
+      : 0;
+    
+    const sweetSpotMonths = currentConditionTrend < -0.5 ? 6 : 18; // Sell sooner if condition declining rapidly
+    
+    const valuation: InsertYachtValuation = {
+      yachtId,
+      valuationDate: new Date(),
+      marketValue: Math.round(adjustedValue),
+      depreciationFactors: {
+        engine: engineDepreciation,
+        sun: sunDepreciation,
+        salt: saltDepreciation
+      },
+      conditionScore: Math.round(avgCondition * 10),
+      projectedRepairCosts: repairCosts,
+      sweetSpotMonths,
+      recommendation: sweetSpotMonths <= 6 
+        ? "Consider selling soon - condition declining rapidly" 
+        : "Maintain current maintenance schedule for optimal resale value"
+    };
+    
+    return await this.createYachtValuation(valuation);
   }
 }
 
