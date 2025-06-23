@@ -2244,6 +2244,189 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // STAFF MANAGEMENT ROUTES - Hierarchical Staff System
+  app.get("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      // Only return staff users (roles starting with "Staff" or admin)
+      const allUsers = await dbStorage.getAllUsers();
+      const staffUsers = allUsers.filter(user => 
+        user.role === 'admin' || user.role?.startsWith('Staff')
+      );
+
+      // Enrich with created by information
+      const enrichedStaff = staffUsers.map(staff => {
+        const createdByUser = allUsers.find(u => u.id === staff.createdBy);
+        return {
+          ...staff,
+          createdByName: createdByUser?.username || 'System',
+          permissions: staff.permissions || [],
+          lastLogin: staff.lastLogin || null,
+          status: staff.status || 'active'
+        };
+      });
+
+      res.json(enrichedStaff);
+    } catch (error: any) {
+      console.error('Error fetching staff users:', error);
+      res.status(500).json({ message: "Failed to fetch staff users" });
+    }
+  });
+
+  app.post("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { username, email, password, role, permissions, phone, location } = req.body;
+
+      // Validate required fields
+      if (!username || !email || !password || !role) {
+        return res.status(400).json({ message: "Username, email, password, and role are required" });
+      }
+
+      // Validate role is a staff role
+      const validStaffRoles = ['Staff - Crew Manager', 'Staff - Customer Support', 'Staff - Concierge', 'Staff - Management'];
+      if (!validStaffRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid staff role" });
+      }
+
+      // Check if username or email already exists
+      const existingUsers = await dbStorage.getAllUsers();
+      const existingUser = existingUsers.find(u => u.username === username || u.email === email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username or email already exists" });
+      }
+
+      // Create staff user with admin as creator
+      const newStaff = await dbStorage.createUser({
+        username,
+        email,
+        password,
+        role,
+        permissions: permissions || [],
+        phone: phone || null,
+        location: location || null,
+        createdBy: req.user!.id,
+        status: 'active'
+      });
+
+      // Create notification for staff creation
+      await dbStorage.createNotification({
+        userId: req.user!.id,
+        type: "staff_created",
+        title: "New Staff Member Added",
+        message: `${username} added as ${role}`,
+        priority: "medium",
+        read: false,
+        actionUrl: "/admin/staff",
+        data: {
+          staffId: newStaff.id,
+          staffName: username,
+          staffRole: role
+        }
+      });
+
+      await auditService.logAction(req, 'create', 'staff', newStaff.id, newStaff);
+      res.status(201).json(newStaff);
+    } catch (error: any) {
+      console.error('Error creating staff user:', error);
+      await auditService.logAction(req, 'create', 'staff', undefined, req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/staff/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      // Get current staff user
+      const allUsers = await dbStorage.getAllUsers();
+      const staffUser = allUsers.find(u => u.id === parseInt(id) && (u.role === 'admin' || u.role?.startsWith('Staff')));
+      
+      if (!staffUser) {
+        return res.status(404).json({ message: "Staff member not found" });
+      }
+
+      // Prevent admin from updating their own role/permissions
+      if (staffUser.id === req.user!.id && (updates.role || updates.permissions)) {
+        return res.status(400).json({ message: "Cannot modify your own role or permissions" });
+      }
+
+      // Update staff user
+      const updatedStaff = await dbStorage.updateUser(parseInt(id), updates);
+
+      // Create notification for staff update
+      await dbStorage.createNotification({
+        userId: req.user!.id,
+        type: "staff_updated",
+        title: "Staff Member Updated",
+        message: `${staffUser.username} profile updated`,
+        priority: "low",
+        read: false,
+        actionUrl: "/admin/staff",
+        data: {
+          staffId: parseInt(id),
+          staffName: staffUser.username,
+          updatedFields: Object.keys(updates)
+        }
+      });
+
+      await auditService.logAction(req, 'update', 'staff', parseInt(id), updates);
+      res.json(updatedStaff);
+    } catch (error: any) {
+      console.error('Error updating staff user:', error);
+      await auditService.logAction(req, 'update', 'staff', parseInt(req.params.id), req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/staff/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get staff user to delete
+      const allUsers = await dbStorage.getAllUsers();
+      const staffUser = allUsers.find(u => u.id === parseInt(id) && (u.role === 'admin' || u.role?.startsWith('Staff')));
+      
+      if (!staffUser) {
+        return res.status(404).json({ message: "Staff member not found" });
+      }
+
+      // Prevent admin from deleting themselves
+      if (staffUser.id === req.user!.id) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+
+      // Prevent deleting other admins (only allow deleting staff)
+      if (staffUser.role === 'admin') {
+        return res.status(400).json({ message: "Cannot delete other admin accounts" });
+      }
+
+      // Delete staff user
+      await dbStorage.deleteUser(parseInt(id));
+
+      // Create notification for staff deletion
+      await dbStorage.createNotification({
+        userId: req.user!.id,
+        type: "staff_deleted",
+        title: "Staff Member Removed",
+        message: `${staffUser.username} (${staffUser.role}) has been removed`,
+        priority: "medium",
+        read: false,
+        actionUrl: "/admin/staff",
+        data: {
+          staffName: staffUser.username,
+          staffRole: staffUser.role
+        }
+      });
+
+      await auditService.logAction(req, 'delete', 'staff', parseInt(id), { username: staffUser.username, role: staffUser.role });
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting staff user:', error);
+      await auditService.logAction(req, 'delete', 'staff', parseInt(req.params.id), undefined, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ANALYTICS ROUTES - Advanced Business Intelligence
   app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {

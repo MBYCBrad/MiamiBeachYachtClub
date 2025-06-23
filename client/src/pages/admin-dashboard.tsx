@@ -69,6 +69,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
+import StaffManagement from "./staff-management";
 
 interface AdminStats {
   totalUsers: number;
@@ -89,6 +90,7 @@ const sidebarItems = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-teal-500 to-cyan-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
+  { id: 'staff-management', label: 'Staff Management', icon: Shield, color: 'from-purple-500 to-indigo-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500' },
   { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
   { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500' },
@@ -3557,6 +3559,7 @@ export default function AdminDashboard() {
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'customer-service' && <MessengerDashboard />}
+            {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
             {activeSection === 'services' && renderServices()}

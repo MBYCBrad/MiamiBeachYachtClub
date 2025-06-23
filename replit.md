@@ -396,6 +396,17 @@ Changelog:
   - Service bookings create medium-priority notifications with pricing and service information
   - All notifications pulled from live PostgreSQL database with no sample or placeholder data
   - Verified system works correctly: booking ID 8 generated notification ID 22 in real-time
+- June 23, 2025. Complete hierarchical staff management system with clear user separation implemented
+  - Created comprehensive staff management page with role-based permissions and granular access control
+  - Established clear separation: regular users (members, yacht owners, service providers) access their own layers vs MBYC staff users only access admin layer
+  - Implemented 4 staff roles: Staff - Crew Manager, Staff - Customer Support, Staff - Concierge, Staff - Management
+  - Built complete CRUD API endpoints for staff user management (/api/admin/staff) with proper validation
+  - Added 10 granular permission categories: User Management, Yacht Management, Service Management, Event Management, Booking Management, Payment Management, Analytics Access, Notification Management, Customer Service, Crew Management
+  - Customer service dashboard now focuses exclusively on phone calls and queue management (no messaging functionality)
+  - Messages functionality separated into dedicated dropdown component beside notifications icon
+  - Staff management integrated into admin dashboard navigation with Shield icon and purple/indigo gradient theme
+  - Complete hierarchical permission system where admin creates staff users underneath with specific role permissions
+  - Real-time notifications for staff creation, updates, and deletions with audit logging throughout
 
 ## Member Experience Feature Status
 
