@@ -3509,24 +3509,13 @@ export default function AdminDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
                     onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
-                      isActive 
-                        ? 'border border-purple-500/30 text-white shadow-lg' 
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                    className={`admin-nav-button w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden ${
+                      isActive ? 'active' : ''
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {/* Active background gradient */}
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeBackground"
-                        className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-20 rounded-xl`}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                    
-                    <div className={`p-2 rounded-lg ${isActive ? `bg-gradient-to-br ${item.color}` : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
+                    <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     

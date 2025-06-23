@@ -58,9 +58,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-purple-800/30">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -74,15 +74,15 @@ export default function HomePage() {
             </div>
 
             {/* Search Bar (Desktop) */}
-            <div className="hidden md:flex items-center bg-gray-800/50 backdrop-blur-sm rounded-full px-6 py-3 border border-purple-800/30 hover:border-purple-600/50 transition-all duration-300">
+            <div className="hidden md:flex items-center bg-input backdrop-blur-sm rounded-full px-6 py-3 border border-border hover:border-purple-600/50 transition-all duration-300">
               <Input
                 type="text"
                 placeholder="Search destinations, yachts, experiences..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-white placeholder-gray-400 outline-none border-none min-w-[300px]"
+                className="bg-transparent text-foreground placeholder-muted-foreground outline-none border-none min-w-[300px]"
               />
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-full p-2 ml-2">
+              <Button className="btn-yacht-gradient rounded-full p-2 ml-2">
                 <i className="fas fa-search text-white text-sm"></i>
               </Button>
             </div>
@@ -99,18 +99,16 @@ export default function HomePage() {
               {user?.role === UserRole.ADMIN && (
                 <Button
                   onClick={() => window.location.href = '/admin'}
-                  variant="outline"
                   size="sm"
-                  className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                  className="btn-yacht-gradient"
                 >
                   Admin Panel
                 </Button>
               )}
               <Button
                 onClick={() => logoutMutation.mutate()}
-                variant="outline"
                 size="sm"
-                className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                className="btn-yacht-gradient"
               >
                 Logout
               </Button>
@@ -134,8 +132,8 @@ export default function HomePage() {
           {activeTab === 'bookings' && (
             <div className="space-y-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Available Yachts</h2>
-                <Button variant="ghost" className="text-purple-400 hover:text-purple-300">
+                <h2 className="text-2xl font-bold text-foreground">Available Yachts</h2>
+                <Button variant="ghost" className="btn-yacht-gradient">
                   View all <i className="fas fa-arrow-right ml-1"></i>
                 </Button>
               </div>
@@ -143,11 +141,11 @@ export default function HomePage() {
               {yachtsLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {[...Array(8)].map((_, i) => (
-                    <div key={i} className="bg-gray-800/50 rounded-2xl p-4 animate-pulse">
-                      <div className="h-48 bg-gray-700 rounded-xl mb-4"></div>
+                    <div key={i} className="bg-card rounded-2xl p-4 animate-pulse border border-border">
+                      <div className="h-48 bg-muted rounded-xl mb-4"></div>
                       <div className="space-y-2">
-                        <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                        <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
                       </div>
                     </div>
                   ))}

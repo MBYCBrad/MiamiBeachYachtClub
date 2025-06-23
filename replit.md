@@ -441,6 +441,13 @@ Changelog:
   - Fixed captain and coordinator selection dropdowns with maritime role filtering
   - Corrected crew assignment display to show staff usernames instead of legacy names
   - Changed crew management background from purple to dark grey for visual consistency with application theme
+- June 23, 2025. Universal dark theme with purple-to-blue gradients implemented across entire application
+  - Fixed critical admin dashboard sidebar navigation where purple-to-blue gradient was showing constantly
+  - Created proper `admin-nav-button` CSS class with hover-only gradient behavior for professional UI standards
+  - Implemented universal dark theme using CSS variables (`var(--yacht-dark)`, `var(--yacht-card)`, `var(--yacht-accent)`)
+  - Applied consistent dark backgrounds to all input fields, dropdowns, select components, dialogs, and modals
+  - Universal styling ensures all pages match admin dashboard's professional appearance and color scheme
+  - Purple-to-blue gradient buttons throughout application only display on hover/active states following advanced UI/UX techniques
 
 ## Member Experience Feature Status
 
