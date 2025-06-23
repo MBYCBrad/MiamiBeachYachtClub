@@ -487,7 +487,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <Button 
             onClick={() => updateUserMutation.mutate(formData)} 
             disabled={updateUserMutation.isPending}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {updateUserMutation.isPending ? "Updating..." : "Update User"}
           </Button>
@@ -835,7 +835,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Button 
             onClick={() => updateYachtMutation.mutate(formData)} 
             disabled={updateYachtMutation.isPending}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {updateYachtMutation.isPending ? "Updating..." : "Update Yacht"}
           </Button>
@@ -1178,7 +1178,7 @@ function EditServiceDialog({ service }: { service: any }) {
           <Button 
             onClick={() => updateServiceMutation.mutate(formData)} 
             disabled={updateServiceMutation.isPending}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
           </Button>
@@ -1298,7 +1298,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-orange-600 to-red-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
           <Calendar className="h-4 w-4 mr-2" />
           Add Event
         </Button>
@@ -1432,7 +1432,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
           <Button 
             onClick={() => createEventMutation.mutate(formData)}
             disabled={createEventMutation.isPending}
-            className="bg-gradient-to-r from-orange-600 to-red-600"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {createEventMutation.isPending ? "Creating..." : "Create Event"}
           </Button>
@@ -1586,7 +1586,7 @@ function EditEventDialog({ event }: { event: any }) {
           <Button 
             onClick={() => updateEventMutation.mutate(formData)} 
             disabled={updateEventMutation.isPending}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {updateEventMutation.isPending ? "Updating..." : "Update Event"}
           </Button>
