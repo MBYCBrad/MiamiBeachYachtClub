@@ -3509,8 +3509,10 @@ export default function AdminDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
                     onClick={() => setActiveSection(item.id)}
-                    className={`admin-nav-button w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden ${
-                      isActive ? 'active' : ''
+                    className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-600/30' 
+                        : 'bg-gray-800 text-gray-400 border-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

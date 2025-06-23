@@ -325,11 +325,7 @@ html, body {
 
 
 
-  /* Force ALL gradients to use yacht club colors */
-  [class*="gradient"], [style*="gradient"], .bg-gradient-to-r, .bg-gradient-to-l,
-  .bg-gradient-to-t, .bg-gradient-to-b, .bg-gradient-to-br, .bg-gradient-to-bl {
-    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
-  }
+
 
   /* Universal dark field styling */
   input, select, textarea, .select-trigger,
