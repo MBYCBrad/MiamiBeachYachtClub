@@ -610,6 +610,28 @@ export class DatabaseStorage implements IStorage {
     return result.length;
   }
 
+  async getAdminNotifications(): Promise<Notification[]> {
+    // Get all notifications for admin users, ordered by priority and creation date
+    const adminUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.role, 'admin'));
+    
+    if (adminUsers.length === 0) {
+      return [];
+    }
+
+    const adminUserIds = adminUsers.map(user => user.id);
+    
+    return await db
+      .select()
+      .from(notifications)
+      .where(inArray(notifications.userId, adminUserIds))
+      .orderBy(
+        desc(notifications.createdAt)
+      );
+  }
+
   // COMMUNICATION HUB - REAL-TIME DATABASE METHODS
 
   // Conversation Management - connects to real yacht bookings and member interactions

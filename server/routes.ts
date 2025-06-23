@@ -973,6 +973,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice: "0.00" // Free for members
       });
 
+      // Create real-time admin notification for new booking
+      const adminUsers = await dbStorage.getAllUsers();
+      const admin = adminUsers.find(u => u.role === 'admin');
+      
+      if (admin) {
+        await dbStorage.createNotification({
+          userId: admin.id,
+          type: "booking_created",
+          title: "New Yacht Booking",
+          message: `${yacht.name} booked by ${req.user!.username} for ${new Date(validatedData.startTime).toLocaleDateString()}`,
+          priority: "high",
+          read: false,
+          actionUrl: "/admin/bookings",
+          data: {
+            bookingId: booking.id,
+            yachtId: yacht.id,
+            yachtName: yacht.name,
+            memberName: req.user!.username
+          }
+        });
+      }
+
       // Send real-time notification to yacht owner
       await notificationService.notifyBookingCreated(booking);
 
@@ -1021,6 +1043,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         totalPrice: service.pricePerSession
       });
+
+      // Create real-time admin notification for service booking
+      const adminUsers = await dbStorage.getAllUsers();
+      const admin = adminUsers.find(u => u.role === 'admin');
+      
+      if (admin) {
+        await dbStorage.createNotification({
+          userId: admin.id,
+          type: "service_booked",
+          title: "Premium Service Booked",
+          message: `${service.name} booked by ${req.user!.username} for $${service.pricePerSession}`,
+          priority: "medium",
+          read: false,
+          actionUrl: "/admin/services",
+          data: {
+            serviceId: service.id,
+            serviceName: service.name,
+            memberName: req.user!.username,
+            amount: parseFloat(service.pricePerSession)
+          }
+        });
+      }
 
       // Real-time cross-role notifications - notify service provider
       if (service.providerId) {
@@ -1416,6 +1460,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/notifications/status", requireAuth, (req, res) => {
     const stats = notificationService.getConnectionStats();
     res.json(stats);
+  });
+
+  // Admin notifications API endpoints
+  app.get("/api/admin/notifications", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const notifications = await dbStorage.getAdminNotifications();
+      res.json(notifications);
+    } catch (error: any) {
+      console.error('Error fetching admin notifications:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/notifications/:id/read", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/notifications/mark-all-read", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      await dbStorage.markAllNotificationsAsRead(req.user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking all notifications as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/notifications/:id", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.deleteNotification(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // FAVORITES ROUTES - Real-time database integration

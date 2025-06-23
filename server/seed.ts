@@ -812,6 +812,8 @@ export async function seedDatabase() {
     const createdAssignments = await db.insert(crewAssignments).values(assignmentData).returning();
     console.log(`✅ Created ${createdAssignments.length} crew assignments for coordination`);
 
+
+
     console.log("🎉 Database seeding completed successfully!");
     console.log("Login credentials:");
     console.log("- admin / password (Admin Dashboard)");

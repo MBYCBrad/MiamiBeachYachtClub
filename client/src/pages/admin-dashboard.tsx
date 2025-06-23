@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
+import AdminNotificationCenter from "@/components/AdminNotificationCenter";
 import { 
   BarChart3, 
   Users, 
@@ -44,7 +45,9 @@ import {
   XCircle,
   ChevronDown,
   MessageSquare,
-  Ship
+  Ship,
+  BellRing,
+  Dot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -3434,15 +3437,20 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center space-x-3"
+              className="flex items-center justify-between"
             >
-              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
-                <Shield className="h-6 w-6 text-white" />
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+                  <p className="text-sm text-gray-400">Monaco Bay YC</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Admin Panel</h2>
-                <p className="text-sm text-gray-400">Monaco Bay YC</p>
-              </div>
+              
+              {/* Notification Icon */}
+              <AdminNotificationCenter />
             </motion.div>
           </div>
 
