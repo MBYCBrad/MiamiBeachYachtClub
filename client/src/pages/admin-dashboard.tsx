@@ -1708,7 +1708,7 @@ export default function AdminDashboard() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Monaco Bay Yacht Club Management Dashboard
+            Miami Beach Yacht Club Management Dashboard
           </motion.p>
         </div>
         
@@ -3466,7 +3466,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-white">Admin Panel</h2>
-                  <p className="text-sm text-gray-400">Monaco Bay YC</p>
+                  <p className="text-sm text-gray-400">Miami Beach YC</p>
                 </div>
               </div>
               

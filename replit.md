@@ -410,7 +410,7 @@ Changelog:
 - June 23, 2025. Complete branding update from Monaco Bay to Miami Beach Yacht Club with official logo integration
   - Updated application header with official Miami Beach Yacht Club logo from media assets
   - Replaced all text references from Monaco Bay YC to Miami Beach Yacht Club throughout application
-  - Updated replit.md documentation to reflect complete branding change
+  - Updated admin dashboard interface to reflect Miami Beach Yacht Club branding in sidebar and overview section
   - Enhanced logo display with professional styling and proper white logo visibility
   - Database connectivity restored for real-time conversations and messaging functionality
 - June 23, 2025. iPhone-style customer service interface with 3-tab dark mode design completed
