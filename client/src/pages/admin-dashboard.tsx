@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -1649,6 +1650,7 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const { user, logoutMutation } = useAuth();
+  const [, setLocation] = useLocation();
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
@@ -3540,7 +3542,10 @@ export default function AdminDashboard() {
 
           {/* User Profile */}
           <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
-            <div className="flex items-center space-x-3">
+            <div 
+              className="flex items-center space-x-3 cursor-pointer hover:bg-gray-800/30 rounded-lg p-2 -m-2 transition-colors"
+              onClick={() => setLocation('/admin/profile')}
+            >
               <Avatar className="h-12 w-12 ring-2 ring-purple-500/30">
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
                   A
@@ -3554,7 +3559,10 @@ export default function AdminDashboard() {
                 variant="ghost" 
                 size="sm" 
                 className="text-gray-400 hover:text-white"
-                onClick={() => logoutMutation.mutate()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  logoutMutation.mutate();
+                }}
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
