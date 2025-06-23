@@ -3526,13 +3526,26 @@ export default function AdminDashboard() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <motion.div
-          animate={{ rotate: sidebarCollapsed ? 0 : 90 }}
-          transition={{ duration: 0.3 }}
-        >
-          {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
-        </motion.div>
+        <Menu className="h-5 w-5" />
       </motion.button>
+
+      {/* Close button - animated from right side when menu is open */}
+      <AnimatePresence>
+        {!sidebarCollapsed && (
+          <motion.button
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed top-4 right-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
+            onClick={toggleSidebar}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <X className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
@@ -3667,9 +3680,14 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Main Content */}
-        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${
-          sidebarCollapsed ? 'w-full' : 'w-full'
-        }`}>
+        <motion.div 
+          animate={{ 
+            marginLeft: sidebarCollapsed ? 0 : 320,
+            width: sidebarCollapsed ? '100%' : 'calc(100% - 320px)'
+          }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="flex-1 overflow-y-auto p-8"
+        >
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'analytics' && renderAnalytics()}
@@ -3687,7 +3705,7 @@ export default function AdminDashboard() {
             {activeSection === 'events' && renderEvents()}
             {activeSection === 'payments' && renderPayments()}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
