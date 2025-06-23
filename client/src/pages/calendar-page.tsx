@@ -198,7 +198,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
             
             <div className="space-y-3">
               {event.member && (
-                <div className="p-4 rounded-lg bg-gray-800/50">
+                <div className="p-4 rounded-lg bg-gray-900/50">
                   <h4 className="text-white font-medium mb-2">Member Details</h4>
                   <div className="space-y-1 text-sm">
                     <p className="text-gray-300">{event.member.name}</p>
@@ -224,7 +224,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
           </div>
           
           {event.description && (
-            <div className="p-4 rounded-lg bg-gray-800/50">
+            <div className="p-4 rounded-lg bg-gray-900/50">
               <h4 className="text-white font-medium mb-2">Description</h4>
               <p className="text-gray-300 text-sm">{event.description}</p>
             </div>
@@ -552,8 +552,8 @@ export default function CalendarPage() {
                 onClick={() => handleDateClick(day.date)}
                 className={`
                   min-h-32 p-2 border-r border-b border-gray-700/30 cursor-pointer transition-all duration-200
-                  hover:bg-gray-800/30 relative group
-                  ${!day.isCurrentMonth ? 'bg-gray-800/20 text-gray-500' : 'text-white'}
+                  hover:bg-gray-900/30 relative group
+                  ${!day.isCurrentMonth ? 'bg-gray-900/20 text-gray-500' : 'text-white'}
                   ${day.isToday ? 'bg-blue-500/10 border-blue-500/30' : ''}
                 `}
               >

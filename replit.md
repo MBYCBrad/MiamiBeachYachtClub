@@ -458,6 +458,12 @@ Changelog:
   - Replaced all slate color variants with gray color variants for complete visual consistency
   - Created automation script (update_admin_styling.sh) for efficient styling application
   - All admin pages now display identical dark background with dark grey card styling matching overview
+- June 23, 2025. Admin navigation and page styling completely fixed with transparent buttons and darker theme
+  - Fixed admin sidebar navigation buttons from light grey (bg-gray-800) to transparent backgrounds
+  - Applied consistent dark theme (bg-gray-900/50 border-gray-700/50) across calendar, yacht maintenance, customer service, and staff management pages
+  - Purple-to-blue gradients now only display on hover/active states for professional appearance
+  - Eliminated all light grey secondary backgrounds that were causing visual inconsistency
+  - All admin interface elements now use proper dark theme styling matching user requirements
 
 ## Member Experience Feature Status
 
