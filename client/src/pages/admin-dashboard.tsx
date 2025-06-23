@@ -2510,13 +2510,13 @@ export default function AdminDashboard() {
             <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Service</Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">20%</Badge>
           </div>
-          <h3 className="text-white font-semibold text-lg mb-1">Concierge Revenue</h3>
+          <h3 className="text-white font-semibold text-lg mb-1">Platform Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.filter((p: any) => p.type === 'Service Booking').reduce((sum: number, p: any) => sum + (p.amount / 100), 0).toFixed(2) || '0.00'}
+            ${payments?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
           </p>
-          <p className="text-purple-400 text-sm mt-1">Service bookings</p>
+          <p className="text-purple-400 text-sm mt-1">Platform fees</p>
         </motion.div>
 
         <motion.div
