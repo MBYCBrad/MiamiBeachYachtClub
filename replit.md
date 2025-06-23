@@ -492,6 +492,11 @@ Changelog:
   - Changed three-dot menu icon (MoreVertical) to clear logout icon (LogOut) for better user experience
   - Maintained existing functionality while providing clearer visual indication of logout action
   - Enhanced admin dashboard usability with intuitive logout button design
+- June 23, 2025. Avatar system simplified to upload-only functionality to reduce AI costs
+  - Removed "Pick Avatar" and "AI Generate" options from avatar management dialog
+  - Streamlined avatar interface to focus on upload functionality only
+  - Eliminated AI API dependencies and predefined avatar selection to avoid unnecessary costs
+  - Maintained real-time avatar synchronization across all application layers
 
 ## Member Experience Feature Status
 

@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Mail, Phone, MapPin, Calendar, Settings, Shield, Bell, Lock, Edit, Save, Camera, Upload, Sparkles, Image as ImageIcon, Wand2 } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, Settings, Shield, Bell, Lock, Edit, Save, Camera, Upload } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -25,8 +25,7 @@ export default function MyProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
-  const [avatarMethod, setAvatarMethod] = useState<'upload' | 'avatar' | 'generate'>('upload');
-  const [selectedAvatar, setSelectedAvatar] = useState<string>('');
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -112,49 +111,7 @@ export default function MyProfile() {
     },
   });
 
-  const selectAvatarMutation = useMutation({
-    mutationFn: async (avatarUrl: string) => {
-      const response = await apiRequest('POST', '/api/select/avatar', { avatarUrl });
-      return response.json();
-    },
-    onSuccess: () => {
-      setAvatarDialogOpen(false);
-      toast({
-        title: "Avatar Updated",
-        description: "Your profile picture has been updated.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Selection Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
 
-  const generateAvatarMutation = useMutation({
-    mutationFn: async (prompt: string) => {
-      const response = await apiRequest('POST', '/api/generate-avatar', { prompt });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setAvatarDialogOpen(false);
-      toast({
-        title: "Avatar Generated",
-        description: "Your AI-generated avatar has been created.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Generation Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
 
   const handleSave = () => {
     updateProfileMutation.mutate(formData);
@@ -175,30 +132,7 @@ export default function MyProfile() {
     }
   };
 
-  const handleAvatarSelect = (avatarUrl: string) => {
-    setSelectedAvatar(avatarUrl);
-    selectAvatarMutation.mutate(avatarUrl);
-  };
 
-  const handleGenerateAvatar = () => {
-    const prompt = `Professional headshot of a ${user?.role || 'professional'} for Miami Beach Yacht Club, luxury maritime theme, high quality`;
-    generateAvatarMutation.mutate(prompt);
-  };
-
-  const predefinedAvatars = [
-    '/api/media/avatars/avatar1.jpg',
-    '/api/media/avatars/avatar2.jpg', 
-    '/api/media/avatars/avatar3.jpg',
-    '/api/media/avatars/avatar4.jpg',
-    '/api/media/avatars/avatar5.jpg',
-    '/api/media/avatars/avatar6.jpg',
-    '/api/media/Screenshot 2025-06-21 at 10.07.13 AM_1750525636853.png',
-    '/api/media/Screenshot 2025-06-21 at 10.13.02 AM_1750525984464.png',
-    '/api/media/Screenshot 2025-06-21 at 10.15.18 AM_1750526121299.png',
-    '/api/media/Screenshot 2025-06-21 at 10.17.47 AM_1750526270437.png',
-    '/api/media/Screenshot 2025-06-21 at 10.18.48 AM_1750526331757.png',
-    '/api/media/Screenshot 2025-06-21 at 10.24.01 AM_1750526643824.png'
-  ];
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -495,99 +429,27 @@ export default function MyProfile() {
               <DialogTitle className="text-white">Update Profile Picture</DialogTitle>
             </DialogHeader>
             
-            <Tabs value={avatarMethod} onValueChange={(value: any) => setAvatarMethod(value)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-                <TabsTrigger value="upload" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload
-                </TabsTrigger>
-                <TabsTrigger value="avatar" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
-                  <ImageIcon className="h-4 w-4 mr-2" />
-                  Pick Avatar
-                </TabsTrigger>
-                <TabsTrigger value="generate" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  AI Generate
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="upload" className="space-y-4">
-                <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-300 mb-2">Click to upload or drag and drop</p>
-                  <p className="text-gray-500 text-sm">PNG, JPG up to 10MB</p>
-                  <Button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600"
-                    disabled={uploadAvatarMutation.isPending}
-                  >
-                    {uploadAvatarMutation.isPending ? "Uploading..." : "Choose File"}
-                  </Button>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="avatar" className="space-y-4">
-                <div className="max-h-96 overflow-y-auto pr-2">
-                  <div className="grid grid-cols-3 gap-4">
-                    {predefinedAvatars.map((avatarUrl, index) => (
-                      <div
-                        key={index}
-                        className={`relative cursor-pointer rounded-lg border-2 transition-colors ${
-                          selectedAvatar === avatarUrl 
-                            ? 'border-purple-500' 
-                            : 'border-gray-600 hover:border-gray-500'
-                        }`}
-                        onClick={() => handleAvatarSelect(avatarUrl)}
-                      >
-                        <Avatar className="w-full h-24">
-                          <AvatarImage src={avatarUrl} className="object-cover" />
-                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                            {index + 1}
-                          </AvatarFallback>
-                        </Avatar>
-                        {selectedAvatar === avatarUrl && (
-                          <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                            <div className="bg-purple-500 rounded-full p-1">
-                              <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="generate" className="space-y-4">
-                <div className="text-center space-y-4">
-                  <Sparkles className="h-12 w-12 text-purple-400 mx-auto" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">AI Avatar Generation</h3>
-                    <p className="text-gray-400">Generate a professional avatar using AI based on your role</p>
-                  </div>
-                  <Button 
-                    onClick={handleGenerateAvatar}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                    disabled={generateAvatarMutation.isPending}
-                  >
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    {generateAvatarMutation.isPending ? "Generating..." : "Generate Avatar"}
-                  </Button>
-                  <p className="text-gray-500 text-sm">
-                    Creates a professional headshot for {user?.role || 'your role'}
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-300 mb-2">Click to upload or drag and drop</p>
+                <p className="text-gray-500 text-sm">PNG, JPG up to 10MB</p>
+                <Button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600"
+                  disabled={uploadAvatarMutation.isPending}
+                >
+                  {uploadAvatarMutation.isPending ? "Uploading..." : "Choose File"}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
