@@ -1526,6 +1526,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/admin/payments'],
   });
 
+  const { data: analytics } = useQuery<any>({
+    queryKey: ['/api/admin/analytics'],
+    staleTime: 30000, // Refresh every 30 seconds for real-time data
+    refetchInterval: 30000
+  });
+
   const renderOverview = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1722,7 +1728,7 @@ export default function AdminDashboard() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Deep insights into club performance and optimization opportunities
+            Real-time insights into club performance and optimization opportunities
           </motion.p>
         </div>
         
@@ -1743,59 +1749,254 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* Analytics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          title="Revenue Growth"
-          value="+28%"
-          change={28}
-          icon={TrendingUp}
-          gradient="from-green-500 to-emerald-500"
-          delay={0}
-        />
-        <StatCard
-          title="Member Satisfaction"
-          value="4.8/5"
-          change={12}
-          icon={Star}
-          gradient="from-yellow-500 to-orange-500"
-          delay={0.1}
-        />
-        <StatCard
-          title="Fleet Utilization"
-          value="82%"
-          change={15}
-          icon={Activity}
-          gradient="from-blue-500 to-cyan-500"
-          delay={0.2}
-        />
-        <StatCard
-          title="Conversion Rate"
-          value="67%"
-          change={8}
-          icon={Users}
-          gradient="from-purple-500 to-pink-500"
-          delay={0.3}
-        />
-      </div>
-
-      {/* Analytics Dashboard */}
-      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
-            Performance Analytics
-          </CardTitle>
-          <CardDescription>Comprehensive club performance metrics and insights</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-20">
-            <BarChart3 className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Advanced Analytics Dashboard</h3>
-            <p className="text-gray-400">Real-time analytics with AI-powered insights and recommendations</p>
+      {analytics ? (
+        <>
+          {/* Real-time Analytics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <StatCard
+              title="Total Revenue"
+              value={`$${analytics.overview.totalRevenue.toFixed(2)}`}
+              change={analytics.trends.revenueGrowth}
+              icon={TrendingUp}
+              gradient="from-green-500 to-emerald-500"
+              delay={0}
+            />
+            <StatCard
+              title="Active Bookings"
+              value={analytics.overview.totalBookings.toString()}
+              change={analytics.trends.memberGrowth}
+              icon={Activity}
+              gradient="from-blue-500 to-cyan-500"
+              delay={0.1}
+            />
+            <StatCard
+              title="Active Members"
+              value={analytics.overview.activeMembers.toString()}
+              change={analytics.trends.memberGrowth}
+              icon={Users}
+              gradient="from-purple-500 to-pink-500"
+              delay={0.2}
+            />
+            <StatCard
+              title="Customer Satisfaction"
+              value={`${analytics.realTimeMetrics.customerSatisfaction}/5`}
+              change={12}
+              icon={Star}
+              gradient="from-yellow-500 to-orange-500"
+              delay={0.3}
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Performance Metrics Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Service Performance */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  Top Service Performance
+                </CardTitle>
+                <CardDescription>Highest revenue generating services</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.performance.services.slice(0, 5).map((service: any, index: number) => (
+                    <motion.div
+                      key={service.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{service.name}</p>
+                        <p className="text-gray-400 text-sm">{service.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-green-400 font-bold">${service.totalRevenue.toFixed(2)}</p>
+                        <p className="text-gray-400 text-sm">{service.totalBookings} bookings</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Yacht Utilization */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Activity className="h-5 w-5 mr-2 text-blue-500" />
+                  Fleet Utilization
+                </CardTitle>
+                <CardDescription>Yacht performance and booking rates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.performance.yachts.slice(0, 5).map((yacht: any, index: number) => (
+                    <motion.div
+                      key={yacht.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{yacht.name}</p>
+                        <p className="text-gray-400 text-sm">{yacht.size}ft</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-blue-400 font-bold">{yacht.utilizationRate.toFixed(1)}%</p>
+                        <p className="text-gray-400 text-sm">{yacht.totalBookings} bookings</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Monthly Trends and Member Distribution */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Monthly Booking Trends */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
+                  Monthly Booking Trends
+                </CardTitle>
+                <CardDescription>Booking volume over the last 6 months</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.trends.monthlyBookings.map((month: any, index: number) => {
+                    const maxBookings = Math.max(...analytics.trends.monthlyBookings.map((m: any) => m.bookings));
+                    const percentage = maxBookings > 0 ? (month.bookings / maxBookings) * 100 : 0;
+                    
+                    return (
+                      <motion.div
+                        key={month.month}
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "100%" }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        className="flex items-center space-x-4"
+                      >
+                        <span className="text-white font-medium w-12">{month.month}</span>
+                        <div className="flex-1 bg-gray-800 rounded-full h-3 overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ delay: index * 0.1 + 0.2, duration: 0.8 }}
+                            className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                          />
+                        </div>
+                        <span className="text-gray-400 text-sm w-12">{month.bookings}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Membership Distribution */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-cyan-500" />
+                  Membership Distribution
+                </CardTitle>
+                <CardDescription>Member tier breakdown and growth</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(analytics.demographics.membershipBreakdown).map(([tier, count]: [string, any], index: number) => {
+                    const totalMembers = Object.values(analytics.demographics.membershipBreakdown).reduce((a: any, b: any) => a + b, 0);
+                    const percentage = totalMembers > 0 ? (count / totalMembers) * 100 : 0;
+                    
+                    const tierColors = {
+                      platinum: 'from-purple-500 to-indigo-500',
+                      gold: 'from-yellow-500 to-orange-500',
+                      silver: 'from-gray-400 to-gray-500',
+                      bronze: 'from-orange-600 to-red-500'
+                    };
+                    
+                    return (
+                      <motion.div
+                        key={tier}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${tierColors[tier as keyof typeof tierColors] || 'from-gray-500 to-gray-600'}`} />
+                          <span className="text-white capitalize font-medium">{tier}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-bold">{count}</p>
+                          <p className="text-gray-400 text-sm">{percentage.toFixed(1)}%</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Event Performance */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-orange-500" />
+                Event Performance
+              </CardTitle>
+              <CardDescription>Event capacity and revenue analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analytics.performance.events.slice(0, 6).map((event: any, index: number) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  >
+                    <h4 className="text-white font-medium mb-2">{event.title}</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Capacity</span>
+                        <span className="text-white">{event.capacityFilled.toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
+                          style={{ width: `${Math.min(event.capacityFilled, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Revenue</span>
+                        <span className="text-green-400">${event.totalRevenue.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <BarChart3 className="h-16 w-16 text-gray-500 mx-auto mb-4 animate-pulse" />
+              <h3 className="text-xl font-bold text-white mb-2">Loading Analytics...</h3>
+              <p className="text-gray-400">Fetching real-time data from database</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </motion.div>
   );
 
