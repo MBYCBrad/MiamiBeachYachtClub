@@ -2715,10 +2715,12 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 
-  const renderYachts = () => (
+  const renderYachts = () => {
+    return (
     <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
@@ -2814,12 +2816,12 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
-        </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 
-  const renderServices = () => (
+  const renderServices = () => {
+    return (
     <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
@@ -2932,12 +2934,13 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
-        </motion.div>
+      </motion.div>
       </div>
     </div>
   );
 
-  const renderEvents = () => (
+  const renderEvents = () => {
+    return (
     <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
@@ -3037,9 +3040,11 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
     </div>
-  );
+    );
+  };
 
-  const renderPayments = () => (
+  const renderPayments = () => {
+    return (
     <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
@@ -3336,12 +3341,15 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
-        </motion.div>
+      </motion.div>
+      </div>
       </div>
     </div>
-  );
+    );
+  };
 
-  const renderSettings = () => (
+  const renderSettings = () => {
+    return (
     <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
@@ -3643,6 +3651,7 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </div>
       </div>
+    </div>
     </div>
   );
 }
