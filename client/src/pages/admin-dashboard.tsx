@@ -3690,8 +3690,8 @@ export default function AdminDashboard() {
         {/* Main Content */}
         <motion.div 
           animate={{ 
-            marginLeft: sidebarCollapsed ? 0 : 320,
-            width: sidebarCollapsed ? '100%' : 'calc(100% - 320px)'
+            marginLeft: sidebarCollapsed ? 320 : 0,
+            width: sidebarCollapsed ? 'calc(100% - 320px)' : '100%'
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
           className="flex-1 overflow-y-auto p-8"
