@@ -702,11 +702,37 @@ export default function ServiceProviderDashboard() {
             >
               <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
                 <div className="h-48 relative overflow-hidden">
-                  <img 
-                    src={service.imageUrl || '/service-placeholder.jpg'} 
-                    alt={service.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {service.images && service.images.length > 1 ? (
+                    <div className="relative h-48 bg-gray-800">
+                      <img 
+                        src={service.images[0] || service.imageUrl || '/service-placeholder.jpg'}
+                        alt={service.name}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute bottom-2 right-2 flex space-x-1">
+                        {service.images.slice(0, 4).map((img: string, idx: number) => (
+                          <div key={idx} className="relative">
+                            <img 
+                              src={img}
+                              alt={`${service.name} ${idx + 1}`}
+                              className="w-8 h-8 object-cover rounded border border-white/20"
+                            />
+                            {idx === 3 && service.images.length > 4 && (
+                              <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                                <span className="text-white text-xs font-medium">+{service.images.length - 4}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <img 
+                      src={service.imageUrl || (service.images && service.images[0]) || '/service-placeholder.jpg'}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
                   {/* Service Status */}

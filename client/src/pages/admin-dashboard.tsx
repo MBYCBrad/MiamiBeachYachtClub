@@ -755,6 +755,7 @@ function AddServiceDialog() {
     duration: '',
     providerId: '68',
     imageUrl: '',
+    images: [] as string[],
     isAvailable: true
   });
   const { toast } = useToast();
@@ -765,7 +766,9 @@ function AddServiceDialog() {
       const serviceData = {
         ...data,
         duration: data.duration ? parseInt(data.duration) : null,
-        providerId: data.providerId && data.providerId !== '' ? parseInt(data.providerId) : undefined
+        providerId: data.providerId && data.providerId !== '' ? parseInt(data.providerId) : undefined,
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
+        images: data.images || []
       };
       const response = await apiRequest("POST", "/api/admin/services", serviceData);
       return response.json();
@@ -774,7 +777,7 @@ function AddServiceDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
       toast({ title: "Success", description: "Service created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', isAvailable: true });
+      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], isAvailable: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -857,14 +860,13 @@ function AddServiceDialog() {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="/api/media/service-image.jpg"
+          <div className="col-span-2">
+            <Label className="text-gray-300">Service Images</Label>
+            <MultiImageUpload 
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              currentImages={formData.images}
+              label="Service Images"
+              maxImages={10}
             />
           </div>
           <div className="col-span-2">
@@ -901,6 +903,7 @@ function EditServiceDialog({ service }: { service: any }) {
     description: service.description || '',
     pricePerSession: service.pricePerSession || '',
     duration: service.duration || 0,
+    images: service.images || [],
     isAvailable: service.isAvailable ?? true
   });
   const { toast } = useToast();
@@ -908,7 +911,12 @@ function EditServiceDialog({ service }: { service: any }) {
 
   const updateServiceMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("PUT", `/api/admin/services/${service.id}`, data);
+      const serviceData = {
+        ...data,
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl,
+        images: data.images || []
+      };
+      const response = await apiRequest("PUT", `/api/admin/services/${service.id}`, serviceData);
       return response.json();
     },
     onSuccess: () => {
@@ -987,6 +995,15 @@ function EditServiceDialog({ service }: { service: any }) {
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-gray-300">Service Images</Label>
+            <MultiImageUpload
+              currentImages={formData.images}
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+              label="Service Images"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -1982,11 +1999,37 @@ export default function AdminDashboard() {
           >
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
               <div className="relative">
-                <img 
-                  src={service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
-                  alt={service.name}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {service.images && service.images.length > 1 ? (
+                  <div className="relative h-48 bg-gray-800">
+                    <img 
+                      src={service.images[0] || service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                      alt={service.name}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute bottom-2 right-2 flex space-x-1">
+                      {service.images.slice(0, 4).map((img: string, idx: number) => (
+                        <div key={idx} className="relative">
+                          <img 
+                            src={img}
+                            alt={`${service.name} ${idx + 1}`}
+                            className="w-8 h-8 object-cover rounded border border-white/20"
+                          />
+                          {idx === 3 && service.images.length > 4 && (
+                            <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-medium">+{service.images.length - 4}</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <img 
+                    src={service.imageUrl || (service.images && service.images[0]) || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                    alt={service.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                )}
                 <div className="absolute top-4 right-4">
                   <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
                     {service.category}

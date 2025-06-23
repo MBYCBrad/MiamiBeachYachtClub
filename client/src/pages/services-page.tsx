@@ -102,6 +102,41 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
               >
                 {/* Service Image */}
                 <div className="relative h-40 bg-gradient-to-br from-blue-900/30 to-purple-900/30">
+                  {service.images && service.images.length > 0 ? (
+                    <div className="relative h-40">
+                      <img 
+                        src={service.images[0] || service.imageUrl}
+                        alt={service.name}
+                        className="w-full h-40 object-cover"
+                      />
+                      {service.images.length > 1 && (
+                        <div className="absolute bottom-2 right-2 flex space-x-1">
+                          {service.images.slice(0, 3).map((img: string, idx: number) => (
+                            <div key={idx} className="relative">
+                              <img 
+                                src={img}
+                                alt={`${service.name} ${idx + 1}`}
+                                className="w-6 h-6 object-cover rounded border border-white/30"
+                              />
+                              {idx === 2 && service.images.length > 3 && (
+                                <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                                  <span className="text-white text-xs font-medium">+{service.images.length - 3}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : service.imageUrl ? (
+                    <img 
+                      src={service.imageUrl}
+                      alt={service.name}
+                      className="w-full h-40 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-40 bg-gradient-to-br from-blue-900/30 to-purple-900/30" />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute top-3 left-3">
                     <span className="px-3 py-1 bg-blue-600/80 text-white text-xs rounded-full font-medium">
