@@ -164,33 +164,16 @@ export default function CrewManagementPage() {
         <div className="flex flex-col items-center space-y-4">
           <div className="text-red-400 text-6xl">⚠️</div>
           <p className="text-red-200">Error loading crew management data</p>
-          <p className="text-slate-400 text-sm">Please refresh the page or contact support</p>
+          <p className="text-gray-400 text-sm">Please refresh the page or contact support</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Animated Background */}
+    <div className="min-h-screen bg-gray-900">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[url('/yacht-pattern.svg')] opacity-5"></div>
-        <motion.div
-          className="absolute top-20 left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360] 
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            rotate: [360, 180, 0] 
-          }}
-          transition={{ duration: 25, repeat: Infinity }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-6 py-8">
@@ -206,7 +189,7 @@ export default function CrewManagementPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold text-white">Crew Management Center</h1>
-              <p className="text-slate-300">Real-time crew coordination & yacht service delivery</p>
+              <p className="text-gray-300">Real-time crew coordination & yacht service delivery</p>
             </div>
           </div>
         </motion.div>
@@ -218,11 +201,11 @@ export default function CrewManagementPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Active Bookings</p>
+                  <p className="text-gray-400 text-sm">Active Bookings</p>
                   <p className="text-2xl font-bold text-white">{prioritizedBookings.length}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-400" />
@@ -230,11 +213,11 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Available Crew</p>
+                  <p className="text-gray-400 text-sm">Available Crew</p>
                   <p className="text-2xl font-bold text-white">
                     {(crewMembers || []).filter(m => m.status === 'active').length}
                   </p>
@@ -244,11 +227,11 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Assignments</p>
+                  <p className="text-gray-400 text-sm">Assignments</p>
                   <p className="text-2xl font-bold text-white">{(crewAssignments || []).length}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-blue-400" />
@@ -256,11 +239,11 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-400 text-sm">Service Quality</p>
+                  <p className="text-gray-400 text-sm">Service Quality</p>
                   <p className="text-2xl font-bold text-white">4.9/5</p>
                 </div>
                 <Star className="h-8 w-8 text-yellow-400" />
@@ -276,7 +259,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -287,7 +270,7 @@ export default function CrewManagementPage() {
                     {prioritizedBookings.length} pending
                   </Badge>
                 </div>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-gray-400">
                   Priority-ordered by membership tier
                 </CardDescription>
               </CardHeader>
@@ -297,7 +280,7 @@ export default function CrewManagementPage() {
                     key={booking.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-slate-700/50 rounded-lg border border-slate-600"
+                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -313,7 +296,7 @@ export default function CrewManagementPage() {
                           </Badge>
                           <span className="text-white font-medium">{booking.member.name}</span>
                         </div>
-                        <p className="text-slate-300 text-sm">{booking.yacht.name} • {booking.guestCount} guests</p>
+                        <p className="text-gray-300 text-sm">{booking.yacht.name} • {booking.guestCount} guests</p>
                       </div>
                       <Dialog open={assignmentDialog && selectedBooking?.id === booking.id} onOpenChange={setAssignmentDialog}>
                         <DialogTrigger asChild>
@@ -334,7 +317,7 @@ export default function CrewManagementPage() {
                       </Dialog>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-sm text-slate-400">
+                    <div className="flex items-center gap-4 text-sm text-gray-400">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
                         {new Date(booking.startTime).toLocaleDateString()} at {new Date(booking.startTime).toLocaleTimeString()}
@@ -347,15 +330,15 @@ export default function CrewManagementPage() {
 
                     {(booking.services || []).length > 0 && (
                       <div className="mt-3">
-                        <p className="text-xs text-slate-400 mb-2">Concierge Services ({(booking.services || []).length})</p>
+                        <p className="text-xs text-gray-400 mb-2">Concierge Services ({(booking.services || []).length})</p>
                         <div className="flex flex-wrap gap-1">
                           {(booking.services || []).slice(0, 3).map((service, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs border-slate-600 text-slate-300">
+                            <Badge key={idx} variant="outline" className="text-xs border-gray-700 text-gray-300">
                               {service.name}
                             </Badge>
                           ))}
                           {(booking.services || []).length > 3 && (
-                            <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
+                            <Badge variant="outline" className="text-xs border-gray-700 text-gray-300">
                               +{(booking.services || []).length - 3} more
                             </Badge>
                           )}
@@ -374,12 +357,12 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white">Crew Members</CardTitle>
                   <Select value={crewFilter} onValueChange={setCrewFilter}>
-                    <SelectTrigger className="w-40 bg-slate-700 border-slate-600">
+                    <SelectTrigger className="w-40 bg-slate-700 border-gray-700">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -397,7 +380,7 @@ export default function CrewManagementPage() {
                     key={member.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 bg-slate-700/50 rounded-lg border border-slate-600"
+                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
                   >
                     <div className="flex items-start gap-3">
                       <Avatar className="h-12 w-12">
@@ -421,9 +404,9 @@ export default function CrewManagementPage() {
                           </Badge>
                         </div>
                         
-                        <p className="text-sm text-slate-300 mb-2">{member.role} • {member.location || 'Marina Bay'}</p>
+                        <p className="text-sm text-gray-300 mb-2">{member.role} • {member.location || 'Marina Bay'}</p>
                         
-                        <div className="flex items-center gap-4 text-xs text-slate-400">
+                        <div className="flex items-center gap-4 text-xs text-gray-400">
                           <div className="flex items-center gap-1">
                             <Star className="h-3 w-3 text-yellow-400" />
                             5.0/5
@@ -452,13 +435,13 @@ export default function CrewManagementPage() {
           transition={{ delay: 0.4 }}
           className="mt-8"
         >
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-400" />
                 Active Crew Assignments
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-gray-400">
                 Monitor ongoing yacht service deliveries
               </CardDescription>
             </CardHeader>
@@ -469,7 +452,7 @@ export default function CrewManagementPage() {
                     key={assignment.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 bg-slate-700/50 rounded-lg border border-slate-600"
+                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <Badge 
@@ -488,7 +471,7 @@ export default function CrewManagementPage() {
                           assignmentId: assignment.id,
                           status: assignment.status === 'planned' ? 'assigned' : 'active'
                         })}
-                        className="border-slate-600 text-slate-300 hover:bg-slate-600"
+                        className="border-gray-700 text-gray-300 hover:bg-slate-600"
                       >
                         <Settings className="h-4 w-4 mr-1" />
                         Update
@@ -504,16 +487,16 @@ export default function CrewManagementPage() {
                         <Shield className="h-4 w-4 text-blue-400" />
                         Coordinator: {assignment.coordinator.username}
                       </div>
-                      <div className="text-slate-400">
+                      <div className="text-gray-400">
                         Crew Size: {(assignment.crewMembers || []).length} members
                       </div>
-                      <div className="text-slate-400">
+                      <div className="text-gray-400">
                         Briefing: {new Date(assignment.briefingTime).toLocaleTimeString()}
                       </div>
                     </div>
 
                     {assignment.notes && (
-                      <div className="mt-3 p-2 bg-slate-600/30 rounded text-xs text-slate-300">
+                      <div className="mt-3 p-2 bg-slate-600/30 rounded text-xs text-gray-300">
                         {assignment.notes}
                       </div>
                     )}
@@ -625,7 +608,7 @@ function CrewAssignmentDialog({
     <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-6xl max-h-[95vh] overflow-y-auto">
       <DialogHeader className="space-y-3 pb-6">
         <DialogTitle className="text-2xl font-bold text-purple-400">Crew Assignment Center</DialogTitle>
-        <DialogDescription className="text-slate-300 text-base">
+        <DialogDescription className="text-gray-300 text-base">
           Comprehensive crew coordination for premium yacht experience
         </DialogDescription>
       </DialogHeader>
@@ -634,7 +617,7 @@ function CrewAssignmentDialog({
         {/* Left Column - Booking Details */}
         <div className="space-y-6">
           {/* Yacht & Booking Information */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
                 <Ship className="h-5 w-5" />
@@ -644,44 +627,44 @@ function CrewAssignmentDialog({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-slate-400 text-sm">Yacht</p>
+                  <p className="text-gray-400 text-sm">Yacht</p>
                   <p className="text-white font-semibold">{yacht?.name || booking.yacht?.name || 'Loading...'}</p>
-                  <p className="text-slate-300 text-sm">{yacht?.size || booking.yacht?.size}ft • {yacht?.capacity || booking.yacht?.capacity} guests max</p>
+                  <p className="text-gray-300 text-sm">{yacht?.size || booking.yacht?.size}ft • {yacht?.capacity || booking.yacht?.capacity} guests max</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Location</p>
+                  <p className="text-gray-400 text-sm">Location</p>
                   <p className="text-white">{yacht?.location || booking.yacht?.location || 'Miami Marina'}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-slate-400 text-sm">Date</p>
+                  <p className="text-gray-400 text-sm">Date</p>
                   <p className="text-white font-semibold">{formatDate(booking.date)}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Time Slot</p>
+                  <p className="text-gray-400 text-sm">Time Slot</p>
                   <p className="text-white">{getTimeSlotName(booking.startTime)}</p>
-                  <p className="text-slate-300 text-sm">{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</p>
+                  <p className="text-gray-300 text-sm">{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-slate-400 text-sm">Member</p>
+                  <p className="text-gray-400 text-sm">Member</p>
                   <p className="text-white font-semibold">{booking.member?.name || booking.member?.username}</p>
-                  <p className="text-slate-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
+                  <p className="text-gray-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Guest Count</p>
+                  <p className="text-gray-400 text-sm">Guest Count</p>
                   <p className="text-white text-2xl font-bold">{booking.guestCount}</p>
                 </div>
               </div>
 
               {booking.specialRequests && (
                 <div>
-                  <p className="text-slate-400 text-sm">Special Requests</p>
-                  <p className="text-slate-300 text-sm bg-slate-700/50 p-3 rounded-lg">{booking.specialRequests}</p>
+                  <p className="text-gray-400 text-sm">Special Requests</p>
+                  <p className="text-gray-300 text-sm bg-gray-800/50 p-3 rounded-lg">{booking.specialRequests}</p>
                 </div>
               )}
             </CardContent>
@@ -689,7 +672,7 @@ function CrewAssignmentDialog({
 
           {/* Premium Services Ordered */}
           {bookingServices.length > 0 && (
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
                   <Sparkles className="h-5 w-5" />
@@ -702,11 +685,11 @@ function CrewAssignmentDialog({
                     <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
                       <div>
                         <p className="text-white font-medium">{service?.name}</p>
-                        <p className="text-slate-400 text-sm">{service?.category}</p>
+                        <p className="text-gray-400 text-sm">{service?.category}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-green-400 font-semibold">${service?.price}</p>
-                        <p className="text-slate-400 text-xs">Premium Service</p>
+                        <p className="text-gray-400 text-xs">Premium Service</p>
                       </div>
                     </div>
                   ))}
@@ -716,7 +699,7 @@ function CrewAssignmentDialog({
           )}
 
           {/* Yacht Specifications */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-green-400 flex items-center gap-2">
                 <Settings className="h-5 w-5" />
@@ -726,28 +709,28 @@ function CrewAssignmentDialog({
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-slate-400">Length</p>
+                  <p className="text-gray-400">Length</p>
                   <p className="text-white">{yacht?.size || booking.yacht?.size || '50'} feet</p>
                 </div>
                 <div>
-                  <p className="text-slate-400">Type</p>
+                  <p className="text-gray-400">Type</p>
                   <p className="text-white">{yacht?.type || booking.yacht?.type || 'Motor Yacht'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400">Capacity</p>
+                  <p className="text-gray-400">Capacity</p>
                   <p className="text-white">{yacht?.capacity || booking.yacht?.capacity || '12'} guests</p>
                 </div>
                 <div>
-                  <p className="text-slate-400">Crew Required</p>
+                  <p className="text-gray-400">Crew Required</p>
                   <p className="text-white">{Math.ceil((yacht?.capacity || booking.yacht?.capacity || 12) / 8) + 1} members</p>
                 </div>
               </div>
               
               <div>
-                <p className="text-slate-400 text-sm mb-2">Key Amenities</p>
+                <p className="text-gray-400 text-sm mb-2">Key Amenities</p>
                 <div className="flex flex-wrap gap-1">
                   {(yacht?.amenities || booking.yacht?.amenities || ['Deck Space', 'Sound System', 'Kitchen', 'Bathroom', 'Seating', 'Navigation']).slice(0, 6).map((amenity: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="bg-slate-700 text-slate-300 text-xs">
+                    <Badge key={index} variant="secondary" className="bg-slate-700 text-gray-300 text-xs">
                       {amenity}
                     </Badge>
                   ))}
@@ -760,7 +743,7 @@ function CrewAssignmentDialog({
         {/* Right Column - Crew Assignment */}
         <div className="space-y-6">
           {/* Captain Selection */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
                 <Crown className="h-5 w-5" />
@@ -769,7 +752,7 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent>
               <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
-                <SelectTrigger className="bg-slate-700 border-slate-600 h-12">
+                <SelectTrigger className="bg-slate-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select experienced captain" />
                 </SelectTrigger>
                 <SelectContent>
@@ -777,7 +760,7 @@ function CrewAssignmentDialog({
                     <SelectItem key={captain.id} value={captain.id.toString()}>
                       <div className="flex flex-col py-1">
                         <span className="font-medium">{captain.username}</span>
-                        <span className="text-sm text-slate-400">{captain.role} • {captain.location}</span>
+                        <span className="text-sm text-gray-400">{captain.role} • {captain.location}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -787,7 +770,7 @@ function CrewAssignmentDialog({
           </Card>
 
           {/* Service Coordinator Selection */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
                 <Shield className="h-5 w-5" />
@@ -796,7 +779,7 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent>
               <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
-                <SelectTrigger className="bg-slate-700 border-slate-600 h-12">
+                <SelectTrigger className="bg-slate-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select service coordinator" />
                 </SelectTrigger>
                 <SelectContent>
@@ -804,7 +787,7 @@ function CrewAssignmentDialog({
                     <SelectItem key={coordinator.id} value={coordinator.id.toString()}>
                       <div className="flex flex-col py-1">
                         <span className="font-medium">{coordinator.username}</span>
-                        <span className="text-sm text-slate-400">{coordinator.role} • {coordinator.location}</span>
+                        <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -814,7 +797,7 @@ function CrewAssignmentDialog({
           </Card>
 
           {/* Additional Crew Selection */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-green-400 flex items-center gap-2">
                 <Users className="h-5 w-5" />
@@ -836,11 +819,11 @@ function CrewAssignmentDialog({
                           setSelectedCrew(selectedCrew.filter(id => id !== member.id));
                         }
                       }}
-                      className="rounded border-slate-600 bg-slate-700 w-4 h-4"
+                      className="rounded border-gray-700 bg-slate-700 w-4 h-4"
                     />
                     <div className="flex-1">
                       <p className="text-white text-sm font-medium">{member.username}</p>
-                      <p className="text-slate-400 text-xs">{member.role} • {member.location}</p>
+                      <p className="text-gray-400 text-xs">{member.role} • {member.location}</p>
                     </div>
                   </div>
                 ))}
@@ -849,7 +832,7 @@ function CrewAssignmentDialog({
           </Card>
 
           {/* Pre-Departure Briefing */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -858,20 +841,20 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-slate-300 text-sm">Briefing Schedule</Label>
+                <Label className="text-gray-300 text-sm">Briefing Schedule</Label>
                 <Input
                   type="datetime-local"
                   value={briefingTime}
                   onChange={(e) => setBriefingTime(e.target.value)}
-                  className="bg-slate-700 border-slate-600 mt-1"
+                  className="bg-slate-700 border-gray-700 mt-1"
                 />
-                <p className="text-slate-400 text-xs mt-1">Recommended: 30-60 minutes before departure</p>
+                <p className="text-gray-400 text-xs mt-1">Recommended: 30-60 minutes before departure</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Assignment Notes & Instructions */}
-          <Card className="bg-slate-800/50 border-slate-700">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -883,7 +866,7 @@ function CrewAssignmentDialog({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="• Safety protocols and guest preferences&#10;• Service delivery requirements&#10;• Special dietary needs or allergies&#10;• Equipment setup instructions&#10;• Emergency contact information&#10;• Member VIP status notes"
-                className="bg-slate-700 border-slate-600 min-h-[120px] text-sm"
+                className="bg-slate-700 border-gray-700 min-h-[120px] text-sm"
                 rows={6}
               />
             </CardContent>
@@ -894,7 +877,7 @@ function CrewAssignmentDialog({
             <Button
               variant="outline"
               onClick={() => onAssign.mutate({ cancel: true })}
-              className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+              className="bg-slate-700 border-gray-700 text-white hover:bg-slate-600"
             >
               Cancel Assignment
             </Button>
