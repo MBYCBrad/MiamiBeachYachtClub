@@ -3474,8 +3474,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto px-6 pb-24">
-            <div className="space-y-2">
+          <nav className="flex-1 overflow-y-auto px-6">
+            <div className="space-y-2 pb-4">
               {sidebarItems.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
@@ -3526,7 +3526,7 @@ export default function AdminDashboard() {
           </nav>
 
           {/* User Profile */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50">
+          <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
             <div className="flex items-center space-x-3">
               <Avatar className="h-12 w-12 ring-2 ring-purple-500/30">
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
