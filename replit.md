@@ -569,6 +569,7 @@ Changelog:
   - Moved messages and notifications icons from top header to bottom beside user profile
   - Changed user subtitle from "System Administrator" to "System Admin" for better UI fit
   - Enhanced main content area to dynamically expand to full width when sidebar is collapsed
+  - Fixed hamburger button z-index (z-[9999]) to ensure visibility on top of sidebar menu for proper control
   - Maintained all existing purple-to-blue gradient styling and dark theme consistency
 
 ## Member Experience Feature Status

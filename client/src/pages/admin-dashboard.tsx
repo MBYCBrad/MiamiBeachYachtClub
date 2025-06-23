@@ -3521,7 +3521,7 @@ export default function AdminDashboard() {
 
       {/* Hamburger menu button - fixed top left */}
       <motion.button
-        className="fixed top-4 left-4 z-50 p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
+        className="fixed top-4 left-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
         onClick={toggleSidebar}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
