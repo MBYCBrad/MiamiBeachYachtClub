@@ -216,7 +216,7 @@ export default function AdminProfile() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50" style={{ backgroundColor: 'rgba(31, 41, 55, 0.5)', borderColor: 'rgba(55, 65, 81, 0.5)' }}>
+            <Card className="admin-profile-card">
               <CardHeader className="text-center">
                 <div className="relative mx-auto w-32 h-32 mb-4">
                   <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
@@ -256,7 +256,7 @@ export default function AdminProfile() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
-            <Card className="bg-gray-900/50 border-gray-700/50" style={{ backgroundColor: 'rgba(31, 41, 55, 0.5)', borderColor: 'rgba(55, 65, 81, 0.5)' }}>
+            <Card className="admin-profile-card">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <User className="h-5 w-5 mr-2" />
@@ -354,7 +354,7 @@ export default function AdminProfile() {
             </Card>
 
             {/* Security Settings */}
-            <Card className="bg-gray-900/50 border-gray-700/50" style={{ backgroundColor: 'rgba(31, 41, 55, 0.5)', borderColor: 'rgba(55, 65, 81, 0.5)' }}>
+            <Card className="admin-profile-card">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <Shield className="h-5 w-5 mr-2" />

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force Gray Background for All Admin Profile Cards */
+.admin-profile-card {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
@@ -84,7 +90,7 @@ html, body {
   --muted-foreground: hsl(0, 0%, 64.9%);
   --popover: hsl(0, 0%, 18%);              /* Gray dropdown backgrounds */
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: rgba(31, 41, 55, 0.5);           /* Forced gray card backgrounds */
+  --card: #1f2937;                         /* Forced gray card backgrounds */
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(0, 0%, 20%);               /* Gray border color */
   --input: hsl(0, 0%, 18%);                /* Gray input field backgrounds */
