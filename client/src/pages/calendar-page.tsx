@@ -549,13 +549,13 @@ export default function CalendarPage() {
                   min-h-32 p-2 border-r border-b border-gray-700/50/30 cursor-pointer transition-all duration-200
                   hover:bg-gray-900/50/30 relative group
                   ${!day.isCurrentMonth ? 'bg-gray-900/50/20 text-gray-500' : 'text-white'}
-                  ${day.isToday ? 'bg-blue-500/10 border-blue-500/30' : ''}
+                  ${day.isToday ? 'bg-gradient-to-r from-purple-600/10 to-indigo-600/10 border-purple-500/30' : ''}
                 `}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className={`
                     text-sm font-medium
-                    ${day.isToday ? 'bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center' : ''}
+                    ${day.isToday ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center' : ''}
                   `}>
                     {day.date.getDate()}
                   </span>
@@ -624,7 +624,7 @@ export default function CalendarPage() {
                 </div>
                 <div className={`
                   text-lg font-semibold rounded-full w-8 h-8 flex items-center justify-center mx-auto
-                  ${isSameDay(day, today) ? 'bg-blue-500 text-white' : 'text-white'}
+                  ${isSameDay(day, today) ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' : 'text-white'}
                 `}>
                   {day.getDate()}
                 </div>
