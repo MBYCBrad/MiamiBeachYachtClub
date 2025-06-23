@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,24 +17,16 @@ import {
   Anchor,
   Trash2,
   Settings,
-  Filter
+  Filter,
+  AlertCircle,
+  Ship
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-
-interface Notification {
-  id: number;
-  type: 'booking' | 'payment' | 'message' | 'system' | 'reminder' | 'promotion';
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  actionUrl?: string;
-  metadata?: any;
-}
+import { formatDistanceToNow } from 'date-fns';
+import type { Notification } from '@shared/schema';
 
 interface MemberNotificationsProps {
   currentView: string;
@@ -43,370 +35,359 @@ interface MemberNotificationsProps {
 
 export default function MemberNotifications({ currentView, setCurrentView }: MemberNotificationsProps) {
   const [activeTab, setActiveTab] = useState('all');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Mock real-time notifications data
-  const mockNotifications: Notification[] = [
-    {
-      id: 1,
-      type: 'booking',
-      title: 'Booking Confirmed',
-      message: 'Your yacht booking for Marina Breeze on June 25th has been confirmed. Captain Rodriguez is excited to welcome you aboard!',
-      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-      read: false,
-      priority: 'high',
-      actionUrl: '/trips',
-      metadata: { bookingId: 1, yachtName: 'Marina Breeze' }
-    },
-    {
-      id: 2,
-      type: 'payment',
-      title: 'Payment Processed',
-      message: 'Payment of $2,500 for your yacht charter has been successfully processed. Receipt sent to your email.',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      read: false,
-      priority: 'medium',
-      actionUrl: '/trips',
-      metadata: { amount: 2500, paymentId: 'pay_123' }
-    },
-    {
-      id: 3,
-      type: 'message',
-      title: 'New Message from Chef Alessandro',
-      message: 'Your private chef has sent you the finalized menu for tomorrow\'s dinner cruise. Please review and confirm.',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      read: true,
-      priority: 'medium',
-      actionUrl: '/messages',
-      metadata: { senderId: 102, senderName: 'Chef Alessandro' }
-    },
-    {
-      id: 4,
-      type: 'reminder',
-      title: 'Yacht Departure Reminder',
-      message: 'Your yacht charter departs in 24 hours from Marina Bay. Check-in begins at 2:00 PM. Weather forecast: Perfect sailing conditions!',
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-      read: true,
-      priority: 'high',
-      actionUrl: '/trips',
-      metadata: { departureTime: '3:00 PM', location: 'Marina Bay' }
-    },
-    {
-      id: 5,
-      type: 'promotion',
-      title: 'Exclusive Summer Package',
-      message: 'Limited time offer: Save 25% on weekend yacht charters in July. Book your summer escape with premium amenities included.',
-      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-      read: false,
-      priority: 'low',
-      actionUrl: '/explore',
-      metadata: { discount: 25, validUntil: '2025-07-31' }
-    },
-    {
-      id: 6,
-      type: 'system',
-      title: 'Profile Verification Complete',
-      message: 'Your Gold membership verification has been completed. You now have access to premium yachts and exclusive events.',
-      timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-      read: true,
-      priority: 'medium',
-      actionUrl: '/profile',
-      metadata: { membershipTier: 'gold' }
-    },
-    {
-      id: 7,
-      type: 'booking',
-      title: 'Service Booking Request',
-      message: 'Spa therapist Maria has accepted your massage booking for the yacht charter. Session scheduled for 4:00 PM on deck.',
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-      read: true,
-      priority: 'medium',
-      actionUrl: '/trips',
-      metadata: { serviceType: 'spa', provider: 'Maria' }
-    }
-  ];
+  // Fetch notifications from database
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+    queryKey: ['/api/notifications'],
+    enabled: !!user,
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // Refetch every minute for real-time updates
+  });
 
-  useEffect(() => {
-    setNotifications(mockNotifications);
-    
-    // Simulate real-time notifications
-    const interval = setInterval(() => {
-      const newNotification: Notification = {
-        id: Date.now(),
-        type: 'system',
-        title: 'Real-time Update',
-        message: `Live notification received at ${new Date().toLocaleTimeString()}`,
-        timestamp: new Date(),
-        read: false,
-        priority: 'medium'
-      };
-      
-      setNotifications(prev => [newNotification, ...prev]);
-      
-      // Show toast for new notification
-      toast({
-        title: newNotification.title,
-        description: newNotification.message,
-        duration: 5000,
-      });
-    }, 30000); // New notification every 30 seconds
-    
-    return () => clearInterval(interval);
-  }, [toast]);
+  // Get unread count
+  const { data: unreadData } = useQuery<{ count: number }>({
+    queryKey: ['/api/notifications/unread-count'],
+    enabled: !!user,
+    staleTime: 30000,
+    refetchInterval: 60000,
+  });
 
+  // Mark notification as read
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
-      return await apiRequest('PATCH', `/api/notifications/${notificationId}/read`);
-    },
-    onSuccess: (_, notificationId) => {
-      setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-      );
-    }
-  });
-
-  const deleteNotificationMutation = useMutation({
-    mutationFn: async (notificationId: number) => {
-      return await apiRequest('DELETE', `/api/notifications/${notificationId}`);
-    },
-    onSuccess: (_, notificationId) => {
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      toast({
-        title: "Notification deleted",
-        description: "The notification has been removed",
-      });
-    }
-  });
-
-  const markAllAsReadMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest('PATCH', '/api/notifications/mark-all-read');
+      const response = await apiRequest("PATCH", `/api/notifications/${notificationId}/read`, {});
+      return response.json();
     },
     onSuccess: () => {
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/unread-count'] });
+    },
+    onError: (error: Error) => {
       toast({
-        title: "All notifications marked as read",
-        description: "Your notifications have been updated",
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive",
       });
-    }
+    },
+  });
+
+  // Delete notification
+  const deleteNotificationMutation = useMutation({
+    mutationFn: async (notificationId: number) => {
+      const response = await apiRequest("DELETE", `/api/notifications/${notificationId}`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/unread-count'] });
+      toast({
+        title: "Success",
+        description: "Notification deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete notification",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mark all as read
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("PATCH", "/api/notifications/mark-all-read", {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications/unread-count'] });
+      toast({
+        title: "Success",
+        description: "All notifications marked as read",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: "Failed to mark all notifications as read",
+        variant: "destructive",
+      });
+    },
   });
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'booking': return <Anchor size={20} className="text-blue-400" />;
-      case 'payment': return <CreditCard size={20} className="text-green-400" />;
-      case 'message': return <MessageCircle size={20} className="text-purple-400" />;
-      case 'reminder': return <Clock size={20} className="text-yellow-400" />;
-      case 'promotion': return <Star size={20} className="text-pink-400" />;
-      case 'system': return <Settings size={20} className="text-gray-400" />;
-      default: return <Bell size={20} className="text-gray-400" />;
+      case 'booking_created':
+      case 'booking_reminder':
+        return <Anchor className="h-5 w-5 text-blue-400" />;
+      case 'service_booked':
+        return <Star className="h-5 w-5 text-purple-400" />;
+      case 'payment_processed':
+        return <CreditCard className="h-5 w-5 text-green-400" />;
+      case 'message_received':
+        return <MessageCircle className="h-5 w-5 text-blue-400" />;
+      case 'event_registered':
+        return <Calendar className="h-5 w-5 text-orange-400" />;
+      default:
+        return <Bell className="h-5 w-5 text-gray-400" />;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'border-l-red-500 bg-red-500/5';
-      case 'high': return 'border-l-orange-500 bg-orange-500/5';
-      case 'medium': return 'border-l-blue-500 bg-blue-500/5';
-      case 'low': return 'border-l-gray-500 bg-gray-500/5';
-      default: return 'border-l-gray-500 bg-gray-500/5';
+      case 'urgent': return 'border-red-500 bg-red-500/10';
+      case 'high': return 'border-orange-500 bg-orange-500/10';
+      case 'medium': return 'border-blue-500 bg-blue-500/10';
+      case 'low': return 'border-gray-500 bg-gray-500/10';
+      default: return 'border-gray-500 bg-gray-500/10';
     }
-  };
-
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   const filteredNotifications = notifications.filter(notification => {
     if (activeTab === 'all') return true;
     if (activeTab === 'unread') return !notification.read;
-    if (activeTab === 'important') return notification.priority === 'high' || notification.priority === 'urgent';
-    return notification.type === activeTab;
+    return notification.type.includes(activeTab);
   });
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read) {
-      markAsReadMutation.mutate(notification.id);
-    }
-    
-    if (notification.actionUrl) {
-      const route = notification.actionUrl.replace('/', '');
-      if (route && route !== currentView) {
-        setCurrentView(route);
-      }
-    }
-  };
+  const unreadCount = unreadData?.count || 0;
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
-      {/* Header */}
-      <div className="pt-12 pb-6 px-4">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-3xl font-bold text-gradient-animate mb-2"
-            >
-              Notifications
-            </motion.h1>
-            <p className="text-gray-300">
-              {unreadCount} unread notifications
-            </p>
-          </div>
-          
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Video Background */}
+      <video
+        autoPlay
+        muted
+        loop
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        style={{ filter: 'brightness(0.3)' }}
+      >
+        <source src="/api/media/video/15768404-uhd_4096_2160_24fps_1750523880240.mp4" type="video/mp4" />
+      </video>
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 z-1">
+        {[...Array(15)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-purple-400/20 rounded-full"
+            animate={{
+              x: [Math.random() * window.innerWidth, Math.random() * window.innerWidth],
+              y: [Math.random() * window.innerHeight, Math.random() * window.innerHeight],
+            }}
+            transition={{
+              duration: Math.random() * 20 + 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+            style={{
+              left: Math.random() * 100 + '%',
+              top: Math.random() * 100 + '%',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            Notifications
+          </h1>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Stay updated with your yacht club activities, bookings, and important messages
+          </p>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        >
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-6 text-center">
+              <Bell className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{notifications.length}</div>
+              <div className="text-gray-300">Total Notifications</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-6 text-center">
+              <AlertCircle className="h-8 w-8 text-orange-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{unreadCount}</div>
+              <div className="text-gray-300">Unread Messages</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-6 text-center">
+              <Ship className="h-8 w-8 text-blue-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">24/7</div>
+              <div className="text-gray-300">MBYC Support</div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Controls */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
+        >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+            <TabsList className="bg-white/10 border-white/20">
+              <TabsTrigger value="all" className="data-[state=active]:bg-purple-600">
+                All ({notifications.length})
+              </TabsTrigger>
+              <TabsTrigger value="unread" className="data-[state=active]:bg-purple-600">
+                Unread ({unreadCount})
+              </TabsTrigger>
+              <TabsTrigger value="booking" className="data-[state=active]:bg-purple-600">
+                Bookings
+              </TabsTrigger>
+              <TabsTrigger value="message" className="data-[state=active]:bg-purple-600">
+                Messages
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           {unreadCount > 0 && (
             <Button
               onClick={() => markAllAsReadMutation.mutate()}
               disabled={markAllAsReadMutation.isPending}
-              size="sm"
-              className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-600/30 rounded-xl"
+              variant="outline"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
-              <Check size={16} className="mr-2" />
-              Mark all read
+              <Check className="h-4 w-4 mr-2" />
+              Mark All Read
             </Button>
           )}
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Tabs */}
-      <div className="px-4 mb-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800/50 rounded-xl">
-            <TabsTrigger 
-              value="all" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
-            >
-              All ({notifications.length})
-            </TabsTrigger>
-            <TabsTrigger 
-              value="unread" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg relative"
-            >
-              Unread
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-red-500 text-white text-xs min-w-[20px] h-5">
-                  {unreadCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="important" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
-            >
-              Important
-            </TabsTrigger>
-            <TabsTrigger 
-              value="booking" 
-              className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-lg"
-            >
-              Bookings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={activeTab} className="mt-6">
-            {filteredNotifications.length === 0 ? (
-              <div className="text-center py-12">
-                <Bell size={48} className="mx-auto text-gray-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                  No notifications
-                </h3>
-                <p className="text-gray-500">
-                  {activeTab === 'unread' ? 'All caught up!' : 'No notifications in this category'}
-                </p>
-              </div>
-            ) : (
-              <div className="px-4 space-y-3">
-                <AnimatePresence>
-                  {filteredNotifications.map((notification, index) => (
-                    <motion.div
-                      key={notification.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -100 }}
-                      transition={{ delay: index * 0.05 }}
-                      onClick={() => handleNotificationClick(notification)}
-                      className={cn(
-                        "bg-gray-900/50 border border-gray-800 rounded-xl p-4 cursor-pointer transition-all duration-200 border-l-4",
-                        getPriorityColor(notification.priority),
-                        !notification.read ? 'hover:bg-gray-800/70' : 'opacity-75 hover:bg-gray-800/50'
-                      )}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {getNotificationIcon(notification.type)}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-1">
-                            <h3 className={cn(
-                              "font-semibold truncate",
-                              !notification.read ? 'text-white' : 'text-gray-300'
-                            )}>
-                              {notification.title}
-                            </h3>
-                            <div className="flex items-center space-x-2 ml-2">
-                              <span className="text-xs text-gray-400 whitespace-nowrap">
-                                {formatTimeAgo(notification.timestamp)}
-                              </span>
+        {/* Notifications List */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-4"
+        >
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-gray-300">Loading notifications...</p>
+            </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="text-center py-12">
+              <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No notifications</h3>
+              <p className="text-gray-300">You're all caught up!</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {filteredNotifications.map((notification, index) => (
+                <motion.div
+                  key={notification.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className={cn(
+                    "bg-white/10 backdrop-blur-md border-l-4 transition-all duration-200 hover:bg-white/15",
+                    getPriorityColor(notification.priority),
+                    !notification.read && "shadow-lg shadow-purple-500/20"
+                  )}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4 flex-1">
+                          <div className="flex-shrink-0 mt-1">
+                            {getNotificationIcon(notification.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className={cn(
+                                "font-semibold text-white",
+                                !notification.read && "text-purple-200"
+                              )}>
+                                {notification.title}
+                              </h3>
                               {!notification.read && (
-                                <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                                <Badge variant="secondary" className="bg-purple-600 text-white">
+                                  New
+                                </Badge>
                               )}
+                              <Badge variant="outline" className={cn(
+                                "text-xs",
+                                notification.priority === 'urgent' && "border-red-400 text-red-400",
+                                notification.priority === 'high' && "border-orange-400 text-orange-400",
+                                notification.priority === 'medium' && "border-blue-400 text-blue-400",
+                                notification.priority === 'low' && "border-gray-400 text-gray-400"
+                              )}>
+                                {notification.priority}
+                              </Badge>
+                            </div>
+                            <p className="text-gray-300 mb-3 leading-relaxed">
+                              {notification.message}
+                            </p>
+                            <div className="flex items-center text-sm text-gray-400">
+                              <Clock className="h-4 w-4 mr-1" />
+                              {notification.createdAt && formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                             </div>
                           </div>
-                          
-                          <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                            {notification.message}
-                          </p>
-                          
-                          <div className="flex justify-between items-center">
-                            <Badge 
-                              variant="outline" 
-                              className={cn(
-                                "text-xs capitalize",
-                                notification.type === 'booking' ? 'border-blue-500/30 text-blue-400' :
-                                notification.type === 'payment' ? 'border-green-500/30 text-green-400' :
-                                notification.type === 'message' ? 'border-purple-500/30 text-purple-400' :
-                                notification.type === 'reminder' ? 'border-yellow-500/30 text-yellow-400' :
-                                notification.type === 'promotion' ? 'border-pink-500/30 text-pink-400' :
-                                'border-gray-500/30 text-gray-400'
-                              )}
-                            >
-                              {notification.type}
-                            </Badge>
-                            
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          {!notification.read && (
                             <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteNotificationMutation.mutate(notification.id);
-                              }}
-                              variant="ghost"
                               size="sm"
-                              className="text-gray-500 hover:text-red-400 hover:bg-red-500/10 p-1 h-auto"
+                              variant="ghost"
+                              onClick={() => markAsReadMutation.mutate(notification.id)}
+                              disabled={markAsReadMutation.isPending}
+                              className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
                             >
-                              <Trash2 size={14} />
+                              <Check className="h-4 w-4" />
                             </Button>
-                          </div>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                            disabled={deleteNotificationMutation.isPending}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                      {notification.actionUrl && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentView(notification.actionUrl!.slice(1))}
+                            className="bg-purple-600/20 border-purple-400 text-purple-200 hover:bg-purple-600/30"
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </motion.div>
       </div>
     </div>
   );

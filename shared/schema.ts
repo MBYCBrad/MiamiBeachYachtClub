@@ -243,6 +243,36 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   updatedAt: true,
 });
 
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(), // 'booking_created', 'booking_cancelled', 'service_booked', 'event_registered', 'payment_processed', 'message_received'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data").$type<{
+    bookingId?: number;
+    yachtId?: number;
+    serviceId?: number;
+    eventId?: number;
+    messageId?: number;
+    paymentId?: string;
+    amount?: number;
+    yachtName?: string;
+    serviceName?: string;
+    eventTitle?: string;
+    senderName?: string;
+  }>(),
+  priority: text("priority").notNull().default('medium'), // 'low', 'medium', 'high', 'urgent'
+  read: boolean("read").notNull().default(false),
+  actionUrl: text("action_url"), // URL to navigate when notification is clicked
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -266,3 +296,5 @@ export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;

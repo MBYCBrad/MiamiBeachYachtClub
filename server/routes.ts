@@ -13,7 +13,7 @@ import fs from "fs";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
-  insertReviewSchema, insertMessageSchema, UserRole, MembershipTier
+  insertReviewSchema, insertMessageSchema, insertNotificationSchema, UserRole, MembershipTier
 } from "@shared/schema";
 
 // Initialize Stripe
@@ -1910,6 +1910,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error: any) {
       await auditService.logAction(req, 'delete', 'event', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // NOTIFICATIONS API
+  app.get("/api/notifications", requireAuth, async (req, res) => {
+    try {
+      const { read, type } = req.query;
+      const filters: any = {};
+      
+      if (read !== undefined) filters.read = read === 'true';
+      if (type) filters.type = type as string;
+      
+      const notifications = await storage.getNotifications(req.user!.id, filters);
+      res.json(notifications);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/notifications/unread-count", requireAuth, async (req, res) => {
+    try {
+      const count = await storage.getUnreadNotificationCount(req.user!.id);
+      res.json({ count });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await storage.getNotification(notificationId);
+      
+      if (!notification || notification.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      
+      const updatedNotification = await storage.markNotificationAsRead(notificationId);
+      res.json(updatedNotification);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/notifications/mark-all-read", requireAuth, async (req, res) => {
+    try {
+      await storage.markAllNotificationsAsRead(req.user!.id);
+      res.json({ message: "All notifications marked as read" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/notifications/:id", requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await storage.getNotification(notificationId);
+      
+      if (!notification || notification.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      
+      const deleted = await storage.deleteNotification(notificationId);
+      if (deleted) {
+        res.json({ message: "Notification deleted" });
+      } else {
+        res.status(500).json({ message: "Failed to delete notification" });
+      }
+    } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
   });

@@ -1,10 +1,10 @@
 import { 
-  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages,
+  users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
   type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, type Favorite, type InsertFavorite, 
-  type Message, type InsertMessage, UserRole, MembershipTier
+  type Message, type InsertMessage, type Notification, type InsertNotification, UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -90,6 +90,15 @@ export interface IStorage {
   createMessage(message: InsertMessage): Promise<Message>;
   updateMessageStatus(messageId: number, status: string): Promise<Message | undefined>;
   updateMessageTwilioSid(messageId: number, twilioSid: string): Promise<Message | undefined>;
+
+  // Notification methods
+  getNotifications(userId: number, filters?: { read?: boolean, type?: string }): Promise<Notification[]>;
+  getNotification(id: number): Promise<Notification | undefined>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  markNotificationAsRead(id: number): Promise<Notification | undefined>;
+  markAllNotificationsAsRead(userId: number): Promise<void>;
+  deleteNotification(id: number): Promise<boolean>;
+  getUnreadNotificationCount(userId: number): Promise<number>;
 
   // Admin methods
   updateUser(id: number, updates: Partial<User>): Promise<User>;
@@ -1186,6 +1195,61 @@ export class DatabaseStorage implements IStorage {
   async deleteMediaAsset(id: number): Promise<boolean> {
     const result = await db.delete(mediaAssets).where(eq(mediaAssets.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  // Notification methods
+  async getNotifications(userId: number, filters?: { read?: boolean, type?: string }): Promise<Notification[]> {
+    let query = db.select().from(notifications).where(eq(notifications.userId, userId));
+    
+    if (filters?.read !== undefined) {
+      query = query.where(eq(notifications.read, filters.read));
+    }
+    
+    if (filters?.type) {
+      query = query.where(eq(notifications.type, filters.type));
+    }
+    
+    const results = await query.orderBy(notifications.createdAt);
+    return results;
+  }
+
+  async getNotification(id: number): Promise<Notification | undefined> {
+    const [notification] = await db.select().from(notifications).where(eq(notifications.id, id));
+    return notification || undefined;
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db.insert(notifications).values(notification).returning();
+    return newNotification;
+  }
+
+  async markNotificationAsRead(id: number): Promise<Notification | undefined> {
+    const [updatedNotification] = await db
+      .update(notifications)
+      .set({ read: true })
+      .where(eq(notifications.id, id))
+      .returning();
+    return updatedNotification || undefined;
+  }
+
+  async markAllNotificationsAsRead(userId: number): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ read: true })
+      .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
+  }
+
+  async deleteNotification(id: number): Promise<boolean> {
+    const result = await db.delete(notifications).where(eq(notifications.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async getUnreadNotificationCount(userId: number): Promise<number> {
+    const result = await db
+      .select({ count: notifications.id })
+      .from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.read, false)));
+    return result.length;
   }
 }
 
