@@ -77,6 +77,7 @@ import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
+import AdminProfile from "./admin-profile";
 
 interface AdminStats {
   totalUsers: number;
@@ -3933,7 +3934,7 @@ export default function AdminDashboard() {
             {activeSection === 'services' && renderServices()}
             {activeSection === 'events' && renderEvents()}
             {activeSection === 'payments' && renderPayments()}
-            {activeSection === 'profile' && renderProfile()}
+            {activeSection === 'profile' && <AdminProfile />}
           </AnimatePresence>
         </div>
       </div>

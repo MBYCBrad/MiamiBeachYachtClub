@@ -57,6 +57,8 @@ export default function AdminProfile() {
       sms: false,
       push: true,
       marketing: false,
+      security: true,
+      marketing: false,
       security: true
     },
     security: {
