@@ -290,7 +290,7 @@ export default function StaffManagement() {
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl p-8">
+        <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl p-8">
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
@@ -307,7 +307,7 @@ export default function StaffManagement() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/80 backdrop-blur-xl border-b border-gray-700/50 p-6"
+        className="bg-gray-900/50/80 backdrop-blur-xl border-b border-gray-700/50/50 p-6"
       >
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
@@ -346,16 +346,16 @@ export default function StaffManagement() {
                 placeholder="Search staff members..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-900/50 border-gray-700/50 text-white"
+                className="pl-10 bg-gray-900/50/50 border-gray-700/50/50 text-white"
               />
             </div>
           </div>
           
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-48 bg-gray-900/50 border-gray-700/50">
+            <SelectTrigger className="w-48 bg-gray-900/50/50 border-gray-700/50/50">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+            <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
               <SelectItem value="all">All Roles</SelectItem>
               {staffRoles.map(role => (
                 <SelectItem key={role} value={role}>{role}</SelectItem>
@@ -364,10 +364,10 @@ export default function StaffManagement() {
           </Select>
 
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-gray-900/50 border-gray-700/50">
+            <SelectTrigger className="w-40 bg-gray-900/50/50 border-gray-700/50/50">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+            <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
@@ -382,7 +382,7 @@ export default function StaffManagement() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
                 <Shield className="h-5 w-5 text-purple-400" />
@@ -396,7 +396,7 @@ export default function StaffManagement() {
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-gray-700/50">
+                  <TableRow className="border-gray-700/50/50">
                     <TableHead className="text-gray-300">Staff Member</TableHead>
                     <TableHead className="text-gray-300">Role</TableHead>
                     <TableHead className="text-gray-300">Permissions</TableHead>
@@ -421,7 +421,7 @@ export default function StaffManagement() {
                     </TableRow>
                   ) : (
                     filteredStaff.map((staff) => (
-                      <TableRow key={staff.id} className="border-gray-700/50 hover:bg-gray-900/30">
+                      <TableRow key={staff.id} className="border-gray-700/50/50 hover:bg-gray-900/50/30">
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
@@ -517,7 +517,7 @@ export default function StaffManagement() {
 
       {/* Add Staff Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -535,7 +535,7 @@ export default function StaffManagement() {
                   id="username"
                   value={newStaffData.username}
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, username: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                   placeholder="Enter username"
                 />
               </div>
@@ -549,7 +549,7 @@ export default function StaffManagement() {
                   type="email"
                   value={newStaffData.email}
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, email: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                   placeholder="Enter email"
                 />
               </div>
@@ -565,7 +565,7 @@ export default function StaffManagement() {
                   type="password"
                   value={newStaffData.password}
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, password: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                   placeholder="Enter password"
                 />
               </div>
@@ -575,10 +575,10 @@ export default function StaffManagement() {
                   Staff Role
                 </Label>
                 <Select value={newStaffData.role} onValueChange={(value) => setNewStaffData(prev => ({ ...prev, role: value }))}>
-                  <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
+                  <SelectTrigger className="bg-gray-900/50/50 border-gray-700/50/50">
                     <SelectValue placeholder="Select staff role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     {staffRoles.map(role => (
                       <SelectItem key={role} value={role}>{role}</SelectItem>
                     ))}
@@ -596,7 +596,7 @@ export default function StaffManagement() {
                   id="phone"
                   value={newStaffData.phone}
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                   placeholder="Enter phone number"
                 />
               </div>
@@ -609,7 +609,7 @@ export default function StaffManagement() {
                   id="location"
                   value={newStaffData.location}
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, location: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                   placeholder="Enter location"
                 />
               </div>
@@ -619,7 +619,7 @@ export default function StaffManagement() {
               <Label className="text-sm font-medium text-gray-300 mb-3 block">
                 Permissions
               </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/30 p-4 rounded-lg border border-gray-700/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/50/30 p-4 rounded-lg border border-gray-700/50/50">
                 {availablePermissions.map(permission => (
                   <div key={permission.id} className="flex items-start space-x-2">
                     <Checkbox
@@ -662,7 +662,7 @@ export default function StaffManagement() {
 
       {/* Edit Staff Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -680,7 +680,7 @@ export default function StaffManagement() {
                   <Input
                     value={selectedStaff.username}
                     disabled
-                    className="bg-gray-900/30 border-gray-700/50 text-gray-400"
+                    className="bg-gray-900/50/30 border-gray-700/50/50 text-gray-400"
                   />
                 </div>
                 
@@ -691,7 +691,7 @@ export default function StaffManagement() {
                   <Input
                     value={selectedStaff.email}
                     disabled
-                    className="bg-gray-900/30 border-gray-700/50 text-gray-400"
+                    className="bg-gray-900/50/30 border-gray-700/50/50 text-gray-400"
                   />
                 </div>
               </div>
@@ -705,10 +705,10 @@ export default function StaffManagement() {
                     value={selectedStaff.role} 
                     onValueChange={(value) => setSelectedStaff(prev => prev ? ({ ...prev, role: value }) : null)}
                   >
-                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
+                    <SelectTrigger className="bg-gray-900/50/50 border-gray-700/50/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                    <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                       {staffRoles.map(role => (
                         <SelectItem key={role} value={role}>{role}</SelectItem>
                       ))}
@@ -726,10 +726,10 @@ export default function StaffManagement() {
                       setSelectedStaff(prev => prev ? ({ ...prev, status: value }) : null)
                     }
                   >
-                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
+                    <SelectTrigger className="bg-gray-900/50/50 border-gray-700/50/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                    <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                       <SelectItem value="suspended">Suspended</SelectItem>
@@ -747,7 +747,7 @@ export default function StaffManagement() {
                     id="edit-phone"
                     value={selectedStaff.phone || ""}
                     onChange={(e) => setSelectedStaff(prev => prev ? ({ ...prev, phone: e.target.value }) : null)}
-                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                    className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                     placeholder="Enter phone number"
                   />
                 </div>
@@ -760,7 +760,7 @@ export default function StaffManagement() {
                     id="edit-location"
                     value={selectedStaff.location || ""}
                     onChange={(e) => setSelectedStaff(prev => prev ? ({ ...prev, location: e.target.value }) : null)}
-                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                    className="bg-gray-900/50/50 border-gray-700/50/50 text-white"
                     placeholder="Enter location"
                   />
                 </div>
@@ -770,7 +770,7 @@ export default function StaffManagement() {
                 <Label className="text-sm font-medium text-gray-300 mb-3 block">
                   Permissions
                 </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/30 p-4 rounded-lg border border-gray-700/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/50/30 p-4 rounded-lg border border-gray-700/50/50">
                   {availablePermissions.map(permission => (
                     <div key={permission.id} className="flex items-start space-x-2">
                       <Checkbox
@@ -814,7 +814,7 @@ export default function StaffManagement() {
 
       {/* Delete Staff Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white">
+        <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 text-white">
           <DialogHeader>
             <DialogTitle>Delete Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -824,7 +824,7 @@ export default function StaffManagement() {
           
           {selectedStaff && (
             <div className="py-4">
-              <div className="flex items-center gap-3 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+              <div className="flex items-center gap-3 p-4 bg-gray-900/50/50 rounded-lg border border-gray-700/50/50">
                 <Avatar className="h-12 w-12">
                   <AvatarFallback className="bg-red-500/20 text-red-400">
                     {selectedStaff.username.slice(0, 2).toUpperCase()}

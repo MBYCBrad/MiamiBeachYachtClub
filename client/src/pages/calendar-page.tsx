@@ -154,7 +154,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
+      <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center space-x-3">
             <div className={`p-2 rounded-lg bg-gradient-to-r ${EVENT_COLORS[event.type]}`}>
@@ -198,7 +198,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
             
             <div className="space-y-3">
               {event.member && (
-                <div className="p-4 rounded-lg bg-gray-900/50">
+                <div className="p-4 rounded-lg bg-gray-900/50/50">
                   <h4 className="text-white font-medium mb-2">Member Details</h4>
                   <div className="space-y-1 text-sm">
                     <p className="text-gray-300">{event.member.name}</p>
@@ -224,7 +224,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
           </div>
           
           {event.description && (
-            <div className="p-4 rounded-lg bg-gray-900/50">
+            <div className="p-4 rounded-lg bg-gray-900/50/50">
               <h4 className="text-white font-medium mb-2">Description</h4>
               <p className="text-gray-300 text-sm">{event.description}</p>
             </div>
@@ -528,9 +528,9 @@ export default function CalendarPage() {
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     return (
-      <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl backdrop-blur-xl overflow-hidden">
+      <div className="bg-gray-900/50/50 border border-gray-700/50/50 rounded-xl backdrop-blur-xl overflow-hidden">
         {/* Week headers */}
-        <div className="grid grid-cols-7 border-b border-gray-700/50">
+        <div className="grid grid-cols-7 border-b border-gray-700/50/50">
           {weekDays.map(day => (
             <div key={day} className="p-4 text-center text-gray-400 font-medium text-sm">
               {day}
@@ -551,9 +551,9 @@ export default function CalendarPage() {
                 transition={{ delay: index * 0.01 }}
                 onClick={() => handleDateClick(day.date)}
                 className={`
-                  min-h-32 p-2 border-r border-b border-gray-700/30 cursor-pointer transition-all duration-200
-                  hover:bg-gray-900/30 relative group
-                  ${!day.isCurrentMonth ? 'bg-gray-900/20 text-gray-500' : 'text-white'}
+                  min-h-32 p-2 border-r border-b border-gray-700/50/30 cursor-pointer transition-all duration-200
+                  hover:bg-gray-900/50/30 relative group
+                  ${!day.isCurrentMonth ? 'bg-gray-900/50/20 text-gray-500' : 'text-white'}
                   ${day.isToday ? 'bg-blue-500/10 border-blue-500/30' : ''}
                 `}
               >
@@ -614,9 +614,9 @@ export default function CalendarPage() {
     const today = new Date();
 
     return (
-      <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl backdrop-blur-xl overflow-hidden">
+      <div className="bg-gray-900/50/50 border border-gray-700/50/50 rounded-xl backdrop-blur-xl overflow-hidden">
         {/* Week header */}
-        <div className="p-4 border-b border-gray-700/50">
+        <div className="p-4 border-b border-gray-700/50/50">
           <h3 className="text-xl font-bold text-white mb-2">
             {startOfWeek.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </h3>
@@ -642,7 +642,7 @@ export default function CalendarPage() {
         <div className="max-h-96 overflow-y-auto">
           <div className="grid grid-cols-8 gap-0">
             {/* Time labels */}
-            <div className="w-16 border-r border-gray-700/30">
+            <div className="w-16 border-r border-gray-700/50/30">
               {hours.map(hour => (
                 <div key={hour} className="h-16 flex items-start justify-end pr-2 pt-1 text-xs text-gray-400">
                   {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
@@ -652,9 +652,9 @@ export default function CalendarPage() {
 
             {/* Day columns */}
             {days.map((day, dayIndex) => (
-              <div key={dayIndex} className="border-r border-gray-700/30 relative">
+              <div key={dayIndex} className="border-r border-gray-700/50/30 relative">
                 {hours.map(hour => (
-                  <div key={hour} className="h-16 border-b border-gray-700/20 p-1 relative">
+                  <div key={hour} className="h-16 border-b border-gray-700/50/20 p-1 relative">
                     {/* Events for this hour */}
                     {getEventsForDate(day)
                       .filter(event => event.startTime.getHours() === hour)
@@ -705,8 +705,8 @@ export default function CalendarPage() {
     const today = new Date();
 
     return (
-      <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl backdrop-blur-xl overflow-hidden">
-        <div className="p-6 border-b border-gray-700/50">
+      <div className="bg-gray-900/50/50 border border-gray-700/50/50 rounded-xl backdrop-blur-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-700/50/50">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-bold text-white">
@@ -730,9 +730,9 @@ export default function CalendarPage() {
 
         <div className="flex max-h-96 overflow-hidden">
           {/* Time sidebar */}
-          <div className="w-20 border-r border-gray-700/30 bg-gray-900/30">
+          <div className="w-20 border-r border-gray-700/50/30 bg-gray-900/50/30">
             {hours.map(hour => (
-              <div key={hour} className="h-16 flex items-start justify-end pr-3 pt-2 text-xs text-gray-400 border-b border-gray-700/20">
+              <div key={hour} className="h-16 flex items-start justify-end pr-3 pt-2 text-xs text-gray-400 border-b border-gray-700/50/20">
                 {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
               </div>
             ))}
@@ -741,7 +741,7 @@ export default function CalendarPage() {
           {/* Events timeline */}
           <div className="flex-1 relative overflow-y-auto">
             {hours.map(hour => (
-              <div key={hour} className="h-16 border-b border-gray-700/20 relative">
+              <div key={hour} className="h-16 border-b border-gray-700/50/20 relative">
                 {/* Events for this hour */}
                 {dayEvents
                   .filter(event => event.startTime.getHours() === hour)
@@ -819,8 +819,8 @@ export default function CalendarPage() {
       .slice(0, 50);
 
     return (
-      <div className="bg-gray-900/50 border border-gray-700/50 rounded-xl backdrop-blur-xl overflow-hidden">
-        <div className="p-6 border-b border-gray-700/50">
+      <div className="bg-gray-900/50/50 border border-gray-700/50/50 rounded-xl backdrop-blur-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-700/50/50">
           <h3 className="text-xl font-bold text-white">Upcoming Events</h3>
           <p className="text-gray-400">{upcomingEvents.length} events scheduled</p>
         </div>
@@ -846,7 +846,7 @@ export default function CalendarPage() {
                 return groups;
               }, {})).map(([date, events]) => (
                 <div key={date} className="space-y-3">
-                  <h4 className="text-white font-semibold text-lg border-b border-gray-700/50 pb-2">
+                  <h4 className="text-white font-semibold text-lg border-b border-gray-700/50/50 pb-2">
                     {new Date(date).toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       month: 'long', 
@@ -895,17 +895,17 @@ export default function CalendarPage() {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 w-64"
+                className="pl-10 bg-gray-900/50/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 w-64"
               />
             </div>
 
             {/* Filter */}
             <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-              <SelectTrigger className="bg-gray-900/50 border-gray-600 text-white w-48">
+              <SelectTrigger className="bg-gray-900/50/50 border-gray-600 text-white w-48">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+              <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                 <SelectItem value="all">All Events</SelectItem>
                 <SelectItem value="yacht">Yacht Bookings</SelectItem>
                 <SelectItem value="service">Concierge Services</SelectItem>
@@ -914,7 +914,7 @@ export default function CalendarPage() {
             </Select>
 
             {/* View selector */}
-            <div className="flex items-center space-x-2 bg-gray-900/50 rounded-lg p-1">
+            <div className="flex items-center space-x-2 bg-gray-900/50/50 rounded-lg p-1">
               {Object.entries(CALENDAR_VIEWS).map(([key, value]) => (
                 <Button
                   key={value}
@@ -935,7 +935,7 @@ export default function CalendarPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex items-center justify-between bg-gray-900/50 border border-gray-700/50 rounded-xl p-4 backdrop-blur-xl"
+          className="flex items-center justify-between bg-gray-900/50/50 border border-gray-700/50/50 rounded-xl p-4 backdrop-blur-xl"
         >
           <div className="flex items-center space-x-4">
             <Button
@@ -1010,7 +1010,7 @@ export default function CalendarPage() {
             const Icon = config.icon;
             
             return (
-              <Card key={type} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <Card key={type} className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>

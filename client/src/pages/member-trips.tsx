@@ -44,8 +44,12 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
     queryKey: ['/api/bookings']
   });
 
-  const { data: serviceBookings = [] } = useQuery<ServiceBooking[]>({
-    queryKey: ['/api/service-bookings']
+  const { data: serviceBookings = [], error: serviceBookingsError } = useQuery<ServiceBooking[]>({
+    queryKey: ['/api/service-bookings'],
+    retry: false,
+    onError: (error) => {
+      console.log('Service bookings temporarily unavailable:', error);
+    }
   });
 
   const { data: yachts = [] } = useQuery<Yacht[]>({

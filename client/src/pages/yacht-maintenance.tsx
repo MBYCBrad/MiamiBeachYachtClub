@@ -203,10 +203,10 @@ export default function YachtMaintenance() {
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedYacht?.toString() || ""} onValueChange={(value) => setSelectedYacht(Number(value))}>
-                <SelectTrigger className="w-64 bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <SelectTrigger className="w-64 bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <SelectValue placeholder="Select a yacht..." />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <SelectContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   {yachts.map((yacht: any) => (
                     <SelectItem key={yacht.id} value={yacht.id.toString()}>
                       {yacht.name} ({yacht.size}ft)
@@ -230,7 +230,7 @@ export default function YachtMaintenance() {
                 <motion.div
                   key={yacht.id}
                   whileHover={{ scale: 1.02 }}
-                  className="bg-gray-900/50 border-gray-700/50 rounded-lg border p-6 cursor-pointer hover:border-purple-500/50"
+                  className="bg-gray-900/50/50 border-gray-700/50/50 rounded-lg border p-6 cursor-pointer hover:border-purple-500/50"
                   onClick={() => setSelectedYacht(yacht.id)}
                 >
                   {yacht.images && yacht.images[0] && (
@@ -253,7 +253,7 @@ export default function YachtMaintenance() {
       ) : (
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Yacht Header */}
-          <div className="bg-gray-900 rounded-lg border border-gray-700 p-6 mb-8">
+          <div className="bg-gray-900/50 rounded-lg border border-gray-700/50 p-6 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {selectedYachtData?.images?.[0] && (
@@ -282,7 +282,7 @@ export default function YachtMaintenance() {
                       Start Trip
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Start New Trip Log</DialogTitle>
                     </DialogHeader>
@@ -296,7 +296,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Start Location</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -309,7 +309,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Crew Size</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -322,7 +322,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Weather Conditions</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -335,7 +335,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Sea Conditions</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -350,7 +350,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Fuel Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -363,7 +363,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Battery Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -376,7 +376,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Water Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -389,7 +389,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Waste Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -409,7 +409,7 @@ export default function YachtMaintenance() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="bg-gray-900 border border-gray-700">
+            <TabsList className="bg-gray-900/50 border border-gray-700/50">
               <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">Overview</TabsTrigger>
               <TabsTrigger value="trips" className="data-[state=active]:bg-purple-600">Trip Logs</TabsTrigger>
               <TabsTrigger value="maintenance" className="data-[state=active]:bg-purple-600">Maintenance</TabsTrigger>
@@ -420,7 +420,7 @@ export default function YachtMaintenance() {
             {/* Overview Tab */}
             <TabsContent value="overview">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Activity className="h-4 w-4" />
@@ -433,7 +433,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Sun className="h-4 w-4" />
@@ -446,7 +446,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4" />
@@ -459,7 +459,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Gauge className="h-4 w-4" />
@@ -475,7 +475,7 @@ export default function YachtMaintenance() {
 
               {/* System Components Overview */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Settings className="h-5 w-5" />
@@ -505,7 +505,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Clock className="h-5 w-5" />
@@ -548,7 +548,7 @@ export default function YachtMaintenance() {
                       Complete Trip
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Complete Trip Log</DialogTitle>
                     </DialogHeader>
@@ -562,7 +562,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {tripLogs.map((trip: any) => (
-                  <Card key={trip.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <Card key={trip.id} className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -638,7 +638,7 @@ export default function YachtMaintenance() {
                       Schedule Maintenance
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Schedule Maintenance</DialogTitle>
                     </DialogHeader>
@@ -653,10 +653,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Task Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
                                       <SelectValue placeholder="Select task type..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-600">
+                                    <SelectContent className="bg-gray-900/50 border-gray-600">
                                       <SelectItem value="engine_service">Engine Service</SelectItem>
                                       <SelectItem value="hull_cleaning">Hull Cleaning</SelectItem>
                                       <SelectItem value="electronics_check">Electronics Check</SelectItem>
@@ -678,10 +678,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Priority</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
                                       <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-600">
+                                    <SelectContent className="bg-gray-900/50 border-gray-600">
                                       <SelectItem value="low">Low</SelectItem>
                                       <SelectItem value="medium">Medium</SelectItem>
                                       <SelectItem value="high">High</SelectItem>
@@ -701,7 +701,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-4">
                               <FormLabel className="text-white">Description</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                <Textarea {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -715,7 +715,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Estimated Cost ($)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -728,7 +728,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Current Condition (1-10)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -746,7 +746,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {maintenanceRecords.map((record: any) => (
-                  <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <Card key={record.id} className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -791,7 +791,7 @@ export default function YachtMaintenance() {
                       New Assessment
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Condition Assessment</DialogTitle>
                     </DialogHeader>
@@ -806,10 +806,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Assessment Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
                                       <SelectValue placeholder="Select assessment type..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-600">
+                                    <SelectContent className="bg-gray-900/50 border-gray-600">
                                       <SelectItem value="routine_inspection">Routine Inspection</SelectItem>
                                       <SelectItem value="pre_trip_check">Pre-Trip Check</SelectItem>
                                       <SelectItem value="post_trip_check">Post-Trip Check</SelectItem>
@@ -829,7 +829,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Condition Score (1-10)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -843,7 +843,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-4">
                               <FormLabel className="text-white">Findings</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                <Textarea {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -856,7 +856,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-6">
                               <FormLabel className="text-white">Assessed By</FormLabel>
                               <FormControl>
-                                <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
+                                <Input {...field} className="bg-gray-900/50 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -873,7 +873,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {conditionAssessments.map((assessment: any) => (
-                  <Card key={assessment.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <Card key={assessment.id} className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -890,7 +890,7 @@ export default function YachtMaintenance() {
                       <p className="text-gray-300 mb-4">{assessment.findings}</p>
                       
                       {assessment.recommendations && (
-                        <div className="bg-gray-900 rounded-lg p-3 mb-4">
+                        <div className="bg-gray-900/50 rounded-lg p-3 mb-4">
                           <p className="text-yellow-400 font-medium mb-1">Recommendations:</p>
                           <p className="text-gray-300 text-sm">{assessment.recommendations}</p>
                         </div>
@@ -937,7 +937,7 @@ export default function YachtMaintenance() {
                       </div>
                     </div>
                     
-                    <div className="mt-6 p-4 bg-gray-900 rounded-lg">
+                    <div className="mt-6 p-4 bg-gray-900/50 rounded-lg">
                       <p className="text-white font-medium mb-2">Recommendation:</p>
                       <p className="text-gray-300">
                         {valuationData.recommendation || "Based on current condition trends and maintenance costs, consider selling within the next 12-18 months for optimal return on investment."}
@@ -947,7 +947,7 @@ export default function YachtMaintenance() {
                 </Card>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center gap-2">
                         <TrendingDown className="h-5 w-5" />
@@ -981,7 +981,7 @@ export default function YachtMaintenance() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+                  <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center gap-2">
                         <LineChart className="h-5 w-5" />

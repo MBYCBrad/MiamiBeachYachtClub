@@ -184,7 +184,7 @@ export default function CustomerServiceDashboard() {
         </div>
 
         {/* Main Interface Card */}
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+        <Card className="bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Phone className="h-6 w-6 text-blue-400" />
@@ -253,7 +253,7 @@ export default function CustomerServiceDashboard() {
                         filteredContacts.map((user) => (
                           <Card 
                             key={user.id} 
-                            className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-800/50 transition-colors cursor-pointer"
+                            className="bg-gray-900/50/50 border-gray-700/50/50 hover:bg-gray-900/50/50 transition-colors cursor-pointer"
                             onClick={() => openContactModal(user)}
                           >
                             <CardContent className="p-4">
@@ -419,7 +419,7 @@ export default function CustomerServiceDashboard() {
 
         {/* Contact Detail Modal */}
         <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-          <DialogContent className="max-w-2xl bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl bg-gray-900/50/50 border-gray-700/50/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
