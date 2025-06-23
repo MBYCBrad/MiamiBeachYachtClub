@@ -3461,11 +3461,11 @@ export default function AdminDashboard() {
               className="flex items-center justify-between"
             >
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                   <img 
-                    src="/api/media/MBYC-LOGO-WHITE_1750687226929.png" 
+                    src="/api/media/MBYC-LOGO-WHITE_1750688569645.png" 
                     alt="MBYC Logo" 
-                    className="h-8 w-8 object-contain"
+                    className="h-12 w-12 object-contain"
                   />
                 </div>
                 <div>
