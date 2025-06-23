@@ -425,7 +425,7 @@ export default function StaffManagement() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-purple-500/20 text-purple-400">
+                              <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                                 {staff.username.slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>

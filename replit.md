@@ -452,13 +452,14 @@ Changelog:
   - User confirmed current admin dashboard design with dark background and dark grey secondary elements is final
   - All admin interface styling locked to current appearance - no further changes to be made
   - Design successfully matches user requirements for professional dark theme admin experience
-- June 23, 2025. Complete purple-to-blue gradient theme consistency achieved across calendar, yacht maintenance, and crew management systems
+- June 23, 2025. Universal purple-to-blue gradient styling consistency achieved across entire application
   - Fixed all remaining blue calendar date selection styling to use purple-to-blue gradient (from-purple-600 to-indigo-600)
   - Updated calendar Month view today's date cell background, border, and number circle to gradient styling
   - Updated calendar Week view today's date indicator to purple-to-blue gradient
   - Enhanced yacht maintenance anchor icon from simple purple to gradient circular container with white icon
   - Fixed crew management "planned" status badge from orange to purple-to-blue gradient for complete color consistency
   - Updated crew member avatar fallback backgrounds from solid purple to purple-to-blue gradient
+  - Updated staff management avatar fallback backgrounds from semi-transparent purple to purple-to-blue gradient
   - Universal purple-to-blue gradient theme now fully implemented across entire Miami Beach Yacht Club application
 - June 23, 2025. Universal admin styling consistency implemented across all admin pages
   - Applied exact admin overview styling (bg-gray-900/50 border-gray-700/50) to all admin pages systematically
