@@ -50,7 +50,8 @@ export const yachts = pgTable("yachts", {
   size: integer("size").notNull(), // in feet
   capacity: integer("capacity").notNull(),
   description: text("description"),
-  imageUrl: text("image_url"),
+  imageUrl: text("image_url"), // Primary image for backward compatibility
+  images: jsonb("images").$type<string[]>().default([]), // Array of image URLs
   location: text("location").notNull(),
   amenities: jsonb("amenities").$type<string[]>(),
   pricePerHour: decimal("price_per_hour", { precision: 10, scale: 2 }),

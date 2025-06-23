@@ -54,7 +54,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
-import { ImageUpload } from "@/components/image-upload";
+import { MultiImageUpload } from "@/components/multi-image-upload";
 
 interface AdminStats {
   totalUsers: number;
@@ -535,10 +535,11 @@ function AddYachtDialog() {
             />
           </div>
           <div className="col-span-2">
-            <ImageUpload
-              label="Yacht Image"
-              onImageUploaded={(imageUrl) => setFormData({...formData, imageUrl})}
-              currentImageUrl={formData.imageUrl}
+            <MultiImageUpload
+              label="Yacht Gallery"
+              onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+              currentImages={formData.images || []}
+              maxImages={10}
             />
           </div>
         </div>
@@ -566,6 +567,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
     capacity: yacht.capacity || 0,
     description: yacht.description || '',
     imageUrl: yacht.imageUrl || '',
+    images: yacht.images || [],
     isAvailable: yacht.isAvailable ?? true
   });
   const { toast } = useToast();
@@ -647,10 +649,11 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               className="bg-gray-800 border-gray-700 text-white"
             />
           </div>
-          <ImageUpload
-            onImageUploaded={(imageUrl) => setFormData({...formData, imageUrl})}
-            currentImageUrl={formData.imageUrl ? `/api/media/${formData.imageUrl}` : ''}
-            label="Yacht Image"
+          <MultiImageUpload
+            onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+            currentImages={formData.images}
+            label="Yacht Gallery"
+            maxImages={10}
           />
           <div className="flex items-center space-x-2">
             <input

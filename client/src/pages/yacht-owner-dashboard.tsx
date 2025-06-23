@@ -45,7 +45,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
-import { ImageUpload } from "@/components/image-upload";
+import { MultiImageUpload } from "@/components/multi-image-upload";
 
 interface YachtOwnerStats {
   totalYachts: number;
@@ -63,6 +63,7 @@ const yachtFormSchema = z.object({
   capacity: z.number().min(1, "Capacity must be greater than 0"),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
+  images: z.array(z.string()).optional(),
   amenities: z.array(z.string()).optional(),
   pricePerHour: z.string().optional(),
   isAvailable: z.boolean().default(true)
@@ -85,6 +86,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
       capacity: yacht.capacity || 0,
       description: yacht.description || "",
       imageUrl: yacht.imageUrl || "",
+      images: yacht.images || [],
       amenities: yacht.amenities || [],
       pricePerHour: yacht.pricePerHour || "",
       isAvailable: yacht.isAvailable ?? true
@@ -216,22 +218,17 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <ImageUpload
-                      label="Yacht Image"
-                      onImageUploaded={(imageUrl) => field.onChange(imageUrl)}
-                      currentImageUrl={field.value}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <MultiImageUpload
+                label="Yacht Gallery"
+                onImagesUploaded={(images) => {
+                  form.setValue('images', images);
+                  form.setValue('imageUrl', images[0] || '');
+                }}
+                currentImages={yacht.images || []}
+                maxImages={10}
+              />
+            </div>
 
             <FormField
               control={form.control}
