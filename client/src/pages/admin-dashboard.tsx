@@ -753,7 +753,7 @@ function AddServiceDialog() {
     description: '',
     pricePerSession: '',
     duration: '',
-    providerId: '',
+    providerId: '68',
     imageUrl: '',
     isAvailable: true
   });
@@ -765,7 +765,7 @@ function AddServiceDialog() {
       const serviceData = {
         ...data,
         duration: data.duration ? parseInt(data.duration) : null,
-        providerId: data.providerId ? parseInt(data.providerId) : null
+        providerId: data.providerId && data.providerId !== '' ? parseInt(data.providerId) : undefined
       };
       const response = await apiRequest("POST", "/api/admin/services", serviceData);
       return response.json();
@@ -774,7 +774,7 @@ function AddServiceDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
       toast({ title: "Success", description: "Service created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '', imageUrl: '', isAvailable: true });
+      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', isAvailable: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -843,15 +843,19 @@ function AddServiceDialog() {
             />
           </div>
           <div>
-            <Label htmlFor="providerId" className="text-gray-300">Provider ID</Label>
-            <Input
-              id="providerId"
-              type="number"
-              value={formData.providerId}
-              onChange={(e) => setFormData({...formData, providerId: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="14"
-            />
+            <Label htmlFor="providerId" className="text-gray-300">Service Provider</Label>
+            <Select value={formData.providerId} onValueChange={(value) => setFormData({...formData, providerId: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue placeholder="Select provider" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="68">demo_provider</SelectItem>
+                <SelectItem value="69">chef_service</SelectItem>
+                <SelectItem value="70">spa_provider</SelectItem>
+                <SelectItem value="71">security_provider</SelectItem>
+                <SelectItem value="72">entertainment_provider</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>

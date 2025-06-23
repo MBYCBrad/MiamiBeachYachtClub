@@ -151,6 +151,11 @@ export class DatabaseStorage implements IStorage {
     return updatedUser || undefined;
   }
 
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
   async updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User> {
     const [user] = await db
       .update(users)
@@ -452,6 +457,29 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
+  // Additional favorites methods for API compatibility
+  async getUserFavorites(userId: number): Promise<Favorite[]> {
+    return this.getFavorites(userId);
+  }
+
+  async addFavorite(userId: number, targetType: string, targetId: number): Promise<Favorite> {
+    const favoriteData: any = { userId };
+    if (targetType === 'yacht') favoriteData.yachtId = targetId;
+    else if (targetType === 'service') favoriteData.serviceId = targetId;
+    else if (targetType === 'event') favoriteData.eventId = targetId;
+    
+    return this.createFavorite(favoriteData);
+  }
+
+  async removeFavorite(userId: number, targetType: string, targetId: number): Promise<boolean> {
+    return this.deleteFavorite(userId, targetType, targetId);
+  }
+
+  async isFavorite(userId: number, targetType: string, targetId: number): Promise<boolean> {
+    const favorite = await this.getFavorite(userId, targetType, targetId);
+    return !!favorite;
+  }
+
   // Message methods
   async getConversations(userId: number): Promise<any[]> {
     const userMessages = await db
@@ -461,6 +489,10 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(messages.createdAt));
     
     return userMessages;
+  }
+
+  async getUserConversations(userId: number): Promise<any[]> {
+    return this.getConversations(userId);
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
@@ -479,10 +511,19 @@ export class DatabaseStorage implements IStorage {
   async markMessageAsRead(id: number): Promise<Message | undefined> {
     const [updatedMessage] = await db
       .update(messages)
-      .set({ read: true })
+      .set({ status: 'read' })
       .where(eq(messages.id, id))
       .returning();
     return updatedMessage || undefined;
+  }
+
+  async updateMessageStatus(messageId: number, status: string): Promise<Message | null> {
+    const [message] = await db
+      .update(messages)
+      .set({ status })
+      .where(eq(messages.id, messageId))
+      .returning();
+    return message || null;
   }
 
   // Notification methods
