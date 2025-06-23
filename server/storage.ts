@@ -32,7 +32,6 @@ export interface IStorage {
   getUsersByRole(role: string): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
-  updateUserProfile(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
 
   // Yacht methods
@@ -208,15 +207,6 @@ export class DatabaseStorage implements IStorage {
     const [updatedUser] = await db
       .update(users)
       .set(userUpdate)
-      .where(eq(users.id, id))
-      .returning();
-    return updatedUser || undefined;
-  }
-
-  async updateUserProfile(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
-    const [updatedUser] = await db
-      .update(users)
-      .set(updates)
       .where(eq(users.id, id))
       .returning();
     return updatedUser || undefined;

@@ -2,79 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force Gray Background for All Admin Profile Cards */
-.admin-profile-card {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
-}
-
-/* Override shadcn Card component styling */
-.admin-profile-card.bg-card,
-.admin-profile-card[class*="bg-"],
-div[class*="admin-profile-card"] {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
-}
-
-/* Target the actual Card element directly */
-[data-role="card"].admin-profile-card,
-.card.admin-profile-card {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
-}
-
-/* Nuclear option - force grey backgrounds with maximum specificity */
-div.admin-profile-card,
-div[style*="background-color: rgb(31, 41, 55)"],
-div[style*="background-color: #1f2937"],
-.admin-profile-card[style],
-*[class*="admin-profile-card"] {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-  border-color: #374151 !important;
-  border: 1px solid #374151 !important;
-}
-
-/* Override any hsl() CSS variables */
-.admin-profile-card * {
-  --tw-bg-opacity: 1 !important;
-}
-
-/* Force the exact grey color in admin profile */
-.admin-profile-card {
-  background: #1f2937 !important;
-  background-color: #1f2937 !important;
-  background-image: none !important;
-}
-
-/* Nuclear CSS - Override everything with maximum specificity */
-div[style*="background-color: rgb(31, 41, 55)"] {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-}
-
-div[style*="backgroundColor: #1f2937"] {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-}
-
-/* Target any card-like elements in admin profile */
-[data-component="admin-profile"] div,
-.admin-profile div,
-div.rounded-lg.border {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-}
-
-/* Override any CSS variables that might be affecting this */
-:root {
-  --admin-profile-bg: #1f2937 !important;
-}
-
-.dark {
-  --admin-profile-bg: #1f2937 !important;
-}
-
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
@@ -153,19 +80,19 @@ html, body {
   /* Universal MBYC Dark Theme - UPDATED primary background darker than secondary */
   --background: hsl(240, 10%, 2%);          /* Main dark background - much darker than secondary */
   --foreground: hsl(0, 0%, 98%);            /* White text */
-  --muted: hsl(0, 0%, 18%);                /* Gray card/field backgrounds */
-  --muted-foreground: hsl(0, 0%, 64.9%);
-  --popover: hsl(0, 0%, 18%);              /* Gray dropdown backgrounds */
+  --muted: hsl(240, 3.7%, 15.9%);          /* Card/field backgrounds - lighter than primary */
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 3.7%, 15.9%);        /* Dropdown backgrounds */
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: 31 41 55;                        /* Forced gray card backgrounds - HSL format */
+  --card: hsl(240, 3.7%, 15.9%);           /* Card backgrounds - lighter than primary */
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(0, 0%, 20%);               /* Gray border color */
-  --input: hsl(0, 0%, 18%);                /* Gray input field backgrounds */
+  --border: hsl(240, 3.7%, 20%);           /* Border color */
+  --input: hsl(240, 3.7%, 15.9%);          /* Input field backgrounds - lighter than primary */
   --primary: hsl(262, 83%, 58%);            /* Purple-blue gradient start */
   --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(0, 0%, 18%);            /* Gray secondary backgrounds */
+  --secondary: hsl(240, 3.7%, 15.9%);      /* Secondary backgrounds - lighter than primary */
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(0, 0%, 18%);               /* Gray accent backgrounds */
+  --accent: hsl(240, 3.7%, 15.9%);         /* Accent backgrounds */
   --accent-foreground: hsl(0, 0%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
