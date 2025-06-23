@@ -13,7 +13,7 @@ import {
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { db, pool } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, inArray } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
