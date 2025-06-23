@@ -385,7 +385,7 @@ export default function CrewManagementPage() {
                     <div className="flex items-start gap-3">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.avatar} />
-                        <AvatarFallback className="bg-purple-600 text-white">
+                        <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                           {member.username.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
