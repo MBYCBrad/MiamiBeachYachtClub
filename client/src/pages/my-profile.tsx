@@ -33,7 +33,6 @@ export default function MyProfile() {
     phone: user?.phone || '',
     location: user?.location || '',
     bio: user?.bio || '',
-    avatar: user?.avatar || '',
     notifications: {
       email: true,
       sms: false,
@@ -230,12 +229,11 @@ export default function MyProfile() {
             <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader className="text-center pb-4">
                 <div className="relative mx-auto w-24 h-24 mb-4">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={formData.avatar || `/api/placeholder/${user.username}`} />
-                    <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white text-2xl font-semibold">
                       {user.username?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                    </span>
+                  </div>
                   {isEditing && (
                     <Button 
                       size="sm" 
