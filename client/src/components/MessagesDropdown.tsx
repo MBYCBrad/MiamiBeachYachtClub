@@ -121,12 +121,12 @@ export default function MessagesDropdown() {
           size="sm"
           className="relative h-9 w-9 p-0 hover:bg-purple-500/10 transition-colors"
         >
-          <MessageSquare className="h-5 w-5 text-purple-300" />
+          <MessageSquare className="h-5 w-5 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent" />
           {totalUnread > 0 && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+              className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
             >
               {totalUnread > 99 ? '99+' : totalUnread}
             </motion.div>
