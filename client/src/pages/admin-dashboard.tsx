@@ -1102,7 +1102,7 @@ function AddEventDialog() {
     ticketPrice: '',
     startTime: '',
     endTime: '',
-    imageUrl: '',
+    images: [],
     hostId: '',
     isActive: true
   });
@@ -1116,16 +1116,19 @@ function AddEventDialog() {
         capacity: parseInt(data.capacity),
         hostId: data.hostId ? parseInt(data.hostId) : null,
         startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime)
+        endTime: new Date(data.endTime),
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
+        images: data.images || []
       };
       const response = await apiRequest("POST", "/api/admin/events", eventData);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event created successfully" });
       setIsOpen(false);
-      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', imageUrl: '', hostId: '', isActive: true });
+      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', images: [], hostId: '', isActive: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1217,14 +1220,13 @@ function AddEventDialog() {
               placeholder="5"
             />
           </div>
-          <div>
-            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="/api/media/event-image.jpg"
+          <div className="col-span-2 space-y-2">
+            <Label className="text-gray-300">Event Images</Label>
+            <MultiImageUpload
+              currentImages={formData.images}
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+              label="Event Images"
             />
           </div>
           <div className="col-span-2">
