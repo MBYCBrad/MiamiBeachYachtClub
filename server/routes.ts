@@ -8,6 +8,8 @@ import { notificationService } from "./notifications";
 import { auditService, auditMiddleware } from "./audit";
 import { mediaStorageService } from "./media-storage";
 import Stripe from "stripe";
+import twilio from "twilio";
+import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
 import fs from "fs";
 import { 
@@ -22,6 +24,15 @@ import { v4 as uuidv4 } from "uuid";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
 });
+
+// Initialize Twilio
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID!,
+  process.env.TWILIO_AUTH_TOKEN!
+);
+
+// WebSocket server reference (initialized in main server setup)
+let wss: WebSocketServer;
 
 // Configure multer for file uploads
 const multerStorage = multer.diskStorage({
@@ -3687,6 +3698,276 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Twilio Calling Routes
+  app.post("/api/twilio/make-call", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { phoneNumber, memberName, memberId } = req.body;
+      
+      if (!phoneNumber) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+
+      // Initialize Twilio call
+      const call = await twilioClient.calls.create({
+        url: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/call-response`,
+        to: phoneNumber,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        record: true,
+        recordingStatusCallback: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/recording-status`,
+        statusCallback: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/call-status`,
+        statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+        statusCallbackMethod: 'POST'
+      });
+
+      // Log the call in database
+      await dbStorage.createMessage({
+        content: `Outbound call initiated to ${memberName || phoneNumber}`,
+        senderId: req.user!.id,
+        conversationId: `call_${call.sid}`,
+        messageType: 'call_log',
+        metadata: {
+          callSid: call.sid,
+          phoneNumber,
+          memberName,
+          memberId,
+          direction: 'outbound',
+          status: 'initiated'
+        }
+      });
+
+      res.json({
+        success: true,
+        callSid: call.sid,
+        status: call.status,
+        to: call.to,
+        from: call.from
+      });
+
+    } catch (error: any) {
+      console.error('Twilio call error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to initiate call',
+        code: error.code
+      });
+    }
+  });
+
+  app.post("/api/twilio/end-call", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { callSid } = req.body;
+      
+      if (!callSid) {
+        return res.status(400).json({ message: "Call SID is required" });
+      }
+
+      // End the call in Twilio
+      const call = await twilioClient.calls(callSid).update({ status: 'completed' });
+
+      // Log call termination
+      await dbStorage.createMessage({
+        content: `Call ${callSid} terminated by admin`,
+        senderId: req.user!.id,
+        conversationId: `call_${callSid}`,
+        messageType: 'call_log',
+        metadata: {
+          callSid,
+          action: 'terminated',
+          terminatedBy: req.user!.username
+        }
+      });
+
+      res.json({
+        success: true,
+        callSid: call.sid,
+        status: call.status
+      });
+
+    } catch (error: any) {
+      console.error('End call error:', error);
+      res.status(500).json({ 
+        message: error.message || 'Failed to end call',
+        code: error.code
+      });
+    }
+  });
+
+  // Twilio webhook for call response (TwiML)
+  app.post("/api/twilio/call-response", (req, res) => {
+    const twiml = new twilio.twiml.VoiceResponse();
+    
+    twiml.say({
+      voice: 'alice',
+      language: 'en-US'
+    }, 'Hello! You are being connected to Miami Beach Yacht Club customer service. Please hold while we connect you to our support team.');
+
+    // Add hold music or connect to conference
+    twiml.play('http://com.twilio.music.classical.s3.amazonaws.com/BusyStrings.wav');
+    
+    res.type('text/xml');
+    res.send(twiml.toString());
+  });
+
+  // Twilio webhook for call status updates
+  app.post("/api/twilio/call-status", async (req, res) => {
+    try {
+      const { CallSid, CallStatus, From, To, Direction } = req.body;
+      
+      // Log status update in database
+      await dbStorage.createMessage({
+        content: `Call status update: ${CallStatus}`,
+        senderId: 1, // System user
+        conversationId: `call_${CallSid}`,
+        messageType: 'call_status',
+        metadata: {
+          callSid: CallSid,
+          status: CallStatus,
+          from: From,
+          to: To,
+          direction: Direction,
+          timestamp: new Date()
+        }
+      });
+
+      // Send real-time notification to admin
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'call_status',
+              data: {
+                callSid: CallSid,
+                status: CallStatus,
+                from: From,
+                to: To,
+                direction: Direction
+              }
+            }));
+          }
+        });
+      }
+
+      res.status(200).send('OK');
+    } catch (error: any) {
+      console.error('Call status webhook error:', error);
+      res.status(500).send('Error');
+    }
+  });
+
+  // Twilio webhook for recording status
+  app.post("/api/twilio/recording-status", async (req, res) => {
+    try {
+      const { CallSid, RecordingSid, RecordingUrl, RecordingStatus } = req.body;
+      
+      // Log recording status
+      await dbStorage.createMessage({
+        content: `Call recording ${RecordingStatus}: ${RecordingUrl}`,
+        senderId: 1, // System user
+        conversationId: `call_${CallSid}`,
+        messageType: 'recording_log',
+        metadata: {
+          callSid: CallSid,
+          recordingSid: RecordingSid,
+          recordingUrl: RecordingUrl,
+          status: RecordingStatus
+        }
+      });
+
+      res.status(200).send('OK');
+    } catch (error: any) {
+      console.error('Recording status webhook error:', error);
+      res.status(500).send('Error');
+    }
+  });
+
+  // Handle inbound calls from members
+  app.post("/api/twilio/inbound-call", async (req, res) => {
+    try {
+      const { From, To, CallSid } = req.body;
+      
+      // Check if caller is a known member
+      const users = await dbStorage.getUsers();
+      const caller = users.find((user: any) => user.phone === From);
+      
+      const twiml = new twilio.twiml.VoiceResponse();
+      
+      if (caller) {
+        // Known member calling
+        twiml.say({
+          voice: 'alice',
+          language: 'en-US'
+        }, `Hello ${caller.username}! Welcome to Miami Beach Yacht Club emergency support. Please hold while we connect you to our customer service team.`);
+        
+        // Log the inbound call
+        await dbStorage.createMessage({
+          content: `Inbound call from member ${caller.username}`,
+          senderId: caller.id,
+          conversationId: `call_${CallSid}`,
+          messageType: 'inbound_call',
+          metadata: {
+            callSid: CallSid,
+            memberName: caller.username,
+            memberId: caller.id,
+            phoneNumber: From,
+            direction: 'inbound',
+            priority: 'high'
+          }
+        });
+
+        // Create high-priority notification for admin
+        await notificationService.createNotification({
+          userId: 60, // Admin user
+          type: 'emergency_call',
+          title: 'Emergency Call Received',
+          message: `${caller.username} is calling the emergency line`,
+          priority: 'high',
+          metadata: {
+            callSid: CallSid,
+            memberName: caller.username,
+            phoneNumber: From
+          }
+        });
+        
+      } else {
+        // Unknown caller
+        twiml.say({
+          voice: 'alice',
+          language: 'en-US'
+        }, 'Hello! You have reached Miami Beach Yacht Club customer service. Please hold while we connect you to our support team.');
+        
+        // Log unknown caller
+        await dbStorage.createMessage({
+          content: `Inbound call from unknown number ${From}`,
+          senderId: 1, // System user
+          conversationId: `call_${CallSid}`,
+          messageType: 'inbound_call',
+          metadata: {
+            callSid: CallSid,
+            phoneNumber: From,
+            direction: 'inbound',
+            memberStatus: 'unknown'
+          }
+        });
+      }
+      
+      // Connect to customer service queue or conference
+      twiml.dial({
+        callerId: process.env.TWILIO_PHONE_NUMBER
+      }, process.env.TWILIO_PHONE_NUMBER); // Route to customer service line
+      
+      res.type('text/xml');
+      res.send(twiml.toString());
+      
+    } catch (error: any) {
+      console.error('Inbound call handler error:', error);
+      
+      const twiml = new twilio.twiml.VoiceResponse();
+      twiml.say('We apologize, but we are experiencing technical difficulties. Please try calling again in a few minutes.');
+      
+      res.type('text/xml');
+      res.send(twiml.toString());
+    }
+  });
+
   // Create crew assignment
   app.post("/api/crew/assignments", requireAuth, async (req, res) => {
     try {
@@ -3746,6 +4027,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
+  });
+
+  // Initialize WebSocket server for real-time customer service communication
+  wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws, req) => {
+    console.log('📱 New WebSocket connection established');
+    
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        console.log('📨 Received message:', message);
+        
+        // Handle different message types for customer service
+        switch (message.type) {
+          case 'ping':
+            ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
+            break;
+          case 'join_room':
+            // Join customer service room for real-time updates
+            ws.userId = message.userId;
+            console.log(`👤 User ${message.userId} joined customer service`);
+            break;
+          case 'call_status_update':
+            // Broadcast call status to all connected admin clients
+            wss.clients.forEach(client => {
+              if (client.readyState === WebSocket.OPEN && client !== ws) {
+                client.send(JSON.stringify({
+                  type: 'call_status',
+                  data: message.data
+                }));
+              }
+            });
+            break;
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('👋 WebSocket connection closed');
+    });
+
+    // Send initial connection confirmation
+    ws.send(JSON.stringify({
+      type: 'connected',
+      message: 'Connected to MBYC customer service system',
+      timestamp: new Date().toISOString()
+    }));
   });
 
   return httpServer;
