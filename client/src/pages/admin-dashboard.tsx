@@ -48,6 +48,8 @@ import {
   XCircle,
   ChevronDown,
   MessageSquare,
+  User,
+  Key,
   Ship,
   BellRing,
   Dot,
@@ -70,6 +72,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
@@ -102,6 +105,7 @@ const sidebarItems = [
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
+  { id: 'profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-blue-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
 
@@ -1651,6 +1655,22 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const { user, logoutMutation } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Profile state management
+  const [profileData, setProfileData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    language: user?.language || 'English',
+    notifications: {
+      email: true,
+      sms: false,
+      push: true
+    }
+  });
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
@@ -3304,6 +3324,332 @@ export default function AdminDashboard() {
     </motion.div>
   );
 
+  const renderProfile = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Admin Profile
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage your admin account settings and preferences
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-lg hover:shadow-purple-600/30"
+            onClick={() => {
+              toast({ title: "Profile Updated", description: "Your admin profile has been saved successfully" });
+            }}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Profile Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Personal Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <User className="h-5 w-5 mr-2 text-purple-500" />
+                Personal Information
+              </CardTitle>
+              <CardDescription>Update your basic account information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-white">Username</Label>
+                  <Input
+                    id="username"
+                    value={profileData.username}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, username: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-white">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-500"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-white">Location</Label>
+                  <Input
+                    id="location"
+                    value={profileData.location}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-500"
+                    placeholder="Miami Beach, FL"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="language" className="text-white">Language</Label>
+                <Select 
+                  value={profileData.language} 
+                  onValueChange={(value) => setProfileData(prev => ({ ...prev, language: value }))}
+                >
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white focus:border-purple-500">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Security Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Shield className="h-5 w-5 mr-2 text-green-500" />
+                Security Settings
+              </CardTitle>
+              <CardDescription>Manage your account security and access</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 rounded-xl bg-gray-800/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-white font-medium">Two-Factor Authentication</p>
+                    <p className="text-sm text-gray-400">Add an extra layer of security</p>
+                  </div>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Enabled</Badge>
+                </div>
+                <Button size="sm" variant="outline" className="border-gray-600 hover:border-green-500">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Manage 2FA
+                </Button>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gray-800/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-white font-medium">Password</p>
+                    <p className="text-sm text-gray-400">Last changed 30 days ago</p>
+                  </div>
+                  <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Update Soon</Badge>
+                </div>
+                <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+                  <Key className="h-4 w-4 mr-2" />
+                  Change Password
+                </Button>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gray-800/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-white font-medium">Session Management</p>
+                    <p className="text-sm text-gray-400">3 active sessions</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  View Sessions
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Notification Preferences */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Bell className="h-5 w-5 mr-2 text-purple-500" />
+              Notification Preferences
+            </CardTitle>
+            <CardDescription>Control how you receive notifications and alerts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <h4 className="text-white font-medium">Email Notifications</h4>
+                <div className="space-y-3">
+                  {[
+                    { id: 'booking-alerts', label: 'Booking Alerts', checked: true },
+                    { id: 'system-updates', label: 'System Updates', checked: true },
+                    { id: 'security-alerts', label: 'Security Alerts', checked: true },
+                    { id: 'marketing', label: 'Marketing', checked: false }
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-3">
+                      <Checkbox 
+                        id={item.id}
+                        checked={item.checked}
+                        className="border-gray-600 data-[state=checked]:bg-purple-600"
+                      />
+                      <Label htmlFor={item.id} className="text-gray-300 text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-white font-medium">SMS Notifications</h4>
+                <div className="space-y-3">
+                  {[
+                    { id: 'urgent-alerts', label: 'Urgent Alerts', checked: true },
+                    { id: 'booking-confirmations', label: 'Booking Confirmations', checked: false },
+                    { id: 'maintenance-alerts', label: 'Maintenance Alerts', checked: true },
+                    { id: 'staff-updates', label: 'Staff Updates', checked: false }
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-3">
+                      <Checkbox 
+                        id={item.id}
+                        checked={item.checked}
+                        className="border-gray-600 data-[state=checked]:bg-purple-600"
+                      />
+                      <Label htmlFor={item.id} className="text-gray-300 text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="text-white font-medium">Push Notifications</h4>
+                <div className="space-y-3">
+                  {[
+                    { id: 'real-time-updates', label: 'Real-time Updates', checked: true },
+                    { id: 'member-activity', label: 'Member Activity', checked: true },
+                    { id: 'revenue-alerts', label: 'Revenue Alerts', checked: false },
+                    { id: 'system-status', label: 'System Status', checked: true }
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-3">
+                      <Checkbox 
+                        id={item.id}
+                        checked={item.checked}
+                        className="border-gray-600 data-[state=checked]:bg-purple-600"
+                      />
+                      <Label htmlFor={item.id} className="text-gray-300 text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Admin Privileges */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Crown className="h-5 w-5 mr-2 text-yellow-500" />
+              Admin Privileges
+            </CardTitle>
+            <CardDescription>Current administrative permissions and access levels</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { privilege: 'User Management', status: 'Full Access', icon: Users, color: 'from-blue-500 to-cyan-500' },
+                { privilege: 'Financial Data', status: 'Full Access', icon: DollarSign, color: 'from-green-500 to-emerald-500' },
+                { privilege: 'System Settings', status: 'Full Access', icon: Settings, color: 'from-purple-500 to-pink-500' },
+                { privilege: 'Analytics', status: 'Full Access', icon: BarChart3, color: 'from-orange-500 to-red-500' }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.privilege}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  className="p-4 rounded-xl bg-gray-800/30 text-center"
+                >
+                  <div className={`w-12 h-12 mx-auto mb-3 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center`}>
+                    <item.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-white font-medium text-sm mb-1">{item.privilege}</p>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                    {item.status}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
   const renderSettings = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -3544,7 +3890,7 @@ export default function AdminDashboard() {
           <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
             <div 
               className="flex items-center space-x-3 cursor-pointer hover:bg-gray-800/30 rounded-lg p-2 -m-2 transition-colors"
-              onClick={() => setLocation('/admin/profile')}
+              onClick={() => setActiveSection('profile')}
             >
               <Avatar className="h-12 w-12 ring-2 ring-purple-500/30">
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
@@ -3587,6 +3933,7 @@ export default function AdminDashboard() {
             {activeSection === 'services' && renderServices()}
             {activeSection === 'events' && renderEvents()}
             {activeSection === 'payments' && renderPayments()}
+            {activeSection === 'profile' && renderProfile()}
           </AnimatePresence>
         </div>
       </div>
