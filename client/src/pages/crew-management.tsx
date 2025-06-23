@@ -185,7 +185,7 @@ export default function CrewManagementPage() {
         >
           <div className="flex items-center gap-3 mb-4">
             <div>
-              <h1 className="text-5xl font-bold text-white" style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}>Crew Management Center</h1>
+              <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Crew Management Center</h1>
               <p className="text-gray-300">Real-time crew coordination & yacht service delivery</p>
             </div>
           </div>

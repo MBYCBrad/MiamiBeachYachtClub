@@ -548,6 +548,10 @@ Changelog:
 - June 23, 2025. Crew management header icon styling updated to purple-to-blue gradient consistency
   - Replaced grey background (bg-gray-700) on Ship icon container with unified purple-to-blue gradient (from-purple-600 to-indigo-600)
   - Maintains complete visual consistency with application's gradient theme across all admin interface elements
+- June 23, 2025. Crew management title styling updated to match admin overview typography
+  - Updated crew management page title to use text-5xl font-bold with SF Pro Display font family
+  - Applied exact same styling as admin overview: tracking-tight, mb-2, and Apple system font stack
+  - Maintains professional Apple-like typography consistency across admin interface sections
 
 ## Member Experience Feature Status
 
