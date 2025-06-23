@@ -1,9 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Phone, 
   Search,
@@ -16,9 +16,15 @@ import {
   Mic,
   Info,
   PhoneIncoming,
-  PhoneOutgoing
+  PhoneOutgoing,
+  Users,
+  History,
+  Calculator,
+  Trash2,
+  Volume2
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 import type { PhoneCall as PhoneCallType, User as UserType } from "@shared/schema";
 
 export default function CustomerServiceDashboard() {
@@ -26,7 +32,9 @@ export default function CustomerServiceDashboard() {
   const [recentsSubTab, setRecentsSubTab] = useState<'all' | 'missed'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [dialNumber, setDialNumber] = useState("");
+  const [isCallActive, setIsCallActive] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Fetch phone calls for recents
   const { data: phoneCalls = [], isLoading: callsLoading } = useQuery<PhoneCallType[]>({
