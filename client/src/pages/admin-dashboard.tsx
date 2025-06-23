@@ -1125,7 +1125,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
       const eventData = {
         ...data,
         capacity: parseInt(data.capacity),
-        hostId: data.hostId ? parseInt(data.hostId) : null,
+        hostId: data.hostId && data.hostId !== "system" ? parseInt(data.hostId) : null,
         startTime: new Date(data.startTime),
         endTime: new Date(data.endTime),
         imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
@@ -1227,12 +1227,14 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
                 <SelectValue placeholder="Select host (optional)" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="">No Host (System Event)</SelectItem>
+                <SelectItem value="system">No Host (System Event)</SelectItem>
                 
                 {/* Current Admin as Host Option */}
-                <SelectItem value={currentUser?.id?.toString() || ""}>
-                  {currentUser?.username} (Current Admin) - Recommended
-                </SelectItem>
+                {currentUser?.id && (
+                  <SelectItem value={currentUser.id.toString()}>
+                    {currentUser.username} (Current Admin) - Recommended
+                  </SelectItem>
+                )}
                 
                 {/* Other Users */}
                 {(users as any[]).filter((u: any) => u.id !== currentUser?.id).map((u: any) => (
