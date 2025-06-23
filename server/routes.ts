@@ -15,10 +15,41 @@ import {
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
   insertReviewSchema, insertMessageSchema, insertNotificationSchema, UserRole, MembershipTier
 } from "@shared/schema";
+import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
+});
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'attached_assets');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '_' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    const baseName = file.originalname.replace(ext, '').replace(/[^a-zA-Z0-9]/g, '_');
+    cb(null, baseName + '_' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -46,6 +77,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     next();
   };
+
+  // File upload endpoint for yacht images
+  app.post('/api/upload/yacht-image', requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      // Store the uploaded file information in media_assets table
+      const mediaAsset = await storage.createMediaAsset({
+        name: req.file.originalname,
+        filename: req.file.filename,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        category: 'yacht'
+      });
+
+      res.json({ 
+        imageUrl: req.file.filename,
+        mediaAssetId: mediaAsset.id,
+        originalName: req.file.originalname
+      });
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      res.status(500).json({ message: 'File upload failed: ' + error.message });
+    }
+  });
 
   // Media asset serving routes with aggressive caching
   app.get("/api/media/:filename", async (req, res) => {

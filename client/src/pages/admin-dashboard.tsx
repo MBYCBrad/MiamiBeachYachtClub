@@ -54,6 +54,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
+import { ImageUpload } from "@/components/image-upload";
 
 interface AdminStats {
   totalUsers: number;
@@ -534,13 +535,10 @@ function AddYachtDialog() {
             />
           </div>
           <div className="col-span-2">
-            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="/api/media/yacht-image.jpg"
+            <ImageUpload
+              label="Yacht Image"
+              onImageUploaded={(imageUrl) => setFormData({...formData, imageUrl})}
+              currentImageUrl={formData.imageUrl}
             />
           </div>
         </div>

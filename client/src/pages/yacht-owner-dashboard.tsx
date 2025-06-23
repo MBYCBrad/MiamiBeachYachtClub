@@ -45,6 +45,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
+import { ImageUpload } from "@/components/image-upload";
 
 interface YachtOwnerStats {
   totalYachts: number;
@@ -220,9 +221,12 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white">Image URL</FormLabel>
                   <FormControl>
-                    <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                    <ImageUpload
+                      label="Yacht Image"
+                      onImageUploaded={(imageUrl) => field.onChange(imageUrl)}
+                      currentImageUrl={field.value}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
