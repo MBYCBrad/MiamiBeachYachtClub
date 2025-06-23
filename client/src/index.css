@@ -8,6 +8,21 @@
   border-color: #374151 !important;
 }
 
+/* Override shadcn Card component styling */
+.admin-profile-card.bg-card,
+.admin-profile-card[class*="bg-"],
+div[class*="admin-profile-card"] {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+/* Target the actual Card element directly */
+[data-role="card"].admin-profile-card,
+.card.admin-profile-card {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
@@ -90,7 +105,7 @@ html, body {
   --muted-foreground: hsl(0, 0%, 64.9%);
   --popover: hsl(0, 0%, 18%);              /* Gray dropdown backgrounds */
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: #1f2937;                         /* Forced gray card backgrounds */
+  --card: 31 41 55;                        /* Forced gray card backgrounds - HSL format */
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(0, 0%, 20%);               /* Gray border color */
   --input: hsl(0, 0%, 18%);                /* Gray input field backgrounds */

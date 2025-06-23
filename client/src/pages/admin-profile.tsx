@@ -216,8 +216,8 @@ export default function AdminProfile() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="admin-profile-card">
-              <CardHeader className="text-center">
+            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+              <div className="flex flex-col space-y-1.5 p-6 text-center">
                 <div className="relative mx-auto w-32 h-32 mb-4">
                   <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
                     {currentUser.avatar ? (
@@ -245,25 +245,25 @@ export default function AdminProfile() {
                   </Button>
                 </div>
                 
-                <CardTitle className="text-white text-xl">{currentUser.fullName || currentUser.username}</CardTitle>
+                <h3 className="text-white text-xl font-semibold">{currentUser.fullName || currentUser.username}</h3>
                 <Badge variant="secondary" className="mx-auto bg-purple-100 text-purple-800">
                   {currentUser.role?.toUpperCase()}
                 </Badge>
-              </CardHeader>
-            </Card>
+              </div>
+            </div>
           </motion.div>
 
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
-            <Card className="admin-profile-card">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
+            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
                   <User className="h-5 w-5 mr-2" />
                   Personal Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="username" className="text-gray-300">Username</Label>
@@ -350,18 +350,18 @@ export default function AdminProfile() {
                     Edit Profile
                   </Button>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Security Settings */}
-            <Card className="admin-profile-card">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
+            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
                   <Shield className="h-5 w-5 mr-2" />
                   Security Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div>
                   <Label className="text-gray-300">Change Password</Label>
                   <div className="space-y-3 mt-2">
@@ -406,8 +406,8 @@ export default function AdminProfile() {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
 
