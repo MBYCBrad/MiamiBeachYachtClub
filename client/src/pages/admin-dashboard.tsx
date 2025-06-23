@@ -2031,7 +2031,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-cyan-600 to-teal-600">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
