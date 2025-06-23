@@ -3443,7 +3443,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-950">
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <motion.div
