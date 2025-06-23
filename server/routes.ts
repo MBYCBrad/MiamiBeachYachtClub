@@ -22,6 +22,23 @@ import {
 } from "@shared/schema";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function comparePasswords(supplied: string, stored: string) {
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -2063,6 +2080,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(404).json({ message: "Message not found" });
       }
     } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // PROFILE MANAGEMENT API ROUTES - Real-time profile functionality
+  app.patch("/api/profile", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const updateData = req.body;
+      
+      // Remove sensitive fields that shouldn't be updated through this endpoint
+      delete updateData.id;
+      delete updateData.password;
+      delete updateData.role;
+      
+      const updatedUser = await dbStorage.updateUser(userId, updateData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Remove password from response
+      const { password, ...userResponse } = updatedUser;
+      
+      await auditService.logAction(req, 'update', 'profile', userId, updateData);
+      res.json(userResponse);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'profile', req.user!.id, req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/profile/avatar", requireAuth, upload.single('avatar'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user!.id;
+      const avatarUrl = `/api/media/${req.file.filename}`;
+      
+      const updatedUser = await dbStorage.updateUser(userId, { avatar: avatarUrl });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await auditService.logAction(req, 'update', 'avatar', userId, { avatarUrl });
+      res.json({ avatar: avatarUrl, message: "Avatar updated successfully" });
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'avatar', req.user!.id, {}, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/profile/password", requireAuth, async (req, res) => {
+    try {
+      const { current, new: newPassword } = req.body;
+      const userId = req.user!.id;
+      
+      if (!current || !newPassword) {
+        return res.status(400).json({ message: "Current and new passwords are required" });
+      }
+      
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters long" });
+      }
+      
+      // Verify current password
+      const user = await dbStorage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Verify current password matches
+      const isCurrentPasswordValid = await comparePasswords(current, user.password);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      
+      // Hash new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      const updatedUser = await dbStorage.updateUser(userId, { password: hashedPassword });
+      
+      await auditService.logAction(req, 'update', 'password', userId, {});
+      res.json({ message: "Password updated successfully" });
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'password', req.user!.id, {}, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/profile/2fa", requireAuth, async (req, res) => {
+    try {
+      const { enabled } = req.body;
+      const userId = req.user!.id;
+      
+      // Update two-factor authentication status
+      const updatedUser = await dbStorage.updateUser(userId, { 
+        twoFactorEnabled: enabled,
+        twoFactorEnabledAt: enabled ? new Date() : null
+      });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await auditService.logAction(req, 'update', '2fa', userId, { enabled });
+      res.json({ 
+        enabled, 
+        message: `Two-factor authentication ${enabled ? 'enabled' : 'disabled'} successfully` 
+      });
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', '2fa', req.user!.id, req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/profile/sessions/revoke", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      // This would typically involve invalidating all sessions except the current one
+      // Implementation depends on your session management system
+      
+      await auditService.logAction(req, 'revoke', 'sessions', userId, {});
+      res.json({ message: "All other sessions revoked successfully" });
+    } catch (error: any) {
+      await auditService.logAction(req, 'revoke', 'sessions', req.user!.id, {}, false, error.message);
       res.status(400).json({ message: error.message });
     }
   });

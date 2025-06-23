@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +16,17 @@ import {
   Lock,
   Bell,
   Save,
-  LogOut
+  LogOut,
+  Camera,
+  Upload,
+  Check,
+  X,
+  Eye,
+  EyeOff,
+  CreditCard,
+  Download,
+  Settings,
+  UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +43,7 @@ export default function AdminProfile() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileData, setProfileData] = useState({
     username: user?.username || '',
@@ -40,11 +51,37 @@ export default function AdminProfile() {
     phone: user?.phone || '',
     location: user?.location || '',
     language: user?.language || 'English',
+    avatar: '',
     notifications: {
       email: true,
       sms: false,
-      push: true
+      push: true,
+      marketing: false,
+      security: true
+    },
+    security: {
+      twoFactorEnabled: false,
+      lastPasswordChange: '2025-06-01',
+      activeSessionsCount: 1
+    },
+    preferences: {
+      theme: 'dark',
+      timezone: 'America/New_York',
+      currency: 'USD',
+      language: 'en'
     }
+  });
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  });
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false
   });
 
   useEffect(() => {
@@ -66,12 +103,68 @@ export default function AdminProfile() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("PATCH", "/api/user/profile", data);
+      const response = await apiRequest("PATCH", "/api/profile", data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({ title: "Success", description: "Profile updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const uploadAvatarMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const response = await fetch('/api/profile/avatar', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setProfileData(prev => ({ ...prev, avatar: data.avatar }));
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({ title: "Success", description: "Avatar updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: typeof passwordData) => {
+      const response = await apiRequest("PATCH", "/api/profile/password", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      setPasswordData({ current: '', new: '', confirm: '' });
+      setIsChangingPassword(false);
+      toast({ title: "Success", description: "Password changed successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const toggleTwoFactorMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const response = await apiRequest("PATCH", "/api/profile/2fa", { enabled });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setProfileData(prev => ({
+        ...prev,
+        security: { ...prev.security, twoFactorEnabled: data.enabled }
+      }));
+      toast({ 
+        title: "Success", 
+        description: `Two-factor authentication ${data.enabled ? 'enabled' : 'disabled'}` 
+      });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -84,8 +177,10 @@ export default function AdminProfile() {
       [field]: value
     }));
     
-    // Auto-save on change
-    updateProfileMutation.mutate({ [field]: value });
+    // Auto-save on change with debouncing
+    setTimeout(() => {
+      updateProfileMutation.mutate({ [field]: value });
+    }, 500);
   };
 
   const handleNotificationChange = (type: string, value: boolean) => {
@@ -96,6 +191,102 @@ export default function AdminProfile() {
         [type]: value
       }
     }));
+    
+    // Real-time database update
+    updateProfileMutation.mutate({ 
+      notifications: { 
+        ...profileData.notifications, 
+        [type]: value 
+      } 
+    });
+  };
+
+  const handlePreferenceChange = (type: string, value: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        [type]: value
+      }
+    }));
+    
+    // Real-time database update
+    updateProfileMutation.mutate({ 
+      preferences: { 
+        ...profileData.preferences, 
+        [type]: value 
+      } 
+    });
+  };
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ 
+          title: "Error", 
+          description: "File size must be less than 5MB", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        toast({ 
+          title: "Error", 
+          description: "Please select an image file", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      uploadAvatarMutation.mutate(file);
+    }
+  };
+
+  const handlePasswordChange = () => {
+    if (passwordData.new !== passwordData.confirm) {
+      toast({ 
+        title: "Error", 
+        description: "New passwords don't match", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    if (passwordData.new.length < 8) {
+      toast({ 
+        title: "Error", 
+        description: "Password must be at least 8 characters", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    changePasswordMutation.mutate(passwordData);
+  };
+
+  const downloadData = () => {
+    const dataToDownload = {
+      profile: profileData,
+      exportDate: new Date().toISOString(),
+      user: user?.username
+    };
+    
+    const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], {
+      type: 'application/json'
+    });
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `profile-data-${user?.username}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({ title: "Success", description: "Profile data downloaded successfully" });
   };
 
   const stableAvatarSeed = user?.username || 'admin';
@@ -195,11 +386,39 @@ export default function AdminProfile() {
                     />
                     
                     <Avatar className="relative h-24 w-24 border-3 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${stableAvatarSeed}`} />
+                      <AvatarImage src={profileData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${stableAvatarSeed}`} />
                       <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-2xl font-bold">
                         {stableAvatarSeed?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
+                    
+                    {/* Upload Button Overlay */}
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 hover:bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg transition-colors"
+                      disabled={uploadAvatarMutation.isPending}
+                    >
+                      {uploadAvatarMutation.isPending ? (
+                        <motion.div 
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                    </motion.button>
+                    
+                    {/* Hidden File Input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
                     
                     <motion.div
                       animate={{
