@@ -1690,8 +1690,7 @@ export default function AdminDashboard() {
     refetchInterval: 30000
   });
 
-  const renderOverview = () => {
-    return (
+  const renderOverview = () => (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -2589,300 +2588,276 @@ export default function AdminDashboard() {
         </Card>
       )}
     </motion.div>
-    );
-  };
+  );
 
-  const renderUsers = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-        {/* Rolls Royce Starfield Background */}
-        <div className="rolls-royce-starfield"></div>
-        {/* Content */}
-        <div className="relative z-10 p-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-8"
+  const renderUsers = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <motion.h1 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-5xl font-bold text-white mb-2 tracking-tight"
-                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-                >
-                  User Management
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-lg text-gray-400"
-                >
-                  Manage member accounts, permissions, and memberships
-                </motion.p>
-              </div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center space-x-4"
-              >
-                <AddUserDialog />
-                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-              </motion.div>
-            </div>
+            User Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage member accounts, permissions, and memberships
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <AddUserDialog />
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
 
-            {/* Users Table */}
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-purple-500" />
-                  Member Directory
-                </CardTitle>
-                <CardDescription>All registered yacht club members</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-700">
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users?.map((user: any, index: number) => (
-                        <motion.tr
-                          key={user.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors"
-                        >
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                                  {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white font-medium">{user.username}</p>
-                                <p className="text-sm text-gray-400">{user.email}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className={`${
-                              user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                              user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                              user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                              'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                            }`}>
-                              {user.membershipTier}
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-2">
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <EditUserDialog user={user} />
-                              <DeleteUserDialog user={user} />
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
+      {/* Users Table */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <Users className="h-5 w-5 mr-2 text-purple-500" />
+            Member Directory
+          </CardTitle>
+          <CardDescription>All registered yacht club members</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users?.map((user: any, index: number) => (
+                  <motion.tr
+                    key={user.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors"
+                  >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-white font-medium">{user.username}</p>
+                          <p className="text-sm text-gray-400">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={`${
+                        user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                        user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                        'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                      }`}>
+                        {user.membershipTier}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <EditUserDialog user={user} />
+                        <DeleteUserDialog user={user} />
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderYachts = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Fleet Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht fleet, availability, and specifications
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <AddYachtDialog />
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Yachts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {yachts?.map((yacht: any, index: number) => (
+          <motion.div
+            key={yacht.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                <img 
+                  src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                  alt={yacht.name}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4">
+                  <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                    {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-400">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{yacht.location}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-gray-400">
+                    <span className="text-sm">Size: {yacht.size}ft</span>
+                    <span className="text-sm">Capacity: {yacht.capacity}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
+                  <div className="flex items-center space-x-2">
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <EditYachtDialog yacht={yacht} />
+                    <DeleteYachtDialog yacht={yacht} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-        </div>
+        ))}
       </div>
-    );
-  };
+    </motion.div>
+  );
 
-  const renderYachts = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-        {/* Rolls Royce Starfield Background */}
-        <div className="rolls-royce-starfield"></div>
-        {/* Content */}
-        <div className="relative z-10 p-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-8"
+  const renderServices = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <motion.h1 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-5xl font-bold text-white mb-2 tracking-tight"
-                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-                >
-                  Fleet Management
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-lg text-gray-400"
-                >
-                  Manage yacht fleet, availability, and specifications
-                </motion.p>
-              </div>
+            Service Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht concierge services and providers
+          </motion.p>
+        </div>
         
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center space-x-4"
-              >
-                <AddYachtDialog />
-                <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-              </motion.div>
-            </div>
-
-            {/* Yachts Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {yachts?.map((yacht: any, index: number) => (
-                <motion.div
-                  key={yacht.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
-                    <div className="relative">
-                      <img 
-                        src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
-                        alt={yacht.name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4">
-                        <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
-                          {yacht.isAvailable ? 'Available' : 'Unavailable'}
-                        </Badge>
-                      </div>
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-gray-400">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          <span className="text-sm">{yacht.location}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-gray-400">
-                          <span className="text-sm">Size: {yacht.size}ft</span>
-                          <span className="text-sm">Capacity: {yacht.capacity}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
-                        <div className="flex items-center space-x-2">
-                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <EditYachtDialog yacht={yacht} />
-                          <DeleteYachtDialog yacht={yacht} />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <AddServiceDialog />
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
       </div>
-    );
 
-  const renderServices = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-        {/* Rolls Royce Starfield Background */}
-        <div className="rolls-royce-starfield"></div>
-        {/* Content */}
-        <div className="relative z-10 p-8">
+      {/* Services Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {services?.map((service: any, index: number) => (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-8"
+            key={service.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <motion.h1 
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-5xl font-bold text-white mb-2 tracking-tight"
-                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-                >
-                  Service Management
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-lg text-gray-400"
-                >
-                  Manage yacht concierge services and providers
-                </motion.p>
-              </div>
-              
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center space-x-4"
-              >
-                <AddServiceDialog />
-                <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-              </motion.div>
-            </div>
-
-            {/* Services Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services?.map((service: any, index: number) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
               <div className="relative">
                 {service.images && service.images.length > 1 ? (
@@ -2940,23 +2915,15 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
-      </motion.div>
-      </div>
-    </div>
+    </motion.div>
   );
 
-  const renderEvents = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
-        >
+  const renderEvents = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -3043,470 +3010,447 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </div>
+    </motion.div>
+  );
+
+  const renderPayments = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Payment Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Track transactions, revenue, and payment analytics
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-green-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
         </motion.div>
       </div>
-    </div>
-    );
-  };
 
-  const renderPayments = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
+      {/* Payment Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <motion.h1 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-4xl font-bold text-white mb-2"
-              >
-                Payment Management
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-lg text-gray-400"
-              >
-                Track transactions, revenue, and payment analytics
-              </motion.p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+              <DollarSign className="h-6 w-6 text-white" />
             </div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center space-x-4"
-            >
-              <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Export Data
-              </Button>
-              <Button variant="outline" size="sm" className="border-gray-600 hover:border-green-500">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </motion.div>
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">+12%</Badge>
           </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
+          <p className="text-2xl font-bold text-white">
+            ${payments?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
+          </p>
+          <p className="text-green-400 text-sm mt-1">All-time earnings</p>
+        </motion.div>
 
-          {/* Payment Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
-                  <DollarSign className="h-6 w-6 text-white" />
-                </div>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">+12%</Badge>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
-              <p className="text-2xl font-bold text-white">
-                ${payments?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
-              </p>
-              <p className="text-green-400 text-sm mt-1">All-time earnings</p>
-            </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+              <CreditCard className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Live</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Transactions</h3>
+          <p className="text-2xl font-bold text-white">{payments?.length || 0}</p>
+          <p className="text-blue-400 text-sm mt-1">Total payments</p>
+        </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                  <CreditCard className="h-6 w-6 text-white" />
-                </div>
-                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Live</Badge>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-1">Transactions</h3>
-              <p className="text-2xl font-bold text-white">{payments?.length || 0}</p>
-              <p className="text-blue-400 text-sm mt-1">Total payments</p>
-            </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+              <Sparkles className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">20%</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Platform Revenue</h3>
+          <p className="text-2xl font-bold text-white">
+            ${payments?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
+          </p>
+          <p className="text-purple-400 text-sm mt-1">Platform fees</p>
+        </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-                  <Sparkles className="h-6 w-6 text-white" />
-                </div>
-                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">20%</Badge>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-1">Platform Revenue</h3>
-              <p className="text-2xl font-bold text-white">
-                ${payments?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
-              </p>
-              <p className="text-purple-400 text-sm mt-1">Platform fees</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">+8%</Badge>
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-1">Avg Transaction</h3>
-              <p className="text-2xl font-bold text-white">
-                ${payments?.length > 0 ? (payments.reduce((sum: number, p: any) => sum + (p.amount / 100), 0) / payments.length).toFixed(2) : '0.00'}
-              </p>
-              <p className="text-orange-400 text-sm mt-1">Per transaction</p>
-            </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+              <TrendingUp className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">+8%</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Avg Transaction</h3>
+          <p className="text-2xl font-bold text-white">
+            ${payments?.length > 0 ? (payments.reduce((sum: number, p: any) => sum + (p.amount / 100), 0) / payments.length).toFixed(2) : '0.00'}
+          </p>
+          <p className="text-orange-400 text-sm mt-1">Per transaction</p>
+        </motion.div>
       </div>
 
       {/* Real-time Transactions Table */}
       <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <CreditCard className="h-5 w-5 mr-2 text-green-500" />
-                Real-time Transactions
-              </CardTitle>
-              <CardDescription>Live payment activity including concierge services</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-700">
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction ID</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Service Details</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                      <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payments?.map((payment: any, index: number) => (
-                      <motion.tr
-                        key={payment.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors group"
-                      >
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-gray-300 font-mono text-sm">{payment.stripePaymentIntentId || `TXN-${payment.id}`}</span>
-                            {payment.stripePaymentIntentId && (
-                              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">Stripe</Badge>
-                            )}
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-green-500" />
+            Real-time Transactions
+          </CardTitle>
+          <CardDescription>Live payment activity including concierge services</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction ID</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Service Details</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments?.map((payment: any, index: number) => (
+                  <motion.tr
+                    key={payment.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors group"
+                  >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-300 font-mono text-sm">{payment.stripePaymentIntentId || `TXN-${payment.id}`}</span>
+                        {payment.stripePaymentIntentId && (
+                          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">Stripe</Badge>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                          <span className="text-white text-xs font-semibold">
+                            {(payment.customer?.name || 'U')[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">{payment.customer?.name || 'Unknown'}</p>
+                          <p className="text-gray-400 text-xs">{payment.customer?.email || 'No email'}</p>
+                          {payment.customer?.membershipTier && (
+                            <Badge className="text-xs bg-purple-500/20 text-purple-400 border-purple-500/30 mt-1">
+                              {payment.customer.membershipTier}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        {payment.type === 'Service Booking' ? (
+                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+                            <Sparkles className="h-3 w-3 text-white" />
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                              <span className="text-white text-xs font-semibold">
-                                {(payment.customer?.name || 'U')[0].toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-white font-medium">{payment.customer?.name || 'Unknown'}</p>
-                              <p className="text-gray-400 text-xs">{payment.customer?.email || 'No email'}</p>
-                              {payment.customer?.membershipTier && (
-                                <Badge className="text-xs bg-purple-500/20 text-purple-400 border-purple-500/30 mt-1">
-                                  {payment.customer.membershipTier}
-                                </Badge>
-                              )}
-                            </div>
+                        ) : payment.type === 'Event Registration' ? (
+                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                            <Calendar className="h-3 w-3 text-white" />
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-2">
-                            {payment.type === 'Service Booking' ? (
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-                                <Sparkles className="h-3 w-3 text-white" />
-                              </div>
-                            ) : payment.type === 'Event Registration' ? (
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
-                                <Calendar className="h-3 w-3 text-white" />
-                              </div>
+                        ) : (
+                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                            <Anchor className="h-3 w-3 text-white" />
+                          </div>
+                        )}
+                        <span className="text-gray-300 text-sm">{payment.type}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="max-w-xs">
+                        <p className="text-white font-medium truncate">{payment.serviceDetails}</p>
+                        {payment.provider && (
+                          <div className="mt-1">
+                            <p className="text-gray-400 text-xs truncate">
+                              Provider: {payment.provider.name}
+                            </p>
+                            {payment.provider.isAdmin ? (
+                              <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                                Admin Service (100% revenue)
+                              </Badge>
                             ) : (
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                                <Anchor className="h-3 w-3 text-white" />
-                              </div>
-                            )}
-                            <span className="text-gray-300 text-sm">{payment.type}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="max-w-xs">
-                            <p className="text-white font-medium truncate">{payment.serviceDetails}</p>
-                            {payment.provider && (
-                              <div className="mt-1">
-                                <p className="text-gray-400 text-xs truncate">
-                                  Provider: {payment.provider.name}
-                                </p>
-                                {payment.provider.isAdmin ? (
-                                  <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                                    Admin Service (100% revenue)
-                                  </Badge>
-                                ) : (
-                                  <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30 mt-1">
-                                    3rd Party (20% platform fee)
-                                  </Badge>
-                                )}
-                              </div>
-                            )}
-                            {payment.type === 'Yacht Booking' && (
-                              <Badge className="text-xs bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mt-1">
-                                Free for members
+                              <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30 mt-1">
+                                3rd Party (20% platform fee)
                               </Badge>
                             )}
-                            {payment.type === 'Event Registration' && (
-                              payment.provider && !payment.provider.isAdmin ? (
-                                <Badge className="text-xs bg-orange-500/20 text-orange-400 border-orange-500/30 mt-1">
-                                  3rd Party Event (20% platform fee)
-                                </Badge>
-                              ) : (
-                                <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                                  Admin Event (100% revenue)
-                                </Badge>
-                              )
-                            )}
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="text-right">
-                            <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
-                            {payment.platformFee > 0 && (
-                              <div className="mt-1">
-                                <p className="text-gray-400 text-xs">Platform: ${payment.adminRevenue.toFixed(2)}</p>
-                                <p className="text-blue-400 text-xs">Provider: ${payment.providerRevenue.toFixed(2)}</p>
-                              </div>
-                            )}
-                            {payment.amount === 0 && (
-                              <p className="text-cyan-400 text-xs">Free for members</p>
-                            )}
-                            {payment.platformFee === 0 && payment.amount > 0 && (
-                              <p className="text-green-400 text-xs">100% to admin</p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div>
-                            <span className="text-gray-300">{new Date(payment.createdAt).toLocaleDateString()}</span>
-                            <p className="text-gray-400 text-xs">{new Date(payment.createdAt).toLocaleTimeString()}</p>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <Badge className={`${
-                            payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                            payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                            payment.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                            'bg-red-500/20 text-red-400 border-red-500/30'
-                          }`}>
-                            {payment.status}
+                        )}
+                        {payment.type === 'Yacht Booking' && (
+                          <Badge className="text-xs bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mt-1">
+                            Free for members
                           </Badge>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
+                        )}
+                        {payment.type === 'Event Registration' && (
+                          payment.provider && !payment.provider.isAdmin ? (
+                            <Badge className="text-xs bg-orange-500/20 text-orange-400 border-orange-500/30 mt-1">
+                              3rd Party Event (20% platform fee)
+                            </Badge>
+                          ) : (
+                            <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                              Admin Event (100% revenue)
+                            </Badge>
+                          )
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="text-right">
+                        <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
+                        {payment.platformFee > 0 && (
+                          <div className="mt-1">
+                            <p className="text-gray-400 text-xs">Platform: ${payment.adminRevenue.toFixed(2)}</p>
+                            <p className="text-blue-400 text-xs">Provider: ${payment.providerRevenue.toFixed(2)}</p>
                           </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-                
-                {(!payments || payments.length === 0) && (
-                  <div className="text-center py-12">
-                    <CreditCard className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400 text-lg">No transactions found</p>
-                    <p className="text-gray-500 text-sm">Payment data will appear here in real-time</p>
-                  </div>
-                )}
+                        )}
+                        {payment.amount === 0 && (
+                          <p className="text-cyan-400 text-xs">Free for members</p>
+                        )}
+                        {payment.platformFee === 0 && payment.amount > 0 && (
+                          <p className="text-green-400 text-xs">100% to admin</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <span className="text-gray-300">{new Date(payment.createdAt).toLocaleDateString()}</span>
+                        <p className="text-gray-400 text-xs">{new Date(payment.createdAt).toLocaleTimeString()}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={`${
+                        payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        payment.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                        'bg-red-500/20 text-red-400 border-red-500/30'
+                      }`}>
+                        {payment.status}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {(!payments || payments.length === 0) && (
+              <div className="text-center py-12">
+                <CreditCard className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No transactions found</p>
+                <p className="text-gray-500 text-sm">Payment data will appear here in real-time</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
+    </motion.div>
+  );
+
+  const renderSettings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            System Settings
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Configure system preferences and operational parameters
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+            onClick={() => {
+              toast({ title: "Settings Saved", description: "System settings have been updated successfully" });
+            }}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-600 hover:border-purple-500"
+            onClick={() => {
+              toast({ title: "Settings Reset", description: "System settings have been reset to defaults" });
+            }}
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
         </motion.div>
       </div>
-    </div>
-    );
-  };
 
-  const renderSettings = () => {
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <motion.h1 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-4xl font-bold text-white mb-2"
-              >
-                System Settings
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-lg text-gray-400"
-              >
-                Configure system preferences and operational parameters
-              </motion.p>
+      {/* Settings Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-purple-500" />
+              Security Settings
+            </CardTitle>
+            <CardDescription>Authentication and access control</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
+              <div>
+                <p className="text-white font-medium">Two-Factor Authentication</p>
+                <p className="text-sm text-gray-400">Enhanced security for admin access</p>
+              </div>
+              <div className="w-12 h-6 bg-purple-500 rounded-full p-1">
+                <div className="w-4 h-4 bg-white rounded-full ml-auto" />
+              </div>
             </div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center space-x-4"
-            >
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
+              <div>
+                <p className="text-white font-medium">Session Timeout</p>
+                <p className="text-sm text-gray-400">Auto-logout after inactivity</p>
+              </div>
+              <select className="bg-gray-700 text-white rounded-lg px-3 py-1 border border-gray-600">
+                <option>30 minutes</option>
+                <option>1 hour</option>
+                <option>2 hours</option>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Database className="h-5 w-5 mr-2 text-purple-500" />
+              System Management
+            </CardTitle>
+            <CardDescription>Backup and maintenance settings</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-xl bg-gray-900/30">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white font-medium">Database Backup</p>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
               <Button 
                 size="sm" 
-                className="bg-gradient-to-r from-purple-600 to-blue-600"
-                onClick={() => {
-                  toast({ title: "Settings Saved", description: "System settings have been updated successfully" });
-                }}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Changes
-              </Button>
-              <Button 
                 variant="outline" 
-                size="sm" 
                 className="border-gray-600 hover:border-purple-500"
                 onClick={() => {
-                  toast({ title: "Settings Reset", description: "System settings have been reset to defaults" });
+                  toast({ title: "Backup Created", description: "Database backup created successfully" });
                 }}
               >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
+                Create Backup Now
               </Button>
-            </motion.div>
-          </div>
-
-          {/* Settings Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Shield className="h-5 w-5 mr-2 text-purple-500" />
-                  Security Settings
-                </CardTitle>
-                <CardDescription>Authentication and access control</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
-                  <div>
-                    <p className="text-white font-medium">Two-Factor Authentication</p>
-                    <p className="text-sm text-gray-400">Enhanced security for admin access</p>
-                  </div>
-                  <div className="w-12 h-6 bg-purple-500 rounded-full p-1">
-                    <div className="w-4 h-4 bg-white rounded-full ml-auto" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
-                  <div>
-                    <p className="text-white font-medium">Session Timeout</p>
-                    <p className="text-sm text-gray-400">Auto-logout after inactivity</p>
-                  </div>
-                  <select className="bg-gray-700 text-white rounded-lg px-3 py-1 border border-gray-600">
-                    <option>30 minutes</option>
-                    <option>1 hour</option>
-                    <option>2 hours</option>
-                  </select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Database className="h-5 w-5 mr-2 text-purple-500" />
-                  System Management
-                </CardTitle>
-                <CardDescription>Backup and maintenance settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-xl bg-gray-900/30">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-white font-medium">Database Backup</p>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-                  </div>
-                  <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="border-gray-600 hover:border-purple-500"
-                    onClick={() => {
-                      toast({ title: "Backup Created", description: "Database backup created successfully" });
-                    }}
-                  >
-                    Create Backup Now
-                  </Button>
-                </div>
-                <div className="p-4 rounded-xl bg-gray-900/30">
-                  <p className="text-white font-medium mb-2">Maintenance Mode</p>
-                  <p className="text-sm text-gray-400 mb-3">Temporarily disable user access</p>
-                  <Button 
-                    size="sm" 
-                    variant="destructive" 
-                    className="bg-red-600 hover:bg-red-700"
-                    onClick={() => {
-                      toast({ 
-                        title: "Maintenance Mode Enabled", 
-                        description: "System is now in maintenance mode. User access has been temporarily disabled.",
-                        variant: "destructive"
-                      });
-                    }}
-                  >
-                    Enable Maintenance Mode
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
+            </div>
+            <div className="p-4 rounded-xl bg-gray-900/30">
+              <p className="text-white font-medium mb-2">Maintenance Mode</p>
+              <p className="text-sm text-gray-400 mb-3">Temporarily disable user access</p>
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  toast({ 
+                    title: "Maintenance Mode Enabled", 
+                    description: "System is now in maintenance mode. User access has been temporarily disabled.",
+                    variant: "destructive"
+                  });
+                }}
+              >
+                Enable Maintenance Mode
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-    );
-  };
+    </motion.div>
+  );
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      <div className="flex h-screen overflow-hidden relative z-10">
+    <div className="min-h-screen bg-background">
+      <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <motion.div
           initial={{ x: -300, opacity: 0 }}
@@ -3635,10 +3579,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         </motion.div>
-      </div>
-    </div>
-    );
-  };
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto p-8">
