@@ -568,3 +568,42 @@ html, body {
   background-color: var(--yacht-purple);
   color: var(--yacht-silver);
 }
+
+/* Profile picture outline with purple-to-blue gradient and glow animation */
+.profile-picture-outline {
+  position: relative;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, rgb(147, 51, 234), rgb(79, 70, 229));
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  animation: profile-glow 3s ease-in-out infinite alternate;
+}
+
+.profile-picture-outline::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, rgb(147, 51, 234), rgb(79, 70, 229));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+}
+
+.profile-picture-inner {
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: var(--yacht-dark);
+}
+
+@keyframes profile-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(79, 70, 229, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(147, 51, 234, 0.5), 0 0 60px rgba(79, 70, 229, 0.3);
+  }
+}

@@ -77,19 +77,23 @@ const AppHeader: React.FC = () => {
                 </div>
               )}
             </div>
-            {user.profileImage ? (
-              <img
-                src={user.profileImage}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600"
-              />
-            ) : (
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-semibold">
-                  {user.username?.charAt(0).toUpperCase()}
-                </span>
+            <div className="profile-picture-outline w-8 h-8">
+              <div className="profile-picture-inner w-full h-full">
+                {user.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-semibold">
+                      {user.username?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Notification Center */}
