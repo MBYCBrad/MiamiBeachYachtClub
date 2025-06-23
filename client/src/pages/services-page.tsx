@@ -102,86 +102,88 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
               >
                 {/* Service Image */}
                 <div className="relative h-40 bg-gradient-to-br from-blue-900/30 to-purple-900/30">
-                  {service.images && service.images.length > 0 ? (
-                    <div className="relative h-40">
-                      <img 
-                        src={service.images[0] || service.imageUrl}
-                        alt={service.name}
-                        className="w-full h-40 object-cover"
-                      />
-                      {service.images.length > 1 && (
-                        <div className="absolute bottom-2 right-2 flex space-x-1">
-                          {service.images.slice(0, 3).map((img: string, idx: number) => (
-                            <div key={idx} className="relative">
-                              <img 
-                                src={img}
-                                alt={`${service.name} ${idx + 1}`}
-                                className="w-6 h-6 object-cover rounded border border-white/30"
-                              />
-                              {idx === 2 && service.images.length > 3 && (
-                                <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
-                                  <span className="text-white text-xs font-medium">+{service.images.length - 3}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : service.imageUrl ? (
+                  {service.imageUrl ? (
                     <img 
                       src={service.imageUrl}
                       alt={service.name}
                       className="w-full h-40 object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
                   ) : (
-                    <div className="w-full h-40 bg-gradient-to-br from-blue-900/30 to-purple-900/30" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="px-3 py-1 bg-blue-600/80 text-white text-xs rounded-full font-medium">
-                      {service.category}
-                    </span>
-                  </div>
-                  {service.rating && (
-                    <div className="absolute top-3 right-3 flex items-center space-x-1 bg-black/40 px-2 py-1 rounded-full">
-                      <Star size={12} className="text-yellow-400 fill-current" />
-                      <span className="text-white text-xs font-medium">{service.rating}</span>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Settings className="h-12 w-12 text-gray-600" />
                     </div>
                   )}
                 </div>
+                
+                {/* Service Badge */}
+                <div className="absolute top-3 left-3">
+                  <span className="px-2 py-1 bg-purple-600/80 text-white text-xs rounded-full backdrop-blur-sm">
+                    {service.category}
+                  </span>
+                </div>
+                
+                {/* Availability Badge */}
+                <div className="absolute top-3 right-3">
+                  <span className={`px-2 py-1 text-xs rounded-full backdrop-blur-sm ${
+                    service.isAvailable 
+                      ? 'bg-green-600/80 text-white' 
+                      : 'bg-red-600/80 text-white'
+                  }`}>
+                    {service.isAvailable ? 'Available' : 'Unavailable'}
+                  </span>
+                </div>
 
-                {/* Service Info */}
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors mb-2">
-                    {service.name}
-                  </h3>
-                  
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">
-                    {service.description}
-                  </p>
-
-                  <div className="flex items-center text-gray-400 text-xs mb-3">
-                    <span>{service.duration ? `${service.duration} minutes` : 'Custom duration'}</span>
+                {/* Service Content */}
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+                      {service.name}
+                    </h3>
+                    <span className="text-lg font-bold text-purple-400">
+                      ${service.pricePerSession}
+                    </span>
                   </div>
                   
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-white">
-                      ${service.pricePerSession ? parseFloat(service.pricePerSession).toLocaleString() : 'Contact'}
-                      {service.pricePerSession && <span className="text-sm text-gray-400 font-normal">/session</span>}
-                    </span>
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 rounded-xl px-6"
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                    {service.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      {service.duration && (
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {service.duration}min
+                        </span>
+                      )}
+                      <span className="flex items-center">
+                        <Star className="h-4 w-4 mr-1 text-yellow-400" />
+                        {service.rating || '4.8'}
+                      </span>
+                    </div>
+                    
+                    <Button 
+                      size="sm" 
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      onClick={() => handleBookService(service)}
                     >
                       Book Now
                     </Button>
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </motion.div>
-        )}
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <Settings className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">No services available</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

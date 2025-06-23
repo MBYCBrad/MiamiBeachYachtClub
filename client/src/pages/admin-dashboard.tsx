@@ -543,6 +543,7 @@ function AddYachtDialog() {
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="60">MBYC Admin (You)</SelectItem>
                 <SelectItem value="65">demo_owner</SelectItem>
                 <SelectItem value="66">yacht_owner_1</SelectItem>
                 <SelectItem value="67">yacht_owner_2</SelectItem>
@@ -855,6 +856,7 @@ function AddServiceDialog() {
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="60">MBYC Admin (You)</SelectItem>
                 <SelectItem value="68">demo_provider</SelectItem>
                 <SelectItem value="69">chef_service</SelectItem>
                 <SelectItem value="70">spa_provider</SelectItem>
