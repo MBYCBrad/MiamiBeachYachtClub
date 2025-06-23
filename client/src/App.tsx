@@ -52,9 +52,11 @@ function AppContent() {
   usePrefetchData();
   useInstantCache();
   
-  // Preload critical resources immediately
+  // Preload critical resources immediately and force dark mode
   useEffect(() => {
     preloadCriticalResources();
+    // Force dark mode for MBYC application
+    document.documentElement.classList.add('dark');
   }, []);
   
   return <Router />;
