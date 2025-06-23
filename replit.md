@@ -552,6 +552,10 @@ Changelog:
   - Updated crew management page title to use text-5xl font-bold with SF Pro Display font family
   - Applied exact same styling as admin overview: tracking-tight, mb-2, and Apple system font stack
   - Maintains professional Apple-like typography consistency across admin interface sections
+- June 23, 2025. Customer service dashboard title and subtitle styling updated to match admin overview
+  - Updated title to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
+  - Updated subtitle to text-lg to match overview subtitle size instead of default text-sm
+  - Complete typography consistency achieved across all admin interface sections
 
 ## Member Experience Feature Status
 

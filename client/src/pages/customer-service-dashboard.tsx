@@ -167,8 +167,8 @@ export default function CustomerServiceDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Customer Service Dashboard</h1>
-              <p className="text-gray-400">Manage customer calls and communications</p>
+              <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Customer Service Dashboard</h1>
+              <p className="text-lg text-gray-400">Manage customer calls and communications</p>
             </div>
             {isCallActive && (
               <motion.div 
