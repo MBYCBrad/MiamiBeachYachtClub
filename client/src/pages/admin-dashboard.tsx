@@ -422,7 +422,7 @@ function AddYachtDialog() {
         ...data,
         size: parseInt(data.size),
         capacity: parseInt(data.capacity),
-        ownerId: data.ownerId ? parseInt(data.ownerId) : null,
+        ownerId: data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined,
         amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
         images: data.images || []
       };
@@ -433,7 +433,7 @@ function AddYachtDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
       toast({ title: "Success", description: "Yacht created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: '', amenities: '' });
+      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: '65', amenities: '' });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -448,7 +448,7 @@ function AddYachtDialog() {
           Add Yacht
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Yacht</DialogTitle>
         </DialogHeader>
@@ -536,6 +536,19 @@ function AddYachtDialog() {
               placeholder="WiFi, Air Conditioning, Sound System"
             />
           </div>
+          <div>
+            <Label htmlFor="ownerId" className="text-gray-300">Owner</Label>
+            <Select value={formData.ownerId} onValueChange={(value) => setFormData({...formData, ownerId: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue placeholder="Select owner" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="65">demo_owner</SelectItem>
+                <SelectItem value="66">yacht_owner_1</SelectItem>
+                <SelectItem value="67">yacht_owner_2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="col-span-2">
             <MultiImageUpload
               label="Yacht Gallery"
@@ -597,7 +610,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-900 border-gray-700 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
         </DialogHeader>
@@ -776,7 +789,7 @@ function AddServiceDialog() {
           Add Service
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Service</DialogTitle>
         </DialogHeader>
@@ -1095,7 +1108,7 @@ function AddEventDialog() {
           Add Event
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Event</DialogTitle>
         </DialogHeader>
@@ -1251,7 +1264,7 @@ function EditEventDialog({ event }: { event: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Event</DialogTitle>
         </DialogHeader>
