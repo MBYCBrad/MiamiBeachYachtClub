@@ -164,7 +164,7 @@ export default function CustomerServiceDashboard() {
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 mt-16">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Customer Service Dashboard</h1>

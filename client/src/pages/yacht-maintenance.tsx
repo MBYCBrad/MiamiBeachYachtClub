@@ -195,7 +195,7 @@ export default function YachtMaintenance() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="bg-transparent">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-6 py-8 mt-16">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>

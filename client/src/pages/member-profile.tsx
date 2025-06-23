@@ -271,7 +271,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
 
         {/* Header Content */}
-        <div className="relative h-64 flex flex-col justify-end p-6 pb-8">
+        <div className="relative h-64 flex flex-col justify-end p-6 pb-8 mt-16">
           {/* Top Status Bar */}
 
 

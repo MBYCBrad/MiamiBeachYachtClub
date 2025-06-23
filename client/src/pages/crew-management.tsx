@@ -181,7 +181,7 @@ export default function CrewManagementPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 mt-16"
         >
           <div className="flex items-center gap-3 mb-4">
             <div>

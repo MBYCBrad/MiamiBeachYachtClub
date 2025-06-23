@@ -307,7 +307,7 @@ export default function StaffManagement() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/50/80 backdrop-blur-xl border-b border-gray-700/50 p-6"
+        className="bg-gray-900/50/80 backdrop-blur-xl border-b border-gray-700/50 p-6 mt-16"
       >
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
