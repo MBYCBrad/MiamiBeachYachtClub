@@ -117,9 +117,9 @@ html, body {
   html {
     @apply dark;
   }
-
+  
   body {
-    @apply font-sans antialiased;
+    @apply bg-gray-900 text-white font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     background: var(--yacht-dark) !important;
@@ -132,7 +132,9 @@ html, body {
     scroll-behavior: smooth;
     overflow-x: hidden;
   }
+}
 
+@layer base {
   /* Custom scrollbar for webkit browsers */
   ::-webkit-scrollbar {
     width: 6px;
@@ -281,7 +283,9 @@ html, body {
   .border-yacht-accent {
     border-color: var(--yacht-accent);
   }
+}
 
+@layer base {
   /* ADMIN-ONLY NAVY BLUE THEME CLASSES */
   
   /* Admin page specific styling */

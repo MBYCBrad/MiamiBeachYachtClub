@@ -253,7 +253,7 @@ export default function CustomerServiceDashboard() {
                         filteredContacts.map((user) => (
                           <Card 
                             key={user.id} 
-                            className="bg-gray-700/30 border-gray-600 hover:bg-gray-700/50 transition-colors cursor-pointer"
+                            className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-800/50 transition-colors cursor-pointer"
                             onClick={() => openContactModal(user)}
                           >
                             <CardContent className="p-4">

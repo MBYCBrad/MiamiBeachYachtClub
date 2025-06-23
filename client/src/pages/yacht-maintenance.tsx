@@ -230,7 +230,7 @@ export default function YachtMaintenance() {
                 <motion.div
                   key={yacht.id}
                   whileHover={{ scale: 1.02 }}
-                  className="bg-gray-900 rounded-lg border border-gray-700 p-6 cursor-pointer hover:border-purple-500/50"
+                  className="bg-gray-900/50 border-gray-700/50 rounded-lg border p-6 cursor-pointer hover:border-purple-500/50"
                   onClick={() => setSelectedYacht(yacht.id)}
                 >
                   {yacht.images && yacht.images[0] && (

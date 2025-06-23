@@ -421,7 +421,7 @@ export default function StaffManagement() {
                     </TableRow>
                   ) : (
                     filteredStaff.map((staff) => (
-                      <TableRow key={staff.id} className="border-gray-700/50 hover:bg-gray-700/30">
+                      <TableRow key={staff.id} className="border-gray-700/50 hover:bg-gray-900/30">
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
