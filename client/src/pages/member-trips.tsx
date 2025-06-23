@@ -566,44 +566,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                             </div>
                           )}
 
-                          {/* Enhanced Action Center */}
-                          <div className="bg-gradient-to-r from-gray-800/40 to-gray-900/20 rounded-xl p-6 border border-gray-700/30">
-                            <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
-                              <Compass size={18} className="mr-2 text-blue-400" />
-                              Trip Management
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                              <Button
-                                onClick={() => startRating(booking)}
-                                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg h-12"
-                              >
-                                <Star size={16} className="mr-2" />
-                                Rate Experience
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => setCurrentView('messages')}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12"
-                              >
-                                <MessageCircle size={16} className="mr-2" />
-                                Message Captain
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => setCurrentView('messages')}
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12"
-                              >
-                                <Phone size={16} className="mr-2" />
-                                Contact Marina
-                              </Button>
-                            </div>
-                            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                              <p className="text-sm text-blue-300 flex items-center">
-                                <Crown size={14} className="mr-2" />
-                                Need assistance? Our concierge team is available 24/7 to enhance your yacht experience.
-                              </p>
-                            </div>
-                          </div>
+
                         </CardContent>
                       </Card>
                     </motion.div>
