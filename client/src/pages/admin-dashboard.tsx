@@ -3519,15 +3519,23 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Hamburger menu button - fixed top left */}
-      <motion.button
-        className="fixed top-4 left-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
-        onClick={toggleSidebar}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <Menu className="h-5 w-5" />
-      </motion.button>
+      {/* Hamburger menu button - fixed top left, hidden when menu is open */}
+      <AnimatePresence>
+        {sidebarCollapsed && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-4 left-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
+            onClick={toggleSidebar}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Menu className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Close button - animated from right side when menu is open */}
       <AnimatePresence>
