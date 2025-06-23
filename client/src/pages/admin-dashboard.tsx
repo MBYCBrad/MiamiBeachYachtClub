@@ -1102,7 +1102,7 @@ function AddEventDialog() {
     ticketPrice: '',
     startTime: '',
     endTime: '',
-    images: [],
+    images: [] as string[],
     hostId: '',
     isActive: true
   });
@@ -1128,7 +1128,7 @@ function AddEventDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event created successfully" });
       setIsOpen(false);
-      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', images: [], hostId: '', isActive: true });
+      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', images: [] as string[], hostId: '', isActive: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
