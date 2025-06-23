@@ -20,18 +20,19 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CrewMember {
   id: number;
-  name: string;
-  role: string;
-  specialization: string;
-  rating: number;
-  experience: number;
-  certifications: string[];
-  availability: 'available' | 'assigned' | 'off-duty';
-  phone: string;
+  username: string;
   email: string;
-  avatar?: string;
-  languages: string[];
-  currentAssignment?: string;
+  role: string;
+  permissions?: string[];
+  phone?: string;
+  location?: string;
+  status: 'active' | 'inactive' | 'suspended';
+  createdAt: Date;
+  // Compatibility fields for existing code
+  name?: string;
+  availability?: 'available' | 'assigned' | 'off-duty';
+  rating?: number;
+  experience?: number;
 }
 
 interface YachtBooking {
@@ -69,9 +70,9 @@ export default function CrewManagementPage() {
     staleTime: 2 * 60 * 1000,
   });
 
-  // Fetch available crew members
+  // Fetch available staff members who can serve as crew
   const { data: crewMembers = [], isLoading: crewLoading, error: crewError } = useQuery<CrewMember[]>({
-    queryKey: ["/api/crew/members"],
+    queryKey: ["/api/admin/staff"],
     staleTime: 5 * 60 * 1000,
   });
 
@@ -115,7 +116,7 @@ export default function CrewManagementPage() {
   });
 
   const filteredCrewMembers = (crewMembers || []).filter(member => 
-    crewFilter === "all" || member?.availability === crewFilter
+    crewFilter === "all" || member?.status === crewFilter
   );
 
   const getCrewRoleIcon = (role: string) => {
@@ -234,7 +235,7 @@ export default function CrewManagementPage() {
                 <div>
                   <p className="text-slate-400 text-sm">Available Crew</p>
                   <p className="text-2xl font-bold text-white">
-                    {(crewMembers || []).filter(m => m.availability === 'available').length}
+                    {(crewMembers || []).filter(m => m.status === 'active').length}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-green-400" />
@@ -382,9 +383,9 @@ export default function CrewManagementPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Crew</SelectItem>
-                      <SelectItem value="available">Available</SelectItem>
-                      <SelectItem value="assigned">Assigned</SelectItem>
-                      <SelectItem value="off-duty">Off Duty</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -401,43 +402,39 @@ export default function CrewManagementPage() {
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.avatar} />
                         <AvatarFallback className="bg-purple-600 text-white">
-                          {member.name.split(' ').map(n => n[0]).join('')}
+                          {member.username.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           {getCrewRoleIcon(member.role)}
-                          <span className="font-medium text-white">{member.name}</span>
+                          <span className="font-medium text-white">{member.username}</span>
                           <Badge 
                             className={`text-xs ${
-                              member.availability === 'available' ? 'bg-green-600' :
-                              member.availability === 'assigned' ? 'bg-blue-600' : 'bg-slate-600'
+                              member.status === 'active' ? 'bg-green-600' :
+                              member.status === 'inactive' ? 'bg-blue-600' : 'bg-slate-600'
                             }`}
                           >
-                            {member.availability}
+                            {member.status}
                           </Badge>
                         </div>
                         
-                        <p className="text-sm text-slate-300 mb-2">{member.role} • {member.specialization}</p>
+                        <p className="text-sm text-slate-300 mb-2">{member.role} • {member.location || 'Marina Bay'}</p>
                         
                         <div className="flex items-center gap-4 text-xs text-slate-400">
                           <div className="flex items-center gap-1">
                             <Star className="h-3 w-3 text-yellow-400" />
-                            {member.rating}/5
+                            5.0/5
                           </div>
-                          <span>{member.experience}+ yrs</span>
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            {member.phone}
-                          </div>
+                          <span>Certified Professional</span>
+                          {member.phone && (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {member.phone}
+                            </div>
+                          )}
                         </div>
-
-                        {member.currentAssignment && (
-                          <div className="mt-2 text-xs text-blue-400">
-                            Currently: {member.currentAssignment}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -500,11 +497,11 @@ export default function CrewManagementPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-white">
                         <Crown className="h-4 w-4 text-purple-400" />
-                        Captain: {assignment.captain.name}
+                        Captain: {assignment.captain.username}
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Shield className="h-4 w-4 text-blue-400" />
-                        Coordinator: {assignment.coordinator.name}
+                        Coordinator: {assignment.coordinator.username}
                       </div>
                       <div className="text-slate-400">
                         Crew Size: {(assignment.crewMembers || []).length} members
@@ -546,10 +543,14 @@ function CrewAssignmentDialog({
   const [briefingTime, setBriefingTime] = useState("");
   const [notes, setNotes] = useState("");
 
-  const availableCrew = (crewMembers || []).filter(m => m.availability === 'available');
-  const captains = availableCrew.filter(m => m.role === 'Captain');
-  const coordinators = availableCrew.filter(m => m.role === 'First Mate' || m.role === 'Coordinator');
-  const otherCrew = availableCrew.filter(m => !['Captain', 'First Mate', 'Coordinator'].includes(m.role));
+  const availableCrew = (crewMembers || []).filter(m => m.status === 'active');
+  const captains = availableCrew.filter(m => m.role === 'Yacht Captain');
+  const coordinators = availableCrew.filter(m => 
+    ['First Mate', 'Service Coordinator', 'Operations Manager', 'Booking Coordinator'].includes(m.role)
+  );
+  const otherCrew = availableCrew.filter(m => 
+    !['Yacht Captain', 'First Mate', 'Service Coordinator', 'Operations Manager', 'Booking Coordinator'].includes(m.role)
+  );
 
   const handleAssign = () => {
     if (!selectedCaptain || !selectedCoordinator) {
@@ -589,7 +590,7 @@ function CrewAssignmentDialog({
             <SelectContent>
               {captains.map((captain) => (
                 <SelectItem key={captain.id} value={captain.id.toString()}>
-                  {captain.name} • {captain.rating}/5 • {captain.experience}yrs
+                  {captain.username} • {captain.role} • {captain.location || 'Marina Bay'}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -606,7 +607,7 @@ function CrewAssignmentDialog({
             <SelectContent>
               {coordinators.map((coord) => (
                 <SelectItem key={coord.id} value={coord.id.toString()}>
-                  {coord.name} • {coord.role} • {coord.rating}/5
+                  {coord.username} • {coord.role} • {coord.location || 'Marina Bay'}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -633,7 +634,7 @@ function CrewAssignmentDialog({
                   className="rounded border-slate-600 bg-slate-700"
                 />
                 <label htmlFor={`crew-${member.id}`} className="text-sm text-slate-300">
-                  {member.name} • {member.role} • {member.rating}/5
+                  {member.username} • {member.role} • {member.location || 'Marina Bay'}
                 </label>
               </div>
             ))}

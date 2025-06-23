@@ -101,10 +101,33 @@ const availablePermissions: Permission[] = [
 ];
 
 const staffRoles = [
-  'Staff - Crew Manager',
-  'Staff - Customer Support', 
-  'Staff - Concierge',
-  'Staff - Management'
+  // Marina & Fleet Operations
+  'Marina Manager',
+  'Fleet Coordinator',
+  'Dock Master', 
+  'Yacht Captain',
+  'First Mate',
+  'Crew Supervisor',
+  // Member Services
+  'Member Relations Specialist',
+  'Concierge Manager',
+  'Concierge Agent',
+  'Guest Services Representative',
+  'VIP Coordinator',
+  // Operations & Support
+  'Operations Manager',
+  'Booking Coordinator',
+  'Service Coordinator',
+  'Event Coordinator',
+  'Safety Officer',
+  // Finance & Administration
+  'Finance Manager',
+  'Billing Specialist',
+  'Accounts Manager',
+  // Technology & Analytics
+  'IT Specialist',
+  'Data Analyst',
+  'Systems Administrator'
 ];
 
 export default function StaffManagement() {

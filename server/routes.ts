@@ -2279,10 +2279,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // STAFF MANAGEMENT ROUTES - Hierarchical Staff System
   app.get("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      // Only return staff users (roles starting with "Staff" or admin)
+      // Only return staff users (specific staff positions or admin)
       const allUsers = await dbStorage.getAllUsers();
+      const staffRoles = [
+        'admin',
+        'Marina Manager', 'Fleet Coordinator', 'Dock Master', 'Yacht Captain', 'First Mate', 'Crew Supervisor',
+        'Member Relations Specialist', 'Concierge Manager', 'Concierge Agent', 'Guest Services Representative', 'VIP Coordinator',
+        'Operations Manager', 'Booking Coordinator', 'Service Coordinator', 'Event Coordinator', 'Safety Officer',
+        'Finance Manager', 'Billing Specialist', 'Accounts Manager',
+        'IT Specialist', 'Data Analyst', 'Systems Administrator'
+      ];
       const staffUsers = allUsers.filter(user => 
-        user.role === 'admin' || user.role?.startsWith('Staff')
+        staffRoles.includes(user.role || '')
       );
 
       // Enrich with created by information
@@ -2314,7 +2322,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate role is a staff role
-      const validStaffRoles = ['Staff - Crew Manager', 'Staff - Customer Support', 'Staff - Concierge', 'Staff - Management'];
+      const validStaffRoles = [
+        'Marina Manager', 'Fleet Coordinator', 'Dock Master', 'Yacht Captain', 'First Mate', 'Crew Supervisor',
+        'Member Relations Specialist', 'Concierge Manager', 'Concierge Agent', 'Guest Services Representative', 'VIP Coordinator',
+        'Operations Manager', 'Booking Coordinator', 'Service Coordinator', 'Event Coordinator', 'Safety Officer',
+        'Finance Manager', 'Billing Specialist', 'Accounts Manager',
+        'IT Specialist', 'Data Analyst', 'Systems Administrator'
+      ];
       if (!validStaffRoles.includes(role)) {
         return res.status(400).json({ message: "Invalid staff role" });
       }

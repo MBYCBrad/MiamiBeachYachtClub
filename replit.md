@@ -399,7 +399,7 @@ Changelog:
 - June 23, 2025. Complete hierarchical staff management system with clear user separation implemented
   - Created comprehensive staff management page with role-based permissions and granular access control
   - Established clear separation: regular users (members, yacht owners, service providers) access their own layers vs MBYC staff users only access admin layer
-  - Implemented 4 staff roles: Staff - Crew Manager, Staff - Customer Support, Staff - Concierge, Staff - Management
+  - Implemented specific staff positions: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor, Member Relations Specialist, Concierge Manager, Concierge Agent, Guest Services Representative, VIP Coordinator, Operations Manager, Booking Coordinator, Service Coordinator, Event Coordinator, Safety Officer, Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator
   - Built complete CRUD API endpoints for staff user management (/api/admin/staff) with proper validation
   - Added 10 granular permission categories: User Management, Yacht Management, Service Management, Event Management, Booking Management, Payment Management, Analytics Access, Notification Management, Customer Service, Crew Management
   - Customer service dashboard now focuses exclusively on phone calls and queue management (no messaging functionality)
@@ -407,6 +407,14 @@ Changelog:
   - Staff management integrated into admin dashboard navigation with Shield icon and purple/indigo gradient theme
   - Complete hierarchical permission system where admin creates staff users underneath with specific role permissions
   - Real-time notifications for staff creation, updates, and deletions with audit logging throughout
+- June 23, 2025. Expanded staff role system with 22 specific positions organized by department
+  - Replaced generic role types with specific job functions across 4 departments
+  - Marina & Fleet Operations: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor
+  - Member Services: Member Relations Specialist, Concierge Manager, Concierge Agent, Guest Services Representative, VIP Coordinator
+  - Operations & Support: Operations Manager, Booking Coordinator, Service Coordinator, Event Coordinator, Safety Officer
+  - Finance & Technology: Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator
+  - Updated backend API validation and frontend role selection to support all new specific positions
+  - Enhanced staff management system with role-based permissions matching each position's responsibilities
 
 ## Member Experience Feature Status
 

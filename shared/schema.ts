@@ -2,16 +2,39 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } fr
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// User roles enum
+// User roles enum - Specific staff positions
 export const UserRole = {
   MEMBER: 'member',
   YACHT_OWNER: 'yacht_owner', 
   SERVICE_PROVIDER: 'service_provider',
   ADMIN: 'admin',
-  STAFF_CREW_MANAGER: 'staff_crew_manager',
-  STAFF_CUSTOMER_SUPPORT: 'staff_customer_support', 
-  STAFF_CONCIERGE: 'staff_concierge',
-  STAFF_MANAGEMENT: 'staff_management'
+  // Marina & Fleet Operations
+  STAFF_MARINA_MANAGER: 'staff_marina_manager',
+  STAFF_FLEET_COORDINATOR: 'staff_fleet_coordinator',
+  STAFF_DOCK_MASTER: 'staff_dock_master',
+  STAFF_YACHT_CAPTAIN: 'staff_yacht_captain',
+  STAFF_FIRST_MATE: 'staff_first_mate',
+  STAFF_CREW_SUPERVISOR: 'staff_crew_supervisor',
+  // Member Services
+  STAFF_MEMBER_RELATIONS: 'staff_member_relations',
+  STAFF_CONCIERGE_MANAGER: 'staff_concierge_manager',
+  STAFF_CONCIERGE_AGENT: 'staff_concierge_agent',
+  STAFF_GUEST_SERVICES: 'staff_guest_services',
+  STAFF_VIP_COORDINATOR: 'staff_vip_coordinator',
+  // Operations & Support
+  STAFF_OPERATIONS_MANAGER: 'staff_operations_manager',
+  STAFF_BOOKING_COORDINATOR: 'staff_booking_coordinator',
+  STAFF_SERVICE_COORDINATOR: 'staff_service_coordinator',
+  STAFF_EVENT_COORDINATOR: 'staff_event_coordinator',
+  STAFF_SAFETY_OFFICER: 'staff_safety_officer',
+  // Finance & Administration
+  STAFF_FINANCE_MANAGER: 'staff_finance_manager',
+  STAFF_BILLING_SPECIALIST: 'staff_billing_specialist',
+  STAFF_ACCOUNTS_MANAGER: 'staff_accounts_manager',
+  // Technology & Analytics
+  STAFF_IT_SPECIALIST: 'staff_it_specialist',
+  STAFF_DATA_ANALYST: 'staff_data_analyst',
+  STAFF_SYSTEMS_ADMINISTRATOR: 'staff_systems_administrator'
 } as const;
 
 export const MembershipTier = {
