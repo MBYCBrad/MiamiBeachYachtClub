@@ -154,7 +154,7 @@ const EventDetailsModal = ({ event, isOpen, onClose }: { event: CalendarEvent | 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center space-x-3">
             <div className={`p-2 rounded-lg bg-gradient-to-r ${EVENT_COLORS[event.type]}`}>
@@ -905,7 +905,7 @@ export default function CalendarPage() {
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
+              <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                 <SelectItem value="all">All Events</SelectItem>
                 <SelectItem value="yacht">Yacht Bookings</SelectItem>
                 <SelectItem value="service">Concierge Services</SelectItem>

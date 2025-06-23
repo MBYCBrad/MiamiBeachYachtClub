@@ -203,10 +203,10 @@ export default function YachtMaintenance() {
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedYacht?.toString() || ""} onValueChange={(value) => setSelectedYacht(Number(value))}>
-                <SelectTrigger className="w-64 bg-gray-900 border-gray-700">
+                <SelectTrigger className="w-64 bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <SelectValue placeholder="Select a yacht..." />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   {yachts.map((yacht: any) => (
                     <SelectItem key={yacht.id} value={yacht.id.toString()}>
                       {yacht.name} ({yacht.size}ft)
@@ -282,7 +282,7 @@ export default function YachtMaintenance() {
                       Start Trip
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Start New Trip Log</DialogTitle>
                     </DialogHeader>
@@ -420,7 +420,7 @@ export default function YachtMaintenance() {
             {/* Overview Tab */}
             <TabsContent value="overview">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Activity className="h-4 w-4" />
@@ -433,7 +433,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Sun className="h-4 w-4" />
@@ -446,7 +446,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <AlertTriangle className="h-4 w-4" />
@@ -459,7 +459,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Gauge className="h-4 w-4" />
@@ -475,7 +475,7 @@ export default function YachtMaintenance() {
 
               {/* System Components Overview */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Settings className="h-5 w-5" />
@@ -505,7 +505,7 @@ export default function YachtMaintenance() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-900 border-gray-700">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Clock className="h-5 w-5" />
@@ -548,7 +548,7 @@ export default function YachtMaintenance() {
                       Complete Trip
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Complete Trip Log</DialogTitle>
                     </DialogHeader>
@@ -562,7 +562,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {tripLogs.map((trip: any) => (
-                  <Card key={trip.id} className="bg-gray-900 border-gray-700">
+                  <Card key={trip.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -638,7 +638,7 @@ export default function YachtMaintenance() {
                       Schedule Maintenance
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Schedule Maintenance</DialogTitle>
                     </DialogHeader>
@@ -746,7 +746,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {maintenanceRecords.map((record: any) => (
-                  <Card key={record.id} className="bg-gray-900 border-gray-700">
+                  <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -791,7 +791,7 @@ export default function YachtMaintenance() {
                       New Assessment
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="text-white">Condition Assessment</DialogTitle>
                     </DialogHeader>
@@ -873,7 +873,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
                 {conditionAssessments.map((assessment: any) => (
-                  <Card key={assessment.id} className="bg-gray-900 border-gray-700">
+                  <Card key={assessment.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -947,7 +947,7 @@ export default function YachtMaintenance() {
                 </Card>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="bg-gray-900 border-gray-700">
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center gap-2">
                         <TrendingDown className="h-5 w-5" />
@@ -981,7 +981,7 @@ export default function YachtMaintenance() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gray-900 border-gray-700">
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center gap-2">
                         <LineChart className="h-5 w-5" />

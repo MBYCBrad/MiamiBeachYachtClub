@@ -355,7 +355,7 @@ export default function StaffManagement() {
             <SelectTrigger className="w-48 bg-gray-900/50 border-gray-700/50">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
+            <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
               <SelectItem value="all">All Roles</SelectItem>
               {staffRoles.map(role => (
                 <SelectItem key={role} value={role}>{role}</SelectItem>
@@ -367,7 +367,7 @@ export default function StaffManagement() {
             <SelectTrigger className="w-40 bg-gray-900/50 border-gray-700/50">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-gray-700">
+            <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
@@ -517,7 +517,7 @@ export default function StaffManagement() {
 
       {/* Add Staff Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -578,7 +578,7 @@ export default function StaffManagement() {
                   <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
                     <SelectValue placeholder="Select staff role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                     {staffRoles.map(role => (
                       <SelectItem key={role} value={role}>{role}</SelectItem>
                     ))}
@@ -662,7 +662,7 @@ export default function StaffManagement() {
 
       {/* Edit Staff Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -708,7 +708,7 @@ export default function StaffManagement() {
                     <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                       {staffRoles.map(role => (
                         <SelectItem key={role} value={role}>{role}</SelectItem>
                       ))}
@@ -729,7 +729,7 @@ export default function StaffManagement() {
                     <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                       <SelectItem value="suspended">Suspended</SelectItem>
@@ -814,7 +814,7 @@ export default function StaffManagement() {
 
       {/* Delete Staff Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 text-white">
           <DialogHeader>
             <DialogTitle>Delete Staff Member</DialogTitle>
             <DialogDescription className="text-gray-400">

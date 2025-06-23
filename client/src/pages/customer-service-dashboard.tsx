@@ -419,7 +419,7 @@ export default function CustomerServiceDashboard() {
 
         {/* Contact Detail Modal */}
         <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-          <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
