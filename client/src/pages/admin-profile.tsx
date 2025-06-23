@@ -1,36 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/hooks/use-auth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { 
-  Upload, 
-  Eye, 
-  EyeOff, 
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
   Shield, 
-  Bell, 
-  Download,
-  User,
-  Globe,
-  Calendar,
-  MapPin,
-  UserCircle,
-  Edit3,
+  Camera,
+  Edit2,
   Save,
-  Wand2,
-  Sparkles,
-  X,
-  Image,
-  Smile
-} from 'lucide-react';
+  X
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminProfile() {
   const { user } = useAuth();
@@ -38,510 +27,444 @@ export default function AdminProfile() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Real-time database query for user profile data
-  const { data: profileData, isLoading } = useQuery({
-    queryKey: ['/api/user'],
-    enabled: !!user?.id,
-  });
-  
-  const [profileFormData, setProfileFormData] = useState({
-    username: '',
-    email: '',
-    phone: '',
-    location: '',
-    language: 'English',
-    bio: '',
-    notifications: {
-      email: true,
-      sms: false,
-      push: true,
+  // Query for user profile data
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["/api/admin/profile"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/admin/profile");
+      return response.json();
     }
   });
 
-  // Update form data when database data loads
+  // State for editable fields
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    location: ""
+  });
+
+  // Update editValues when profile data loads
   useEffect(() => {
-    if (profileData) {
-      setProfileFormData({
-        username: profileData.username || '',
-        email: profileData.email || '',
-        phone: profileData.phone || '',
-        location: profileData.location || '',
-        language: profileData.language || 'English',
-        bio: profileData.bio || '',
-        notifications: {
-          email: true,
-          sms: false,
-          push: true,
-        }
+    if (profile) {
+      setEditValues({
+        username: profile.username || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        location: profile.location || ""
       });
     }
-  }, [profileData]);
+  }, [profile]);
 
-  const [passwordData, setPasswordData] = useState({
-    current: '',
-    new: '',
-    confirm: ''
-  });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showAvatarEditor, setShowAvatarEditor] = useState(false);
-  const [avatarOption, setAvatarOption] = useState<'upload' | 'emoji' | 'generate' | null>(null);
-
-  const digitalAvatars = [
-    '👨‍💼', '👩‍💼', '🧑‍💻', '👨‍🔧', '👩‍🔬', '🧑‍🎓', 
-    '👨‍⚕️', '👩‍🎨', '🧑‍🚀', '👨‍🏫', '👩‍💻', '🧑‍🔧',
-    '👨‍🎤', '👩‍🎭', '🧑‍🍳', '👨‍🌾', '👩‍🏭', '🧑‍🔬',
-    '👨‍🎨', '👩‍💼', '🧑‍⚖️', '👨‍🚒', '👩‍✈️', '🧑‍🚀'
-  ];
-
+  // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('PATCH', '/api/admin/profile', data);
+      const response = await apiRequest("PUT", "/api/admin/profile", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-      });
-      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/profile"] });
+      toast({ title: "Profile updated successfully" });
+      setEditingField(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "Update Failed",
-        description: error.message || "Failed to update profile.",
-        variant: "destructive",
-      });
-    },
+      toast({ title: "Error updating profile", description: error.message, variant: "destructive" });
+    }
   });
 
+  // Avatar upload mutation
   const uploadAvatarMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append('avatar', file);
-      const response = await apiRequest('POST', '/api/admin/avatar', formData);
+      formData.append("avatar", file);
+      const response = await fetch("/api/admin/profile/avatar", {
+        method: "POST",
+        body: formData
+      });
+      if (!response.ok) throw new Error("Upload failed");
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      toast({
-        title: "Avatar Updated",
-        description: "Your profile picture has been updated.",
-      });
-      setShowAvatarEditor(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/profile"] });
+      toast({ title: "Avatar updated successfully" });
     },
     onError: (error: any) => {
-      toast({
-        title: "Upload Failed",
-        description: error.message || "Failed to upload avatar.",
-        variant: "destructive",
-      });
-    },
+      toast({ title: "Error uploading avatar", description: error.message, variant: "destructive" });
+    }
   });
 
-  const handleInputChange = (field: string, value: string) => {
-    setProfileFormData(prev => ({ ...prev, [field]: value }));
+  const handleEdit = (field: string) => {
+    setEditingField(field);
+    setEditValues(prev => ({
+      ...prev,
+      [field]: profile?.[field] || ""
+    }));
   };
 
-  const handleSaveProfile = () => {
-    updateProfileMutation.mutate(profileFormData);
+  const handleSave = (field: string) => {
+    updateProfileMutation.mutate({ [field]: editValues[field as keyof typeof editValues] });
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCancel = () => {
+    setEditingField(null);
+    setEditValues({
+      username: profile?.username || "",
+      email: profile?.email || "",
+      phone: profile?.phone || "",
+      location: profile?.location || ""
+    });
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Please select an image under 10MB.",
-          variant: "destructive",
-        });
-        return;
-      }
       uploadAvatarMutation.mutate(file);
     }
-  };
-
-  const handleAvatarSelect = (avatar: string) => {
-    updateProfileMutation.mutate({ avatar });
-    setShowAvatarEditor(false);
-  };
-
-  const generateRandomAvatar = () => {
-    const colors = ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'];
-    const shapes = ['circle', 'square'];
-    const selectedColor = colors[Math.floor(Math.random() * colors.length)];
-    const selectedShape = shapes[Math.floor(Math.random() * shapes.length)];
-    
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(profileFormData.username || 'Admin')}&background=${selectedColor.slice(1)}&color=fff&size=128&rounded=${selectedShape === 'circle' ? 'true' : 'false'}`;
-    
-    updateProfileMutation.mutate({ avatar: avatarUrl });
-    setShowAvatarEditor(false);
-  };
-
-  const currentUser = profileData || user || {
-    username: 'Loading...',
-    email: '',
-    fullName: '',
-    role: 'admin'
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gray-900 p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Profile</h1>
+          <p className="text-gray-400">Manage your administrative account settings</p>
+        </motion.div>
+
+        {/* Avatar Section */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative group">
+                  <motion.div 
+                    className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold cursor-pointer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleAvatarClick}
+                  >
+                    {profile?.avatarUrl ? (
+                      <img 
+                        src={profile.avatarUrl} 
+                        alt="Avatar" 
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-16 h-16" />
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Camera className="w-8 h-8 text-white" />
+                    </div>
+                  </motion.div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-white">{profile?.username || "Admin User"}</h2>
+                  <p className="text-gray-400">{profile?.role || "Administrator"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Personal Information */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-lg"
+          transition={{ delay: 0.2 }}
         >
-          <h1 className="text-3xl font-bold text-white mb-2">Admin Profile</h1>
-          <p className="text-purple-100">Manage your administrator account settings and preferences</p>
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Username Field */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all">
+                <div className="flex items-center space-x-3">
+                  <User className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <Label className="text-gray-300">Username</Label>
+                    {editingField === 'username' ? (
+                      <Input
+                        value={editValues.username}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, username: e.target.value }))}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    ) : (
+                      <p className="text-white">{profile?.username || "Not set"}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {editingField === 'username' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave('username')}
+                        disabled={updateProfileMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCancel}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit('username')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Email Field */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all">
+                <div className="flex items-center space-x-3">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <Label className="text-gray-300">Email</Label>
+                    {editingField === 'email' ? (
+                      <Input
+                        value={editValues.email}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, email: e.target.value }))}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    ) : (
+                      <p className="text-white">{profile?.email || "Not set"}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {editingField === 'email' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave('email')}
+                        disabled={updateProfileMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCancel}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit('email')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Phone Field */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all">
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <Label className="text-gray-300">Phone</Label>
+                    {editingField === 'phone' ? (
+                      <Input
+                        value={editValues.phone}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, phone: e.target.value }))}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    ) : (
+                      <p className="text-white">{profile?.phone || "Not set"}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {editingField === 'phone' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave('phone')}
+                        disabled={updateProfileMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCancel}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit('phone')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Location Field */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all">
+                <div className="flex items-center space-x-3">
+                  <MapPin className="h-5 w-5 text-gray-400" />
+                  <div>
+                    <Label className="text-gray-300">Location</Label>
+                    {editingField === 'location' ? (
+                      <Input
+                        value={editValues.location}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, location: e.target.value }))}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    ) : (
+                      <p className="text-white">{profile?.location || "Not set"}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {editingField === 'location' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave('location')}
+                        disabled={updateProfileMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCancel}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit('location')}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Avatar Section */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
-              <div className="flex flex-col space-y-1.5 p-6 text-center">
-                <div className="relative mx-auto w-32 h-32 mb-4">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
-                    {currentUser.avatar ? (
-                      <img 
-                        src={currentUser.avatar} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-blue-500">
-                      {currentUser.username?.charAt(0)?.toUpperCase() || 'A'}
-                    </div>
-                  </div>
-                  
-                  <Button
-                    onClick={() => setShowAvatarEditor(true)}
-                    size="sm"
-                    className="absolute -bottom-2 -right-2 rounded-full bg-purple-600 hover:bg-purple-700 w-10 h-10 p-0"
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <h3 className="text-white text-xl font-semibold">{currentUser.fullName || currentUser.username}</h3>
-                <Badge variant="secondary" className="mx-auto bg-purple-100 text-purple-800">
-                  {currentUser.role?.toUpperCase()}
-                </Badge>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
-              <div className="flex flex-col space-y-1.5 p-6">
-                <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
-                  <User className="h-5 w-5 mr-2" />
-                  Personal Information
-                </h3>
-              </div>
-              <div className="p-6 pt-0 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Security Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Shield className="h-5 w-5 mr-2" />
+                Security Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all">
                   <div>
-                    <Label htmlFor="username" className="text-gray-300">Username</Label>
-                    <Input
-                      id="username"
-                      type="text"
-                      value={profileFormData.username}
-                      onChange={(e) => handleInputChange('username', e.target.value)}
-                      className="bg-gray-800/50 border-gray-700 text-white mt-1"
-                      disabled={!isEditing}
-                    />
+                    <h3 className="text-white font-medium">Change Password</h3>
+                    <p className="text-gray-400 text-sm">Update your account password</p>
                   </div>
-                  <div>
-                    <Label htmlFor="email" className="text-gray-300">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profileFormData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="bg-gray-800/50 border-gray-700 text-white mt-1"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone" className="text-gray-300">Phone</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={profileFormData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      className="bg-gray-800/50 border-gray-700 text-white mt-1"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location" className="text-gray-300">Location</Label>
-                    <Input
-                      id="location"
-                      type="text"
-                      value={profileFormData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
-                      className="bg-gray-800/50 border-gray-700 text-white mt-1"
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="bio" className="text-gray-300">Bio</Label>
-                  <textarea
-                    id="bio"
-                    value={profileFormData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
-                    className="w-full mt-1 bg-gray-800/50 border border-gray-700 rounded-md px-3 py-2 text-white min-h-[80px] resize-none"
-                    placeholder="Tell us about yourself..."
-                    disabled={!isEditing}
-                  />
-                </div>
-
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleSaveProfile}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                      disabled={updateProfileMutation.isPending}
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </Button>
-                    <Button
-                      onClick={() => setIsEditing(false)}
-                      variant="outline"
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    onClick={() => setIsEditing(true)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Security Settings */}
-            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
-              <div className="flex flex-col space-y-1.5 p-6">
-                <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
-                  <Shield className="h-5 w-5 mr-2" />
-                  Security Settings
-                </h3>
-              </div>
-              <div className="p-6 pt-0 space-y-4">
-                <div>
-                  <Label className="text-gray-300">Change Password</Label>
-                  <div className="space-y-3 mt-2">
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Current Password"
-                        value={passwordData.current}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, current: e.target.value }))}
-                        className="bg-gray-800/50 border-gray-700 text-white pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        )}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="border-gray-600 hover:border-purple-500">
+                        Update Password
                       </Button>
-                    </div>
-                    <Input
-                      type="password"
-                      placeholder="New Password"
-                      value={passwordData.new}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, new: e.target.value }))}
-                      className="bg-gray-800/50 border-gray-700 text-white"
-                    />
-                    <Input
-                      type="password"
-                      placeholder="Confirm New Password"
-                      value={passwordData.confirm}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirm: e.target.value }))}
-                      className="bg-gray-800/50 border-gray-700 text-white"
-                    />
-                    <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                      Update Password
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Avatar Editor Modal */}
-        <AnimatePresence>
-          {showAvatarEditor && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-              onClick={() => setShowAvatarEditor(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-gradient-to-br from-purple-900 to-blue-900 p-6 rounded-xl max-w-md w-full border border-purple-500/20"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-white">Update Avatar</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAvatarEditor(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {!avatarOption && (
-                    <div className="grid grid-cols-3 gap-3">
-                      <Button
-                        onClick={() => setAvatarOption('upload')}
-                        className="flex flex-col items-center p-4 h-auto bg-purple-800/50 hover:bg-purple-700/50 border border-purple-500/30"
-                      >
-                        <Upload className="h-8 w-8 mb-2" />
-                        <span className="text-sm">Upload Photo</span>
-                      </Button>
-                      <Button
-                        onClick={() => setAvatarOption('emoji')}
-                        className="flex flex-col items-center p-4 h-auto bg-purple-800/50 hover:bg-purple-700/50 border border-purple-500/30"
-                      >
-                        <Smile className="h-8 w-8 mb-2" />
-                        <span className="text-sm">Choose Emoji</span>
-                      </Button>
-                      <Button
-                        onClick={() => setAvatarOption('generate')}
-                        className="flex flex-col items-center p-4 h-auto bg-purple-800/50 hover:bg-purple-700/50 border border-purple-500/30"
-                      >
-                        <Wand2 className="h-8 w-8 mb-2" />
-                        <span className="text-sm">Generate</span>
-                      </Button>
-                    </div>
-                  )}
-
-                  {avatarOption === 'upload' && (
-                    <div className="space-y-4">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                        disabled={uploadAvatarMutation.isPending}
-                      >
-                        <Image className="h-4 w-4 mr-2" />
-                        {uploadAvatarMutation.isPending ? 'Uploading...' : 'Select Image'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setAvatarOption(null)}
-                        className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
-                      >
-                        Back
-                      </Button>
-                    </div>
-                  )}
-
-                  {avatarOption === 'emoji' && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto">
-                        {digitalAvatars.map((emoji, index) => (
-                          <Button
-                            key={index}
-                            onClick={() => handleAvatarSelect(emoji)}
-                            className="h-12 w-12 text-2xl bg-purple-800/50 hover:bg-purple-700 border border-purple-500/30"
-                            disabled={updateProfileMutation.isPending}
-                          >
-                            {emoji}
-                          </Button>
-                        ))}
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-900 border-gray-700">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">Change Password</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-gray-300">Current Password</Label>
+                          <Input type="password" className="bg-gray-900 border-gray-700 text-white" />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300">New Password</Label>
+                          <Input type="password" className="bg-gray-900 border-gray-700 text-white" />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300">Confirm New Password</Label>
+                          <Input type="password" className="bg-gray-900 border-gray-700 text-white" />
+                        </div>
+                        <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                          Update Password
+                        </Button>
                       </div>
-                      <Button
-                        variant="outline"
-                        onClick={() => setAvatarOption(null)}
-                        className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
-                      >
-                        Back
-                      </Button>
-                    </div>
-                  )}
-
-                  {avatarOption === 'generate' && (
-                    <div className="space-y-4">
-                      <Button
-                        onClick={generateRandomAvatar}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                        disabled={updateProfileMutation.isPending}
-                      >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        {updateProfileMutation.isPending ? 'Generating...' : 'Generate Random Avatar'}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => setAvatarOption(null)}
-                        className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
-                      >
-                        Back
-                      </Button>
-                    </div>
-                  )}
+                    </DialogContent>
+                  </Dialog>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

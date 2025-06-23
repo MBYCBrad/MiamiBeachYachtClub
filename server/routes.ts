@@ -1951,6 +1951,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ADMIN PROFILE ROUTES - Real-time database integration
+  app.get("/api/admin/profile", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const profile = await dbStorage.getUser(req.user.id);
+      if (!profile) {
+        return res.status(404).json({ message: "Profile not found" });
+      }
+      
+      // Return profile without password
+      const { password, ...profileData } = profile;
+      res.json(profileData);
+    } catch (error: any) {
+      console.error('Error fetching admin profile:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/profile", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const { username, email, phone, location } = req.body;
+      const updatedProfile = await dbStorage.updateUserProfile(req.user.id, {
+        username,
+        email,
+        phone,
+        location
+      });
+
+      if (!updatedProfile) {
+        return res.status(404).json({ message: "Profile not found" });
+      }
+
+      // Return updated profile without password
+      const { password, ...profileData } = updatedProfile;
+      res.json(profileData);
+    } catch (error: any) {
+      console.error('Error updating admin profile:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/profile/avatar", upload.single('avatar'), async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'admin') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Store avatar using media storage service
+      const avatarUrl = await mediaStorageService.storeFile(req.file.buffer, req.file.originalname);
+      
+      // Update user avatar URL in database
+      const updatedProfile = await dbStorage.updateUserProfile(req.user.id, {
+        avatarUrl
+      });
+
+      if (!updatedProfile) {
+        return res.status(404).json({ message: "Profile not found" });
+      }
+
+      res.json({ avatarUrl });
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // FAVORITES ROUTES - Real-time database integration
   app.get("/api/favorites", requireAuth, async (req, res) => {
     try {

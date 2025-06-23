@@ -47,6 +47,34 @@ div[style*="background-color: #1f2937"],
   background-image: none !important;
 }
 
+/* Nuclear CSS - Override everything with maximum specificity */
+div[style*="background-color: rgb(31, 41, 55)"] {
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+}
+
+div[style*="backgroundColor: #1f2937"] {
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+}
+
+/* Target any card-like elements in admin profile */
+[data-component="admin-profile"] div,
+.admin-profile div,
+div.rounded-lg.border {
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+}
+
+/* Override any CSS variables that might be affecting this */
+:root {
+  --admin-profile-bg: #1f2937 !important;
+}
+
+.dark {
+  --admin-profile-bg: #1f2937 !important;
+}
+
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
