@@ -2214,6 +2214,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced profile management endpoints
+  app.patch("/api/profile", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { username, email, phone, location, language, bio, notifications, avatar } = req.body;
+      
+      const updateData: any = {};
+      if (username !== undefined) updateData.username = username;
+      if (email !== undefined) updateData.email = email;
+      if (phone !== undefined) updateData.phone = phone;
+      if (location !== undefined) updateData.location = location;
+      if (language !== undefined) updateData.language = language;
+      if (bio !== undefined) updateData.bio = bio;
+      if (avatar !== undefined) updateData.avatar = avatar;
+      if (notifications !== undefined) updateData.notifications = JSON.stringify(notifications);
+      
+      const updatedUser = await dbStorage.updateUser(userId, updateData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await auditService.logAction(req, 'update', 'profile', userId, updateData);
+      res.json({ message: "Profile updated successfully", user: updatedUser });
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'profile', req.user!.id, req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Avatar upload endpoint with multer
+  const avatarStorage = multer.memoryStorage();
+  const avatarUpload = multer({ 
+    storage: avatarStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed'));
+      }
+    }
+  });
+
+  app.post("/api/profile/avatar", requireAuth, avatarUpload.single('avatar'), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Generate unique filename
+      const fileExtension = req.file.originalname.split('.').pop();
+      const filename = `avatar_${userId}_${Date.now()}.${fileExtension}`;
+      
+      // Store the file using media storage service
+      await mediaStorageService.storeFile(filename, req.file.buffer);
+      
+      // Update user avatar in database
+      const avatarUrl = `/api/media/${filename}`;
+      const updatedUser = await dbStorage.updateUser(userId, { avatar: avatarUrl });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await auditService.logAction(req, 'upload', 'avatar', userId, { filename, size: req.file.size });
+      res.json({ 
+        message: "Avatar uploaded successfully", 
+        avatarUrl,
+        user: updatedUser 
+      });
+    } catch (error: any) {
+      await auditService.logAction(req, 'upload', 'avatar', req.user!.id, {}, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ADMIN API ROUTES - Complete dashboard functionality
   app.get("/api/admin/stats", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
