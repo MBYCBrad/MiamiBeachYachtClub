@@ -216,7 +216,7 @@ export default function AdminProfile() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
               <div className="flex flex-col space-y-1.5 p-6 text-center">
                 <div className="relative mx-auto w-32 h-32 mb-4">
                   <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
@@ -256,7 +256,7 @@ export default function AdminProfile() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
-            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
               <div className="flex flex-col space-y-1.5 p-6">
                 <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
                   <User className="h-5 w-5 mr-2" />
@@ -354,7 +354,7 @@ export default function AdminProfile() {
             </div>
 
             {/* Security Settings */}
-            <div className="rounded-lg border admin-profile-card" style={{ backgroundColor: '#1f2937', borderColor: '#374151' }}>
+            <div className="rounded-lg border" style={{ backgroundColor: '#1f2937', borderColor: '#374151', background: '#1f2937' }}>
               <div className="flex flex-col space-y-1.5 p-6">
                 <h3 className="text-lg font-semibold leading-none tracking-tight text-white flex items-center">
                   <Shield className="h-5 w-5 mr-2" />

@@ -23,6 +23,30 @@ div[class*="admin-profile-card"] {
   border-color: #374151 !important;
 }
 
+/* Nuclear option - force grey backgrounds with maximum specificity */
+div.admin-profile-card,
+div[style*="background-color: rgb(31, 41, 55)"],
+div[style*="background-color: #1f2937"],
+.admin-profile-card[style],
+*[class*="admin-profile-card"] {
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+  border: 1px solid #374151 !important;
+}
+
+/* Override any hsl() CSS variables */
+.admin-profile-card * {
+  --tw-bg-opacity: 1 !important;
+}
+
+/* Force the exact grey color in admin profile */
+.admin-profile-card {
+  background: #1f2937 !important;
+  background-color: #1f2937 !important;
+  background-image: none !important;
+}
+
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
