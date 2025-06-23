@@ -1,6 +1,6 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
-  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments,
+  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
@@ -9,7 +9,7 @@ import {
   type Message, type InsertMessage, type Notification, type InsertNotification,
   type Conversation, type InsertConversation, type PhoneCall, type InsertPhoneCall,
   type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
-  type CrewAssignment, type InsertCrewAssignment,
+  type CrewAssignment, type InsertCrewAssignment, type Staff, type InsertStaff,
   type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
@@ -389,13 +389,26 @@ export class DatabaseStorage implements IStorage {
 
   // Service Booking methods
   async getServiceBookings(filters?: { userId?: number, serviceId?: number, status?: string }): Promise<ServiceBooking[]> {
-    let baseQuery = db.select().from(serviceBookings);
-    
-    if (filters?.userId) {
-      return await baseQuery.where(eq(serviceBookings.userId, filters.userId));
+    try {
+      let query = db.select().from(serviceBookings);
+      
+      if (filters?.userId) {
+        query = query.where(eq(serviceBookings.userId, filters.userId));
+      }
+      
+      if (filters?.serviceId) {
+        query = query.where(eq(serviceBookings.serviceId, filters.serviceId));
+      }
+      
+      if (filters?.status) {
+        query = query.where(eq(serviceBookings.status, filters.status));
+      }
+      
+      return await query;
+    } catch (error) {
+      console.error('Error fetching service bookings:', error);
+      return [];
     }
-    
-    return await baseQuery;
   }
 
   async getServiceBooking(id: number): Promise<ServiceBooking | undefined> {
