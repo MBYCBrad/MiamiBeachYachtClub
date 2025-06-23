@@ -3559,7 +3559,7 @@ export default function AdminDashboard() {
                 className="text-gray-400 hover:text-white"
                 onClick={() => logoutMutation.mutate()}
               >
-                <MoreVertical className="h-4 w-4" />
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>

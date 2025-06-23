@@ -488,6 +488,10 @@ Changelog:
   - Replaced shadcn Avatar with direct div element using purple-to-blue gradient background (from-purple-600 to-indigo-600)
   - Avatar now displays clean white "A" letter (text-2xl font-semibold) centered in gradient circle matching user requirements
   - Eliminated placeholder endpoint interference that was causing text display instead of proper fallback avatar
+- June 23, 2025. Admin dashboard logout button improved with clear icon
+  - Changed three-dot menu icon (MoreVertical) to clear logout icon (LogOut) for better user experience
+  - Maintained existing functionality while providing clearer visual indication of logout action
+  - Enhanced admin dashboard usability with intuitive logout button design
 
 ## Member Experience Feature Status
 
