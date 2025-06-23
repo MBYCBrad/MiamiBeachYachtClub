@@ -77,9 +77,19 @@ const AppHeader: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-              <User className="h-4 w-4 text-white" />
-            </div>
+            {user.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover border border-gray-300 dark:border-gray-600"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-semibold">
+                  {user.username?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Notification Center */}
