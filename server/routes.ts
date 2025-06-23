@@ -2124,6 +2124,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const newService = await dbStorage.createService(req.body);
+      
+      // Real-time cross-role notifications - notify all members of new service
+      await notificationService.notifyMembersOfNewContent('service', {
+        serviceId: newService.id,
+        serviceName: newService.name,
+        category: newService.category,
+        price: newService.pricePerSession,
+        providerId: newService.providerId,
+        addedBy: req.user!.username
+      });
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('service_added', newService, req.user!.id);
+      
       await auditService.logAction(req, 'create', 'service', newService.id, req.body);
       res.status(201).json(newService);
     } catch (error: any) {

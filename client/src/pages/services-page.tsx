@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Search, Filter, Star, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Service } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
+import { useNotifications } from '@/services/notifications';
 
 interface ServicesPageProps {
   currentView: string;
@@ -14,10 +15,22 @@ interface ServicesPageProps {
 
 export default function ServicesPage({ currentView, setCurrentView }: ServicesPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const queryClient = useQueryClient();
+  const { latestNotification } = useNotifications();
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services', { available: true }]
   });
+
+  // Real-time service updates - listen for new services and refresh data
+  useEffect(() => {
+    if (latestNotification?.type === 'service_added' || 
+        latestNotification?.type === 'new_content' && latestNotification?.data?.contentType === 'service') {
+      // Invalidate services queries to refresh the data in real-time
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+      console.log('🔄 Services refreshed due to real-time update:', latestNotification.data);
+    }
+  }, [latestNotification, queryClient]);
 
   const filteredServices = services.filter(service =>
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
