@@ -50,7 +50,8 @@ import {
   Ship,
   BellRing,
   Dot,
-  Wrench
+  Wrench,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
+import MyProfile from "./my-profile";
 
 interface AdminStats {
   totalUsers: number;
@@ -101,6 +103,7 @@ const sidebarItems = [
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
+  { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
 
@@ -3567,6 +3570,7 @@ export default function AdminDashboard() {
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'analytics' && renderAnalytics()}
+            {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
