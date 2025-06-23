@@ -75,6 +75,7 @@ import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
 import MyProfile from "./my-profile";
+import { Overview3DIcon, Users3DIcon, Yacht3DIcon, Services3DIcon, Events3DIcon, Bookings3DIcon, Analytics3DIcon, Payments3DIcon } from '@/components/Animated3DAdminIcons';
 
 interface AdminStats {
   totalUsers: number;
@@ -1697,22 +1698,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            Admin Overview
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Miami Beach Yacht Club Management Dashboard
-          </motion.p>
+            <Overview3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Overview
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Miami Beach Yacht Club Management Dashboard
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
@@ -2006,22 +2020,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            Bookings Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Complete yacht experience oversight - crew coordination, amenities, and guest services
-          </motion.p>
+            <Bookings3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Bookings Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Complete yacht experience oversight - crew coordination, amenities, and guest services
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
@@ -2595,22 +2622,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            User Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage member accounts, permissions, and memberships
-          </motion.p>
+            <Users3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              User Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage member accounts, permissions, and memberships
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
@@ -2717,22 +2757,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            Fleet Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage yacht fleet, availability, and specifications
-          </motion.p>
+            <Yacht3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Fleet Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage yacht fleet, availability, and specifications
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
@@ -2810,22 +2863,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            Service Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage yacht concierge services and providers
-          </motion.p>
+            <Services3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Service Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage yacht concierge services and providers
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
@@ -2920,22 +2986,35 @@ export default function AdminDashboard() {
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+        <div className="flex items-center space-x-6">
+          {/* 3D Animated Icon Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg"
           >
-            Event Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage yacht club events and member experiences
-          </motion.p>
+            <Events3DIcon size={40} className="text-white" />
+          </motion.div>
+          
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Event Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage yacht club events and member experiences
+            </motion.p>
+          </div>
         </div>
         
         <motion.div
