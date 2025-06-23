@@ -531,8 +531,9 @@ Changelog:
   - Updated calendar day selection from blue to purple-to-indigo gradient (from-purple-600 to-indigo-600)
   - Applied purple-to-blue gradient outlines with glow animations to all profile pictures
   - Profile pictures now display consistent gradient styling across profile page, header, and admin dashboard
+  - Updated admin dashboard guest count indicators from pink to purple-to-blue gradient
   - Complete visual consistency achieved with purple-to-blue gradient theme throughout Miami Beach Yacht Club application
-  - All interactive elements, event cards, profile displays, and calendar selections now use unified gradient styling
+  - All interactive elements, event cards, profile displays, calendar selections, and booking indicators now use unified gradient styling
 - June 23, 2025. Clean minimalist admin interface with Apple-like typography completed
   - Removed all purple-blue gradient icon boxes (favicons) from admin section headers for cleaner appearance
   - Applied consistent text-5xl font-bold styling with SF Pro Display typography to all admin page titles
