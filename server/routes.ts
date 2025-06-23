@@ -78,32 +78,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  // File upload endpoint for yacht images
-  app.post('/api/upload/yacht-image', requireAuth, upload.single('image'), async (req, res) => {
+  // Multi-image upload endpoint
+  app.post('/api/media/upload', requireAuth, upload.array('images', 10), async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ message: 'No files uploaded' });
       }
 
-      // Store the uploaded file information in media_assets table
-      const mediaAsset = await dbStorage.createMediaAsset({
-        name: req.file.originalname,
-        type: 'image',
-        filename: req.file.filename,
-        mimeType: req.file.mimetype,
-        fileSize: req.file.size,
-        category: 'yacht',
-        url: `/api/media/${req.file.filename}`
-      });
+      const uploadedImages = [];
+      
+      for (const file of req.files) {
+        // Store the uploaded file information in media_assets table
+        const mediaAsset = await dbStorage.createMediaAsset({
+          name: file.originalname,
+          type: 'image',
+          filename: file.filename,
+          mimeType: file.mimetype,
+          fileSize: file.size,
+          category: 'yacht',
+          url: `/api/media/${file.filename}`
+        });
+
+        uploadedImages.push(`/api/media/${file.filename}`);
+      }
 
       res.json({ 
-        imageUrl: req.file.filename,
-        mediaAssetId: mediaAsset.id,
-        originalName: req.file.originalname
+        imageUrls: uploadedImages,
+        count: uploadedImages.length
       });
     } catch (error: any) {
-      console.error('File upload error:', error);
-      res.status(500).json({ message: 'File upload failed: ' + error.message });
+      console.error('Multi-image upload error:', error);
+      res.status(500).json({ message: 'Image upload failed: ' + error.message });
     }
   });
 

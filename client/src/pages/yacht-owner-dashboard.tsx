@@ -483,7 +483,7 @@ export default function YachtOwnerDashboard() {
     queryKey: ['/api/yacht-owner/stats'],
   });
 
-  const { data: yachts } = useQuery({
+  const { data: yachts = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/yachts'],
     enabled: !!user && user.role === 'yacht_owner'
   });

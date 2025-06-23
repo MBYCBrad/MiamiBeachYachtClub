@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, Plus, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,11 @@ export function MultiImageUpload({
   maxImages = 10 
 }: MultiImageUploadProps) {
   const [images, setImages] = useState<string[]>(currentImages);
+
+  // Update images when currentImages prop changes
+  useEffect(() => {
+    setImages(currentImages);
+  }, [currentImages]);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -60,34 +65,30 @@ export function MultiImageUpload({
     setUploading(true);
 
     try {
-      const uploadPromises = validFiles.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'image');
-        formData.append('category', 'yacht_gallery');
-
-        const response = await fetch('/api/media/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`);
-        }
-
-        const result = await response.json();
-        return result.filename;
+      const formData = new FormData();
+      validFiles.forEach(file => {
+        formData.append('images', file);
       });
 
-      const uploadedFilenames = await Promise.all(uploadPromises);
-      const newImages = [...images, ...uploadedFilenames];
+      const response = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const newImages = [...images, ...result.imageUrls];
       
       setImages(newImages);
       onImagesUploaded(newImages);
 
       toast({
         title: "Upload successful",
-        description: `${uploadedFilenames.length} image(s) uploaded`,
+        description: `${result.count} image(s) uploaded`,
       });
     } catch (error: any) {
       toast({
@@ -193,7 +194,7 @@ export function MultiImageUpload({
                 className="group relative aspect-square rounded-lg overflow-hidden bg-gray-800"
               >
                 <img
-                  src={`/api/media/${imageUrl}`}
+                  src={imageUrl.startsWith('/api/media/') ? imageUrl : `/api/media/${imageUrl}`}
                   alt={`Gallery image ${index + 1}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {

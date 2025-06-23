@@ -407,6 +407,7 @@ function AddYachtDialog() {
     capacity: '',
     description: '',
     imageUrl: '',
+    images: [] as string[],
     pricePerHour: '',
     isAvailable: true,
     ownerId: '',
@@ -422,7 +423,8 @@ function AddYachtDialog() {
         size: parseInt(data.size),
         capacity: parseInt(data.capacity),
         ownerId: data.ownerId ? parseInt(data.ownerId) : null,
-        amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : []
+        amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
+        images: data.images || []
       };
       const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
       return response.json();
@@ -431,7 +433,7 @@ function AddYachtDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
       toast({ title: "Success", description: "Yacht created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', pricePerHour: '', isAvailable: true, ownerId: '', amenities: '' });
+      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: '', amenities: '' });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
