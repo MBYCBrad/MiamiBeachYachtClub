@@ -49,7 +49,8 @@ import {
   MessageSquare,
   Ship,
   BellRing,
-  Dot
+  Dot,
+  Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
+import YachtMaintenancePage from "./yacht-maintenance";
 
 interface AdminStats {
   totalUsers: number;
@@ -89,6 +91,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
+  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500' },
   { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-teal-500 to-cyan-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
   { id: 'staff-management', label: 'Staff Management', icon: Shield, color: 'from-purple-500 to-indigo-500' },
@@ -3572,6 +3575,7 @@ export default function AdminDashboard() {
             {activeSection === 'settings' && renderSettings()}
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
+            {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
             {activeSection === 'staff-management' && <StaffManagement />}
