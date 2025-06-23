@@ -302,7 +302,7 @@ export default function CrewManagementPage() {
                         <DialogTrigger asChild>
                           <Button 
                             size="sm" 
-                            className="bg-gray-600 hover:bg-gray-700"
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                             onClick={() => setSelectedBooking(booking)}
                           >
                             <UserPlus className="h-4 w-4 mr-1" />
@@ -471,7 +471,7 @@ export default function CrewManagementPage() {
                           assignmentId: assignment.id,
                           status: assignment.status === 'planned' ? 'assigned' : 'active'
                         })}
-                        className="border-gray-700 text-gray-300 hover:bg-gray-600"
+                        className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
                       >
                         <Settings className="h-4 w-4 mr-1" />
                         Update
