@@ -3489,7 +3489,7 @@ export default function AdminDashboard() {
                     onClick={() => setActiveSection(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                       isActive 
-                        ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/30 text-white shadow-lg' 
+                        ? 'border border-purple-500/30 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                     whileHover={{ scale: 1.02 }}
@@ -3499,7 +3499,7 @@ export default function AdminDashboard() {
                     {isActive && (
                       <motion.div
                         layoutId="activeBackground"
-                        className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-10 rounded-xl`}
+                        className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-20 rounded-xl`}
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                       />
                     )}
