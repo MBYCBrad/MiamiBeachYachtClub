@@ -304,7 +304,7 @@ function AddUserDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
           <Users className="h-4 w-4 mr-2" />
           Add User
         </Button>
