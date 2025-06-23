@@ -119,10 +119,11 @@ html, body {
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    @apply font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    background: var(--yacht-dark);
+    background: var(--yacht-dark) !important;
+    color: var(--yacht-silver) !important;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -281,11 +282,94 @@ html, body {
     border-color: var(--yacht-accent);
   }
 
+  /* UNIVERSAL MBYC THEME ENFORCEMENT - OVERRIDES ALL COLORS */
+  
+  /* Force ALL backgrounds to use yacht club dark theme */
+  * {
+    border-color: var(--yacht-accent) !important;
+  }
+
+  /* Force ALL page backgrounds to dark theme */
+  body, html, #root, main, .app, [data-radix-dialog-overlay], [data-radix-popover-content] {
+    background-color: var(--yacht-dark) !important;
+  }
+
+  /* Override ALL background color classes */
+  .bg-background, .bg-card, .bg-muted, .bg-popover, .bg-secondary, .bg-primary,
+  .bg-green-500, .bg-blue-500, .bg-pink-500, .bg-orange-500, .bg-red-500, .bg-yellow-500,
+  .bg-green-600, .bg-blue-600, .bg-pink-600, .bg-orange-600, .bg-red-600, .bg-yellow-600,
+  .bg-emerald-500, .bg-cyan-500, .bg-violet-500, .bg-rose-500, .bg-amber-500,
+  .bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-zinc-50,
+  [class*="bg-green"], [class*="bg-blue"], [class*="bg-pink"], [class*="bg-orange"], 
+  [class*="bg-red"], [class*="bg-yellow"], [class*="bg-emerald"], [class*="bg-cyan"],
+  [class*="bg-violet"], [class*="bg-rose"], [class*="bg-amber"], [class*="bg-white"],
+  [class*="bg-gray"], [class*="bg-slate"], [class*="bg-zinc"] {
+    background-color: var(--yacht-card) !important;
+  }
+
+  /* Override ALL text color classes */
+  .text-primary, .text-green-500, .text-blue-500, .text-pink-500, .text-orange-500,
+  .text-red-500, .text-yellow-500, .text-emerald-500, .text-cyan-500, .text-violet-500,
+  [class*="text-green"], [class*="text-blue"], [class*="text-pink"], [class*="text-orange"],
+  [class*="text-red"], [class*="text-yellow"], [class*="text-emerald"], [class*="text-cyan"],
+  [class*="text-violet"], [class*="text-rose"], [class*="text-amber"] {
+    color: var(--yacht-purple) !important;
+  }
+
+  /* Override ALL border color classes */
+  .border-primary, .border-green-500, .border-blue-500, .border-pink-500, .border-orange-500,
+  [class*="border-green"], [class*="border-blue"], [class*="border-pink"], [class*="border-orange"],
+  [class*="border-red"], [class*="border-yellow"], [class*="border-emerald"], [class*="border-cyan"] {
+    border-color: var(--yacht-purple) !important;
+  }
+
+  /* Force ALL buttons to use purple-to-blue gradient */
+  button, .button, [role="button"], .btn {
+    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
+  }
+
+  button:hover, .button:hover, [role="button"]:hover, .btn:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
+    transform: translateY(-2px) !important;
+  }
+
+  /* Force ALL gradients to use yacht club colors */
+  [class*="gradient"], [style*="gradient"], .bg-gradient-to-r, .bg-gradient-to-l,
+  .bg-gradient-to-t, .bg-gradient-to-b, .bg-gradient-to-br, .bg-gradient-to-bl {
+    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
+  }
+
   /* Universal dark field styling */
-  input, select, textarea, .select-trigger {
+  input, select, textarea, .select-trigger,
+  [data-radix-select-trigger], [data-radix-select-content], [data-radix-select-item],
+  [data-radix-dropdown-menu-content], [data-radix-dropdown-menu-item],
+  [data-radix-popover-content], [data-radix-dialog-content],
+  [data-radix-menubar-content], [data-radix-menubar-item],
+  .form-control, .form-input, .form-select, .form-textarea,
+  [role="textbox"], [role="combobox"], [role="listbox"], [role="menu"], [role="menuitem"] {
     background-color: var(--yacht-card) !important;
     border-color: var(--yacht-accent) !important;
     color: var(--yacht-silver) !important;
+  }
+
+  /* Dropdown and menu hover states */
+  [data-radix-select-item]:hover, [data-radix-dropdown-menu-item]:hover,
+  [data-radix-popover-content]:hover, [data-radix-menubar-item]:hover,
+  [role="menuitem"]:hover {
+    background-color: var(--yacht-accent) !important;
+    color: var(--yacht-silver) !important;
+  }
+
+  /* Dialog and modal backgrounds */
+  [data-radix-dialog-overlay] {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+  }
+
+  [data-radix-dialog-content], .dialog-content, .modal-content {
+    background-color: var(--yacht-dark) !important;
+    border-color: var(--yacht-accent) !important;
   }
 
   /* Select dropdown content */
@@ -345,11 +429,17 @@ html, body {
 
   /* Admin sidebar button styling - normal state with hover gradient */
   .admin-nav-button {
-    @apply bg-card text-foreground border-border;
-    @apply transition-all duration-300;
-    @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600;
-    @apply hover:text-white hover:border-transparent;
-    @apply hover:scale-105 hover:shadow-lg hover:shadow-purple-600/30;
+    background-color: var(--yacht-dark) !important;
+    color: var(--yacht-silver) !important;
+    border-color: var(--yacht-accent) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .admin-nav-button:hover {
+    background: linear-gradient(135deg, var(--yacht-purple) 0%, var(--yacht-blue) 100%) !important;
+    color: white !important;
+    border-color: transparent !important;
+    transform: translateX(4px);
   }
 
   /* Active admin sidebar button */
