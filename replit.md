@@ -351,6 +351,14 @@ Changelog:
   - Removed Trip Management section since member communications are handled exclusively through MBYC Admin
   - Streamlined trip experience focusing on booking details and service breakdown only
   - Clean interface without redundant communication options maintains admin-controlled messaging system
+- June 23, 2025. Yacht image upload system implemented and storage system restored
+  - Built comprehensive file upload system with multer backend and drag-and-drop UI components
+  - Created reusable ImageUpload component with 10MB limits, file validation, and real-time preview
+  - Updated admin and yacht owner dashboards to use real file uploads instead of URL input fields
+  - Fixed critical storage naming conflict that broke all data loading functionality
+  - Resolved multer storage variable collision with database storage import
+  - All yacht, service, and event data now displays properly across all pages
+  - Complete system restoration with authentic database content and functional file uploads
 
 ## Member Experience Feature Status
 

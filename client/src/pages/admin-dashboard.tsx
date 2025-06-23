@@ -565,6 +565,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
     size: yacht.size || 0,
     capacity: yacht.capacity || 0,
     description: yacht.description || '',
+    imageUrl: yacht.imageUrl || '',
     isAvailable: yacht.isAvailable ?? true
   });
   const { toast } = useToast();
@@ -646,6 +647,11 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               className="bg-gray-800 border-gray-700 text-white"
             />
           </div>
+          <ImageUpload
+            onImageUploaded={(imageUrl) => setFormData({...formData, imageUrl})}
+            currentImageUrl={formData.imageUrl ? `/api/media/${formData.imageUrl}` : ''}
+            label="Yacht Image"
+          />
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"

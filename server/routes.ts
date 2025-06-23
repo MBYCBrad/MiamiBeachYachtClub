@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
 import { setupPaymentRoutes } from "./payments";
@@ -24,7 +24,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
+const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(process.cwd(), 'attached_assets');
     if (!fs.existsSync(uploadDir)) {
@@ -41,7 +41,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ 
-  storage,
+  storage: multerStorage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -86,12 +86,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Store the uploaded file information in media_assets table
-      const mediaAsset = await storage.createMediaAsset({
+      const mediaAsset = await dbStorage.createMediaAsset({
         name: req.file.originalname,
+        type: 'image',
         filename: req.file.filename,
         mimeType: req.file.mimetype,
-        size: req.file.size,
-        category: 'yacht'
+        fileSize: req.file.size,
+        category: 'yacht',
+        url: `/api/media/${req.file.filename}`
       });
 
       res.json({ 
@@ -284,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.maxSize = Math.min(filters.maxSize || Infinity, userLimit);
       }
 
-      let yachts = await storage.getYachts(filters);
+      let yachts = await dbStorage.getYachts(filters);
 
       // Real-time availability filtering for date ranges
       if (startDate && endDate) {
@@ -294,7 +296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const availableYachts = [];
         
         for (const yacht of yachts) {
-          const existingBookings = await storage.getBookings({ 
+          const existingBookings = await dbStorage.getBookings({ 
             yachtId: yacht.id,
             status: 'confirmed'
           });
@@ -336,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/yachts/:id", async (req, res) => {
     try {
-      const yacht = await storage.getYacht(parseInt(req.params.id));
+      const yacht = await dbStorage.getYacht(parseInt(req.params.id));
       if (!yacht) {
         return res.status(404).json({ message: "Yacht not found" });
       }
@@ -349,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/yachts", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
     try {
       const validatedData = insertYachtSchema.parse(req.body);
-      const yacht = await storage.createYacht({
+      const yacht = await dbStorage.createYacht({
         ...validatedData,
         ownerId: req.user!.role === UserRole.YACHT_OWNER ? req.user!.id : validatedData.ownerId
       });
@@ -379,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user!.role !== UserRole.YACHT_OWNER && req.user!.role !== UserRole.ADMIN) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const yachts = await storage.getYachtsByOwner(req.user!.id);
+      const yachts = await dbStorage.getYachtsByOwner(req.user!.id);
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -392,7 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user!.role !== UserRole.ADMIN && req.user!.id !== ownerId) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const yachts = await storage.getYachtsByOwner(ownerId);
+      const yachts = await dbStorage.getYachtsByOwner(ownerId);
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -412,7 +414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (category) filters.category = category as string;
       if (available !== undefined) filters.available = available === 'true';
 
-      const services = await storage.getServices(filters);
+      const services = await dbStorage.getServices(filters);
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -421,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/services/:id", async (req, res) => {
     try {
-      const service = await storage.getService(parseInt(req.params.id));
+      const service = await dbStorage.getService(parseInt(req.params.id));
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
       }
@@ -434,7 +436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
       const validatedData = insertServiceSchema.parse(req.body);
-      const service = await storage.createService({
+      const service = await dbStorage.createService({
         ...validatedData,
         providerId: req.user!.role === UserRole.SERVICE_PROVIDER ? req.user!.id : validatedData.providerId
       });
@@ -464,7 +466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user!.role !== UserRole.SERVICE_PROVIDER && req.user!.role !== UserRole.ADMIN) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const services = await storage.getServicesByProvider(req.user!.id);
+      const services = await dbStorage.getServicesByProvider(req.user!.id);
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -477,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user!.role !== UserRole.ADMIN && req.user!.id !== providerId) {
         return res.status(403).json({ message: "Access denied" });
       }
-      const services = await storage.getServicesByProvider(providerId);
+      const services = await dbStorage.getServicesByProvider(providerId);
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -497,7 +499,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (active !== undefined) filters.active = active === 'true';
       if (upcoming !== undefined) filters.upcoming = upcoming === 'true';
 
-      const events = await storage.getEvents(filters);
+      const events = await dbStorage.getEvents(filters);
       res.json(events);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -506,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/events/:id", async (req, res) => {
     try {
-      const event = await storage.getEvent(parseInt(req.params.id));
+      const event = await dbStorage.getEvent(parseInt(req.params.id));
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
@@ -519,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const validatedData = insertEventSchema.parse(req.body);
-      const event = await storage.createEvent(validatedData);
+      const event = await dbStorage.createEvent(validatedData);
 
       // Real-time cross-role notifications - notify all members of new event
       await notificationService.notifyMembersOfNewContent('event', {
@@ -549,12 +551,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ownerId = req.user!.id;
       
       // Get yacht owner's yachts
-      const allYachts = await storage.getYachts();
+      const allYachts = await dbStorage.getYachts();
       const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
       
       // Get bookings for owner's yachts
       const yachtIds = ownerYachts.map(y => y.id);
-      const allBookings = await storage.getBookings();
+      const allBookings = await dbStorage.getBookings();
       const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
       
       // Calculate revenue (last 30 days)
@@ -590,7 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/yacht-owner/yachts", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
     try {
       const ownerId = req.user!.id;
-      const allYachts = await storage.getYachts();
+      const allYachts = await dbStorage.getYachts();
       const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
       res.json(ownerYachts);
     } catch (error: any) {
@@ -602,18 +604,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/yacht-owner/bookings", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
     try {
       const ownerId = req.user!.id;
-      const allYachts = await storage.getYachts();
+      const allYachts = await dbStorage.getYachts();
       const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
       const yachtIds = ownerYachts.map(y => y.id);
       
-      const allBookings = await storage.getBookings();
+      const allBookings = await dbStorage.getBookings();
       const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
       
       // Enhance bookings with yacht and user info
       const enhancedBookings = await Promise.all(
         ownerBookings.map(async (booking) => {
           const yacht = ownerYachts.find(y => y.id === booking.yachtId);
-          const user = await storage.getUser(booking.userId);
+          const user = await dbStorage.getUser(booking.userId);
           return {
             ...booking,
             yacht,
@@ -632,11 +634,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/yacht-owner/revenue", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
     try {
       const ownerId = req.user!.id;
-      const allYachts = await storage.getYachts();
+      const allYachts = await dbStorage.getYachts();
       const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
       const yachtIds = ownerYachts.map(y => y.id);
       
-      const allBookings = await storage.getBookings();
+      const allBookings = await dbStorage.getBookings();
       const ownerBookings = allBookings.filter(b => b.yachtId && yachtIds.includes(b.yachtId));
       
       // Generate monthly revenue data
@@ -680,12 +682,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const providerId = req.user!.id;
       
       // Get service provider's services
-      const allServices = await storage.getServices();
+      const allServices = await dbStorage.getServices();
       const providerServices = allServices.filter(s => s.providerId === providerId);
       
       // Get bookings for provider's services
       const serviceIds = providerServices.map(s => s.id);
-      const allServiceBookings = await storage.getServiceBookings();
+      const allServiceBookings = await dbStorage.getServiceBookings();
       const providerBookings = allServiceBookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
       
       // Calculate revenue (last 30 days)
@@ -720,7 +722,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/service-provider/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
       const providerId = req.user!.id;
-      const allServices = await storage.getServices();
+      const allServices = await dbStorage.getServices();
       const providerServices = allServices.filter(s => s.providerId === providerId);
       res.json(providerServices);
     } catch (error: any) {
@@ -732,18 +734,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/service-provider/bookings", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
       const providerId = req.user!.id;
-      const allServices = await storage.getServices();
+      const allServices = await dbStorage.getServices();
       const providerServices = allServices.filter(s => s.providerId === providerId);
       const serviceIds = providerServices.map(s => s.id);
       
-      const allServiceBookings = await storage.getServiceBookings();
+      const allServiceBookings = await dbStorage.getServiceBookings();
       const providerBookings = allServiceBookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
       
       // Enhance bookings with service and user info
       const enhancedBookings = await Promise.all(
         providerBookings.map(async (booking) => {
           const service = providerServices.find(s => s.id === booking.serviceId);
-          const user = await storage.getUser(booking.userId);
+          const user = await dbStorage.getUser(booking.userId);
           return {
             ...booking,
             service,
@@ -778,7 +780,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.status = req.query.status as string;
       }
 
-      const bookings = await storage.getBookings(filters);
+      const bookings = await dbStorage.getBookings(filters);
       res.json(bookings);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -795,7 +797,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all confirmed bookings for this yacht
-      const existingBookings = await storage.getBookings({ 
+      const existingBookings = await dbStorage.getBookings({ 
         yachtId: parseInt(yachtId),
         status: 'confirmed'
       });
@@ -840,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (conflictingBooking) {
           // Get the user who made the booking
-          const booker = await storage.getUser(conflictingBooking.userId);
+          const booker = await dbStorage.getUser(conflictingBooking.userId);
           availability[slot.name] = {
             available: false,
             bookedBy: booker?.username || 'Another member'
@@ -871,7 +873,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const endDateTime = `${endDate}T${endTime}:00`;
       
       // Get existing confirmed bookings for this yacht
-      const existingBookings = await storage.getBookings({ 
+      const existingBookings = await dbStorage.getBookings({ 
         yachtId: parseInt(yachtId),
         status: 'confirmed'
       });
@@ -906,13 +908,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check yacht availability and membership tier restrictions
-      const yacht = await storage.getYacht(validatedData.yachtId!);
+      const yacht = await dbStorage.getYacht(validatedData.yachtId!);
       if (!yacht) {
         return res.status(404).json({ message: "Yacht not found" });
       }
 
       // Advanced booking conflict detection
-      const existingBookings = await storage.getBookings({ 
+      const existingBookings = await dbStorage.getBookings({ 
         yachtId: validatedData.yachtId!,
         status: 'confirmed'
       });
@@ -952,7 +954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const booking = await storage.createBooking({
+      const booking = await dbStorage.createBooking({
         ...validatedData,
         totalPrice: "0.00" // Free for members
       });
@@ -981,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.serviceId = parseInt(req.query.serviceId as string);
       }
 
-      const bookings = await storage.getServiceBookings(filters);
+      const bookings = await dbStorage.getServiceBookings(filters);
       res.json(bookings);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -996,12 +998,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.userId = req.user!.id;
       }
 
-      const service = await storage.getService(validatedData.serviceId!);
+      const service = await dbStorage.getService(validatedData.serviceId!);
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
       }
 
-      const booking = await storage.createServiceBooking({
+      const booking = await dbStorage.createServiceBooking({
         ...validatedData,
         totalPrice: service.pricePerSession
       });
@@ -1037,7 +1039,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.providerId = req.user!.id;
       }
       
-      const services = await storage.getServices(filters);
+      const services = await dbStorage.getServices(filters);
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1047,7 +1049,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
       const serviceId = parseInt(req.params.id);
-      const service = await storage.getService(serviceId);
+      const service = await dbStorage.getService(serviceId);
       
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
@@ -1058,7 +1060,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const updatedService = await storage.updateService(serviceId, req.body);
+      const updatedService = await dbStorage.updateService(serviceId, req.body);
       res.json(updatedService);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1068,7 +1070,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
       const serviceId = parseInt(req.params.id);
-      const service = await storage.getService(serviceId);
+      const service = await dbStorage.getService(serviceId);
       
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
@@ -1079,7 +1081,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      await storage.deleteService(serviceId);
+      await dbStorage.deleteService(serviceId);
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1101,7 +1103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.eventId = parseInt(req.query.eventId as string);
       }
 
-      const registrations = await storage.getEventRegistrations(filters);
+      const registrations = await dbStorage.getEventRegistrations(filters);
       res.json(registrations);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1116,7 +1118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.userId = req.user!.id;
       }
 
-      const event = await storage.getEvent(validatedData.eventId!);
+      const event = await dbStorage.getEvent(validatedData.eventId!);
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
@@ -1125,7 +1127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? (parseFloat(event.ticketPrice) * validatedData.ticketCount!).toFixed(2)
         : "0.00";
 
-      const registration = await storage.createEventRegistration({
+      const registration = await dbStorage.createEventRegistration({
         ...validatedData,
         totalPrice
       });
@@ -1163,7 +1165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (serviceId) filters.serviceId = parseInt(serviceId as string);
       if (yachtId) filters.yachtId = parseInt(yachtId as string);
 
-      const reviews = await storage.getReviews(filters);
+      const reviews = await dbStorage.getReviews(filters);
       res.json(reviews);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1173,7 +1175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/reviews", requireAuth, async (req, res) => {
     try {
       const validatedData = insertReviewSchema.parse(req.body);
-      const review = await storage.createReview({
+      const review = await dbStorage.createReview({
         ...validatedData,
         userId: req.user!.id
       });
@@ -1186,7 +1188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // USER MANAGEMENT ROUTES (Admin only)
   app.get("/api/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const users = await storage.getAllUsers();
+      const users = await dbStorage.getAllUsers();
       res.json(users);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1198,7 +1200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = parseInt(req.params.id);
       const updates = req.body;
       
-      const updatedUser = await storage.updateUser(userId, updates);
+      const updatedUser = await dbStorage.updateUser(userId, updates);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1225,7 +1227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      const updatedUser = await storage.updateUser(userId, filteredUpdates);
+      const updatedUser = await dbStorage.updateUser(userId, filteredUpdates);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1250,7 +1252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // FAVORITES ROUTES - Real-time database integration
   app.get("/api/favorites", requireAuth, async (req, res) => {
     try {
-      const userFavorites = await storage.getUserFavorites(req.user!.id);
+      const userFavorites = await dbStorage.getUserFavorites(req.user!.id);
       res.json(userFavorites);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1265,7 +1267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Must specify yachtId, serviceId, or eventId" });
       }
 
-      const favorite = await storage.addFavorite({
+      const favorite = await dbStorage.addFavorite({
         userId: req.user!.id,
         yachtId: yachtId || null,
         serviceId: serviceId || null,
@@ -1282,7 +1284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { yachtId, serviceId, eventId } = req.query;
       
-      const success = await storage.removeFavorite(
+      const success = await dbStorage.removeFavorite(
         req.user!.id,
         yachtId ? parseInt(yachtId as string) : undefined,
         serviceId ? parseInt(serviceId as string) : undefined,
@@ -1303,7 +1305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { yachtId, serviceId, eventId } = req.query;
       
-      const isFavorite = await storage.isFavorite(
+      const isFavorite = await dbStorage.isFavorite(
         req.user!.id,
         yachtId ? parseInt(yachtId as string) : undefined,
         serviceId ? parseInt(serviceId as string) : undefined,
@@ -1319,7 +1321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // MESSAGES ROUTES - Real-time messaging with Twilio integration
   app.get("/api/messages/conversations", requireAuth, async (req, res) => {
     try {
-      const conversations = await storage.getUserConversations(req.user!.id);
+      const conversations = await dbStorage.getUserConversations(req.user!.id);
       res.json(conversations);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1329,7 +1331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/:conversationId", requireAuth, async (req, res) => {
     try {
       const { conversationId } = req.params;
-      const messages = await storage.getMessages(conversationId);
+      const messages = await dbStorage.getMessages(conversationId);
       res.json(messages);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1343,7 +1345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         senderId: req.user!.id
       });
 
-      const message = await storage.createMessage(messageData);
+      const message = await dbStorage.createMessage(messageData);
       
       // Send real-time notification (if notification service supports it)
       try {
@@ -1368,7 +1370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const { status } = req.body;
       
-      const message = await storage.updateMessageStatus(parseInt(id), status);
+      const message = await dbStorage.updateMessageStatus(parseInt(id), status);
       
       if (message) {
         res.json(message);
@@ -1383,13 +1385,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ADMIN API ROUTES - Complete dashboard functionality
   app.get("/api/admin/stats", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const users = await storage.getAllUsers();
-      const yachts = await storage.getYachts();
-      const services = await storage.getServices();
-      const events = await storage.getEvents();
-      const bookings = await storage.getBookings();
-      const serviceBookings = await storage.getServiceBookings();
-      const eventRegistrations = await storage.getEventRegistrations();
+      const users = await dbStorage.getAllUsers();
+      const yachts = await dbStorage.getYachts();
+      const services = await dbStorage.getServices();
+      const events = await dbStorage.getEvents();
+      const bookings = await dbStorage.getBookings();
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const eventRegistrations = await dbStorage.getEventRegistrations();
 
       // Calculate revenue from bookings and service bookings
       const totalRevenue = [...bookings, ...serviceBookings, ...eventRegistrations]
@@ -1422,7 +1424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const users = await storage.getAllUsers();
+      const users = await dbStorage.getAllUsers();
       res.json(users);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1431,7 +1433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const yachts = await storage.getYachts();
+      const yachts = await dbStorage.getYachts();
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1440,7 +1442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const services = await storage.getServices();
+      const services = await dbStorage.getServices();
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1449,7 +1451,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const events = await storage.getEvents();
+      const events = await dbStorage.getEvents();
       res.json(events);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1458,9 +1460,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/payments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const bookings = await storage.getBookings();
-      const serviceBookings = await storage.getServiceBookings();
-      const eventRegistrations = await storage.getEventRegistrations();
+      const bookings = await dbStorage.getBookings();
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const eventRegistrations = await dbStorage.getEventRegistrations();
 
       // Combine all payment transactions
       const payments = [
@@ -1500,7 +1502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const updates = req.body;
-      const user = await storage.updateUser(parseInt(id), updates);
+      const user = await dbStorage.updateUser(parseInt(id), updates);
       res.json(user);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1510,7 +1512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
-      await storage.deleteUser(parseInt(id));
+      await dbStorage.deleteUser(parseInt(id));
       res.status(204).send();
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1521,7 +1523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const updates = req.body;
-      const yacht = await storage.updateYacht(parseInt(id), updates);
+      const yacht = await dbStorage.updateYacht(parseInt(id), updates);
       res.json(yacht);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1532,7 +1534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const updates = req.body;
-      const service = await storage.updateService(parseInt(id), updates);
+      const service = await dbStorage.updateService(parseInt(id), updates);
       res.json(service);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1543,7 +1545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const updates = req.body;
-      const event = await storage.updateEvent(parseInt(id), updates);
+      const event = await dbStorage.updateEvent(parseInt(id), updates);
       res.json(event);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -1553,17 +1555,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ANALYTICS ROUTES - Advanced Business Intelligence
   app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const totalUsers = (await storage.getAllUsers()).length;
-      const totalYachts = (await storage.getYachts()).length;
-      const totalServices = (await storage.getServices()).length;
-      const totalEvents = (await storage.getEvents()).length;
-      const totalBookings = (await storage.getBookings()).length;
-      const totalServiceBookings = (await storage.getServiceBookings()).length;
-      const totalEventRegistrations = (await storage.getEventRegistrations()).length;
+      const totalUsers = (await dbStorage.getAllUsers()).length;
+      const totalYachts = (await dbStorage.getYachts()).length;
+      const totalServices = (await dbStorage.getServices()).length;
+      const totalEvents = (await dbStorage.getEvents()).length;
+      const totalBookings = (await dbStorage.getBookings()).length;
+      const totalServiceBookings = (await dbStorage.getServiceBookings()).length;
+      const totalEventRegistrations = (await dbStorage.getEventRegistrations()).length;
 
       // Calculate real revenue metrics
-      const serviceBookings = await storage.getServiceBookings();
-      const eventRegistrations = await storage.getEventRegistrations();
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const eventRegistrations = await dbStorage.getEventRegistrations();
       
       const serviceRevenue = serviceBookings.reduce((sum, booking) => {
         return sum + (parseFloat(booking.totalPrice || "0"));
@@ -1576,7 +1578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalRevenue = serviceRevenue + eventRevenue;
 
       // Calculate membership tier distribution
-      const users = await storage.getAllUsers();
+      const users = await dbStorage.getAllUsers();
       const membershipDistribution = users.reduce((acc: any, user) => {
         if (user.membershipTier) {
           acc[user.membershipTier] = (acc[user.membershipTier] || 0) + 1;
@@ -1588,12 +1590,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const recentBookings = (await storage.getBookings()).filter(booking => 
+      const recentBookings = (await dbStorage.getBookings()).filter(booking => 
         booking.createdAt && new Date(booking.createdAt) >= thirtyDaysAgo
       );
 
       // Calculate top performing yachts
-      const bookings = await storage.getBookings();
+      const bookings = await dbStorage.getBookings();
       const yachtPerformance: { [key: number]: number } = {};
       bookings.forEach(booking => {
         if (booking.yachtId) {
@@ -1601,7 +1603,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      const yachts = await storage.getYachts();
+      const yachts = await dbStorage.getYachts();
       const topYachts = Object.entries(yachtPerformance)
         .sort(([,a], [,b]) => b - a)
         .slice(0, 5)
@@ -1645,7 +1647,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = parseInt(req.params.id);
       const updateData = req.body;
-      const user = await storage.updateUser(userId, updateData);
+      const user = await dbStorage.updateUser(userId, updateData);
       res.json(user);
     } catch (error: any) {
       console.error('Error updating user:', error);
@@ -1660,7 +1662,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const userId = parseInt(req.params.id);
-      await storage.deleteUser(userId);
+      await dbStorage.deleteUser(userId);
       res.json({ success: true });
     } catch (error: any) {
       console.error('Error deleting user:', error);
@@ -1677,7 +1679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const yachtId = parseInt(req.params.id);
       const updateData = req.body;
-      const yacht = await storage.updateYacht(yachtId, updateData);
+      const yacht = await dbStorage.updateYacht(yachtId, updateData);
       res.json(yacht);
     } catch (error: any) {
       console.error('Error updating yacht:', error);
@@ -1694,7 +1696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const serviceId = parseInt(req.params.id);
       const updateData = req.body;
-      const service = await storage.updateService(serviceId, updateData);
+      const service = await dbStorage.updateService(serviceId, updateData);
       res.json(service);
     } catch (error: any) {
       console.error('Error updating service:', error);
@@ -1711,7 +1713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const eventId = parseInt(req.params.id);
       const updateData = req.body;
-      const event = await storage.updateEvent(eventId, updateData);
+      const event = await dbStorage.updateEvent(eventId, updateData);
       res.json(event);
     } catch (error: any) {
       console.error('Error updating event:', error);
@@ -1728,7 +1730,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const start = startDate ? new Date(startDate as string) : new Date();
       const end = endDate ? new Date(endDate as string) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-      const bookings = await storage.getBookings({ yachtId });
+      const bookings = await dbStorage.getBookings({ yachtId });
       const calendar = [];
       
       const currentDate = new Date(start);
@@ -1818,7 +1820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       if (!type || type === 'yachts') {
-        const yachts = await storage.getYachts();
+        const yachts = await dbStorage.getYachts();
         results.yachts = yachts
           .filter(yacht => 
             yacht.name.toLowerCase().includes(searchTerm) ||
@@ -1829,7 +1831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (!type || type === 'services') {
-        const services = await storage.getServices();
+        const services = await dbStorage.getServices();
         results.services = services
           .filter(service => 
             service.name.toLowerCase().includes(searchTerm) ||
@@ -1840,7 +1842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (!type || type === 'events') {
-        const events = await storage.getEvents();
+        const events = await dbStorage.getEvents();
         results.events = events
           .filter(event => 
             event.title.toLowerCase().includes(searchTerm) ||
@@ -1851,7 +1853,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if ((!type || type === 'users') && req.user?.role === UserRole.ADMIN) {
-        const users = await storage.getAllUsers();
+        const users = await dbStorage.getAllUsers();
         results.users = users
           .filter(user => 
             user.username.toLowerCase().includes(searchTerm) ||
@@ -1873,7 +1875,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create User
   app.post("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newUser = await storage.createUser(req.body);
+      const newUser = await dbStorage.createUser(req.body);
       await auditService.logAction(req, 'create', 'user', newUser.id, req.body);
       res.status(201).json(newUser);
     } catch (error: any) {
@@ -1886,7 +1888,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const updatedUser = await storage.updateUser(userId, req.body);
+      const updatedUser = await dbStorage.updateUser(userId, req.body);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1902,7 +1904,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/users/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const deleted = await storage.deleteUser(userId);
+      const deleted = await dbStorage.deleteUser(userId);
       if (!deleted) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1917,7 +1919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create Yacht
   app.post("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newYacht = await storage.createYacht(req.body);
+      const newYacht = await dbStorage.createYacht(req.body);
       await auditService.logAction(req, 'create', 'yacht', newYacht.id, req.body);
       res.status(201).json(newYacht);
     } catch (error: any) {
@@ -1930,7 +1932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const yachtId = parseInt(req.params.id);
-      const updatedYacht = await storage.updateYacht(yachtId, req.body);
+      const updatedYacht = await dbStorage.updateYacht(yachtId, req.body);
       if (!updatedYacht) {
         return res.status(404).json({ message: "Yacht not found" });
       }
@@ -1946,7 +1948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const yachtId = parseInt(req.params.id);
-      const deleted = await storage.deleteYacht(yachtId);
+      const deleted = await dbStorage.deleteYacht(yachtId);
       if (!deleted) {
         return res.status(404).json({ message: "Yacht not found" });
       }
@@ -1961,7 +1963,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create Service
   app.post("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newService = await storage.createService(req.body);
+      const newService = await dbStorage.createService(req.body);
       await auditService.logAction(req, 'create', 'service', newService.id, req.body);
       res.status(201).json(newService);
     } catch (error: any) {
@@ -1974,7 +1976,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/services/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const serviceId = parseInt(req.params.id);
-      const updatedService = await storage.updateService(serviceId, req.body);
+      const updatedService = await dbStorage.updateService(serviceId, req.body);
       if (!updatedService) {
         return res.status(404).json({ message: "Service not found" });
       }
@@ -1990,7 +1992,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/services/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const serviceId = parseInt(req.params.id);
-      const deleted = await storage.deleteService(serviceId);
+      const deleted = await dbStorage.deleteService(serviceId);
       if (!deleted) {
         return res.status(404).json({ message: "Service not found" });
       }
@@ -2005,7 +2007,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create Event
   app.post("/api/admin/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newEvent = await storage.createEvent(req.body);
+      const newEvent = await dbStorage.createEvent(req.body);
       await auditService.logAction(req, 'create', 'event', newEvent.id, req.body);
       res.status(201).json(newEvent);
     } catch (error: any) {
@@ -2018,7 +2020,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const eventId = parseInt(req.params.id);
-      const updatedEvent = await storage.updateEvent(eventId, req.body);
+      const updatedEvent = await dbStorage.updateEvent(eventId, req.body);
       if (!updatedEvent) {
         return res.status(404).json({ message: "Event not found" });
       }
@@ -2034,7 +2036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const eventId = parseInt(req.params.id);
-      const deleted = await storage.deleteEvent(eventId);
+      const deleted = await dbStorage.deleteEvent(eventId);
       if (!deleted) {
         return res.status(404).json({ message: "Event not found" });
       }
@@ -2055,7 +2057,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (read !== undefined) filters.read = read === 'true';
       if (type) filters.type = type as string;
       
-      const notifications = await storage.getNotifications(req.user!.id, filters);
+      const notifications = await dbStorage.getNotifications(req.user!.id, filters);
       res.json(notifications);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2064,7 +2066,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/notifications/unread-count", requireAuth, async (req, res) => {
     try {
-      const count = await storage.getUnreadNotificationCount(req.user!.id);
+      const count = await dbStorage.getUnreadNotificationCount(req.user!.id);
       res.json({ count });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2074,13 +2076,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
-      const notification = await storage.getNotification(notificationId);
+      const notification = await dbStorage.getNotification(notificationId);
       
       if (!notification || notification.userId !== req.user!.id) {
         return res.status(404).json({ message: "Notification not found" });
       }
       
-      const updatedNotification = await storage.markNotificationAsRead(notificationId);
+      const updatedNotification = await dbStorage.markNotificationAsRead(notificationId);
       res.json(updatedNotification);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2089,7 +2091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/notifications/mark-all-read", requireAuth, async (req, res) => {
     try {
-      await storage.markAllNotificationsAsRead(req.user!.id);
+      await dbStorage.markAllNotificationsAsRead(req.user!.id);
       res.json({ message: "All notifications marked as read" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2099,13 +2101,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/notifications/:id", requireAuth, async (req, res) => {
     try {
       const notificationId = parseInt(req.params.id);
-      const notification = await storage.getNotification(notificationId);
+      const notification = await dbStorage.getNotification(notificationId);
       
       if (!notification || notification.userId !== req.user!.id) {
         return res.status(404).json({ message: "Notification not found" });
       }
       
-      const deleted = await storage.deleteNotification(notificationId);
+      const deleted = await dbStorage.deleteNotification(notificationId);
       if (deleted) {
         res.json({ message: "Notification deleted" });
       } else {
