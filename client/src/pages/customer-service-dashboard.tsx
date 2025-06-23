@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { 
@@ -11,6 +12,8 @@ import {
   User,
   Clock,
   Search,
+  Filter,
+  MoreVertical,
   Mic,
   MicOff,
   Volume2,
@@ -18,10 +21,18 @@ import {
   Users,
   Star,
   AlertCircle,
+  CheckCircle,
+  XCircle,
   Settings,
+  Archive,
+  Trash2,
+  Flag,
+  ChevronDown,
+  Sparkles,
+  Ship,
+  UserCheck,
   Timer,
   Crown,
-  UserCheck,
   Play,
   Pause,
   Square,
@@ -40,9 +51,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { formatDistanceToNow } from "date-fns";
 
-// Types for phone calls only
+// Types for phone calls and customer service
 interface Call {
   id: string;
   memberId: number;
@@ -58,6 +78,13 @@ interface Call {
   endTime?: Date;
   notes?: string;
   assignedAgent?: string;
+  currentTrip?: {
+    id: number;
+    yachtName: string;
+    startTime: Date;
+    endTime: Date;
+    status: string;
+  };
 }
 
 interface CallQueue {
@@ -70,6 +97,7 @@ interface CallQueue {
 export default function CustomerServiceDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // State management
   const [selectedCall, setSelectedCall] = useState<string | null>(null);
@@ -79,7 +107,7 @@ export default function CustomerServiceDashboard() {
   const [isRecording, setIsRecording] = useState(false);
   const [currentCallNotes, setCurrentCallNotes] = useState("");
 
-  // Mock data for demonstration
+  // Mock data for demonstration (in production, these would come from APIs)
   const mockCalls: Call[] = [
     {
       id: "call_1",
@@ -91,8 +119,15 @@ export default function CustomerServiceDashboard() {
       status: "queued",
       priority: "high",
       reason: "Yacht booking assistance",
-      startTime: new Date(Date.now() - 5 * 60 * 1000),
-      assignedAgent: "Customer Service"
+      startTime: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+      assignedAgent: "Customer Service",
+      currentTrip: {
+        id: 8,
+        yachtName: "Marina Breeze",
+        startTime: new Date("2025-06-23T10:00:00"),
+        endTime: new Date("2025-06-23T18:00:00"),
+        status: "confirmed"
+      }
     },
     {
       id: "call_2",
@@ -105,7 +140,7 @@ export default function CustomerServiceDashboard() {
       priority: "urgent",
       reason: "Emergency yacht assistance",
       duration: 12,
-      startTime: new Date(Date.now() - 12 * 60 * 1000),
+      startTime: new Date(Date.now() - 12 * 60 * 1000), // 12 minutes ago
       assignedAgent: "Agent Smith"
     },
     {
@@ -119,7 +154,7 @@ export default function CustomerServiceDashboard() {
       priority: "medium",
       reason: "Service follow-up",
       duration: 8,
-      startTime: new Date(Date.now() - 30 * 60 * 1000),
+      startTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       endTime: new Date(Date.now() - 22 * 60 * 1000),
       notes: "Member satisfied with spa service. Booking confirmed for next week."
     }
@@ -135,6 +170,7 @@ export default function CustomerServiceDashboard() {
   // Handle call actions
   const answerCallMutation = useMutation({
     mutationFn: async (callId: string) => {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       return { success: true };
     },
@@ -145,6 +181,7 @@ export default function CustomerServiceDashboard() {
 
   const endCallMutation = useMutation({
     mutationFn: async (callId: string) => {
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       return { success: true };
     },
@@ -329,7 +366,7 @@ export default function CustomerServiceDashboard() {
                     Call Queue
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Select value={callFilter} onValueChange={(value: 'all' | 'queued' | 'active' | 'completed') => setCallFilter(value)}>
+                    <Select value={callFilter} onValueChange={setCallFilter}>
                       <SelectTrigger className="w-32 bg-gray-700/50 border-gray-600/50">
                         <SelectValue />
                       </SelectTrigger>
@@ -403,6 +440,15 @@ export default function CustomerServiceDashboard() {
                           </span>
                         </div>
                       </div>
+                      
+                      {call.currentTrip && (
+                        <div className="mt-2 p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                          <div className="flex items-center gap-2 text-xs text-blue-400">
+                            <Ship className="h-3 w-3" />
+                            <span>Active Trip: {call.currentTrip.yachtName}</span>
+                          </div>
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </div>

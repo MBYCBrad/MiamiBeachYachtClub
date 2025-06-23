@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
+import MessagesDropdown from "@/components/MessagesDropdown";
 import { 
   BarChart3, 
   Users, 
@@ -3449,8 +3450,11 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              {/* Notification Icon */}
-              <AdminNotificationCenter />
+              {/* Notification and Messages Icons */}
+              <div className="flex items-center space-x-2">
+                <MessagesDropdown />
+                <AdminNotificationCenter />
+              </div>
             </motion.div>
           </div>
 
