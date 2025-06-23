@@ -556,6 +556,10 @@ Changelog:
   - Updated title to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
   - Updated subtitle to text-lg to match overview subtitle size instead of default text-sm
   - Complete typography consistency achieved across all admin interface sections
+- June 23, 2025. Staff Management title and subtitle styling updated to match admin overview
+  - Updated title from text-2xl to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
+  - Updated subtitle to text-lg to match overview subtitle size for complete consistency
+  - All major admin interface sections now display unified Apple-like typography with professional large-format titles
 
 ## Member Experience Feature Status
 
