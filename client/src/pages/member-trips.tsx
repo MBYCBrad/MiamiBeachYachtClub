@@ -318,20 +318,24 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                           {/* Trip Header with Yacht Image */}
                           <div className="flex justify-between items-start mb-6">
                             <div className="flex items-center space-x-6">
-                              {yacht?.imageUrl ? (
-                                <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-lg">
+                              <div className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-xl">
+                                {yacht?.imageUrl ? (
                                   <img 
                                     src={yacht.imageUrl} 
-                                    alt={yacht.name}
+                                    alt={yacht.name || 'Yacht'}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                   />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                                    <Sailboat className="text-white" size={32} />
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                                <div className="absolute bottom-1 right-1">
+                                  <div className="w-3 h-3 bg-green-400 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
                                 </div>
-                              ) : (
-                                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                                  <Sailboat className="text-white" size={28} />
-                                </div>
-                              )}
+                              </div>
                               <div>
                                 <h3 className="text-3xl font-bold text-white mb-2">
                                   {yacht?.name || `Yacht Booking #${booking.id}`}

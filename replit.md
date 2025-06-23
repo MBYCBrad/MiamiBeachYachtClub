@@ -334,6 +334,12 @@ Changelog:
   - Added proper z-index (z-50) to SelectContent component to ensure dropdown appears above modal elements
   - Resolved visual overlap issues where dropdown was covered by other UI components
   - Guest selection dropdown now displays cleanly without layering conflicts
+- June 22, 2025. Updated yacht thumbnails to display authentic real-time images from media storage
+  - Replaced all external Unsplash stock photos with authentic yacht images from attached assets
+  - Updated yacht database with real media asset URLs from `/api/media/` storage system
+  - Enhanced trips page yacht thumbnails to show actual Marina Breeze yacht image
+  - Implemented proper fallback handling for yacht images with error recovery
+  - All yacht displays now use authentic database images instead of stock photography
 
 ## Member Experience Feature Status
 

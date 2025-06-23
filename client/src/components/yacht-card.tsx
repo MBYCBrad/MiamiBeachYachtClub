@@ -40,7 +40,8 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const yachtImage = getYachtImage(yacht.id);
+  // Use yacht's database image URL or fallback to curated yacht images
+  const yachtImage = yacht.imageUrl || getYachtImage(yacht.id);
   const { imageSrc, isLoading } = useOptimizedImage(yachtImage);
 
   // Get user's favorites
