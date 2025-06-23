@@ -22,6 +22,7 @@ import CheckoutPage from "@/pages/checkout";
 import AdminDashboard from "@/pages/admin-dashboard";
 import YachtOwnerDashboard from "@/pages/yacht-owner-dashboard";
 import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
+import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
+      <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/yachts/:id/book" component={YachtBooking} />
