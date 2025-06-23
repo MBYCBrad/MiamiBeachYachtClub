@@ -12,133 +12,117 @@ import {
   User,
   Clock,
   Search,
-  Filter,
-  MoreVertical,
-  Mic,
-  MicOff,
-  Volume2,
-  VolumeX,
   Users,
-  Star,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  Settings,
-  Archive,
-  Trash2,
-  Flag,
-  ChevronDown,
-  Sparkles,
-  Ship,
-  UserCheck,
-  Timer,
-  Crown,
-  Play,
-  Pause,
-  Square,
-  PhoneMissed,
-  Anchor,
-  MapPin,
-  Shield,
+  AlertTriangle,
   Headphones,
-  AlertTriangle
+  Ship,
+  Trash2,
+  Timer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface CallableMember {
+  id: number;
+  memberName: string;
+  phoneNumber: string;
+  email: string;
+  membershipTier: string;
+  location: string;
+  yachtName?: string;
+  currentTrip?: boolean;
+  bookingId?: number;
+}
+
+interface ActiveCall {
+  phoneNumber: string;
+  memberName?: string;
+  memberId?: number;
+  callSid?: string;
+  startTime: Date;
+  type: 'outbound' | 'inbound';
+}
+
+interface CallHistoryItem extends ActiveCall {
+  endTime: Date;
+  duration: number;
+  notes: string;
+}
+
+type CallStatus = 'idle' | 'ringing' | 'connected' | 'ended';
 
 export default function CustomerServiceDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
+  
   // State management
-  const [activeTab, setActiveTab] = useState<'members' | 'active' | 'emergency' | 'all'>('members');
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMember, setSelectedMember] = useState<any>(null);
-  const [callStatus, setCallStatus] = useState<'idle' | 'ringing' | 'connected' | 'ended'>('idle');
+  const [activeTab, setActiveTab] = useState('members');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMember, setSelectedMember] = useState<CallableMember | null>(null);
+  const [manualPhoneNumber, setManualPhoneNumber] = useState('');
+  const [callStatus, setCallStatus] = useState<CallStatus>('idle');
+  const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
   const [callDuration, setCallDuration] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(75);
-  const [notes, setNotes] = useState("");
-  const [manualPhoneNumber, setManualPhoneNumber] = useState("");
-  const [isDialing, setIsDialing] = useState(false);
-  const [callHistory, setCallHistory] = useState<any[]>([]);
-  const [activeCall, setActiveCall] = useState<any>(null);
-
-  // Refs for call timer
+  const [callHistory, setCallHistory] = useState<CallHistoryItem[]>([]);
+  const [notes, setNotes] = useState('');
+  
   const callTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch live members from database
-  const { data: members = [], isLoading: membersLoading } = useQuery({
+  // Fetch callable members
+  const { data: callableMembers = [] } = useQuery<CallableMember[]>({
     queryKey: ['/api/admin/users'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/users');
-      return response.json();
-    }
+    select: (users: any[]) => users
+      .filter(user => user.role === 'member' && user.phoneNumber)
+      .map(user => ({
+        id: user.id,
+        memberName: user.username,
+        phoneNumber: user.phoneNumber || '+1-555-0000',
+        email: user.email,
+        membershipTier: user.membershipTier || 'Bronze',
+        location: user.location || 'Miami, FL',
+        yachtName: 'Marina Breeze',
+        currentTrip: Math.random() > 0.7,
+        bookingId: user.id * 100
+      }))
   });
 
-  // Fetch active bookings for trip context
-  const { data: activeBookings = [], isLoading: bookingsLoading } = useQuery({
-    queryKey: ['/api/admin/bookings'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/bookings');
-      return response.json();
-    }
-  });
-
-  // Filter members with phone numbers for calling
-  const callableMembers = members.filter((member: any) => 
-    member.phone && member.role === 'member'
-  ).map((member: any) => {
-    const activeBooking = activeBookings.find((booking: any) => 
-      booking.member?.name === member.username
-    );
-    
-    return {
-      id: member.id,
-      memberName: member.username,
-      membershipTier: member.membershipTier || 'bronze',
-      phoneNumber: member.phone,
-      email: member.email,
-      priority: activeBooking ? 'high' : 'medium',
-      reason: activeBooking ? `Active Trip - ${activeBooking.yacht?.name}` : 'Available for contact',
-      yachtName: activeBooking?.yacht?.name || 'No active booking',
-      location: activeBooking?.yacht?.location || member.location || 'Unknown',
-      status: 'available',
-      avatar: `/api/placeholder/32/32`,
-      lastContact: member.updatedAt || member.createdAt,
-      currentTrip: !!activeBooking,
-      tripStatus: activeBooking ? 'active' : 'none',
-      bookingId: activeBooking?.id
-    };
-  });
-
-  // Emergency members (those currently on trips)
+  // Emergency contacts (members currently on trips)
   const emergencyMembers = callableMembers.filter(member => member.currentTrip);
+
+  // Call management functions
+  const handleCallMember = (member: CallableMember) => {
+    if (callStatus !== 'idle') return;
+    
+    setSelectedMember(member);
+    makeCallMutation.mutate({
+      phoneNumber: member.phoneNumber,
+      memberName: member.memberName,
+      memberId: member.id
+    });
+  };
+
+  const handleManualCall = () => {
+    if (!manualPhoneNumber.trim() || callStatus !== 'idle') return;
+    
+    makeCallMutation.mutate({
+      phoneNumber: manualPhoneNumber,
+      memberName: "Manual Dial"
+    });
+  };
+
+  const handleEndCall = () => {
+    if (activeCall?.callSid) {
+      endCallMutation.mutate(activeCall.callSid);
+    }
+  };
 
   // Twilio call mutation for outbound calls
   const makeCallMutation = useMutation({
@@ -204,50 +188,22 @@ export default function CustomerServiceDashboard() {
       // Reset state
       setTimeout(() => {
         setCallStatus('idle');
-        setCallDuration(0);
         setActiveCall(null);
-        setNotes("");
+        setCallDuration(0);
+        setNotes('');
+        setSelectedMember(null);
       }, 2000);
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: "Failed to end call properly",
+        title: "End Call Failed",
+        description: error.message || "Failed to end call",
         variant: "destructive",
       });
     }
   });
 
-  // Handle making calls to members
-  const handleCallMember = (member: any) => {
-    if (callStatus !== 'idle') return;
-    
-    setSelectedMember(member);
-    makeCallMutation.mutate({
-      phoneNumber: member.phoneNumber,
-      memberName: member.memberName,
-      memberId: member.id
-    });
-  };
-
-  // Handle manual phone dialing
-  const handleManualCall = () => {
-    if (!manualPhoneNumber.trim() || callStatus !== 'idle') return;
-    
-    makeCallMutation.mutate({
-      phoneNumber: manualPhoneNumber,
-      memberName: "Manual Dial"
-    });
-  };
-
-  // Handle ending calls
-  const handleEndCall = () => {
-    if (activeCall?.callSid) {
-      endCallMutation.mutate(activeCall.callSid);
-    }
-  };
-
-  // Simulate call status changes (in production, this would come from Twilio webhooks)
+  // Simulate call status changes
   useEffect(() => {
     if (callStatus === 'ringing') {
       const timeout = setTimeout(() => {
@@ -262,10 +218,10 @@ export default function CustomerServiceDashboard() {
   }, [callStatus]);
 
   // Filter members based on search and tab
-  const filteredMembers = callableMembers.filter(member => {
+  const filteredMembers = callableMembers.filter((member: CallableMember) => {
     const matchesSearch = member.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          member.phoneNumber.includes(searchTerm) ||
-                         member.yachtName.toLowerCase().includes(searchTerm.toLowerCase());
+                         (member.yachtName && member.yachtName.toLowerCase().includes(searchTerm.toLowerCase()));
     
     switch (activeTab) {
       case 'emergency':
@@ -280,81 +236,70 @@ export default function CustomerServiceDashboard() {
   });
 
   const getTierColor = (tier: string) => {
-    switch (tier) {
-      case 'platinum': return 'bg-purple-500';
-      case 'gold': return 'bg-yellow-500';
-      case 'silver': return 'bg-gray-400';
-      case 'bronze': return 'bg-orange-600';
-      default: return 'bg-blue-500';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-blue-500';
+    switch (tier.toLowerCase()) {
+      case 'platinum': return 'bg-purple-600';
+      case 'gold': return 'bg-yellow-600';
+      case 'silver': return 'bg-gray-500';
+      default: return 'bg-orange-600';
     }
   };
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="flex h-screen bg-black text-white">
-      {/* Sidebar - Member List */}
-      <div className="w-80 border-r border-gray-800 flex flex-col">
+    <div className="min-h-screen bg-gray-950 text-white flex">
+      {/* Left Sidebar - Member List */}
+      <div className="w-80 bg-gray-900 border-r border-gray-800 flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-6 border-b border-gray-800">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <Headphones className="h-5 w-5" />
+            <div className="p-2 bg-purple-600 rounded-lg">
+              <Headphones className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold">Customer Service</h1>
-              <p className="text-sm text-gray-400">Live Phone Support</p>
+              <h1 className="text-xl font-semibold">Customer Service</h1>
+              <p className="text-sm text-gray-400">Phone support and call management</p>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="p-3 bg-green-900/20 border border-green-800 rounded-lg">
+              <div className="text-center">
+                <p className="text-lg font-semibold text-green-400">3</p>
+                <p className="text-xs text-green-300">Agents Online</p>
+              </div>
+            </div>
+            <div className="p-3 bg-blue-900/20 border border-blue-800 rounded-lg">
+              <div className="text-center">
+                <p className="text-lg font-semibold text-blue-400">5</p>
+                <p className="text-xs text-blue-300">Calls in Queue</p>
+              </div>
             </div>
           </div>
 
           {/* Search */}
-          <div className="relative mb-4">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-gray-900 border-gray-700"
+              className="pl-10 bg-gray-800 border-gray-700"
             />
-          </div>
-
-          {/* Manual Dial */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter phone number"
-              value={manualPhoneNumber}
-              onChange={(e) => setManualPhoneNumber(e.target.value)}
-              className="bg-gray-900 border-gray-700"
-            />
-            <Button 
-              onClick={handleManualCall}
-              disabled={!manualPhoneNumber.trim() || callStatus !== 'idle'}
-              className="px-3"
-            >
-              <Phone className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-900 m-4">
-            <TabsTrigger value="members">All Members</TabsTrigger>
-            <TabsTrigger value="emergency" className="text-red-400">Emergency</TabsTrigger>
-            <TabsTrigger value="active">Active Calls</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800 mx-4 mt-4">
+            <TabsTrigger value="members" className="text-xs">All Members</TabsTrigger>
+            <TabsTrigger value="emergency" className="text-xs">Emergency</TabsTrigger>
+            <TabsTrigger value="active" className="text-xs">Active</TabsTrigger>
           </TabsList>
 
           <TabsContent value="members" className="flex-1 px-4">
@@ -365,7 +310,11 @@ export default function CustomerServiceDashboard() {
                     key={member.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+                    className={`p-3 rounded-lg border transition-colors cursor-pointer ${
+                      selectedMember?.id === member.id 
+                        ? 'bg-purple-900/30 border-purple-600' 
+                        : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'
+                    }`}
                     onClick={() => setSelectedMember(member)}
                   >
                     <div className="flex items-center justify-between">
@@ -378,26 +327,23 @@ export default function CustomerServiceDashboard() {
                         <div>
                           <p className="font-medium">{member.memberName}</p>
                           <p className="text-sm text-gray-400">{member.phoneNumber}</p>
+                          <Badge className={`${getTierColor(member.membershipTier)} text-white text-xs mt-1`}>
+                            {member.membershipTier}
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={`${getTierColor(member.membershipTier)} text-white text-xs`}>
-                          {member.membershipTier}
-                        </Badge>
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCallMember(member);
-                          }}
-                          disabled={callStatus !== 'idle'}
-                          className="p-2 h-8 w-8"
-                        >
-                          <Phone className="h-3 w-3" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCallMember(member);
+                        }}
+                        disabled={callStatus !== 'idle'}
+                        className="bg-green-600 hover:bg-green-700 p-2 h-8 w-8"
+                      >
+                        <Phone className="h-3 w-3" />
+                      </Button>
                     </div>
-                    
                     {member.currentTrip && (
                       <div className="mt-2 p-2 bg-red-900/20 rounded border-l-2 border-red-500">
                         <div className="flex items-center gap-2 text-red-400">
@@ -483,7 +429,7 @@ export default function CustomerServiceDashboard() {
         </Tabs>
       </div>
 
-      {/* Main Content - Call Interface */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {callStatus !== 'idle' && activeCall ? (
           /* Active Call Interface */
@@ -500,58 +446,39 @@ export default function CustomerServiceDashboard() {
               </Avatar>
               
               <h2 className="text-2xl font-semibold mb-2">{activeCall.memberName}</h2>
-              <p className="text-gray-400 mb-1">{activeCall.phoneNumber}</p>
+              <p className="text-gray-400 mb-2">{activeCall.phoneNumber}</p>
               
-              <div className="text-3xl font-mono text-blue-400 mb-2">
-                {formatDuration(callDuration)}
+              <div className="mb-6">
+                <div className="text-4xl font-mono mb-2">{formatDuration(callDuration)}</div>
+                <Badge variant={callStatus === 'connected' ? 'default' : 'secondary'} className="text-sm">
+                  {callStatus.toUpperCase()}
+                </Badge>
               </div>
-              
-              <Badge 
-                className={callStatus === 'connected' ? 'bg-green-600' : 'bg-yellow-600'}
-              >
-                {callStatus === 'ringing' ? 'Connecting...' : 'Connected'}
-              </Badge>
 
-              {/* Call Controls */}
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <Button
-                  variant={isMuted ? "destructive" : "outline"}
-                  size="lg"
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="rounded-full p-4"
-                >
-                  {isMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
-                </Button>
-                
+              <div className="flex gap-4 justify-center mb-6">
                 <Button
                   variant="destructive"
                   size="lg"
                   onClick={handleEndCall}
-                  className="rounded-full p-6 bg-red-600 hover:bg-red-700"
+                  disabled={endCallMutation.isPending}
                 >
-                  <Phone className="h-8 w-8 rotate-[135deg]" />
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="rounded-full p-4"
-                >
-                  <Volume2 className="h-6 w-6" />
+                  <Phone className="h-5 w-5 mr-2" />
+                  End Call
                 </Button>
               </div>
-            </motion.div>
 
-            {/* Call Notes */}
-            <div className="w-full max-w-md mt-8">
-              <Textarea
-                placeholder="Add call notes..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="bg-gray-900 border-gray-700"
-                rows={3}
-              />
-            </div>
+              <div className="w-full">
+                <Label htmlFor="call-notes" className="text-sm text-gray-400">Call Notes</Label>
+                <Textarea
+                  id="call-notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes about this call..."
+                  className="bg-gray-800 border-gray-600 mt-2"
+                  rows={3}
+                />
+              </div>
+            </motion.div>
           </div>
         ) : selectedMember ? (
           /* Member Details */
