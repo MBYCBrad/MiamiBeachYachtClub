@@ -608,7 +608,7 @@ html, body {
   }
 }
 
-/* Pixel-Perfect Rolls Royce Starfield Background - Exact Recreation */
+/* Rolls Royce Starfield Background - Pixel Perfect Recreation */
 .rolls-royce-starfield {
   position: fixed;
   top: 0;
@@ -625,53 +625,136 @@ html, body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 200%;
+  height: 200%;
   background-image: 
-    radial-gradient(1px 1px at 8px 7px, #ffffff, transparent),
-    radial-gradient(0.5px 0.5px at 22px 3px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1.5px 1.5px at 38px 11px, #ffffff, transparent),
-    radial-gradient(0.8px 0.8px at 52px 18px, rgba(255,255,255,0.9), transparent),
-    radial-gradient(0.6px 0.6px at 68px 5px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(2px 2px at 85px 14px, #ffffff, transparent),
-    radial-gradient(0.7px 0.7px at 98px 22px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 115px 8px, #ffffff, transparent),
-    radial-gradient(0.4px 0.4px at 132px 16px, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.2px 1.2px at 148px 2px, #ffffff, transparent),
-    radial-gradient(0.9px 0.9px at 165px 12px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(0.5px 0.5px at 182px 20px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1.8px 1.8px at 198px 6px, #ffffff, transparent),
-    radial-gradient(0.6px 0.6px at 215px 15px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 232px 23px, #ffffff, transparent),
-    radial-gradient(0.8px 0.8px at 248px 9px, rgba(255,255,255,0.9), transparent),
-    radial-gradient(0.3px 0.3px at 265px 17px, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1.5px 1.5px at 282px 4px, #ffffff, transparent),
-    radial-gradient(0.7px 0.7px at 298px 13px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(1px 1px at 315px 21px, #ffffff, transparent),
-    radial-gradient(0.5px 0.5px at 332px 7px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(2px 2px at 348px 16px, #ffffff, transparent),
-    radial-gradient(0.9px 0.9px at 365px 24px, rgba(255,255,255,0.9), transparent),
-    radial-gradient(0.4px 0.4px at 382px 10px, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.3px 1.3px at 398px 19px, #ffffff, transparent),
-    radial-gradient(0.6px 0.6px at 415px 1px, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 432px 14px, #ffffff, transparent),
-    radial-gradient(0.8px 0.8px at 448px 22px, rgba(255,255,255,0.8), transparent),
-    radial-gradient(0.5px 0.5px at 465px 8px, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1.7px 1.7px at 482px 17px, #ffffff, transparent);
+    radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(3px 3px at 160px 30px, #ffffff, transparent),
+    radial-gradient(1px 1px at 200px 90px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 240px 50px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 280px 10px, #ffffff, transparent),
+    radial-gradient(2px 2px at 320px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(3px 3px at 360px 25px, #ffffff, transparent),
+    radial-gradient(1px 1px at 400px 85px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 440px 45px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 480px 15px, #ffffff, transparent),
+    radial-gradient(1px 1px at 520px 75px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 560px 35px, #ffffff, transparent),
+    radial-gradient(3px 3px at 600px 95px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 640px 55px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 680px 20px, #ffffff, transparent),
+    radial-gradient(1px 1px at 720px 80px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 760px 40px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 800px 100px, #ffffff, transparent),
+    radial-gradient(3px 3px at 840px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 880px 25px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 920px 85px, #ffffff, transparent),
+    radial-gradient(2px 2px at 960px 45px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 1000px 15px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 1040px 75px, #ffffff, transparent),
+    radial-gradient(3px 3px at 1080px 35px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 1120px 95px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 1160px 55px, #ffffff, transparent),
+    radial-gradient(1px 1px at 1200px 20px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 1240px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 1280px 40px, #ffffff, transparent),
+    radial-gradient(3px 3px at 1320px 100px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 1360px 60px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 1400px 25px, #ffffff, transparent),
+    radial-gradient(2px 2px at 1440px 85px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 1480px 45px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 1520px 15px, #ffffff, transparent),
+    radial-gradient(3px 3px at 1560px 75px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 1600px 35px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 50px 150px, #ffffff, transparent),
+    radial-gradient(1px 1px at 100px 200px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 150px 125px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(3px 3px at 200px 175px, #ffffff, transparent),
+    radial-gradient(1px 1px at 250px 225px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 300px 275px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 350px 325px, #ffffff, transparent),
+    radial-gradient(1px 1px at 400px 375px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 450px 425px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(3px 3px at 500px 475px, #ffffff, transparent),
+    radial-gradient(1px 1px at 550px 525px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 600px 575px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 650px 625px, #ffffff, transparent),
+    radial-gradient(1px 1px at 700px 675px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 750px 725px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(3px 3px at 800px 775px, #ffffff, transparent),
+    radial-gradient(1px 1px at 850px 825px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 900px 875px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 950px 925px, #ffffff, transparent),
+    radial-gradient(1px 1px at 1000px 975px, rgba(255,255,255,0.8), transparent);
   background-repeat: repeat;
-  background-size: 500px 25px;
-  animation: luxury-starfield 12s ease-in-out infinite;
+  background-size: 1600px 1000px;
+  animation: rollsRoyceStarfield 200s linear infinite;
 }
 
+.rolls-royce-starfield::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(4px 4px at 80px 120px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 180px 220px, #ffffff, transparent),
+    radial-gradient(1px 1px at 280px 320px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(3px 3px at 380px 420px, #ffffff, transparent),
+    radial-gradient(1px 1px at 480px 520px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 580px 620px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 680px 720px, #ffffff, transparent),
+    radial-gradient(4px 4px at 780px 820px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 880px 920px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 980px 1020px, #ffffff, transparent),
+    radial-gradient(3px 3px at 1080px 160px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 1180px 260px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 1280px 360px, #ffffff, transparent),
+    radial-gradient(2px 2px at 1380px 460px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(4px 4px at 1480px 560px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 120px 680px, #ffffff, transparent),
+    radial-gradient(2px 2px at 220px 780px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 320px 880px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(3px 3px at 420px 980px, #ffffff, transparent),
+    radial-gradient(1px 1px at 520px 140px, rgba(255,255,255,0.8), transparent);
+  background-repeat: repeat;
+  background-size: 1200px 800px;
+  animation: rollsRoyceStarfieldCounter 300s linear infinite reverse;
+  opacity: 0.7;
+}
 
+@keyframes rollsRoyceStarfield {
+  0% { transform: translateY(0px) translateX(0px); }
+  100% { transform: translateY(-1000px) translateX(-200px); }
+}
 
-@keyframes luxury-starfield {
+@keyframes rollsRoyceStarfieldCounter {
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(-1200px) translateY(-800px); }
+}
+
+/* Individual star twinkling animation */
+.rolls-royce-starfield .star-twinkle {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
   0%, 100% { 
-    opacity: 1;
-    transform: translateX(0px) scale(1);
+    opacity: 0.4; 
+    transform: scale(0.8); 
+    filter: brightness(0.8);
   }
   50% { 
-    opacity: 0.85;
-    transform: translateX(1px) scale(1.02);
+    opacity: 1; 
+    transform: scale(1.2); 
+    filter: brightness(1.5) blur(0.5px);
   }
 }
