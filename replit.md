@@ -564,6 +564,12 @@ Changelog:
   - Updated title from text-3xl to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
   - Updated subtitle to text-lg to match overview subtitle size for complete consistency
   - Complete typography consistency achieved across all admin interface sections (Overview, Crew Management, Customer Service, Staff Management, Yacht Maintenance)
+- June 23, 2025. Admin dashboard layout improvements implemented
+  - Fixed hamburger menu button to stay in fixed top-left position instead of moving with sidebar
+  - Moved messages and notifications icons from top header to bottom beside user profile
+  - Changed user subtitle from "System Administrator" to "System Admin" for better UI fit
+  - Enhanced main content area to dynamically expand to full width when sidebar is collapsed
+  - Maintained all existing purple-to-blue gradient styling and dark theme consistency
 
 ## Member Experience Feature Status
 

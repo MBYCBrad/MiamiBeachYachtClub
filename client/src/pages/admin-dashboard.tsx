@@ -3519,11 +3519,9 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Hamburger menu button */}
+      {/* Hamburger menu button - fixed top left */}
       <motion.button
-        className={`fixed top-4 left-4 z-50 p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300 ${
-          sidebarCollapsed ? 'translate-x-0' : isMobile ? 'translate-x-80' : '-translate-x-96'
-        }`}
+        className="fixed top-4 left-4 z-50 p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
         onClick={toggleSidebar}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -3574,12 +3572,6 @@ export default function AdminDashboard() {
                   <h2 className="text-xl font-bold text-white">Admin Panel</h2>
                   <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
                 </div>
-              </div>
-              
-              {/* Notification and Messages Icons */}
-              <div className="flex items-center space-x-2">
-                <MessagesDropdown />
-                <AdminNotificationCenter />
               </div>
             </motion.div>
           </div>
@@ -3662,23 +3654,22 @@ export default function AdminDashboard() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user?.username || 'Admin User'}</p>
-                <p className="text-xs text-gray-400">System Administrator</p>
+                <p className="text-xs text-gray-400">System Admin</p>
               </div>
               
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-gray-400 hover:text-white"
-                onClick={toggleSidebar}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
+              {/* Messages and Notifications beside username */}
+              <div className="flex items-center space-x-2">
+                <MessagesDropdown />
+                <AdminNotificationCenter />
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${
+          sidebarCollapsed ? 'w-full' : 'w-full'
+        }`}>
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'analytics' && renderAnalytics()}
