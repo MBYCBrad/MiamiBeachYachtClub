@@ -159,7 +159,13 @@ export default function MyProfile() {
     '/api/media/avatars/avatar3.jpg',
     '/api/media/avatars/avatar4.jpg',
     '/api/media/avatars/avatar5.jpg',
-    '/api/media/avatars/avatar6.jpg'
+    '/api/media/avatars/avatar6.jpg',
+    '/api/media/Screenshot 2025-06-21 at 10.07.13 AM_1750525636853.png',
+    '/api/media/Screenshot 2025-06-21 at 10.13.02 AM_1750525984464.png',
+    '/api/media/Screenshot 2025-06-21 at 10.15.18 AM_1750526121299.png',
+    '/api/media/Screenshot 2025-06-21 at 10.17.47 AM_1750526270437.png',
+    '/api/media/Screenshot 2025-06-21 at 10.18.48 AM_1750526331757.png',
+    '/api/media/Screenshot 2025-06-21 at 10.24.01 AM_1750526643824.png'
   ];
 
   const getRoleBadgeColor = (role: string) => {
@@ -444,22 +450,22 @@ export default function MyProfile() {
 
         {/* Avatar Management Dialog */}
         <Dialog open={avatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
-          <DialogContent className="sm:max-w-[600px] bg-gray-900 border-gray-700">
+          <DialogContent className="sm:max-w-[600px] bg-gray-900/50 border-gray-700/50">
             <DialogHeader>
               <DialogTitle className="text-white">Update Profile Picture</DialogTitle>
             </DialogHeader>
             
             <Tabs value={avatarMethod} onValueChange={(value: any) => setAvatarMethod(value)} className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-                <TabsTrigger value="upload" className="text-gray-300 data-[state=active]:bg-purple-600">
+                <TabsTrigger value="upload" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
                   <Upload className="h-4 w-4 mr-2" />
                   Upload
                 </TabsTrigger>
-                <TabsTrigger value="avatar" className="text-gray-300 data-[state=active]:bg-purple-600">
+                <TabsTrigger value="avatar" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
                   <ImageIcon className="h-4 w-4 mr-2" />
                   Pick Avatar
                 </TabsTrigger>
-                <TabsTrigger value="generate" className="text-gray-300 data-[state=active]:bg-purple-600">
+                <TabsTrigger value="generate" className="text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
                   <Wand2 className="h-4 w-4 mr-2" />
                   AI Generate
                 </TabsTrigger>
@@ -488,34 +494,36 @@ export default function MyProfile() {
               </TabsContent>
               
               <TabsContent value="avatar" className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  {predefinedAvatars.map((avatarUrl, index) => (
-                    <div
-                      key={index}
-                      className={`relative cursor-pointer rounded-lg border-2 transition-colors ${
-                        selectedAvatar === avatarUrl 
-                          ? 'border-purple-500' 
-                          : 'border-gray-600 hover:border-gray-500'
-                      }`}
-                      onClick={() => handleAvatarSelect(avatarUrl)}
-                    >
-                      <Avatar className="w-full h-24">
-                        <AvatarImage src={avatarUrl} className="object-cover" />
-                        <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                          {index + 1}
-                        </AvatarFallback>
-                      </Avatar>
-                      {selectedAvatar === avatarUrl && (
-                        <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                          <div className="bg-purple-500 rounded-full p-1">
-                            <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
+                <div className="max-h-96 overflow-y-auto pr-2">
+                  <div className="grid grid-cols-3 gap-4">
+                    {predefinedAvatars.map((avatarUrl, index) => (
+                      <div
+                        key={index}
+                        className={`relative cursor-pointer rounded-lg border-2 transition-colors ${
+                          selectedAvatar === avatarUrl 
+                            ? 'border-purple-500' 
+                            : 'border-gray-600 hover:border-gray-500'
+                        }`}
+                        onClick={() => handleAvatarSelect(avatarUrl)}
+                      >
+                        <Avatar className="w-full h-24">
+                          <AvatarImage src={avatarUrl} className="object-cover" />
+                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                            {index + 1}
+                          </AvatarFallback>
+                        </Avatar>
+                        {selectedAvatar === avatarUrl && (
+                          <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                            <div className="bg-purple-500 rounded-full p-1">
+                              <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </TabsContent>
               
