@@ -135,7 +135,6 @@ export function MultiImageUpload({
 
   return (
     <div className="space-y-4">
-      <label className="text-sm font-medium text-gray-300">{label}</label>
       
       {/* Upload Area */}
       <div

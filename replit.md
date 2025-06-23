@@ -366,6 +366,13 @@ Changelog:
   - Multi-image upload system working with authentic yacht photos from pexels media assets
   - Complete CRUD operations for all admin management sections now fully operational
   - All yacht creation form fields properly validated and connected to live PostgreSQL database
+- June 23, 2025. Complete multi-image upload functionality for services and events implemented
+  - Fixed duplicate "Service Images" labels and infinite update loop in MultiImageUpload component
+  - Added multi-image upload functionality to both Add and Edit Service dialogs (up to 10 images)
+  - Added multi-image upload functionality to both Add and Edit Event dialogs (up to 10 images)
+  - Fixed date validation issue in event schema with proper string-to-date transformation
+  - Standardized multi-image upload across all admin management sections matching yacht fleet system
+  - All admin CRUD operations now fully operational with consistent image management interface
 
 ## Member Experience Feature Status
 
