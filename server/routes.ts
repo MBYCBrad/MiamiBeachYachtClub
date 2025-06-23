@@ -1243,6 +1243,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service Provider Routes
+  app.get("/api/service-provider/stats", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      const services = await dbStorage.getServices();
+      const bookings = await dbStorage.getBookings();
+      
+      const providerServices = services.filter(s => s.providerId === providerId);
+      const serviceIds = providerServices.map(s => s.id);
+      const providerBookings = bookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
+      
+      // Calculate stats
+      const totalServices = providerServices.length;
+      const totalBookings = providerBookings.length;
+      const monthlyRevenue = providerBookings
+        .filter(b => b.createdAt && new Date(b.createdAt).getMonth() === new Date().getMonth())
+        .reduce((sum, b) => sum + parseFloat(b.totalAmount || '0'), 0);
+      
+      const avgRating = 4.8; // Mock rating for now
+      const completionRate = 95;
+      const activeClients = new Set(providerBookings.map(b => b.userId)).size;
+      
+      res.json({
+        totalServices,
+        totalBookings,
+        monthlyRevenue,
+        avgRating,
+        completionRate,
+        activeClients
+      });
+    } catch (error: any) {
+      console.error('Error fetching provider stats:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/service-provider/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.role === UserRole.ADMIN ? undefined : req.user!.id;
+      const services = await dbStorage.getServices();
+      const providerServices = providerId ? services.filter(s => s.providerId === providerId) : services;
+      res.json(providerServices);
+    } catch (error: any) {
+      console.error('Error fetching provider services:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/service-provider/bookings", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      const services = await dbStorage.getServices();
+      const bookings = await dbStorage.getBookings();
+      
+      const providerServices = services.filter(s => s.providerId === providerId);
+      const serviceIds = providerServices.map(s => s.id);
+      const providerBookings = bookings.filter(b => b.serviceId && serviceIds.includes(b.serviceId));
+      
+      // Enhance bookings with service and user info
+      const enhancedBookings = await Promise.all(
+        providerBookings.map(async (booking) => {
+          const service = providerServices.find(s => s.id === booking.serviceId);
+          const user = await dbStorage.getUser(booking.userId);
+          return {
+            ...booking,
+            service,
+            user,
+            amount: booking.totalAmount || '0'
+          };
+        })
+      );
+      
+      res.json(enhancedBookings);
+    } catch (error: any) {
+      console.error('Error fetching provider bookings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/service-provider/services", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const providerId = req.user!.id;
+      const serviceData = {
+        ...req.body,
+        providerId,
+        duration: req.body.duration ? parseInt(req.body.duration) : null,
+        imageUrl: req.body.images && req.body.images.length > 0 ? req.body.images[0] : req.body.imageUrl,
+        images: req.body.images || []
+      };
+      
+      const newService = await dbStorage.createService(serviceData);
+      res.status(201).json(newService);
+    } catch (error: any) {
+      console.error('Error creating service:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const providerId = req.user!.id;
+      
+      // Verify ownership for non-admin users
+      if (req.user!.role !== UserRole.ADMIN) {
+        const service = await dbStorage.getService(serviceId);
+        if (!service || service.providerId !== providerId) {
+          return res.status(403).json({ message: "Not authorized to update this service" });
+        }
+      }
+      
+      const serviceData = {
+        ...req.body,
+        duration: req.body.duration ? parseInt(req.body.duration) : null,
+        imageUrl: req.body.images && req.body.images.length > 0 ? req.body.images[0] : req.body.imageUrl,
+        images: req.body.images || []
+      };
+      
+      const updatedService = await dbStorage.updateService(serviceId, serviceData);
+      if (!updatedService) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      res.json(updatedService);
+    } catch (error: any) {
+      console.error('Error updating service:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/service-provider/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const providerId = req.user!.id;
+      
+      // Verify ownership for non-admin users
+      if (req.user!.role !== UserRole.ADMIN) {
+        const service = await dbStorage.getService(serviceId);
+        if (!service || service.providerId !== providerId) {
+          return res.status(403).json({ message: "Not authorized to delete this service" });
+        }
+      }
+      
+      const deleted = await dbStorage.deleteService(serviceId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting service:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Initialize notification service with WebSocket support

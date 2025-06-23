@@ -38,6 +38,7 @@ import {
   Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MultiImageUpload } from "@/components/multi-image-upload";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -206,6 +207,149 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
   </motion.div>
 );
 
+// Add Service Component
+function AddServiceDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'Beauty & Grooming',
+    description: '',
+    pricePerSession: '',
+    duration: '',
+    isAvailable: true,
+    images: [] as string[]
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createServiceMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const serviceData = {
+        ...data,
+        duration: data.duration ? parseInt(data.duration) : null,
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
+        images: data.images || []
+      };
+      const response = await apiRequest("POST", "/api/service-provider/services", serviceData);
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      toast({ title: "Success", description: "Service created successfully" });
+      setIsOpen(false);
+      setFormData({ name: '', category: 'Beauty & Grooming', description: '', pricePerSession: '', duration: '', isAvailable: true, images: [] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Service
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New Service</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="name" className="text-gray-300">Service Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter service name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="category" className="text-gray-300">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                <SelectItem value="Culinary">Culinary</SelectItem>
+                <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                <SelectItem value="Entertainment">Entertainment</SelectItem>
+                <SelectItem value="Water Sports">Water Sports</SelectItem>
+                <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="col-span-2">
+            <Label htmlFor="description" className="text-gray-300">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter service description"
+            />
+          </div>
+          <div>
+            <Label htmlFor="pricePerSession" className="text-gray-300">Price per Session ($)</Label>
+            <Input
+              id="pricePerSession"
+              value={formData.pricePerSession}
+              onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter price"
+            />
+          </div>
+          <div>
+            <Label htmlFor="duration" className="text-gray-300">Duration (minutes)</Label>
+            <Input
+              id="duration"
+              value={formData.duration}
+              onChange={(e) => setFormData({...formData, duration: e.target.value})}
+              className="bg-gray-800 border-gray-700 text-white"
+              placeholder="Enter duration"
+            />
+          </div>
+          <div className="col-span-2">
+            <Label className="text-gray-300">Service Images (Up to 10)</Label>
+            <MultiImageUpload
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+            />
+          </div>
+          <div className="col-span-2 flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isAvailable"
+              checked={formData.isAvailable}
+              onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
+              className="rounded"
+            />
+            <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => createServiceMutation.mutate(formData)} 
+            disabled={createServiceMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-pink-600"
+          >
+            {createServiceMutation.isPending ? "Creating..." : "Create Service"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Edit Service Component
 function EditServiceDialog({ service }: { service: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -226,7 +370,10 @@ function EditServiceDialog({ service }: { service: any }) {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
       toast({ title: "Success", description: "Service updated successfully" });
       setIsOpen(false);
     },
@@ -330,7 +477,10 @@ function DeleteServiceDialog({ service }: { service: any }) {
       await apiRequest("DELETE", `/api/service-provider/services/${service.id}`);
     },
     onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
       toast({ title: "Success", description: "Service deleted successfully" });
       setIsOpen(false);
     },
@@ -516,10 +666,7 @@ export default function ServiceProviderDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-600/30">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Service
-          </Button>
+          <AddServiceDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Bell className="h-4 w-4 mr-2" />
             Notifications
@@ -691,7 +838,7 @@ export default function ServiceProviderDashboard() {
           ))
         ) : services && services.length > 0 ? (
           // Real services from database
-          (services || []).map((service: any, index: number) => (
+          services.map((service: any, index: number) => (
             <motion.div
               key={service.id}
               initial={{ opacity: 0, y: 20, scale: 0.9 }}

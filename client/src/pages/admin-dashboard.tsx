@@ -774,7 +774,10 @@ function AddServiceDialog() {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider"] });
       toast({ title: "Success", description: "Service created successfully" });
       setIsOpen(false);
       setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], isAvailable: true });
@@ -920,7 +923,10 @@ function EditServiceDialog({ service }: { service: any }) {
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider"] });
       toast({ title: "Success", description: "Service updated successfully" });
       setIsOpen(false);
     },
@@ -1042,7 +1048,10 @@ function DeleteServiceDialog({ service }: { service: any }) {
       await apiRequest("DELETE", `/api/admin/services/${service.id}`);
     },
     onSuccess: () => {
+      // Invalidate all service-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider"] });
       toast({ title: "Success", description: "Service deleted successfully" });
       setIsOpen(false);
     },
