@@ -36,7 +36,13 @@ import {
   RotateCcw,
   Trash2,
   LogOut,
-  ExternalLink
+  ExternalLink,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  ChevronDown,
+  MessageSquare,
+  Ship
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +78,7 @@ interface AdminStats {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
+  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500' },
   { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
   { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500' },
@@ -131,6 +138,123 @@ const ActivityCard = ({ activity, index }: any) => (
     <span className="text-xs text-gray-500">{activity.time}</span>
   </motion.div>
 );
+
+// Booking Status Badge Component
+const BookingStatusBadge = ({ booking }: { booking: any }) => {
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+        return {
+          color: 'bg-green-500/20 text-green-400 border-green-500/30',
+          icon: CheckCircle,
+          text: 'Confirmed'
+        };
+      case 'pending':
+        return {
+          color: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+          icon: Clock,
+          text: 'Pending'
+        };
+      case 'cancelled':
+        return {
+          color: 'bg-red-500/20 text-red-400 border-red-500/30',
+          icon: XCircle,
+          text: 'Cancelled'
+        };
+      case 'completed':
+        return {
+          color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+          icon: CheckCircle,
+          text: 'Completed'
+        };
+      default:
+        return {
+          color: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+          icon: AlertCircle,
+          text: status
+        };
+    }
+  };
+
+  const config = getStatusConfig(booking.status);
+  const Icon = config.icon;
+
+  return (
+    <Badge className={`${config.color} flex items-center space-x-1`}>
+      <Icon className="h-3 w-3" />
+      <span>{config.text}</span>
+    </Badge>
+  );
+};
+
+// Booking Actions Dropdown Component
+const BookingActionsDropdown = ({ booking }: { booking: any }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ status }: { status: string }) => {
+      await apiRequest("PATCH", `/api/admin/bookings/${booking.id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      toast({ title: "Success", description: "Booking status updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  const statusOptions = [
+    { value: 'confirmed', label: 'Confirm Booking', icon: CheckCircle, color: 'text-green-400' },
+    { value: 'pending', label: 'Set Pending', icon: Clock, color: 'text-orange-400' },
+    { value: 'completed', label: 'Mark Completed', icon: CheckCircle, color: 'text-blue-400' },
+    { value: 'cancelled', label: 'Cancel Booking', icon: XCircle, color: 'text-red-400' }
+  ];
+
+  return (
+    <div className="relative">
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setIsOpen(!isOpen)}
+        className="text-gray-400 hover:text-white"
+      >
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+          <div className="p-2">
+            {statusOptions.map((option) => {
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => updateStatusMutation.mutate({ status: option.value })}
+                  disabled={updateStatusMutation.isPending || booking.status === option.value}
+                  className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                    booking.status === option.value
+                      ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                      : 'hover:bg-gray-700 text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 ${option.color}`} />
+                  <span>{option.label}</span>
+                  {booking.status === option.value && (
+                    <span className="text-xs text-gray-500">(Current)</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Add User Dialog
 function AddUserDialog() {
@@ -1532,6 +1656,12 @@ export default function AdminDashboard() {
     refetchInterval: 30000
   });
 
+  const { data: bookings = [] } = useQuery<any[]>({
+    queryKey: ['/api/admin/bookings'],
+    staleTime: 30000, // Refresh every 30 seconds for real-time data
+    refetchInterval: 30000
+  });
+
   const renderOverview = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1853,6 +1983,301 @@ export default function AdminDashboard() {
                     <p className="text-white font-bold">${item.amount.toFixed(2)}</p>
                     <p className="text-gray-400 text-sm">Total Revenue</p>
                   </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderBookings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Bookings Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Complete yacht experience oversight - crew coordination, amenities, and guest services
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-cyan-600 to-teal-600">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedule Overview
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-cyan-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter Bookings
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Active Bookings"
+          value={bookings?.filter(b => b.status === 'confirmed')?.length || '0'}
+          change={null}
+          icon={Anchor}
+          gradient="from-cyan-500 to-teal-500"
+          delay={0}
+        />
+        <StatCard
+          title="Today's Departures"
+          value={bookings?.filter(b => new Date(b.startTime).toDateString() === new Date().toDateString())?.length || '0'}
+          change={null}
+          icon={Ship}
+          gradient="from-blue-500 to-cyan-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Crew Assignments"
+          value={bookings?.filter(b => b.status === 'confirmed')?.length || '0'}
+          change={null}
+          icon={Users}
+          gradient="from-purple-500 to-pink-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Guest Services"
+          value={bookings?.reduce((sum, b) => sum + (b.guestCount || 0), 0) || '0'}
+          change={null}
+          icon={Sparkles}
+          gradient="from-orange-500 to-red-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Bookings Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-cyan-500" />
+              Live Yacht Experience Management
+            </CardTitle>
+            <CardDescription>Real-time booking oversight with crew coordination and amenities management</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Member</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Yacht</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Experience</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Guests</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">MBYC Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings?.map((booking: any, index: number) => (
+                    <motion.tr
+                      key={booking.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors group"
+                    >
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">{booking.member?.name}</p>
+                          <p className="text-gray-400 text-sm">{booking.member?.membershipTier} Member</p>
+                          <p className="text-gray-500 text-xs">{booking.member?.email}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-3">
+                          {booking.yacht?.imageUrl && (
+                            <img 
+                              src={booking.yacht.imageUrl} 
+                              alt={booking.yacht.name}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div>
+                            <p className="text-white font-medium">{booking.yacht?.name}</p>
+                            <p className="text-gray-400 text-sm">{booking.yacht?.size}ft • {booking.yacht?.capacity} guests</p>
+                            <p className="text-gray-500 text-xs">{booking.yacht?.location}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">
+                            {new Date(booking.startTime).toLocaleDateString()} • {booking.timeSlot}
+                          </p>
+                          <p className="text-gray-400 text-sm">
+                            {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                            {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </p>
+                          <p className="text-cyan-400 text-sm">{booking.duration}h Experience</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-center">
+                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm">
+                            {booking.guestCount}
+                          </div>
+                          <p className="text-gray-400 text-xs mt-1">Guests</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <BookingStatusBadge booking={booking} />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <BookingActionsDropdown booking={booking} />
+                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {(!bookings || bookings.length === 0) && (
+                <div className="text-center py-12">
+                  <Calendar className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No yacht bookings found</p>
+                  <p className="text-gray-500 text-sm">Experience bookings will appear here for crew coordination</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Experience Details Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+      >
+        {/* Crew Coordination */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Users className="h-5 w-5 mr-2 text-purple-500" />
+              Crew Coordination Center
+            </CardTitle>
+            <CardDescription>MBYC staff assignments and experience preparation</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { role: 'Captain', name: 'Captain Rodriguez', status: 'On Duty', color: 'from-blue-500 to-cyan-500' },
+                { role: 'First Mate', name: 'Sarah Johnson', status: 'Assigned', color: 'from-green-500 to-emerald-500' },
+                { role: 'Steward', name: 'Michael Chen', status: 'Preparing', color: 'from-purple-500 to-pink-500' },
+                { role: 'Chef', name: 'Isabella Franco', status: 'Ready', color: 'from-orange-500 to-red-500' }
+              ].map((crew, index) => (
+                <motion.div
+                  key={crew.role}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg bg-gradient-to-r ${crew.color}`}>
+                      <Users className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{crew.name}</p>
+                      <p className="text-gray-400 text-sm">{crew.role}</p>
+                    </div>
+                  </div>
+                  <Badge className={`${
+                    crew.status === 'On Duty' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                    crew.status === 'Ready' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    crew.status === 'Assigned' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                    'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                  }`}>
+                    {crew.status}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Amenities & Services */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Sparkles className="h-5 w-5 mr-2 text-orange-500" />
+              Amenities & Guest Services
+            </CardTitle>
+            <CardDescription>Premium experience preparation and quality assurance</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { service: 'Premium Bar Setup', status: 'Complete', progress: 100, color: 'from-green-500 to-emerald-500' },
+                { service: 'Gourmet Catering', status: 'In Progress', progress: 75, color: 'from-orange-500 to-red-500' },
+                { service: 'Water Sports Equipment', status: 'Ready', progress: 100, color: 'from-blue-500 to-cyan-500' },
+                { service: 'Entertainment System', status: 'Testing', progress: 90, color: 'from-purple-500 to-pink-500' }
+              ].map((service, index) => (
+                <motion.div
+                  key={service.service}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-white font-medium">{service.service}</p>
+                    <Badge className={`${
+                      service.status === 'Complete' || service.status === 'Ready' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                      service.status === 'In Progress' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                      'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                    }`}>
+                      {service.status}
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${service.progress}%` }}
+                      transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
+                      className={`bg-gradient-to-r ${service.color} h-2 rounded-full`} 
+                    />
+                  </div>
+                  <p className="text-gray-400 text-sm mt-1">{service.progress}% Complete</p>
                 </motion.div>
               ))}
             </div>
@@ -3102,6 +3527,7 @@ export default function AdminDashboard() {
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'settings' && renderSettings()}
+            {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
             {activeSection === 'services' && renderServices()}

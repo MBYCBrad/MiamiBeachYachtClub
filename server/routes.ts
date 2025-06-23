@@ -1627,6 +1627,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookings = await dbStorage.getBookings();
+      const users = await dbStorage.getAllUsers();
+      const yachts = await dbStorage.getYachts();
+      const services = await dbStorage.getServices();
+
+      // Helper function to get user info
+      const getUserInfo = (userId: number | null) => {
+        if (!userId) return { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+        const user = users.find(u => u.id === userId);
+        return user ? {
+          name: user.username,
+          email: user.email,
+          membershipTier: user.membershipTier || 'Bronze'
+        } : { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+      };
+
+      // Helper function to get yacht info
+      const getYachtInfo = (yachtId: number | null) => {
+        if (!yachtId) return { name: 'Unknown Yacht', size: 0, location: 'Unknown' };
+        const yacht = yachts.find(y => y.id === yachtId);
+        return yacht ? {
+          name: yacht.name,
+          size: yacht.size,
+          location: yacht.location,
+          capacity: yacht.capacity,
+          imageUrl: yacht.imageUrl
+        } : { name: 'Unknown Yacht', size: 0, location: 'Unknown' };
+      };
+
+      // Transform bookings with complete information
+      const detailedBookings = bookings.map(booking => {
+        const member = getUserInfo(booking.userId);
+        const yacht = getYachtInfo(booking.yachtId);
+        
+        const duration = Math.ceil((new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / (1000 * 60 * 60));
+        
+        return {
+          id: booking.id,
+          member,
+          yacht,
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          duration,
+          guestCount: booking.guestCount,
+          status: booking.status,
+          specialRequests: booking.specialRequests,
+          totalPrice: booking.totalPrice || '0',
+          createdAt: booking.createdAt,
+          timeSlot: new Date(booking.startTime).getHours() < 13 ? 'Morning' :
+                   new Date(booking.startTime).getHours() < 17 ? 'Afternoon' :
+                   new Date(booking.startTime).getHours() < 21 ? 'Evening' : 'Night'
+        };
+      });
+
+      // Sort by creation date (newest first)
+      detailedBookings.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      res.json(detailedBookings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get all bookings for admin (with yacht and member details)
+  app.get("/api/admin/bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookings = await dbStorage.getBookings();
+      const users = await dbStorage.getAllUsers();
+      const yachts = await dbStorage.getYachts();
+
+      // Helper function to get time slot name
+      const getTimeSlotName = (startTime: Date) => {
+        const hour = startTime.getHours();
+        if (hour >= 9 && hour < 13) return "Morning";
+        if (hour >= 13 && hour < 17) return "Afternoon";
+        if (hour >= 17 && hour < 21) return "Evening";
+        return "Night";
+      };
+
+      // Enrich bookings with yacht and member details
+      const enrichedBookings = bookings.map(booking => {
+        const yacht = yachts.find(y => y.id === booking.yachtId);
+        const member = users.find(u => u.id === booking.userId);
+        
+        return {
+          ...booking,
+          yacht,
+          member: member ? {
+            name: member.username,
+            email: member.email,
+            membershipTier: member.membershipTier
+          } : null,
+          timeSlot: getTimeSlotName(booking.startTime),
+          duration: Math.round((new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / (1000 * 60 * 60))
+        };
+      });
+
+      res.json(enrichedBookings);
+    } catch (error: any) {
+      console.error('Error fetching admin bookings:', error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  app.patch("/api/admin/bookings/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, specialRequests } = req.body;
+      
+      const success = await dbStorage.updateBookingStatus(parseInt(id), status, specialRequests);
+      
+      if (success) {
+        res.json({ message: "Booking updated successfully" });
+      } else {
+        res.status(404).json({ message: "Booking not found" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update booking status (admin only)
+  app.patch("/api/admin/bookings/:id/status", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { status, specialRequests } = req.body;
+      
+      const success = await dbStorage.updateBookingStatus(bookingId, status, specialRequests);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      res.json({ message: "Booking status updated successfully" });
+    } catch (error: any) {
+      console.error('Error updating booking status:', error);
+      res.status(500).json({ message: "Failed to update booking status" });
+    }
+  });
+
   app.get("/api/admin/payments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const bookings = await dbStorage.getBookings();
