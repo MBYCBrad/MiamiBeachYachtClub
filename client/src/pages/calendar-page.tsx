@@ -916,7 +916,7 @@ export default function CalendarPage() {
                   size="sm"
                   variant={view === value ? "default" : "ghost"}
                   onClick={() => setView(value)}
-                  className={view === value ? "bg-purple-600 text-white" : "text-gray-400"}
+                  className={view === value ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white" : "text-gray-400"}
                 >
                   {key.charAt(0) + key.slice(1).toLowerCase()}
                 </Button>
