@@ -80,19 +80,19 @@ html, body {
   /* Universal MBYC Dark Theme - UPDATED primary background darker than secondary */
   --background: hsl(240, 10%, 2%);          /* Main dark background - much darker than secondary */
   --foreground: hsl(0, 0%, 98%);            /* White text */
-  --muted: hsl(240, 3.7%, 15.9%);          /* Card/field backgrounds - lighter than primary */
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 3.7%, 15.9%);        /* Dropdown backgrounds */
+  --muted: hsl(0, 0%, 18%);                /* Gray card/field backgrounds */
+  --muted-foreground: hsl(0, 0%, 64.9%);
+  --popover: hsl(0, 0%, 18%);              /* Gray dropdown backgrounds */
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 3.7%, 15.9%);           /* Card backgrounds - lighter than primary */
+  --card: hsl(0, 0%, 18%);                 /* Gray card backgrounds */
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 20%);           /* Border color */
-  --input: hsl(240, 3.7%, 15.9%);          /* Input field backgrounds - lighter than primary */
+  --border: hsl(0, 0%, 20%);               /* Gray border color */
+  --input: hsl(0, 0%, 18%);                /* Gray input field backgrounds */
   --primary: hsl(262, 83%, 58%);            /* Purple-blue gradient start */
   --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(240, 3.7%, 15.9%);      /* Secondary backgrounds - lighter than primary */
+  --secondary: hsl(0, 0%, 18%);            /* Gray secondary backgrounds */
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);         /* Accent backgrounds */
+  --accent: hsl(0, 0%, 18%);               /* Gray accent backgrounds */
   --accent-foreground: hsl(0, 0%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
