@@ -464,6 +464,12 @@ Changelog:
   - Purple-to-blue gradients now only display on hover/active states for professional appearance
   - Eliminated all light grey secondary backgrounds that were causing visual inconsistency
   - All admin interface elements now use proper dark theme styling matching user requirements
+- June 23, 2025. Admin profile color consistency restored with proper gray theme
+  - Fixed admin profile page secondary backgrounds from blue to proper gray theme (bg-gray-900/50)
+  - Updated all card backgrounds: avatar profile, personal information, security settings, notification preferences
+  - Fixed avatar editor modal background to maintain consistent dark gray theme
+  - Eliminated color inconsistencies that reverted to blue during UI redesign
+  - Complete visual consistency maintained across entire admin profile interface
 
 ## Member Experience Feature Status
 
