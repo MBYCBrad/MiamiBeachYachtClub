@@ -896,7 +896,6 @@ function CrewAssignmentDialog({
         </div>
       </div>
     </DialogContent>
-  </Dialog>
       </div>
     </motion.div>
     </div>
