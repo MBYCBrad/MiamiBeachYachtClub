@@ -8,20 +8,17 @@ import {
   Phone, 
   Search,
   PhoneCall,
-  MessageSquare,
   User,
-  Star,
   Clock,
   UserCheck,
-  Mic,
-  Info,
   PhoneIncoming,
   PhoneOutgoing,
   Users,
   History,
   Calculator,
   Trash2,
-  Volume2
+  Volume2,
+  PhoneMissed
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -81,6 +78,20 @@ export default function CustomerServiceDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
       setDialNumber("");
+      setIsCallActive(true);
+      toast({
+        title: "Call Connected",
+        description: `Calling ${formatPhoneNumber(dialNumber)}...`,
+      });
+      // Auto-end call after 30 seconds for demo
+      setTimeout(() => setIsCallActive(false), 30000);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Call Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   });
 
@@ -103,467 +114,277 @@ export default function CustomerServiceDashboard() {
   };
 
   const getCallTypeIcon = (call: PhoneCallType) => {
-    if (call.status === 'missed') return <PhoneIncoming className="h-4 w-4 text-red-400" />;
-    return <PhoneCall className="h-4 w-4 text-green-400" />;
-  };
-
-  const getCallTime = (call: PhoneCallType) => {
-    const callDate = new Date(call.created_at);
-    const now = new Date();
-    const diffHours = Math.floor((now.getTime() - callDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffHours < 1) return "9:22 AM";
-    if (diffHours < 24) return "Yesterday";
-    return callDate.toLocaleDateString();
+    if (call.status === 'missed') return <PhoneMissed className="h-4 w-4 text-red-400" />;
+    if (call.direction === 'inbound') return <PhoneIncoming className="h-4 w-4 text-green-400" />;
+    return <PhoneOutgoing className="h-4 w-4 text-blue-400" />;
   };
 
   const getRoleColor = (role: string) => {
-    switch (role.toLowerCase()) {
-      case 'member': return 'text-blue-400';
-      case 'yacht_owner': return 'text-purple-400';
-      case 'service_provider': return 'text-green-400';
+    switch (role) {
       case 'admin': return 'text-red-400';
+      case 'yacht_owner': return 'text-blue-400';
+      case 'service_provider': return 'text-purple-400';
+      case 'member': return 'text-green-400';
       default: return 'text-gray-400';
     }
   };
 
+  const keypadButtons = [
+    [{ digit: '1', letters: '' }, { digit: '2', letters: 'ABC' }, { digit: '3', letters: 'DEF' }],
+    [{ digit: '4', letters: 'GHI' }, { digit: '5', letters: 'JKL' }, { digit: '6', letters: 'MNO' }],
+    [{ digit: '7', letters: 'PQRS' }, { digit: '8', letters: 'TUV' }, { digit: '9', letters: 'WXYZ' }],
+    [{ digit: '*', letters: '' }, { digit: '0', letters: '+' }, { digit: '#', letters: '' }]
+  ];
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col max-w-md mx-auto">
-      {/* Status Bar */}
-      <div className="flex justify-between items-center px-6 py-2 text-sm font-medium">
-        <span>9:30</span>
-        <div className="flex items-center space-x-1">
-          <div className="flex space-x-1">
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-            <div className="w-1 h-1 bg-white rounded-full"></div>
-            <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
-          </div>
-          <div className="ml-2 flex items-center space-x-1">
-            <div className="w-4 h-2 border border-white rounded-sm">
-              <div className="w-full h-full bg-green-500 rounded-sm"></div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Customer Service Dashboard</h1>
+              <p className="text-gray-400">Manage customer calls and communications</p>
             </div>
-          </div>
-        </div>
-        <div className="flex items-center space-x-1">
-          <span>100%</span>
-          <div className="w-6 h-3 border border-white rounded-sm">
-            <div className="w-full h-full bg-green-500 rounded-sm"></div>
+            {isCallActive && (
+              <motion.div 
+                className="flex items-center gap-3 bg-green-500/20 border border-green-500/30 rounded-lg px-4 py-2"
+                animate={{ opacity: [1, 0.7, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              >
+                <Volume2 className="h-5 w-5 text-green-400" />
+                <span className="text-green-400 font-medium">Call Active</span>
+              </motion.div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Header */}
-      <div className="px-6 py-4 flex items-center justify-between">
-        <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
-          ← Lists
-        </Button>
-        <h1 className="text-lg font-semibold">
-          {activeTab === 'contacts' && 'Contacts'}
-          {activeTab === 'recents' && 'Recents'}
-          {activeTab === 'keypad' && 'Keypad'}
-        </h1>
-        {activeTab === 'contacts' && (
-          <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
-            +
-          </Button>
-        )}
-        {activeTab === 'recents' && (
-          <Button variant="ghost" size="sm" className="text-blue-400 p-0 hover:bg-transparent">
-            Edit
-          </Button>
-        )}
-        {activeTab === 'keypad' && <div className="w-8"></div>}
-      </div>
-
-      {/* Content Area */}
-      <div className="flex-1 px-6 pb-6">
-        {/* Contacts Tab */}
-        {activeTab === 'contacts' && (
-          <div className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 bg-gray-800/30 border-0 rounded-xl text-white placeholder-gray-400 h-12 focus:ring-0 focus:outline-none"
-              />
-              <Mic className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            </div>
-
-            {/* User Profile Card */}
-            <Card className="bg-gray-800/30 border-0 rounded-xl">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-lg">CS</span>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white">Customer Service</h3>
-                    <p className="text-sm text-gray-400">My Card</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Alphabet Index */}
-            <div className="fixed right-2 top-1/2 transform -translate-y-1/2 z-10">
-              <div className="flex flex-col space-y-1 text-xs font-semibold text-blue-400">
-                {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#'].map(letter => (
-                  <div key={letter} className="text-center">{letter}</div>
-                ))}
-              </div>
-            </div>
-
-            {/* Contacts List */}
-            <div className="space-y-1">
-              {/* Section Headers */}
-              <div className="text-2xl font-bold text-gray-300 mb-3">A</div>
-              
-              {usersLoading ? (
-                <div className="text-center text-gray-400 py-8">Loading contacts...</div>
-              ) : (
-                filteredContacts.map((user) => (
-                  <motion.div
-                    key={user.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="py-3 border-b border-gray-800/50 last:border-b-0"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-semibold text-white">
-                            {user.username?.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-white">{user.username}</h3>
-                          <p className={`text-sm capitalize ${getRoleColor(user.role || '')}`}>
-                            {user.role?.replace('_', ' ')}
-                          </p>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-blue-400 hover:bg-transparent p-1"
-                        onClick={() => makeCallMutation.mutate('+1-555-' + String(user.id).padStart(4, '0'))}
-                        disabled={makeCallMutation.isPending}
-                      >
-                        <Info className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Recents Tab */}
-        {activeTab === 'recents' && (
-          <div className="space-y-6">
-            {/* Sub-tabs */}
-            <div className="flex space-x-1 bg-gray-800/30 rounded-xl p-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setRecentsSubTab('all')}
-                className={`flex-1 rounded-lg h-8 text-sm font-medium ${
-                  recentsSubTab === 'all' 
-                    ? 'bg-white text-black hover:bg-white/90' 
-                    : 'text-gray-400 hover:bg-transparent hover:text-white'
-                }`}
-              >
-                All
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setRecentsSubTab('missed')}
-                className={`flex-1 rounded-lg h-8 text-sm font-medium ${
-                  recentsSubTab === 'missed' 
-                    ? 'bg-gray-600 text-white hover:bg-gray-600/90' 
-                    : 'text-gray-400 hover:bg-transparent hover:text-white'
-                }`}
-              >
-                Missed
-              </Button>
-            </div>
-
-            {/* Recent Calls List */}
-            <div className="space-y-4">
-              {callsLoading ? (
-                <div className="text-center text-gray-400 py-8">Loading recents...</div>
-              ) : filteredRecents.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">
-                  {recentsSubTab === 'missed' ? 'No missed calls' : 'No recent calls'}
-                </div>
-              ) : (
-                filteredRecents.map((call) => (
-                  <motion.div
-                    key={call.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center justify-between py-2"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-semibold text-white">
-                          {call.caller_name?.charAt(0).toUpperCase() || 'U'}
-                        </span>
-                      </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h3 className={`font-medium ${call.status === 'missed' ? 'text-red-400' : 'text-white'}`}>
-                            {call.caller_name || 'Unknown'}
-                          </h3>
-                          {call.status === 'missed' && <span className="text-yellow-400 text-xs font-bold">+</span>}
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          {getCallTypeIcon(call)}
-                          <p className="text-sm text-gray-400">phone</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-400">{getCallTime(call)}</span>
-                      <Button variant="ghost" size="sm" className="text-blue-400 p-1 hover:bg-transparent">
-                        <Info className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Keypad Tab */}
-        {activeTab === 'keypad' && (
-          <div className="flex flex-col items-center space-y-8 py-8">
-            {/* Display */}
-            <div className="text-center min-h-[60px] flex items-center">
-              <span className="text-3xl font-light">
-                {dialNumber ? formatPhoneNumber(dialNumber) : ''}
-              </span>
-            </div>
-
-            {/* Keypad Grid */}
-            <div className="grid grid-cols-3 gap-6 w-full max-w-xs">
-              {/* Row 1 */}
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('1')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
-              >
-                1
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('2')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">2</span>
-                <span className="text-xs font-normal">ABC</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('3')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">3</span>
-                <span className="text-xs font-normal">DEF</span>
-              </Button>
-
-              {/* Row 2 */}
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('4')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">4</span>
-                <span className="text-xs font-normal">GHI</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('5')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">5</span>
-                <span className="text-xs font-normal">JKL</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('6')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">6</span>
-                <span className="text-xs font-normal">MNO</span>
-              </Button>
-
-              {/* Row 3 */}
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('7')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">7</span>
-                <span className="text-xs font-normal">PQRS</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('8')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">8</span>
-                <span className="text-xs font-normal">TUV</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('9')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">9</span>
-                <span className="text-xs font-normal">WXYZ</span>
-              </Button>
-
-              {/* Row 4 */}
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('*')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
-              >
-                *
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('0')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-white hover:text-white flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl font-light">0</span>
-                <span className="text-xs font-normal">+</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => handleKeypadPress('#')}
-                className="w-20 h-20 rounded-full bg-gray-700 hover:bg-gray-600 text-3xl font-light text-white hover:text-white"
-              >
-                #
-              </Button>
-            </div>
-
-            {/* Call and Delete Buttons */}
-            <div className="flex flex-col items-center space-y-4">
-              {dialNumber && (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                  >
-                    <Button
-                      onClick={() => makeCallMutation.mutate(dialNumber)}
-                      disabled={makeCallMutation.isPending}
-                      className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
-                    >
-                      <Phone className="h-6 w-6" />
-                    </Button>
-                  </motion.div>
-                  <Button
-                    variant="ghost"
-                    onClick={handleKeypadDelete}
-                    className="text-gray-400 hover:text-white hover:bg-transparent text-lg"
-                  >
-                    Delete
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Tab Bar */}
-      <div className="border-t border-gray-800/50 bg-black/95 backdrop-blur">
-        <div className="flex justify-around py-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex flex-col items-center space-y-1 text-gray-500 hover:bg-transparent hover:text-gray-300"
-          >
-            <Star className="h-5 w-5" />
-            <span className="text-xs">Favorites</span>
-          </Button>
+        {/* Main Interface Card */}
+        <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Phone className="h-6 w-6 text-blue-400" />
+              Communication Center
+            </CardTitle>
+          </CardHeader>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setActiveTab('recents')}
-            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
-              activeTab === 'recents' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            <Clock className="h-5 w-5" />
-            <span className="text-xs">Recents</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setActiveTab('contacts')}
-            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
-              activeTab === 'contacts' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            <UserCheck className="h-5 w-5" />
-            <span className="text-xs">Contacts</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setActiveTab('keypad')}
-            className={`flex flex-col items-center space-y-1 hover:bg-transparent ${
-              activeTab === 'keypad' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            <div className="grid grid-cols-3 gap-0.5 w-5 h-5">
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="w-1 h-1 bg-current rounded-full"></div>
+          <CardContent>
+            {/* Tab Navigation */}
+            <div className="flex space-x-2 mb-8 bg-gray-700/30 rounded-xl p-2">
+              {[
+                { key: 'contacts', label: 'Contacts', icon: Users, count: filteredContacts.length },
+                { key: 'recents', label: 'Recent Calls', icon: History, count: filteredRecents.length },
+                { key: 'keypad', label: 'Dial Pad', icon: Calculator, count: null }
+              ].map(({ key, label, icon: Icon, count }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key as any)}
+                  className={`flex-1 py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-3 relative ${
+                    activeTab === key 
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' 
+                      : 'text-gray-400 hover:text-white hover:bg-gray-600/50'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{label}</span>
+                  {count !== null && (
+                    <Badge variant="secondary" className="ml-2 bg-white/10 text-white">
+                      {count}
+                    </Badge>
+                  )}
+                </button>
               ))}
             </div>
-            <span className="text-xs">Keypad</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex flex-col items-center space-y-1 text-gray-500 hover:bg-transparent hover:text-gray-300"
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-xs">Voicemail</span>
-          </Button>
-        </div>
-        
-        {/* Home Indicator */}
-        <div className="flex justify-center pb-2">
-          <div className="w-32 h-1 bg-gray-600 rounded-full"></div>
-        </div>
+
+            {/* Tab Content */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                {/* Contacts Tab */}
+                {activeTab === 'contacts' && (
+                  <div className="space-y-6">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search contacts..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400"
+                      />
+                    </div>
+
+                    {/* Contact List */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                      {usersLoading ? (
+                        <div className="col-span-full text-center py-8 text-gray-400">Loading contacts...</div>
+                      ) : filteredContacts.length === 0 ? (
+                        <div className="col-span-full text-center py-8 text-gray-400">No contacts found</div>
+                      ) : (
+                        filteredContacts.map((user) => (
+                          <Card key={user.id} className="bg-gray-700/30 border-gray-600 hover:bg-gray-700/50 transition-colors">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    {user.username?.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <p className="text-white font-medium">{user.username}</p>
+                                    <p className={`text-sm capitalize ${getRoleColor(user.role || '')}`}>
+                                      {user.role?.replace('_', ' ')}
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => user.phone && makeCallMutation.mutate(user.phone)}
+                                  disabled={!user.phone || makeCallMutation.isPending}
+                                  className="bg-green-500 hover:bg-green-600"
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recents Tab */}
+                {activeTab === 'recents' && (
+                  <div className="space-y-6">
+                    {/* Sub-tabs */}
+                    <div className="flex space-x-2">
+                      {[
+                        { key: 'all', label: 'All Calls' },
+                        { key: 'missed', label: 'Missed Calls' }
+                      ].map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => setRecentsSubTab(key as any)}
+                          className={`px-4 py-2 rounded-lg transition-colors ${
+                            recentsSubTab === key 
+                              ? 'bg-blue-500 text-white' 
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search call history..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400"
+                      />
+                    </div>
+
+                    {/* Call History */}
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {callsLoading ? (
+                        <div className="text-center py-8 text-gray-400">Loading call history...</div>
+                      ) : filteredRecents.length === 0 ? (
+                        <div className="text-center py-8 text-gray-400">No calls found</div>
+                      ) : (
+                        filteredRecents.map((call) => (
+                          <Card key={call.id} className="bg-gray-700/30 border-gray-600">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  {getCallTypeIcon(call)}
+                                  <div>
+                                    <p className="text-white font-medium">{call.caller_name || 'Unknown'}</p>
+                                    <p className="text-gray-400 text-sm">{formatPhoneNumber(call.phone_number || '')}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-gray-400 text-sm">
+                                    {call.created_at ? new Date(call.created_at).toLocaleTimeString() : ''}
+                                  </p>
+                                  <Badge 
+                                    variant={call.status === 'missed' ? 'destructive' : 'secondary'}
+                                    className="mt-1"
+                                  >
+                                    {call.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Keypad Tab */}
+                {activeTab === 'keypad' && (
+                  <div className="max-w-md mx-auto space-y-8">
+                    {/* Display */}
+                    <div className="text-center">
+                      <div className="bg-gray-700/50 rounded-lg p-6 mb-4">
+                        <p className="text-2xl font-mono text-white mb-2">
+                          {dialNumber || "Enter number"}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          {dialNumber ? formatPhoneNumber(dialNumber) : "Use keypad to dial"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Keypad */}
+                    <div className="grid grid-cols-3 gap-4">
+                      {keypadButtons.flat().map(({ digit, letters }) => (
+                        <Button
+                          key={digit}
+                          onClick={() => handleKeypadPress(digit)}
+                          className="h-16 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 text-white text-xl font-semibold flex flex-col items-center justify-center"
+                        >
+                          <span>{digit}</span>
+                          {letters && <span className="text-xs text-gray-400">{letters}</span>}
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-center space-x-4">
+                      <Button
+                        onClick={handleKeypadDelete}
+                        disabled={!dialNumber}
+                        variant="outline"
+                        className="border-gray-600 text-gray-400 hover:text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        onClick={() => makeCallMutation.mutate(dialNumber)}
+                        disabled={!dialNumber || makeCallMutation.isPending}
+                        className="bg-green-500 hover:bg-green-600 px-8"
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
