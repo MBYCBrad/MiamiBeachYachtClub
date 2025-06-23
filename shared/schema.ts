@@ -80,6 +80,7 @@ export const events = pgTable("events", {
   title: text("title").notNull(),
   description: text("description"),
   imageUrl: text("image_url"),
+  images: jsonb("images").$type<string[]>().default([]),
   location: text("location").notNull(),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),

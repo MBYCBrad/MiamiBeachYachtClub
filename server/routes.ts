@@ -1701,6 +1701,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // EVENT MANAGEMENT ROUTES - Complete CRUD operations for admin dashboard
+  app.post("/api/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const validatedData = insertEventSchema.parse(req.body);
+      const event = await dbStorage.createEvent(validatedData);
+
+      // Real-time cross-role notifications - notify all members of new event
+      await notificationService.notifyMembersOfNewContent('event', {
+        eventId: event.id,
+        eventTitle: event.title,
+        location: event.location,
+        startTime: event.startTime,
+        ticketPrice: event.ticketPrice,
+        addedBy: req.user!.username
+      });
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('event_added', event, req.user!.id);
+
+      await auditService.logAction(req, 'create', 'event', event.id, event);
+      res.status(201).json(event);
+    } catch (error: any) {
+      await auditService.logAction(req, 'create', 'event', undefined, req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const event = await dbStorage.updateEvent(parseInt(id), updates);
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('event_updated', event, req.user!.id);
+
+      await auditService.logAction(req, 'update', 'event', parseInt(id), updates);
+      res.json(event);
+    } catch (error: any) {
+      await auditService.logAction(req, 'update', 'event', parseInt(id), req.body, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      await dbStorage.deleteEvent(parseInt(id));
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('event_deleted', { id: parseInt(id) }, req.user!.id);
+
+      await auditService.logAction(req, 'delete', 'event', parseInt(id));
+      res.status(204).send();
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'event', parseInt(id), undefined, false, error.message);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/admin/events/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;

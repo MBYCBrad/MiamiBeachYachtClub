@@ -543,6 +543,7 @@ function AddYachtDialog() {
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="60">MBYC Fleet (admin)</SelectItem>
                 <SelectItem value="65">demo_owner</SelectItem>
                 <SelectItem value="66">yacht_owner_1</SelectItem>
                 <SelectItem value="67">yacht_owner_2</SelectItem>
@@ -855,6 +856,7 @@ function AddServiceDialog() {
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="60">MBYC Admin (admin)</SelectItem>
                 <SelectItem value="68">demo_provider</SelectItem>
                 <SelectItem value="69">chef_service</SelectItem>
                 <SelectItem value="70">spa_provider</SelectItem>
@@ -1101,6 +1103,7 @@ function AddEventDialog() {
     startTime: '',
     endTime: '',
     imageUrl: '',
+    images: [] as string[],
     hostId: '',
     isActive: true
   });
@@ -1114,16 +1117,19 @@ function AddEventDialog() {
         capacity: parseInt(data.capacity),
         hostId: data.hostId ? parseInt(data.hostId) : null,
         startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime)
+        endTime: new Date(data.endTime),
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl,
+        images: data.images || []
       };
-      const response = await apiRequest("POST", "/api/admin/events", eventData);
+      const response = await apiRequest("POST", "/api/events", eventData);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event created successfully" });
       setIsOpen(false);
-      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', imageUrl: '', hostId: '', isActive: true });
+      setFormData({ title: '', description: '', location: '', capacity: '', ticketPrice: '', startTime: '', endTime: '', imageUrl: '', images: [], hostId: '', isActive: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1215,14 +1221,12 @@ function AddEventDialog() {
               placeholder="5"
             />
           </div>
-          <div>
-            <Label htmlFor="imageUrl" className="text-gray-300">Image URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="/api/media/event-image.jpg"
+          <div className="col-span-2">
+            <Label className="text-gray-300">Event Images (Up to 10)</Label>
+            <MultiImageUpload
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+              initialImages={formData.images}
             />
           </div>
           <div className="col-span-2">
@@ -1261,6 +1265,8 @@ function EditEventDialog({ event }: { event: any }) {
     ticketPrice: event.ticketPrice || '',
     startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
     endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
+    imageUrl: event.imageUrl || '',
+    images: event.images || [] as string[],
     isActive: event.isActive ?? true
   });
   const { toast } = useToast();
@@ -1272,13 +1278,16 @@ function EditEventDialog({ event }: { event: any }) {
         ...data,
         capacity: parseInt(data.capacity) || 0,
         startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime)
+        endTime: new Date(data.endTime),
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl,
+        images: data.images || []
       };
       const response = await apiRequest("PUT", `/api/admin/events/${event.id}`, eventData);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event updated successfully" });
       setIsOpen(false);
     },
