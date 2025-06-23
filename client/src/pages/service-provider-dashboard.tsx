@@ -444,10 +444,9 @@ function EditServiceDialog({ service }: { service: any }) {
               <MultiImageUpload
                 label="Service Gallery"
                 onImagesUploaded={(images) => {
-                  form.setValue('images', images);
                   form.setValue('imageUrl', images[0] || '');
                 }}
-                currentImages={service.images || []}
+                currentImages={service.imageUrl ? [service.imageUrl] : []}
                 maxImages={5}
               />
             </div>
@@ -644,9 +643,16 @@ export default function ServiceProviderDashboard() {
               <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
                 <div className="h-48 relative overflow-hidden">
                   <img 
-                    src={service.imageUrl || '/service-placeholder.jpg'} 
+                    src={service.imageUrl ? 
+                      (service.imageUrl.startsWith('/api/media/') ? service.imageUrl : `/api/media/${service.imageUrl}`) 
+                      : '/service-placeholder.jpg'
+                    } 
                     alt={service.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/service-placeholder.jpg';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
