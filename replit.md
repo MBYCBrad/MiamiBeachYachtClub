@@ -366,6 +366,17 @@ Changelog:
   - Multi-image upload system working with authentic yacht photos from pexels media assets
   - Complete CRUD operations for all admin management sections now fully operational
   - All yacht creation form fields properly validated and connected to live PostgreSQL database
+- June 23, 2025. World-class interactive calendar with Google Calendar-level functionality implemented
+  - Built comprehensive calendar system with day/week/month/agenda views and real-time database integration
+  - Advanced calendar navigation with smooth transitions, event filtering, and search functionality
+  - Interactive event cards showing yacht bookings, concierge services, and club events with authentic data
+  - Google Calendar-style week view with hourly time slots and drag-drop ready event positioning
+  - Enhanced day view with timeline display, animated event cards, and detailed event information
+  - Month view with compact event indicators, day selection, and overflow management for busy dates
+  - Event details modal with comprehensive booking information, member details, and status management
+  - Real-time data synchronization from yacht bookings, service bookings, and event registrations
+  - Professional UI with luxury yacht club theming, gradient backgrounds, and Framer Motion animations
+  - Calendar accessible via /calendar route with role-based permissions and responsive design
 
 ## Member Experience Feature Status
 

@@ -12,6 +12,7 @@ import { useInstantCache } from "@/hooks/use-instant-cache";
 
 import HomePage from "@/pages/home-page-new";
 import AuthPage from "@/pages/auth-page";
+import CalendarPage from "@/pages/calendar-page";
 import YachtDetail from "@/pages/yacht-detail";
 import YachtBooking from "@/pages/yacht-booking";
 import ServiceDetail from "@/pages/service-detail";
@@ -27,6 +28,7 @@ function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
