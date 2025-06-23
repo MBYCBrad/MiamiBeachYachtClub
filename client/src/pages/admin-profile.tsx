@@ -234,7 +234,7 @@ export default function AdminProfile() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-1"
           >
-            <Card className="bg-gray-800/50 border-gray-700/50 relative overflow-hidden">
+            <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-32 bg-gray-700/20" />
               
               <CardContent className="p-8 text-center relative">
@@ -244,7 +244,7 @@ export default function AdminProfile() {
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-500 to-gray-600 p-1">
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-1">
                       <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
                         {profileData.avatar ? (
                           profileData.avatar.startsWith('data:') ? (
