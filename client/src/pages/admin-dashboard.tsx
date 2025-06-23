@@ -106,7 +106,6 @@ const sidebarItems = [
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
-  { id: 'profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-blue-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
 

@@ -1,49 +1,40 @@
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/hooks/use-auth';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  ArrowLeft,
-  User,
-  Mail,
-  Shield,
-  Calendar,
-  MapPin,
-  Phone,
-  Globe,
-  Lock,
-  Bell,
-  Save,
-  LogOut,
-  Camera,
-  Upload,
-  Check,
-  X,
-  Eye,
-  EyeOff,
-  CreditCard,
+  Upload, 
+  Eye, 
+  EyeOff, 
+  Shield, 
+  Bell, 
   Download,
   Settings,
-  UserCheck
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { useLocation } from "wouter";
+  User,
+  Lock,
+  Globe,
+  Calendar,
+  MapPin,
+  Camera,
+  UserCircle,
+  Edit3,
+  Save,
+  Phone,
+  Mail
+} from 'lucide-react';
 
 export default function AdminProfile() {
-  const [, setLocation] = useLocation();
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileData, setProfileData] = useState({
     username: user?.username || '',
@@ -58,50 +49,27 @@ export default function AdminProfile() {
       push: true,
       marketing: false,
       security: true,
-      marketing: false,
-      security: true
     },
     security: {
       twoFactorEnabled: false,
-      lastPasswordChange: '2025-06-01',
-      activeSessionsCount: 1
-    },
-    preferences: {
-      theme: 'dark',
-      timezone: 'America/New_York',
-      currency: 'USD',
-      language: 'en'
+      sessionTimeout: '30',
+      loginAlerts: true
     }
   });
 
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
     current: '',
     new: '',
     confirm: ''
   });
+
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
     confirm: false
   });
 
-  useEffect(() => {
-    if (user) {
-      setProfileData({
-        username: user.username || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        location: user.location || '',
-        language: user.language || 'English',
-        notifications: {
-          email: true,
-          sms: false,
-          push: true
-        }
-      });
-    }
-  }, [user]);
+  const [avatarType, setAvatarType] = useState<'upload' | 'digital'>('digital');
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -109,7 +77,6 @@ export default function AdminProfile() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({ title: "Success", description: "Profile updated successfully" });
     },
     onError: (error: any) => {
@@ -129,8 +96,7 @@ export default function AdminProfile() {
       return response.json();
     },
     onSuccess: (data) => {
-      setProfileData(prev => ({ ...prev, avatar: data.avatar }));
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      setProfileData(prev => ({ ...prev, avatar: data.avatarUrl }));
       toast({ title: "Success", description: "Avatar updated successfully" });
     },
     onError: (error: any) => {
@@ -145,7 +111,6 @@ export default function AdminProfile() {
     },
     onSuccess: () => {
       setPasswordData({ current: '', new: '', confirm: '' });
-      setIsChangingPassword(false);
       toast({ title: "Success", description: "Password changed successfully" });
     },
     onError: (error: any) => {
@@ -194,28 +159,9 @@ export default function AdminProfile() {
       }
     }));
     
-    // Real-time database update
     updateProfileMutation.mutate({ 
       notifications: { 
         ...profileData.notifications, 
-        [type]: value 
-      } 
-    });
-  };
-
-  const handlePreferenceChange = (type: string, value: string) => {
-    setProfileData(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [type]: value
-      }
-    }));
-    
-    // Real-time database update
-    updateProfileMutation.mutate({ 
-      preferences: { 
-        ...profileData.preferences, 
         [type]: value 
       } 
     });
@@ -291,342 +237,468 @@ export default function AdminProfile() {
     toast({ title: "Success", description: "Profile data downloaded successfully" });
   };
 
-  const stableAvatarSeed = user?.username || 'admin';
+  const digitalAvatars = [
+    '👨‍💼', '👩‍💼', '🧑‍💻', '👨‍🔧', '👩‍🔬', '🧑‍🎓', 
+    '👨‍⚕️', '👩‍🎨', '🧑‍🚀', '👨‍🏫', '👩‍💻', '🧑‍🔧'
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-900 relative overflow-hidden">
-      {/* Background Video */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          className="w-full h-full object-cover opacity-20"
-        >
-          <source src="/api/media/hero/active" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-gray-900/90" />
-      </div>
-
-      {/* Floating Particles */}
-      <div className="absolute inset-0 z-10">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-purple-400/30 rounded-full"
-            animate={{
-              x: [0, Math.random() * 100 - 50],
-              y: [0, Math.random() * 100 - 50],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-          />
-        ))}
-      </div>
-
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
       {/* Header */}
-      <div className="relative z-20 p-6 border-b border-gray-700/50 bg-gray-900/50 backdrop-blur-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation('/admin')}
-              className="text-gray-400 hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">My Profile</h1>
-              <p className="text-gray-400">Manage your admin account settings</p>
-            </div>
-          </div>
-          
-          <Button
-            variant="destructive"
-            onClick={() => logoutMutation.mutate()}
-            className="bg-red-600 hover:bg-red-700"
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+            My Profile
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage your admin account settings and preferences
+          </motion.p>
         </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button 
+            onClick={downloadData}
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export Data
+          </Button>
+        </motion.div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-20 p-6 max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-1"
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="relative group"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Avatar & Basic Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="bg-gray-800/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                Profile Avatar
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Avatar Display */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-3xl font-bold text-white overflow-hidden">
+                    {profileData.avatar ? (
+                      <img 
+                        src={profileData.avatar} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      profileData.username?.charAt(0).toUpperCase() || 'A'
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-white">{profileData.username}</h3>
+                  <p className="text-gray-400">{profileData.email}</p>
+                  <Badge className="mt-2 bg-purple-500/20 text-purple-400 border-purple-500/30">
+                    System Administrator
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Avatar Type Selection */}
+              <div className="space-y-4">
+                <Label className="text-white">Avatar Type</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={avatarType === 'upload' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setAvatarType('upload')}
+                    className="flex items-center space-x-2"
                   >
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, 360],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                      className="absolute -inset-4 bg-gradient-to-r from-purple-500/40 via-blue-500/40 to-cyan-500/40 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"
-                    />
-                    
-                    <Avatar className="relative h-24 w-24 border-3 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
-                      <AvatarImage src={profileData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${stableAvatarSeed}`} />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-2xl font-bold">
-                        {stableAvatarSeed?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    {/* Upload Button Overlay */}
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 hover:bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg transition-colors"
-                      disabled={uploadAvatarMutation.isPending}
-                    >
-                      {uploadAvatarMutation.isPending ? (
-                        <motion.div 
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                        />
-                      ) : (
-                        <Camera className="h-4 w-4" />
-                      )}
-                    </motion.button>
-                    
-                    {/* Hidden File Input */}
+                    <Camera className="h-4 w-4" />
+                    <span>Upload Photo</span>
+                  </Button>
+                  <Button
+                    variant={avatarType === 'digital' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setAvatarType('digital')}
+                    className="flex items-center space-x-2"
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    <span>Digital Avatar</span>
+                  </Button>
+                </div>
+
+                {avatarType === 'upload' && (
+                  <div className="space-y-2">
                     <input
-                      ref={fileInputRef}
                       type="file"
                       accept="image/*"
                       onChange={handleAvatarUpload}
                       className="hidden"
+                      id="avatar-upload"
                     />
-                    
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.7, 1, 0.7]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-gray-900"
-                    />
-                  </motion.div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      disabled={uploadAvatarMutation.isPending}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {uploadAvatarMutation.isPending ? 'Uploading...' : 'Choose File'}
+                    </Button>
+                    <p className="text-xs text-gray-400">Max 5MB, JPG/PNG only</p>
+                  </div>
+                )}
+
+                {avatarType === 'digital' && (
+                  <div className="grid grid-cols-6 gap-2">
+                    {digitalAvatars.map((avatar, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className="p-2 text-lg"
+                        onClick={() => handleInputChange('avatar', avatar)}
+                      >
+                        {avatar}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Personal Information */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="bg-gray-800/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Edit3 className="h-5 w-5 mr-2" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-white">Username</Label>
+                  <Input
+                    id="username"
+                    value={profileData.username}
+                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    className="bg-gray-800/50 border-gray-600 text-white"
+                    placeholder="Enter username"
+                  />
                 </div>
-                
-                <CardTitle className="text-white">{user?.username}</CardTitle>
-                <CardDescription className="text-gray-400">{user?.email}</CardDescription>
-                
-                <div className="flex justify-center mt-4">
-                  <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                    <Shield className="h-3 w-3 mr-1" />
-                    System Administrator
-                  </Badge>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="bg-gray-800/50 border-gray-600 text-white"
+                    placeholder="Enter email"
+                  />
                 </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <Separator className="bg-gray-700/50" />
-                
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <Calendar className="h-4 w-4 text-purple-400" />
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-white">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={profileData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="bg-gray-800/50 border-gray-600 text-white"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-white">Location</Label>
+                  <Input
+                    id="location"
+                    value={profileData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className="bg-gray-800/50 border-gray-600 text-white"
+                    placeholder="Enter location"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="language" className="text-white">Language</Label>
+                  <Select 
+                    value={profileData.language} 
+                    onValueChange={(value) => handleInputChange('language', value)}
+                  >
+                    <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="Spanish">Spanish</SelectItem>
+                      <SelectItem value="French">French</SelectItem>
+                      <SelectItem value="German">German</SelectItem>
+                      <SelectItem value="Italian">Italian</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-700">
+                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4" />
                     <span>Admin since June 2025</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <MapPin className="h-4 w-4 text-blue-400" />
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="h-4 w-4" />
                     <span>Miami Beach, FL</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-300">
-                    <Globe className="h-4 w-4 text-green-400" />
-                    <span>English</span>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-          {/* Settings Cards */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-white">
-                    <User className="h-5 w-5 text-purple-400" />
-                    <span>Personal Information</span>
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Update your personal details and contact information
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="username" className="text-gray-300">Username</Label>
-                      <Input
-                        id="username"
-                        value={profileData.username}
-                        onChange={(e) => handleInputChange('username', e.target.value)}
-                        className="bg-gray-800/50 border-gray-600 text-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-300">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={profileData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        className="bg-gray-800/50 border-gray-600 text-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-gray-300">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={profileData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className="bg-gray-800/50 border-gray-600 text-white"
-                        placeholder="+1 (555) 123-4567"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location" className="text-gray-300">Location</Label>
-                      <Input
-                        id="location"
-                        value={profileData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        className="bg-gray-800/50 border-gray-600 text-white"
-                        placeholder="Miami Beach, FL"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+        {/* Security & Notifications */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6"
+        >
+          {/* Security Settings */}
+          <Card className="bg-gray-800/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Shield className="h-5 w-5 mr-2" />
+                Security Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Two-Factor Authentication</p>
+                  <p className="text-sm text-gray-400">Add an extra layer of security</p>
+                </div>
+                <Switch
+                  checked={profileData.security.twoFactorEnabled}
+                  onCheckedChange={(checked) => toggleTwoFactorMutation.mutate(checked)}
+                />
+              </div>
 
-            {/* Notification Preferences */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-white">
-                    <Bell className="h-5 w-5 text-blue-400" />
-                    <span>Notification Preferences</span>
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Configure how you receive notifications
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-gray-300">Email Notifications</Label>
-                      <p className="text-sm text-gray-400">Receive notifications via email</p>
-                    </div>
-                    <Switch
-                      checked={profileData.notifications.email}
-                      onCheckedChange={(checked) => handleNotificationChange('email', checked)}
-                    />
-                  </div>
-                  
-                  <Separator className="bg-gray-700/50" />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-gray-300">SMS Notifications</Label>
-                      <p className="text-sm text-gray-400">Receive notifications via SMS</p>
-                    </div>
-                    <Switch
-                      checked={profileData.notifications.sms}
-                      onCheckedChange={(checked) => handleNotificationChange('sms', checked)}
-                    />
-                  </div>
-                  
-                  <Separator className="bg-gray-700/50" />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-gray-300">Push Notifications</Label>
-                      <p className="text-sm text-gray-400">Receive push notifications</p>
-                    </div>
-                    <Switch
-                      checked={profileData.notifications.push}
-                      onCheckedChange={(checked) => handleNotificationChange('push', checked)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Login Alerts</p>
+                  <p className="text-sm text-gray-400">Get notified of new logins</p>
+                </div>
+                <Switch
+                  checked={profileData.security.loginAlerts}
+                  onCheckedChange={(checked) => {
+                    setProfileData(prev => ({
+                      ...prev,
+                      security: { ...prev.security, loginAlerts: checked }
+                    }));
+                  }}
+                />
+              </div>
 
-            {/* Security Settings */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-white">
-                    <Lock className="h-5 w-5 text-red-400" />
-                    <span>Security Settings</span>
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Manage your account security and access
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
-                  >
-                    Change Password
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white"
-                  >
-                    Enable Two-Factor Authentication
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-gray-600 hover:border-green-500 text-gray-300 hover:text-white"
-                  >
-                    View Login History
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
+              <div className="space-y-2">
+                <Label className="text-white">Session Timeout</Label>
+                <Select 
+                  value={profileData.security.sessionTimeout}
+                  onValueChange={(value) => {
+                    setProfileData(prev => ({
+                      ...prev,
+                      security: { ...prev.security, sessionTimeout: value }
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="60">1 hour</SelectItem>
+                    <SelectItem value="240">4 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notification Preferences */}
+          <Card className="bg-gray-800/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Bell className="h-5 w-5 mr-2" />
+                Notification Preferences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.entries(profileData.notifications).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-medium capitalize">
+                      {key} Notifications
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Receive notifications via {key}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={value}
+                    onCheckedChange={(checked) => handleNotificationChange(key, checked)}
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </div>
+
+      {/* Password Change Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Lock className="h-5 w-5 mr-2" />
+              Change Password
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password" className="text-white">Current Password</Label>
+                <div className="relative">
+                  <Input
+                    id="current-password"
+                    type={showPassword.current ? "text" : "password"}
+                    value={passwordData.current}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, current: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white pr-10"
+                    placeholder="Enter current password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
+                  >
+                    {showPassword.current ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="new-password" className="text-white">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPassword.new ? "text" : "password"}
+                    value={passwordData.new}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, new: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white pr-10"
+                    placeholder="Enter new password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
+                  >
+                    {showPassword.new ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="text-white">Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showPassword.confirm ? "text" : "password"}
+                    value={passwordData.confirm}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirm: e.target.value }))}
+                    className="bg-gray-800/50 border-gray-600 text-white pr-10"
+                    placeholder="Confirm new password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
+                  >
+                    {showPassword.confirm ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <Button
+                onClick={handlePasswordChange}
+                disabled={changePasswordMutation.isPending || !passwordData.current || !passwordData.new || !passwordData.confirm}
+                className="bg-gradient-to-r from-purple-600 to-blue-600"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {changePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

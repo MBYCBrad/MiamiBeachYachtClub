@@ -3033,6 +3033,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PROFILE MANAGEMENT ROUTES - Real-time Admin Profile Updates
+  app.patch("/api/profile", requireAuth, async (req, res) => {
+    try {
+      const updates = req.body;
+      const userId = req.user!.id;
+      
+      // Update user profile with provided data
+      const updatedUser = await dbStorage.updateUserProfile(userId, updates);
+      
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/profile/avatar", requireAuth, upload.single('avatar'), async (req, res) => {
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Store avatar using media storage service
+      const avatarUrl = await mediaStorageService.storeFile(file.buffer, file.originalname, 'avatars');
+      
+      // Update user avatar in database
+      const updatedUser = await dbStorage.updateUserProfile(req.user!.id, { avatar: avatarUrl });
+      
+      res.json({ avatar: avatarUrl, user: updatedUser });
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/profile/password", requireAuth, async (req, res) => {
+    try {
+      const { current, new: newPassword } = req.body;
+      const user = req.user!;
+      
+      // Verify current password
+      const isValidPassword = await comparePasswords(current, user.password);
+      if (!isValidPassword) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      
+      // Hash new password
+      const hashedNewPassword = await hashPassword(newPassword);
+      
+      // Update password in database
+      await dbStorage.updateUserProfile(user.id, { password: hashedNewPassword });
+      
+      res.json({ message: "Password updated successfully" });
+    } catch (error: any) {
+      console.error('Error changing password:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/profile/2fa", requireAuth, async (req, res) => {
+    try {
+      const { enabled } = req.body;
+      const userId = req.user!.id;
+      
+      // Update two-factor authentication setting
+      await dbStorage.updateUserProfile(userId, { 
+        twoFactorEnabled: enabled,
+        twoFactorUpdatedAt: new Date()
+      });
+      
+      // Create notification for security change
+      await dbStorage.createNotification({
+        userId,
+        type: "security_update",
+        title: "Security Settings Updated",
+        message: `Two-factor authentication has been ${enabled ? 'enabled' : 'disabled'}`,
+        priority: "high",
+        read: false,
+        data: { twoFactorEnabled: enabled }
+      });
+      
+      res.json({ enabled, message: `Two-factor authentication ${enabled ? 'enabled' : 'disabled'}` });
+    } catch (error: any) {
+      console.error('Error updating 2FA:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // ANALYTICS ROUTES - Advanced Business Intelligence
   app.get("/api/analytics/overview", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
