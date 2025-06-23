@@ -457,6 +457,7 @@ Changelog:
   - Updated calendar Month view today's date cell background, border, and number circle to gradient styling
   - Updated calendar Week view today's date indicator to purple-to-blue gradient
   - Enhanced yacht maintenance anchor icon from simple purple to gradient circular container with white icon
+  - Fixed crew management "planned" status badge from orange to purple-to-blue gradient for complete color consistency
   - Universal purple-to-blue gradient theme now fully implemented across entire Miami Beach Yacht Club application
 - June 23, 2025. Universal admin styling consistency implemented across all admin pages
   - Applied exact admin overview styling (bg-gray-900/50 border-gray-700/50) to all admin pages systematically

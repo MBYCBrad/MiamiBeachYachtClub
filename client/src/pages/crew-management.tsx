@@ -459,7 +459,7 @@ export default function CrewManagementPage() {
                         className={`${
                           assignment.status === 'active' ? 'bg-green-600' :
                           assignment.status === 'assigned' ? 'bg-blue-600' :
-                          assignment.status === 'planned' ? 'bg-orange-600' : 'bg-gray-600'
+                          assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-600'
                         }`}
                       >
                         {assignment.status}
