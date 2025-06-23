@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   BarChart3, 
   Users, 
@@ -53,7 +54,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/hooks/use-auth";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 
 interface AdminStats {
@@ -1092,7 +1092,7 @@ function DeleteServiceDialog({ service }: { service: any }) {
 }
 
 // Add Event Dialog
-function AddEventDialog() {
+function AddEventDialog({ currentUser }: { currentUser: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -1108,6 +1108,17 @@ function AddEventDialog() {
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch available users and services for host selection
+  const { data: users = [] } = useQuery({
+    queryKey: ['/api/admin/users'],
+    enabled: isOpen
+  });
+
+  const { data: services = [] } = useQuery({
+    queryKey: ['/api/admin/services'],
+    enabled: isOpen
+  });
 
   const createEventMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -1210,15 +1221,41 @@ function AddEventDialog() {
             />
           </div>
           <div>
-            <Label htmlFor="hostId" className="text-gray-300">Host ID</Label>
-            <Input
-              id="hostId"
-              type="number"
-              value={formData.hostId}
-              onChange={(e) => setFormData({...formData, hostId: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
-              placeholder="5"
-            />
+            <Label htmlFor="hostId" className="text-gray-300">Event Host</Label>
+            <Select value={formData.hostId} onValueChange={(value) => setFormData({...formData, hostId: value})}>
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue placeholder="Select host (optional)" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectItem value="">No Host (System Event)</SelectItem>
+                
+                {/* Current Admin as Host Option */}
+                <SelectItem value={currentUser?.id?.toString() || ""}>
+                  {currentUser?.username} (Current Admin) - Recommended
+                </SelectItem>
+                
+                {/* Other Users */}
+                {(users as any[]).filter((u: any) => u.id !== currentUser?.id).map((u: any) => (
+                  <SelectItem key={u.id} value={u.id.toString()}>
+                    {u.username} ({u.role})
+                  </SelectItem>
+                ))}
+                
+                {/* Service Providers as Third-Party Hosts */}
+                {(services as any[]).filter((service: any) => service.providerId)
+                  .reduce((unique: any[], service: any) => {
+                    if (!unique.find(u => u.providerId === service.providerId)) {
+                      unique.push(service);
+                    }
+                    return unique;
+                  }, [])
+                  .map((service: any) => (
+                    <SelectItem key={`provider-${service.providerId}`} value={service.providerId.toString()}>
+                      {service.name} Provider (Third-Party Host)
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="col-span-2 space-y-2">
             <Label className="text-gray-300">Event Images</Label>
@@ -2116,7 +2153,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <AddEventDialog />
+          <AddEventDialog currentUser={user} />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter

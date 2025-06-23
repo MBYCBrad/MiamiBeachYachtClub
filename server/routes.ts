@@ -526,6 +526,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const validatedData = insertEventSchema.parse(req.body);
+      
+      // Validate hostId exists if provided
+      if (validatedData.hostId) {
+        const hostUser = await dbStorage.getUser(validatedData.hostId);
+        if (!hostUser) {
+          return res.status(400).json({ message: "Invalid host user ID" });
+        }
+      }
+      
       const event = await dbStorage.createEvent(validatedData);
 
       // Real-time cross-role notifications - notify all members of new event
