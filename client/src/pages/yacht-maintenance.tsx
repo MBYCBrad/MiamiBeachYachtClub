@@ -222,7 +222,180 @@ export default function YachtMaintenance() {
       {!selectedYacht ? (
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">
-            <Anchor className="h-16 w-16 text-purple-500 mx-auto mb-6" />
+            <motion.div
+              className="h-16 w-16 mx-auto mb-6"
+              animate={{
+                y: [0, -8, 0],
+                rotateY: [0, 5, 0, -5, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <svg
+                width="64"
+                height="64"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ filter: 'drop-shadow(0 4px 8px rgba(139, 92, 246, 0.3))' }}
+              >
+                <defs>
+                  <linearGradient id="yachtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="50%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#4f46e5" />
+                  </linearGradient>
+                  <linearGradient id="sailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f8fafc" />
+                    <stop offset="50%" stopColor="#e2e8f0" />
+                    <stop offset="100%" stopColor="#cbd5e1" />
+                  </linearGradient>
+                </defs>
+                
+                {/* Water waves */}
+                <motion.path
+                  d="M8 48 Q16 44 24 48 T40 48 T56 48"
+                  stroke="#3b82f6"
+                  strokeWidth="2"
+                  fill="none"
+                  opacity="0.6"
+                  animate={{
+                    d: [
+                      "M8 48 Q16 44 24 48 T40 48 T56 48",
+                      "M8 50 Q16 46 24 50 T40 50 T56 50",
+                      "M8 48 Q16 44 24 48 T40 48 T56 48"
+                    ]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Yacht hull */}
+                <motion.ellipse
+                  cx="32" cy="45" rx="18" ry="4"
+                  fill="url(#yachtGradient)"
+                  animate={{
+                    rx: [18, 19, 18],
+                    ry: [4, 4.5, 4]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Yacht cabin */}
+                <rect x="26" y="36" width="12" height="9" rx="2" fill="url(#yachtGradient)" />
+                
+                {/* Main mast */}
+                <line x1="32" y1="36" x2="32" y2="12" stroke="#64748b" strokeWidth="2" />
+                
+                {/* Main sail */}
+                <motion.path
+                  d="M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z"
+                  fill="url(#sailGradient)"
+                  stroke="#94a3b8"
+                  strokeWidth="1"
+                  animate={{
+                    d: [
+                      "M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z",
+                      "M32 12 Q46 18 46 28 Q46 32 40 36 L32 36 Z",
+                      "M32 12 Q44 16 44 28 Q44 32 38 36 L32 36 Z"
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Jib sail */}
+                <motion.path
+                  d="M32 12 Q20 16 20 28 L26 36 L32 24 Z"
+                  fill="url(#sailGradient)"
+                  stroke="#94a3b8"
+                  strokeWidth="1"
+                  opacity="0.9"
+                  animate={{
+                    d: [
+                      "M32 12 Q20 16 20 28 L26 36 L32 24 Z",
+                      "M32 12 Q18 18 18 28 L24 36 L32 24 Z",
+                      "M32 12 Q20 16 20 28 L26 36 L32 24 Z"
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5
+                  }}
+                />
+                
+                {/* Flag */}
+                <motion.rect
+                  x="32" y="12" width="8" height="5" 
+                  fill="#ef4444"
+                  animate={{
+                    scaleX: [1, 1.2, 1],
+                    scaleY: [1, 0.8, 1]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+                
+                {/* Sparkles around yacht */}
+                <motion.circle
+                  cx="20" cy="20" r="1"
+                  fill="#fbbf24"
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 0
+                  }}
+                />
+                <motion.circle
+                  cx="48" cy="24" r="1"
+                  fill="#fbbf24"
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 0.7
+                  }}
+                />
+                <motion.circle
+                  cx="52" cy="40" r="1"
+                  fill="#fbbf24"
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: 1.4
+                  }}
+                />
+              </svg>
+            </motion.div>
             <h2 className="text-2xl font-bold text-white mb-4">Select a Yacht</h2>
             <p className="text-gray-400 mb-8">Choose a yacht from the dropdown above to view its maintenance dashboard</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
