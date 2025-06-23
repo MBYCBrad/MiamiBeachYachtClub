@@ -472,8 +472,20 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                         onClick={() => toggleServiceExpansion(service.id)}
                                       >
                                         <div className="flex items-center space-x-4">
-                                          <div className="w-14 h-14 bg-gradient-to-br from-yellow-500/30 to-orange-500/20 rounded-xl flex items-center justify-center border border-yellow-500/40 shadow-lg">
-                                            <ServiceIcon size={24} className="text-yellow-300" />
+                                          <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-yellow-500/40 shadow-lg">
+                                            {service.imageUrl ? (
+                                              <img 
+                                                src={service.imageUrl} 
+                                                alt={service.name}
+                                                className="w-full h-full object-cover"
+                                                loading="lazy"
+                                              />
+                                            ) : (
+                                              <div className="w-full h-full bg-gradient-to-br from-yellow-500/30 to-orange-500/20 flex items-center justify-center">
+                                                <ServiceIcon size={24} className="text-yellow-300" />
+                                              </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                                           </div>
                                           <div className="flex-1">
                                             <h5 className="font-bold text-white text-xl mb-1">{service.name}</h5>
