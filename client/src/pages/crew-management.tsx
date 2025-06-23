@@ -234,7 +234,7 @@ export default function CrewManagementPage() {
                 <div>
                   <p className="text-slate-400 text-sm">Available Crew</p>
                   <p className="text-2xl font-bold text-white">
-                    {crewMembers.filter(m => m.availability === 'available').length}
+                    {(crewMembers || []).filter(m => m.availability === 'available').length}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-green-400" />
@@ -247,7 +247,7 @@ export default function CrewManagementPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-slate-400 text-sm">Assignments</p>
-                  <p className="text-2xl font-bold text-white">{crewAssignments.length}</p>
+                  <p className="text-2xl font-bold text-white">{(crewAssignments || []).length}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-blue-400" />
               </div>
@@ -343,18 +343,18 @@ export default function CrewManagementPage() {
                       </div>
                     </div>
 
-                    {booking.services.length > 0 && (
+                    {(booking.services || []).length > 0 && (
                       <div className="mt-3">
-                        <p className="text-xs text-slate-400 mb-2">Concierge Services ({booking.services.length})</p>
+                        <p className="text-xs text-slate-400 mb-2">Concierge Services ({(booking.services || []).length})</p>
                         <div className="flex flex-wrap gap-1">
-                          {booking.services.slice(0, 3).map((service, idx) => (
+                          {(booking.services || []).slice(0, 3).map((service, idx) => (
                             <Badge key={idx} variant="outline" className="text-xs border-slate-600 text-slate-300">
                               {service.name}
                             </Badge>
                           ))}
-                          {booking.services.length > 3 && (
+                          {(booking.services || []).length > 3 && (
                             <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
-                              +{booking.services.length - 3} more
+                              +{(booking.services || []).length - 3} more
                             </Badge>
                           )}
                         </div>
@@ -466,7 +466,7 @@ export default function CrewManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {crewAssignments.map((assignment) => (
+                {(crewAssignments || []).map((assignment) => (
                   <motion.div
                     key={assignment.id}
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -507,7 +507,7 @@ export default function CrewManagementPage() {
                         Coordinator: {assignment.coordinator.name}
                       </div>
                       <div className="text-slate-400">
-                        Crew Size: {assignment.crewMembers.length} members
+                        Crew Size: {(assignment.crewMembers || []).length} members
                       </div>
                       <div className="text-slate-400">
                         Briefing: {new Date(assignment.briefingTime).toLocaleTimeString()}
@@ -546,7 +546,7 @@ function CrewAssignmentDialog({
   const [briefingTime, setBriefingTime] = useState("");
   const [notes, setNotes] = useState("");
 
-  const availableCrew = crewMembers.filter(m => m.availability === 'available');
+  const availableCrew = (crewMembers || []).filter(m => m.availability === 'available');
   const captains = availableCrew.filter(m => m.role === 'Captain');
   const coordinators = availableCrew.filter(m => m.role === 'First Mate' || m.role === 'Coordinator');
   const otherCrew = availableCrew.filter(m => !['Captain', 'First Mate', 'Coordinator'].includes(m.role));
