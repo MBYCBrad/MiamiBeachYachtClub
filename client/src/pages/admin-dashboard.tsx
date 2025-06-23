@@ -1263,6 +1263,7 @@ function EditEventDialog({ event }: { event: any }) {
     ticketPrice: event.ticketPrice || '',
     startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
     endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
+    images: event.imageUrl ? [event.imageUrl] : [],
     isActive: event.isActive ?? true
   });
   const { toast } = useToast();
@@ -1274,13 +1275,17 @@ function EditEventDialog({ event }: { event: any }) {
         ...data,
         capacity: parseInt(data.capacity) || 0,
         startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime)
+        endTime: new Date(data.endTime),
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl,
+        images: data.images || []
       };
       const response = await apiRequest("PUT", `/api/admin/events/${event.id}`, eventData);
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all event-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event updated successfully" });
       setIsOpen(false);
     },
@@ -1365,6 +1370,15 @@ function EditEventDialog({ event }: { event: any }) {
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               className="bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+          <div className="col-span-2 space-y-2">
+            <Label className="text-gray-300">Event Images</Label>
+            <MultiImageUpload
+              currentImages={formData.images}
+              onImagesUploaded={(images) => setFormData({...formData, images})}
+              maxImages={10}
+              label="Event Images"
             />
           </div>
           <div className="col-span-2 flex items-center space-x-2">
