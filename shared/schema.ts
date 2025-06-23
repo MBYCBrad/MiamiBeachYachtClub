@@ -66,6 +66,7 @@ export const services = pgTable("services", {
   category: text("category").notNull(), // 'photography', 'chef', 'massage', etc.
   description: text("description"),
   imageUrl: text("image_url"),
+  images: jsonb("images").$type<string[]>().default([]), // Array of image URLs
   pricePerSession: decimal("price_per_session", { precision: 10, scale: 2 }),
   duration: integer("duration"), // in minutes
   isAvailable: boolean("is_available").default(true),
