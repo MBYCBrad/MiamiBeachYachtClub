@@ -157,7 +157,7 @@ export default function MemberNotifications({ currentView, setCurrentView }: Mem
   const unreadCount = unreadData?.count || 0;
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
       {/* Video Background */}
       <video
         autoPlay
