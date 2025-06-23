@@ -592,7 +592,7 @@ function AddYachtDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
           <Anchor className="h-4 w-4 mr-2" />
           Add Yacht
         </Button>
@@ -940,7 +940,7 @@ function AddServiceDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
           <Settings className="h-4 w-4 mr-2" />
           Add Service
         </Button>
