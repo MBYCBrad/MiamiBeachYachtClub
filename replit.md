@@ -512,6 +512,12 @@ Changelog:
   - Modified event type badges and icons to use purple color scheme throughout calendar interface
   - Applied purple borders and text colors to all calendar event cards for complete visual consistency
   - Calendar system now matches application-wide purple-to-blue indigo gradient theme
+- June 23, 2025. Complete purple-to-blue gradient styling consistency achieved across entire application
+  - Updated calendar day selection from blue to purple-to-indigo gradient (from-purple-600 to-indigo-600)
+  - Applied purple-to-blue gradient outlines with glow animations to all profile pictures
+  - Profile pictures now display consistent gradient styling across profile page, header, and admin dashboard
+  - Complete visual consistency achieved with purple-to-blue gradient theme throughout Miami Beach Yacht Club application
+  - All interactive elements, event cards, profile displays, and calendar selections now use unified gradient styling
 
 ## Member Experience Feature Status
 
