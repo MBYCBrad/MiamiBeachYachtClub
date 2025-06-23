@@ -222,7 +222,9 @@ export default function YachtMaintenance() {
       {!selectedYacht ? (
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">
-            <Anchor className="h-16 w-16 text-purple-500 mx-auto mb-6" />
+            <div className="h-16 w-16 mx-auto mb-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+              <Anchor className="h-10 w-10 text-white" />
+            </div>
             <h2 className="text-2xl font-bold text-white mb-4">Select a Yacht</h2>
             <p className="text-gray-400 mb-8">Choose a yacht from the dropdown above to view its maintenance dashboard</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
