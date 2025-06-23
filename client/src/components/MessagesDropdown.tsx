@@ -121,7 +121,7 @@ export default function MessagesDropdown() {
           size="sm"
           className="relative h-9 w-9 p-0 hover:bg-purple-500/10 transition-colors"
         >
-          <MessageSquare className="h-5 w-5 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent" />
+          <MessageSquare className="h-5 w-5 text-purple-400" />
           {totalUnread > 0 && (
             <motion.div
               initial={{ scale: 0 }}

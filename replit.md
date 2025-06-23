@@ -480,9 +480,9 @@ Changelog:
   - Logo background converted to true square favicon (w-12 h-12) with proper aspect ratio and flex-shrink-0
   - Logo image resized to w-8 h-8 for better proportions within the square container
   - Notification badge updated from red (bg-red-500) to purple-to-blue indigo gradient (from-purple-600 to-indigo-600)
-  - Messages icon updated from flat purple (text-purple-300) to purple-to-blue indigo gradient with bg-clip-text
-  - Messages notification badge updated to use same purple-to-blue indigo gradient for consistency
-  - Complete visual consistency achieved across all admin dashboard header elements
+  - Messages icon updated to consistent purple theme (text-purple-400) for proper SVG display compatibility
+  - Messages notification badge updated to use purple-to-blue indigo gradient for consistency
+  - Fixed SVG icon display issues while maintaining purple theme consistency across header elements
 
 ## Member Experience Feature Status
 
