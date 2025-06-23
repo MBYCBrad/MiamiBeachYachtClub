@@ -2450,7 +2450,7 @@ export default function AdminDashboard() {
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <ArrowRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
