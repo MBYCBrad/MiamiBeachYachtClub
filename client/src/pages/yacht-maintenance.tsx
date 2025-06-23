@@ -99,6 +99,21 @@ export default function YachtMaintenance() {
     enabled: !!selectedYacht,
   });
 
+  const { data: usageMetrics = [], isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/usage-metrics', { yachtId: selectedYacht }],
+    enabled: !!selectedYacht,
+  });
+
+  const { data: yachtComponents = [], isLoading: componentsLoading } = useQuery({
+    queryKey: ['/api/yacht-components', { yachtId: selectedYacht }],
+    enabled: !!selectedYacht,
+  });
+
+  const { data: maintenanceSchedules = [], isLoading: schedulesLoading } = useQuery({
+    queryKey: ['/api/maintenance-schedules', { yachtId: selectedYacht }],
+    enabled: !!selectedYacht,
+  });
+
   // Forms
   const tripForm = useForm({
     resolver: zodResolver(tripLogSchema),
