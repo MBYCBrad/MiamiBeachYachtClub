@@ -195,6 +195,15 @@ html, body {
     animation: gradient-shift 3s ease infinite;
   }
 
+  /* Custom Switch styling with purple-to-indigo gradient */
+  .switch-gradient[data-state="checked"] {
+    background: linear-gradient(to right, rgb(147 51 234), rgb(79 70 229)) !important;
+  }
+
+  .switch-gradient[data-state="checked"]:hover {
+    background: linear-gradient(to right, rgb(126 34 206), rgb(67 56 202)) !important;
+  }
+
   /* Glassmorphism effects */
   .glass {
     background: rgba(255, 255, 255, 0.05);

@@ -334,6 +334,7 @@ export default function MyProfile() {
                       setFormData({...formData, notifications: {...formData.notifications, email: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
                 <Separator className="bg-gray-700" />
@@ -348,6 +349,7 @@ export default function MyProfile() {
                       setFormData({...formData, notifications: {...formData.notifications, sms: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
                 <Separator className="bg-gray-700" />
@@ -362,6 +364,7 @@ export default function MyProfile() {
                       setFormData({...formData, notifications: {...formData.notifications, push: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
               </CardContent>
@@ -387,6 +390,7 @@ export default function MyProfile() {
                       setFormData({...formData, privacy: {...formData.privacy, showEmail: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
                 <Separator className="bg-gray-700" />
@@ -401,6 +405,7 @@ export default function MyProfile() {
                       setFormData({...formData, privacy: {...formData.privacy, showPhone: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
                 <Separator className="bg-gray-700" />
@@ -415,6 +420,7 @@ export default function MyProfile() {
                       setFormData({...formData, privacy: {...formData.privacy, showLocation: checked}})
                     }
                     disabled={!isEditing}
+                    className="switch-gradient"
                   />
                 </div>
               </CardContent>
