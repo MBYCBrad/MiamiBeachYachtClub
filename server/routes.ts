@@ -1290,7 +1290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updates = req.body;
       
       // Only allow certain fields to be updated by the user themselves
-      const allowedFields = ['username', 'email', 'phone', 'location', 'language', 'notifications'];
+      const allowedFields = ['username', 'email', 'phone', 'location', 'language', 'notifications', 'bio', 'avatarUrl'];
       const filteredUpdates: any = {};
       
       allowedFields.forEach(field => {
@@ -1307,6 +1307,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedUser);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Avatar upload endpoint
+  app.post('/api/upload/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      // Generate the media URL for the uploaded avatar
+      const avatarUrl = `/api/media/${req.file.filename}`;
+      
+      // Update user's avatar in database
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl });
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ 
+        url: avatarUrl,
+        user: updatedUser
+      });
+    } catch (error: any) {
+      console.error('Avatar upload error:', error);
+      res.status(500).json({ message: 'Avatar upload failed: ' + error.message });
+    }
+  });
+
+  // Avatar selection endpoint (for predefined avatars)
+  app.post('/api/select/avatar', requireAuth, async (req, res) => {
+    try {
+      const { avatarUrl } = req.body;
+      
+      if (!avatarUrl) {
+        return res.status(400).json({ message: 'Avatar URL is required' });
+      }
+      
+      // Update user's avatar in database
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl });
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ 
+        url: avatarUrl,
+        user: updatedUser
+      });
+    } catch (error: any) {
+      console.error('Avatar selection error:', error);
+      res.status(500).json({ message: 'Avatar selection failed: ' + error.message });
+    }
+  });
+
+  // AI Avatar generation endpoint
+  app.post('/api/generate-avatar', requireAuth, async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ message: 'Prompt is required' });
+      }
+
+      // Check if OpenAI API key is available
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(503).json({ 
+          message: 'AI avatar generation is not available. OpenAI API key not configured.' 
+        });
+      }
+
+      // For now, return a placeholder response since OpenAI integration would require the API key
+      // In a real implementation, this would call OpenAI's DALL-E API
+      const generatedAvatarUrl = '/api/media/default-avatar.png';
+      
+      // Update user's avatar in database
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl: generatedAvatarUrl });
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ 
+        url: generatedAvatarUrl,
+        user: updatedUser
+      });
+    } catch (error: any) {
+      console.error('Avatar generation error:', error);
+      res.status(500).json({ message: 'Avatar generation failed: ' + error.message });
     }
   });
 

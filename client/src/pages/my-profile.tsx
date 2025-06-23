@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,11 +28,11 @@ export default function MyProfile() {
   const [avatarMethod, setAvatarMethod] = useState<'upload' | 'avatar' | 'generate'>('upload');
   const [selectedAvatar, setSelectedAvatar] = useState<string>('');
   const [formData, setFormData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    location: user?.location || '',
-    bio: user?.bio || '',
+    username: '',
+    email: '',
+    phone: '',
+    location: '',
+    bio: '',
     notifications: {
       email: true,
       sms: false,
@@ -45,9 +45,32 @@ export default function MyProfile() {
     }
   });
 
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || '',
+        notifications: {
+          email: true,
+          sms: false,
+          push: true
+        },
+        privacy: {
+          showEmail: false,
+          showPhone: false,
+          showLocation: true
+        }
+      });
+    }
+  }, [user]);
+
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('PATCH', '/api/user/profile', data);
+      const response = await apiRequest('PATCH', '/api/profile', data);
       return response.json();
     },
     onSuccess: () => {
@@ -81,16 +104,38 @@ export default function MyProfile() {
       return response.json();
     },
     onSuccess: (data) => {
-      setFormData(prev => ({ ...prev, avatar: data.url }));
       setAvatarDialogOpen(false);
       toast({
         title: "Avatar Updated",
         description: "Your profile picture has been updated.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
       toast({
         title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const selectAvatarMutation = useMutation({
+    mutationFn: async (avatarUrl: string) => {
+      const response = await apiRequest('POST', '/api/select/avatar', { avatarUrl });
+      return response.json();
+    },
+    onSuccess: () => {
+      setAvatarDialogOpen(false);
+      toast({
+        title: "Avatar Updated",
+        description: "Your profile picture has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Selection Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -103,12 +148,12 @@ export default function MyProfile() {
       return response.json();
     },
     onSuccess: (data) => {
-      setFormData(prev => ({ ...prev, avatar: data.url }));
       setAvatarDialogOpen(false);
       toast({
         title: "Avatar Generated",
         description: "Your AI-generated avatar has been created.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
       toast({
@@ -139,13 +184,8 @@ export default function MyProfile() {
   };
 
   const handleAvatarSelect = (avatarUrl: string) => {
-    setFormData(prev => ({ ...prev, avatar: avatarUrl }));
     setSelectedAvatar(avatarUrl);
-    setAvatarDialogOpen(false);
-    toast({
-      title: "Avatar Selected",
-      description: "Your profile picture has been updated.",
-    });
+    selectAvatarMutation.mutate(avatarUrl);
   };
 
   const handleGenerateAvatar = () => {
