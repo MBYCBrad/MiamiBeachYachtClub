@@ -234,7 +234,7 @@ export default function AdminProfile() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-1"
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 relative overflow-hidden">
+            <Card className="bg-gray-800/50 border-gray-700/50 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-purple-600/20 to-blue-600/20" />
               
               <CardContent className="p-8 text-center relative">
@@ -300,7 +300,7 @@ export default function AdminProfile() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-3 space-y-8"
           >
-            <Card className="!bg-gray-800 !border-gray-700" style={{backgroundColor: 'rgba(31, 41, 55, 0.8)', borderColor: 'rgba(55, 65, 81, 0.5)'}}>
+            <Card className="bg-gray-800/50 border-gray-700/50">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-white flex items-center">
                   <User className="h-5 w-5 mr-2" />
@@ -409,7 +409,7 @@ export default function AdminProfile() {
               </CardContent>
             </Card>
 
-            <Card className="!bg-gray-800 !border-gray-700" style={{backgroundColor: 'rgba(31, 41, 55, 0.8)', borderColor: 'rgba(55, 65, 81, 0.5)'}}>
+            <Card className="bg-gray-800/50 border-gray-700/50">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <Shield className="h-5 w-5 mr-2" />
