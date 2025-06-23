@@ -1679,12 +1679,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
 
+      // Calculate growth metrics (compare with previous 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const sixtyDaysAgo = new Date();
+      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+      const recentBookings = [...bookings, ...serviceBookings, ...eventRegistrations]
+        .filter(b => new Date(b.createdAt || 0) >= thirtyDaysAgo);
+      const previousBookings = [...bookings, ...serviceBookings, ...eventRegistrations]
+        .filter(b => new Date(b.createdAt || 0) >= sixtyDaysAgo && new Date(b.createdAt || 0) < thirtyDaysAgo);
+
+      const recentRevenue = recentBookings.reduce((sum, item) => sum + parseFloat(item.totalPrice || '0'), 0);
+      const previousRevenue = previousBookings.reduce((sum, item) => sum + parseFloat(item.totalPrice || '0'), 0);
+
+      const recentUsers = users.filter(u => new Date(u.createdAt || 0) >= thirtyDaysAgo);
+      const previousUsers = users.filter(u => new Date(u.createdAt || 0) >= sixtyDaysAgo && new Date(u.createdAt || 0) < thirtyDaysAgo);
+
+      const bookingGrowth = previousBookings.length > 0 ? 
+        Math.round(((recentBookings.length - previousBookings.length) / previousBookings.length) * 100) : 
+        recentBookings.length > 0 ? 100 : 0;
+
+      const revenueGrowth = previousRevenue > 0 ? 
+        Math.round(((recentRevenue - previousRevenue) / previousRevenue) * 100) : 
+        recentRevenue > 0 ? 100 : 0;
+
+      const userGrowth = previousUsers.length > 0 ? 
+        Math.round(((recentUsers.length - previousUsers.length) / previousUsers.length) * 100) : 
+        recentUsers.length > 0 ? 100 : 0;
+
       const stats = {
         totalUsers: users.length,
         totalBookings: bookings.length + serviceBookings.length + eventRegistrations.length,
         totalRevenue: Math.round(totalRevenue),
         activeServices: services.filter(s => s.isAvailable !== false).length,
-        monthlyGrowth: 15,
+        monthlyGrowth: userGrowth,
+        bookingGrowth,
+        revenueGrowth,
+        serviceGrowth: 0, // Services don't have time-based creation tracking currently
         membershipBreakdown
       };
 

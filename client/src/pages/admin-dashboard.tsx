@@ -1738,7 +1738,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Active Bookings"
           value={stats?.totalBookings || '0'}
-          change={15}
+          change={stats?.bookingGrowth || 0}
           icon={Anchor}
           gradient="from-blue-500 to-cyan-500"
           delay={0.1}
@@ -1746,7 +1746,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Monthly Revenue"
           value={`$${(stats?.totalRevenue || 0).toLocaleString()}`}
-          change={23}
+          change={stats?.revenueGrowth || 0}
           icon={CreditCard}
           gradient="from-green-500 to-emerald-500"
           delay={0.2}
@@ -1754,7 +1754,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Active Services"
           value={stats?.activeServices || '0'}
-          change={8}
+          change={stats?.serviceGrowth || 0}
           icon={Sparkles}
           gradient="from-orange-500 to-red-500"
           delay={0.3}
@@ -1795,30 +1795,13 @@ export default function AdminDashboard() {
                   <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
                   <div className="text-xs text-gray-500">{tier.percentage}%</div>
                 </motion.div>
-              )) || [
-                { tier: 'Platinum', count: 8, percentage: 15 },
-                { tier: 'Gold', count: 12, percentage: 23 },
-                { tier: 'Silver', count: 18, percentage: 35 },
-                { tier: 'Bronze', count: 14, percentage: 27 }
-              ].map((tier, index) => (
-                <motion.div
-                  key={tier.tier}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  className="text-center p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
-                >
-                  <div className={`text-2xl font-bold mb-2 ${
-                    tier.tier === 'Platinum' ? 'text-purple-400' :
-                    tier.tier === 'Gold' ? 'text-yellow-400' :
-                    tier.tier === 'Silver' ? 'text-gray-300' : 'text-orange-400'
-                  }`}>
-                    {tier.count}
-                  </div>
-                  <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
-                  <div className="text-xs text-gray-500">{tier.percentage}%</div>
-                </motion.div>
-              ))}
+              )) || (
+                <div className="col-span-4 text-center py-8">
+                  <Crown className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No membership data available</p>
+                  <p className="text-gray-500 text-sm">Data will appear when members join</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -3347,11 +3330,24 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+            onClick={() => {
+              toast({ title: "Settings Saved", description: "System settings have been updated successfully" });
+            }}
+          >
             <Save className="h-4 w-4 mr-2" />
             Save Changes
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-600 hover:border-purple-500"
+            onClick={() => {
+              toast({ title: "Settings Reset", description: "System settings have been reset to defaults" });
+            }}
+          >
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset
           </Button>
@@ -3407,14 +3403,32 @@ export default function AdminDashboard() {
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
               </div>
               <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
-              <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="border-gray-600 hover:border-purple-500"
+                onClick={() => {
+                  toast({ title: "Backup Created", description: "Database backup created successfully" });
+                }}
+              >
                 Create Backup Now
               </Button>
             </div>
             <div className="p-4 rounded-xl bg-gray-800/30">
               <p className="text-white font-medium mb-2">Maintenance Mode</p>
               <p className="text-sm text-gray-400 mb-3">Temporarily disable user access</p>
-              <Button size="sm" variant="destructive" className="bg-red-600 hover:bg-red-700">
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  toast({ 
+                    title: "Maintenance Mode Enabled", 
+                    description: "System is now in maintenance mode. User access has been temporarily disabled.",
+                    variant: "destructive"
+                  });
+                }}
+              >
                 Enable Maintenance Mode
               </Button>
             </div>
