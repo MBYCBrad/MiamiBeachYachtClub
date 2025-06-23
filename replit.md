@@ -518,14 +518,6 @@ Changelog:
   - Profile pictures now display consistent gradient styling across profile page, header, and admin dashboard
   - Complete visual consistency achieved with purple-to-blue gradient theme throughout Miami Beach Yacht Club application
   - All interactive elements, event cards, profile displays, and calendar selections now use unified gradient styling
-- June 23, 2025. 3D animated motor yacht icon implemented in yacht maintenance system
-  - Replaced static anchor icon with sophisticated 3D animated motor yacht featuring multiple animation layers
-  - Updated yacht design from sailing boat to proper motor yacht matching member side design with larger size
-  - Added realistic motor yacht animations: floating motion, 3D rotation, navigation lights, engine exhaust, and animated water waves
-  - Multi-level yacht structure with main deck, cabin superstructure, bridge/pilothouse, flybridge, and radar tower
-  - Purple-to-blue gradient hull matching application theme with realistic yacht proportions and professional details
-  - Enhanced from 64x64 to 96x96 pixels (50% larger) with twinkling golden sparkles and enhanced purple glow effects
-  - Motor yacht design now perfectly aligns with luxury vessel aesthetic shown throughout member experience
 
 ## Member Experience Feature Status
 
