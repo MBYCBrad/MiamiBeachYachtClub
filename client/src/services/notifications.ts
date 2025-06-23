@@ -24,6 +24,7 @@ class NotificationService {
   private maxReconnectAttempts = 5;
   private reconnectInterval = 1000;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+
   private listeners: Array<(notification: NotificationMessage) => void> = [];
   private stateListeners: Array<(state: NotificationState) => void> = [];
   private state: NotificationState = {
@@ -50,7 +51,6 @@ class NotificationService {
         isConnected: true,
         lastConnectionTime: new Date()
       });
-      this.startHeartbeat();
     };
 
     this.ws.onmessage = (event) => {
@@ -62,11 +62,14 @@ class NotificationService {
       }
     };
 
-    this.ws.onclose = () => {
-      console.log('WebSocket disconnected');
+    this.ws.onclose = (event) => {
+      console.log('WebSocket disconnected', { code: event.code, reason: event.reason, wasClean: event.wasClean });
       this.updateState({ isConnected: false });
-      this.stopHeartbeat();
-      this.attemptReconnect(userId, role);
+      
+      // Only reconnect if it wasn't a clean close and we haven't exceeded attempts
+      if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.attemptReconnect(userId, role);
+      }
     };
 
     this.ws.onerror = (error) => {
@@ -207,6 +210,8 @@ class NotificationService {
   getState() {
     return this.state;
   }
+
+
 }
 
 export const notificationService = new NotificationService();

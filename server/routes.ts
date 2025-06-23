@@ -3529,44 +3529,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all conversations - Real-time database connectivity using existing booking data
+  // Get all conversations - Optimized database query
   app.get("/api/conversations", async (req, res) => {
     try {
-      console.log('Fetching conversations data...');
-      // Generate conversations from real booking and user data
-      const bookings = await dbStorage.getBookings();
-      console.log('Bookings fetched:', bookings.length);
-      const users = await dbStorage.getAllUsers();
-      console.log('Users fetched:', users.length);
-      const yachts = await dbStorage.getYachts();
-      console.log('Yachts fetched:', yachts.length);
-      
-      const conversations = bookings.slice(0, 10).map((booking, index) => {
-        const member = users.find(u => u.id === booking.userId);
-        const yacht = yachts.find(y => y.id === booking.yachtId);
-        
-        if (!member) return null;
-        
-        return {
-          id: `conv_${booking.id}_${member.id}`,
-          userId: member.id,
-          memberName: member.username,
-          memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
-          membershipTier: member.membershipTier || 'Bronze',
-          status: booking.status === 'confirmed' ? 'active' : 'resolved',
-          priority: member.membershipTier === 'Platinum' ? 'high' : 
-                   member.membershipTier === 'Gold' ? 'medium' : 'low',
-          lastMessage: `Yacht booking assistance for ${yacht?.name || 'yacht reservation'}`,
-          lastMessageTime: booking.createdAt || new Date(),
-          unreadCount: Math.floor(Math.random() * 3),
-          tags: ['yacht-booking', 'concierge'],
-          currentTripId: booking.id
-        };
-      }).filter(Boolean);
-      
+      // Use optimized single query method from storage
+      const conversations = await dbStorage.getConversations();
       res.json(conversations);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ error: 'Failed to fetch conversations' });
     }
   });
 

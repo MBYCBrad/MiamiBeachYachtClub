@@ -688,57 +688,40 @@ export class DatabaseStorage implements IStorage {
 
   // COMMUNICATION HUB - REAL-TIME DATABASE METHODS
 
-  // Conversation Management - connects to real yacht bookings and member interactions
+  // Conversation Management - optimized single query approach
   async getConversations(): Promise<any[]> {
-    // Return real conversations based on actual booking activity
-    const bookings = await this.getBookings();
-    const serviceBookings = await this.getServiceBookings();
-    const users = await this.getAllUsers();
-    
-    const conversations = [];
-    
-    // Create conversations from recent yacht bookings
-    for (const booking of bookings.slice(0, 5)) {
-      const member = users.find(u => u.id === booking.userId);
-      if (member) {
-        conversations.push({
-          id: `booking_conv_${booking.id}`,
-          memberId: member.id,
-          memberName: member.username,
-          memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
-          membershipTier: member.membershipTier || 'gold',
-          status: 'active',
-          priority: 'medium',
-          lastMessage: `Yacht booking inquiry for ${new Date(booking.startTime).toLocaleDateString()}`,
-          lastMessageTime: booking.createdAt || new Date(),
-          unreadCount: 1,
-          tags: ['booking', 'yacht'],
-          currentTripId: booking.id
-        });
-      }
-    }
+    // Optimized: Single query with joins instead of multiple separate queries
+    const bookingConversations = await db.select({
+      id: bookings.id,
+      userId: bookings.userId,
+      startTime: bookings.startTime,
+      status: bookings.status,
+      createdAt: bookings.createdAt,
+      userName: users.username,
+      userPhone: users.phone,
+      userTier: users.membershipTier
+    })
+    .from(bookings)
+    .innerJoin(users, eq(bookings.userId, users.id))
+    .orderBy(desc(bookings.createdAt))
+    .limit(5);
 
-    // Create conversations from service bookings
-    for (const serviceBooking of serviceBookings.slice(0, 3)) {
-      const member = users.find(u => u.id === serviceBooking.userId);
-      if (member) {
-        conversations.push({
-          id: `service_conv_${serviceBooking.id}`,
-          memberId: member.id,
-          memberName: member.username,
-          memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
-          membershipTier: member.membershipTier || 'silver',
-          status: 'active',
-          priority: 'low',
-          lastMessage: `Service booking inquiry - ${serviceBooking.status}`,
-          lastMessageTime: serviceBooking.createdAt || new Date(),
-          unreadCount: 0,
-          tags: ['service', 'concierge']
-        });
-      }
-    }
+    const conversations = bookingConversations.map(booking => ({
+      id: `booking_conv_${booking.id}`,
+      memberId: booking.userId,
+      memberName: booking.userName,
+      memberPhone: booking.userPhone || `+1-555-${String(booking.userId).padStart(4, '0')}`,
+      membershipTier: booking.userTier || 'gold',
+      status: 'active',
+      priority: 'medium',
+      lastMessage: `Yacht booking inquiry for ${new Date(booking.startTime).toLocaleDateString()}`,
+      lastMessageTime: booking.createdAt || new Date(),
+      unreadCount: 1,
+      tags: ['booking', 'yacht'],
+      currentTripId: booking.id
+    }));
 
-    return conversations.sort((a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime());
+    return conversations;
   }
 
   // Crew Management Methods
@@ -791,14 +774,7 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async getServiceBookings(userId?: string): Promise<any[]> {
-    if (userId) {
-      const bookings = await db.select().from(serviceBookings).where(eq(serviceBookings.userId, parseInt(userId)));
-      return bookings;
-    }
-    const allBookings = await db.select().from(serviceBookings);
-    return allBookings;
-  }
+
 
   // Get messages for a conversation (generated from booking data)
   async getMessagesByConversation(conversationId: string): Promise<any[]> {
@@ -855,33 +831,37 @@ export class DatabaseStorage implements IStorage {
 
   // Get recent phone calls based on real booking activity
   async getRecentPhoneCalls(limit: number = 10): Promise<any[]> {
-    const bookings = await this.getBookings();
-    const users = await this.getAllUsers();
-    const calls = [];
-    
-    for (const booking of bookings.slice(0, limit)) {
-      const member = users.find(u => u.id === booking.userId);
-      if (member) {
-        calls.push({
-          id: `call_${booking.id}_${Date.now()}`,
-          memberId: member.id,
-          memberName: member.username,
-          memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
-          agentId: 60, // admin user
-          callType: 'inbound',
-          direction: 'inbound',
-          status: booking.status === 'confirmed' ? 'ended' : 'missed',
-          startTime: new Date(booking.createdAt || Date.now()),
-          endTime: booking.status === 'confirmed' ? new Date(Date.now() + 5 * 60 * 1000) : undefined,
-          duration: booking.status === 'confirmed' ? 300 : undefined,
-          reason: 'trip_start',
-          tripId: booking.id,
-          notes: `Call regarding yacht booking for ${new Date(booking.startTime).toLocaleDateString()}`
-        });
-      }
-    }
-    
-    return calls;
+    // Optimized single query for phone calls data
+    const callData = await db.select({
+      bookingId: bookings.id,
+      userId: bookings.userId,
+      status: bookings.status,
+      startTime: bookings.startTime,
+      createdAt: bookings.createdAt,
+      userName: users.username,
+      userPhone: users.phone
+    })
+    .from(bookings)
+    .innerJoin(users, eq(bookings.userId, users.id))
+    .orderBy(desc(bookings.createdAt))
+    .limit(limit);
+
+    return callData.map(call => ({
+      id: `call_${call.bookingId}_${Date.now()}`,
+      memberId: call.userId,
+      memberName: call.userName,
+      memberPhone: call.userPhone || `+1-555-${String(call.userId).padStart(4, '0')}`,
+      agentId: 60,
+      callType: 'inbound',
+      direction: 'inbound',
+      status: call.status === 'confirmed' ? 'ended' : 'missed',
+      startTime: new Date(call.createdAt || Date.now()),
+      endTime: call.status === 'confirmed' ? new Date(Date.now() + 5 * 60 * 1000) : undefined,
+      duration: call.status === 'confirmed' ? 300 : undefined,
+      reason: 'trip_start',
+      tripId: call.bookingId,
+      notes: `Call regarding yacht booking for ${new Date(call.startTime).toLocaleDateString()}`
+    }));
   }
 
   // Communication analytics based on real data
