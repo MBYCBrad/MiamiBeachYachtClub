@@ -573,7 +573,7 @@ Changelog:
   - Hamburger button now properly hides when menu is open using AnimatePresence with opacity/scale transitions
   - Professional button state management: hamburger visible when closed, X visible when open (never both simultaneously)
   - Enhanced main content area with Framer Motion to expand to full width when sidebar collapses and contract when sidebar opens
-  - Main content animates with marginLeft (320px to 0) and width (calc(100% - 320px) to 100%) transitions when menu closes
+  - Main content animates with marginLeft (0 when closed, 320px when open) and width (100% when closed, calc(100% - 320px) when open) for proper full-screen expansion
   - Fixed hamburger button z-index (z-[9999]) to ensure visibility on top of sidebar menu for proper control
   - Complete 0.4s easeInOut animations for professional sliding menu experience with clean button transitions
   - Maintained all existing purple-to-blue gradient styling and dark theme consistency
