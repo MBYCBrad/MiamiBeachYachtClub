@@ -4,12 +4,16 @@ import { storage } from './storage';
 import { twilioService } from './twilio';
 
 export interface NotificationPayload {
-  type: 'booking_created' | 'booking_cancelled' | 'booking_updated' | 'service_booked' | 'event_registered';
+  type: 'booking_created' | 'booking_cancelled' | 'booking_updated' | 'service_booked' | 'event_registered' | 
+        'yacht_added' | 'service_added' | 'event_added' | 'yacht_updated' | 'service_updated' | 'event_updated' |
+        'payment_processed' | 'member_joined' | 'content_updated';
   userId: number;
-  targetUserId?: number; // For yacht owner notifications
+  targetUserIds?: number[]; // Multiple targets for role-based notifications
+  targetRoles?: string[]; // Broadcast to specific roles
   data: any;
   timestamp: Date;
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  broadcastToRole?: string; // Broadcast to all users of a specific role
 }
 
 export interface ConnectedUser {
@@ -155,6 +159,58 @@ export class NotificationService {
     }
   }
 
+  // Send notification to database and WebSocket
+  async sendNotification(payload: NotificationPayload) {
+    try {
+      // Store notification in database
+      const notification = await storage.createNotification({
+        type: payload.type,
+        userId: payload.userId,
+        title: this.getNotificationTitle(payload.type),
+        message: this.getNotificationMessage(payload),
+        data: payload.data,
+        priority: payload.priority,
+        read: false
+      });
+
+      // Send real-time WebSocket notification
+      this.sendToUser(payload.userId, {
+        type: 'notification',
+        data: notification
+      });
+
+      return notification;
+    } catch (error) {
+      console.error('❌ Failed to send notification:', error);
+      throw error;
+    }
+  }
+
+  private getNotificationTitle(type: string): string {
+    switch (type) {
+      case 'booking_created': return 'New Yacht Booking';
+      case 'service_booked': return 'Service Booked';
+      case 'event_registered': return 'Event Registration';
+      case 'content_updated': return 'New Content Available';
+      default: return 'Notification';
+    }
+  }
+
+  private getNotificationMessage(payload: NotificationPayload): string {
+    switch (payload.type) {
+      case 'booking_created':
+        return `Your yacht ${payload.data?.yachtName} has been booked`;
+      case 'service_booked':
+        return `Your service ${payload.data?.serviceName} has been booked`;
+      case 'event_registered':
+        return `New registration for ${payload.data?.eventTitle}`;
+      case 'content_updated':
+        return `New ${payload.data?.contentType} available: ${payload.data?.yachtName || payload.data?.serviceName || payload.data?.eventTitle}`;
+      default:
+        return 'You have a new notification';
+    }
+  }
+
   async notifyBookingCreated(booking: any) {
     const yacht = await storage.getYacht(booking.yachtId);
     if (!yacht || !yacht.ownerId) return;
@@ -164,8 +220,8 @@ export class NotificationService {
 
     const notification: NotificationPayload = {
       type: 'booking_created',
-      userId: booking.userId,
-      targetUserId: yacht.ownerId,
+      userId: yacht.ownerId!,
+      targetUserIds: yacht.ownerId ? [yacht.ownerId] : [],
       data: {
         bookingId: booking.id,
         yachtName: yacht.name,
@@ -209,8 +265,8 @@ export class NotificationService {
 
     const notification: NotificationPayload = {
       type: 'booking_cancelled',
-      userId: booking.userId,
-      targetUserId: yacht.ownerId,
+      userId: yacht.ownerId!,
+      targetUserIds: yacht.ownerId ? [yacht.ownerId] : [],
       data: {
         bookingId: booking.id,
         yachtName: yacht.name,
@@ -243,8 +299,8 @@ export class NotificationService {
 
     const notification: NotificationPayload = {
       type: 'service_booked',
-      userId: serviceBooking.userId,
-      targetUserId: service.providerId,
+      userId: service.providerId!,
+      targetUserIds: service.providerId ? [service.providerId] : [],
       data: {
         bookingId: serviceBooking.id,
         serviceName: service.name,
@@ -281,7 +337,8 @@ export class NotificationService {
 
     const notification: NotificationPayload = {
       type: 'event_registered',
-      userId: eventRegistration.userId,
+      userId: event.hostId!,
+      targetUserIds: event.hostId ? [event.hostId] : [],
       data: {
         registrationId: eventRegistration.id,
         eventTitle: event.title,
@@ -333,6 +390,144 @@ export class NotificationService {
       }
     });
     return sentCount;
+  }
+
+  // Send notifications to multiple users (role-based)
+  async sendMultiUserNotification(payload: NotificationPayload) {
+    try {
+      const notifications = [];
+      
+      // Send to specific target users
+      if (payload.targetUserIds && payload.targetUserIds.length > 0) {
+        for (const userId of payload.targetUserIds) {
+          const userPayload = { ...payload, userId };
+          const notification = await this.sendNotification(userPayload);
+          notifications.push(notification);
+        }
+      }
+
+      return notifications;
+    } catch (error) {
+      console.error('❌ Failed to send multi-user notification:', error);
+      throw error;
+    }
+  }
+
+  // Broadcast to all users of specific roles
+  async broadcastToRoles(payload: NotificationPayload) {
+    try {
+      if (!payload.targetRoles || payload.targetRoles.length === 0) return [];
+
+      const notifications = [];
+      
+      // Get all users with target roles
+      for (const role of payload.targetRoles) {
+        const roleUsers = await storage.getUsersByRole(role);
+        
+        for (const user of roleUsers) {
+          const userPayload = { ...payload, userId: user.id };
+          const notification = await this.sendNotification(userPayload);
+          notifications.push(notification);
+          
+          // Send real-time update via WebSocket
+          const connection = this.connections.get(user.id);
+          if (connection && connection.ws.readyState === WebSocket.OPEN) {
+            connection.ws.send(JSON.stringify({
+              type: 'broadcast',
+              data: notification
+            }));
+          }
+        }
+      }
+
+      return notifications;
+    } catch (error) {
+      console.error('❌ Failed to broadcast to roles:', error);
+      throw error;
+    }
+  }
+
+  // Cross-role data synchronization notification
+  async notifyDataUpdate(updateType: string, data: any, excludeUserId?: number) {
+    try {
+      // Broadcast real-time data update to all connected users
+      this.connections.forEach((connection, userId) => {
+        if (userId !== excludeUserId && connection.ws.readyState === WebSocket.OPEN) {
+          connection.ws.send(JSON.stringify({
+            type: 'data_update',
+            updateType,
+            data
+          }));
+        }
+      });
+
+      console.log(`🔄 Data update broadcasted: ${updateType}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to notify data update:', error);
+      throw error;
+    }
+  }
+
+  // Notify yacht owner when their yacht is booked
+  async notifyYachtOwner(yachtId: number, bookingData: any) {
+    try {
+      const yacht = await storage.getYacht(yachtId);
+      if (!yacht?.ownerId) return;
+
+      const payload: NotificationPayload = {
+        type: 'booking_created',
+        userId: yacht.ownerId,
+        data: { yachtId, yachtName: yacht.name, ...bookingData },
+        timestamp: new Date(),
+        priority: 'high'
+      };
+
+      return await this.sendNotification(payload);
+    } catch (error) {
+      console.error('❌ Failed to notify yacht owner:', error);
+      throw error;
+    }
+  }
+
+  // Notify service provider when their service is booked
+  async notifyServiceProvider(serviceId: number, bookingData: any) {
+    try {
+      const service = await storage.getService(serviceId);
+      if (!service?.providerId) return;
+
+      const payload: NotificationPayload = {
+        type: 'service_booked',
+        userId: service.providerId,
+        data: { serviceId, serviceName: service.name, ...bookingData },
+        timestamp: new Date(),
+        priority: 'high'
+      };
+
+      return await this.sendNotification(payload);
+    } catch (error) {
+      console.error('❌ Failed to notify service provider:', error);
+      throw error;
+    }
+  }
+
+  // Notify all members when new content is added
+  async notifyMembersOfNewContent(contentType: string, contentData: any) {
+    try {
+      const payload: NotificationPayload = {
+        type: 'content_updated',
+        userId: 0,
+        targetRoles: ['member'],
+        data: { contentType, ...contentData },
+        timestamp: new Date(),
+        priority: 'medium'
+      };
+
+      return await this.broadcastToRoles(payload);
+    } catch (error) {
+      console.error('❌ Failed to notify members of new content:', error);
+      throw error;
+    }
   }
 
   shutdown() {

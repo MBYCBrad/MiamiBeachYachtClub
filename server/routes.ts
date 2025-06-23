@@ -295,8 +295,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         ownerId: req.user!.role === UserRole.YACHT_OWNER ? req.user!.id : validatedData.ownerId
       });
+
+      // Real-time cross-role notifications - notify all members of new yacht
+      await notificationService.notifyMembersOfNewContent('yacht', {
+        yachtId: yacht.id,
+        yachtName: yacht.name,
+        size: yacht.size,
+        location: yacht.location,
+        addedBy: req.user!.username
+      });
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('yacht_added', yacht, req.user!.id);
+
+      await auditService.logAction(req, 'create', 'yacht', yacht.id, yacht);
       res.status(201).json(yacht);
     } catch (error: any) {
+      await auditService.logAction(req, 'create', 'yacht', undefined, req.body, false, error.message);
       res.status(400).json({ message: error.message });
     }
   });
@@ -365,8 +380,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         providerId: req.user!.role === UserRole.SERVICE_PROVIDER ? req.user!.id : validatedData.providerId
       });
+
+      // Real-time cross-role notifications - notify all members of new service
+      await notificationService.notifyMembersOfNewContent('service', {
+        serviceId: service.id,
+        serviceName: service.name,
+        category: service.category,
+        pricePerSession: service.pricePerSession,
+        addedBy: req.user!.username
+      });
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('service_added', service, req.user!.id);
+
+      await auditService.logAction(req, 'create', 'service', service.id, service);
       res.status(201).json(service);
     } catch (error: any) {
+      await auditService.logAction(req, 'create', 'service', undefined, req.body, false, error.message);
       res.status(400).json({ message: error.message });
     }
   });
@@ -432,8 +462,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertEventSchema.parse(req.body);
       const event = await storage.createEvent(validatedData);
+
+      // Real-time cross-role notifications - notify all members of new event
+      await notificationService.notifyMembersOfNewContent('event', {
+        eventId: event.id,
+        eventTitle: event.title,
+        startTime: event.startTime,
+        location: event.location,
+        capacity: event.capacity,
+        ticketPrice: event.ticketPrice,
+        addedBy: req.user!.username
+      });
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('event_added', event, req.user!.id);
+
+      await auditService.logAction(req, 'create', 'event', event.id, event);
       res.status(201).json(event);
     } catch (error: any) {
+      await auditService.logAction(req, 'create', 'event', undefined, req.body, false, error.message);
       res.status(400).json({ message: error.message });
     }
   });
@@ -901,8 +948,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice: service.pricePerSession
       });
 
-      // Send real-time notification to service provider
-      await notificationService.notifyServiceBooked(booking);
+      // Real-time cross-role notifications - notify service provider
+      if (service.providerId) {
+        await notificationService.notifyServiceProvider(validatedData.serviceId!, {
+          bookingId: booking.id,
+          memberName: req.user!.username,
+          bookingDate: validatedData.bookingDate,
+          totalPrice: service.pricePerSession
+        });
+      }
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('service_booking_created', {
+        booking,
+        serviceId: validatedData.serviceId
+      }, req.user!.id);
 
       res.status(201).json(booking);
     } catch (error: any) {
@@ -1012,8 +1072,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice
       });
 
-      // Send real-time notification to event host
-      await notificationService.notifyEventRegistration(registration);
+      // Real-time cross-role notifications - notify event host
+      if (event.hostId) {
+        await notificationService.notifyEventRegistration({
+          ...registration,
+          eventTitle: event.title,
+          memberName: req.user!.username,
+          ticketCount: validatedData.ticketCount!,
+          totalPrice
+        });
+      }
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('event_registration_created', {
+        registration,
+        eventId: validatedData.eventId
+      }, req.user!.id);
 
       res.status(201).json(registration);
     } catch (error: any) {
