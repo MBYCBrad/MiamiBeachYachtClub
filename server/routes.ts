@@ -1632,37 +1632,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookings = await dbStorage.getBookings();
       const serviceBookings = await dbStorage.getServiceBookings();
       const eventRegistrations = await dbStorage.getEventRegistrations();
+      const users = await dbStorage.getAllUsers();
+      const services = await dbStorage.getServices();
+      const yachts = await dbStorage.getYachts();
+      const events = await dbStorage.getEvents();
 
-      // Combine all payment transactions
+      // Helper function to get user info
+      const getUserInfo = (userId: number | null) => {
+        if (!userId) return { name: 'Unknown', email: 'No email', avatar: null };
+        const user = users.find(u => u.id === userId);
+        return user ? {
+          name: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          membershipTier: user.membershipTier
+        } : { name: 'Unknown', email: 'No email', avatar: null };
+      };
+
+      // Helper function to get service provider info
+      const getServiceProviderInfo = (serviceId: number) => {
+        const service = services.find(s => s.id === serviceId);
+        if (!service) return null;
+        
+        const provider = users.find(u => u.id === service.providerId);
+        return provider ? {
+          name: provider.username,
+          email: provider.email,
+          isAdmin: provider.role === 'admin'
+        } : null;
+      };
+
+      // Helper function to calculate platform fees and revenue distribution
+      const calculateRevenue = (amount: number, isAdminService: boolean) => {
+        if (amount === 0) return { adminRevenue: 0, providerRevenue: 0, platformFee: 0 };
+        
+        if (isAdminService) {
+          // Admin services: 100% to admin
+          return { adminRevenue: amount, providerRevenue: 0, platformFee: 0 };
+        } else {
+          // 3rd party services: 20% platform fee to admin, 80% to provider
+          const platformFee = amount * 0.20;
+          const providerRevenue = amount * 0.80;
+          return { adminRevenue: platformFee, providerRevenue, platformFee };
+        }
+      };
+
+      // Combine all payment transactions with accurate financial data
       const payments = [
-        ...bookings.map(b => ({
-          id: `booking-${b.id}`,
-          type: 'Yacht Booking',
-          amount: parseFloat(b.totalPrice || '0'),
-          status: b.status,
-          date: b.createdAt,
-          customer: `User ${b.userId}`
-        })),
-        ...serviceBookings.map(sb => ({
-          id: `service-${sb.id}`,
-          type: 'Service Booking', 
-          amount: parseFloat(sb.totalPrice || '0'),
-          status: sb.status,
-          date: sb.createdAt,
-          customer: `User ${sb.userId}`
-        })),
-        ...eventRegistrations.map(er => ({
-          id: `event-${er.id}`,
-          type: 'Event Registration',
-          amount: parseFloat(er.totalPrice || '0'),
-          status: er.status,
-          date: er.createdAt,
-          customer: `User ${er.userId}`
-        }))
-      ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        // Yacht bookings (always free - $0.00)
+        ...bookings.map(b => {
+          const customer = getUserInfo(b.userId);
+          const yacht = yachts.find(y => y.id === b.yachtId);
+          return {
+            id: `booking-${b.id}`,
+            type: 'Yacht Booking',
+            amount: 0, // Yacht rentals are always free
+            status: b.status,
+            createdAt: b.createdAt,
+            customer,
+            serviceDetails: yacht?.name || 'Unknown Yacht',
+            provider: null, // Yacht bookings don't have service providers
+            adminRevenue: 0,
+            providerRevenue: 0,
+            platformFee: 0
+          };
+        }),
+        
+        // Service bookings with accurate revenue distribution
+        ...serviceBookings.map(sb => {
+          const customer = getUserInfo(sb.userId);
+          const service = services.find(s => s.id === sb.serviceId);
+          const provider = getServiceProviderInfo(sb.serviceId || 0);
+          const amount = parseFloat(sb.totalPrice || '0');
+          const isAdminService = provider?.isAdmin || false;
+          const revenue = calculateRevenue(amount, isAdminService);
+          
+          return {
+            id: `service-${sb.id}`,
+            type: 'Service Booking',
+            amount,
+            status: sb.status,
+            createdAt: sb.createdAt,
+            customer,
+            serviceDetails: service?.name || 'Unknown Service',
+            provider,
+            adminRevenue: revenue.adminRevenue,
+            providerRevenue: revenue.providerRevenue,
+            platformFee: revenue.platformFee
+          };
+        }),
+        
+        // Event registrations with provider information
+        ...eventRegistrations.map(er => {
+          const customer = getUserInfo(er.userId);
+          const event = events.find(e => e.id === er.eventId);
+          const amount = parseFloat(er.totalPrice || '0');
+          
+          // Get event provider info (events can have different providers)
+          const eventProvider = event?.hostId ? users.find(u => u.id === event.hostId) : null;
+          const provider = eventProvider ? {
+            name: eventProvider.username,
+            email: eventProvider.email,
+            isAdmin: eventProvider.role === 'admin'
+          } : null;
+          
+          // Calculate revenue based on provider type
+          const isAdminEvent = !provider || provider.isAdmin;
+          const revenue = calculateRevenue(amount, isAdminEvent);
+          
+          return {
+            id: `event-${er.id}`,
+            type: 'Event Registration',
+            amount,
+            status: er.status,
+            createdAt: er.createdAt,
+            customer,
+            serviceDetails: event?.title || 'Unknown Event',
+            provider,
+            adminRevenue: revenue.adminRevenue,
+            providerRevenue: revenue.providerRevenue,
+            platformFee: revenue.platformFee
+          };
+        })
+      ].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
       res.json(payments);
     } catch (error: any) {
+      console.error('Error fetching admin payments:', error);
       res.status(500).json({ message: error.message });
     }
   });

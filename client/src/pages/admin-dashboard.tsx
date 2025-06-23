@@ -2277,7 +2277,7 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.reduce((sum: number, p: any) => sum + (p.amount / 100), 0).toFixed(2) || '0.00'}
+            ${payments?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
           </p>
           <p className="text-green-400 text-sm mt-1">All-time earnings</p>
         </motion.div>
@@ -2383,12 +2383,17 @@ export default function AdminDashboard() {
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                           <span className="text-white text-xs font-semibold">
-                            {(payment.customerName || payment.user?.username || 'U')[0].toUpperCase()}
+                            {(payment.customer?.name || 'U')[0].toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{payment.customerName || payment.user?.username || 'Unknown'}</p>
-                          <p className="text-gray-400 text-xs">{payment.user?.email || 'No email'}</p>
+                          <p className="text-white font-medium">{payment.customer?.name || 'Unknown'}</p>
+                          <p className="text-gray-400 text-xs">{payment.customer?.email || 'No email'}</p>
+                          {payment.customer?.membershipTier && (
+                            <Badge className="text-xs bg-purple-500/20 text-purple-400 border-purple-500/30 mt-1">
+                              {payment.customer.membershipTier}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -2412,19 +2417,55 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="max-w-xs">
-                        <p className="text-white font-medium truncate">{payment.description || 'Yacht Service'}</p>
-                        {payment.metadata && (
-                          <p className="text-gray-400 text-xs truncate">
-                            {payment.metadata.serviceName || payment.metadata.yachtName || 'Standard service'}
-                          </p>
+                        <p className="text-white font-medium truncate">{payment.serviceDetails}</p>
+                        {payment.provider && (
+                          <div className="mt-1">
+                            <p className="text-gray-400 text-xs truncate">
+                              Provider: {payment.provider.name}
+                            </p>
+                            {payment.provider.isAdmin ? (
+                              <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                                Admin Service (100% revenue)
+                              </Badge>
+                            ) : (
+                              <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30 mt-1">
+                                3rd Party (20% platform fee)
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        {payment.type === 'Yacht Booking' && (
+                          <Badge className="text-xs bg-cyan-500/20 text-cyan-400 border-cyan-500/30 mt-1">
+                            Free for members
+                          </Badge>
+                        )}
+                        {payment.type === 'Event Registration' && (
+                          payment.provider && !payment.provider.isAdmin ? (
+                            <Badge className="text-xs bg-orange-500/20 text-orange-400 border-orange-500/30 mt-1">
+                              3rd Party Event (20% platform fee)
+                            </Badge>
+                          ) : (
+                            <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                              Admin Event (100% revenue)
+                            </Badge>
+                          )
                         )}
                       </div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="text-right">
-                        <span className="text-green-400 font-bold text-lg">${(payment.amount / 100).toFixed(2)}</span>
-                        {payment.platformFee && (
-                          <p className="text-gray-400 text-xs">Fee: ${(payment.platformFee / 100).toFixed(2)}</p>
+                        <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
+                        {payment.platformFee > 0 && (
+                          <div className="mt-1">
+                            <p className="text-gray-400 text-xs">Platform: ${payment.adminRevenue.toFixed(2)}</p>
+                            <p className="text-blue-400 text-xs">Provider: ${payment.providerRevenue.toFixed(2)}</p>
+                          </div>
+                        )}
+                        {payment.amount === 0 && (
+                          <p className="text-cyan-400 text-xs">Free for members</p>
+                        )}
+                        {payment.platformFee === 0 && payment.amount > 0 && (
+                          <p className="text-green-400 text-xs">100% to admin</p>
                         )}
                       </div>
                     </td>
