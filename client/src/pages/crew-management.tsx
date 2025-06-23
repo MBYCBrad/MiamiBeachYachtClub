@@ -171,12 +171,15 @@ export default function CrewManagementPage() {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen bg-black relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8 relative z-10"
+      >
+        <div className="container mx-auto px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -893,5 +896,9 @@ function CrewAssignmentDialog({
         </div>
       </div>
     </DialogContent>
+  </Dialog>
+      </div>
+    </motion.div>
+    </div>
   );
 }

@@ -867,8 +867,10 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-black p-6 relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

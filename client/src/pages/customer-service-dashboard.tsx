@@ -161,8 +161,10 @@ export default function CustomerServiceDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <div className="min-h-screen bg-black relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
+      <div className="container mx-auto px-4 py-6 max-w-6xl relative z-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

@@ -192,9 +192,11 @@ export default function YachtMaintenance() {
   const selectedYachtData = yachts.find((y: any) => y.id === selectedYacht);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-b border-purple-500/20">
+      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-b border-purple-500/20 relative z-10">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div>

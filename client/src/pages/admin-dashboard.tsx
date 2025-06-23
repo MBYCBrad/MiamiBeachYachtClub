@@ -3449,8 +3449,10 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex h-screen overflow-hidden">
+    <div className="min-h-screen bg-background relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
+      <div className="flex h-screen overflow-hidden relative z-10">
         {/* Sidebar */}
         <motion.div
           initial={{ x: -300, opacity: 0 }}

@@ -302,7 +302,9 @@ export default function StaffManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black relative">
+      {/* Rolls Royce Starfield Background */}
+      <div className="rolls-royce-starfield"></div>
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
