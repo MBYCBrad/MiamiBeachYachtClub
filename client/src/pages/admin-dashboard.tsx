@@ -64,6 +64,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
+import CrewManagementPage from "./crew-management";
 
 interface AdminStats {
   totalUsers: number;
@@ -82,6 +83,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
+  { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-teal-500 to-cyan-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500' },
   { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
@@ -3533,6 +3535,7 @@ export default function AdminDashboard() {
             {activeSection === 'settings' && renderSettings()}
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
+            {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'customer-service' && <MessengerDashboard />}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
