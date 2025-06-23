@@ -198,8 +198,8 @@ export default function YachtMaintenance() {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Yacht Maintenance System</h1>
-              <p className="text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
+              <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
+              <p className="text-lg text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedYacht?.toString() || ""} onValueChange={(value) => setSelectedYacht(Number(value))}>

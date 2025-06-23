@@ -560,6 +560,10 @@ Changelog:
   - Updated title from text-2xl to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
   - Updated subtitle to text-lg to match overview subtitle size for complete consistency
   - All major admin interface sections now display unified Apple-like typography with professional large-format titles
+- June 23, 2025. Yacht Maintenance title and subtitle styling updated to match admin overview
+  - Updated title from text-3xl to text-5xl font-bold with SF Pro Display font family, tracking-tight, and mb-2
+  - Updated subtitle to text-lg to match overview subtitle size for complete consistency
+  - Complete typography consistency achieved across all admin interface sections (Overview, Crew Management, Customer Service, Staff Management, Yacht Maintenance)
 
 ## Member Experience Feature Status
 
