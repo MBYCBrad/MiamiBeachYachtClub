@@ -282,45 +282,20 @@ html, body {
     border-color: var(--yacht-accent);
   }
 
-  /* UNIVERSAL MBYC THEME ENFORCEMENT - OVERRIDES ALL COLORS */
+  /* ADMIN-ONLY NAVY BLUE THEME CLASSES */
   
-  /* Force ALL backgrounds to use yacht club dark theme */
-  * {
-    border-color: var(--yacht-accent) !important;
+  /* Admin page specific styling */
+  .admin-page {
+    background-color: #1e3a8a !important; /* Navy blue */
   }
 
-  /* Force ALL page backgrounds to dark theme */
-  body, html, #root, main, .app, [data-radix-dialog-overlay], [data-radix-popover-content] {
-    background-color: var(--yacht-dark) !important;
+  .admin-card {
+    background-color: #1e40af !important; /* Lighter navy */
+    border-color: #3b82f6 !important; /* Blue border */
   }
 
-  /* Override ALL background color classes */
-  .bg-background, .bg-card, .bg-muted, .bg-popover, .bg-secondary, .bg-primary,
-  .bg-green-500, .bg-blue-500, .bg-pink-500, .bg-orange-500, .bg-red-500, .bg-yellow-500,
-  .bg-green-600, .bg-blue-600, .bg-pink-600, .bg-orange-600, .bg-red-600, .bg-yellow-600,
-  .bg-emerald-500, .bg-cyan-500, .bg-violet-500, .bg-rose-500, .bg-amber-500,
-  .bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-zinc-50,
-  [class*="bg-green"], [class*="bg-blue"], [class*="bg-pink"], [class*="bg-orange"], 
-  [class*="bg-red"], [class*="bg-yellow"], [class*="bg-emerald"], [class*="bg-cyan"],
-  [class*="bg-violet"], [class*="bg-rose"], [class*="bg-amber"], [class*="bg-white"],
-  [class*="bg-gray"], [class*="bg-slate"], [class*="bg-zinc"] {
-    background-color: var(--yacht-card) !important;
-  }
-
-  /* Override ALL text color classes */
-  .text-primary, .text-green-500, .text-blue-500, .text-pink-500, .text-orange-500,
-  .text-red-500, .text-yellow-500, .text-emerald-500, .text-cyan-500, .text-violet-500,
-  [class*="text-green"], [class*="text-blue"], [class*="text-pink"], [class*="text-orange"],
-  [class*="text-red"], [class*="text-yellow"], [class*="text-emerald"], [class*="text-cyan"],
-  [class*="text-violet"], [class*="text-rose"], [class*="text-amber"] {
-    color: var(--yacht-purple) !important;
-  }
-
-  /* Override ALL border color classes */
-  .border-primary, .border-green-500, .border-blue-500, .border-pink-500, .border-orange-500,
-  [class*="border-green"], [class*="border-blue"], [class*="border-pink"], [class*="border-orange"],
-  [class*="border-red"], [class*="border-yellow"], [class*="border-emerald"], [class*="border-cyan"] {
-    border-color: var(--yacht-purple) !important;
+  .admin-secondary {
+    background-color: #2563eb !important; /* Secondary navy */
   }
 
 

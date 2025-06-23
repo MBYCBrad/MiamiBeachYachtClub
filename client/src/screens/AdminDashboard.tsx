@@ -280,9 +280,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-purple-800/30">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-blue-900/90 backdrop-blur-md border-b border-blue-600/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
@@ -321,53 +321,53 @@ const AdminDashboard: React.FC = () => {
           {/* Key Metrics Overview */}
           <div className="py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card className="bg-gray-800/50 border-purple-800/30">
+              <Card className="bg-blue-800/50 border-blue-600/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total Users</CardTitle>
-                  <Users className="h-4 w-4 text-purple-400" />
+                  <CardTitle className="text-sm font-medium text-blue-300">Total Users</CardTitle>
+                  <Users className="h-4 w-4 text-blue-400" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-white">{stats?.totalUsers || 0}</div>
-                  <div className="flex items-center text-xs text-gray-400">
+                  <div className="flex items-center text-xs text-blue-300">
                     {getGrowthIcon(stats?.monthlyGrowth.users || 0)}
                     <span className="ml-1">{stats?.monthlyGrowth.users || 0}% this month</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800/50 border-purple-800/30">
+              <Card className="bg-blue-800/50 border-blue-600/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total Bookings</CardTitle>
+                  <CardTitle className="text-sm font-medium text-blue-300">Total Bookings</CardTitle>
                   <Calendar className="h-4 w-4 text-blue-400" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-white">{stats?.totalBookings || 0}</div>
-                  <div className="flex items-center text-xs text-gray-400">
+                  <div className="flex items-center text-xs text-blue-300">
                     {getGrowthIcon(stats?.monthlyGrowth.bookings || 0)}
                     <span className="ml-1">{stats?.monthlyGrowth.bookings || 0}% this month</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800/50 border-purple-800/30">
+              <Card className="bg-blue-800/50 border-blue-600/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Fleet Size</CardTitle>
-                  <Anchor className="h-4 w-4 text-cyan-400" />
+                  <CardTitle className="text-sm font-medium text-blue-300">Fleet Size</CardTitle>
+                  <Anchor className="h-4 w-4 text-blue-400" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-white">{stats?.totalYachts || 0}</div>
-                  <p className="text-xs text-gray-400">Active yachts</p>
+                  <p className="text-xs text-blue-300">Active yachts</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800/50 border-purple-800/30">
+              <Card className="bg-blue-800/50 border-blue-600/30">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Monthly Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium text-blue-300">Monthly Revenue</CardTitle>
                   <DollarSign className="h-4 w-4 text-green-400" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-white">{formatCurrency(stats?.totalRevenue || 0)}</div>
-                  <div className="flex items-center text-xs text-gray-400">
+                  <div className="flex items-center text-xs text-blue-300">
                     {getGrowthIcon(stats?.monthlyGrowth.revenue || 0)}
                     <span className="ml-1">{stats?.monthlyGrowth.revenue || 0}% this month</span>
                   </div>
@@ -378,7 +378,7 @@ const AdminDashboard: React.FC = () => {
 
           {/* Admin Management Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 bg-gray-800/50 border border-purple-800/30">
+            <TabsList className="grid w-full grid-cols-6 bg-blue-800/50 border border-blue-600/30">
               <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Overview
@@ -408,7 +408,7 @@ const AdminDashboard: React.FC = () => {
             {/* Overview & Analytics Tab */}
             <TabsContent value="overview" className="mt-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-800/50 border-purple-800/30">
+                <Card className="bg-blue-800/50 border-blue-600/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <PieChart className="w-5 h-5 mr-2" />
@@ -435,7 +435,7 @@ const AdminDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-800/50 border-purple-800/30">
+                <Card className="bg-blue-800/50 border-blue-600/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
                       <TrendingUp className="w-5 h-5 mr-2" />
@@ -448,7 +448,7 @@ const AdminDashboard: React.FC = () => {
                         <div key={item.yacht.id} className="flex items-center justify-between">
                           <div>
                             <div className="text-white font-medium">{item.yacht.name}</div>
-                            <div className="text-gray-400 text-sm">{item.bookings} bookings</div>
+                            <div className="text-blue-300 text-sm">{item.bookings} bookings</div>
                           </div>
                           <div className="text-white">{formatCurrency(item.revenue)}</div>
                         </div>
