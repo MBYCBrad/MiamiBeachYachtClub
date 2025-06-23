@@ -3462,11 +3462,15 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
-                  <Shield className="h-6 w-6 text-white" />
+                  <img 
+                    src="/api/media/MBYC-LOGO-WHITE_1750687226929.png" 
+                    alt="MBYC Logo" 
+                    className="h-8 w-8 object-contain"
+                  />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-white">Admin Panel</h2>
-                  <p className="text-sm text-gray-400">Miami Beach YC</p>
+                  <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
                 </div>
               </div>
               

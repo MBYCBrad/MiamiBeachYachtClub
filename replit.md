@@ -411,6 +411,7 @@ Changelog:
   - Updated application header with official Miami Beach Yacht Club logo from media assets
   - Replaced all text references from Monaco Bay YC to Miami Beach Yacht Club throughout application
   - Updated admin dashboard interface to reflect Miami Beach Yacht Club branding in sidebar and overview section
+  - Replaced shield icon with official MBYC logo in admin panel sidebar with proper sizing and visibility
   - Enhanced logo display with professional styling and proper white logo visibility
   - Database connectivity restored for real-time conversations and messaging functionality
 - June 23, 2025. iPhone-style customer service interface with 3-tab dark mode design completed
