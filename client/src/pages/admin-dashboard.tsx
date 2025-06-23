@@ -2790,7 +2790,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
+                  <span className="text-white font-semibold">${yacht.pricePerHour || '0'}/hour</span>
                   <div className="flex items-center space-x-2">
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
@@ -2996,7 +2996,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-violet-400 font-semibold">${event.ticketPrice || '0'}</span>
+                  <span className="text-white font-semibold">${event.ticketPrice || '0'}</span>
                   <div className="flex items-center space-x-2">
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
