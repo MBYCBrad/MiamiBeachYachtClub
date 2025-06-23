@@ -68,14 +68,14 @@ const CALENDAR_VIEWS = {
 type CalendarView = typeof CALENDAR_VIEWS[keyof typeof CALENDAR_VIEWS];
 
 const EVENT_COLORS = {
-  yacht: 'from-blue-500 to-cyan-500',
-  service: 'from-orange-500 to-red-500',
-  event: 'from-purple-500 to-pink-500'
+  yacht: 'from-purple-600 to-indigo-600',
+  service: 'from-purple-600 to-indigo-600',
+  event: 'from-purple-600 to-indigo-600'
 };
 
 const EVENT_TYPES = {
-  yacht: { label: 'Yacht Booking', icon: Anchor, color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-  service: { label: 'Concierge Service', icon: Sparkles, color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+  yacht: { label: 'Yacht Booking', icon: Anchor, color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
+  service: { label: 'Concierge Service', icon: Sparkles, color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
   event: { label: 'Club Event', icon: CalendarDays, color: 'bg-purple-500/20 text-purple-400 border-purple-500/30' }
 };
 
@@ -298,16 +298,11 @@ const CalendarEventCard = ({ event, onClick, isCompact = false }: {
         p-2 rounded-lg cursor-pointer transition-all duration-200 group relative overflow-hidden
         ${isCompact ? 'mb-1' : 'mb-2'}
         bg-gradient-to-r ${EVENT_COLORS[event.type]} bg-opacity-20
-        border border-opacity-30 hover:border-opacity-50
-        ${event.type === 'yacht' ? 'border-blue-500' : 
-          event.type === 'service' ? 'border-orange-500' : 'border-purple-500'}
+        border border-purple-500 border-opacity-30 hover:border-opacity-50
       `}
     >
       <div className="flex items-center space-x-2">
-        <Icon className={`h-3 w-3 ${
-          event.type === 'yacht' ? 'text-blue-400' : 
-          event.type === 'service' ? 'text-orange-400' : 'text-purple-400'
-        }`} />
+        <Icon className="h-3 w-3 text-purple-400" />
         <span className={`text-xs font-medium truncate text-white ${isCompact ? 'max-w-20' : 'max-w-32'}`}>
           {event.title}
         </span>

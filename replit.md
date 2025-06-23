@@ -506,6 +506,12 @@ Changelog:
   - Removed redundant notifications button from admin overview section header
   - Streamlined admin interface with cleaner button layout focusing on essential Filter functionality
   - Maintained consistent purple-to-blue gradient styling across remaining action buttons
+- June 23, 2025. Calendar event cards updated to purple-to-indigo gradient theme for design consistency
+  - Changed all calendar event cards from blue colors to unified purple-to-indigo gradient (from-purple-600 to-indigo-600)
+  - Updated yacht, service, and club event card backgrounds to consistent purple gradient styling
+  - Modified event type badges and icons to use purple color scheme throughout calendar interface
+  - Applied purple borders and text colors to all calendar event cards for complete visual consistency
+  - Calendar system now matches application-wide purple-to-blue indigo gradient theme
 
 ## Member Experience Feature Status
 
