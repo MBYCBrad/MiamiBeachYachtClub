@@ -462,6 +462,7 @@ Changelog:
   - Updated staff management avatar fallback backgrounds from semi-transparent purple to purple-to-blue gradient
   - Updated admin dashboard event pricing text from violet to white for consistent color scheme
   - Updated admin dashboard yacht pricing text from blue to white for complete color consistency
+  - Updated admin dashboard service pricing text from orange to white for unified color scheme
   - Universal purple-to-blue gradient theme now fully implemented across entire Miami Beach Yacht Club application
 - June 23, 2025. Universal admin styling consistency implemented across all admin pages
   - Applied exact admin overview styling (bg-gray-900/50 border-gray-700/50) to all admin pages systematically

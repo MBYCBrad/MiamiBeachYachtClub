@@ -2901,7 +2901,7 @@ export default function AdminDashboard() {
                 <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-orange-400 font-semibold">${service.pricePerSession}</span>
+                  <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
                     <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                       <Eye className="h-4 w-4" />
