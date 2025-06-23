@@ -1120,7 +1120,7 @@ function AddEventDialog() {
         imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
         images: data.images || []
       };
-      const response = await apiRequest("POST", "/api/admin/events", eventData);
+      const response = await apiRequest("POST", "/api/events", eventData);
       return response.json();
     },
     onSuccess: () => {

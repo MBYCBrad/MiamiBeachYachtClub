@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNotifications } from '@/services/notifications';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,8 @@ interface TokenBalance {
 
 const MemberDashboard: React.FC = () => {
   const { user, logoutMutation } = useAuth();
+  const queryClient = useQueryClient();
+  const { latestNotification } = useNotifications();
   const [activeTab, setActiveTab] = useState<'bookings' | 'services' | 'experiences'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -86,6 +89,16 @@ const MemberDashboard: React.FC = () => {
     queryKey: ['/api/events'],
     enabled: !!user
   });
+
+  // Real-time event updates - listen for new events and refresh data
+  useEffect(() => {
+    if (latestNotification?.type === 'event_added' || 
+        latestNotification?.type === 'new_content' && latestNotification?.data?.contentType === 'event') {
+      // Invalidate events queries to refresh the data in real-time
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      console.log('🔄 Events refreshed due to real-time update:', latestNotification.data);
+    }
+  }, [latestNotification, queryClient]);
 
   // Filter yachts based on membership tier and search criteria
   const filteredYachts = yachts.filter(yacht => {
