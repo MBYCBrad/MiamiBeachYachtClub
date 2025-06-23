@@ -1321,7 +1321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const avatarUrl = `/api/media/${req.file.filename}`;
       
       // Update user's avatar in database
-      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl });
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: avatarUrl });
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1346,7 +1346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update user's avatar in database
-      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl });
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: avatarUrl });
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1382,7 +1382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const generatedAvatarUrl = '/api/media/default-avatar.png';
       
       // Update user's avatar in database
-      const updatedUser = await dbStorage.updateUser(req.user!.id, { avatarUrl: generatedAvatarUrl });
+      const updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: generatedAvatarUrl });
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }

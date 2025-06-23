@@ -48,23 +48,15 @@ export default function MyProfile() {
   // Update form data when user data changes
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData(prev => ({
         username: user.username || '',
         email: user.email || '',
         phone: user.phone || '',
         location: user.location || '',
         bio: user.bio || '',
-        notifications: {
-          email: true,
-          sms: false,
-          push: true
-        },
-        privacy: {
-          showEmail: false,
-          showPhone: false,
-          showLocation: true
-        }
-      });
+        notifications: prev.notifications,
+        privacy: prev.privacy
+      }));
     }
   }, [user]);
 
@@ -275,11 +267,19 @@ export default function MyProfile() {
             <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader className="text-center pb-4">
                 <div className="relative mx-auto w-24 h-24 mb-4">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
-                    <span className="text-white text-2xl font-semibold">
-                      {user.username?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {user.profileImage ? (
+                    <img
+                      src={user.profileImage}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full object-cover border-2 border-gray-600"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                      <span className="text-white text-2xl font-semibold">
+                        {user.username?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   {isEditing && (
                     <Button 
                       size="sm" 
@@ -328,7 +328,7 @@ export default function MyProfile() {
                   <Label htmlFor="username" className="text-gray-300">Username</Label>
                   <Input
                     id="username"
-                    value={formData.username}
+                    value={isEditing ? formData.username : (user?.username || '')}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -339,7 +339,7 @@ export default function MyProfile() {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email}
+                    value={isEditing ? formData.email : (user?.email || '')}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -349,7 +349,7 @@ export default function MyProfile() {
                   <Label htmlFor="phone" className="text-gray-300">Phone</Label>
                   <Input
                     id="phone"
-                    value={formData.phone}
+                    value={isEditing ? formData.phone : (user?.phone || '')}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -359,7 +359,7 @@ export default function MyProfile() {
                   <Label htmlFor="location" className="text-gray-300">Location</Label>
                   <Input
                     id="location"
-                    value={formData.location}
+                    value={isEditing ? formData.location : (user?.location || '')}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -369,7 +369,7 @@ export default function MyProfile() {
                   <Label htmlFor="bio" className="text-gray-300">Bio</Label>
                   <Textarea
                     id="bio"
-                    value={formData.bio}
+                    value={isEditing ? formData.bio : (user?.bio || '')}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     disabled={!isEditing}
                     placeholder="Tell us about yourself..."
