@@ -208,7 +208,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const pastYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) <= now);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen bg-black text-white pb-20">
       {/* Cinematic Video Header */}
       <div className="relative h-96 overflow-hidden">
         {heroVideo && (

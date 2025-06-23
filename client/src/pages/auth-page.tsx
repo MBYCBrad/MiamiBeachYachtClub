@@ -144,7 +144,7 @@ const PremiumAuthPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
         <video

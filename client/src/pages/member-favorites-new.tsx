@@ -279,7 +279,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen bg-black text-white pb-20">
       {/* Video Cover Header */}
       <div className="relative h-96 overflow-hidden">
         {/* Hero Video Background */}
