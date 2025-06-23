@@ -3561,13 +3561,11 @@ export default function AdminDashboard() {
           ref={sidebarRef}
           initial={{ x: -300, opacity: 0 }}
           animate={{ 
-            x: sidebarCollapsed ? (isMobile ? -320 : -300) : 0,
-            opacity: sidebarCollapsed ? (isMobile ? 0 : 1) : 1
+            x: sidebarCollapsed ? -320 : 0,
+            opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ type: "spring", stiffness: 200, damping: 30 }}
-          className={`w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0 z-50 ${
-            isMobile ? 'fixed h-full' : ''
-          }`}
+          className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col fixed h-full flex-shrink-0 z-50"
           drag={isMobile ? "x" : false}
           dragConstraints={{ left: -320, right: 0 }}
           onPan={handlePan}
@@ -3690,11 +3688,10 @@ export default function AdminDashboard() {
         {/* Main Content */}
         <motion.div 
           animate={{ 
-            marginLeft: sidebarCollapsed ? 0 : 320,
-            width: sidebarCollapsed ? '100%' : 'calc(100% - 320px)'
+            marginLeft: sidebarCollapsed ? 0 : 320
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="flex-1 overflow-y-auto p-8"
+          className="flex-1 overflow-y-auto p-8 w-full"
         >
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
