@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, messages, favorites } from "@shared/schema";
+import { users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, messages, favorites, crewMembers, crewAssignments } from "@shared/schema";
 import { UserRole, MembershipTier } from "@shared/schema";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
@@ -699,6 +699,118 @@ export async function seedDatabase() {
 
     const createdEvents = await db.insert(events).values(eventData).returning();
     console.log(`✅ Created ${createdEvents.length} exclusive events`);
+
+    // Create crew member data for real-time database operations
+    const crewData = [
+      {
+        name: "Captain Marcus Rodriguez",
+        role: "Captain",
+        specialization: "Luxury Yacht Operations",
+        rating: "4.9",
+        experience: 15,
+        certifications: ["Master Mariner License", "STCW 95", "MCA Large Yacht Code"],
+        availability: "available",
+        phone: "+1-305-555-0101",
+        email: "marcus.rodriguez@mbyc.com",
+        languages: ["English", "Spanish", "Italian"],
+        currentAssignment: null
+      },
+      {
+        name: "First Mate Sarah Chen",
+        role: "First Mate",
+        specialization: "Navigation & Safety",
+        rating: "4.8",
+        experience: 8,
+        certifications: ["OOW Yacht License", "STCW 95", "Advanced Firefighting"],
+        availability: "available",
+        phone: "+1-305-555-0102",
+        email: "sarah.chen@mbyc.com",
+        languages: ["English", "Mandarin"],
+        currentAssignment: null
+      },
+      {
+        name: "Chef Antoine Dubois",
+        role: "Chef",
+        specialization: "Fine Dining & Wine Pairing",
+        rating: "4.9",
+        experience: 12,
+        certifications: ["Culinary Arts Degree", "Wine Sommelier", "Food Safety Certification"],
+        availability: "assigned",
+        phone: "+1-305-555-0103",
+        email: "antoine.dubois@mbyc.com",
+        languages: ["English", "French"],
+        currentAssignment: "Marina Breeze - VIP Charter"
+      },
+      {
+        name: "Stewardess Maria Santos",
+        role: "Steward",
+        specialization: "Guest Services & Hospitality",
+        rating: "4.7",
+        experience: 6,
+        certifications: ["STCW 95", "Guest Relations Certificate", "Interior Management"],
+        availability: "available",
+        phone: "+1-305-555-0104",
+        email: "maria.santos@mbyc.com",
+        languages: ["English", "Spanish", "Portuguese"],
+        currentAssignment: null
+      },
+      {
+        name: "Deckhand James Wilson",
+        role: "Deckhand",
+        specialization: "Maintenance & Water Sports",
+        rating: "4.6",
+        experience: 4,
+        certifications: ["STCW 95", "Water Sports Instructor", "Tender Operations"],
+        availability: "available",
+        phone: "+1-305-555-0105",
+        email: "james.wilson@mbyc.com",
+        languages: ["English"],
+        currentAssignment: null
+      },
+      {
+        name: "Captain Isabella Martinez",
+        role: "Captain",
+        specialization: "Charter Operations",
+        rating: "4.8",
+        experience: 11,
+        certifications: ["Master Mariner License", "STCW 95", "Charter Operations"],
+        availability: "assigned",
+        phone: "+1-305-555-0106",
+        email: "isabella.martinez@mbyc.com",
+        languages: ["English", "Spanish"],
+        currentAssignment: "Ocean Paradise - Corporate Event"
+      }
+    ];
+
+    const createdCrewMembers = await db.insert(crewMembers).values(crewData).returning();
+    console.log(`✅ Created ${createdCrewMembers.length} crew members for real-time operations`);
+
+    // Create crew assignments for yacht bookings
+    const assignmentData = [
+      {
+        id: "assignment_1",
+        bookingId: createdBookings[0]?.id || 1,
+        captainId: createdCrewMembers[0]?.id || 1,
+        coordinatorId: createdCrewMembers[1]?.id || 2,
+        crewMemberIds: [createdCrewMembers[2]?.id || 3, createdCrewMembers[3]?.id || 4],
+        status: "assigned" as const,
+        briefingTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
+        notes: "VIP charter service - ensure premium amenities are prepared"
+      },
+      {
+        id: "assignment_2", 
+        bookingId: createdBookings[1]?.id || 2,
+        captainId: createdCrewMembers[5]?.id || 6,
+        coordinatorId: createdCrewMembers[1]?.id || 2,
+        crewMemberIds: [createdCrewMembers[4]?.id || 5],
+        status: "planned" as const,
+        briefingTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
+        notes: "Corporate event - prepare conference setup and catering coordination"
+      }
+    ];
+
+    const createdAssignments = await db.insert(crewAssignments).values(assignmentData).returning();
+    console.log(`✅ Created ${createdAssignments.length} crew assignments for coordination`);
 
     console.log("🎉 Database seeding completed successfully!");
     console.log("Login credentials:");

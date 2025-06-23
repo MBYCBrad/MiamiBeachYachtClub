@@ -7,7 +7,11 @@ export const UserRole = {
   MEMBER: 'member',
   YACHT_OWNER: 'yacht_owner', 
   SERVICE_PROVIDER: 'service_provider',
-  ADMIN: 'admin'
+  ADMIN: 'admin',
+  STAFF_CREW_MANAGER: 'staff_crew_manager',
+  STAFF_CUSTOMER_SUPPORT: 'staff_customer_support', 
+  STAFF_CONCIERGE: 'staff_concierge',
+  STAFF_MANAGEMENT: 'staff_management'
 } as const;
 
 export const MembershipTier = {
@@ -40,6 +44,19 @@ export const users = pgTable("users", {
     events: true,
     marketing: false
   }),
+  permissions: jsonb("permissions").$type<{
+    crew?: boolean;
+    customerSupport?: boolean;
+    concierge?: boolean;
+    management?: boolean;
+    analytics?: boolean;
+    users?: boolean;
+    yachts?: boolean;
+    services?: boolean;
+    events?: boolean;
+    payments?: boolean;
+  }>(),
+  createdBy: integer("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -207,6 +224,11 @@ export const insertMediaAssetSchema = createInsertSchema(mediaAssets).omit({
   createdAt: true,
 });
 
+export type CrewMember = typeof crewMembers.$inferSelect;
+export type InsertCrewMember = z.infer<typeof insertCrewMemberSchema>;
+export type CrewAssignment = typeof crewAssignments.$inferSelect; 
+export type InsertCrewAssignment = z.infer<typeof insertCrewAssignmentSchema>;
+
 export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -245,6 +267,43 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const crewMembers = pgTable("crew_members", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  role: text("role").notNull(), // Captain, First Mate, Chef, Steward, Deckhand
+  specialization: text("specialization").notNull(),
+  rating: decimal("rating", { precision: 2, scale: 1 }).notNull(),
+  experience: integer("experience").notNull(), // years
+  certifications: jsonb("certifications").$type<string[]>().notNull(),
+  availability: text("availability").notNull().default("available"), // available, assigned, off-duty
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  languages: jsonb("languages").$type<string[]>().notNull(),
+  currentAssignment: text("current_assignment"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const crewAssignments = pgTable("crew_assignments", {
+  id: text("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  crewMemberIds: jsonb("crew_member_ids").$type<number[]>().notNull(),
+  captainId: integer("captain_id").references(() => crewMembers.id).notNull(),
+  coordinatorId: integer("coordinator_id").references(() => crewMembers.id).notNull(),
+  status: text("status").notNull().default("planned"), // planned, assigned, active, completed
+  briefingTime: timestamp("briefing_time").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCrewMemberSchema = createInsertSchema(crewMembers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCrewAssignmentSchema = createInsertSchema(crewAssignments).omit({
+  createdAt: true,
 });
 
 export const notifications = pgTable("notifications", {

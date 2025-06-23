@@ -64,22 +64,25 @@ export default function CrewManagementPage() {
   const [assignmentDialog, setAssignmentDialog] = useState(false);
 
   // Fetch active bookings requiring crew assignment
-  const { data: activeBookings = [] } = useQuery<YachtBooking[]>({
+  const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
     queryKey: ["/api/admin/bookings"],
     staleTime: 2 * 60 * 1000,
   });
 
   // Fetch available crew members
-  const { data: crewMembers = [] } = useQuery<CrewMember[]>({
+  const { data: crewMembers = [], isLoading: crewLoading, error: crewError } = useQuery<CrewMember[]>({
     queryKey: ["/api/crew/members"],
     staleTime: 5 * 60 * 1000,
   });
 
   // Fetch crew assignments
-  const { data: crewAssignments = [] } = useQuery<CrewAssignment[]>({
+  const { data: crewAssignments = [], isLoading: assignmentsLoading, error: assignmentsError } = useQuery<CrewAssignment[]>({
     queryKey: ["/api/crew/assignments"],
     staleTime: 2 * 60 * 1000,
   });
+
+  const isLoading = bookingsLoading || crewLoading || assignmentsLoading;
+  const hasError = bookingsError || crewError || assignmentsError;
 
   const createCrewAssignmentMutation = useMutation({
     mutationFn: async (assignmentData: any) => {
@@ -111,8 +114,8 @@ export default function CrewManagementPage() {
     },
   });
 
-  const filteredCrewMembers = crewMembers.filter(member => 
-    crewFilter === "all" || member.availability === crewFilter
+  const filteredCrewMembers = (crewMembers || []).filter(member => 
+    crewFilter === "all" || member?.availability === crewFilter
   );
 
   const getCrewRoleIcon = (role: string) => {
@@ -133,12 +136,37 @@ export default function CrewManagementPage() {
       'Silver': 2,
       'Bronze': 1
     };
-    return membershipPriority[booking.member.membershipTier as keyof typeof membershipPriority] || 1;
+    return membershipPriority[booking.member?.membershipTier as keyof typeof membershipPriority] || 1;
   };
 
-  const prioritizedBookings = activeBookings
-    .filter(booking => booking.status === 'confirmed')
+  const prioritizedBookings = (activeBookings || [])
+    .filter(booking => booking?.status === 'confirmed' && booking?.member)
     .sort((a, b) => getBookingPriority(b) - getBookingPriority(a));
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+          <p className="text-purple-200">Loading crew management system...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="text-red-400 text-6xl">⚠️</div>
+          <p className="text-red-200">Error loading crew management data</p>
+          <p className="text-slate-400 text-sm">Please refresh the page or contact support</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">

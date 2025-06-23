@@ -575,6 +575,90 @@ const AdminDashboard: React.FC = () => {
                             )}
                           />
 
+                          {/* Permission Controls for Staff Roles */}
+                          {userForm.watch('role')?.startsWith('staff_') && (
+                            <div className="col-span-2 space-y-4">
+                              <div className="border border-gray-600 rounded-lg p-4 bg-gray-800/30">
+                                <h4 className="text-white font-medium mb-3 flex items-center">
+                                  <Settings className="h-4 w-4 mr-2 text-purple-400" />
+                                  Admin Area Permissions
+                                </h4>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                      defaultChecked={userForm.watch('role') === UserRole.STAFF_CREW_MANAGER}
+                                    />
+                                    <span>Crew Management</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                      defaultChecked={userForm.watch('role') === UserRole.STAFF_CUSTOMER_SUPPORT}
+                                    />
+                                    <span>Customer Support</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                      defaultChecked={userForm.watch('role') === UserRole.STAFF_CONCIERGE}
+                                    />
+                                    <span>Concierge Services</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                      defaultChecked={userForm.watch('role') === UserRole.STAFF_MANAGEMENT}
+                                    />
+                                    <span>Management Analytics</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                    />
+                                    <span>User Management</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                    />
+                                    <span>Yacht Management</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                    />
+                                    <span>Services Management</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                    />
+                                    <span>Events Management</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2 text-sm text-gray-300">
+                                    <input 
+                                      type="checkbox" 
+                                      className="rounded border-gray-600 bg-gray-700"
+                                    />
+                                    <span>Payments & Analytics</span>
+                                  </label>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-2">
+                                  Grant specific access to admin sections based on staff role responsibilities
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
                           <div className="grid grid-cols-2 gap-4">
                             <FormField
                               control={userForm.control}
@@ -593,6 +677,10 @@ const AdminDashboard: React.FC = () => {
                                       <SelectItem value={UserRole.YACHT_OWNER}>Yacht Owner</SelectItem>
                                       <SelectItem value={UserRole.SERVICE_PROVIDER}>Service Provider</SelectItem>
                                       <SelectItem value={UserRole.ADMIN}>Administrator</SelectItem>
+                                      <SelectItem value={UserRole.STAFF_CREW_MANAGER}>Staff - Crew Manager</SelectItem>
+                                      <SelectItem value={UserRole.STAFF_CUSTOMER_SUPPORT}>Staff - Customer Support</SelectItem>
+                                      <SelectItem value={UserRole.STAFF_CONCIERGE}>Staff - Concierge</SelectItem>
+                                      <SelectItem value={UserRole.STAFF_MANAGEMENT}>Staff - Management</SelectItem>
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />

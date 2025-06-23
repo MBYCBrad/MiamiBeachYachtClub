@@ -347,6 +347,10 @@ function AddUserDialog() {
                 <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                 <SelectItem value="service_provider">Service Provider</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
+                <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
+                <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
+                <SelectItem value="staff_management">Staff - Management</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -447,6 +451,10 @@ function EditUserDialog({ user: userData }: { user: any }) {
                 <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                 <SelectItem value="service_provider">Service Provider</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
+                <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
+                <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
+                <SelectItem value="staff_management">Staff - Management</SelectItem>
               </SelectContent>
             </Select>
           </div>

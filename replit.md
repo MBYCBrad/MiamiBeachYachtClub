@@ -377,6 +377,16 @@ Changelog:
   - Real-time data synchronization from yacht bookings, service bookings, and event registrations
   - Professional UI with luxury yacht club theming, gradient backgrounds, and Framer Motion animations
   - Calendar accessible via /calendar route with role-based permissions and responsive design
+- June 23, 2025. Complete hierarchical staff management system with granular permission controls implemented
+  - Built comprehensive admin user creation system with role-based permissions for staff positions
+  - Added 4 new staff roles: Staff - Crew Manager, Staff - Customer Support, Staff - Concierge, Staff - Management
+  - Implemented granular permission system where admin can assign specific access to different admin sections
+  - Database schema updated with permissions and createdBy columns for hierarchical user management
+  - Fixed crew management API endpoints that had "storage is not defined" errors by updating to use dbStorage
+  - Updated all admin dashboard role selection dropdowns to include new staff roles with proper functionality
+  - Staff management system allows admin to create users underneath with specific role permissions
+  - Complete hierarchical permission control ensuring staff only access assigned admin areas
+  - Admin maintains full oversight while delegating specific operational responsibilities to staff
 
 ## Member Experience Feature Status
 

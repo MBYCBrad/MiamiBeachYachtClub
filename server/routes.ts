@@ -3281,39 +3281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all crew members
   app.get("/api/crew/members", async (req, res) => {
     try {
-      // Generate crew members from user data with yacht service roles
-      const users = await dbStorage.getAllUsers();
-      const crewRoles = ['Captain', 'First Mate', 'Chef', 'Steward', 'Deckhand', 'Coordinator', 'Bartender', 'Engineer'];
-      const specializations = [
-        'Luxury Service', 'Fine Dining', 'Water Sports', 'Navigation', 'Maintenance', 
-        'Guest Relations', 'Entertainment', 'Safety & Security', 'Concierge'
-      ];
-      
-      const crewMembers = users.filter(u => u.role === 'Service Provider' || u.role === 'Admin').map((user, index) => {
-        const role = crewRoles[index % crewRoles.length];
-        const specialization = specializations[index % specializations.length];
-        const isAvailable = Math.random() > 0.3; // 70% availability rate
-        
-        return {
-          id: user.id,
-          name: user.username,
-          role,
-          specialization,
-          rating: Number((4.2 + Math.random() * 0.8).toFixed(1)),
-          experience: Math.floor(Math.random() * 15) + 2,
-          certifications: [
-            'STCW Basic Safety Training',
-            role === 'Captain' ? 'Master License' : 'Crew Certification',
-            specialization.includes('Safety') ? 'First Aid Certified' : 'Service Excellence'
-          ],
-          availability: isAvailable ? 'available' : (Math.random() > 0.5 ? 'assigned' : 'off-duty'),
-          phone: user.phone || `+1-555-${String(user.id).padStart(4, '0')}`,
-          email: user.email,
-          languages: ['English', index % 3 === 0 ? 'Spanish' : index % 3 === 1 ? 'French' : 'Italian'],
-          currentAssignment: !isAvailable ? `Yacht Service Assignment #${Math.floor(Math.random() * 100)}` : undefined
-        };
-      });
-      
+      const crewMembers = await dbStorage.getCrewMembers();
       res.json(crewMembers);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

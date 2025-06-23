@@ -1,13 +1,14 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
-  conversations, phoneCalls, messageAnalytics,
+  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
   type Review, type InsertReview, type MediaAsset, type InsertMediaAsset, type Favorite, type InsertFavorite, 
   type Message, type InsertMessage, type Notification, type InsertNotification,
   type Conversation, type InsertConversation, type PhoneCall, type InsertPhoneCall,
-  type MessageAnalytics, type InsertMessageAnalytics, UserRole, MembershipTier
+  type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
+  type CrewAssignment, type InsertCrewAssignment, UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -102,6 +103,17 @@ export interface IStorage {
   markAllNotificationsAsRead(userId: number): Promise<void>;
   deleteNotification(id: number): Promise<boolean>;
   getUnreadNotificationCount(userId: number): Promise<number>;
+
+  // Crew Management methods
+  getCrewMembers(): Promise<CrewMember[]>;
+  getCrewMember(id: number): Promise<CrewMember | undefined>;
+  createCrewMember(crewMember: InsertCrewMember): Promise<CrewMember>;
+  updateCrewMember(id: number, crewMember: Partial<InsertCrewMember>): Promise<CrewMember | undefined>;
+  deleteCrewMember(id: number): Promise<boolean>;
+  getCrewAssignments(): Promise<CrewAssignment[]>;
+  getCrewAssignment(id: string): Promise<CrewAssignment | undefined>;
+  createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment>;
+  updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined>;
 
   sessionStore: session.SessionStore;
 }
@@ -651,6 +663,56 @@ export class DatabaseStorage implements IStorage {
     }
 
     return conversations.sort((a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime());
+  }
+
+  // Crew Management Methods
+  async getCrewMembers(): Promise<CrewMember[]> {
+    return db.select().from(crewMembers);
+  }
+
+  async getCrewMember(id: number): Promise<CrewMember | undefined> {
+    const [member] = await db.select().from(crewMembers).where(eq(crewMembers.id, id));
+    return member;
+  }
+
+  async createCrewMember(crewMember: InsertCrewMember): Promise<CrewMember> {
+    const [created] = await db.insert(crewMembers).values(crewMember).returning();
+    return created;
+  }
+
+  async updateCrewMember(id: number, crewMember: Partial<InsertCrewMember>): Promise<CrewMember | undefined> {
+    const [updated] = await db.update(crewMembers)
+      .set(crewMember)
+      .where(eq(crewMembers.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteCrewMember(id: number): Promise<boolean> {
+    const result = await db.delete(crewMembers).where(eq(crewMembers.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async getCrewAssignments(): Promise<CrewAssignment[]> {
+    return db.select().from(crewAssignments);
+  }
+
+  async getCrewAssignment(id: string): Promise<CrewAssignment | undefined> {
+    const [assignment] = await db.select().from(crewAssignments).where(eq(crewAssignments.id, id));
+    return assignment;
+  }
+
+  async createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment> {
+    const [created] = await db.insert(crewAssignments).values(assignment).returning();
+    return created;
+  }
+
+  async updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined> {
+    const [updated] = await db.update(crewAssignments)
+      .set(assignment)
+      .where(eq(crewAssignments.id, id))
+      .returning();
+    return updated;
   }
 
   // Get messages for a conversation (generated from booking data)
