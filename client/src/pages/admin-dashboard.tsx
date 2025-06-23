@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +42,8 @@ import {
   Trash2,
   LogOut,
   ExternalLink,
+  Menu,
+  X,
   CheckCircle,
   AlertCircle,
   XCircle,
@@ -105,7 +107,8 @@ const sidebarItems = [
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
+  { id: 'logout', label: 'Log Out', icon: LogOut, color: 'from-red-500 to-red-600' }
 ];
 
 const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
@@ -1652,7 +1655,62 @@ function DeleteEventDialog({ event }: { event: any }) {
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-collapse sidebar when navigating on mobile
+  const handleSectionChange = (sectionId: string) => {
+    if (sectionId === 'logout') {
+      logoutMutation.mutate();
+      return;
+    }
+    
+    setActiveSection(sectionId);
+    if (isMobile) {
+      setSidebarCollapsed(true);
+    }
+  };
+
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  // Handle swipe gestures for mobile
+  const handlePan = (event: any, info: PanInfo) => {
+    if (!isMobile) return;
+    
+    const { offset, velocity } = info;
+    const threshold = 100;
+    const velocityThreshold = 500;
+
+    if (offset.x > threshold || velocity.x > velocityThreshold) {
+      // Swipe right - open sidebar
+      setSidebarCollapsed(false);
+    } else if (offset.x < -threshold || velocity.x < -velocityThreshold) {
+      // Swipe left - close sidebar
+      setSidebarCollapsed(true);
+    }
+  };
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
@@ -3450,13 +3508,51 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile overlay */}
+      {isMobile && !sidebarCollapsed && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+
+      {/* Hamburger menu button */}
+      <motion.button
+        className={`fixed top-4 left-4 z-50 p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300 ${
+          sidebarCollapsed ? 'translate-x-0' : isMobile ? 'translate-x-80' : '-translate-x-96'
+        }`}
+        onClick={toggleSidebar}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <motion.div
+          animate={{ rotate: sidebarCollapsed ? 0 : 90 }}
+          transition={{ duration: 0.3 }}
+        >
+          {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+        </motion.div>
+      </motion.button>
+
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <motion.div
+          ref={sidebarRef}
           initial={{ x: -300, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
+          animate={{ 
+            x: sidebarCollapsed ? (isMobile ? -320 : -300) : 0,
+            opacity: sidebarCollapsed ? (isMobile ? 0 : 1) : 1
+          }}
           transition={{ type: "spring", stiffness: 200, damping: 30 }}
-          className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0"
+          className={`w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0 z-50 ${
+            isMobile ? 'fixed h-full' : ''
+          }`}
+          drag={isMobile ? "x" : false}
+          dragConstraints={{ left: -320, right: 0 }}
+          onPan={handlePan}
+          dragElastic={0.1}
         >
           {/* Logo */}
           <div className="p-6 border-b border-gray-700/50">
@@ -3514,7 +3610,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
-                    onClick={() => setActiveSection(item.id)}
+                    onClick={() => handleSectionChange(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden transition-all duration-300 ${
                       isActive 
                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-600/30' 
@@ -3568,13 +3664,14 @@ export default function AdminDashboard() {
                 <p className="text-sm font-medium text-white truncate">{user?.username || 'Admin User'}</p>
                 <p className="text-xs text-gray-400">System Administrator</p>
               </div>
+              
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="text-gray-400 hover:text-white"
-                onClick={() => logoutMutation.mutate()}
+                onClick={toggleSidebar}
               >
-                <LogOut className="h-4 w-4" />
+                <Menu className="h-4 w-4" />
               </Button>
             </div>
           </div>
