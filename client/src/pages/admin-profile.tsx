@@ -235,7 +235,7 @@ export default function AdminProfile() {
             className="lg:col-span-1"
           >
             <Card className="bg-gray-800/50 border-gray-700/50 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-purple-600/20 to-blue-600/20" />
+              <div className="absolute top-0 left-0 w-full h-32 bg-gray-700/20" />
               
               <CardContent className="p-8 text-center relative">
                 <div className="relative inline-block group">
@@ -244,7 +244,7 @@ export default function AdminProfile() {
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-blue-600 p-1">
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-500 to-gray-600 p-1">
                       <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
                         {profileData.avatar ? (
                           profileData.avatar.startsWith('data:') ? (
@@ -271,7 +271,7 @@ export default function AdminProfile() {
                 </div>
 
                 <h3 className="text-xl font-semibold text-white mb-1">{profileData.username}</h3>
-                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                <Badge variant="secondary" className="bg-gray-600/20 text-gray-300 border-gray-600/30">
                   System Administrator
                 </Badge>
                 <p className="text-gray-400 mt-2">{profileData.email}</p>
@@ -400,7 +400,7 @@ export default function AdminProfile() {
                     <Button
                       onClick={handleSave}
                       disabled={updateProfileMutation.isPending}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      className="bg-gray-600 hover:bg-gray-700"
                     >
                       {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                     </Button>
@@ -468,7 +468,7 @@ export default function AdminProfile() {
                 <Button
                   onClick={handlePasswordChange}
                   disabled={changePasswordMutation.isPending || !passwordData.current || !passwordData.new}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-gray-600 hover:bg-gray-700"
                 >
                   {changePasswordMutation.isPending ? "Updating..." : "Update Password"}
                 </Button>
@@ -571,11 +571,11 @@ export default function AdminProfile() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-purple-500/50"
+                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-gray-500/50"
                     onClick={() => setAvatarOption('upload')}
                   >
                     <div className="text-center">
-                      <Image className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+                      <Image className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-white font-semibold mb-2">Upload Photo</h3>
                       <p className="text-gray-400 text-sm">Upload a custom image from your device</p>
                     </div>
@@ -584,11 +584,11 @@ export default function AdminProfile() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-purple-500/50"
+                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-gray-500/50"
                     onClick={() => setAvatarOption('emoji')}
                   >
                     <div className="text-center">
-                      <Smile className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+                      <Smile className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-white font-semibold mb-2">Choose Avatar</h3>
                       <p className="text-gray-400 text-sm">Select from emoji avatars</p>
                     </div>
@@ -597,11 +597,11 @@ export default function AdminProfile() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-purple-500/50"
+                    className="bg-gray-700/50 rounded-xl p-6 cursor-pointer border-2 border-transparent hover:border-gray-500/50"
                     onClick={() => setAvatarOption('generate')}
                   >
                     <div className="text-center">
-                      <Wand2 className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                      <Wand2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-white font-semibold mb-2">Generate</h3>
                       <p className="text-gray-400 text-sm">Magically generate an avatar</p>
                     </div>
@@ -619,7 +619,7 @@ export default function AdminProfile() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="border-2 border-dashed border-gray-600 rounded-xl p-12 cursor-pointer hover:border-purple-500/50"
+                    className="border-2 border-dashed border-gray-600 rounded-xl p-12 cursor-pointer hover:border-gray-500/50"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
