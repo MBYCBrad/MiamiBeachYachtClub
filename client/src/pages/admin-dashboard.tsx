@@ -2892,7 +2892,7 @@ export default function AdminDashboard() {
                   />
                 )}
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
                     {service.category}
                   </Badge>
                 </div>
