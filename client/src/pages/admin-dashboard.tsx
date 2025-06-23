@@ -1690,7 +1690,8 @@ export default function AdminDashboard() {
     refetchInterval: 30000
   });
 
-  const renderOverview = () => (
+  const renderOverview = () => {
+    return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -2588,261 +2589,266 @@ export default function AdminDashboard() {
         </Card>
       )}
     </motion.div>
-  );
+    );
+  };
 
-  const renderUsers = () => (
-    <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
-        >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            User Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage member accounts, permissions, and memberships
-          </motion.p>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <AddUserDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Users Table */}
-      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Users className="h-5 w-5 mr-2 text-purple-500" />
-            Member Directory
-          </CardTitle>
-          <CardDescription>All registered yacht club members</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users?.map((user: any, index: number) => (
-                  <motion.tr
-                    key={user.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-white font-medium">{user.username}</p>
-                          <p className="text-sm text-gray-400">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Badge className={`${
-                        user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                        user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                        user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                        'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                      }`}>
-                        {user.membershipTier}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <EditUserDialog user={user} />
-                        <DeleteUserDialog user={user} />
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-      </motion.div>
-    </div>
-  );
-
-  const renderYachts = () => {
+  const renderUsers = () => {
     return (
-    <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
-        >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            Fleet Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage yacht fleet, availability, and specifications
-          </motion.p>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <AddYachtDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Yachts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {yachts?.map((yacht: any, index: number) => (
+      <div className="min-h-screen bg-black text-white relative">
+        {/* Rolls Royce Starfield Background */}
+        <div className="rolls-royce-starfield"></div>
+        {/* Content */}
+        <div className="relative z-10 p-8">
           <motion.div
-            key={yacht.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8"
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
-              <div className="relative">
-                <img 
-                  src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
-                  alt={yacht.name}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 right-4">
-                  <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
-                    {yacht.isAvailable ? 'Available' : 'Unavailable'}
-                  </Badge>
-                </div>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <motion.h1 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-5xl font-bold text-white mb-2 tracking-tight"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+                >
+                  User Management
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-lg text-gray-400"
+                >
+                  Manage member accounts, permissions, and memberships
+                </motion.p>
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-gray-400">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{yacht.location}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-gray-400">
-                    <span className="text-sm">Size: {yacht.size}ft</span>
-                    <span className="text-sm">Capacity: {yacht.capacity}</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
-                  <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <EditYachtDialog yacht={yacht} />
-                    <DeleteYachtDialog yacht={yacht} />
-                  </div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center space-x-4"
+              >
+                <AddUserDialog />
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Users Table */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-purple-500" />
+                  Member Directory
+                </CardTitle>
+                <CardDescription>All registered yacht club members</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-700">
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users?.map((user: any, index: number) => (
+                        <motion.tr
+                          key={user.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors"
+                        >
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                                  {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-white font-medium">{user.username}</p>
+                                <p className="text-sm text-gray-400">{user.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge className={`${
+                              user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                              user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                              'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                            }`}>
+                              {user.membershipTier}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="text-gray-400">{new Date(user.createdAt).toLocaleDateString()}</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-2">
+                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <EditUserDialog user={user} />
+                              <DeleteUserDialog user={user} />
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-        ))}
+        </div>
       </div>
-      </motion.div>
-    </div>
-  );
+    );
+  };
+
+  const renderYachts = () => {
+    return (
+      <div className="min-h-screen bg-black text-white relative">
+        {/* Rolls Royce Starfield Background */}
+        <div className="rolls-royce-starfield"></div>
+        {/* Content */}
+        <div className="relative z-10 p-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <motion.h1 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-5xl font-bold text-white mb-2 tracking-tight"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+                >
+                  Fleet Management
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-lg text-gray-400"
+                >
+                  Manage yacht fleet, availability, and specifications
+                </motion.p>
+              </div>
+        
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center space-x-4"
+              >
+                <AddYachtDialog />
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Yachts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {yachts?.map((yacht: any, index: number) => (
+                <motion.div
+                  key={yacht.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+                    <div className="relative">
+                      <img 
+                        src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                        alt={yacht.name}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-4 right-4">
+                        <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                          {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-gray-400">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <span className="text-sm">{yacht.location}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-gray-400">
+                          <span className="text-sm">Size: {yacht.size}ft</span>
+                          <span className="text-sm">Capacity: {yacht.capacity}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-blue-400 font-semibold">${yacht.pricePerHour || '0'}/hour</span>
+                        <div className="flex items-center space-x-2">
+                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <EditYachtDialog yacht={yacht} />
+                          <DeleteYachtDialog yacht={yacht} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
 
   const renderServices = () => {
     return (
-    <div className="min-h-screen bg-black text-white relative">
-      {/* Rolls Royce Starfield Background */}
-      <div className="rolls-royce-starfield"></div>
-      {/* Content */}
-      <div className="relative z-10 p-8">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-8"
-        >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+      <div className="min-h-screen bg-black text-white relative">
+        {/* Rolls Royce Starfield Background */}
+        <div className="rolls-royce-starfield"></div>
+        {/* Content */}
+        <div className="relative z-10 p-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-8"
           >
-            Service Management
-          </motion.h1>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <motion.h1 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-5xl font-bold text-white mb-2 tracking-tight"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+                >
+                  Service Management
+                </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2941,7 +2947,7 @@ export default function AdminDashboard() {
 
   const renderEvents = () => {
     return (
-    <div className="min-h-screen bg-black text-white relative">
+      <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
       {/* Content */}
@@ -3045,7 +3051,7 @@ export default function AdminDashboard() {
 
   const renderPayments = () => {
     return (
-    <div className="min-h-screen bg-black text-white relative">
+      <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
       {/* Content */}
@@ -3350,7 +3356,7 @@ export default function AdminDashboard() {
 
   const renderSettings = () => {
     return (
-    <div className="min-h-screen bg-black text-white relative">
+      <div className="min-h-screen bg-black text-white relative">
       {/* Rolls Royce Starfield Background */}
       <div className="rolls-royce-starfield"></div>
       {/* Content */}
@@ -3494,7 +3500,8 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background relative">
