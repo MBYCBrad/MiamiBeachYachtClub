@@ -3529,37 +3529,18 @@ export default function AdminDashboard() {
         <Menu className="h-5 w-5" />
       </motion.button>
 
-      {/* Close button - animated from right side when menu is open */}
-      <AnimatePresence>
-        {!sidebarCollapsed && (
-          <motion.button
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 300, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed top-4 right-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
-            onClick={toggleSidebar}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <X className="h-5 w-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+
 
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <motion.div
           ref={sidebarRef}
-          initial={{ x: -300, opacity: 0 }}
           animate={{ 
-            x: sidebarCollapsed ? (isMobile ? -320 : -300) : 0,
-            opacity: sidebarCollapsed ? (isMobile ? 0 : 1) : 1
+            width: sidebarCollapsed ? 0 : 320,
+            opacity: sidebarCollapsed ? 0 : 1
           }}
-          transition={{ type: "spring", stiffness: 200, damping: 30 }}
-          className={`w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0 z-50 ${
-            isMobile ? 'fixed h-full' : ''
-          }`}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col relative flex-shrink-0 z-50 overflow-hidden"
           drag={isMobile ? "x" : false}
           dragConstraints={{ left: -320, right: 0 }}
           onPan={handlePan}
@@ -3573,18 +3554,33 @@ export default function AdminDashboard() {
               transition={{ delay: 0.2 }}
               className="flex items-center justify-between"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  <img 
-                    src="/api/media/MBYC-LOGO-WHITE_1750688569645.png" 
-                    alt="MBYC Logo" 
-                    className="w-8 h-8 object-contain"
-                  />
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                    <img 
+                      src="/api/media/MBYC-LOGO-WHITE_1750688569645.png" 
+                      alt="MBYC Logo" 
+                      className="w-8 h-8 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+                    <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">Admin Panel</h2>
-                  <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
-                </div>
+                
+                {/* X button in sidebar header */}
+                <motion.button
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white transition-all duration-200"
+                  onClick={toggleSidebar}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <X className="h-4 w-4" />
+                </motion.button>
               </div>
             </motion.div>
           </div>
