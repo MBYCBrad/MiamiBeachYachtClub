@@ -465,6 +465,7 @@ Changelog:
   - Updated admin dashboard service pricing text from orange to white for unified color scheme
   - Updated service category Badge component from purple to purple-to-blue gradient with white text
   - Updated event capacity Badge component from violet to purple-to-blue gradient with white text
+  - Updated yacht availability Badge component - Available state uses purple-to-blue gradient, Unavailable state uses red gradient
   - Universal purple-to-blue gradient theme now fully implemented across entire Miami Beach Yacht Club application
 - June 23, 2025. Universal admin styling consistency implemented across all admin pages
   - Applied exact admin overview styling (bg-gray-900/50 border-gray-700/50) to all admin pages systematically
