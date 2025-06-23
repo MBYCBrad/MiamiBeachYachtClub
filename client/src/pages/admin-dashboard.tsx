@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
+import MessengerDashboard from "@/pages/messenger-dashboard";
 import { 
   BarChart3, 
   Users, 
@@ -81,6 +82,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
+  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500' },
   { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
   { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500' },
@@ -3531,6 +3533,7 @@ export default function AdminDashboard() {
             {activeSection === 'settings' && renderSettings()}
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
+            {activeSection === 'customer-service' && <MessengerDashboard />}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
             {activeSection === 'services' && renderServices()}

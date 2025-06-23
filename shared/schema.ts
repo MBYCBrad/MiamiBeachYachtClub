@@ -277,6 +277,96 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
+// Conversations table for tracking member conversations
+export const conversations = pgTable("conversations", {
+  id: text("id").primaryKey(), // UUID string
+  memberId: integer("member_id").references(() => users.id).notNull(),
+  memberName: text("member_name").notNull(),
+  memberPhone: text("member_phone"),
+  membershipTier: text("membership_tier").notNull(),
+  lastMessage: text("last_message"),
+  lastMessageTime: timestamp("last_message_time").defaultNow(),
+  unreadCount: integer("unread_count").default(0),
+  status: text("status").notNull().default("active"), // active, pending, resolved, escalated
+  priority: text("priority").notNull().default("medium"), // low, medium, high, urgent
+  tags: jsonb("tags").$type<string[]>().default([]),
+  assignedAgent: integer("assigned_agent").references(() => users.id),
+  currentTripId: integer("current_trip_id").references(() => bookings.id),
+  metadata: jsonb("metadata").$type<{
+    yachtId?: number;
+    yachtName?: string;
+    tripStartTime?: string;
+    tripEndTime?: string;
+    lastContactMethod?: string;
+    emergencyLevel?: string;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Phone calls table for tracking Twilio voice calls
+export const phoneCalls = pgTable("phone_calls", {
+  id: text("id").primaryKey(), // UUID string
+  twilioCallSid: text("twilio_call_sid").unique(),
+  memberId: integer("member_id").references(() => users.id).notNull(),
+  memberName: text("member_name").notNull(),
+  memberPhone: text("member_phone").notNull(),
+  agentId: integer("agent_id").references(() => users.id),
+  callType: text("call_type").notNull(), // inbound, outbound
+  status: text("status").notNull().default("ringing"), // ringing, active, ended, missed, failed
+  direction: text("direction").notNull(), // inbound, outbound
+  duration: integer("duration"), // in seconds
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
+  reason: text("reason").notNull(), // trip_start, trip_emergency, trip_end, general_inquiry, concierge_request
+  tripId: integer("trip_id").references(() => bookings.id),
+  yachtId: integer("yacht_id").references(() => yachts.id),
+  notes: text("notes"),
+  recordingUrl: text("recording_url"),
+  cost: decimal("cost", { precision: 10, scale: 4 }), // Twilio call cost
+  metadata: jsonb("metadata").$type<{
+    twilioStatus?: string;
+    errorCode?: string;
+    errorMessage?: string;
+    callerName?: string;
+    location?: string;
+    emergencyLevel?: string;
+    transferredTo?: string;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPhoneCallSchema = createInsertSchema(phoneCalls).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Message thread analytics for insights
+export const messageAnalytics = pgTable("message_analytics", {
+  id: serial("id").primaryKey(),
+  conversationId: text("conversation_id").references(() => conversations.id).notNull(),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  messageCount: integer("message_count").default(0),
+  responseTime: integer("response_time"), // Average response time in minutes
+  sentiment: text("sentiment"), // positive, neutral, negative
+  keywords: jsonb("keywords").$type<string[]>().default([]),
+  escalated: boolean("escalated").default(false),
+  resolved: boolean("resolved").default(false),
+  satisfaction: integer("satisfaction"), // 1-5 rating if provided
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMessageAnalyticsSchema = createInsertSchema(messageAnalytics).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -302,3 +392,9 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type PhoneCall = typeof phoneCalls.$inferSelect;
+export type InsertPhoneCall = z.infer<typeof insertPhoneCallSchema>;
+export type MessageAnalytics = typeof messageAnalytics.$inferSelect;
+export type InsertMessageAnalytics = z.infer<typeof insertMessageAnalyticsSchema>;
