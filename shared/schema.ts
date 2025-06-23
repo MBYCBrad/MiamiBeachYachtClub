@@ -66,7 +66,6 @@ export const services = pgTable("services", {
   category: text("category").notNull(), // 'photography', 'chef', 'massage', etc.
   description: text("description"),
   imageUrl: text("image_url"),
-  images: jsonb("images").$type<string[]>().default([]), // Array of image URLs
   pricePerSession: decimal("price_per_session", { precision: 10, scale: 2 }),
   duration: integer("duration"), // in minutes
   isAvailable: boolean("is_available").default(true),
@@ -81,7 +80,6 @@ export const events = pgTable("events", {
   title: text("title").notNull(),
   description: text("description"),
   imageUrl: text("image_url"),
-  images: jsonb("images").$type<string[]>().default([]),
   location: text("location").notNull(),
   startTime: timestamp("start_time").notNull(),
   endTime: timestamp("end_time").notNull(),
@@ -174,9 +172,6 @@ export const insertServiceSchema = createInsertSchema(services).omit({
 export const insertEventSchema = createInsertSchema(events).omit({
   id: true,
   createdAt: true,
-}).extend({
-  startTime: z.union([z.date(), z.string().transform(str => new Date(str))]),
-  endTime: z.union([z.date(), z.string().transform(str => new Date(str))]),
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({

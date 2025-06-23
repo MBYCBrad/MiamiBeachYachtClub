@@ -7,25 +7,23 @@ import { apiRequest } from "@/lib/queryClient";
 
 interface MultiImageUploadProps {
   onImagesUploaded: (imageUrls: string[]) => void;
-  initialImages?: string[];
+  currentImages?: string[];
+  label?: string;
   maxImages?: number;
 }
 
 export function MultiImageUpload({ 
   onImagesUploaded, 
-  initialImages = [], 
+  currentImages = [], 
+  label = "Images", 
   maxImages = 10 
 }: MultiImageUploadProps) {
-  const [images, setImages] = useState<string[]>(initialImages);
+  const [images, setImages] = useState<string[]>(currentImages);
 
-  // Update images when initialImages prop changes - using ref to prevent loops
-  const lastInitialImages = useRef<string[]>(initialImages);
+  // Update images when currentImages prop changes
   useEffect(() => {
-    if (JSON.stringify(initialImages) !== JSON.stringify(lastInitialImages.current)) {
-      setImages(initialImages);
-      lastInitialImages.current = initialImages;
-    }
-  }, [initialImages]);
+    setImages(currentImages);
+  }, [currentImages]);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -135,6 +133,7 @@ export function MultiImageUpload({
 
   return (
     <div className="space-y-4">
+      <label className="text-sm font-medium text-gray-300">{label}</label>
       
       {/* Upload Area */}
       <div
