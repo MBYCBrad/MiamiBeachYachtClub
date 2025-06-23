@@ -2977,7 +2977,7 @@ export default function AdminDashboard() {
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
                     {event.capacity} spots
                   </Badge>
                 </div>
