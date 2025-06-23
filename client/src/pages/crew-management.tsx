@@ -362,7 +362,7 @@ export default function CrewManagementPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white">Crew Members</CardTitle>
                   <Select value={crewFilter} onValueChange={setCrewFilter}>
-                    <SelectTrigger className="w-40 bg-slate-700 border-gray-700">
+                    <SelectTrigger className="w-40 bg-gray-900/50 border-gray-700">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -397,7 +397,7 @@ export default function CrewManagementPage() {
                           <Badge 
                             className={`text-xs ${
                               member.status === 'active' ? 'bg-green-600' :
-                              member.status === 'inactive' ? 'bg-blue-600' : 'bg-slate-600'
+                              member.status === 'inactive' ? 'bg-blue-600' : 'bg-gray-600'
                             }`}
                           >
                             {member.status}
@@ -459,7 +459,7 @@ export default function CrewManagementPage() {
                         className={`${
                           assignment.status === 'active' ? 'bg-green-600' :
                           assignment.status === 'assigned' ? 'bg-blue-600' :
-                          assignment.status === 'planned' ? 'bg-orange-600' : 'bg-slate-600'
+                          assignment.status === 'planned' ? 'bg-orange-600' : 'bg-gray-600'
                         }`}
                       >
                         {assignment.status}
@@ -471,7 +471,7 @@ export default function CrewManagementPage() {
                           assignmentId: assignment.id,
                           status: assignment.status === 'planned' ? 'assigned' : 'active'
                         })}
-                        className="border-gray-700 text-gray-300 hover:bg-slate-600"
+                        className="border-gray-700 text-gray-300 hover:bg-gray-600"
                       >
                         <Settings className="h-4 w-4 mr-1" />
                         Update
@@ -496,7 +496,7 @@ export default function CrewManagementPage() {
                     </div>
 
                     {assignment.notes && (
-                      <div className="mt-3 p-2 bg-slate-600/30 rounded text-xs text-gray-300">
+                      <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs text-gray-300">
                         {assignment.notes}
                       </div>
                     )}
@@ -605,7 +605,7 @@ function CrewAssignmentDialog({
   };
 
   return (
-    <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-6xl max-h-[95vh] overflow-y-auto">
+    <DialogContent className="bg-gray-900 border-slate-700 text-white max-w-6xl max-h-[95vh] overflow-y-auto">
       <DialogHeader className="space-y-3 pb-6">
         <DialogTitle className="text-2xl font-bold text-purple-400">Crew Assignment Center</DialogTitle>
         <DialogDescription className="text-gray-300 text-base">
@@ -682,7 +682,7 @@ function CrewAssignmentDialog({
               <CardContent>
                 <div className="space-y-3">
                   {bookingServices.map((service: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
                       <div>
                         <p className="text-white font-medium">{service?.name}</p>
                         <p className="text-gray-400 text-sm">{service?.category}</p>
@@ -730,7 +730,7 @@ function CrewAssignmentDialog({
                 <p className="text-gray-400 text-sm mb-2">Key Amenities</p>
                 <div className="flex flex-wrap gap-1">
                   {(yacht?.amenities || booking.yacht?.amenities || ['Deck Space', 'Sound System', 'Kitchen', 'Bathroom', 'Seating', 'Navigation']).slice(0, 6).map((amenity: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="bg-slate-700 text-gray-300 text-xs">
+                    <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-300 text-xs">
                       {amenity}
                     </Badge>
                   ))}
@@ -752,7 +752,7 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent>
               <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
-                <SelectTrigger className="bg-slate-700 border-gray-700 h-12">
+                <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select experienced captain" />
                 </SelectTrigger>
                 <SelectContent>
@@ -779,7 +779,7 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent>
               <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
-                <SelectTrigger className="bg-slate-700 border-gray-700 h-12">
+                <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select service coordinator" />
                 </SelectTrigger>
                 <SelectContent>
@@ -807,7 +807,7 @@ function CrewAssignmentDialog({
             <CardContent>
               <div className="space-y-3 max-h-48 overflow-y-auto">
                 {otherCrew.map((member) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-700/30 rounded-lg">
                     <input
                       type="checkbox"
                       id={`crew-${member.id}`}
@@ -819,7 +819,7 @@ function CrewAssignmentDialog({
                           setSelectedCrew(selectedCrew.filter(id => id !== member.id));
                         }
                       }}
-                      className="rounded border-gray-700 bg-slate-700 w-4 h-4"
+                      className="rounded border-gray-700 bg-gray-700 w-4 h-4"
                     />
                     <div className="flex-1">
                       <p className="text-white text-sm font-medium">{member.username}</p>
@@ -846,7 +846,7 @@ function CrewAssignmentDialog({
                   type="datetime-local"
                   value={briefingTime}
                   onChange={(e) => setBriefingTime(e.target.value)}
-                  className="bg-slate-700 border-gray-700 mt-1"
+                  className="bg-gray-700 border-gray-700 mt-1"
                 />
                 <p className="text-gray-400 text-xs mt-1">Recommended: 30-60 minutes before departure</p>
               </div>
@@ -866,7 +866,7 @@ function CrewAssignmentDialog({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="• Safety protocols and guest preferences&#10;• Service delivery requirements&#10;• Special dietary needs or allergies&#10;• Equipment setup instructions&#10;• Emergency contact information&#10;• Member VIP status notes"
-                className="bg-slate-700 border-gray-700 min-h-[120px] text-sm"
+                className="bg-gray-700 border-gray-700 min-h-[120px] text-sm"
                 rows={6}
               />
             </CardContent>
@@ -877,7 +877,7 @@ function CrewAssignmentDialog({
             <Button
               variant="outline"
               onClick={() => onAssign.mutate({ cancel: true })}
-              className="bg-slate-700 border-gray-700 text-white hover:bg-slate-600"
+              className="bg-gray-700 border-gray-700 text-white hover:bg-gray-600"
             >
               Cancel Assignment
             </Button>

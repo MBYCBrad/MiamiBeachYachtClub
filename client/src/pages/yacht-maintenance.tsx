@@ -296,7 +296,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Start Location</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -309,7 +309,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Crew Size</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -322,7 +322,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Weather Conditions</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -335,7 +335,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Sea Conditions</FormLabel>
                                 <FormControl>
-                                  <Input {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                  <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -350,7 +350,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Fuel Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -363,7 +363,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Battery Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -376,7 +376,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Water Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -389,7 +389,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Waste Level (%)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -653,10 +653,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Task Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-800 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900 border-gray-600">
                                       <SelectValue placeholder="Select task type..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-800 border-gray-600">
+                                    <SelectContent className="bg-gray-900 border-gray-600">
                                       <SelectItem value="engine_service">Engine Service</SelectItem>
                                       <SelectItem value="hull_cleaning">Hull Cleaning</SelectItem>
                                       <SelectItem value="electronics_check">Electronics Check</SelectItem>
@@ -678,10 +678,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Priority</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-800 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900 border-gray-600">
                                       <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-800 border-gray-600">
+                                    <SelectContent className="bg-gray-900 border-gray-600">
                                       <SelectItem value="low">Low</SelectItem>
                                       <SelectItem value="medium">Medium</SelectItem>
                                       <SelectItem value="high">High</SelectItem>
@@ -701,7 +701,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-4">
                               <FormLabel className="text-white">Description</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                <Textarea {...field} className="bg-gray-900 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -715,7 +715,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Estimated Cost ($)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -728,7 +728,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Current Condition (1-10)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -806,10 +806,10 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Assessment Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-800 border-gray-600">
+                                    <SelectTrigger className="bg-gray-900 border-gray-600">
                                       <SelectValue placeholder="Select assessment type..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-800 border-gray-600">
+                                    <SelectContent className="bg-gray-900 border-gray-600">
                                       <SelectItem value="routine_inspection">Routine Inspection</SelectItem>
                                       <SelectItem value="pre_trip_check">Pre-Trip Check</SelectItem>
                                       <SelectItem value="post_trip_check">Post-Trip Check</SelectItem>
@@ -829,7 +829,7 @@ export default function YachtMaintenance() {
                               <FormItem>
                                 <FormLabel className="text-white">Condition Score (1-10)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-800 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -843,7 +843,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-4">
                               <FormLabel className="text-white">Findings</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                <Textarea {...field} className="bg-gray-900 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -856,7 +856,7 @@ export default function YachtMaintenance() {
                             <FormItem className="mb-6">
                               <FormLabel className="text-white">Assessed By</FormLabel>
                               <FormControl>
-                                <Input {...field} className="bg-gray-800 border-gray-600 text-white" />
+                                <Input {...field} className="bg-gray-900 border-gray-600 text-white" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -890,7 +890,7 @@ export default function YachtMaintenance() {
                       <p className="text-gray-300 mb-4">{assessment.findings}</p>
                       
                       {assessment.recommendations && (
-                        <div className="bg-gray-800 rounded-lg p-3 mb-4">
+                        <div className="bg-gray-900 rounded-lg p-3 mb-4">
                           <p className="text-yellow-400 font-medium mb-1">Recommendations:</p>
                           <p className="text-gray-300 text-sm">{assessment.recommendations}</p>
                         </div>
@@ -937,7 +937,7 @@ export default function YachtMaintenance() {
                       </div>
                     </div>
                     
-                    <div className="mt-6 p-4 bg-gray-800 rounded-lg">
+                    <div className="mt-6 p-4 bg-gray-900 rounded-lg">
                       <p className="text-white font-medium mb-2">Recommendation:</p>
                       <p className="text-gray-300">
                         {valuationData.recommendation || "Based on current condition trends and maintenance costs, consider selling within the next 12-18 months for optimal return on investment."}

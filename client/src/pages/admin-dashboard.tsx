@@ -112,7 +112,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
     whileHover={{ y: -5, scale: 1.02 }}
     className="group relative overflow-hidden"
   >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -142,7 +142,7 @@ const ActivityCard = ({ activity, index }: any) => (
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay: 0.6 + index * 0.1 }}
-    className="flex items-center space-x-4 p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group"
+    className="flex items-center space-x-4 p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group"
   >
     <div className={`p-2 rounded-lg bg-gradient-to-br ${activity.color} group-hover:scale-110 transition-transform`}>
       <activity.icon className="h-4 w-4 text-white" />
@@ -242,7 +242,7 @@ const BookingActionsDropdown = ({ booking }: { booking: any }) => {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-8 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+        <div className="absolute right-0 top-8 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50">
           <div className="p-2">
             {statusOptions.map((option) => {
               const Icon = option.icon;
@@ -320,7 +320,7 @@ function AddUserDialog() {
               id="username"
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter username"
             />
           </div>
@@ -331,7 +331,7 @@ function AddUserDialog() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter email"
             />
           </div>
@@ -342,17 +342,17 @@ function AddUserDialog() {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter password"
             />
           </div>
           <div>
             <Label htmlFor="role" className="text-gray-300">Role</Label>
             <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="member">Member</SelectItem>
                 <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                 <SelectItem value="service_provider">Service Provider</SelectItem>
@@ -367,10 +367,10 @@ function AddUserDialog() {
           <div>
             <Label htmlFor="membershipTier" className="text-gray-300">Membership Tier</Label>
             <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="bronze">Bronze</SelectItem>
                 <SelectItem value="silver">Silver</SelectItem>
                 <SelectItem value="gold">Gold</SelectItem>
@@ -438,7 +438,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
               id="username"
               value={formData.username}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -447,16 +447,16 @@ function EditUserDialog({ user: userData }: { user: any }) {
               id="email"
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
             <Label htmlFor="role" className="text-gray-300">Role</Label>
             <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="member">Member</SelectItem>
                 <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                 <SelectItem value="service_provider">Service Provider</SelectItem>
@@ -471,10 +471,10 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <div>
             <Label htmlFor="tier" className="text-gray-300">Membership Tier</Label>
             <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="Bronze">Bronze</SelectItem>
                 <SelectItem value="Silver">Silver</SelectItem>
                 <SelectItem value="Gold">Gold</SelectItem>
@@ -608,7 +608,7 @@ function AddYachtDialog() {
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter yacht name"
             />
           </div>
@@ -618,7 +618,7 @@ function AddYachtDialog() {
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Marina location"
             />
           </div>
@@ -629,7 +629,7 @@ function AddYachtDialog() {
               type="number"
               value={formData.size}
               onChange={(e) => setFormData({...formData, size: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="40"
             />
           </div>
@@ -640,7 +640,7 @@ function AddYachtDialog() {
               type="number"
               value={formData.capacity}
               onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="12"
             />
           </div>
@@ -650,7 +650,7 @@ function AddYachtDialog() {
               id="pricePerHour"
               value={formData.pricePerHour}
               onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="500"
             />
           </div>
@@ -661,7 +661,7 @@ function AddYachtDialog() {
               type="number"
               value={formData.ownerId}
               onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="12"
             />
           </div>
@@ -671,7 +671,7 @@ function AddYachtDialog() {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Yacht description..."
             />
           </div>
@@ -681,17 +681,17 @@ function AddYachtDialog() {
               id="amenities"
               value={formData.amenities}
               onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="WiFi, Air Conditioning, Sound System"
             />
           </div>
           <div>
             <Label htmlFor="ownerId" className="text-gray-300">Owner</Label>
             <Select value={formData.ownerId} onValueChange={(value) => setFormData({...formData, ownerId: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="60">MBYC Admin (You)</SelectItem>
                 <SelectItem value="65">demo_owner</SelectItem>
                 <SelectItem value="66">yacht_owner_1</SelectItem>
@@ -771,7 +771,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -780,7 +780,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -791,7 +791,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
                 type="number"
                 value={formData.size}
                 onChange={(e) => setFormData({...formData, size: parseInt(e.target.value) || 0})}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-900 border-gray-700 text-white"
               />
             </div>
             <div>
@@ -801,7 +801,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
                 type="number"
                 value={formData.capacity}
                 onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-900 border-gray-700 text-white"
               />
             </div>
           </div>
@@ -811,7 +811,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <MultiImageUpload
@@ -956,17 +956,17 @@ function AddServiceDialog() {
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter service name"
             />
           </div>
           <div>
             <Label htmlFor="category" className="text-gray-300">Category</Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
                 <SelectItem value="Culinary">Culinary</SelectItem>
                 <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
@@ -983,7 +983,7 @@ function AddServiceDialog() {
               id="pricePerSession"
               value={formData.pricePerSession}
               onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="150"
             />
           </div>
@@ -994,17 +994,17 @@ function AddServiceDialog() {
               type="number"
               value={formData.duration}
               onChange={(e) => setFormData({...formData, duration: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="60"
             />
           </div>
           <div>
             <Label htmlFor="providerId" className="text-gray-300">Service Provider</Label>
             <Select value={formData.providerId} onValueChange={(value) => setFormData({...formData, providerId: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="60">MBYC Admin (You)</SelectItem>
                 <SelectItem value="68">demo_provider</SelectItem>
                 <SelectItem value="69">chef_service</SelectItem>
@@ -1029,7 +1029,7 @@ function AddServiceDialog() {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Service description..."
             />
           </div>
@@ -1104,16 +1104,16 @@ function EditServiceDialog({ service }: { service: any }) {
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
             <Label htmlFor="category" className="text-gray-300">Category</Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
                 <SelectItem value="Culinary">Culinary</SelectItem>
                 <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
@@ -1131,7 +1131,7 @@ function EditServiceDialog({ service }: { service: any }) {
                 id="pricePerSession"
                 value={formData.pricePerSession}
                 onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-900 border-gray-700 text-white"
               />
             </div>
             <div>
@@ -1141,7 +1141,7 @@ function EditServiceDialog({ service }: { service: any }) {
                 type="number"
                 value={formData.duration}
                 onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 0})}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-900 border-gray-700 text-white"
               />
             </div>
           </div>
@@ -1151,7 +1151,7 @@ function EditServiceDialog({ service }: { service: any }) {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div className="space-y-2">
@@ -1314,7 +1314,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Enter event title"
             />
           </div>
@@ -1324,7 +1324,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Event location"
             />
           </div>
@@ -1335,7 +1335,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               type="number"
               value={formData.capacity}
               onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="50"
             />
           </div>
@@ -1345,7 +1345,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               id="ticketPrice"
               value={formData.ticketPrice}
               onChange={(e) => setFormData({...formData, ticketPrice: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="125"
             />
           </div>
@@ -1356,7 +1356,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               type="datetime-local"
               value={formData.startTime}
               onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1366,16 +1366,16 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               type="datetime-local"
               value={formData.endTime}
               onChange={(e) => setFormData({...formData, endTime: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
             <Label htmlFor="hostId" className="text-gray-300">Event Host</Label>
             <Select value={formData.hostId} onValueChange={(value) => setFormData({...formData, hostId: value})}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select host (optional)" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="system">No Host (System Event)</SelectItem>
                 
                 {/* Current Admin as Host Option */}
@@ -1423,7 +1423,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Event description..."
             />
           </div>
@@ -1502,7 +1502,7 @@ function EditEventDialog({ event }: { event: any }) {
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1511,7 +1511,7 @@ function EditEventDialog({ event }: { event: any }) {
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1521,7 +1521,7 @@ function EditEventDialog({ event }: { event: any }) {
               type="number"
               value={formData.capacity}
               onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1530,7 +1530,7 @@ function EditEventDialog({ event }: { event: any }) {
               id="ticketPrice"
               value={formData.ticketPrice}
               onChange={(e) => setFormData({...formData, ticketPrice: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1540,7 +1540,7 @@ function EditEventDialog({ event }: { event: any }) {
               type="datetime-local"
               value={formData.startTime}
               onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div>
@@ -1550,7 +1550,7 @@ function EditEventDialog({ event }: { event: any }) {
               type="datetime-local"
               value={formData.endTime}
               onChange={(e) => setFormData({...formData, endTime: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div className="col-span-2">
@@ -1559,7 +1559,7 @@ function EditEventDialog({ event }: { event: any }) {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
             />
           </div>
           <div className="col-span-2 space-y-2">
@@ -1787,7 +1787,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  className="text-center p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
+                  className="text-center p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
                 >
                   <div className={`text-2xl font-bold mb-2 ${
                     tier.tier === 'Platinum' ? 'text-purple-400' :
@@ -1973,7 +1973,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg bg-gradient-to-r ${item.color}`}>
@@ -2112,7 +2112,7 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors group"
+                      className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors group"
                     >
                       <td className="py-4 px-4">
                         <div>
@@ -2217,7 +2217,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-lg bg-gradient-to-r ${crew.color}`}>
@@ -2264,7 +2264,7 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  className="p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-white font-medium">{service.service}</p>
@@ -2394,7 +2394,7 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                     >
                       <div>
                         <p className="text-white font-medium">{service.name}</p>
@@ -2427,7 +2427,7 @@ export default function AdminDashboard() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                     >
                       <div>
                         <p className="text-white font-medium">{yacht.name}</p>
@@ -2470,7 +2470,7 @@ export default function AdminDashboard() {
                         className="flex items-center space-x-4"
                       >
                         <span className="text-white font-medium w-12">{month.month}</span>
-                        <div className="flex-1 bg-gray-800 rounded-full h-3 overflow-hidden">
+                        <div className="flex-1 bg-gray-900 rounded-full h-3 overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}
@@ -2514,7 +2514,7 @@ export default function AdminDashboard() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.1 }}
-                        className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50"
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50"
                       >
                         <div className="flex items-center space-x-3">
                           <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${tierColors[tier as keyof typeof tierColors] || 'from-gray-500 to-gray-600'}`} />
@@ -2549,7 +2549,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                    className="p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
                   >
                     <h4 className="text-white font-medium mb-2">{event.title}</h4>
                     <div className="space-y-2">
@@ -2657,7 +2657,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
+                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors"
                   >
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
@@ -2856,7 +2856,7 @@ export default function AdminDashboard() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
               <div className="relative">
                 {service.images && service.images.length > 1 ? (
-                  <div className="relative h-48 bg-gray-800">
+                  <div className="relative h-48 bg-gray-900">
                     <img 
                       src={service.images[0] || service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
                       alt={service.name}
@@ -3158,7 +3158,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors group"
+                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors group"
                   >
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
@@ -3369,7 +3369,7 @@ export default function AdminDashboard() {
             <CardDescription>Authentication and access control</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
               <div>
                 <p className="text-white font-medium">Two-Factor Authentication</p>
                 <p className="text-sm text-gray-400">Enhanced security for admin access</p>
@@ -3378,7 +3378,7 @@ export default function AdminDashboard() {
                 <div className="w-4 h-4 bg-white rounded-full ml-auto" />
               </div>
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
               <div>
                 <p className="text-white font-medium">Session Timeout</p>
                 <p className="text-sm text-gray-400">Auto-logout after inactivity</p>
@@ -3401,7 +3401,7 @@ export default function AdminDashboard() {
             <CardDescription>Backup and maintenance settings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="p-4 rounded-xl bg-gray-800/30">
+            <div className="p-4 rounded-xl bg-gray-900/30">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-white font-medium">Database Backup</p>
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
@@ -3418,7 +3418,7 @@ export default function AdminDashboard() {
                 Create Backup Now
               </Button>
             </div>
-            <div className="p-4 rounded-xl bg-gray-800/30">
+            <div className="p-4 rounded-xl bg-gray-900/30">
               <p className="text-white font-medium mb-2">Maintenance Mode</p>
               <p className="text-sm text-gray-400 mb-3">Temporarily disable user access</p>
               <Button 
@@ -3490,7 +3490,7 @@ export default function AdminDashboard() {
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                className="pl-10 bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
               />
             </div>
           </div>

@@ -730,7 +730,7 @@ export default function CalendarPage() {
 
         <div className="flex max-h-96 overflow-hidden">
           {/* Time sidebar */}
-          <div className="w-20 border-r border-gray-700/30 bg-gray-800/30">
+          <div className="w-20 border-r border-gray-700/30 bg-gray-900/30">
             {hours.map(hour => (
               <div key={hour} className="h-16 flex items-start justify-end pr-3 pt-2 text-xs text-gray-400 border-b border-gray-700/20">
                 {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
@@ -895,17 +895,17 @@ export default function CalendarPage() {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 w-64"
+                className="pl-10 bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 w-64"
               />
             </div>
 
             {/* Filter */}
             <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-              <SelectTrigger className="bg-gray-800/50 border-gray-600 text-white w-48">
+              <SelectTrigger className="bg-gray-900/50 border-gray-600 text-white w-48">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-gray-900 border-gray-700">
                 <SelectItem value="all">All Events</SelectItem>
                 <SelectItem value="yacht">Yacht Bookings</SelectItem>
                 <SelectItem value="service">Concierge Services</SelectItem>
@@ -914,7 +914,7 @@ export default function CalendarPage() {
             </Select>
 
             {/* View selector */}
-            <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg p-1">
+            <div className="flex items-center space-x-2 bg-gray-900/50 rounded-lg p-1">
               {Object.entries(CALENDAR_VIEWS).map(([key, value]) => (
                 <Button
                   key={value}
