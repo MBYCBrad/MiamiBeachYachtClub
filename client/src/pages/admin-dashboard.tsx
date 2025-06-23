@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
+import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
 import MessagesDropdown from "@/components/MessagesDropdown";
 import { 
@@ -3572,7 +3573,7 @@ export default function AdminDashboard() {
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'crew-management' && <CrewManagementPage />}
-            {activeSection === 'customer-service' && <MessengerDashboard />}
+            {activeSection === 'customer-service' && <CustomerServiceDashboard />}
             {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
