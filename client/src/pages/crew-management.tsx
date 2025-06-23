@@ -148,10 +148,10 @@ export default function CrewManagementPage() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
-          <p className="text-purple-200">Loading crew management system...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400"></div>
+          <p className="text-gray-200">Loading crew management system...</p>
         </div>
       </div>
     );
@@ -171,12 +171,12 @@ export default function CrewManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 py-8">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <div className="container mx-auto px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -184,7 +184,7 @@ export default function CrewManagementPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl">
+            <div className="p-3 bg-gray-700 rounded-xl">
               <Ship className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -302,7 +302,7 @@ export default function CrewManagementPage() {
                         <DialogTrigger asChild>
                           <Button 
                             size="sm" 
-                            className="bg-purple-600 hover:bg-purple-700"
+                            className="bg-gray-600 hover:bg-gray-700"
                             onClick={() => setSelectedBooking(booking)}
                           >
                             <UserPlus className="h-4 w-4 mr-1" />
@@ -507,7 +507,7 @@ export default function CrewManagementPage() {
           </Card>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
