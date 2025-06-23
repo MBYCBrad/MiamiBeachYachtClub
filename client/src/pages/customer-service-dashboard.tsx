@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { 
@@ -18,7 +19,13 @@ import {
   Calculator,
   Trash2,
   Volume2,
-  PhoneMissed
+  PhoneMissed,
+  Mail,
+  MapPin,
+  Calendar,
+  MessageSquare,
+  X,
+  Info
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +37,8 @@ export default function CustomerServiceDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dialNumber, setDialNumber] = useState("");
   const [isCallActive, setIsCallActive] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<UserType | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -59,6 +68,21 @@ export default function CustomerServiceDashboard() {
     }
     return matchesSearch;
   });
+
+  // Get contact call history
+  const contactCallHistory = selectedContact ? phoneCalls.filter(call => 
+    call.phone_number === selectedContact.phone
+  ) : [];
+
+  const openContactModal = (contact: UserType) => {
+    setSelectedContact(contact);
+    setIsContactModalOpen(true);
+  };
+
+  const closeContactModal = () => {
+    setSelectedContact(null);
+    setIsContactModalOpen(false);
+  };
 
   // Make call mutation
   const makeCallMutation = useMutation({
@@ -227,7 +251,11 @@ export default function CustomerServiceDashboard() {
                         <div className="col-span-full text-center py-8 text-gray-400">No contacts found</div>
                       ) : (
                         filteredContacts.map((user) => (
-                          <Card key={user.id} className="bg-gray-700/30 border-gray-600 hover:bg-gray-700/50 transition-colors">
+                          <Card 
+                            key={user.id} 
+                            className="bg-gray-700/30 border-gray-600 hover:bg-gray-700/50 transition-colors cursor-pointer"
+                            onClick={() => openContactModal(user)}
+                          >
                             <CardContent className="p-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -243,7 +271,10 @@ export default function CustomerServiceDashboard() {
                                 </div>
                                 <Button
                                   size="sm"
-                                  onClick={() => user.phone && makeCallMutation.mutate(user.phone)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    user.phone && makeCallMutation.mutate(user.phone);
+                                  }}
                                   disabled={!user.phone || makeCallMutation.isPending}
                                   className="bg-green-500 hover:bg-green-600"
                                 >
@@ -385,6 +416,245 @@ export default function CustomerServiceDashboard() {
             </AnimatePresence>
           </CardContent>
         </Card>
+
+        {/* Contact Detail Modal */}
+        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+          <DialogContent className="max-w-2xl bg-gray-800 border-gray-700 max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
+                    {selectedContact?.username?.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <DialogTitle className="text-white text-xl">
+                      {selectedContact?.username}
+                    </DialogTitle>
+                    <p className={`text-sm capitalize ${getRoleColor(selectedContact?.role || '')}`}>
+                      {selectedContact?.role?.replace('_', ' ')}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={closeContactModal}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </DialogHeader>
+
+            {selectedContact && (
+              <div className="space-y-6 mt-6">
+                {/* Contact Information */}
+                <Card className="bg-gray-700/30 border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Info className="h-5 w-5 text-blue-400" />
+                      Contact Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-3">
+                        <User className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Username</p>
+                          <p className="text-white">{selectedContact.username}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Phone</p>
+                          <p className="text-white">{selectedContact.phone || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <Mail className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Email</p>
+                          <p className="text-white">{selectedContact.email || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <MapPin className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Location</p>
+                          <p className="text-white">{selectedContact.location || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Member Since</p>
+                          <p className="text-white">
+                            {selectedContact.createdAt 
+                              ? new Date(selectedContact.createdAt).toLocaleDateString()
+                              : 'Unknown'
+                            }
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <UserCheck className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-gray-400 text-sm">Membership Tier</p>
+                          <p className="text-white capitalize">
+                            {selectedContact.membershipTier || 'Not specified'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Call History */}
+                <Card className="bg-gray-700/30 border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <History className="h-5 w-5 text-blue-400" />
+                      Call History
+                      <Badge variant="secondary" className="ml-2 bg-white/10 text-white">
+                        {contactCallHistory.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {contactCallHistory.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400">
+                        No call history found
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {contactCallHistory.map((call) => (
+                          <div 
+                            key={call.id} 
+                            className="flex items-center justify-between p-3 bg-gray-600/30 rounded-lg"
+                          >
+                            <div className="flex items-center space-x-3">
+                              {getCallTypeIcon(call)}
+                              <div>
+                                <p className="text-white text-sm">
+                                  {call.direction === 'inbound' ? 'Incoming' : 'Outgoing'} Call
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  {call.created_at 
+                                    ? new Date(call.created_at).toLocaleString()
+                                    : 'Unknown time'
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-gray-400 text-xs">Duration</p>
+                              <p className="text-white text-sm">
+                                {call.duration ? `${call.duration}s` : 'Unknown'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Quick Actions */}
+                <Card className="bg-gray-700/30 border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-white">Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        onClick={() => {
+                          if (selectedContact.phone) {
+                            makeCallMutation.mutate(selectedContact.phone);
+                          }
+                        }}
+                        disabled={!selectedContact.phone || makeCallMutation.isPending}
+                        className="bg-green-500 hover:bg-green-600"
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Now
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Send Message
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send Email
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (selectedContact.phone) {
+                            setDialNumber(selectedContact.phone);
+                            setActiveTab('keypad');
+                            closeContactModal();
+                          }
+                        }}
+                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
+                      >
+                        <Calculator className="h-4 w-4 mr-2" />
+                        Add to Dialpad
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Additional Notes */}
+                <Card className="bg-gray-700/30 border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-white">Notes & Comments</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="p-3 bg-gray-600/30 rounded-lg">
+                        <p className="text-gray-400 text-sm">Last interaction</p>
+                        <p className="text-white">
+                          {contactCallHistory.length > 0 
+                            ? `Last call: ${new Date(contactCallHistory[0].created_at!).toLocaleDateString()}`
+                            : 'No previous interactions'
+                          }
+                        </p>
+                      </div>
+                      
+                      <div className="p-3 bg-gray-600/30 rounded-lg">
+                        <p className="text-gray-400 text-sm">Total calls</p>
+                        <p className="text-white">{contactCallHistory.length} calls</p>
+                      </div>
+                      
+                      {selectedContact.role === 'member' && (
+                        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                          <p className="text-blue-400 text-sm">Member Status</p>
+                          <p className="text-white">Active MBYC Member</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
