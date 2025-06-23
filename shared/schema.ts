@@ -59,82 +59,69 @@ export const yachts = pgTable("yachts", {
 
 export const services = pgTable("services", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  category: text("category").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  duration: integer("duration"), // in minutes
-  imageUrl: text("image_url"),
   providerId: integer("provider_id").references(() => users.id),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  description: text("description").notNull(),
+  imageUrl: text("image_url"),
+  pricePerSession: decimal("price_per_session", { precision: 10, scale: 2 }).notNull(),
+  duration: integer("duration"), // in minutes
+  isAvailable: boolean("is_available").default(true),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   reviewCount: integer("review_count").default(0),
-  isActive: boolean("is_active").default(true),
-  stripeConnectAccountId: text("stripe_connect_account_id"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  images: jsonb("images").$type<string[]>().default([]),
 });
 
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
+  hostId: integer("host_id").references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
-  location: text("location").notNull(),
-  capacity: integer("capacity").notNull(),
-  currentRegistrations: integer("current_registrations").default(0),
-  ticketPrice: decimal("ticket_price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: text("image_url"),
-  theme: text("theme"),
+  location: text("location").notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  capacity: integer("capacity").notNull(),
+  ticketPrice: decimal("ticket_price", { precision: 10, scale: 2 }).notNull(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  images: jsonb("images").$type<string[]>().default([]),
 });
 
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => users.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   yachtId: integer("yacht_id").references(() => yachts.id).notNull(),
-  startDate: timestamp("start_date").notNull(),
-  endDate: timestamp("end_date").notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
   guestCount: integer("guest_count").notNull(),
   specialRequests: text("special_requests"),
   status: text("status").notNull().default("confirmed"),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).default("0.00"),
-  paymentStatus: text("payment_status").default("pending"),
-  stripePaymentIntentId: text("stripe_payment_intent_id"),
-  experienceType: text("experience_type"),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).default("0.00"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const serviceBookings = pgTable("service_bookings", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => users.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   serviceId: integer("service_id").references(() => services.id).notNull(),
-  yachtBookingId: integer("yacht_booking_id").references(() => bookings.id),
-  scheduledDate: timestamp("scheduled_date").notNull(),
+  bookingDate: timestamp("booking_date").notNull(),
   status: text("status").notNull().default("pending"),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  paymentStatus: text("payment_status").default("pending"),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
-  specialRequests: text("special_requests"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const eventRegistrations = pgTable("event_registrations", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => users.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   eventId: integer("event_id").references(() => events.id).notNull(),
-  ticketsRequested: integer("tickets_requested").notNull(),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  paymentStatus: text("payment_status").default("pending"),
+  ticketCount: integer("ticket_count").notNull().default(1),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
-  guestNames: jsonb("guest_names").$type<string[]>().default([]),
-  specialRequests: text("special_requests"),
+  status: text("status").notNull().default("confirmed"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const reviews = pgTable("reviews", {
@@ -409,11 +396,11 @@ export const yachtValuations = pgTable("yacht_valuations", {
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
   senderId: integer("sender_id").references(() => users.id).notNull(),
+  recipientId: integer("recipient_id").references(() => users.id),
   conversationId: text("conversation_id").notNull(),
   content: text("content").notNull(),
-  status: text("status").default("sent"),
-  recipientId: integer("recipient_id").references(() => users.id),
   messageType: text("message_type").default("text"),
+  status: text("status").default("sent"),
   twilioSid: text("twilio_sid"),
   metadata: jsonb("metadata").$type<{
     yachtId?: number;
@@ -422,6 +409,7 @@ export const messages = pgTable("messages", {
     location?: string;
   }>(),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const notifications = pgTable("notifications", {

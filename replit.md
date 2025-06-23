@@ -1,8 +1,8 @@
-# Monaco Bay Yacht Club - Full Stack Application
+# Miami Beach Yacht Club - Full Stack Application
 
 ## Overview
 
-Monaco Bay Yacht Club (MBYC) is a luxury yacht membership platform built as a full-stack web application. The system provides a comprehensive yacht booking and management experience with tiered membership access, premium services, and exclusive events. The application serves multiple user types including members, yacht owners, service providers, and administrators.
+Miami Beach Yacht Club (MBYC) is a luxury yacht membership platform built as a full-stack web application. The system provides a comprehensive yacht booking and management experience with tiered membership access, premium services, and exclusive events. The application serves multiple user types including members, yacht owners, service providers, and administrators.
 
 ## System Architecture
 
@@ -407,6 +407,12 @@ Changelog:
   - Staff management integrated into admin dashboard navigation with Shield icon and purple/indigo gradient theme
   - Complete hierarchical permission system where admin creates staff users underneath with specific role permissions
   - Real-time notifications for staff creation, updates, and deletions with audit logging throughout
+- June 23, 2025. Complete branding update from Monaco Bay to Miami Beach Yacht Club with official logo integration
+  - Updated application header with official Miami Beach Yacht Club logo from media assets
+  - Replaced all text references from Monaco Bay YC to Miami Beach Yacht Club throughout application
+  - Updated replit.md documentation to reflect complete branding change
+  - Enhanced logo display with professional styling and proper white logo visibility
+  - Database connectivity restored for real-time conversations and messaging functionality
 - June 23, 2025. iPhone-style customer service interface with 3-tab dark mode design completed
   - Completely redesigned customer service page with authentic iPhone UI/UX in dark mode
   - Implemented 3-tab layout: Contacts (all users/staff), Recents (All/Missed sub-tabs), Keypad (outbound calls)

@@ -46,10 +46,14 @@ const AppHeader: React.FC = () => {
         {/* Logo and Brand */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Anchor className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <img 
+              src="/attached_assets/MBYC-LOGO-WHITE_1750687226929.png"
+              alt="Miami Beach Yacht Club"
+              className="h-8 w-auto"
+            />
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">MBYC</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Monaco Bay Yacht Club</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Miami Beach Yacht Club</p>
             </div>
           </div>
         </div>

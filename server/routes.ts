@@ -2222,7 +2222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           duration,
           guestCount: booking.guestCount,
           status: booking.status,
-          specialRequests: booking.specialRequests,
+          specialRequests: booking.specialRequests || '',
           totalPrice: booking.totalPrice || '0',
           createdAt: booking.createdAt,
           timeSlot: new Date(booking.startTime).getHours() < 13 ? 'Morning' :
@@ -2284,9 +2284,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/bookings/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, specialRequests } = req.body;
+      const { status } = req.body;
       
-      const success = await dbStorage.updateBookingStatus(parseInt(id), status, specialRequests);
+      const success = await dbStorage.updateBookingStatus(parseInt(id), status);
       
       if (success) {
         res.json({ message: "Booking updated successfully" });
@@ -2302,9 +2302,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/bookings/:id/status", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const bookingId = parseInt(req.params.id);
-      const { status, specialRequests } = req.body;
+      const { status } = req.body;
       
-      const success = await dbStorage.updateBookingStatus(bookingId, status, specialRequests);
+      const success = await dbStorage.updateBookingStatus(bookingId, status);
       
       if (!success) {
         return res.status(404).json({ message: "Booking not found" });
@@ -3532,10 +3532,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all conversations - Real-time database connectivity using existing booking data
   app.get("/api/conversations", async (req, res) => {
     try {
+      console.log('Fetching conversations data...');
       // Generate conversations from real booking and user data
       const bookings = await dbStorage.getBookings();
+      console.log('Bookings fetched:', bookings.length);
       const users = await dbStorage.getAllUsers();
+      console.log('Users fetched:', users.length);
       const yachts = await dbStorage.getYachts();
+      console.log('Yachts fetched:', yachts.length);
       
       const conversations = bookings.slice(0, 10).map((booking, index) => {
         const member = users.find(u => u.id === booking.userId);
@@ -3545,7 +3549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return {
           id: `conv_${booking.id}_${member.id}`,
-          memberId: member.id,
+          userId: member.id,
           memberName: member.username,
           memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
           membershipTier: member.membershipTier || 'Bronze',
@@ -3642,17 +3646,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create or get conversation for a member
   app.post("/api/conversations", requireAuth, async (req, res) => {
     try {
-      const { memberId, memberName, memberPhone, membershipTier, priority = 'medium' } = req.body;
+      const { userId, memberName, memberPhone, membershipTier, priority = 'medium' } = req.body;
       
       // Check if conversation already exists
-      let conversation = await dbStorage.getConversationByMember(memberId);
+      let conversation = await dbStorage.getConversationByMember(userId);
       
       if (!conversation) {
         // Create new conversation
-        const conversationId = `conv_${Date.now()}_${memberId}`;
+        const conversationId = `conv_${Date.now()}_${userId}`;
         conversation = await dbStorage.createConversation({
           id: conversationId,
-          memberId,
+          userId,
           memberName,
           memberPhone,
           membershipTier,
@@ -3702,7 +3706,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return {
           id: `call_${booking.id}_${member.id}`,
-          memberId: member.id,
+          userId: member.id,
           memberName: member.username,
           memberPhone: member.phone || `+1-555-${String(member.id).padStart(4, '0')}`,
           membershipTier: member.membershipTier || 'Bronze',
@@ -3728,20 +3732,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initiate outbound call
   app.post("/api/calls/initiate", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const { memberId, reason, tripId, yachtId } = req.body;
+      const { userId, reason, tripId, yachtId } = req.body;
       
       // Get member details
-      const member = await dbStorage.getUser(memberId);
+      const member = await dbStorage.getUser(userId);
       if (!member || !member.phone) {
         return res.status(400).json({ message: 'Member not found or phone number missing' });
       }
 
-      const callId = `call_${Date.now()}_${memberId}`;
+      const callId = `call_${Date.now()}_${userId}`;
       
       // Create call record
       const call = await dbStorage.createPhoneCall({
         id: callId,
-        memberId,
+        userId,
         memberName: member.username,
         memberPhone: member.phone,
         agentId: req.user!.id,

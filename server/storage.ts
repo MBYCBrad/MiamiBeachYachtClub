@@ -370,15 +370,10 @@ export class DatabaseStorage implements IStorage {
     return updatedBooking || undefined;
   }
 
-  async updateBookingStatus(id: number, status: string, specialRequests?: string): Promise<boolean> {
-    const updateData: any = { status };
-    if (specialRequests !== undefined) {
-      updateData.specialRequests = specialRequests;
-    }
-    
+  async updateBookingStatus(id: number, status: string): Promise<boolean> {
     const [updatedBooking] = await db
       .update(bookings)
-      .set(updateData)
+      .set({ status })
       .where(eq(bookings.id, id))
       .returning();
     return !!updatedBooking;
