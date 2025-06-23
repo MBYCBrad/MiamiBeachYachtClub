@@ -908,7 +908,7 @@ function EditServiceDialog({ service }: { service: any }) {
     description: service.description || '',
     pricePerSession: service.pricePerSession || '',
     duration: service.duration || 0,
-    images: service.images || [],
+    images: service.imageUrl ? [service.imageUrl] : [],
     isAvailable: service.isAvailable ?? true
   });
   const { toast } = useToast();
