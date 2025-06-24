@@ -348,12 +348,12 @@ export default function CrewManagement() {
                 <Label className="text-lg font-semibold text-white mb-3 block">
                   First Mate
                 </Label>
-                <Select value={selectedFirstMate?.toString() || ''} onValueChange={(value) => setSelectedFirstMate(value ? Number(value) : null)}>
+                <Select value={selectedFirstMate?.toString() || 'none'} onValueChange={(value) => setSelectedFirstMate(value === 'none' ? null : Number(value))}>
                   <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
                     <SelectValue placeholder="Select first mate (optional)" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {firstMates.map((mate) => (
                       <SelectItem key={mate.id} value={mate.id.toString()}>
                         {mate.username} - {mate.email}
@@ -371,7 +371,7 @@ export default function CrewManagement() {
                 <div className="space-y-3">
                   {additionalCrew.map((crewId, index) => (
                     <div key={index} className="flex gap-2">
-                      <Select value={crewId.toString()} onValueChange={(value) => {
+                      <Select value={crewId > 0 ? crewId.toString() : ''} onValueChange={(value) => {
                         const newCrew = [...additionalCrew];
                         newCrew[index] = Number(value);
                         setAdditionalCrew(newCrew);
@@ -404,7 +404,7 @@ export default function CrewManagement() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setAdditionalCrew([...additionalCrew, 0])}
+                    onClick={() => setAdditionalCrew([...additionalCrew, crewMembers[0]?.id || 1])}
                     className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
                   >
                     <Plus className="w-4 h-4 mr-2" />
