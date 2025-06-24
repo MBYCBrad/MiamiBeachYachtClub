@@ -305,7 +305,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
             >
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="date" className="text-white font-medium">Select Date</Label>
                   <Input
@@ -316,6 +316,24 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     min={new Date().toISOString().split('T')[0]}
                     className="bg-gray-800 border-gray-600 text-white"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white font-medium">Experience Type</Label>
+                  <Select value={bookingData.experienceType} onValueChange={(value) => setBookingData(prev => ({ ...prev, experienceType: value }))}>
+                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="leisure_tour">Leisure Tour</SelectItem>
+                      <SelectItem value="swimming_watersports">Swimming & Water Sports</SelectItem>
+                      <SelectItem value="fine_dining">Fine Dining Experience</SelectItem>
+                      <SelectItem value="corporate_event">Corporate Event</SelectItem>
+                      <SelectItem value="private_celebration">Private Celebration</SelectItem>
+                      <SelectItem value="photography_session">Photography Session</SelectItem>
+                      <SelectItem value="fishing_charter">Fishing Charter</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
