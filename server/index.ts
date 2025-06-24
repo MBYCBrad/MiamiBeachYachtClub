@@ -2,10 +2,32 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
+import compression from "compression";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Ultra-fast performance optimizations
+app.use(compression({ level: 6, threshold: 1024 }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+
+// Disable unnecessary headers and optimize connections
+app.disable('x-powered-by');
+app.disable('etag');
+
+// Performance middleware for millisecond response times
+app.use((req, res, next) => {
+  // Enable HTTP/2 server push and keep-alive connections
+  res.set({
+    'Connection': 'keep-alive',
+    'Keep-Alive': 'timeout=5, max=1000',
+    'X-DNS-Prefetch-Control': 'off',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
+  });
+  
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -40,6 +62,10 @@ app.use((req, res, next) => {
 (async () => {
   // Seed the database with demo data
   await seedDatabase();
+  
+  // Initialize ultra-fast cache for instant responses
+  const { ultraFastCache } = await import("./ultra-fast-cache");
+  await ultraFastCache.initialize();
   
   const server = await registerRoutes(app);
 
