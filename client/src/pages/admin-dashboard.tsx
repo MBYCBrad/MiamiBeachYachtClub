@@ -1944,6 +1944,14 @@ export default function AdminDashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [bookingFilters, setBookingFilters] = useState({
+    status: 'all',
+    timeRange: 'all',
+    membershipTier: 'all',
+    yachtSize: 'all',
+    sortBy: 'date'
+  });
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
 
@@ -2028,13 +2036,89 @@ export default function AdminDashboard() {
     refetchInterval: 30000
   });
 
-  const { data: bookings = [] } = useQuery<any[]>({
+  const { data: allBookings = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/bookings'],
     staleTime: 15000, // Refresh every 15 seconds for real-time MBYC Actions
     refetchInterval: 15000,
     refetchOnWindowFocus: true, // Refresh when window gains focus
     refetchOnMount: true // Always fetch fresh data on mount
   });
+
+  // Filter and sort bookings based on active filters
+  const filteredBookings = useMemo(() => {
+    let filtered = [...allBookings];
+
+    // Status filter
+    if (bookingFilters.status !== 'all') {
+      filtered = filtered.filter(booking => booking.status === bookingFilters.status);
+    }
+
+    // Time range filter
+    if (bookingFilters.timeRange !== 'all') {
+      const now = new Date();
+      const startTime = new Date(filtered[0]?.startTime);
+      
+      switch (bookingFilters.timeRange) {
+        case 'today':
+          filtered = filtered.filter(booking => 
+            new Date(booking.startTime).toDateString() === now.toDateString()
+          );
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          filtered = filtered.filter(booking => 
+            new Date(booking.startTime) >= weekAgo
+          );
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          filtered = filtered.filter(booking => 
+            new Date(booking.startTime) >= monthAgo
+          );
+          break;
+      }
+    }
+
+    // Membership tier filter
+    if (bookingFilters.membershipTier !== 'all') {
+      filtered = filtered.filter(booking => 
+        booking.member?.membershipTier?.toLowerCase() === bookingFilters.membershipTier.toLowerCase()
+      );
+    }
+
+    // Yacht size filter
+    if (bookingFilters.yachtSize !== 'all') {
+      filtered = filtered.filter(booking => {
+        const size = booking.yacht?.size || 0;
+        switch (bookingFilters.yachtSize) {
+          case 'small': return size < 50;
+          case 'medium': return size >= 50 && size < 80;
+          case 'large': return size >= 80;
+          default: return true;
+        }
+      });
+    }
+
+    // Sort bookings
+    filtered.sort((a, b) => {
+      switch (bookingFilters.sortBy) {
+        case 'date':
+          return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
+        case 'member':
+          return (a.member?.name || '').localeCompare(b.member?.name || '');
+        case 'yacht':
+          return (a.yacht?.name || '').localeCompare(b.yacht?.name || '');
+        case 'status':
+          return (a.status || '').localeCompare(b.status || '');
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [allBookings, bookingFilters]);
+
+  const bookings = filteredBookings;
 
   const renderOverview = () => (
     <motion.div
@@ -2383,45 +2467,199 @@ export default function AdminDashboard() {
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-cyan-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`border-gray-600 transition-all ${
+              showFilters ? 'border-cyan-500 bg-cyan-500/10' : 'hover:border-cyan-500'
+            }`}
+          >
             <Filter className="h-4 w-4 mr-2" />
             Filter Bookings
+            {Object.values(bookingFilters).some(value => value !== 'all' && value !== 'date') && (
+              <div className="ml-2 w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+            )}
           </Button>
         </motion.div>
       </div>
 
-      {/* Stats Overview */}
+      {/* Advanced Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl mb-6">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Filter className="h-5 w-5 mr-2 text-cyan-500" />
+                    Advanced Booking Filters
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBookingFilters({
+                      status: 'all',
+                      timeRange: 'all',
+                      membershipTier: 'all',
+                      yachtSize: 'all',
+                      sortBy: 'date'
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    Reset Filters
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  {/* Status Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Status</label>
+                    <select
+                      value={bookingFilters.status}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  {/* Time Range Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Time Range</label>
+                    <select
+                      value={bookingFilters.timeRange}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                  </div>
+
+                  {/* Membership Tier Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Membership Tier</label>
+                    <select
+                      value={bookingFilters.membershipTier}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, membershipTier: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="all">All Tiers</option>
+                      <option value="bronze">Bronze</option>
+                      <option value="silver">Silver</option>
+                      <option value="gold">Gold</option>
+                      <option value="platinum">Platinum</option>
+                    </select>
+                  </div>
+
+                  {/* Yacht Size Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Yacht Size</label>
+                    <select
+                      value={bookingFilters.yachtSize}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, yachtSize: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="all">All Sizes</option>
+                      <option value="small">Small (&lt;50ft)</option>
+                      <option value="medium">Medium (50-80ft)</option>
+                      <option value="large">Large (80ft+)</option>
+                    </select>
+                  </div>
+
+                  {/* Sort By */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Sort By</label>
+                    <select
+                      value={bookingFilters.sortBy}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="date">Date (Newest First)</option>
+                      <option value="member">Member Name</option>
+                      <option value="yacht">Yacht Name</option>
+                      <option value="status">Status</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Filter Results Summary */}
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">
+                      Showing {filteredBookings.length} of {allBookings.length} bookings
+                    </span>
+                    <div className="flex items-center space-x-4 text-gray-400">
+                      {bookingFilters.status !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Status: {bookingFilters.status}
+                        </span>
+                      )}
+                      {bookingFilters.timeRange !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Time: {bookingFilters.timeRange}
+                        </span>
+                      )}
+                      {bookingFilters.membershipTier !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Tier: {bookingFilters.membershipTier}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Stats Overview - Updates with Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
-          title="Active Bookings"
-          value={bookings?.filter(b => b.status === 'confirmed')?.length || '0'}
+          title="Filtered Bookings"
+          value={bookings?.length.toString() || '0'}
           change={null}
-          icon={Anchor}
+          icon={Filter}
           gradient="from-cyan-500 to-teal-500"
           delay={0}
         />
         <StatCard
-          title="Today's Departures"
-          value={bookings?.filter(b => new Date(b.startTime).toDateString() === new Date().toDateString())?.length || '0'}
+          title="Active Bookings"
+          value={bookings?.filter(b => b.status === 'confirmed')?.length.toString() || '0'}
           change={null}
-          icon={Ship}
+          icon={Anchor}
           gradient="from-blue-500 to-cyan-500"
           delay={0.1}
         />
         <StatCard
-          title="Crew Assignments"
-          value={bookings?.filter(b => b.status === 'confirmed')?.length || '0'}
+          title="Pending Review"
+          value={bookings?.filter(b => b.status === 'pending')?.length.toString() || '0'}
           change={null}
-          icon={Users}
-          gradient="from-purple-500 to-pink-500"
+          icon={Clock}
+          gradient="from-orange-500 to-red-500"
           delay={0.2}
         />
         <StatCard
-          title="Guest Services"
-          value={bookings?.reduce((sum, b) => sum + (b.guestCount || 0), 0) || '0'}
+          title="Total Guests"
+          value={bookings?.reduce((sum, b) => sum + (b.guestCount || 0), 0).toString() || '0'}
           change={null}
-          icon={Sparkles}
-          gradient="from-orange-500 to-red-500"
+          icon={Users}
+          gradient="from-purple-500 to-pink-500"
           delay={0.3}
         />
       </div>
