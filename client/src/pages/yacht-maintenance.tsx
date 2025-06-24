@@ -223,7 +223,7 @@ export default function YachtMaintenance() {
               
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 mt-4 text-sm">
-                <Link href="/admin-dashboard" className="text-gray-400 hover:text-purple-400 transition-colors">
+                <Link href="/yacht-maintenance-overview" className="text-gray-400 hover:text-purple-400 transition-colors">
                   All Yachts
                 </Link>
                 <ChevronRight className="h-4 w-4 text-gray-500" />
