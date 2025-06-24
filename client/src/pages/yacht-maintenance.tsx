@@ -17,8 +17,10 @@ import { z } from "zod";
 import { 
   Wrench, Settings, AlertTriangle, CheckCircle, Clock, TrendingUp, TrendingDown,
   Anchor, Zap, Droplets, Fuel, Sun, Waves, Calendar, DollarSign, Target,
-  Activity, BarChart3, PieChart, LineChart, Gauge, Timer, MapPin, Users, Lock
+  Activity, BarChart3, PieChart, LineChart, Gauge, Timer, MapPin, Users, Lock,
+  ChevronRight, Home, Plus
 } from "lucide-react";
+import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
