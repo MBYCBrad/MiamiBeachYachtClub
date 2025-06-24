@@ -89,7 +89,6 @@ export default function YachtMaintenance() {
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: [`/api/maintenance/records/${selectedYacht}`],
-    queryFn: getQueryFn({}),
     enabled: !!selectedYacht,
     staleTime: 0,
     gcTime: 0,
