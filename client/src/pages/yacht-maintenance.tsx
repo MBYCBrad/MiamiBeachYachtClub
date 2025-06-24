@@ -582,7 +582,7 @@ export default function YachtMaintenance() {
             <TabsContent value="maintenance">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold text-white">Maintenance Records</h3>
-                <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+                <Dialog open={scheduleMaintenanceOpen} onOpenChange={setScheduleMaintenanceOpen}>
                   <DialogTrigger asChild>
                     <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <Wrench className="h-4 w-4 mr-2" />
