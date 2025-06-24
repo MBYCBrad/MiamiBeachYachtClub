@@ -230,7 +230,7 @@ const StaffServicesPage: React.FC = () => {
           { title: 'Total Services', value: services.length, icon: Sparkles, color: 'from-purple-500 to-blue-500' },
           { title: 'Active Services', value: services.filter(s => s.isActive).length, icon: CheckCircle, color: 'from-green-500 to-emerald-500' },
           { title: 'Total Providers', value: new Set(services.map(s => s.providerId)).size, icon: User, color: 'from-blue-500 to-cyan-500' },
-          { title: 'Avg Rating', value: (services.reduce((acc, s) => acc + s.rating, 0) / services.length || 0).toFixed(1), icon: Star, color: 'from-yellow-500 to-orange-500' }
+          { title: 'Avg Rating', value: (services.reduce((acc, s) => acc + (s.rating || 0), 0) / services.length || 0).toFixed(1), icon: Star, color: 'from-yellow-500 to-orange-500' }
         ] : [
           { title: 'Total Bookings', value: serviceBookings.length, icon: CheckCircle, color: 'from-purple-500 to-blue-500' },
           { title: 'Confirmed', value: serviceBookings.filter(b => b.status === 'confirmed').length, icon: CheckCircle, color: 'from-green-500 to-emerald-500' },
@@ -377,11 +377,11 @@ const StaffServicesPage: React.FC = () => {
                             </div>
                             <div className="flex items-center text-gray-400">
                               <Clock className="h-4 w-4 mr-2" />
-                              {formatDistanceToNow(new Date(booking.bookingDate), { addSuffix: true })}
+                              {booking.bookingDate ? formatDistanceToNow(new Date(booking.bookingDate), { addSuffix: true }) : 'Recently'}
                             </div>
                             <div className="flex items-center text-gray-400">
                               <DollarSign className="h-4 w-4 mr-2" />
-                              {booking.totalAmount}
+                              ${booking.totalAmount || '0.00'}
                             </div>
                             <div className="flex items-center text-gray-400">
                               <Sparkles className="h-4 w-4 mr-2" />

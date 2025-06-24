@@ -3079,7 +3079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/maintenance/assessments", requireAuth, requireRole([UserRole.ADMIN, UserRole.OWNER]), async (req, res) => {
+  app.post("/api/maintenance/assessments", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
     try {
       const assessment = await dbStorage.createConditionAssessment(req.body);
       res.status(201).json(assessment);

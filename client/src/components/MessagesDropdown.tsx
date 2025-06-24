@@ -57,9 +57,11 @@ const MessagesDropdown: React.FC<MessagesDropdownProps> = ({ userId }) => {
   const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/messages/conversations', userId],
     queryFn: async () => {
+      if (!userId) return [];
       const response = await apiRequest('GET', `/api/messages/conversations?userId=${userId}`);
       return response.json();
     },
+    enabled: !!userId,
     refetchInterval: 15000, // Refresh every 15 seconds
   });
 
@@ -191,7 +193,7 @@ const MessagesDropdown: React.FC<MessagesDropdownProps> = ({ userId }) => {
                       isFromUser ? 'justify-end' : 'justify-start'
                     }`}>
                       <Clock className="h-3 w-3 mr-1" />
-                      {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+                      {message.createdAt ? formatDistanceToNow(new Date(message.createdAt), { addSuffix: true }) : 'Just now'}
                       {isFromUser && message.isRead && (
                         <CheckCheck className="h-3 w-3 ml-1 text-blue-400" />
                       )}
