@@ -26,49 +26,31 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
 // Form schemas
-const tripLogSchema = z.object({
+const maintenanceScheduleSchema = z.object({
   yachtId: z.number(),
-  bookingId: z.number().optional(),
-  startTime: z.string(),
-  startLocation: z.string().min(1, "Start location is required"),
-  crewSize: z.number().min(1).max(20),
-  weatherConditions: z.string().min(1, "Weather conditions are required"),
-  seaConditions: z.string().min(1, "Sea conditions are required"),
-  startFuelLevel: z.number().min(0).max(100),
-  startBatteryLevel: z.number().min(0).max(100),
-  startWaterLevel: z.number().min(0).max(100),
-  startWasteLevel: z.number().min(0).max(100),
-  plannedRoute: z.string().optional(),
-  specialInstructions: z.string().optional(),
-});
-
-const maintenanceRecordSchema = z.object({
-  yachtId: z.number(),
-  componentId: z.number().optional(),
   taskType: z.string().min(1, "Task type is required"),
   description: z.string().min(1, "Description is required"),
-  scheduledDate: z.string(),
+  scheduledDate: z.string().min(1, "Scheduled date is required"),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
-  estimatedCost: z.number().min(0),
+  estimatedCost: z.number().min(0, "Cost must be positive"),
+  estimatedHours: z.number().min(0, "Hours must be positive"),
   assignedTo: z.string().optional(),
-  beforeCondition: z.number().min(0).max(10),
-  notes: z.string().optional(),
 });
 
-const conditionAssessmentSchema = z.object({
+const assessmentSchema = z.object({
   yachtId: z.number(),
-  componentId: z.number().optional(),
-  assessmentType: z.string().min(1, "Assessment type is required"),
-  conditionScore: z.number().min(0).max(10),
-  findings: z.string().min(1, "Findings are required"),
-  recommendations: z.string().optional(),
-  assessedBy: z.string().min(1, "Assessor name is required"),
-  nextAssessmentDate: z.string().optional(),
+  condition: z.enum(['excellent', 'good', 'fair', 'poor', 'critical']),
+  notes: z.string().min(1, "Notes are required"),
+  recommendedAction: z.string().optional(),
+  estimatedCost: z.number().min(0).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']),
 });
 
 export default function YachtMaintenance() {
   const [selectedYacht, setSelectedYacht] = useState<number | null>(33); // Default to Marina Breeze
   const [activeTab, setActiveTab] = useState("overview");
+  const [scheduleMaintenanceOpen, setScheduleMaintenanceOpen] = useState(false);
+  const [createAssessmentOpen, setCreateAssessmentOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -136,78 +118,71 @@ export default function YachtMaintenance() {
   });
 
   // Forms
-  const tripForm = useForm({
-    resolver: zodResolver(tripLogSchema),
+  const scheduleMaintenanceForm = useForm({
+    resolver: zodResolver(maintenanceScheduleSchema),
     defaultValues: {
-      yachtId: selectedYacht || 0,
-      startTime: new Date().toISOString().slice(0, 16),
-      crewSize: 2,
-      startFuelLevel: 100,
-      startBatteryLevel: 100,
-      startWaterLevel: 100,
-      startWasteLevel: 0,
-    }
-  });
-
-  const maintenanceForm = useForm({
-    resolver: zodResolver(maintenanceRecordSchema),
-    defaultValues: {
-      yachtId: 33, // Marina Breeze
-      taskType: "engine_service",
+      yachtId: selectedYacht || 33,
+      taskType: "",
       description: "",
-      scheduledDate: new Date().toISOString().slice(0, 10),
-      priority: 'medium' as const,
+      scheduledDate: "",
+      priority: "medium" as const,
       estimatedCost: 0,
+      estimatedHours: 0,
       assignedTo: "",
-      beforeCondition: 8,
-      notes: "",
-    }
+    },
   });
 
-  const assessmentForm = useForm({
-    resolver: zodResolver(conditionAssessmentSchema),
+  const createAssessmentForm = useForm({
+    resolver: zodResolver(assessmentSchema),
     defaultValues: {
-      yachtId: 33, // Marina Breeze
-      assessmentType: "routine_inspection",
-      conditionScore: 8,
-      findings: "",
-      recommendations: "",
-      assessedBy: "",
-      nextAssessmentDate: "",
-    }
+      yachtId: selectedYacht || 33,
+      condition: "good" as const,
+      notes: "",
+      recommendedAction: "",
+      estimatedCost: 0,
+      priority: "medium" as const,
+    },
   });
 
   // Mutations
-  const createTripLogMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof tripLogSchema>) => {
-      const res = await apiRequest("POST", "/api/maintenance/trip-logs", data);
-      return await res.json();
+  const scheduleMaintenanceMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof maintenanceScheduleSchema>) => {
+      const response = await apiRequest("POST", "/api/maintenance/records", data);
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance'] });
-      toast({ title: "Trip log created successfully" });
+      toast({ title: "Success", description: "Maintenance scheduled successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/schedules'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/records'] });
+      scheduleMaintenanceForm.reset();
+      setScheduleMaintenanceOpen(false);
     },
-  });
-
-  const createMaintenanceMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof maintenanceRecordSchema>) => {
-      const res = await apiRequest("POST", "/api/maintenance/records", data);
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance'] });
-      toast({ title: "Maintenance record created successfully" });
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to schedule maintenance",
+        variant: "destructive",
+      });
     },
   });
 
   const createAssessmentMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof conditionAssessmentSchema>) => {
-      const res = await apiRequest("POST", "/api/maintenance/assessments", data);
-      return await res.json();
+    mutationFn: async (data: z.infer<typeof assessmentSchema>) => {
+      const response = await apiRequest("POST", "/api/maintenance/assessments", data);
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance'] });
-      toast({ title: "Condition assessment created successfully" });
+      toast({ title: "Success", description: "Assessment created successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/assessments'] });
+      createAssessmentForm.reset();
+      setCreateAssessmentOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create assessment",
+        variant: "destructive",
+      });
     },
   });
 
