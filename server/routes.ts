@@ -1952,6 +1952,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Received assessment data:', req.body);
       
+      // Validate required fields
+      if (!req.body.yachtId || !req.body.condition || !req.body.notes) {
+        return res.status(400).json({ 
+          message: "Missing required fields: yachtId, condition, notes" 
+        });
+      }
+
       const conditionScore = req.body.condition === 'excellent' ? 10 : 
                             req.body.condition === 'good' ? 8 :
                             req.body.condition === 'fair' ? 6 :
@@ -1976,7 +1983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }] : [],
         recommendations: req.body.recommendedAction || req.body.notes,
         photos: [],
-        nextAssessmentDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
+        nextAssessmentDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
       };
 
       console.log('Processed assessment data:', assessmentData);
