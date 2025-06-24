@@ -654,6 +654,160 @@ function ViewUserDialog({ user }: { user: any }) {
   );
 }
 
+// View Yacht Dialog
+function ViewYachtDialog({ yacht }: { yacht: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <Anchor className="h-5 w-5 mr-2 text-blue-500" />
+            Yacht Details
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Yacht Image */}
+          <div className="space-y-4">
+            <div className="relative rounded-lg overflow-hidden">
+              <img 
+                src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                alt={yacht.name}
+                className="w-full h-64 object-cover"
+              />
+              <div className="absolute top-4 right-4">
+                <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                  {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-gray-800/50 rounded-lg">
+                <Label className="text-gray-400 text-sm">Hourly Rate</Label>
+                <p className="text-xl font-bold text-white">${yacht.pricePerHour || '0'}</p>
+              </div>
+              <div className="p-4 bg-gray-800/50 rounded-lg">
+                <Label className="text-gray-400 text-sm">Yacht ID</Label>
+                <p className="text-xl font-bold text-white font-mono">#{yacht.id}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Yacht Information */}
+          <div className="space-y-6">
+            {/* Basic Information */}
+            <div>
+              <Label className="text-gray-300 font-medium">Basic Information</Label>
+              <div className="space-y-3 mt-2">
+                <div>
+                  <Label className="text-gray-400 text-sm">Yacht Name</Label>
+                  <p className="text-xl font-bold text-white">{yacht.name}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Type</Label>
+                  <p className="text-white">{yacht.type || 'Luxury Yacht'}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Location</Label>
+                  <p className="text-white flex items-center">
+                    <MapPin className="h-4 w-4 mr-2 text-blue-500" />
+                    {yacht.location}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div>
+              <Label className="text-gray-300 font-medium">Specifications</Label>
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="p-3 bg-gray-800/30 rounded-lg">
+                  <Label className="text-gray-400 text-sm">Length</Label>
+                  <p className="text-white font-semibold">{yacht.size}ft</p>
+                </div>
+                <div className="p-3 bg-gray-800/30 rounded-lg">
+                  <Label className="text-gray-400 text-sm">Capacity</Label>
+                  <p className="text-white font-semibold">{yacht.capacity} guests</p>
+                </div>
+                <div className="p-3 bg-gray-800/30 rounded-lg">
+                  <Label className="text-gray-400 text-sm">Crew Size</Label>
+                  <p className="text-white font-semibold">{yacht.crewSize || 'Professional'}</p>
+                </div>
+                <div className="p-3 bg-gray-800/30 rounded-lg">
+                  <Label className="text-gray-400 text-sm">Year Built</Label>
+                  <p className="text-white font-semibold">{yacht.yearBuilt || '2020+'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div>
+              <Label className="text-gray-300 font-medium">Amenities</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {yacht.amenities ? 
+                  yacht.amenities.map((amenity: string, index: number) => (
+                    <Badge key={index} className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                      {amenity}
+                    </Badge>
+                  )) :
+                  <>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Swimming Platform</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Full Kitchen</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Entertainment System</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Water Sports Equipment</Badge>
+                  </>
+                }
+              </div>
+            </div>
+
+            {/* Description */}
+            {yacht.description && (
+              <div>
+                <Label className="text-gray-300 font-medium">Description</Label>
+                <p className="text-gray-300 mt-2 leading-relaxed">{yacht.description}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Operational Status */}
+          <div className="col-span-full">
+            <Label className="text-gray-300 font-medium">Operational Status</Label>
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              <div className="p-4 bg-gray-800/30 rounded-lg text-center">
+                <Label className="text-gray-400 text-sm">Current Status</Label>
+                <p className={`text-lg font-semibold ${yacht.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
+                  {yacht.isAvailable ? 'Available' : 'In Use'}
+                </p>
+              </div>
+              <div className="p-4 bg-gray-800/30 rounded-lg text-center">
+                <Label className="text-gray-400 text-sm">Owner</Label>
+                <p className="text-white font-semibold">{yacht.ownerName || 'MBYC Fleet'}</p>
+              </div>
+              <div className="p-4 bg-gray-800/30 rounded-lg text-center">
+                <Label className="text-gray-400 text-sm">Added</Label>
+                <p className="text-white font-semibold">
+                  {yacht.createdAt ? new Date(yacht.createdAt).toLocaleDateString() : 'Recently'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Add User Dialog
 function AddUserDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -3848,9 +4002,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${yacht.pricePerHour || '0'}/hour</span>
                   <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <ViewYachtDialog yacht={yacht} />
                     <EditYachtDialog yacht={yacht} />
                     <DeleteYachtDialog yacht={yacht} />
                   </div>
