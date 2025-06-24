@@ -528,7 +528,7 @@ function ViewUserDialog({ user }: { user: any }) {
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center">
             <User className="h-5 w-5 mr-2 text-purple-500" />
