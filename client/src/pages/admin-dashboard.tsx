@@ -2096,13 +2096,7 @@ export default function AdminDashboard() {
     const adminRevenue = filteredPayments.reduce((sum, p) => sum + (parseFloat(p.adminRevenue) || 0), 0);
     const yachtBookings = filteredPayments.filter(p => p.type === 'Yacht Booking').length;
     
-    console.log('Filter debug:', {
-      timeRange: bookingFilters.timeRange,
-      originalPaymentsCount: allPayments.length,
-      filteredPaymentsCount: filteredPayments.length,
-      totalRevenue,
-      firstPayment: allPayments[0]
-    });
+    // Debug logging removed for cleaner console
 
     // Enhanced analytics with filtered data
     const enhancedAnalytics = {
@@ -2250,6 +2244,18 @@ export default function AdminDashboard() {
               e.preventDefault();
               e.stopPropagation();
               console.log('Overview filter button clicked, current showFilters:', showFilters);
+              
+              if (showFilters) {
+                // If closing filters, reset all filters to default
+                setBookingFilters({
+                  status: 'all',
+                  timeRange: 'all',
+                  membershipTier: 'all',
+                  yachtSize: 'all',
+                  sortBy: 'date'
+                });
+              }
+              
               setShowFilters(!showFilters);
             }}
             className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
