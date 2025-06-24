@@ -17,10 +17,11 @@ import { z } from "zod";
 import { 
   Wrench, Settings, AlertTriangle, CheckCircle, Clock, TrendingUp, TrendingDown,
   Anchor, Zap, Droplets, Fuel, Sun, Waves, Calendar, DollarSign, Target,
-  Activity, BarChart3, PieChart, LineChart, Gauge, Timer, MapPin, Users
+  Activity, BarChart3, PieChart, LineChart, Gauge, Timer, MapPin, Users, Lock
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 // Form schemas
 const tripLogSchema = z.object({
@@ -68,6 +69,27 @@ export default function YachtMaintenance() {
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // Check user access - only yacht owners and admins can access maintenance
+  if (!user || (user.role !== 'admin' && user.role !== 'yacht_owner')) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-16 w-16 mx-auto mb-6 bg-red-500/20 rounded-full flex items-center justify-center">
+            <Lock className="h-8 w-8 text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Access Restricted</h2>
+          <p className="text-gray-400 mb-4">
+            The Yacht Maintenance System is only accessible to yacht owners and administrators.
+          </p>
+          <p className="text-sm text-gray-500">
+            Current role: {user?.role || 'Not authenticated'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Data queries
   const { data: yachts = [], isLoading: yachtsLoading } = useQuery({

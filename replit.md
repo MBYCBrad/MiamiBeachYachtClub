@@ -345,6 +345,12 @@ Changelog:
   - Updated admin and yacht owner forms to include maintenance calculation fields
   - Enables accurate depreciation, usage, and market value assessments for maintenance planning
   - Role-based data filtering ensures sensitive yacht financial information remains protected
+- June 24, 2025. Fixed database schema issues and implemented yacht maintenance access control
+  - Resolved database column errors by adding missing yearMade and totalCost fields directly via SQL
+  - Restored full application functionality with all pages displaying proper data
+  - Implemented role-based access control for yacht maintenance system
+  - Yacht maintenance now restricted to yacht owners and administrators only
+  - Regular members see clear access restriction message with role information
   - Guest selection dropdown now displays cleanly without layering conflicts
 - June 22, 2025. Updated yacht thumbnails to display authentic real-time images from media storage
   - Replaced all external Unsplash stock photos with authentic yacht images from attached assets
