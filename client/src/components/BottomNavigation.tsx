@@ -19,6 +19,11 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ currentView, setCurrentView }: BottomNavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logoutMutation } = useAuth();
+  
+  // Swipe gesture states
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const navItems = [
     { id: 'explore', icon: Explore3DIcon, label: 'Explore' },
@@ -27,6 +32,45 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
     { id: 'messages', icon: Messages3DIcon, label: 'Messages' },
     { id: 'menu', icon: Menu3DIcon, label: '' }
   ];
+
+  // Swipe gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setStartX(touch.clientX);
+    setCurrentX(touch.clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    setCurrentX(touch.clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const deltaX = currentX - startX;
+    const threshold = 50; // Minimum swipe distance
+    
+    if (Math.abs(deltaX) > threshold) {
+      const currentIndex = navItems.findIndex(item => item.id === currentView);
+      const navigationItems = navItems.filter(item => item.id !== 'menu'); // Exclude menu from navigation
+      const currentNavIndex = navigationItems.findIndex(item => item.id === currentView);
+      
+      if (deltaX > 0 && currentNavIndex > 0) {
+        // Swipe right - go to previous tab
+        setCurrentView(navigationItems[currentNavIndex - 1].id);
+      } else if (deltaX < 0 && currentNavIndex < navigationItems.length - 1) {
+        // Swipe left - go to next tab
+        setCurrentView(navigationItems[currentNavIndex + 1].id);
+      }
+    }
+    
+    setStartX(0);
+    setCurrentX(0);
+  };
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
@@ -59,8 +103,28 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10 rounded-t-2xl"
+        className={`fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10 rounded-t-2xl transition-transform duration-200 ${
+          isDragging ? 'swipe-active' : ''
+        }`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          transform: isDragging ? `translateX(${(currentX - startX) * 0.1}px)` : 'translateX(0px)'
+        }}
       >
+        {/* Swipe Direction Indicators */}
+        {isDragging && (
+          <>
+            <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-purple-400 opacity-60">
+              ←
+            </div>
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-purple-400 opacity-60">
+              →
+            </div>
+          </>
+        )}
+        
         <div className="flex justify-around items-center w-full px-4 py-2 pb-safe">
           {navItems.map((item) => {
             const IconComponent = item.icon;
@@ -70,7 +134,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               <motion.button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex flex-col items-center justify-center p-2 transition-all duration-300 ${
+                className={`flex flex-col items-center justify-center p-2 transition-all duration-300 touch-friendly ${
                   isActive 
                     ? 'text-purple-400' 
                     : 'text-white hover:text-purple-300'

@@ -125,17 +125,21 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         {/* Enhanced Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-purple-900/10 to-black/70" />
         
-        {/* Sound Control */}
-        <div className="absolute top-4 right-4">
+        {/* Sound Control - Mobile optimized */}
+        <motion.div 
+          className="absolute top-4 right-4"
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+        >
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsMuted(!isMuted)}
-            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40"
+            className="bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 mobile-button min-h-[44px] min-w-[44px] p-3"
           >
-            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            {isMuted ? <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" /> : <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />}
           </Button>
-        </div>
+        </motion.div>
 
         {/* Hero Content */}
         <div className="absolute inset-0 flex items-center justify-center text-center px-4 sm:px-6 lg:px-8">
