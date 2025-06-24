@@ -1,94 +1,46 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Calendar, Clock, Plus, Ship, User, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CalendarDays, Users, Clock, MapPin, Ship, UserCheck, Calendar, Plus, X } from 'lucide-react';
+import { format } from 'date-fns';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-interface CrewAssignment {
-  id: string;
-  bookingId: number;
-  status: string;
-  briefingTime: string;
-  briefingLocation: string;
-  notes: string;
-  captain: {
-    id: number;
-    username: string;
-    role: string;
-  } | null;
-  firstMate: {
-    id: number;
-    username: string;
-    role: string;
-  } | null;
-  crewMembers: Array<{
-    id: number;
-    username: string;
-    role: string;
-  }>;
-  booking: {
-    id: number;
-    startTime: string;
-    endTime: string;
-    guestCount: number;
-    yachtName: string;
-    memberName: string;
-  };
-}
-
-interface StaffMember {
-  id: number;
-  username: string;
-  role: string;
-  email?: string;
-  phone?: string;
-  status?: string;
-}
-
-interface Yacht {
-  id: number;
-  name: string;
-  size: number;
-  capacity: number;
-}
-
 export default function CrewManagement() {
-  const [selectedCaptain, setSelectedCaptain] = useState('');
-  const [selectedFirstMate, setSelectedFirstMate] = useState('');
-  const [selectedCrewMembers, setSelectedCrewMembers] = useState<string[]>([]);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
+  const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
+  const [selectedFirstMate, setSelectedFirstMate] = useState<number | null>(null);
+  const [additionalCrew, setAdditionalCrew] = useState<number[]>([]);
   const [briefingTime, setBriefingTime] = useState('');
   const [briefingLocation, setBriefingLocation] = useState('');
   const [assignmentNotes, setAssignmentNotes] = useState('');
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
-  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch data
-  const { data: assignments = [], isLoading: assignmentsLoading } = useQuery({
-    queryKey: ['/api/crew/assignments'],
-  });
-
-  const { data: staff = [], isLoading: staffLoading } = useQuery({
+  const crewData = useQuery({
     queryKey: ['/api/admin/staff'],
+    enabled: true
   });
 
-  const { data: yachts = [], isLoading: yachtsLoading } = useQuery({
-    queryKey: ['/api/yachts'],
+  const assignmentsData = useQuery({
+    queryKey: ['/api/crew/assignments'],
+    enabled: true
   });
 
-  // Create assignment mutation
+  const bookingsData = useQuery({
+    queryKey: ['/api/admin/bookings'],
+    enabled: true
+  });
+
   const createAssignmentMutation = useMutation({
     mutationFn: async (assignmentData: any) => {
       const response = await apiRequest('POST', '/api/crew/assignments', assignmentData);
@@ -96,6 +48,7 @@ export default function CrewManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/crew/assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
       setIsAssignDialogOpen(false);
       resetForm();
       toast({
@@ -113,13 +66,13 @@ export default function CrewManagement() {
   });
 
   const resetForm = () => {
-    setSelectedCaptain('');
-    setSelectedFirstMate('');
-    setSelectedCrewMembers([]);
+    setSelectedBookingId(null);
+    setSelectedCaptain(null);
+    setSelectedFirstMate(null);
+    setAdditionalCrew([]);
     setBriefingTime('');
     setBriefingLocation('');
     setAssignmentNotes('');
-    setSelectedBookingId(null);
   };
 
   const handleCreateAssignment = () => {
@@ -134,401 +87,395 @@ export default function CrewManagement() {
 
     const assignmentData = {
       bookingId: selectedBookingId,
-      captainId: parseInt(selectedCaptain),
-      firstMateId: selectedFirstMate ? parseInt(selectedFirstMate) : null,
-      crewMemberIds: selectedCrewMembers.map(id => parseInt(id)),
+      captainId: selectedCaptain,
+      firstMateId: selectedFirstMate,
+      crewMemberIds: additionalCrew,
       briefingTime,
       briefingLocation,
-      assignmentNotes,
+      notes: assignmentNotes,
     };
 
     createAssignmentMutation.mutate(assignmentData);
   };
 
-  const availableCaptains = (Array.isArray(staff) ? staff : []).filter((member: StaffMember) =>
-    member.role === 'captain'
+  const crew = crewData.data || [];
+  const assignments = assignmentsData.data || [];
+  const bookings = bookingsData.data || [];
+
+  // Filter crew by role
+  const captains = crew.filter(member => member.role === 'captain');
+  const firstMates = crew.filter(member => member.role === 'first_mate');
+  const crewMembers = crew.filter(member => member.role === 'crew_member');
+
+  // Filter bookings
+  const unassignedBookings = bookings.filter(booking => 
+    !assignments.some(assignment => assignment.bookingId === booking.id)
   );
-
-  const availableFirstMates = (Array.isArray(staff) ? staff : []).filter((member: StaffMember) =>
-    member.role === 'first_mate'
-  );
-
-  const availableCrewMembers = (Array.isArray(staff) ? staff : []).filter((member: StaffMember) =>
-    member.role === 'crew_member'
-  );
-
-  const unassignedBookings = (Array.isArray(assignments) ? assignments : [])
-    .filter((a: CrewAssignment) => a.status === 'unassigned');
-
-  const assignedBookings = (Array.isArray(assignments) ? assignments : [])
-    .filter((a: CrewAssignment) => a.status === 'assigned' || a.status === 'in_progress');
-
-  const pastBookings = (Array.isArray(assignments) ? assignments : [])
-    .filter((a: CrewAssignment) => a.status === 'completed' || a.status === 'cancelled');
-
-  if (assignmentsLoading || staffLoading || yachtsLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading crew management...</div>
-      </div>
-    );
-  }
+  
+  const activeAssignments = assignments.filter(assignment => {
+    const booking = bookings.find(b => b.id === assignment.bookingId);
+    return booking && new Date(booking.startTime) > new Date();
+  });
+  
+  const pastAssignments = assignments.filter(assignment => {
+    const booking = bookings.find(b => b.id === assignment.bookingId);
+    return booking && new Date(booking.startTime) <= new Date();
+  });
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-white mb-2">Crew Management</h1>
-          <p className="text-gray-400">Assign crew members to yacht bookings and manage schedules</p>
-        </motion.div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
+            Crew Management
+          </h1>
+          <p className="text-gray-400 text-lg">Manage yacht crew assignments and scheduling</p>
+        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-600/20 rounded-lg">
-                  <Users className="w-6 h-6 text-purple-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-gray-400 text-sm">Total Assignments</p>
-                  <p className="text-white text-2xl font-bold">{assignments.length}</p>
-                </div>
+        <div className="grid gap-6">
+          {/* Unassigned Bookings */}
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-purple-400 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5" />
+                Unassigned Bookings ({unassignedBookings.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {unassignedBookings.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No unassigned bookings</p>
+                ) : (
+                  unassignedBookings.map((booking) => (
+                    <div key={booking.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-white">Booking #{booking.id}</h3>
+                          <div className="flex items-center gap-4 text-sm text-gray-300">
+                            <div className="flex items-center gap-1">
+                              <Ship className="w-4 h-4" />
+                              {booking.yacht?.name}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {format(new Date(booking.startTime), 'MMM dd, yyyy HH:mm')}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              {booking.guestCount} guests
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-400">
+                            Member: {booking.member?.name}
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => {
+                            setSelectedBookingId(booking.id);
+                            setIsAssignDialogOpen(true);
+                          }}
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                        >
+                          <UserCheck className="w-4 h-4 mr-2" />
+                          Assign Crew
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-600/20 rounded-lg">
-                  <CheckCircle className="w-6 h-6 text-green-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-gray-400 text-sm">Active Crew</p>
-                  <p className="text-white text-2xl font-bold">{staff.length}</p>
-                </div>
+          {/* Active Assignments */}
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-green-400 flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Active Assignments ({activeAssignments.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {activeAssignments.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No active assignments</p>
+                ) : (
+                  activeAssignments.map((assignment) => {
+                    const booking = bookings.find(b => b.id === assignment.bookingId);
+                    const captain = crew.find(c => c.id === assignment.captainId);
+                    
+                    return (
+                      <div key={assignment.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-semibold text-white">Booking #{assignment.bookingId}</h3>
+                            <Badge className="bg-green-600 text-white">Active</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-400">Captain:</span>
+                              <span className="ml-2 text-white">{captain?.username || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Yacht:</span>
+                              <span className="ml-2 text-white">{booking?.yacht?.name || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Date:</span>
+                              <span className="ml-2 text-white">
+                                {booking ? format(new Date(booking.startTime), 'MMM dd, yyyy HH:mm') : 'N/A'}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Status:</span>
+                              <span className="ml-2 text-white">{assignment.status}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-600/20 rounded-lg">
-                  <Ship className="w-6 h-6 text-blue-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-gray-400 text-sm">Available Yachts</p>
-                  <p className="text-white text-2xl font-bold">{yachts.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-yellow-600/20 rounded-lg">
-                  <Calendar className="w-6 h-6 text-yellow-400" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-gray-400 text-sm">Pending Assignments</p>
-                  <p className="text-white text-2xl font-bold">{unassignedBookings.length}</p>
-                </div>
+          {/* Past Assignments */}
+          <Card className="bg-gray-900 border-gray-800">
+            <CardHeader>
+              <CardTitle className="text-gray-400 flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Past Assignments ({pastAssignments.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 max-h-96 overflow-y-auto">
+                {pastAssignments.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No past assignments</p>
+                ) : (
+                  pastAssignments.map((assignment) => {
+                    const booking = bookings.find(b => b.id === assignment.bookingId);
+                    const captain = crew.find(c => c.id === assignment.captainId);
+                    
+                    return (
+                      <div key={assignment.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700 opacity-75">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-semibold text-white">Booking #{assignment.bookingId}</h3>
+                            <Badge variant="secondary" className="bg-gray-600 text-gray-300">Completed</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-400">Captain:</span>
+                              <span className="ml-2 text-gray-300">{captain?.username || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Yacht:</span>
+                              <span className="ml-2 text-gray-300">{booking?.yacht?.name || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Date:</span>
+                              <span className="ml-2 text-gray-300">
+                                {booking ? format(new Date(booking.startTime), 'MMM dd, yyyy') : 'N/A'}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400">Status:</span>
+                              <span className="ml-2 text-gray-300">{assignment.status}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Pending Assignments */}
-        {unassignedBookings.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <Card className="bg-gray-800/50 border-gray-700">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-white">
-                  Pending Crew Assignments ({unassignedBookings.length})
-                </CardTitle>
-                <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Assign Crew
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-gray-800 border-gray-700 max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">Create Crew Assignment</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-white">Select Booking</Label>
-                        <Select value={selectedBookingId?.toString() || ''} onValueChange={(value) => setSelectedBookingId(parseInt(value))}>
-                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                            <SelectValue placeholder="Choose a booking" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600">
-                            {unassignedBookings.map((assignment: CrewAssignment) => (
-                              <SelectItem key={assignment.bookingId} value={assignment.bookingId.toString()}>
-                                {assignment.booking.yachtName} - {assignment.booking.memberName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+        {/* Assignment Dialog - Original Detailed Form */}
+        <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+          <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">
+                Create Crew Assignment
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Select Booking */}
+              <div>
+                <Label className="text-lg font-semibold text-white mb-3 block">
+                  Select Booking
+                </Label>
+                <Select value={selectedBookingId?.toString() || ''} onValueChange={(value) => setSelectedBookingId(Number(value))}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
+                    <SelectValue placeholder="Choose a booking" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    {unassignedBookings.map((booking) => (
+                      <SelectItem key={booking.id} value={booking.id.toString()}>
+                        Booking #{booking.id} - {booking.yacht?.name} - {format(new Date(booking.startTime), 'MMM dd, yyyy')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                      <div>
-                        <Label className="text-white">Captain *</Label>
-                        <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
-                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                            <SelectValue placeholder="Select captain" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600">
-                            {availableCaptains.map((captain: StaffMember) => (
-                              <SelectItem key={captain.id} value={captain.id.toString()}>
-                                {captain.username}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+              {/* Captain Selection */}
+              <div>
+                <Label className="text-lg font-semibold text-white mb-3 block">
+                  Captain *
+                </Label>
+                <Select value={selectedCaptain?.toString() || ''} onValueChange={(value) => setSelectedCaptain(Number(value))}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
+                    <SelectValue placeholder="Select captain" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    {captains.map((captain) => (
+                      <SelectItem key={captain.id} value={captain.id.toString()}>
+                        {captain.username} - {captain.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                      <div>
-                        <Label className="text-white">First Mate</Label>
-                        <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
-                          <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                            <SelectValue placeholder="Select first mate (optional)" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600">
-                            {availableFirstMates.map((firstMate: StaffMember) => (
-                              <SelectItem key={firstMate.id} value={firstMate.id.toString()}>
-                                {firstMate.username}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+              {/* First Mate Selection */}
+              <div>
+                <Label className="text-lg font-semibold text-white mb-3 block">
+                  First Mate
+                </Label>
+                <Select value={selectedFirstMate?.toString() || ''} onValueChange={(value) => setSelectedFirstMate(value ? Number(value) : null)}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
+                    <SelectValue placeholder="Select first mate (optional)" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    <SelectItem value="">None</SelectItem>
+                    {firstMates.map((mate) => (
+                      <SelectItem key={mate.id} value={mate.id.toString()}>
+                        {mate.username} - {mate.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                      <div>
-                        <Label className="text-white">Additional Crew Members</Label>
-                        <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                          {availableCrewMembers.map((member: StaffMember) => (
-                            <label key={member.id} className="flex items-center space-x-2 text-white hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 p-2 rounded-lg transition-all duration-200">
-                              <input
-                                type="checkbox"
-                                checked={selectedCrewMembers.includes(member.id.toString())}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedCrewMembers([...selectedCrewMembers, member.id.toString()]);
-                                  } else {
-                                    setSelectedCrewMembers(selectedCrewMembers.filter(id => id !== member.id.toString()));
-                                  }
-                                }}
-                                className="rounded accent-purple-500"
-                              />
-                              <span className="text-sm">{member.username}</span>
-                            </label>
+              {/* Additional Crew Members */}
+              <div>
+                <Label className="text-lg font-semibold text-white mb-3 block">
+                  Additional Crew Members
+                </Label>
+                <div className="space-y-3">
+                  {additionalCrew.map((crewId, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Select value={crewId.toString()} onValueChange={(value) => {
+                        const newCrew = [...additionalCrew];
+                        newCrew[index] = Number(value);
+                        setAdditionalCrew(newCrew);
+                      }}>
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white flex-1">
+                          <SelectValue placeholder="Select crew member" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-700 border-gray-600">
+                          {crewMembers.map((member) => (
+                            <SelectItem key={member.id} value={member.id.toString()}>
+                              {member.username} - {member.email}
+                            </SelectItem>
                           ))}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-white">Briefing Time</Label>
-                          <Input
-                            type="datetime-local"
-                            value={briefingTime}
-                            onChange={(e) => setBriefingTime(e.target.value)}
-                            className="bg-gray-700 border-gray-600 text-white"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-white">Briefing Location</Label>
-                          <Input
-                            value={briefingLocation}
-                            onChange={(e) => setBriefingLocation(e.target.value)}
-                            placeholder="Marina, dock number, etc."
-                            className="bg-gray-700 border-gray-600 text-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label className="text-white">Assignment Notes</Label>
-                        <Textarea
-                          value={assignmentNotes}
-                          onChange={(e) => setAssignmentNotes(e.target.value)}
-                          placeholder="Special instructions, requirements, etc."
-                          className="bg-gray-700 border-gray-600 text-white"
-                        />
-                      </div>
-
-                      <div className="flex gap-2 pt-4">
-                        <Button
-                          onClick={handleCreateAssignment}
-                          disabled={createAssignmentMutation.isPending || !selectedCaptain || !selectedBookingId}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold transition-all duration-200 flex-1"
-                        >
-                          {createAssignmentMutation.isPending ? 'Creating...' : 'Create Assignment'}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsAssignDialogOpen(false)}
-                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newCrew = additionalCrew.filter((_, i) => i !== index);
+                          setAdditionalCrew(newCrew);
+                        }}
+                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {unassignedBookings.map((assignment: CrewAssignment) => (
-                    <motion.div
-                      key={assignment.id}
-                      className="bg-gray-700/50 rounded-lg p-4 border border-gray-600"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-white font-semibold">{assignment.booking.yachtName}</h3>
-                          <p className="text-gray-400 text-sm">Member: {assignment.booking.memberName}</p>
-                        </div>
-                        <Badge variant="secondary" className="bg-yellow-600/20 text-yellow-400">
-                          Unassigned
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {new Date(assignment.booking.startTime).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {new Date(assignment.booking.startTime).toLocaleTimeString()} - {new Date(assignment.booking.endTime).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {assignment.booking.guestCount} Guests
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
                   ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setAdditionalCrew([...additionalCrew, 0])}
+                    className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Crew Member
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+              </div>
 
-        {/* Active Assignments */}
-        {assignedBookings.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Card className="bg-gray-800/50 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Active Assignments ({assignedBookings.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {assignedBookings.map((assignment: CrewAssignment) => (
-                    <motion.div
-                      key={assignment.id}
-                      className="bg-gray-700/50 rounded-lg p-4 border border-gray-600"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-white font-semibold">{assignment.booking.yachtName}</h3>
-                          <p className="text-gray-400 text-sm">Member: {assignment.booking.memberName}</p>
-                        </div>
-                        <Badge className="bg-green-600/20 text-green-400">
-                          {assignment.status}
-                        </Badge>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        {assignment.captain && (
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-purple-600 text-white">
-                                {(assignment.captain.username || 'C').substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-white font-medium">{assignment.captain.username}</p>
-                              <p className="text-gray-400 text-sm">Captain</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {assignment.firstMate && (
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback className="bg-indigo-600 text-white">
-                                {(assignment.firstMate.username || 'F').substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-white font-medium">{assignment.firstMate.username}</p>
-                              <p className="text-gray-400 text-sm">First Mate</p>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <User className="w-5 h-5 text-gray-400" />
-                          <div>
-                            <p className="text-white font-medium">
-                              {assignment.crewMembers.length} Crew Members
-                            </p>
-                            <p className="text-gray-400 text-sm">
-                              {assignment.booking.guestCount} Guests
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {(assignment.briefingLocation || assignment.notes) && (
-                        <div className="pt-4 border-t border-gray-600">
-                          {assignment.briefingLocation && (
-                            <p className="text-gray-300 mb-2">
-                              <strong>Briefing:</strong> {assignment.briefingLocation}
-                            </p>
-                          )}
-                          {assignment.notes && (
-                            <p className="text-gray-300">
-                              <strong>Notes:</strong> {assignment.notes}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+              {/* Briefing Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-lg font-semibold text-white mb-3 block">
+                    Briefing Time
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    value={briefingTime}
+                    onChange={(e) => setBriefingTime(e.target.value)}
+                    className="bg-gray-700 border-gray-600 text-white h-12"
+                    placeholder="mm/dd/yyyy, --:-- --"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+                <div>
+                  <Label className="text-lg font-semibold text-white mb-3 block">
+                    Briefing Location
+                  </Label>
+                  <Input
+                    placeholder="Marina, dock number, etc."
+                    value={briefingLocation}
+                    onChange={(e) => setBriefingLocation(e.target.value)}
+                    className="bg-gray-700 border-gray-600 text-white h-12"
+                  />
+                </div>
+              </div>
+
+              {/* Assignment Notes */}
+              <div>
+                <Label className="text-lg font-semibold text-white mb-3 block">
+                  Assignment Notes
+                </Label>
+                <Textarea
+                  placeholder="Special instructions, requirements, etc."
+                  value={assignmentNotes}
+                  onChange={(e) => setAssignmentNotes(e.target.value)}
+                  className="bg-gray-700 border-gray-600 text-white resize-none h-24"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-6">
+                <Button
+                  onClick={handleCreateAssignment}
+                  disabled={createAssignmentMutation.isPending || !selectedCaptain || !selectedBookingId}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold transition-all duration-200 flex-1 h-12"
+                >
+                  {createAssignmentMutation.isPending ? 'Creating Assignment...' : 'Create Assignment'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsAssignDialogOpen(false);
+                    resetForm();
+                  }}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12 px-6"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
