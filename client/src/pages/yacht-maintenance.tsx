@@ -601,32 +601,58 @@ export default function YachtMaintenance() {
                     </DialogHeader>
                     <Form {...scheduleMaintenanceForm}>
                       <form onSubmit={scheduleMaintenanceForm.handleSubmit((data) => scheduleMaintenanceMutation.mutate(data))} className="space-y-4">
-                        <FormField
-                          control={scheduleMaintenanceForm.control}
-                          name="taskType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Task Type</FormLabel>
-                              <FormControl>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                                    <SelectValue placeholder="Select task type" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-gray-800 border-gray-700">
-                                    <SelectItem value="engine">Engine Maintenance</SelectItem>
-                                    <SelectItem value="hull">Hull Inspection</SelectItem>
-                                    <SelectItem value="electrical">Electrical System</SelectItem>
-                                    <SelectItem value="plumbing">Plumbing System</SelectItem>
-                                    <SelectItem value="safety">Safety Equipment</SelectItem>
-                                    <SelectItem value="cosmetic">Cosmetic Repairs</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={scheduleMaintenanceForm.control}
+                            name="taskType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Task Type</FormLabel>
+                                <FormControl>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                      <SelectValue placeholder="Select task type" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-700">
+                                      <SelectItem value="preventive">Preventive</SelectItem>
+                                      <SelectItem value="corrective">Corrective</SelectItem>
+                                      <SelectItem value="emergency">Emergency</SelectItem>
+                                      <SelectItem value="inspection">Inspection</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={scheduleMaintenanceForm.control}
+                            name="category"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Category</FormLabel>
+                                <FormControl>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                      <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-gray-800 border-gray-700">
+                                      <SelectItem value="engine">Engine</SelectItem>
+                                      <SelectItem value="hull">Hull</SelectItem>
+                                      <SelectItem value="electronics">Electronics</SelectItem>
+                                      <SelectItem value="safety">Safety</SelectItem>
+                                      <SelectItem value="cosmetic">Cosmetic</SelectItem>
+                                      <SelectItem value="plumbing">Plumbing</SelectItem>
+                                      <SelectItem value="electrical">Electrical</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                         
                         <FormField
                           control={scheduleMaintenanceForm.control}
@@ -712,7 +738,7 @@ export default function YachtMaintenance() {
 
                           <FormField
                             control={scheduleMaintenanceForm.control}
-                            name="estimatedHours"
+                            name="estimatedDuration"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel className="text-white">Est. Hours</FormLabel>
@@ -721,9 +747,9 @@ export default function YachtMaintenance() {
                                     {...field} 
                                     type="number" 
                                     min="0"
-                                    step="0.5"
+                                    step="1"
                                     className="bg-gray-800 border-gray-700 text-white"
-                                    onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                    onChange={e => field.onChange(parseInt(e.target.value) || 0)}
                                   />
                                 </FormControl>
                                 <FormMessage />
