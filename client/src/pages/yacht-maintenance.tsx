@@ -35,7 +35,7 @@ const assessmentSchema = z.object({
   condition: z.enum(['excellent', 'good', 'fair', 'poor', 'critical']),
   notes: z.string().min(1, "Notes are required"),
   recommendedAction: z.string().optional(),
-  estimatedCost: z.number().min(0).optional(),
+  estimatedCost: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
 });
 
@@ -120,7 +120,7 @@ export default function YachtMaintenance() {
       description: "",
       scheduledDate: new Date().toISOString().split('T')[0],
       priority: "medium" as const,
-      estimatedCost: 0,
+      estimatedCost: "0",
       estimatedDuration: 0,
       assignedTo: "",
     },
@@ -133,7 +133,7 @@ export default function YachtMaintenance() {
       condition: "good" as const,
       notes: "",
       recommendedAction: "",
-      estimatedCost: 0,
+      estimatedCost: "0",
       priority: "medium" as const,
     },
   });
@@ -722,7 +722,7 @@ export default function YachtMaintenance() {
                                     min="0"
                                     step="1"
                                     className="bg-gray-800 border-gray-700 text-white"
-                                    onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                                    placeholder="5000"
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -743,7 +743,7 @@ export default function YachtMaintenance() {
                                     min="0"
                                     step="1"
                                     className="bg-gray-800 border-gray-700 text-white"
-                                    onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                                    onChange={e => field.onChange(e.target.value || "0")}
                                   />
                                 </FormControl>
                                 <FormMessage />
