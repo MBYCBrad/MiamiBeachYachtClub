@@ -54,32 +54,42 @@ class UltraFastCache {
         paymentsResult
       ] = await Promise.all([
         pool.query('SELECT id, username, email, role, membership_tier as "membershipTier", status, created_at as "createdAt" FROM users ORDER BY created_at DESC LIMIT 100'),
-        pool.query('SELECT id, name, location, size, capacity, price_per_hour as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
+        pool.query('SELECT id, name, location, type as "yachtType", size, capacity, daily_rate as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
         pool.query('SELECT s.*, u.username as "providerName" FROM services s LEFT JOIN users u ON s.provider_id = u.id ORDER BY s.name'),
-        pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_time DESC'),
+        pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_date DESC'),
         pool.query(`
           SELECT 
-            b.id, b.start_time as "startTime", b.end_time as "endTime", 'confirmed' as status, b.total_price as "totalPrice", b.guest_count as "guestCount",
+            b.id, b.start_time as "startTime", b.end_time as "endTime", b.status, b.total_price as "totalPrice", b.guest_count as "guestCount",
             u.username as "member.name",
-            y.name as "yacht.name", 'yacht' as "yacht.type"
+            y.name as "yacht.name", y.type as "yacht.type"
           FROM bookings b
           LEFT JOIN users u ON b.user_id = u.id
           LEFT JOIN yachts y ON b.yacht_id = y.id
           ORDER BY b.start_time DESC
           LIMIT 50
         `),
-        pool.query('SELECT id, user_id as "userId", type, title, message, priority, read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
+        pool.query('SELECT id, user_id as "userId", type, title, message, priority, is_read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
         pool.query(`
           SELECT 
             'booking-' || id as id,
             'Yacht Booking' as type,
             total_price as amount,
-            'confirmed' as status,
+            status,
             created_at as date,
             'stripe' as method
           FROM bookings 
           WHERE total_price IS NOT NULL AND total_price != '0'
-          ORDER BY created_at DESC
+          UNION ALL
+          SELECT 
+            'service-' || id as id,
+            'Service Booking' as type,
+            total_price as amount,
+            status,
+            created_at as date,
+            'stripe' as method
+          FROM service_bookings 
+          WHERE total_price IS NOT NULL AND total_price != '0'
+          ORDER BY date DESC
           LIMIT 20
         `)
       ]);

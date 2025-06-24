@@ -80,11 +80,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
-    console.log('Auth check:', { 
-      authenticated: req.isAuthenticated(), 
-      sessionID: req.sessionID,
-      user: req.user ? { id: req.user.id, username: req.user.username } : null 
-    });
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -93,11 +88,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware to check role
   const requireRole = (roles: string[]) => (req: any, res: any, next: any) => {
-    console.log('Role check:', { 
-      authenticated: req.isAuthenticated(), 
-      user: req.user ? { id: req.user.id, role: req.user.role } : null, 
-      requiredRoles: roles 
-    });
     if (!req.isAuthenticated() || !req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Insufficient permissions" });
     }
@@ -4417,50 +4407,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get crew assignments and pending bookings - Real-time database integration
-  app.get("/api/crew/assignments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  // Get crew assignments
+  app.get("/api/crew/assignments", async (req, res) => {
     try {
-      // Get all confirmed bookings that are upcoming
-      const allBookings = await dbStorage.getBookings();
-      const allUsers = await dbStorage.getAllUsers();
-      const allYachts = await dbStorage.getYachts();
+      // Get real crew assignments from database
+      const assignments = await dbStorage.getCrewAssignments();
       
-      // Filter for confirmed bookings that are today or future
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Enhance with additional details
+      const enhancedAssignments = await Promise.all(
+        assignments.map(async (assignment) => {
+          const captain = await dbStorage.getStaffMember(assignment.captainId);
+          const coordinator = await dbStorage.getStaffMember(assignment.coordinatorId);
+          const crewMembers = await Promise.all(
+            assignment.crewMemberIds.map(id => dbStorage.getStaffMember(id))
+          );
+          
+          return {
+            ...assignment,
+            captain: captain ? {
+              id: captain.id,
+              username: captain.username,
+              role: captain.role,
+              email: captain.email,
+              phone: captain.phone,
+              location: captain.location,
+              status: captain.status
+            } : null,
+            coordinator: coordinator ? {
+              id: coordinator.id,
+              username: coordinator.username,
+              role: coordinator.role,
+              email: coordinator.email,
+              phone: coordinator.phone,
+              location: coordinator.location,
+              status: coordinator.status
+            } : null,
+            crewMembers: crewMembers.filter(Boolean).map(member => ({
+              id: member!.id,
+              username: member!.username,
+              role: member!.role,
+              email: member!.email,
+              phone: member!.phone,
+              location: member!.location,
+              status: member!.status
+            }))
+          };
+        })
+      );
       
-      const upcomingBookings = allBookings.filter(booking => {
-        const bookingDate = new Date(booking.startTime);
-        return booking.status === 'confirmed' && bookingDate >= today;
-      });
-      
-      // Convert bookings to crew assignment format - all start as unassigned
-      const crewAssignments = upcomingBookings.map(booking => {
-        const member = allUsers.find(u => u.id === booking.userId);
-        const yacht = allYachts.find(y => y.id === booking.yachtId);
-        
-        return {
-          id: `pending_${booking.id}`,
-          bookingId: booking.id,
-          status: "unassigned",
-          briefingTime: "",
-          briefingLocation: "Miami Marina Gate 3",
-          notes: "Crew assignment needed for upcoming charter",
-          captain: null,
-          firstMate: null,
-          crewMembers: [],
-          booking: {
-            id: booking.id,
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            guestCount: booking.guestCount || 4,
-            yachtName: yacht?.name || 'Unknown Yacht',
-            memberName: member?.username || 'Unknown Member'
-          }
-        };
-      });
-      
-      res.json(crewAssignments);
+      res.json(enhancedAssignments);
     } catch (error: any) {
       console.error('Crew assignments fetch error:', error);
       res.status(500).json({ message: error.message });
@@ -4749,158 +4744,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create crew assignment - Real-time database integration
-  app.post("/api/crew/assignments", async (req, res) => {
-    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
-      return res.sendStatus(401);
-    }
-
+  // Create crew assignment
+  app.post("/api/crew/assignments", requireAuth, async (req, res) => {
     try {
-      const { bookingId, captainId, firstMateId, crewMembers, briefingTime, assignmentNotes } = req.body;
+      const { bookingId, captainId, coordinatorId, crewMemberIds, briefingTime, notes } = req.body;
       
-      if (!bookingId || !captainId) {
-        return res.status(400).json({ message: "Booking ID and Captain are required" });
+      if (!bookingId || !captainId || !coordinatorId) {
+        return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // Create crew assignment record
-      const assignmentId = `assignment_${bookingId}_${Date.now()}`;
-      
-      // Store assignment in a simple format (you can enhance the schema later)
-      const assignment = {
-        id: assignmentId,
+      // Create crew assignment in database
+      const assignmentData = {
+        id: `assignment_${bookingId}_${Date.now()}`,
         bookingId: parseInt(bookingId),
         captainId: parseInt(captainId),
-        firstMateId: firstMateId ? parseInt(firstMateId) : null,
-        crewMembers: crewMembers || [],
-        briefingTime: briefingTime || new Date().toISOString(),
-        assignmentNotes: assignmentNotes || '',
-        status: 'assigned',
-        createdAt: new Date().toISOString()
+        coordinatorId: parseInt(coordinatorId),
+        crewMemberIds: crewMemberIds || [],
+        briefingTime: briefingTime ? new Date(briefingTime) : new Date(),
+        notes: notes || '',
+        status: 'planned' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
-      console.log('Created crew assignment:', assignment);rows[0];
-
-      // Create real-time notifications for assigned crew members
-      const notificationPromises = [];
+      const newAssignment = await dbStorage.createCrewAssignment(assignmentData);
       
-      if (captainId) {
-        notificationPromises.push(
-          pool.query(`
-            INSERT INTO notifications (user_id, type, title, message, priority, is_read, action_url, data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          `, [
-            captainId,
-            'crew_assignment',
-            'New Captain Assignment',
-            `You've been assigned as captain for booking #${bookingId}`,
-            'high',
-            false,
-            '/crew/assignments',
-            JSON.stringify({ assignmentId: assignment.id, bookingId, role: 'captain' })
-          ])
-        );
-      }
-
-      if (firstMateId) {
-        notificationPromises.push(
-          pool.query(`
-            INSERT INTO notifications (user_id, type, title, message, priority, is_read, action_url, data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          `, [
-            firstMateId,
-            'crew_assignment',
-            'New First Mate Assignment',
-            `You've been assigned as first mate for booking #${bookingId}`,
-            'high',
-            false,
-            '/crew/assignments',
-            JSON.stringify({ assignmentId: assignment.id, bookingId, role: 'first_mate' })
-          ])
-        );
-      }
-
-      // Notify crew members
-      if (crewMembers && crewMembers.length > 0) {
-        for (const crewId of crewMembers) {
-          notificationPromises.push(
-            pool.query(`
-              INSERT INTO notifications (user_id, type, title, message, priority, is_read, action_url, data)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            `, [
-              crewId,
-              'crew_assignment',
-              'New Crew Assignment',
-              `You've been assigned to crew for booking #${bookingId}`,
-              'medium',
-              false,
-              '/crew/assignments',
-              JSON.stringify({ assignmentId: assignment.id, bookingId, role: 'crew' })
-            ])
-          );
-        }
-      }
-
-      await Promise.all(notificationPromises);
-
-      // Create admin notification
-      await pool.query(`
-        INSERT INTO notifications (user_id, type, title, message, priority, is_read, action_url, data)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      `, [
-        req.user!.id,
-        'crew_assigned',
-        'Crew Assignment Created',
-        `Crew successfully assigned to booking #${bookingId}`,
-        'low',
-        false,
-        '/admin/crew-management',
-        JSON.stringify({ assignmentId: assignment.id, bookingId })
-      ]);
-
-      res.status(201).json(assignment);
+      // Create notification for admin
+      await dbStorage.createNotification({
+        userId: req.user!.id,
+        type: 'crew_assignment',
+        title: 'New Crew Assignment',
+        message: `Crew assigned to booking #${bookingId}`,
+        priority: 'medium',
+        isRead: false
+      });
+      
+      res.status(201).json(newAssignment);
     } catch (error: any) {
-      console.error('Crew assignment error:', error);
-      res.status(400).json({ message: error.message });
+      console.error('Crew assignment creation error:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 
-  // Update crew assignment status - Real-time database integration
-  app.patch("/api/crew/assignments/:assignmentId", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  // Update crew assignment status
+  app.patch("/api/crew/assignments/:assignmentId", async (req, res) => {
     try {
       const { assignmentId } = req.params;
       const { status } = req.body;
       
-      const result = await pool.query(`
-        UPDATE crew_assignments 
-        SET status = $1, updated_at = NOW()
-        WHERE id = $2
-        RETURNING *
-      `, [status, assignmentId]);
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: "Assignment not found" });
-      }
-
-      const updatedAssignment = result.rows[0];
-
-      // Create notification for status update
-      await pool.query(`
-        INSERT INTO notifications (user_id, type, title, message, priority, is_read, action_url, data)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      `, [
-        req.user!.id,
-        'assignment_updated',
-        'Assignment Status Updated',
-        `Assignment #${assignmentId} status changed to ${status}`,
-        'low',
-        false,
-        '/admin/crew-management',
-        JSON.stringify({ assignmentId, newStatus: status })
-      ]);
+      // In a real system, this would update the database record
+      const updatedAssignment = {
+        id: assignmentId,
+        status,
+        updatedAt: new Date().toISOString()
+      };
       
       res.json(updatedAssignment);
     } catch (error: any) {
-      console.error('Assignment update error:', error);
       res.status(500).json({ message: error.message });
     }
   });
