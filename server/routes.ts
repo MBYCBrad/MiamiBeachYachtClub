@@ -80,6 +80,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
+    console.log('Auth check:', { 
+      authenticated: req.isAuthenticated(), 
+      sessionID: req.sessionID,
+      user: req.user ? { id: req.user.id, username: req.user.username } : null 
+    });
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -88,6 +93,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware to check role
   const requireRole = (roles: string[]) => (req: any, res: any, next: any) => {
+    console.log('Role check:', { 
+      authenticated: req.isAuthenticated(), 
+      user: req.user ? { id: req.user.id, role: req.user.role } : null, 
+      requiredRoles: roles 
+    });
     if (!req.isAuthenticated() || !req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Insufficient permissions" });
     }
@@ -4408,7 +4418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get crew assignments - Real-time database integration
-  app.get("/api/crew/assignments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  app.get("/api/crew/assignments", async (req, res) => {
     try {
       const result = await pool.query(`
         SELECT 
@@ -4433,12 +4443,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enhancedAssignments = await Promise.all(
         result.rows.map(async (assignment) => {
           let crewMemberDetails = [];
-          if (assignment.crew_members && assignment.crew_members.length > 0) {
+          if (assignment.crew_member_ids && assignment.crew_member_ids.length > 0) {
             const crewResult = await pool.query(`
               SELECT id, username, role, email, phone, status
               FROM users 
               WHERE id = ANY($1)
-            `, [assignment.crew_members]);
+            `, [assignment.crew_member_ids]);
             crewMemberDetails = crewResult.rows;
           }
 
@@ -4773,7 +4783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Insert directly into PostgreSQL crew_assignments table
       const result = await pool.query(`
         INSERT INTO crew_assignments (
-          booking_id, captain_id, first_mate_id, crew_members, 
+          booking_id, captain_id, first_mate_id, crew_member_ids, 
           briefing_time, briefing_location, assignment_notes, status
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *

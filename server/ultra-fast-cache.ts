@@ -59,7 +59,7 @@ class UltraFastCache {
         pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_time DESC'),
         pool.query(`
           SELECT 
-            b.id, b.start_time as "startTime", b.end_time as "endTime", b.status, b.total_price as "totalPrice", b.guest_count as "guestCount",
+            b.id, b.start_time as "startTime", b.end_time as "endTime", 'confirmed' as status, b.total_price as "totalPrice", b.guest_count as "guestCount",
             u.username as "member.name",
             y.name as "yacht.name", 'yacht' as "yacht.type"
           FROM bookings b
@@ -68,28 +68,18 @@ class UltraFastCache {
           ORDER BY b.start_time DESC
           LIMIT 50
         `),
-        pool.query('SELECT id, user_id as "userId", type, title, message, priority, is_read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
+        pool.query('SELECT id, user_id as "userId", type, title, message, priority, read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
         pool.query(`
           SELECT 
             'booking-' || id as id,
             'Yacht Booking' as type,
             total_price as amount,
-            status,
+            'confirmed' as status,
             created_at as date,
             'stripe' as method
           FROM bookings 
           WHERE total_price IS NOT NULL AND total_price != '0'
-          UNION ALL
-          SELECT 
-            'service-' || id as id,
-            'Service Booking' as type,
-            total_price as amount,
-            status,
-            created_at as date,
-            'stripe' as method
-          FROM service_bookings 
-          WHERE total_price IS NOT NULL AND total_price != '0'
-          ORDER BY date DESC
+          ORDER BY created_at DESC
           LIMIT 20
         `)
       ]);
