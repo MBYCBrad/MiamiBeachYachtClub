@@ -574,16 +574,31 @@ function CrewAssignmentDialog({
     staleTime: 5 * 60 * 1000,
   });
 
-  const availableCrew = (staffData || []).filter((m: any) => m.status === 'active');
+  // Show all staff members from database (no status filtering since we want all available crew)
+  const availableCrew = (staffData || []);
+  
   const captains = availableCrew.filter((m: any) => 
     ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
   );
+  
   const coordinators = availableCrew.filter((m: any) => 
     ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
   );
+  
+  // Show ALL crew members except captains, coordinators, and admin - everyone else is selectable crew
   const otherCrew = availableCrew.filter((m: any) => 
-    !['Yacht Captain', 'Marina Manager', 'Fleet Coordinator', 'Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
+    !['admin'].includes(m.role) && 
+    !captains.some(c => c.id === m.id) && 
+    !coordinators.some(c => c.id === m.id)
   );
+
+  console.log('Available crew breakdown:', {
+    total: availableCrew.length,
+    captains: captains.length,
+    coordinators: coordinators.length,
+    otherCrew: otherCrew.length,
+    otherCrewRoles: otherCrew.map(c => c.role)
+  });
 
   const handleAssign = () => {
     if (!selectedCaptain || !selectedCoordinator) {
