@@ -87,10 +87,12 @@ export default function YachtMaintenance() {
   });
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
-    queryKey: ['/api/maintenance/records'],
+    queryKey: ['/api/maintenance/records', selectedYacht?.id],
+    queryFn: () => selectedYacht?.id ? fetch(`/api/maintenance/records/${selectedYacht.id}`).then(res => res.json()) : Promise.resolve([]),
+    enabled: !!selectedYacht?.id,
     staleTime: 0,
     gcTime: 0,
-    refetchOnMount: true,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
 
@@ -153,7 +155,7 @@ export default function YachtMaintenance() {
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
       // Force immediate refresh of maintenance data with cache bypass
-      queryClient.removeQueries({ queryKey: ['/api/maintenance/records'] });
+      queryClient.removeQueries({ queryKey: ['/api/maintenance/records', selectedYacht?.id] });
       queryClient.removeQueries({ queryKey: ['/api/maintenance/schedules'] });
       refetchRecords();
       refetchSchedules();
@@ -803,7 +805,8 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {maintenanceRecords && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
+
+                {maintenanceRecords && Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
