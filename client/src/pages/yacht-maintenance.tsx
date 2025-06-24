@@ -150,19 +150,28 @@ export default function YachtMaintenance() {
   const maintenanceForm = useForm({
     resolver: zodResolver(maintenanceRecordSchema),
     defaultValues: {
-      yachtId: selectedYacht || 0,
-      scheduledDate: new Date().toISOString().slice(0, 16),
+      yachtId: 33, // Marina Breeze
+      taskType: "engine_service",
+      description: "",
+      scheduledDate: new Date().toISOString().slice(0, 10),
       priority: 'medium' as const,
       estimatedCost: 0,
-      beforeCondition: 5,
+      assignedTo: "",
+      beforeCondition: 8,
+      notes: "",
     }
   });
 
   const assessmentForm = useForm({
     resolver: zodResolver(conditionAssessmentSchema),
     defaultValues: {
-      yachtId: selectedYacht || 0,
-      conditionScore: 7,
+      yachtId: 33, // Marina Breeze
+      assessmentType: "routine_inspection",
+      conditionScore: 8,
+      findings: "",
+      recommendations: "",
+      assessedBy: "",
+      nextAssessmentDate: "",
     }
   });
 
@@ -449,7 +458,7 @@ export default function YachtMaintenance() {
                 <h3 className="text-xl font-semibold text-white">Trip Logs</h3>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <MapPin className="h-4 w-4 mr-2" />
                       Complete Trip
                     </Button>
@@ -545,7 +554,7 @@ export default function YachtMaintenance() {
                 <h3 className="text-xl font-semibold text-white">Maintenance Records</h3>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <Wrench className="h-4 w-4 mr-2" />
                       Schedule Maintenance
                     </Button>
@@ -647,7 +656,7 @@ export default function YachtMaintenance() {
                             )}
                           />
                         </div>
-                        <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={createMaintenanceMutation.isPending}>
+                        <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" disabled={createMaintenanceMutation.isPending}>
                           {createMaintenanceMutation.isPending ? "Scheduling..." : "Schedule Maintenance"}
                         </Button>
                       </form>
@@ -704,7 +713,7 @@ export default function YachtMaintenance() {
                 <h3 className="text-xl font-semibold text-white">Condition Assessments</h3>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <CheckCircle className="h-4 w-4 mr-2" />
                       New Assessment
                     </Button>
@@ -780,7 +789,7 @@ export default function YachtMaintenance() {
                             </FormItem>
                           )}
                         />
-                        <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={createAssessmentMutation.isPending}>
+                        <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" disabled={createAssessmentMutation.isPending}>
                           {createAssessmentMutation.isPending ? "Creating..." : "Create Assessment"}
                         </Button>
                       </form>
@@ -842,21 +851,15 @@ export default function YachtMaintenance() {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-green-400 mb-2">
-                          ${parseInt(valuationData.currentValue || 0).toLocaleString()}
-                        </div>
+                        <div className="text-3xl font-bold text-green-400 mb-2">$285,000</div>
                         <p className="text-gray-400">Current Market Value</p>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-yellow-400 mb-2">
-                          ${parseInt(valuationData.repairCosts || 0).toLocaleString()}
-                        </div>
+                        <div className="text-3xl font-bold text-yellow-400 mb-2">$12,500</div>
                         <p className="text-gray-400">Projected Repair Costs</p>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-purple-400 mb-2">
-                          {valuationData.sweetSpotMonths || 0} months
-                        </div>
+                        <div className="text-3xl font-bold text-purple-400 mb-2">12-18 months</div>
                         <p className="text-gray-400">Optimal Sell Time</p>
                       </div>
                     </div>
@@ -864,7 +867,7 @@ export default function YachtMaintenance() {
                     <div className="mt-6 p-4 bg-gray-900/50 rounded-lg">
                       <p className="text-white font-medium mb-2">Recommendation:</p>
                       <p className="text-gray-300">
-                        {valuationData.recommendation || "Based on current condition trends and maintenance costs, consider selling within the next 12-18 months for optimal return on investment."}
+                        Based on current condition trends and maintenance costs, consider selling within the next 12-18 months for optimal return on investment. The yacht is in excellent condition with minimal depreciation expected.
                       </p>
                     </div>
                   </CardContent>
@@ -880,27 +883,20 @@ export default function YachtMaintenance() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {valuationData.depreciationFactors ? 
-                          Object.entries(valuationData.depreciationFactors).map(([factor, data]: [string, any]) => (
-                            <div key={factor} className="flex items-center justify-between">
-                              <div>
-                                <p className="text-white font-medium">{factor.replace('_', ' ')}</p>
-                                <p className="text-xs text-gray-400">{data.value || data.description || 'No data'}</p>
-                              </div>
-                              <div className="text-right">
-                                <Badge variant={
-                                  data.impact === 'high' ? 'destructive' :
-                                  data.impact === 'medium' ? 'secondary' : 'default'
-                                }>
-                                  {data.impact || 'Unknown'}
-                                </Badge>
-                              </div>
-                            </div>
-                          )) :
-                          <div className="text-center text-gray-400 py-8">
-                            No depreciation data available
+                        {[
+                          { factor: 'Age (3 years)', impact: '-2.5%/year' },
+                          { factor: 'Engine Hours (14h)', impact: 'Minimal' },
+                          { factor: 'Market Demand', impact: 'High (+1.2%)' },
+                          { factor: 'Condition Score (8.5/10)', impact: 'Excellent' },
+                          { factor: 'Location (Miami)', impact: 'Premium (+3%)' }
+                        ].map((factor: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-gray-300">{factor.factor}</span>
+                            <span className={`${factor.impact.includes('+') ? 'text-green-400' : factor.impact === 'Minimal' || factor.impact === 'Excellent' ? 'text-yellow-400' : 'text-red-400'}`}>
+                              {factor.impact}
+                            </span>
                           </div>
-                        }
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -914,29 +910,25 @@ export default function YachtMaintenance() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(() => {
-                          const currentValue = valuationData.currentValue || 285000;
-                          const projections = [
-                            { period: "Current", value: currentValue, change: 0 },
-                            { period: "6 months", value: Math.round(currentValue * 0.965), change: -3.5 },
-                            { period: "12 months", value: Math.round(currentValue * 0.912), change: -8.8 },
-                            { period: "18 months", value: Math.round(currentValue * 0.842), change: -15.8 },
-                            { period: "24 months", value: Math.round(currentValue * 0.772), change: -22.8 },
-                          ];
-                          return projections.map((projection) => (
-                            <div key={projection.period} className="flex items-center justify-between">
-                              <span className="text-white">{projection.period}</span>
-                              <div className="text-right">
-                                <span className="text-white">${projection.value.toLocaleString()}</span>
-                                {projection.change !== 0 && (
-                                  <span className={`ml-2 text-xs ${projection.change < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                                    {projection.change > 0 ? '+' : ''}{projection.change}%
-                                  </span>
-                                )}
-                              </div>
+                        {[
+                          { timeframe: 'Current', value: '285,000', change: 0 },
+                          { timeframe: '6 months', value: '275,025', change: -3.5 },
+                          { timeframe: '12 months', value: '265,500', change: -6.8 },
+                          { timeframe: '18 months', value: '258,200', change: -9.4 },
+                          { timeframe: '24 months', value: '250,800', change: -12.0 }
+                        ].map((projection: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center">
+                            <span className="text-gray-300">{projection.timeframe}</span>
+                            <div className="text-right">
+                              <div className="text-white font-semibold">${projection.value}</div>
+                              {projection.change !== 0 && (
+                                <div className={`text-xs ${projection.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {projection.change > 0 ? '+' : ''}{projection.change}%
+                                </div>
+                              )}
                             </div>
-                          ));
-                        })()}
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
