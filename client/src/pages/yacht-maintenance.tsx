@@ -147,10 +147,8 @@ export default function YachtMaintenance() {
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
       // Force immediate refresh of maintenance data
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/schedules'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/records'] });
-      queryClient.refetchQueries({ queryKey: ['/api/maintenance/schedules'] });
-      queryClient.refetchQueries({ queryKey: ['/api/maintenance/records'] });
+      refetchRecords();
+      refetchSchedules();
       scheduleMaintenanceForm.reset();
       setScheduleMaintenanceOpen(false);
     },
