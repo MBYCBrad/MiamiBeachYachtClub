@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, MapPin, Users, Ship, AlertTriangle, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { AssignCrewDialog } from '@/components/CrewManagementComponent';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 // Types
 interface CrewAssignment {
@@ -43,7 +45,8 @@ interface CrewMember {
 
 export default function CrewManagement() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
 
   // Fetch staff data
   const { data: staff = [] } = useQuery<CrewMember[]>({
@@ -58,6 +61,31 @@ export default function CrewManagement() {
   // Fetch bookings
   const { data: bookings = [] } = useQuery<Booking[]>({
     queryKey: ['/api/admin/bookings'],
+  });
+
+  // Crew assignment mutation
+  const assignCrewMutation = useMutation({
+    mutationFn: async (assignment: any) => {
+      const response = await apiRequest('POST', '/api/crew/assignments', assignment);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/crew/assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({ 
+        title: "Crew Assigned Successfully", 
+        description: "The crew has been assigned to the charter"
+      });
+      setSelectedBooking(null);
+      setShowAssignDialog(false);
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Assignment Failed", 
+        description: error.message || "Failed to assign crew",
+        variant: "destructive"
+      });
+    },
   });
 
   // Mock bookings data that need crew assignment
@@ -104,9 +132,12 @@ export default function CrewManagement() {
   const pastAssignments = assignments.filter(assignment => assignment.status === 'completed');
 
   const handleAssignCrew = (booking: Booking) => {
-    // Navigate to assign crew page with booking data
-    console.log('Assigning crew for booking:', booking.id);
-    toast({ title: "Opening crew assignment for booking " + booking.id });
+    setSelectedBooking(booking);
+    setShowAssignDialog(true);
+  };
+
+  const handleAssignmentSubmit = (assignment: any) => {
+    assignCrewMutation.mutate(assignment);
   };
 
   return (
@@ -369,6 +400,17 @@ export default function CrewManagement() {
           </Tabs>
         </div>
       </div>
+
+      {/* Crew Assignment Dialog */}
+      {selectedBooking && (
+        <AssignCrewDialog
+          open={showAssignDialog}
+          onOpenChange={setShowAssignDialog}
+          booking={selectedBooking}
+          crew={staff}
+          onAssign={handleAssignmentSubmit}
+        />
+      )}
     </div>
   );
 }
