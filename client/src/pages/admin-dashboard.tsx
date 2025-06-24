@@ -316,85 +316,92 @@ function AddUserDialog() {
           Add User
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Add New User</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="username" className="text-gray-300">Username</Label>
-            <Input
-              id="username"
-              value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Enter username"
-            />
+        <div className="dialog-form-spacing">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="username" className="form-label text-gray-300">Username</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter username"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="email" className="form-label text-gray-300">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter email"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="email" className="text-gray-300">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Enter email"
-            />
-          </div>
-          <div>
-            <Label htmlFor="password" className="text-gray-300">Password</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="password" className="form-label text-gray-300">Password</Label>
             <Input
               id="password"
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="form-input bg-gray-900 border-gray-700 text-white"
               placeholder="Enter password"
             />
           </div>
-          <div>
-            <Label htmlFor="role" className="text-gray-300">Role</Label>
-            <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
-                <SelectItem value="member">Member</SelectItem>
-                <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
-                <SelectItem value="service_provider">Service Provider</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
-                <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
-                <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
-                <SelectItem value="staff_management">Staff - Management</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="membershipTier" className="text-gray-300">Membership Tier</Label>
-            <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
-                <SelectItem value="bronze">Bronze</SelectItem>
-                <SelectItem value="silver">Silver</SelectItem>
-                <SelectItem value="gold">Gold</SelectItem>
-                <SelectItem value="platinum">Platinum</SelectItem>
-              </SelectContent>
-            </Select>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                  <SelectItem value="service_provider">Service Provider</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
+                  <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
+                  <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
+                  <SelectItem value="staff_management">Staff - Management</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
+              <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="bronze">Bronze</SelectItem>
+                  <SelectItem value="silver">Silver</SelectItem>
+                  <SelectItem value="gold">Gold</SelectItem>
+                  <SelectItem value="platinum">Platinum</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-        <DialogFooter>
+        
+        <div className="form-button-group">
           <Button 
             onClick={() => createUserMutation.mutate(formData)}
             disabled={createUserMutation.isPending}
-            className="bg-gradient-to-r from-green-600 to-emerald-600"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {createUserMutation.isPending ? "Creating..." : "Create User"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -434,63 +441,69 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Edit User</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="username" className="text-gray-300">Username</Label>
-            <Input
-              id="username"
-              value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-            />
+        <div className="dialog-form-spacing">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="username" className="form-label text-gray-300">Username</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="email" className="form-label text-gray-300">Email</Label>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="email" className="text-gray-300">Email</Label>
-            <Input
-              id="email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-            />
-          </div>
-          <div>
-            <Label htmlFor="role" className="text-gray-300">Role</Label>
-            <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
-                <SelectItem value="member">Member</SelectItem>
-                <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
-                <SelectItem value="service_provider">Service Provider</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
-                <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
-                <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
-                <SelectItem value="staff_management">Staff - Management</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="tier" className="text-gray-300">Membership Tier</Label>
-            <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
-                <SelectItem value="Bronze">Bronze</SelectItem>
-                <SelectItem value="Silver">Silver</SelectItem>
-                <SelectItem value="Gold">Gold</SelectItem>
-                <SelectItem value="Platinum">Platinum</SelectItem>
-              </SelectContent>
-            </Select>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                  <SelectItem value="service_provider">Service Provider</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
+                  <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
+                  <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
+                  <SelectItem value="staff_management">Staff - Management</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="tier" className="form-label text-gray-300">Membership Tier</Label>
+              <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="Bronze">Bronze</SelectItem>
+                  <SelectItem value="Silver">Silver</SelectItem>
+                  <SelectItem value="Gold">Gold</SelectItem>
+                  <SelectItem value="Platinum">Platinum</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-        <DialogFooter>
+        
+        <div className="form-button-group">
           <Button 
             onClick={() => updateUserMutation.mutate(formData)} 
             disabled={updateUserMutation.isPending}
@@ -498,7 +511,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
           >
             {updateUserMutation.isPending ? "Updating..." : "Update User"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -604,98 +617,108 @@ function AddYachtDialog() {
           Add Yacht
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Yacht</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="name" className="text-gray-300">Yacht Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Enter yacht name"
-            />
+        <div className="dialog-form-spacing">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="name" className="form-label text-gray-300">Yacht Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter yacht name"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="location" className="form-label text-gray-300">Location</Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Marina location"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="location" className="text-gray-300">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Marina location"
-            />
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="size" className="form-label text-gray-300">Size (ft)</Label>
+              <Input
+                id="size"
+                type="number"
+                value={formData.size}
+                onChange={(e) => setFormData({...formData, size: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="40"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="capacity" className="form-label text-gray-300">Capacity</Label>
+              <Input
+                id="capacity"
+                type="number"
+                value={formData.capacity}
+                onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="12"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="size" className="text-gray-300">Size (ft)</Label>
-            <Input
-              id="size"
-              type="number"
-              value={formData.size}
-              onChange={(e) => setFormData({...formData, size: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="40"
-            />
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="pricePerHour" className="form-label text-gray-300">Price per Hour</Label>
+              <Input
+                id="pricePerHour"
+                value={formData.pricePerHour}
+                onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="500"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="ownerId" className="form-label text-gray-300">Owner ID</Label>
+              <Input
+                id="ownerId"
+                type="number"
+                value={formData.ownerId}
+                onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="12"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
-            <Input
-              id="capacity"
-              type="number"
-              value={formData.capacity}
-              onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="12"
-            />
-          </div>
-          <div>
-            <Label htmlFor="pricePerHour" className="text-gray-300">Price per Hour</Label>
-            <Input
-              id="pricePerHour"
-              value={formData.pricePerHour}
-              onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="500"
-            />
-          </div>
-          <div>
-            <Label htmlFor="ownerId" className="text-gray-300">Owner ID</Label>
-            <Input
-              id="ownerId"
-              type="number"
-              value={formData.ownerId}
-              onChange={(e) => setFormData({...formData, ownerId: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="12"
-            />
-          </div>
-          <div className="col-span-2">
-            <Label htmlFor="description" className="text-gray-300">Description</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="form-textarea bg-gray-900 border-gray-700 text-white"
               placeholder="Yacht description..."
             />
           </div>
-          <div className="col-span-2">
-            <Label htmlFor="amenities" className="text-gray-300">Amenities (comma separated)</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="amenities" className="form-label text-gray-300">Amenities (comma separated)</Label>
             <Input
               id="amenities"
               value={formData.amenities}
               onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="form-input bg-gray-900 border-gray-700 text-white"
               placeholder="WiFi, Air Conditioning, Sound System"
             />
           </div>
-          <div>
-            <Label htmlFor="ownerId" className="text-gray-300">Owner</Label>
+          <div className="form-field-spacing">
+            <Label htmlFor="ownerId" className="form-label text-gray-300">Owner</Label>
             <Select value={formData.ownerId} onValueChange={(value) => setFormData({...formData, ownerId: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+              <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-700">
@@ -706,7 +729,8 @@ function AddYachtDialog() {
               </SelectContent>
             </Select>
           </div>
-          <div className="col-span-2">
+          
+          <div className="form-field-spacing">
             <MultiImageUpload
               label="Yacht Gallery"
               onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
@@ -715,15 +739,16 @@ function AddYachtDialog() {
             />
           </div>
         </div>
-        <DialogFooter>
+        
+        <div className="form-button-group">
           <Button 
             onClick={() => createYachtMutation.mutate(formData)}
             disabled={createYachtMutation.isPending}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -767,75 +792,87 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name" className="text-gray-300">Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-            />
+        <div className="dialog-form-spacing max-h-[65vh] overflow-y-auto pr-2">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="name" className="form-label text-gray-300">Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="location" className="form-label text-gray-300">Location</Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="location" className="text-gray-300">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({...formData, location: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="size" className="text-gray-300">Size (ft)</Label>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="size" className="form-label text-gray-300">Size (ft)</Label>
               <Input
                 id="size"
                 type="number"
                 value={formData.size}
                 onChange={(e) => setFormData({...formData, size: parseInt(e.target.value) || 0})}
-                className="bg-gray-900 border-gray-700 text-white"
+                className="form-input bg-gray-900 border-gray-700 text-white"
               />
             </div>
-            <div>
-              <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+            <div className="form-field-spacing">
+              <Label htmlFor="capacity" className="form-label text-gray-300">Capacity</Label>
               <Input
                 id="capacity"
                 type="number"
                 value={formData.capacity}
                 onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value) || 0})}
-                className="bg-gray-900 border-gray-700 text-white"
+                className="form-input bg-gray-900 border-gray-700 text-white"
               />
             </div>
           </div>
-          <div>
-            <Label htmlFor="description" className="text-gray-300">Description</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="form-textarea bg-gray-900 border-gray-700 text-white min-h-[100px]"
             />
           </div>
-          <MultiImageUpload
-            onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
-            currentImages={formData.images}
-            label="Yacht Gallery"
-            maxImages={10}
-          />
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isAvailable"
-              checked={formData.isAvailable}
-              onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
-              className="rounded border-gray-600"
-            />
-            <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
+          
+          <div className="form-field-spacing">
+            <div className="image-upload-container">
+              <MultiImageUpload
+                onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+                currentImages={formData.images}
+                label="Yacht Gallery"
+                maxImages={10}
+              />
+            </div>
+          </div>
+          
+          <div className="form-field-spacing">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isAvailable"
+                checked={formData.isAvailable}
+                onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
+                className="rounded border-gray-600"
+              />
+              <Label htmlFor="isAvailable" className="form-label text-gray-300">Available for booking</Label>
+            </div>
           </div>
         </div>
         <DialogFooter>
@@ -952,63 +989,69 @@ function AddServiceDialog() {
           Add Service
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Service</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="name" className="text-gray-300">Service Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Enter service name"
-            />
+        <div className="dialog-form-spacing max-h-[65vh] overflow-y-auto pr-2">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="name" className="form-label text-gray-300">Service Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter service name"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="category" className="form-label text-gray-300">Category</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                  <SelectItem value="Culinary">Culinary</SelectItem>
+                  <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                  <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                  <SelectItem value="Entertainment">Entertainment</SelectItem>
+                  <SelectItem value="Water Sports">Water Sports</SelectItem>
+                  <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="category" className="text-gray-300">Category</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-gray-700">
-                <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
-                <SelectItem value="Culinary">Culinary</SelectItem>
-                <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
-                <SelectItem value="Photography & Media">Photography & Media</SelectItem>
-                <SelectItem value="Entertainment">Entertainment</SelectItem>
-                <SelectItem value="Water Sports">Water Sports</SelectItem>
-                <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
-              </SelectContent>
-            </Select>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="pricePerSession" className="form-label text-gray-300">Price per Session</Label>
+              <Input
+                id="pricePerSession"
+                value={formData.pricePerSession}
+                onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="150"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="duration" className="form-label text-gray-300">Duration (minutes)</Label>
+              <Input
+                id="duration"
+                type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="60"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="pricePerSession" className="text-gray-300">Price per Session</Label>
-            <Input
-              id="pricePerSession"
-              value={formData.pricePerSession}
-              onChange={(e) => setFormData({...formData, pricePerSession: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="150"
-            />
-          </div>
-          <div>
-            <Label htmlFor="duration" className="text-gray-300">Duration (minutes)</Label>
-            <Input
-              id="duration"
-              type="number"
-              value={formData.duration}
-              onChange={(e) => setFormData({...formData, duration: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="60"
-            />
-          </div>
-          <div>
-            <Label htmlFor="providerId" className="text-gray-300">Service Provider</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="providerId" className="form-label text-gray-300">Service Provider</Label>
             <Select value={formData.providerId} onValueChange={(value) => setFormData({...formData, providerId: value})}>
-              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+              <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-700">
@@ -1021,35 +1064,40 @@ function AddServiceDialog() {
               </SelectContent>
             </Select>
           </div>
-          <div className="col-span-2">
-            <Label className="text-gray-300">Service Images</Label>
-            <MultiImageUpload 
-              onImagesUploaded={(images) => setFormData({...formData, images})}
-              currentImages={formData.images}
-              label="Service Images"
-              maxImages={10}
-            />
+          
+          <div className="form-field-spacing">
+            <Label className="form-label text-gray-300">Service Images</Label>
+            <div className="image-upload-container">
+              <MultiImageUpload 
+                onImagesUploaded={(images) => setFormData({...formData, images})}
+                currentImages={formData.images}
+                label="Service Images"
+                maxImages={10}
+              />
+            </div>
           </div>
-          <div className="col-span-2">
-            <Label htmlFor="description" className="text-gray-300">Description</Label>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="form-textarea bg-gray-900 border-gray-700 text-white min-h-[100px]"
               placeholder="Service description..."
             />
           </div>
         </div>
-        <DialogFooter>
+        
+        <div className="form-button-group">
           <Button 
             onClick={() => createServiceMutation.mutate(formData)}
             disabled={createServiceMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-pink-600"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
           >
             {createServiceMutation.isPending ? "Creating..." : "Create Service"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -253,18 +253,18 @@ export default function CustomerServiceDashboard() {
                         filteredContacts.map((user) => (
                           <Card 
                             key={user.id} 
-                            className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-900/50 transition-colors cursor-pointer"
+                            className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-900/50 transition-colors cursor-pointer w-full"
                             onClick={() => openContactModal(user)}
                           >
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            <CardContent className="p-4 w-full">
+                              <div className="flex items-center justify-between w-full min-w-0">
+                                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                                     {user.username?.charAt(0).toUpperCase()}
                                   </div>
-                                  <div>
-                                    <p className="text-white font-medium">{user.username}</p>
-                                    <p className={`text-sm capitalize ${getRoleColor(user.role || '')}`}>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-white font-medium truncate">{user.username}</p>
+                                    <p className={`text-sm capitalize truncate ${getRoleColor(user.role || '')}`}>
                                       {user.role?.replace('_', ' ')}
                                     </p>
                                   </div>
@@ -276,7 +276,7 @@ export default function CustomerServiceDashboard() {
                                     user.phone && makeCallMutation.mutate(user.phone);
                                   }}
                                   disabled={!user.phone || makeCallMutation.isPending}
-                                  className="bg-green-500 hover:bg-green-600"
+                                  className="bg-green-500 hover:bg-green-600 flex-shrink-0 ml-2"
                                 >
                                   <Phone className="h-4 w-4" />
                                 </Button>

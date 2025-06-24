@@ -249,6 +249,85 @@ html, body {
     background: linear-gradient(to right, rgb(147 51 234), rgb(79 70 229)) !important;
   }
 
+  /* Form spacing and layout classes for admin dialogs */
+  .dialog-content-spacing {
+    @apply p-6;
+  }
+
+  .dialog-form-spacing {
+    @apply space-y-6;
+  }
+
+  .form-grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  .form-grid-3 {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+  }
+
+  .form-field-spacing {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-1;
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  }
+
+  .form-textarea {
+    @apply w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent min-h-[80px];
+    resize: vertical;
+  }
+
+  .form-select {
+    @apply w-full;
+  }
+
+  .form-button-group {
+    @apply flex justify-end space-x-3 pt-4 border-t border-gray-700;
+  }
+
+  /* Contact card spacing fixes */
+  .contact-card {
+    @apply w-full min-w-0;
+  }
+
+  .contact-card-content {
+    @apply p-4 w-full;
+  }
+
+  .contact-card-layout {
+    @apply flex items-center justify-between w-full min-w-0;
+  }
+
+  .contact-info {
+    @apply flex items-center space-x-3 min-w-0 flex-1;
+  }
+
+  .contact-avatar {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0;
+  }
+
+  .contact-details {
+    @apply min-w-0 flex-1;
+  }
+
+  .contact-name {
+    @apply text-white font-medium truncate;
+  }
+
+  .contact-role {
+    @apply text-sm capitalize truncate;
+  }
+
+  .contact-action {
+    @apply flex-shrink-0 ml-2;
+  }
+
   .switch-gradient[data-state="checked"]:hover {
     background: linear-gradient(to right, rgb(126 34 206), rgb(67 56 202)) !important;
   }
@@ -703,4 +782,147 @@ html, body {
     padding: 0 1rem;
     margin-bottom: 1rem;
   }
+}
+
+/* Universal form and field spacing fixes */
+.form-container {
+  max-width: 100%;
+  padding: 1rem;
+}
+
+.form-field-spacing {
+  margin-bottom: 1.5rem;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Dialog content spacing */
+.dialog-content-spacing {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.dialog-form-spacing > * {
+  margin-bottom: 1rem;
+}
+
+.dialog-form-spacing > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Input field consistency */
+.form-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.5rem 0.75rem;
+  resize: vertical;
+}
+
+.form-select {
+  width: 100%;
+  min-height: 40px;
+}
+
+/* Label spacing */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Button spacing in forms */
+.form-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+/* Responsive form adjustments */
+@media (max-width: 768px) {
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .dialog-content-spacing {
+    padding: 1rem;
+    max-height: 90vh;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .form-buttons button {
+    width: 100%;
+  }
+}
+
+/* Card content spacing */
+.card-content-spacing {
+  padding: 1.5rem;
+}
+
+.card-content-spacing > * {
+  margin-bottom: 1rem;
+}
+
+.card-content-spacing > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Section spacing */
+.section-spacing {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+}
+
+/* Admin form specific fixes */
+.admin-form-container {
+  background: rgba(17, 24, 39, 0.5);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.admin-form-field {
+  margin-bottom: 1rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Ensure consistent height for form elements */
+.form-element-height {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
 }
