@@ -1952,13 +1952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Received assessment data:', req.body);
       
-      // Validate required fields
-      if (!req.body.yachtId || !req.body.condition || !req.body.notes) {
-        return res.status(400).json({ 
-          message: "Missing required fields: yachtId, condition, notes" 
-        });
-      }
-
+      // Create assessment data with minimal required fields
       const conditionScore = req.body.condition === 'excellent' ? 10 : 
                             req.body.condition === 'good' ? 8 :
                             req.body.condition === 'fair' ? 6 :
@@ -1969,25 +1963,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         assessorId: req.user.id,
         overallScore: conditionScore,
         assessmentDate: new Date(),
-        conditionDetails: {
-          visualInspection: conditionScore,
-          functionalTest: conditionScore,
-          performanceMetrics: conditionScore,
-          wearAndTear: Math.max(1, conditionScore - 1)
-        },
-        criticalIssues: conditionScore < 6 ? [{
-          issue: req.body.notes || 'Condition requires attention',
-          severity: req.body.priority || 'medium',
-          estimatedCost: parseFloat(req.body.estimatedCost || '0'),
-          urgency: req.body.priority === 'critical' ? 'immediate' : 'routine'
-        }] : [],
-        recommendations: req.body.recommendedAction || req.body.notes,
-        photos: [],
-        nextAssessmentDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+        recommendations: req.body.recommendedAction || req.body.notes
       };
 
-      console.log('Processed assessment data:', assessmentData);
-      const assessment = await dbStorage.createConditionAssessment(assessmentData);
+      // Validate using the proper schema
+      const validationResult = insertConditionAssessmentSchema.safeParse(assessmentData);
+
+      if (!validationResult.success) {
+        console.error('Validation failed:', validationResult.error);
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: validationResult.error.errors 
+        });
+      }
+
+      console.log('Validated assessment data:', validationResult.data);
+      const assessment = await dbStorage.createConditionAssessment(validationResult.data);
       console.log('Created assessment:', assessment);
       res.status(201).json(assessment);
     } catch (error: any) {
