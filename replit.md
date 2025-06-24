@@ -333,6 +333,14 @@ Changelog:
 - June 22, 2025. Fixed guest dropdown UI layering issue in yacht booking modal
   - Added proper z-index (z-50) to SelectContent component to ensure dropdown appears above modal elements
   - Resolved visual overlap issues where dropdown was covered by other UI components
+- June 24, 2025. Complete crew assignment system with comprehensive database integration and auto-scheduling
+  - Implemented full crew assignment dialog with all database staff members (8 total: 3 captains, 3 coordinators, 1 additional crew)
+  - Added automatic pre-departure briefing scheduling 1 hour before booking start time with Miami Marina gate meeting location
+  - Enhanced UI with purple-to-blue gradient hover effects on all dropdown selections matching brand theme
+  - Converted assignment buttons to compact icons (UserPlus, ToggleLeft) for improved spacing and professional appearance
+  - Fixed date and time formatting with robust error handling for various booking data formats
+  - Added comprehensive crew selection including First Mate and all available staff roles from live database
+  - Integrated real-time staff availability with proper role-based categorization and selection interface
 - June 24, 2025. Yacht maintenance system database integration completed
   - Connected all maintenance components to real-time PostgreSQL database
   - Replaced static content with live data from API endpoints
