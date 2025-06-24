@@ -86,8 +86,10 @@ export default function YachtMaintenance() {
     queryKey: ['/api/maintenance/trip-logs'],
   });
 
-  const { data: maintenanceRecords = [], isLoading: maintenanceLoading } = useQuery({
+  const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: ['/api/maintenance/records'],
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const { data: conditionAssessments = [], isLoading: assessmentsLoading } = useQuery({
@@ -106,8 +108,10 @@ export default function YachtMaintenance() {
     queryKey: ['/api/maintenance/components'],
   });
 
-  const { data: maintenanceSchedules = [], isLoading: schedulesLoading } = useQuery({
+  const { data: maintenanceSchedules = [], isLoading: schedulesLoading, refetch: refetchSchedules } = useQuery({
     queryKey: ['/api/maintenance/schedules'],
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   // Forms
@@ -605,14 +609,14 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Task Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500 text-white">
+                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                                       <SelectValue placeholder="Select task type" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500">
-                                      <SelectItem value="preventive" className="text-white hover:bg-purple-700">Preventive</SelectItem>
-                                      <SelectItem value="corrective" className="text-white hover:bg-purple-700">Corrective</SelectItem>
-                                      <SelectItem value="emergency" className="text-white hover:bg-purple-700">Emergency</SelectItem>
-                                      <SelectItem value="inspection" className="text-white hover:bg-purple-700">Inspection</SelectItem>
+                                    <SelectContent className="bg-gray-800 border-gray-700">
+                                      <SelectItem value="preventive" className="text-white hover:bg-purple-600">Preventive</SelectItem>
+                                      <SelectItem value="corrective" className="text-white hover:bg-purple-600">Corrective</SelectItem>
+                                      <SelectItem value="emergency" className="text-white hover:bg-purple-600">Emergency</SelectItem>
+                                      <SelectItem value="inspection" className="text-white hover:bg-purple-600">Inspection</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>
@@ -629,17 +633,17 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Category</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500 text-white">
+                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                                       <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500">
-                                      <SelectItem value="engine" className="text-white hover:bg-purple-700">Engine</SelectItem>
-                                      <SelectItem value="hull" className="text-white hover:bg-purple-700">Hull</SelectItem>
-                                      <SelectItem value="electronics" className="text-white hover:bg-purple-700">Electronics</SelectItem>
-                                      <SelectItem value="safety" className="text-white hover:bg-purple-700">Safety</SelectItem>
-                                      <SelectItem value="cosmetic" className="text-white hover:bg-purple-700">Cosmetic</SelectItem>
-                                      <SelectItem value="plumbing" className="text-white hover:bg-purple-700">Plumbing</SelectItem>
-                                      <SelectItem value="electrical" className="text-white hover:bg-purple-700">Electrical</SelectItem>
+                                    <SelectContent className="bg-gray-800 border-gray-700">
+                                      <SelectItem value="engine" className="text-white hover:bg-purple-600">Engine</SelectItem>
+                                      <SelectItem value="hull" className="text-white hover:bg-purple-600">Hull</SelectItem>
+                                      <SelectItem value="electronics" className="text-white hover:bg-purple-600">Electronics</SelectItem>
+                                      <SelectItem value="safety" className="text-white hover:bg-purple-600">Safety</SelectItem>
+                                      <SelectItem value="cosmetic" className="text-white hover:bg-purple-600">Cosmetic</SelectItem>
+                                      <SelectItem value="plumbing" className="text-white hover:bg-purple-600">Plumbing</SelectItem>
+                                      <SelectItem value="electrical" className="text-white hover:bg-purple-600">Electrical</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>
