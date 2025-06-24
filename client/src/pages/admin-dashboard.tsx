@@ -598,7 +598,7 @@ function AddUserDialog() {
           <div className="form-grid-2">
             <div className="form-field-spacing">
               <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value, membershipTier: value === 'member' ? 'bronze' : ''})}>
                 <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
@@ -614,20 +614,22 @@ function AddUserDialog() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="form-field-spacing">
-              <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
-              <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="bronze">Bronze</SelectItem>
-                  <SelectItem value="silver">Silver</SelectItem>
-                  <SelectItem value="gold">Gold</SelectItem>
-                  <SelectItem value="platinum">Platinum</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {formData.role === 'member' && (
+              <div className="form-field-spacing">
+                <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
+                <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                  <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="bronze">Bronze</SelectItem>
+                    <SelectItem value="silver">Silver</SelectItem>
+                    <SelectItem value="gold">Gold</SelectItem>
+                    <SelectItem value="platinum">Platinum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </div>
         
@@ -708,7 +710,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <div className="form-grid-2">
             <div className="form-field-spacing">
               <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value, membershipTier: value === 'member' ? (formData.membershipTier || 'bronze') : ''})}>
                 <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
@@ -724,20 +726,22 @@ function EditUserDialog({ user: userData }: { user: any }) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="form-field-spacing">
-              <Label htmlFor="tier" className="form-label text-gray-300">Membership Tier</Label>
-              <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="Bronze">Bronze</SelectItem>
-                  <SelectItem value="Silver">Silver</SelectItem>
-                  <SelectItem value="Gold">Gold</SelectItem>
-                  <SelectItem value="Platinum">Platinum</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {formData.role === 'member' && (
+              <div className="form-field-spacing">
+                <Label htmlFor="tier" className="form-label text-gray-300">Membership Tier</Label>
+                <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                  <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="Bronze">Bronze</SelectItem>
+                    <SelectItem value="Silver">Silver</SelectItem>
+                    <SelectItem value="Gold">Gold</SelectItem>
+                    <SelectItem value="Platinum">Platinum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </div>
         
