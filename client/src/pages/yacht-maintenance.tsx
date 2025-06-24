@@ -799,7 +799,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {maintenanceRecords && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
+                {Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
