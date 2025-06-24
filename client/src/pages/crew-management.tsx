@@ -1454,11 +1454,52 @@ function EditAssignmentDialog({
   crewMembers: CrewMember[]; 
   onUpdate: () => void;
 }) {
+  // Fetch live staff data from the database for selectors
+  const { data: staffData = [] } = useQuery({
+    queryKey: ['/api/admin/staff'],
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Initialize form state with current assignment data
+  const [editedCaptainId, setEditedCaptainId] = useState(assignment.captainId || null);
+  const [editedCoordinatorId, setEditedCoordinatorId] = useState(assignment.coordinatorId || null);
+  const [editedCrewMemberIds, setEditedCrewMemberIds] = useState<number[]>(
+    assignment.crewMemberIds ? JSON.parse(assignment.crewMemberIds) : []
+  );
   const [editedNotes, setEditedNotes] = useState(assignment.notes || "");
-  const [editedBriefingTime, setEditedBriefingTime] = useState(assignment.briefingTime || "");
+  const [editedBriefingTime, setEditedBriefingTime] = useState(() => {
+    if (assignment.briefingTime) {
+      try {
+        const date = new Date(assignment.briefingTime);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      } catch {
+        return "";
+      }
+    }
+    return "";
+  });
   const [editedStatus, setEditedStatus] = useState(assignment.status || "planned");
   
   const { toast } = useToast();
+
+  // Filter staff members into roles
+  const availableCrew = (staffData || []);
+  const captains = availableCrew.filter((m: any) => 
+    ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
+  );
+  const coordinators = availableCrew.filter((m: any) => 
+    ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
+  );
+  const otherCrew = availableCrew.filter((m: any) => 
+    !['admin'].includes(m.role) && 
+    !captains.some(c => c.id === m.id) && 
+    !coordinators.some(c => c.id === m.id)
+  );
 
   const updateAssignmentMutation = useMutation({
     mutationFn: async (updates: any) => {
@@ -1483,6 +1524,9 @@ function EditAssignmentDialog({
 
   const handleSave = () => {
     updateAssignmentMutation.mutate({
+      captainId: editedCaptainId,
+      coordinatorId: editedCoordinatorId,
+      crewMemberIds: editedCrewMemberIds,
       notes: editedNotes,
       briefingTime: editedBriefingTime,
       status: editedStatus,
@@ -1490,7 +1534,7 @@ function EditAssignmentDialog({
   };
 
   return (
-    <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
+    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700">
       <DialogHeader>
         <DialogTitle className="text-white text-xl flex items-center gap-2">
           <Edit className="h-5 w-5 text-purple-400" />
@@ -1502,59 +1546,170 @@ function EditAssignmentDialog({
       </DialogHeader>
       
       <div className="space-y-6">
-        {/* Status Update */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-purple-400">Assignment Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Select value={editedStatus} onValueChange={setEditedStatus}>
-              <SelectTrigger className="bg-gray-800/50 border-gray-600">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="planned">Planned</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
+        {/* Assignment Status */}
+        <div className="flex items-center gap-2">
+          <Badge className={`${getStatusColor(editedStatus)} text-white`}>
+            {getStatusIcon(editedStatus)}
+            <span className="ml-1 capitalize">{editedStatus}</span>
+          </Badge>
+          <Select value={editedStatus} onValueChange={setEditedStatus}>
+            <SelectTrigger className="w-40 bg-gray-800/50 border-gray-600">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="planned">Planned</SelectItem>
+              <SelectItem value="in-progress">In Progress</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        {/* Briefing Time */}
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Briefing Time
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <input
-              type="datetime-local"
-              value={editedBriefingTime}
-              onChange={(e) => setEditedBriefingTime(e.target.value)}
-              className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-            />
-          </CardContent>
-        </Card>
+        {/* Booking Information */}
+        {assignment.booking && (
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+                <Ship className="h-5 w-5" />
+                Booking Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-gray-400 text-sm">Yacht</div>
+                <div className="text-white font-medium">{assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Member</div>
+                <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Guests</div>
+                <div className="text-white">{assignment.booking.guestCount} people</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Duration</div>
+                <div className="text-white">{assignment.duration}</div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Notes */}
+        {/* Crew Assignment - Editable */}
         <Card className="bg-gray-800/50 border-gray-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg text-green-400 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Assignment Notes
+              <Users className="h-5 w-5" />
+              Crew Assignment
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <textarea
-              value={editedNotes}
-              onChange={(e) => setEditedNotes(e.target.value)}
-              placeholder="Add notes about this crew assignment..."
-              rows={4}
-              className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 resize-none"
-            />
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-purple-400 mb-2">
+                  <Crown className="h-4 w-4" />
+                  <span className="font-medium">Captain</span>
+                </div>
+                <Select value={editedCaptainId?.toString() || ""} onValueChange={(value) => setEditedCaptainId(parseInt(value))}>
+                  <SelectTrigger className="bg-gray-700/50 border-gray-600">
+                    <SelectValue placeholder="Select Captain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {captains.map((captain) => (
+                      <SelectItem key={captain.id} value={captain.id.toString()}>
+                        {captain.username} ({captain.role})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-blue-400 mb-2">
+                  <Shield className="h-4 w-4" />
+                  <span className="font-medium">Coordinator</span>
+                </div>
+                <Select value={editedCoordinatorId?.toString() || ""} onValueChange={(value) => setEditedCoordinatorId(parseInt(value))}>
+                  <SelectTrigger className="bg-gray-700/50 border-gray-600">
+                    <SelectValue placeholder="Select Coordinator" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {coordinators.map((coordinator) => (
+                      <SelectItem key={coordinator.id} value={coordinator.id.toString()}>
+                        {coordinator.username} ({coordinator.role})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">Briefing Time</span>
+              </div>
+              <input
+                type="datetime-local"
+                value={editedBriefingTime}
+                onChange={(e) => setEditedBriefingTime(e.target.value)}
+                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+
+            {/* Additional Crew Selection */}
+            <div>
+              <div className="text-gray-400 text-sm mb-2">Additional Crew Members</div>
+              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
+                {otherCrew.map((member) => (
+                  <div key={member.id} className="flex items-center space-x-2 p-2 bg-gray-700/30 rounded">
+                    <input
+                      type="checkbox"
+                      id={`edit-crew-${member.id}`}
+                      checked={editedCrewMemberIds.includes(member.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEditedCrewMemberIds([...editedCrewMemberIds, member.id]);
+                        } else {
+                          setEditedCrewMemberIds(editedCrewMemberIds.filter(id => id !== member.id));
+                        }
+                      }}
+                      className="rounded border-gray-700 bg-gray-700 w-4 h-4"
+                    />
+                    <div className="flex-1">
+                      <p className="text-white text-xs font-medium">{member.username}</p>
+                      <p className="text-gray-400 text-xs">{member.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Special Requests & Notes */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Additional Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {assignment.booking?.specialRequests && (
+              <div>
+                <div className="text-gray-400 text-sm mb-1">Special Requests</div>
+                <div className="text-white bg-indigo-900/20 p-2 rounded text-sm">{assignment.booking.specialRequests}</div>
+              </div>
+            )}
+            <div>
+              <div className="text-gray-400 text-sm mb-1">Assignment Notes</div>
+              <textarea
+                value={editedNotes}
+                onChange={(e) => setEditedNotes(e.target.value)}
+                placeholder="Add notes about this crew assignment..."
+                rows={4}
+                className="w-full bg-gray-700/30 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 resize-none"
+              />
+            </div>
           </CardContent>
         </Card>
 
