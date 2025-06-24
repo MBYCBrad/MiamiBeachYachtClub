@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +14,8 @@ import {
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
   AlertTriangle, CheckCircle2, UserPlus, Edit, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
-  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings
+  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings,
+  Save, Loader2
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -778,6 +779,36 @@ export default function CrewManagementPage() {
     </motion.div>
   );
 }
+
+// Helper Functions
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'planned': return 'bg-gradient-to-r from-purple-600 to-indigo-600';
+    case 'in-progress': return 'bg-gradient-to-r from-blue-600 to-cyan-600';
+    case 'completed': return 'bg-gradient-to-r from-green-600 to-emerald-600';
+    default: return 'bg-gray-600';
+  }
+};
+
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'planned': return <Clock className="h-4 w-4" />;
+    case 'in-progress': return <Play className="h-4 w-4" />;
+    case 'completed': return <CheckCircle className="h-4 w-4" />;
+    default: return <Clock className="h-4 w-4" />;
+  }
+};
+
+const getCrewRoleIcon = (role: string) => {
+  switch (role.toLowerCase()) {
+    case 'captain': return <Crown className="h-4 w-4" />;
+    case 'first mate': return <Shield className="h-4 w-4" />;
+    case 'chef': return <Utensils className="h-4 w-4" />;
+    case 'steward': return <Coffee className="h-4 w-4" />;
+    case 'deckhand': return <Anchor className="h-4 w-4" />;
+    default: return <Users className="h-4 w-4" />;
+  }
+};
 
 // Crew Assignment Dialog Component
 function CrewAssignmentDialog({ 
