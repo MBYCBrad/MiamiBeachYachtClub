@@ -50,6 +50,11 @@ function AssignCrewDialog({ booking, crew, onAssign, open, onOpenChange }: Assig
   const [selectedFirstMate, setSelectedFirstMate] = useState<string>('');
   const [selectedCrew, setSelectedCrew] = useState<string[]>([]);
 
+  // Early return if booking is not provided
+  if (!booking) {
+    return null;
+  }
+
   // Fetch real staff data from database
   const { data: allStaff = [], isLoading } = useQuery<CrewMember[]>({
     queryKey: ['/api/admin/staff'],
@@ -90,6 +95,8 @@ function AssignCrewDialog({ booking, crew, onAssign, open, onOpenChange }: Assig
   };
 
   const handleAssign = () => {
+    if (!booking) return;
+    
     const assignment = {
       bookingId: booking.id,
       captainId: parseInt(selectedCaptain),
@@ -170,18 +177,20 @@ function AssignCrewDialog({ booking, crew, onAssign, open, onOpenChange }: Assig
                   <div className="flex justify-between items-center p-1 bg-gray-800/50 rounded text-xs border border-gray-700/30">
                     <span className="text-gray-400">Date:</span>
                     <span className="text-white font-semibold">
-                      {format(new Date(booking.startTime), 'MMM dd, yyyy')}
+                      {booking.startTime ? format(new Date(booking.startTime), 'MMM dd, yyyy') : 'Not specified'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-1 bg-gray-800/50 rounded text-xs border border-gray-700/30">
                     <span className="text-gray-400">Time:</span>
                     <span className="text-white font-semibold">
-                      {format(new Date(booking.startTime), 'HH:mm')} - {format(new Date(booking.endTime), 'HH:mm')}
+                      {booking.startTime && booking.endTime 
+                        ? `${format(new Date(booking.startTime), 'HH:mm')} - ${format(new Date(booking.endTime), 'HH:mm')}`
+                        : 'Not specified'}
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-1 bg-gray-800/50 rounded text-xs border border-gray-700/30">
                     <span className="text-gray-400">Guests:</span>
-                    <span className="text-white font-semibold">{booking.guestCount} people</span>
+                    <span className="text-white font-semibold">{booking.guestCount || 0} people</span>
                   </div>
                   <div className="flex justify-between items-center p-1 bg-gray-800/50 rounded text-xs border border-gray-700/30">
                     <span className="text-gray-400">Member:</span>
