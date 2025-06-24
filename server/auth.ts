@@ -98,31 +98,4 @@ export function setupAuth(app: Express) {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
   });
-
-  // Get user profile by ID with avatar URL
-  app.get("/api/user/profile/:userId", async (req, res) => {
-    try {
-      const userId = parseInt(req.params.userId);
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      // Return user profile with avatar URL
-      res.json({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        avatarUrl: user.avatarUrl || user.profileImage || null,
-        role: user.role,
-        membershipTier: user.membershipTier,
-        phone: user.phone,
-        location: user.location
-      });
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
 }
