@@ -146,8 +146,11 @@ export default function YachtMaintenance() {
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
+      // Force immediate refresh of maintenance data
       queryClient.invalidateQueries({ queryKey: ['/api/maintenance/schedules'] });
       queryClient.invalidateQueries({ queryKey: ['/api/maintenance/records'] });
+      queryClient.refetchQueries({ queryKey: ['/api/maintenance/schedules'] });
+      queryClient.refetchQueries({ queryKey: ['/api/maintenance/records'] });
       scheduleMaintenanceForm.reset();
       setScheduleMaintenanceOpen(false);
     },
@@ -604,7 +607,7 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Task Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectTrigger className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500 text-white">
                                       <SelectValue placeholder="Select task type" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-800 border-gray-700">
@@ -628,7 +631,7 @@ export default function YachtMaintenance() {
                                 <FormLabel className="text-white">Category</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectTrigger className="bg-gradient-to-r from-purple-600 to-blue-600 border-purple-500 text-white">
                                       <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-800 border-gray-700">
@@ -794,7 +797,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
+                {maintenanceRecords && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
