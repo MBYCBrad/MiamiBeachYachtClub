@@ -201,20 +201,7 @@ export default function YachtMaintenance() {
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
               <p className="text-lg text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Select value={selectedYacht?.toString() || ""} onValueChange={(value) => setSelectedYacht(Number(value))}>
-                <SelectTrigger className="w-64 bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
-                  <SelectValue placeholder="Select a yacht..." />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
-                  {yachts.map((yacht: any) => (
-                    <SelectItem key={yacht.id} value={yacht.id.toString()}>
-                      {yacht.name} ({yacht.size}ft)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
           </div>
         </div>
       </div>
@@ -226,7 +213,7 @@ export default function YachtMaintenance() {
               <Anchor className="h-10 w-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-4">Select a Yacht</h2>
-            <p className="text-gray-400 mb-8">Choose a yacht from the dropdown above to view its maintenance dashboard</p>
+            <p className="text-gray-400 mb-8">Choose a yacht below to view its maintenance dashboard</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {yachts.map((yacht: any) => (
                 <motion.div
