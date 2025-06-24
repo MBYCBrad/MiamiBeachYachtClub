@@ -665,7 +665,7 @@ function ViewYachtDialog({ yacht }: { yacht: any }) {
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-black border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center">
             <Anchor className="h-5 w-5 mr-2 text-blue-500" />
