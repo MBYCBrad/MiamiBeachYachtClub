@@ -3555,7 +3555,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background admin-luxury-background">
+    <div className="min-h-screen bg-background">
       {/* Mobile overlay */}
       {isMobile && !sidebarCollapsed && (
         <motion.div

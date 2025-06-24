@@ -302,7 +302,7 @@ export default function StaffManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-black admin-luxury-background">
+    <div className="min-h-screen bg-black">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

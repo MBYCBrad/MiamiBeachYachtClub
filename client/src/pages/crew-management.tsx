@@ -174,7 +174,7 @@ export default function CrewManagementPage() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-8 min-h-screen admin-luxury-background"
+      className="space-y-8"
     >
       <div className="container mx-auto px-6">
         {/* Header */}

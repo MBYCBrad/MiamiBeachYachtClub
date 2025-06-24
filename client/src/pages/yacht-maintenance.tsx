@@ -192,7 +192,7 @@ export default function YachtMaintenance() {
   const selectedYachtData = yachts.find((y: any) => y.id === selectedYacht);
 
   return (
-    <div className="min-h-screen bg-black text-white admin-luxury-background">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-6 py-8 mt-16">
