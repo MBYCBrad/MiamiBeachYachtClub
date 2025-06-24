@@ -93,7 +93,9 @@ export default function CrewManagementPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/crew/members"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staff"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      setSelectedBooking(null);
       toast({
         title: "Crew Assignment Created",
         description: "Crew successfully assigned to booking",
@@ -518,7 +520,7 @@ function CrewAssignmentDialog({
   onAssign: any;
 }) {
   const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
-  const [selectedCoordinator, setSelectedCoordinator] = useState<number | null>(null);
+  const [selectedFirstMate, setSelectedFirstMate] = useState<number | null>(null);
   const [selectedCrew, setSelectedCrew] = useState<number[]>([]);
   // Calculate briefing time exactly 1 hour before booking start time
   const calculateBriefingTime = () => {
@@ -543,7 +545,7 @@ function CrewAssignmentDialog({
   };
 
   const [briefingTime, setBriefingTime] = useState(calculateBriefingTime());
-  const [notes, setNotes] = useState("");
+  const [assignmentNotes, setAssignmentNotes] = useState("");
 
   // Fetch live staff data from the database
   const { data: staffData = [] } = useQuery({
@@ -558,32 +560,31 @@ function CrewAssignmentDialog({
     ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
   );
   
-  const coordinators = availableCrew.filter((m: any) => 
-    ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
+  const firstMates = availableCrew.filter((m: any) => 
+    ['First Mate', 'Crew Supervisor', 'Safety Officer'].includes(m.role)
   );
   
-  // Show ALL crew members except captains, coordinators, and admin - everyone else is selectable crew
+  // Show ALL crew members except captains, first mates, and admin - everyone else is selectable crew
   const otherCrew = availableCrew.filter((m: any) => 
     !['admin'].includes(m.role) && 
     !captains.some(c => c.id === m.id) && 
-    !coordinators.some(c => c.id === m.id)
+    !firstMates.some(c => c.id === m.id)
   );
 
 
 
   const handleAssign = () => {
-    if (!selectedCaptain || !selectedCoordinator) {
+    if (!selectedCaptain) {
       return;
     }
 
     const assignmentData = {
       bookingId: booking.id,
       captainId: selectedCaptain,
-      coordinatorId: selectedCoordinator,
-      crewMemberIds: selectedCrew,
+      firstMateId: selectedFirstMate,
+      crewMembers: selectedCrew,
       briefingTime,
-      notes,
-      status: 'planned'
+      assignmentNotes
     };
 
     onAssign.mutate(assignmentData);
@@ -862,29 +863,29 @@ function CrewAssignmentDialog({
             </CardContent>
           </Card>
 
-          {/* Service Coordinator Selection */}
+          {/* First Mate Selection */}
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Service Coordinator *
+                First Mate
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
+              <Select value={selectedFirstMate?.toString()} onValueChange={(value) => setSelectedFirstMate(parseInt(value))}>
                 <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
-                  <SelectValue placeholder="Select service coordinator" />
+                  <SelectValue placeholder="Select first mate" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  {coordinators.map((coordinator) => (
+                  {firstMates.map((firstMate) => (
                     <SelectItem 
-                      key={coordinator.id} 
-                      value={coordinator.id.toString()}
+                      key={firstMate.id} 
+                      value={firstMate.id.toString()}
                       className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
                     >
                       <div className="flex flex-col py-1">
-                        <span className="font-medium">{coordinator.username}</span>
-                        <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
+                        <span className="font-medium">{firstMate.username}</span>
+                        <span className="text-sm text-gray-400">{firstMate.role} • {firstMate.location}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -974,8 +975,8 @@ function CrewAssignmentDialog({
             </CardHeader>
             <CardContent>
               <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={assignmentNotes}
+                onChange={(e) => setAssignmentNotes(e.target.value)}
                 placeholder="• Safety protocols and guest preferences&#10;• Service delivery requirements&#10;• Special dietary needs or allergies&#10;• Equipment setup instructions&#10;• Emergency contact information&#10;• Member VIP status notes"
                 className="bg-gray-700 border-gray-700 min-h-[120px] text-sm"
                 rows={6}
@@ -994,7 +995,7 @@ function CrewAssignmentDialog({
             </Button>
             <Button
               onClick={handleAssign}
-              disabled={!selectedCaptain || !selectedCoordinator || onAssign.isPending}
+              disabled={!selectedCaptain || onAssign.isPending}
               className="bg-purple-600 hover:bg-purple-700 px-8"
             >
               <CheckCircle2 className="h-4 w-4 mr-2" />
