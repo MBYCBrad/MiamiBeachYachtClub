@@ -16,7 +16,7 @@ import {
   AlertTriangle, CheckCircle2, UserPlus, Edit, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
   Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings,
-  Save, Loader2
+  Save, Loader2, Activity
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +44,22 @@ const getStatusColor = (status: string) => {
       return 'bg-red-500/20 text-red-400 border-red-500/30';
     default:
       return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+  }
+};
+
+// Utility function for status icons
+const getStatusIcon = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'planned': return <Clock className="h-4 w-4" />;
+    case 'in-progress': return <Activity className="h-4 w-4" />;
+    case 'completed': return <CheckCircle className="h-4 w-4" />;
+    case 'confirmed': return <CheckCircle className="h-4 w-4" />;
+    case 'pending': return <Clock className="h-4 w-4" />;
+    case 'cancelled': return <AlertTriangle className="h-4 w-4" />;
+    case 'active': return <CheckCircle className="h-4 w-4" />;
+    case 'inactive': return <Pause className="h-4 w-4" />;
+    case 'suspended': return <AlertTriangle className="h-4 w-4" />;
+    default: return <Clock className="h-4 w-4" />;
   }
 };
 
