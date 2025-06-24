@@ -1766,13 +1766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/maintenance/assessments", requireAuth, async (req, res) => {
     try {
-      const validationResult = insertConditionAssessmentSchema.safeParse(req.body);
-      if (!validationResult.success) {
-        return res.status(400).json({ 
-          message: "Validation failed", 
-          errors: validationResult.error.errors 
-        });
-      }
+
 
       const assessment = await dbStorage.createConditionAssessment(validationResult.data);
       
