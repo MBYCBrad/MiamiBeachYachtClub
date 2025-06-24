@@ -4417,74 +4417,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get crew assignments - Real-time database integration
+  // Get crew assignments and pending bookings - Real-time database integration
   app.get("/api/crew/assignments", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+      return res.sendStatus(401);
+    }
     try {
-      // Return sample data until database connectivity issue is resolved
-      const sampleAssignments = [
-        {
-          id: "crew_assign_1",
-          bookingId: 8,
-          status: "assigned",
-          briefingTime: new Date("2025-06-23T08:00:00Z"),
-          briefingLocation: "Miami Marina Gate 3",
-          notes: "Full day charter - ensure all safety equipment checked",
-          captain: {
-            id: 73,
-            username: "captain_rodriguez",
-            role: "Captain"
-          },
-          firstMate: {
-            id: 74,
-            username: "first_mate_smith",
-            role: "First Mate"
-          },
-          crewMembers: [
-            { id: 76, username: "crew_member_1", role: "Deck Hand" },
-            { id: 77, username: "crew_member_2", role: "Engineer" }
-          ],
-          booking: {
-            id: 8,
-            startTime: new Date("2025-06-23T09:00:00Z"),
-            endTime: new Date("2025-06-23T18:00:00Z"),
-            guestCount: 8,
-            yachtName: "Marina Breeze",
-            memberName: "demo_member"
-          }
-        },
-        {
-          id: "crew_assign_2",
-          bookingId: 9,
-          status: "pending",
-          briefingTime: new Date("2025-06-24T09:00:00Z"),
-          briefingLocation: "Miami Marina Gate 1",
-          notes: "Evening cruise - prepare sunset dining setup",
-          captain: {
-            id: 74,
-            username: "first_mate_smith",
-            role: "Captain"
-          },
-          firstMate: {
-            id: 76,
-            username: "crew_member_1",
-            role: "First Mate"
-          },
-          crewMembers: [
-            { id: 73, username: "captain_rodriguez", role: "Deck Hand" },
-            { id: 77, username: "crew_member_2", role: "Engineer" }
-          ],
-          booking: {
-            id: 9,
-            startTime: new Date("2025-06-24T16:00:00Z"),
-            endTime: new Date("2025-06-24T20:00:00Z"),
-            guestCount: 6,
-            yachtName: "Azure Elegance",
-            memberName: "member_2"
-          }
-        }
-      ];
+      // Get all confirmed bookings that are upcoming
+      const allBookings = await dbStorage.getBookings();
+      const allUsers = await dbStorage.getAllUsers();
+      const allYachts = await dbStorage.getYachts();
       
-      res.json(sampleAssignments);
+      // Filter for confirmed bookings that are today or future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const upcomingBookings = allBookings.filter(booking => {
+        const bookingDate = new Date(booking.startTime);
+        return booking.status === 'confirmed' && bookingDate >= today;
+      });
+      
+      // Convert bookings to crew assignment format - all start as unassigned
+      const crewAssignments = upcomingBookings.map(booking => {
+        const member = allUsers.find(u => u.id === booking.userId);
+        const yacht = allYachts.find(y => y.id === booking.yachtId);
+        
+        return {
+          id: `pending_${booking.id}`,
+          bookingId: booking.id,
+          status: "unassigned",
+          briefingTime: "",
+          briefingLocation: "Miami Marina Gate 3",
+          notes: "Crew assignment needed for upcoming charter",
+          captain: null,
+          firstMate: null,
+          crewMembers: [],
+          booking: {
+            id: booking.id,
+            startTime: booking.startTime,
+            endTime: booking.endTime,
+            guestCount: booking.guestCount || 4,
+            yachtName: yacht?.name || 'Unknown Yacht',
+            memberName: member?.username || 'Unknown Member'
+          }
+        };
+      });
+      
+      res.json(crewAssignments);
     } catch (error: any) {
       console.error('Crew assignments fetch error:', error);
       res.status(500).json({ message: error.message });

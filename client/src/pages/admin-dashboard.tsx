@@ -73,7 +73,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
-import CrewManagementPageFixed from "./crew-management-fixed";
+import CrewManagement from "./crew-management-clean";
 import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
 import MyProfile from "./my-profile";
@@ -4560,7 +4560,7 @@ export default function AdminDashboard() {
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
-            {activeSection === 'crew-management' && <CrewManagementPageFixed />}
+            {activeSection === 'crew-management' && <CrewManagement />}
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
             {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'users' && renderUsers()}
