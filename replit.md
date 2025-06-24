@@ -333,6 +333,12 @@ Changelog:
 - June 22, 2025. Fixed guest dropdown UI layering issue in yacht booking modal
   - Added proper z-index (z-50) to SelectContent component to ensure dropdown appears above modal elements
   - Resolved visual overlap issues where dropdown was covered by other UI components
+- June 24, 2025. Fixed critical authentication bug with password hashing for admin-created users
+  - Implemented proper password hashing in user creation endpoint to resolve salt validation errors
+  - Added role-based routing system for automatic dashboard redirection based on user roles
+  - Enhanced password comparison function with proper error handling for invalid password formats
+  - Cleaned up database by removing users with plain text passwords and updating existing users with proper hashed passwords
+  - Authentication system now works properly for both admin-created users and registration flow
 - June 24, 2025. Complete crew assignment system with comprehensive database integration and auto-scheduling
   - Implemented full crew assignment dialog with all database staff members (8 total: 3 captains, 3 coordinators, 1 additional crew)
   - Added automatic pre-departure briefing scheduling 1 hour before booking start time with Miami Marina gate meeting location
