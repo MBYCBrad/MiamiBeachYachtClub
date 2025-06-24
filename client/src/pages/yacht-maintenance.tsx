@@ -613,10 +613,10 @@ export default function YachtMaintenance() {
                                       <SelectValue placeholder="Select task type" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-800 border-gray-700">
-                                      <SelectItem value="preventive" className="text-white hover:bg-purple-600">Preventive</SelectItem>
-                                      <SelectItem value="corrective" className="text-white hover:bg-purple-600">Corrective</SelectItem>
-                                      <SelectItem value="emergency" className="text-white hover:bg-purple-600">Emergency</SelectItem>
-                                      <SelectItem value="inspection" className="text-white hover:bg-purple-600">Inspection</SelectItem>
+                                      <SelectItem value="preventive" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Preventive</SelectItem>
+                                      <SelectItem value="corrective" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Corrective</SelectItem>
+                                      <SelectItem value="emergency" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Emergency</SelectItem>
+                                      <SelectItem value="inspection" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Inspection</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>
@@ -637,13 +637,13 @@ export default function YachtMaintenance() {
                                       <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-800 border-gray-700">
-                                      <SelectItem value="engine" className="text-white hover:bg-purple-600">Engine</SelectItem>
-                                      <SelectItem value="hull" className="text-white hover:bg-purple-600">Hull</SelectItem>
-                                      <SelectItem value="electronics" className="text-white hover:bg-purple-600">Electronics</SelectItem>
-                                      <SelectItem value="safety" className="text-white hover:bg-purple-600">Safety</SelectItem>
-                                      <SelectItem value="cosmetic" className="text-white hover:bg-purple-600">Cosmetic</SelectItem>
-                                      <SelectItem value="plumbing" className="text-white hover:bg-purple-600">Plumbing</SelectItem>
-                                      <SelectItem value="electrical" className="text-white hover:bg-purple-600">Electrical</SelectItem>
+                                      <SelectItem value="engine" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Engine</SelectItem>
+                                      <SelectItem value="hull" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Hull</SelectItem>
+                                      <SelectItem value="electronics" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Electronics</SelectItem>
+                                      <SelectItem value="safety" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Safety</SelectItem>
+                                      <SelectItem value="cosmetic" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Cosmetic</SelectItem>
+                                      <SelectItem value="plumbing" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Plumbing</SelectItem>
+                                      <SelectItem value="electrical" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Electrical</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>
