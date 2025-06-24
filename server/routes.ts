@@ -349,6 +349,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         yachts = availableYachts;
       }
 
+      // Hide sensitive fields for members
+      if (!req.isAuthenticated() || (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.YACHT_OWNER)) {
+        const memberYachts = yachts.map(yacht => {
+          const { yearMade, totalCost, ...memberYacht } = yacht;
+          return memberYacht;
+        });
+        return res.json(memberYachts);
+      }
+      
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

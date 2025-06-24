@@ -66,7 +66,9 @@ const yachtFormSchema = z.object({
   images: z.array(z.string()).optional(),
   amenities: z.array(z.string()).optional(),
   pricePerHour: z.string().optional(),
-  isAvailable: z.boolean().default(true)
+  isAvailable: z.boolean().default(true),
+  yearMade: z.number().optional(),
+  totalCost: z.number().optional()
 });
 
 type YachtFormData = z.infer<typeof yachtFormSchema>;
@@ -89,7 +91,9 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
       images: yacht.images || [],
       amenities: yacht.amenities || [],
       pricePerHour: yacht.pricePerHour || "",
-      isAvailable: yacht.isAvailable ?? true
+      isAvailable: yacht.isAvailable ?? true,
+      yearMade: yacht.yearMade || undefined,
+      totalCost: yacht.totalCost ? parseFloat(yacht.totalCost.toString()) : undefined
     }
   });
 
@@ -243,6 +247,49 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
                 </FormItem>
               )}
             />
+
+            {/* Owner Only Fields for Maintenance Calculations */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="yearMade"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                        className="bg-gray-800 border-gray-700 text-white" 
+                        placeholder="2020"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="totalCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number"
+                        step="0.01"
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                        className="bg-gray-800 border-gray-700 text-white" 
+                        placeholder="500000"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}

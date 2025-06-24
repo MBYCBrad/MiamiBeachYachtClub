@@ -818,7 +818,9 @@ function AddYachtDialog() {
     pricePerHour: '',
     isAvailable: true,
     ownerId: '',
-    amenities: ''
+    amenities: '',
+    yearMade: '',
+    totalCost: ''
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -831,7 +833,9 @@ function AddYachtDialog() {
         capacity: parseInt(data.capacity),
         ownerId: data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined,
         amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
-        images: data.images || []
+        images: data.images || [],
+        yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
+        totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
       };
       const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
       return response.json();
@@ -840,7 +844,7 @@ function AddYachtDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/yachts"] });
       toast({ title: "Success", description: "Yacht created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: '65', amenities: '' });
+      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: '65', amenities: '', yearMade: '', totalCost: '' });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -953,6 +957,33 @@ function AddYachtDialog() {
               placeholder="WiFi, Air Conditioning, Sound System"
             />
           </div>
+          
+          {/* Admin/Owner Only Fields for Maintenance Calculations */}
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="yearMade" className="form-label text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="yearMade"
+                type="number"
+                value={formData.yearMade}
+                onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="2020"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="totalCost" className="form-label text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="totalCost"
+                type="number"
+                step="0.01"
+                value={formData.totalCost}
+                onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="500000"
+              />
+            </div>
+          </div>
           <div className="form-field-spacing">
             <Label htmlFor="ownerId" className="form-label text-gray-300">Owner</Label>
             <Select value={formData.ownerId} onValueChange={(value) => setFormData({...formData, ownerId: value})}>
@@ -1003,7 +1034,9 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
     description: yacht.description || '',
     imageUrl: yacht.imageUrl || '',
     images: yacht.images || [],
-    isAvailable: yacht.isAvailable ?? true
+    isAvailable: yacht.isAvailable ?? true,
+    yearMade: yacht.yearMade || '',
+    totalCost: yacht.totalCost || ''
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1100,6 +1133,33 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
             </div>
           </div>
           
+          {/* Admin/Owner Only Fields for Maintenance Calculations */}
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="yearMade" className="form-label text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="yearMade"
+                type="number"
+                value={formData.yearMade}
+                onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="2020"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="totalCost" className="form-label text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="totalCost"
+                type="number"
+                step="0.01"
+                value={formData.totalCost}
+                onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="500000"
+              />
+            </div>
+          </div>
+
           <div className="form-field-spacing">
             <div className="flex items-center space-x-2">
               <input

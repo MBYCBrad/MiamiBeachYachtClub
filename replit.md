@@ -339,6 +339,12 @@ Changelog:
   - Added comprehensive error handling and empty states for all maintenance tabs
   - Implemented proper maintenance-focused interface by removing inappropriate "Start Trip" button
   - System now pulls authentic yacht components, trip logs, maintenance records, and assessments from database
+- June 24, 2025. Enhanced yacht management with maintenance-specific fields
+  - Added yearMade and totalCost fields to yacht schema for accurate maintenance calculations
+  - Fields visible only to admin and yacht owners, hidden from member view for privacy
+  - Updated admin and yacht owner forms to include maintenance calculation fields
+  - Enables accurate depreciation, usage, and market value assessments for maintenance planning
+  - Role-based data filtering ensures sensitive yacht financial information remains protected
   - Guest selection dropdown now displays cleanly without layering conflicts
 - June 22, 2025. Updated yacht thumbnails to display authentic real-time images from media storage
   - Replaced all external Unsplash stock photos with authentic yacht images from attached assets

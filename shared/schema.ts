@@ -53,6 +53,9 @@ export const yachts = pgTable("yachts", {
   amenities: jsonb("amenities").$type<string[]>().default([]),
   pricePerHour: decimal("price_per_hour", { precision: 10, scale: 2 }),
   isAvailable: boolean("is_available").default(true),
+  // Admin/Owner only fields for maintenance calculations
+  yearMade: integer("year_made"), // For depreciation calculations
+  totalCost: decimal("total_cost", { precision: 12, scale: 2 }), // Purchase/market value for maintenance planning
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
