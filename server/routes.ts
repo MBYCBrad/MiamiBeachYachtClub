@@ -4753,13 +4753,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      // Properly format crew member IDs as integer array for PostgreSQL JSONB
+      const formattedCrewMemberIds = Array.isArray(crewMemberIds) 
+        ? crewMemberIds.map(id => parseInt(id)).filter(id => !isNaN(id))
+        : [];
+
+      console.log('Creating crew assignment with data:', {
+        bookingId: parseInt(bookingId),
+        captainId: parseInt(captainId),
+        coordinatorId: parseInt(coordinatorId),
+        crewMemberIds: formattedCrewMemberIds,
+        briefingTime: briefingTime ? new Date(briefingTime) : new Date()
+      });
+
       // Create crew assignment in database
       const assignmentData = {
         id: `assignment_${bookingId}_${Date.now()}`,
         bookingId: parseInt(bookingId),
         captainId: parseInt(captainId),
         coordinatorId: parseInt(coordinatorId),
-        crewMemberIds: crewMemberIds || [],
+        crewMemberIds: formattedCrewMemberIds,
         briefingTime: briefingTime ? new Date(briefingTime) : new Date(),
         notes: notes || '',
         status: 'planned' as const,
@@ -4776,7 +4789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: 'New Crew Assignment',
         message: `Crew assigned to booking #${bookingId}`,
         priority: 'medium',
-        isRead: false
+        read: false
       });
       
       res.status(201).json(newAssignment);
