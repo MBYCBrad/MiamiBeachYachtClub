@@ -1085,32 +1085,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createConditionAssessment(assessment: any): Promise<ConditionAssessment> {
-    console.log('Storage - Creating assessment with data:', assessment);
+    console.log('Storage - Creating assessment with comprehensive data:', assessment);
     try {
-      // Force insert with explicit values
+      // Insert with all form fields
       const [created] = await db
         .insert(conditionAssessments)
         .values({
           yachtId: Number(assessment.yachtId),
           assessorId: Number(assessment.assessorId), 
           overallScore: Number(assessment.overallScore),
+          condition: String(assessment.condition || 'good'),
+          priority: String(assessment.priority || 'medium'),
+          estimatedCost: assessment.estimatedCost ? String(assessment.estimatedCost) : null,
+          notes: String(assessment.notes || ''),
+          recommendedAction: String(assessment.recommendedAction || ''),
           assessmentDate: new Date(),
           recommendations: String(assessment.recommendations || '')
         })
         .returning();
       
-      console.log('Storage - Assessment created:', created);
+      console.log('Storage - Assessment created with full data:', created);
       return created;
     } catch (error) {
       console.error('Storage - Assessment failed:', error);
-      // If Drizzle fails, use raw SQL
+      // If Drizzle fails, use raw SQL with all fields
       try {
         const result = await db.execute(sql`
-          INSERT INTO condition_assessments (yacht_id, assessor_id, overall_score, assessment_date, recommendations)
-          VALUES (${assessment.yachtId}, ${assessment.assessorId}, ${assessment.overallScore}, ${new Date()}, ${assessment.recommendations || ''})
+          INSERT INTO condition_assessments (
+            yacht_id, assessor_id, overall_score, condition, priority, 
+            estimated_cost, notes, recommended_action, assessment_date, recommendations
+          )
+          VALUES (
+            ${assessment.yachtId}, ${assessment.assessorId}, ${assessment.overallScore},
+            ${assessment.condition || 'good'}, ${assessment.priority || 'medium'},
+            ${assessment.estimatedCost || null}, ${assessment.notes || ''}, 
+            ${assessment.recommendedAction || ''}, ${new Date()}, ${assessment.recommendations || ''}
+          )
           RETURNING *
         `);
-        console.log('Storage - Raw SQL success:', result);
+        console.log('Storage - Raw SQL success with full data:', result);
         return result.rows[0] as ConditionAssessment;
       } catch (rawError) {
         console.error('Storage - Raw SQL also failed:', rawError);

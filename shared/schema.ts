@@ -334,6 +334,11 @@ export const conditionAssessments = pgTable("condition_assessments", {
   componentId: integer("component_id").references(() => yachtComponents.id),
   assessorId: integer("assessor_id").references(() => users.id).notNull(),
   overallScore: integer("overall_score").notNull(),
+  condition: text("condition").notNull(),
+  priority: text("priority").notNull().default("medium"),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  notes: text("notes"),
+  recommendedAction: text("recommended_action"),
   assessmentDate: timestamp("assessment_date").notNull(),
   conditionDetails: jsonb("condition_details").$type<{
     visualInspection?: number;

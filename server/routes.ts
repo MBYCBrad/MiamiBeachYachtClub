@@ -1768,7 +1768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Assessment POST - Body:', req.body);
       
-      // Create assessment data directly from request
+      // Create assessment data with all form fields
       const assessmentData = {
         yachtId: parseInt(req.body.yachtId) || 33,
         assessorId: req.user.id,
@@ -1776,10 +1776,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                      req.body.condition === 'good' ? 8 :
                      req.body.condition === 'fair' ? 6 :
                      req.body.condition === 'poor' ? 4 : 2,
+        condition: req.body.condition || 'good',
+        priority: req.body.priority || 'medium',
+        estimatedCost: req.body.estimatedCost ? parseFloat(req.body.estimatedCost) : null,
+        notes: req.body.notes || '',
+        recommendedAction: req.body.recommendedAction || '',
         assessmentDate: new Date(),
         recommendations: req.body.recommendedAction || req.body.notes || 'Assessment completed'
       };
 
+      console.log('Creating assessment with comprehensive data:', assessmentData);
       const assessment = await dbStorage.createConditionAssessment(assessmentData);
       
       // Auto-schedule maintenance if condition is poor

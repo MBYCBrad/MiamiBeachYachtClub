@@ -190,7 +190,7 @@ export default function YachtMaintenance() {
       queryClient.removeQueries({ queryKey: [`/api/maintenance/assessments/${selectedYacht}`] });
       refetchAssessments();
       createAssessmentForm.reset();
-      setCreateAssessmentOpen(false);
+      // Don't automatically close the dialog - let user close it manually
     },
     onError: (error: any) => {
       toast({
@@ -829,34 +829,69 @@ export default function YachtMaintenance() {
                           }>
                             {record.priority}
                           </Badge>
-                          <span className="text-white font-medium">{record.taskType.replace('_', ' ')}</span>
+                          <Badge variant="outline" className="border-blue-500 text-blue-400">
+                            {record.taskType ? record.taskType.replace('_', ' ') : 'Maintenance Task'}
+                          </Badge>
+                          {record.component && (
+                            <Badge variant="outline" className="border-green-500 text-green-400">
+                              {record.component}
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-green-400" />
-                          <span className="text-white">${record.estimatedCost}</span>
+                          <span className="text-white">${record.estimatedCost || record.cost || '0.00'}</span>
                         </div>
                       </div>
                       
-                      <p className="text-gray-300 mb-4">{record.description}</p>
+                      <div className="mb-4">
+                        <h4 className="text-white font-medium mb-2">{record.title || 'Maintenance Task'}</h4>
+                        <p className="text-gray-300">{record.description}</p>
+                      </div>
                       
                       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div className="text-gray-400">
                           <span className="font-medium">Scheduled:</span> {new Date(record.scheduledDate).toLocaleDateString()}
                         </div>
                         <div className="text-gray-400">
-                          <span className="font-medium">Status:</span> <span className="capitalize">{record.status || 'Pending'}</span>
+                          <span className="font-medium">Status:</span> 
+                          <Badge variant="outline" className={`ml-2 ${
+                            record.status === 'completed' ? 'border-green-500 text-green-400' :
+                            record.status === 'in_progress' ? 'border-yellow-500 text-yellow-400' :
+                            record.status === 'overdue' ? 'border-red-500 text-red-400' :
+                            'border-gray-500 text-gray-400'
+                          }`}>
+                            {record.status?.replace('_', ' ') || 'Scheduled'}
+                          </Badge>
                         </div>
                         <div className="text-gray-400">
                           <span className="font-medium">Assigned to:</span> {record.assignedTo || 'Not assigned'}
                         </div>
                         <div className="text-gray-400">
-                          <span className="font-medium">Duration:</span> {record.estimatedDuration || 'TBD'} hours
+                          <span className="font-medium">Duration:</span> {record.estimatedDuration || record.duration || 'TBD'} hours
                         </div>
                       </div>
+
+                      {record.category && (
+                        <div className="mb-3">
+                          <span className="text-gray-400 font-medium">Category: </span>
+                          <Badge variant="outline" className="border-purple-500 text-purple-400">
+                            {record.category.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      )}
+
                       {record.workNotes && (
                         <div className="mt-4 p-3 bg-gray-800/50 rounded">
                           <span className="text-gray-400 text-sm font-medium">Work Notes:</span>
                           <p className="text-gray-300 text-sm mt-1">{record.workNotes}</p>
+                        </div>
+                      )}
+
+                      {record.notes && record.notes !== record.workNotes && (
+                        <div className="mt-4 p-3 bg-gray-800/50 rounded">
+                          <span className="text-gray-400 text-sm font-medium">Additional Notes:</span>
+                          <p className="text-gray-300 text-sm mt-1">{record.notes}</p>
                         </div>
                       )}
                     </CardContent>
@@ -1024,21 +1059,67 @@ export default function YachtMaintenance() {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <Badge variant="outline" className="border-purple-500 text-purple-400">
-                            {assessment.assessmentType?.replace('_', ' ') || 'Condition Assessment'}
+                            Condition Assessment
+                          </Badge>
+                          <Badge variant={
+                            assessment.priority === 'critical' ? 'destructive' :
+                            assessment.priority === 'high' ? 'secondary' : 'default'
+                          }>
+                            {assessment.priority || 'medium'}
                           </Badge>
                           <span className="text-white font-medium">Score: {assessment.overallScore || assessment.conditionScore || 'N/A'}/10</span>
                         </div>
-                        <div className="text-gray-400 text-sm">
-                          {assessment.createdAt ? new Date(assessment.createdAt).toLocaleDateString() : new Date(assessment.assessmentDate).toLocaleDateString()}
+                        <div className="flex items-center gap-4">
+                          {assessment.estimatedCost && (
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="h-4 w-4 text-green-400" />
+                              <span className="text-white">${assessment.estimatedCost}</span>
+                            </div>
+                          )}
+                          <div className="text-gray-400 text-sm">
+                            {assessment.createdAt ? new Date(assessment.createdAt).toLocaleDateString() : new Date(assessment.assessmentDate).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
                       
-                      <p className="text-gray-300 mb-4">{assessment.findings || assessment.recommendations || 'No detailed findings recorded'}</p>
+                      {assessment.condition && (
+                        <div className="mb-4">
+                          <span className="text-gray-400 font-medium">Component Condition: </span>
+                          <Badge variant={
+                            assessment.condition === 'excellent' ? 'default' :
+                            assessment.condition === 'good' ? 'secondary' :
+                            assessment.condition === 'fair' ? 'outline' :
+                            assessment.condition === 'poor' ? 'secondary' : 'destructive'
+                          } className={
+                            assessment.condition === 'excellent' ? 'bg-green-600 text-white' :
+                            assessment.condition === 'good' ? 'bg-blue-600 text-white' :
+                            assessment.condition === 'fair' ? 'bg-yellow-600 text-white' :
+                            assessment.condition === 'poor' ? 'bg-orange-600 text-white' :
+                            'bg-red-600 text-white'
+                          }>
+                            {assessment.condition.charAt(0).toUpperCase() + assessment.condition.slice(1)}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {assessment.notes && (
+                        <div className="mb-4">
+                          <p className="text-gray-400 font-medium mb-2">Assessment Notes:</p>
+                          <p className="text-gray-300 bg-gray-800/50 rounded p-3">{assessment.notes}</p>
+                        </div>
+                      )}
                       
-                      {assessment.recommendations && (
-                        <div className="bg-gray-900/50 rounded-lg p-3 mb-4">
-                          <p className="text-yellow-400 font-medium mb-1">Recommendations:</p>
-                          <p className="text-gray-300 text-sm">{assessment.recommendations}</p>
+                      {assessment.recommendedAction && (
+                        <div className="mb-4">
+                          <p className="text-yellow-400 font-medium mb-2">Recommended Action:</p>
+                          <p className="text-gray-300 bg-gray-800/50 rounded p-3">{assessment.recommendedAction}</p>
+                        </div>
+                      )}
+
+                      {assessment.recommendations && assessment.recommendedAction !== assessment.recommendations && (
+                        <div className="mb-4">
+                          <p className="text-yellow-400 font-medium mb-2">Additional Recommendations:</p>
+                          <p className="text-gray-300 bg-gray-800/50 rounded p-3">{assessment.recommendations}</p>
                         </div>
                       )}
                       
