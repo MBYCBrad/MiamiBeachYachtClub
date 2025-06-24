@@ -578,22 +578,41 @@ export default function CrewManagementPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                            title="Edit Assignment"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <Dialog open={viewDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setViewDetailsDialog}>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                                title="View Details"
+                                onClick={() => setSelectedAssignment(assignment)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <ViewAssignmentDialog assignment={assignment} />
+                          </Dialog>
+                          <Dialog open={editDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setEditDetailsDialog}>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                                title="Edit Assignment"
+                                onClick={() => setSelectedAssignment(assignment)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <EditAssignmentDialog 
+                              assignment={assignment} 
+                              crewMembers={crewMembers}
+                              onUpdate={() => {
+                                queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
+                                setEditDetailsDialog(false);
+                              }}
+                            />
+                          </Dialog>
                         </div>
                       </div>
 
@@ -1254,6 +1273,284 @@ function CrewAssignmentDialog({
               {onAssign.isPending ? "Assigning..." : "Assign Crew Team"}
             </Button>
           </div>
+        </div>
+      </div>
+    </DialogContent>
+  );
+}
+
+// View Assignment Details Dialog
+function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
+  return (
+    <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
+      <DialogHeader>
+        <DialogTitle className="text-white text-xl flex items-center gap-2">
+          <Eye className="h-5 w-5 text-purple-400" />
+          Assignment Details
+        </DialogTitle>
+        <DialogDescription className="text-gray-400">
+          Complete crew assignment information
+        </DialogDescription>
+      </DialogHeader>
+      
+      <div className="space-y-6">
+        {/* Assignment Status */}
+        <div className="flex items-center gap-2">
+          <Badge className={`${getStatusColor(assignment.status)} text-white`}>
+            {getStatusIcon(assignment.status)}
+            <span className="ml-1 capitalize">{assignment.status}</span>
+          </Badge>
+        </div>
+
+        {/* Booking Information */}
+        {assignment.booking && (
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+                <Ship className="h-5 w-5" />
+                Booking Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-gray-400 text-sm">Yacht</div>
+                <div className="text-white font-medium">{assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Member</div>
+                <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Guests</div>
+                <div className="text-white">{assignment.booking.guestCount} people</div>
+              </div>
+              <div>
+                <div className="text-gray-400 text-sm">Duration</div>
+                <div className="text-white">{assignment.duration}</div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Crew Details */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Crew Assignment
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-purple-400 mb-1">
+                  <Crown className="h-4 w-4" />
+                  <span className="font-medium">Captain</span>
+                </div>
+                <div className="text-white">{assignment.captain?.username || 'Not Assigned'}</div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-blue-400 mb-1">
+                  <Shield className="h-4 w-4" />
+                  <span className="font-medium">Coordinator</span>
+                </div>
+                <div className="text-white">{assignment.coordinator?.username || 'Not Assigned'}</div>
+              </div>
+            </div>
+            
+            <div>
+              <div className="flex items-center gap-2 text-yellow-400 mb-2">
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">Briefing Time</span>
+              </div>
+              <div className="text-purple-400">{assignment.briefingTime}</div>
+            </div>
+
+            {(assignment.crewMembers || []).length > 0 && (
+              <div>
+                <div className="text-gray-400 text-sm mb-2">Additional Crew ({(assignment.crewMembers || []).length})</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {(assignment.crewMembers || []).map((member, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      {getCrewRoleIcon(member.role || 'crew')}
+                      <span className="text-white">{member.username}</span>
+                      <span className="text-gray-400">({member.role})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Special Requests & Notes */}
+        {(assignment.booking?.specialRequests || assignment.notes) && (
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Additional Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {assignment.booking?.specialRequests && (
+                <div>
+                  <div className="text-gray-400 text-sm mb-1">Special Requests</div>
+                  <div className="text-white bg-indigo-900/20 p-2 rounded text-sm">{assignment.booking.specialRequests}</div>
+                </div>
+              )}
+              {assignment.notes && (
+                <div>
+                  <div className="text-gray-400 text-sm mb-1">Assignment Notes</div>
+                  <div className="text-white bg-gray-700/30 p-2 rounded text-sm">{assignment.notes}</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </DialogContent>
+  );
+}
+
+// Edit Assignment Dialog
+function EditAssignmentDialog({ 
+  assignment, 
+  crewMembers, 
+  onUpdate 
+}: { 
+  assignment: CrewAssignment; 
+  crewMembers: CrewMember[]; 
+  onUpdate: () => void;
+}) {
+  const [editedNotes, setEditedNotes] = useState(assignment.notes || "");
+  const [editedBriefingTime, setEditedBriefingTime] = useState(assignment.briefingTime || "");
+  const [editedStatus, setEditedStatus] = useState(assignment.status || "planned");
+  
+  const { toast } = useToast();
+
+  const updateAssignmentMutation = useMutation({
+    mutationFn: async (updates: any) => {
+      const res = await apiRequest("PATCH", `/api/crew/assignments/${assignment.id}`, updates);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Assignment Updated",
+        description: "Crew assignment has been updated successfully",
+      });
+      onUpdate();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSave = () => {
+    updateAssignmentMutation.mutate({
+      notes: editedNotes,
+      briefingTime: editedBriefingTime,
+      status: editedStatus,
+    });
+  };
+
+  return (
+    <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
+      <DialogHeader>
+        <DialogTitle className="text-white text-xl flex items-center gap-2">
+          <Edit className="h-5 w-5 text-purple-400" />
+          Edit Assignment
+        </DialogTitle>
+        <DialogDescription className="text-gray-400">
+          Update crew assignment details
+        </DialogDescription>
+      </DialogHeader>
+      
+      <div className="space-y-6">
+        {/* Status Update */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-purple-400">Assignment Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={editedStatus} onValueChange={setEditedStatus}>
+              <SelectTrigger className="bg-gray-800/50 border-gray-600">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="planned">Planned</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        {/* Briefing Time */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Briefing Time
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <input
+              type="datetime-local"
+              value={editedBriefingTime}
+              onChange={(e) => setEditedBriefingTime(e.target.value)}
+              className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Notes */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Assignment Notes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <textarea
+              value={editedNotes}
+              onChange={(e) => setEditedNotes(e.target.value)}
+              placeholder="Add notes about this crew assignment..."
+              rows={4}
+              className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 resize-none"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-4">
+          <Button
+            onClick={handleSave}
+            disabled={updateAssignmentMutation.isPending}
+            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            {updateAssignmentMutation.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </>
+            )}
+          </Button>
+          <DialogClose asChild>
+            <Button variant="outline" className="border-gray-600 text-gray-400 hover:bg-gray-700">
+              Cancel
+            </Button>
+          </DialogClose>
         </div>
       </div>
     </DialogContent>
