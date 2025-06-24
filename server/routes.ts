@@ -3608,19 +3608,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create User
   app.post("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
+      console.log('=== ADMIN USER CREATION DEBUG ===');
+      console.log('Raw request body:', { ...req.body, password: '[REDACTED]' });
+      
       // Import hashPassword function
       const { hashPassword } = await import("./auth");
       
       // Hash the password before creating the user
       const userData = { ...req.body };
+      console.log('userData before password hash:', { ...userData, password: '[REDACTED]' });
+      
       if (userData.password) {
         userData.password = await hashPassword(userData.password);
+        console.log('Password hashed successfully');
       }
       
+      console.log('Final userData to create:', { ...userData, password: '[REDACTED]' });
+      
       const newUser = await dbStorage.createUser(userData);
+      console.log('User created in database:', { ...newUser, password: '[REDACTED]' });
+      
       await auditService.logAction(req, 'create', 'user', newUser.id, req.body);
       res.status(201).json(newUser);
     } catch (error: any) {
+      console.error('=== ADMIN USER CREATION ERROR ===');
+      console.error('Error details:', error);
       await auditService.logAction(req, 'create', 'user', undefined, req.body, false, error.message);
       res.status(500).json({ message: error.message });
     }
