@@ -161,7 +161,10 @@ export default function CrewManagement() {
     .filter((a: CrewAssignment) => a.status === 'unassigned');
 
   const assignedBookings = (Array.isArray(assignments) ? assignments : [])
-    .filter((a: CrewAssignment) => a.status !== 'unassigned');
+    .filter((a: CrewAssignment) => a.status === 'assigned' || a.status === 'in_progress');
+
+  const pastBookings = (Array.isArray(assignments) ? assignments : [])
+    .filter((a: CrewAssignment) => a.status === 'completed' || a.status === 'cancelled');
 
   if (assignmentsLoading || staffLoading || yachtsLoading) {
     return (
@@ -319,7 +322,7 @@ export default function CrewManagement() {
                         <Label className="text-white">Additional Crew Members</Label>
                         <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
                           {availableCrewMembers.map((member: StaffMember) => (
-                            <label key={member.id} className="flex items-center space-x-2 text-white">
+                            <label key={member.id} className="flex items-center space-x-2 text-white hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20 p-2 rounded-lg transition-all duration-200">
                               <input
                                 type="checkbox"
                                 checked={selectedCrewMembers.includes(member.id.toString())}
@@ -330,7 +333,7 @@ export default function CrewManagement() {
                                     setSelectedCrewMembers(selectedCrewMembers.filter(id => id !== member.id.toString()));
                                   }
                                 }}
-                                className="rounded"
+                                className="rounded accent-purple-500"
                               />
                               <span className="text-sm">{member.username}</span>
                             </label>
@@ -372,15 +375,15 @@ export default function CrewManagement() {
                       <div className="flex gap-2 pt-4">
                         <Button
                           onClick={handleCreateAssignment}
-                          disabled={createAssignmentMutation.isPending}
-                          className="bg-purple-600 hover:bg-purple-700 flex-1"
+                          disabled={createAssignmentMutation.isPending || !selectedCaptain || !selectedBookingId}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold transition-all duration-200 flex-1"
                         >
                           {createAssignmentMutation.isPending ? 'Creating...' : 'Create Assignment'}
                         </Button>
                         <Button
                           variant="outline"
                           onClick={() => setIsAssignDialogOpen(false)}
-                          className="border-gray-600 text-gray-300"
+                          className="border-gray-600 text-gray-300 hover:bg-gray-700"
                         >
                           Cancel
                         </Button>
