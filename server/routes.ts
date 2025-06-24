@@ -7,6 +7,7 @@ import { setupPaymentRoutes } from "./payments";
 import { notificationService } from "./notifications";
 import { auditService, auditMiddleware } from "./audit";
 import { mediaStorageService } from "./media-storage";
+import { ultraFastCache } from "./ultra-fast-cache";
 import Stripe from "stripe";
 import twilio from "twilio";
 import { WebSocketServer, WebSocket } from "ws";
@@ -1337,6 +1338,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Trigger ultra-fast cache update for real-time synchronization
+      await ultraFastCache.refresh();
+
       res.json({ 
         url: avatarUrl,
         user: updatedUser
@@ -1361,6 +1365,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
+
+      // Trigger ultra-fast cache update for real-time synchronization
+      await ultraFastCache.refresh();
 
       res.json({ 
         url: avatarUrl,

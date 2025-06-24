@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { RealTimeAvatar } from "@/components/ui/real-time-avatar";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -4513,23 +4514,11 @@ export default function AdminDashboard() {
           {/* User Profile */}
           <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
             <div className="flex items-center space-x-3">
-              <div className="profile-picture-outline h-12 w-12">
-                <div className="profile-picture-inner w-full h-full">
-                  {user?.profileImage ? (
-                    <img
-                      src={user.profileImage}
-                      alt="Profile"
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">
-                        {user?.username?.charAt(0).toUpperCase() || 'A'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <RealTimeAvatar 
+                size="md" 
+                showOnlineStatus={true}
+                className="h-12 w-12"
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user?.username || 'Admin User'}</p>
                 <p className="text-xs text-gray-400">System Admin</p>

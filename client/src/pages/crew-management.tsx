@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RealTimeAvatar } from "@/components/ui/real-time-avatar";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +15,8 @@ import {
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
   AlertTriangle, CheckCircle2, UserPlus, Edit, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
-  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings
+  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings,
+  Save, Loader2
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -222,13 +224,25 @@ export default function CrewManagementPage() {
 
   // Function to get status color
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'planned': return 'bg-gradient-to-r from-purple-600 to-indigo-600';
-      case 'in-progress': return 'bg-gradient-to-r from-blue-600 to-cyan-600';
-      case 'completed': return 'bg-gradient-to-r from-green-600 to-emerald-600';
-      default: return 'bg-gray-600';
+    switch (status?.toLowerCase()) {
+      case 'planned':
+        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'in-progress':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'completed':
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'confirmed':
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'pending':
+        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'cancelled':
+        return 'bg-red-500/20 text-red-400 border-red-500/30';
+      default:
+        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
+
+
 
   const getCrewRoleIcon = (role: string) => {
     switch (role.toLowerCase()) {

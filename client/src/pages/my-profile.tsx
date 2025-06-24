@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RealTimeAvatar, triggerProfileUpdate } from "@/components/ui/real-time-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -95,6 +96,17 @@ export default function MyProfile() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Update the user query cache with new avatar
+      queryClient.setQueryData(['/api/user'], (oldData: any) => ({
+        ...oldData,
+        profileImage: data.url
+      }));
+      
+      // Trigger real-time profile updates across the application
+      if (user?.id) {
+        triggerProfileUpdate(user.id);
+      }
+      
       setAvatarDialogOpen(false);
       toast({
         title: "Avatar Updated",

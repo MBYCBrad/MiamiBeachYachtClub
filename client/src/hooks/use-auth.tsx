@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { triggerProfileUpdate } from "@/components/ui/real-time-avatar";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -42,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Trigger real-time profile updates across the application
+      triggerProfileUpdate(user.id);
       toast({
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
@@ -63,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Trigger real-time profile updates across the application
+      triggerProfileUpdate(user.id);
       toast({
         title: "Registration successful",
         description: `Welcome to MBYC, ${user.username}!`,
