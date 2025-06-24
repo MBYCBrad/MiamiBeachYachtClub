@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
-  AlertTriangle, CheckCircle2, UserPlus, RotateCcw, 
+  AlertTriangle, CheckCircle2, UserPlus, Edit, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
   Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings
 } from "lucide-react";
@@ -62,9 +62,11 @@ interface CrewAssignment {
 export default function CrewManagementPage() {
   const { toast } = useToast();
   const [selectedBooking, setSelectedBooking] = useState<YachtBooking | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<CrewAssignment | null>(null);
   const [crewFilter, setCrewFilter] = useState("all");
   const [assignmentDialog, setAssignmentDialog] = useState(false);
   const [viewDetailsDialog, setViewDetailsDialog] = useState(false);
+  const [editDetailsDialog, setEditDetailsDialog] = useState(false);
 
   // Fetch active bookings requiring crew assignment
   const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
@@ -135,14 +137,69 @@ export default function CrewManagementPage() {
     crewFilter === "all" || member?.status === crewFilter
   );
 
-  // Separate active and past assignments
-  const activeAssignments = (crewAssignments || []).filter(assignment => 
-    assignment.status === 'planned' || assignment.status === 'in-progress'
-  );
+  // Process active and past assignments based on time and status with enhanced booking data
+  const now = new Date();
   
-  const pastAssignments = (crewAssignments || []).filter(assignment => 
-    assignment.status === 'completed'
-  );
+  // Enhanced active assignments with full booking details
+  const activeAssignments = (crewAssignments || []).map(assignment => {
+    const booking = activeBookings.find(b => b.id === assignment.bookingId);
+    if (!booking) return null;
+    
+    const endTime = new Date(booking.endTime);
+    const startTime = new Date(booking.startTime);
+    
+    // Calculate proper briefing time (30 minutes before start time)
+    const briefingTime = new Date(startTime.getTime() - 30 * 60 * 1000);
+    
+    // Only include if booking hasn't ended and isn't completed
+    if (endTime > now && assignment.status !== 'completed') {
+      return {
+        ...assignment,
+        booking,
+        briefingTime: briefingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        duration: `${Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))}h`,
+        isActive: startTime <= now && endTime > now
+      };
+    }
+    return null;
+  }).filter(Boolean);
+
+  // Enhanced past assignments with full booking details
+  const pastAssignments = (crewAssignments || []).map(assignment => {
+    const booking = activeBookings.find(b => b.id === assignment.bookingId);
+    if (!booking) {
+      // Include completed assignments even without booking data
+      if (assignment.status === 'completed') {
+        return {
+          ...assignment,
+          booking: null,
+          briefingTime: new Date(assignment.briefingTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          completedTime: 'Historical Record'
+        };
+      }
+      return null;
+    }
+    
+    const endTime = new Date(booking.endTime);
+    const startTime = new Date(booking.startTime);
+    const briefingTime = new Date(startTime.getTime() - 30 * 60 * 1000);
+    
+    // Include if booking has ended or is completed
+    if (endTime <= now || assignment.status === 'completed') {
+      return {
+        ...assignment,
+        booking,
+        briefingTime: briefingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        duration: `${Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))}h`,
+        completedTime: endTime.toLocaleString()
+      };
+    }
+    return null;
+  }).filter(Boolean);
 
   // Function to get the next status in the progression
   const getNextStatus = (currentStatus: string) => {
@@ -502,51 +559,111 @@ export default function CrewManagementPage() {
                       key={assignment.id}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
+                      className="p-5 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-purple-600/50 transition-all duration-300"
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <Badge className={getStatusColor(assignment.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(assignment.status)}
-                            {assignment.status}
-                          </div>
-                        </Badge>
-                        {assignment.status !== 'completed' && (
+                      {/* Header with status and actions */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <Badge className={`${getStatusColor(assignment.status)} px-3 py-1 text-xs font-medium`}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(assignment.status)}
+                              {assignment.status}
+                            </div>
+                          </Badge>
+                          {assignment.isActive && (
+                            <div className="flex items-center gap-1 text-green-400 text-xs">
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                              LIVE
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateCrewStatusMutation.mutate({
-                              assignmentId: assignment.id,
-                              status: getNextStatus(assignment.status)
-                            })}
-                            className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                            title={`Mark as ${getNextStatus(assignment.status)}`}
+                            className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                            title="View Details"
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            <Eye className="h-4 w-4" />
                           </Button>
-                        )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                            title="Edit Assignment"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
 
-                      <div className="space-y-2 text-sm">
+                      {/* Booking Information */}
+                      {assignment.booking && (
+                        <div className="mb-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600/50">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Ship className="h-4 w-4 text-blue-400" />
+                            <span className="text-white font-medium">
+                              {assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="text-gray-400">Member</div>
+                              <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-400">Guests</div>
+                              <div className="text-white">{assignment.booking.guestCount} people</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-400">Duration</div>
+                              <div className="text-white">{assignment.duration}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-400">Trip Time</div>
+                              <div className="text-white">{assignment.startTime} - {assignment.endTime}</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Crew Assignment Details */}
+                      <div className="space-y-3 text-sm">
                         <div className="flex items-center gap-2 text-white">
                           <Crown className="h-4 w-4 text-purple-400" />
-                          Captain: {assignment.captain?.username || 'Not Assigned'}
+                          <span className="font-medium">Captain:</span>
+                          <span>{assignment.captain?.username || 'Not Assigned'}</span>
                         </div>
                         <div className="flex items-center gap-2 text-white">
                           <Shield className="h-4 w-4 text-blue-400" />
-                          Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
+                          <span className="font-medium">Coordinator:</span>
+                          <span>{assignment.coordinator?.username || 'Not Assigned'}</span>
                         </div>
-                        <div className="text-gray-400">
-                          Crew Size: {(assignment.crewMembers || []).length} members
+                        <div className="flex items-center gap-2 text-white">
+                          <Users className="h-4 w-4 text-green-400" />
+                          <span className="font-medium">Crew Size:</span>
+                          <span>{(assignment.crewMembers || []).length} members</span>
                         </div>
-                        <div className="text-gray-400">
-                          Briefing: {new Date(assignment.briefingTime).toLocaleTimeString()}
+                        <div className="flex items-center gap-2 text-white">
+                          <Clock className="h-4 w-4 text-yellow-400" />
+                          <span className="font-medium">Briefing Time:</span>
+                          <span className="text-purple-400">{assignment.briefingTime}</span>
                         </div>
                       </div>
 
+                      {/* Special Requests */}
+                      {assignment.booking?.specialRequests && (
+                        <div className="mt-3 p-2 bg-indigo-900/20 rounded text-xs">
+                          <div className="text-indigo-400 font-medium mb-1">Special Requests:</div>
+                          <div className="text-gray-300">{assignment.booking.specialRequests}</div>
+                        </div>
+                      )}
+
+                      {/* Assignment Notes */}
                       {assignment.notes && (
-                        <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs text-gray-300">
-                          {assignment.notes}
+                        <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs">
+                          <div className="text-gray-400 font-medium mb-1">Assignment Notes:</div>
+                          <div className="text-gray-300">{assignment.notes}</div>
                         </div>
                       )}
                     </motion.div>

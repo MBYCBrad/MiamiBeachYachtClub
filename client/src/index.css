@@ -799,6 +799,148 @@ html, body {
   margin-bottom: 1.5rem;
 }
 
+/* Comprehensive Admin Interface Dropdown Styling - Purple to Blue Gradient */
+/* Select component styling */
+[data-radix-select-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-radix-select-item] {
+  color: rgb(229 231 235) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-highlighted] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+[data-radix-select-item][data-state="checked"] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Dropdown Menu component styling */
+[data-radix-dropdown-menu-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-radix-dropdown-menu-item] {
+  color: rgb(229 231 235) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-radix-dropdown-menu-item]:hover,
+[data-radix-dropdown-menu-item][data-highlighted] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Popover component styling */
+[data-radix-popover-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Context Menu component styling */
+[data-radix-context-menu-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-radix-context-menu-item] {
+  color: rgb(229 231 235) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-radix-context-menu-item]:hover,
+[data-radix-context-menu-item][data-highlighted] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Menu component styling */
+[data-radix-menubar-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-radix-menubar-item] {
+  color: rgb(229 231 235) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-radix-menubar-item]:hover,
+[data-radix-menubar-item][data-highlighted] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Combobox/Command component styling */
+[cmdk-item] {
+  color: rgb(229 231 235) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+[cmdk-item]:hover,
+[cmdk-item][data-selected] {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Select trigger hover styling */
+[data-radix-select-trigger]:hover {
+  border-color: rgb(147 51 234) !important;
+}
+
+/* Button variant outline hover styling for consistency */
+.btn-outline:hover {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  border-color: transparent !important;
+  color: white !important;
+}
+
+/* Additional admin interface classes */
+.admin-dropdown-item:hover {
+  background: linear-gradient(135deg, rgb(147 51 234), rgb(59 130 246)) !important;
+  color: white !important;
+}
+
+/* Navigation Menu component styling */
+[data-radix-navigation-menu-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Hover Card component styling */
+[data-radix-hover-card-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Tooltip component styling */
+[data-radix-tooltip-content] {
+  background: rgb(17 24 39 / 0.95) !important;
+  border: 1px solid rgb(55 65 81) !important;
+  backdrop-filter: blur(10px) !important;
+  color: rgb(229 231 235) !important;
+}
+
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
