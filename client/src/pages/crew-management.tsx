@@ -60,6 +60,7 @@ interface CrewAssignment {
 }
 
 export default function CrewManagementPage() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [selectedBooking, setSelectedBooking] = useState<YachtBooking | null>(null);
   const [crewFilter, setCrewFilter] = useState("all");
@@ -69,22 +70,51 @@ export default function CrewManagementPage() {
   const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
     queryKey: ["/api/admin/bookings"],
     staleTime: 2 * 60 * 1000,
+    enabled: !!user,
   });
 
   // Fetch available staff members who can serve as crew
   const { data: crewMembers = [], isLoading: crewLoading, error: crewError } = useQuery<CrewMember[]>({
     queryKey: ["/api/admin/staff"],
     staleTime: 5 * 60 * 1000,
+    enabled: !!user,
   });
 
   // Fetch crew assignments
   const { data: crewAssignments = [], isLoading: assignmentsLoading, error: assignmentsError } = useQuery<CrewAssignment[]>({
     queryKey: ["/api/crew/assignments"],
     staleTime: 2 * 60 * 1000,
+    enabled: !!user,
   });
 
   const isLoading = bookingsLoading || crewLoading || assignmentsLoading;
   const hasError = bookingsError || crewError || assignmentsError;
+
+  // Check if user has admin permissions for crew management
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading crew management...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-6xl mb-6">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
+          <p className="text-gray-400 mb-6">Crew management requires admin privileges.</p>
+          <p className="text-gray-500 text-sm">Current user: {user.username} ({user.role})</p>
+          <p className="text-gray-500 text-sm mt-2">Please contact system administrator for access.</p>
+        </div>
+      </div>
+    );
+  }
 
   const createCrewAssignmentMutation = useMutation({
     mutationFn: async (assignmentData: any) => {
@@ -525,9 +555,20 @@ function CrewAssignmentDialog({
     if (!booking.startTime) return "";
     
     try {
-      const bookingStart = new Date(booking.startTime);
-      // Subtract 1 hour (3600000 milliseconds)
-      const briefingTime = new Date(bookingStart.getTime() - 3600000);
+      // Parse the UTC datetime string
+      const bookingStartUTC = new Date(booking.startTime);
+      
+      // Convert to local timezone by using local date components
+      const localBookingStart = new Date(
+        bookingStartUTC.getUTCFullYear(),
+        bookingStartUTC.getUTCMonth(), 
+        bookingStartUTC.getUTCDate(),
+        bookingStartUTC.getUTCHours(),
+        bookingStartUTC.getUTCMinutes()
+      );
+      
+      // Subtract 1 hour from local time
+      const briefingTime = new Date(localBookingStart.getTime() - 3600000);
       
       // Format for datetime-local input (YYYY-MM-DDTHH:MM)
       const year = briefingTime.getFullYear();
