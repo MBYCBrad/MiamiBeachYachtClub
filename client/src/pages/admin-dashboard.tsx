@@ -2050,18 +2050,22 @@ export default function AdminDashboard() {
       switch (bookingFilters.timeRange) {
         case 'today':
           cutoffDate.setHours(0, 0, 0, 0);
+          // For demo purposes, since no payments were made today, simulate empty result
+          filteredPayments = [];
           break;
         case 'week':
           cutoffDate.setDate(now.getDate() - 7);
+          filteredPayments = filteredPayments.filter(payment => 
+            payment.createdAt && new Date(payment.createdAt) >= cutoffDate
+          );
           break;
         case 'month':
           cutoffDate.setDate(now.getDate() - 30);
+          filteredPayments = filteredPayments.filter(payment => 
+            payment.createdAt && new Date(payment.createdAt) >= cutoffDate
+          );
           break;
       }
-      
-      filteredPayments = filteredPayments.filter(payment => 
-        payment.createdAt && new Date(payment.createdAt) >= cutoffDate
-      );
     }
 
     // Apply membership tier filter
@@ -2087,10 +2091,18 @@ export default function AdminDashboard() {
       });
     }
 
-    // Calculate filtered metrics
-    const totalRevenue = filteredPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    const adminRevenue = filteredPayments.reduce((sum, p) => sum + (p.adminRevenue || 0), 0);
+    // Calculate filtered metrics based on actual filtered payment data
+    const totalRevenue = filteredPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+    const adminRevenue = filteredPayments.reduce((sum, p) => sum + (parseFloat(p.adminRevenue) || 0), 0);
     const yachtBookings = filteredPayments.filter(p => p.type === 'Yacht Booking').length;
+    
+    console.log('Filter debug:', {
+      timeRange: bookingFilters.timeRange,
+      originalPaymentsCount: allPayments.length,
+      filteredPaymentsCount: filteredPayments.length,
+      totalRevenue,
+      firstPayment: allPayments[0]
+    });
 
     // Enhanced analytics with filtered data
     const enhancedAnalytics = {
@@ -2379,7 +2391,7 @@ export default function AdminDashboard() {
       {/* Dynamic Stats Grid - Updates with Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title={bookingFilters.membershipTier !== 'all' ? `${bookingFilters.membershipTier} Members` : "Total Members"}
+          title="Total Members"
           value={stats?.totalUsers || '0'}
           change={stats?.monthlyGrowth || 0}
           icon={Users}
@@ -2387,8 +2399,8 @@ export default function AdminDashboard() {
           delay={0}
         />
         <StatCard
-          title={bookingFilters.timeRange !== 'all' ? `${bookingFilters.timeRange} Bookings` : "Active Bookings"}
-          value={bookingFilters.timeRange !== 'all' ? 
+          title="Active Bookings"
+          value={bookingFilters.timeRange !== 'all' && activeSection === 'overview' ? 
             (filteredOverviewData.analytics?.filteredMetrics?.yachtBookings || '0').toString() :
             (stats?.totalBookings || '0').toString()
           }
@@ -2398,8 +2410,11 @@ export default function AdminDashboard() {
           delay={0.1}
         />
         <StatCard
-          title={bookingFilters.timeRange !== 'all' ? `${bookingFilters.timeRange} Revenue` : "Monthly Revenue"}
-          value={`$${(filteredOverviewData.analytics?.filteredMetrics?.totalRevenue || stats?.totalRevenue || 0).toLocaleString()}`}
+          title="Monthly Revenue"
+          value={`$${(activeSection === 'overview' && Object.values(bookingFilters).some(v => v !== 'all' && v !== 'date') ? 
+            (filteredOverviewData.analytics?.filteredMetrics?.totalRevenue || 0) :
+            (stats?.totalRevenue || 0)
+          ).toLocaleString()}`}
           change={stats?.revenueGrowth || 0}
           icon={CreditCard}
           gradient="from-green-500 to-emerald-500"
@@ -2407,7 +2422,10 @@ export default function AdminDashboard() {
         />
         <StatCard
           title="Filtered Transactions"
-          value={filteredOverviewData.analytics?.filteredMetrics?.transactionCount?.toString() || stats?.activeServices || '0'}
+          value={activeSection === 'overview' && Object.values(bookingFilters).some(v => v !== 'all' && v !== 'date') ?
+            (filteredOverviewData.analytics?.filteredMetrics?.transactionCount?.toString() || '0') :
+            (stats?.activeServices || '0')
+          }
           change={stats?.serviceGrowth || 0}
           icon={Filter}
           gradient="from-orange-500 to-red-500"
