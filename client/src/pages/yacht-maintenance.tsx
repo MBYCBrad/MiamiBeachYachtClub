@@ -223,9 +223,12 @@ export default function YachtMaintenance() {
               
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 mt-4 text-sm">
-                <Link href="/yacht-maintenance" className="text-gray-400 hover:text-purple-400 transition-colors">
+                <button 
+                  onClick={() => setSelectedYacht(null)} 
+                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                >
                   All Yachts
-                </Link>
+                </button>
                 <ChevronRight className="h-4 w-4 text-gray-500" />
                 <span className="text-white">Marina Breeze Maintenance</span>
               </div>
