@@ -55,9 +55,15 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
   const [selectedFirstMate, setSelectedFirstMate] = useState<string>('');
   const [selectedCrew, setSelectedCrew] = useState<string[]>([]);
 
-  const captains = crew.filter(member => member.role === 'captain' && member.status === 'available');
-  const firstMates = crew.filter(member => member.role === 'first_mate' && member.status === 'available');
-  const crewMembers = crew.filter(member => member.role === 'crew_member' && member.status === 'available');
+  // Fetch real staff data from database
+  const { data: allStaff = [] } = useQuery<CrewMember[]>({
+    queryKey: ['/api/admin/staff'],
+  });
+
+  // Filter real staff by roles
+  const captains = allStaff.filter(member => member.role === 'captain');
+  const firstMates = allStaff.filter(member => member.role === 'coordinator' || member.role === 'first_mate');
+  const crewMembers = allStaff.filter(member => member.role === 'crew_member' || member.role === 'staff');
 
   const handleAssign = () => {
     const assignment = {
@@ -95,31 +101,44 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
       <div className="p-8">
         <div className="grid grid-cols-2 gap-10">
           {/* Left Side - Enhanced Details */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Yacht Details - Sophisticated Card */}
-            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-xl p-5 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-400/30">
-                  <Ship className="w-5 h-5 text-purple-400" />
+                  <Ship className="w-4 h-4 text-purple-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Yacht Details</h3>
+                <h3 className="text-lg font-bold text-white">Yacht Details</h3>
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <span className="text-gray-400 font-medium">Name:</span>
-                  <span className="text-white font-semibold">{booking.yacht?.name || 'Royal Serenity'}</span>
+              
+              {/* Yacht Image */}
+              <div className="mb-4">
+                <img 
+                  src="/api/media/yachts/1/image" 
+                  alt={booking.yacht?.name || 'Royal Serenity'}
+                  className="w-full h-24 object-cover rounded-lg border border-gray-700/30"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDIwMCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTI4IiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0xMDAgNDBMMTIwIDY0SDgwTDEwMCA0MFoiIGZpbGw9IiM2Mzc0OEUiLz4KPHBhdGggZD0iTTgwIDY0SDE2MEw5NSA4OEg0NSIgZmlsbD0iIzYzNzQ4RSIvPgo8L3N2Zz4K';
+                  }}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium text-sm">Name:</span>
+                  <span className="text-white font-semibold text-sm">{booking.yacht?.name || 'Royal Serenity'}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <span className="text-gray-400 font-medium">Type:</span>
-                  <span className="text-white font-semibold">Luxury Motor Yacht</span>
+                <div className="flex justify-between items-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium text-sm">Type:</span>
+                  <span className="text-white font-semibold text-sm">Luxury Motor Yacht</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <span className="text-gray-400 font-medium">Length:</span>
-                  <span className="text-white font-semibold">65 ft</span>
+                <div className="flex justify-between items-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium text-sm">Length:</span>
+                  <span className="text-white font-semibold text-sm">65 ft</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
-                  <span className="text-gray-400 font-medium">Capacity:</span>
-                  <span className="text-white font-semibold">24 guests</span>
+                <div className="flex justify-between items-center p-2 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium text-sm">Capacity:</span>
+                  <span className="text-white font-semibold text-sm">24 guests</span>
                 </div>
               </div>
             </div>
@@ -139,7 +158,7 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
                   <span className="text-gray-400 font-medium">Time:</span>
-                  <span className="text-white font-semibold">{format(new Date(booking.startTime), 'h:mm a')}</span>
+                  <span className="text-white font-semibold">{format(new Date(booking.startTime), 'h:mm a')} - {format(new Date(booking.endTime), 'h:mm a')}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
                   <span className="text-gray-400 font-medium">Duration:</span>
@@ -161,67 +180,111 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
           </div>
 
           {/* Right Side - Enhanced Crew Selection */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Captain Selection */}
-            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-400/30">
-                  <UserCheck className="w-5 h-5 text-yellow-400" />
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-xl p-5 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-orange-500/20 p-2 rounded-lg border border-orange-400/30">
+                  <Crown className="w-4 h-4 text-orange-400" />
                 </div>
-                <label className="text-xl font-bold text-white">
-                  Captain <span className="text-red-400 text-lg">*</span>
+                <label className="text-lg font-bold text-white">
+                  Captain <span className="text-red-400">*</span>
                 </label>
               </div>
               <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
-                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-14 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-lg font-medium shadow-lg">
+                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-11 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-base font-medium shadow-lg">
                   <SelectValue placeholder="Select captain" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl">
-                  {captains.map((captain) => (
+                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl z-50">
+                  {captains.length > 0 ? captains.map((captain) => (
                     <SelectItem key={captain.id} value={captain.id.toString()} className="text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 py-3 text-base font-medium rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         {captain.username}
                       </div>
                     </SelectItem>
-                  ))}
+                  )) : (
+                    <SelectItem value="no-captains" disabled className="text-gray-400">No captains available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             {/* First Mate Selection */}
-            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-xl p-5 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="bg-cyan-500/20 p-2 rounded-lg border border-cyan-400/30">
-                  <Users className="w-5 h-5 text-cyan-400" />
+                  <Users className="w-4 h-4 text-cyan-400" />
                 </div>
-                <label className="text-xl font-bold text-white">First Mate</label>
+                <label className="text-lg font-bold text-white">First Mate</label>
               </div>
               <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
-                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-14 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-lg font-medium shadow-lg">
+                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-11 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-base font-medium shadow-lg">
                   <SelectValue placeholder="Select first mate (optional)" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl">
-                  {firstMates.map((mate) => (
+                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl z-50">
+                  {firstMates.length > 0 ? firstMates.map((mate) => (
                     <SelectItem key={mate.id} value={mate.id.toString()} className="text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 py-3 text-base font-medium rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         {mate.username}
                       </div>
                     </SelectItem>
-                  ))}
+                  )) : (
+                    <SelectItem value="no-mates" disabled className="text-gray-400">No first mates available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
+            {/* Additional Crew Members */}
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-xl p-5 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-green-500/20 p-2 rounded-lg border border-green-400/30">
+                  <Users className="w-4 h-4 text-green-400" />
+                </div>
+                <label className="text-lg font-bold text-white">Additional Crew Members</label>
+              </div>
+              <div className="space-y-3">
+                {crewMembers.length > 0 ? crewMembers.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700/30 hover:border-purple-500/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`crew-${member.id}`}
+                        checked={selectedCrew.includes(member.id.toString())}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCrew([...selectedCrew, member.id.toString()]);
+                          } else {
+                            setSelectedCrew(selectedCrew.filter(id => id !== member.id.toString()));
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-gray-600 bg-gray-900 text-purple-600 focus:ring-purple-500"
+                      />
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <label htmlFor={`crew-${member.id}`} className="text-white font-medium cursor-pointer text-sm">
+                        {member.username}
+                      </label>
+                    </div>
+                    <div className="text-xs text-gray-400 capitalize">
+                      {member.role.replace('_', ' ')}
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-gray-400 text-center py-4">No additional crew members available</div>
+                )}
+              </div>
+            </div>
+
             {/* Enhanced Assign Button */}
-            <div className="flex justify-end pt-6">
+            <div className="flex justify-end pt-4">
               <Button 
                 onClick={handleAssign}
                 disabled={!selectedCaptain}
-                className="bg-gradient-to-r from-purple-600 via-purple-700 to-blue-600 hover:from-purple-700 hover:via-purple-800 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold px-10 py-4 rounded-xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/20 hover:border-purple-400/40"
+                className="bg-gradient-to-r from-purple-600 via-purple-700 to-blue-600 hover:from-purple-700 hover:via-purple-800 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold px-8 py-3 rounded-xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-base border border-purple-500/20 hover:border-purple-400/40"
               >
-                <UserCheck className="w-5 h-5 mr-2" />
+                <UserCheck className="w-4 h-4 mr-2" />
                 Assign Crew
               </Button>
             </div>
