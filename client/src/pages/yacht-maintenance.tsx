@@ -221,17 +221,19 @@ export default function YachtMaintenance() {
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
               <p className="text-lg text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
               
-              {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 mt-4 text-sm">
-                <button 
-                  onClick={() => setSelectedYacht(null)} 
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
-                >
-                  All Yachts
-                </button>
-                <ChevronRight className="h-4 w-4 text-gray-500" />
-                <span className="text-white">Marina Breeze Maintenance</span>
-              </div>
+              {/* Breadcrumbs - only show when yacht is selected */}
+              {selectedYacht && (
+                <div className="flex items-center gap-2 mt-4 text-sm">
+                  <button 
+                    onClick={() => setSelectedYacht(null)} 
+                    className="text-gray-400 hover:text-purple-400 transition-colors"
+                  >
+                    All Yachts
+                  </button>
+                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                  <span className="text-white">{selectedYachtData?.name} Maintenance</span>
+                </div>
+              )}
             </div>
 
           </div>
