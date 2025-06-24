@@ -226,6 +226,20 @@ export default function YachtMaintenance() {
       {/* Header */}
       <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-6 py-8 mt-16">
+          {/* Breadcrumbs */}
+          <div className="flex items-center gap-2 mb-6 text-sm">
+            <Link href="/admin-dashboard" className="flex items-center gap-1 text-gray-400 hover:text-purple-400 transition-colors">
+              <Home className="h-4 w-4" />
+              Admin Dashboard
+            </Link>
+            <ChevronRight className="h-4 w-4 text-gray-500" />
+            <Link href="/admin-dashboard" className="text-gray-400 hover:text-purple-400 transition-colors">
+              All Yachts
+            </Link>
+            <ChevronRight className="h-4 w-4 text-gray-500" />
+            <span className="text-white">Marina Breeze Maintenance</span>
+          </div>
+
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
