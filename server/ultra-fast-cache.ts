@@ -168,6 +168,10 @@ class UltraFastCache {
     }
   }
 
+  async refresh() {
+    return this.updateAll();
+  }
+
   // Instant getters - no database queries needed
   getUsers() { return this.data.users; }
   getYachts() { return this.data.yachts; }
