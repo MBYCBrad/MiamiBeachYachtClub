@@ -2708,7 +2708,11 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4 relative z-10"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button 
+            size="sm" 
+            onClick={() => setActiveSection('calendar')}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
+          >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
