@@ -120,6 +120,7 @@ export interface IStorage {
   getCrewAssignment(id: string): Promise<CrewAssignment | undefined>;
   createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment>;
   updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined>;
+  getStaffMember(id: number): Promise<User | undefined>;
 
   // Yacht Maintenance System methods
   getYachtComponents(yachtId?: number): Promise<YachtComponent[]>;
@@ -768,6 +769,16 @@ export class DatabaseStorage implements IStorage {
   async createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment> {
     const [created] = await db.insert(crewAssignments).values(assignment).returning();
     return created;
+  }
+
+  async updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined> {
+    const [updated] = await db.update(crewAssignments).set(assignment).where(eq(crewAssignments.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async getStaffMember(id: number): Promise<User | undefined> {
+    const [staffMember] = await db.select().from(users).where(eq(users.id, id));
+    return staffMember || undefined;
   }
 
   async updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined> {

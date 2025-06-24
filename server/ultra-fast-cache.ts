@@ -53,8 +53,8 @@ class UltraFastCache {
         notificationsResult,
         paymentsResult
       ] = await Promise.all([
-        pool.query('SELECT id, username, email, role, membership_tier as "membershipTier", status, created_at as "createdAt" FROM users ORDER BY created_at DESC LIMIT 100'),
-        pool.query('SELECT id, name, location, type as "yachtType", size, capacity, daily_rate as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
+        pool.query('SELECT id, username, email, role, membership_tier as "membershipTier", created_at as "createdAt" FROM users ORDER BY created_at DESC LIMIT 100'),
+        pool.query('SELECT id, name, location, size, capacity, price_per_hour as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
         pool.query('SELECT s.*, u.username as "providerName" FROM services s LEFT JOIN users u ON s.provider_id = u.id ORDER BY s.name'),
         pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_date DESC'),
         pool.query(`
@@ -68,7 +68,7 @@ class UltraFastCache {
           ORDER BY b.start_time DESC
           LIMIT 50
         `),
-        pool.query('SELECT id, user_id as "userId", type, title, message, priority, is_read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
+        pool.query('SELECT id, user_id as "userId", type, title, message, priority, read as "isRead", created_at as "createdAt" FROM notifications ORDER BY created_at DESC LIMIT 20'),
         pool.query(`
           SELECT 
             'booking-' || id as id,
