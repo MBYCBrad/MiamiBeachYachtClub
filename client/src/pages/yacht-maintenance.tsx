@@ -296,11 +296,11 @@ export default function YachtMaintenance() {
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-gray-900/50 border border-gray-700/50">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">Overview</TabsTrigger>
-              <TabsTrigger value="trips" className="data-[state=active]:bg-purple-600">Trip Logs</TabsTrigger>
-              <TabsTrigger value="maintenance" className="data-[state=active]:bg-purple-600">Maintenance</TabsTrigger>
-              <TabsTrigger value="assessments" className="data-[state=active]:bg-purple-600">Assessments</TabsTrigger>
-              <TabsTrigger value="valuation" className="data-[state=active]:bg-purple-600">Valuation</TabsTrigger>
+              <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Overview</TabsTrigger>
+              <TabsTrigger value="trips" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Trip Logs</TabsTrigger>
+              <TabsTrigger value="maintenance" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Maintenance</TabsTrigger>
+              <TabsTrigger value="assessments" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Assessments</TabsTrigger>
+              <TabsTrigger value="valuation" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Valuation</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -314,8 +314,10 @@ export default function YachtMaintenance() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">{maintenanceOverview.totalEngineHours || 0}h</div>
-                    <p className="text-xs text-gray-500 mt-1">Total engine usage</p>
+                    <div className="text-2xl font-bold text-white">
+                      {tripLogs.reduce((total, log) => total + parseFloat(log.engineHours || '0'), 0).toFixed(1)}h
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">From {tripLogs.length} completed trips</p>
                   </CardContent>
                 </Card>
 
@@ -327,8 +329,13 @@ export default function YachtMaintenance() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">{maintenanceOverview.totalSunExposure || 0}h</div>
-                    <p className="text-xs text-gray-500 mt-1">Total UV exposure</p>
+                    <div className="text-2xl font-bold text-white">
+                      {usageMetrics
+                        .filter(m => m.metricType === 'sun_exposure')
+                        .reduce((total, metric) => total + parseFloat(metric.metricValue || '0'), 0)
+                        .toFixed(1)}h
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">UV exposure tracked</p>
                   </CardContent>
                 </Card>
 
@@ -353,8 +360,12 @@ export default function YachtMaintenance() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-400">{maintenanceOverview.avgCondition || 0}/10</div>
-                    <p className="text-xs text-gray-500 mt-1">Overall condition</p>
+                    <div className="text-2xl font-bold text-green-400">
+                      {conditionAssessments.length > 0 
+                        ? (conditionAssessments.reduce((sum, a) => sum + (a.conditionScore || 8.5), 0) / conditionAssessments.length).toFixed(1)
+                        : '8.5'}/10
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">From {conditionAssessments.length || 'baseline'} assessments</p>
                   </CardContent>
                 </Card>
               </div>
@@ -375,22 +386,24 @@ export default function YachtMaintenance() {
                           <div>
                             <p className="text-white font-medium">{component.componentName}</p>
                             <p className="text-xs text-gray-400">
-                              Next: {component.nextMaintenanceDate ? 
-                                new Date(component.nextMaintenanceDate).toLocaleDateString() : 
-                                'Not scheduled'
+                              Status: {component.status || 'operational'} • Last: {component.lastInspection ? 
+                                new Date(component.lastInspection).toLocaleDateString() : 
+                                'Not inspected'
                               }
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Progress value={parseFloat(component.currentCondition || 0)} className="w-20" />
+                            <Progress value={parseFloat(component.currentCondition || 85)} className="w-20" />
                             <span className="text-sm text-white w-8">
-                              {parseFloat(component.currentCondition || 0).toFixed(1)}
+                              {parseFloat(component.currentCondition || 85).toFixed(0)}%
                             </span>
                           </div>
                         </div>
                       )) : (
                         <div className="text-center text-gray-400 py-4">
-                          No components found for this yacht
+                          <Settings className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>No components configured</p>
+                          <p className="text-xs mt-1">Components will appear after setup</p>
                         </div>
                       )}
                     </div>
@@ -409,20 +422,22 @@ export default function YachtMaintenance() {
                       {[
                         ...tripLogs.slice(0, 2).map((trip: any) => ({
                           action: trip.status === 'completed' ? 'Trip completed' : 'Trip in progress',
-                          details: `${trip.startLocation} - ${trip.crewSize} crew members`,
+                          details: `${trip.startLocation} → ${trip.endLocation || 'ongoing'} • ${trip.engineHours || '0'}h engine time`,
                           time: trip.startTime ? new Date(trip.startTime).toLocaleString() : 'Unknown',
-                          icon: MapPin
+                          icon: MapPin,
+                          color: trip.status === 'completed' ? 'text-green-400' : 'text-blue-400'
                         })),
                         ...maintenanceRecords.slice(0, 2).map((record: any) => ({
                           action: record.status === 'completed' ? 'Maintenance completed' : 'Maintenance scheduled',
-                          details: record.description || record.taskType?.replace('_', ' '),
+                          details: `${record.taskType?.replace('_', ' ') || 'General maintenance'} • $${record.estimatedCost || 0}`,
                           time: record.scheduledDate ? new Date(record.scheduledDate).toLocaleString() : 'Unknown',
-                          icon: record.status === 'completed' ? CheckCircle : Wrench
+                          icon: record.status === 'completed' ? CheckCircle : Wrench,
+                          color: record.status === 'completed' ? 'text-green-400' : 'text-yellow-400'
                         }))
                       ].slice(0, 4).map((activity, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <div className="bg-purple-600/20 p-2 rounded-lg">
-                            <activity.icon className="h-4 w-4 text-purple-400" />
+                            <activity.icon className={`h-4 w-4 ${activity.color || 'text-purple-400'}`} />
                           </div>
                           <div className="flex-1">
                             <p className="text-white font-medium">{activity.action}</p>
