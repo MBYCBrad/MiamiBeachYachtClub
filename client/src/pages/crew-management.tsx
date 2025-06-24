@@ -751,9 +751,13 @@ function CrewAssignmentDialog({
                 <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select experienced captain" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-700">
                   {captains.map((captain) => (
-                    <SelectItem key={captain.id} value={captain.id.toString()}>
+                    <SelectItem 
+                      key={captain.id} 
+                      value={captain.id.toString()}
+                      className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
+                    >
                       <div className="flex flex-col py-1">
                         <span className="font-medium">{captain.username}</span>
                         <span className="text-sm text-gray-400">{captain.role} • {captain.location}</span>
@@ -778,9 +782,13 @@ function CrewAssignmentDialog({
                 <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
                   <SelectValue placeholder="Select service coordinator" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-700">
                   {coordinators.map((coordinator) => (
-                    <SelectItem key={coordinator.id} value={coordinator.id.toString()}>
+                    <SelectItem 
+                      key={coordinator.id} 
+                      value={coordinator.id.toString()}
+                      className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
+                    >
                       <div className="flex flex-col py-1">
                         <span className="font-medium">{coordinator.username}</span>
                         <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
