@@ -4422,11 +4422,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const result = await pool.query(`
         SELECT 
-          ca.*,
+          ca.id,
+          ca.booking_id,
+          ca.captain_id,
+          ca.first_mate_id,
+          ca.coordinator_id,
+          ca.crew_member_ids,
+          ca.status,
+          ca.briefing_time,
+          ca.briefing_location,
+          ca.assignment_notes,
+          ca.created_at,
+          ca.updated_at,
           b.start_time,
           b.end_time,
           b.guest_count,
           y.name as yacht_name,
+          y.size as yacht_size,
+          y.capacity as yacht_capacity,
           u_member.username as member_name,
           u_captain.username as captain_name,
           u_mate.username as first_mate_name

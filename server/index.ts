@@ -63,9 +63,9 @@ app.use((req, res, next) => {
   // Seed the database with demo data
   await seedDatabase();
   
-  // Initialize ultra-fast cache for instant responses
-  const { ultraFastCache } = await import("./ultra-fast-cache");
-  await ultraFastCache.initialize();
+  // Initialize ultra-fast cache for instant responses (temporarily disabled for debugging)
+  // const { ultraFastCache } = await import("./ultra-fast-cache");
+  // await ultraFastCache.initialize();
   
   const server = await registerRoutes(app);
 
