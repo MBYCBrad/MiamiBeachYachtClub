@@ -440,25 +440,9 @@ export default function YachtMaintenance() {
 
             {/* Trip Logs Tab */}
             <TabsContent value="trips">
-              <div className="flex justify-between items-center mb-6">
+              <div className="mb-6">
                 <h3 className="text-xl font-semibold text-white">Trip Logs</h3>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Complete Trip
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">Complete Trip Log</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <p className="text-gray-400">Complete the current active trip with end conditions and notes.</p>
-                      {/* Complete trip form would go here */}
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <p className="text-gray-400 mt-2">Historical trip data for maintenance tracking and engine hours monitoring</p>
               </div>
 
               <div className="grid gap-6">
