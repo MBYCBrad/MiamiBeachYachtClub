@@ -2151,14 +2151,152 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
+          className="flex items-center space-x-4 relative z-10"
         >
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Overview filter button clicked, current showFilters:', showFilters);
+              setShowFilters(!showFilters);
+            }}
+            className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
+              showFilters ? 'border-purple-500 bg-purple-500/10' : 'hover:border-purple-500'
+            }`}
+            style={{ pointerEvents: 'auto' }}
+          >
             <Filter className="h-4 w-4 mr-2" />
             Filter
+            {Object.values(bookingFilters).some(value => value !== 'all' && value !== 'date') && (
+              <div className="ml-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+            )}
           </Button>
         </motion.div>
       </div>
+
+      {/* Advanced Filter Panel for Overview */}
+      <AnimatePresence>
+        {showFilters && activeSection === 'overview' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl mb-6">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Filter className="h-5 w-5 mr-2 text-purple-500" />
+                    Dashboard Overview Filters
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBookingFilters({
+                      status: 'all',
+                      timeRange: 'all',
+                      membershipTier: 'all',
+                      yachtSize: 'all',
+                      sortBy: 'date'
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    Reset Filters
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Time Range Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Analytics Period</label>
+                    <select
+                      value={bookingFilters.timeRange}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                  </div>
+
+                  {/* Membership Tier Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Focus on Tier</label>
+                    <select
+                      value={bookingFilters.membershipTier}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, membershipTier: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Tiers</option>
+                      <option value="bronze">Bronze Members</option>
+                      <option value="silver">Silver Members</option>
+                      <option value="gold">Gold Members</option>
+                      <option value="platinum">Platinum Members</option>
+                    </select>
+                  </div>
+
+                  {/* Status Focus */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Activity Status</label>
+                    <select
+                      value={bookingFilters.status}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Activities</option>
+                      <option value="confirmed">Active Bookings</option>
+                      <option value="pending">Pending Review</option>
+                      <option value="completed">Recent Completions</option>
+                    </select>
+                  </div>
+
+                  {/* Sort Analytics */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Sort Analytics</label>
+                    <select
+                      value={bookingFilters.sortBy}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="date">By Date</option>
+                      <option value="member">By Member</option>
+                      <option value="yacht">By Yacht</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">
+                      Analytics filtered for enhanced insights
+                    </span>
+                    <div className="flex items-center space-x-4 text-gray-400">
+                      {bookingFilters.timeRange !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Period: {bookingFilters.timeRange}
+                        </span>
+                      )}
+                      {bookingFilters.membershipTier !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Tier: {bookingFilters.membershipTier}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -2461,7 +2599,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
+          className="flex items-center space-x-4 relative z-10"
         >
           <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
             <Calendar className="h-4 w-4 mr-2" />
@@ -2470,10 +2608,16 @@ export default function AdminDashboard() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setShowFilters(!showFilters)}
-            className={`border-gray-600 transition-all ${
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Filter button clicked, current showFilters:', showFilters);
+              setShowFilters(!showFilters);
+            }}
+            className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
               showFilters ? 'border-cyan-500 bg-cyan-500/10' : 'hover:border-cyan-500'
             }`}
+            style={{ pointerEvents: 'auto' }}
           >
             <Filter className="h-4 w-4 mr-2" />
             Filter Bookings
