@@ -19,6 +19,7 @@ const StaffDashboard: React.FC<StaffDashboardProps> = () => {
     const permissions = user?.permissions || [];
     const navigation = [];
 
+    // Customer Service permissions
     if (permissions.includes('customer_service') || permissions.includes('phone_calls')) {
       navigation.push({
         id: 'customer-service',
@@ -28,6 +29,7 @@ const StaffDashboard: React.FC<StaffDashboardProps> = () => {
       });
     }
 
+    // User Management permissions
     if (permissions.includes('user_management')) {
       navigation.push({
         id: 'users',
@@ -37,7 +39,8 @@ const StaffDashboard: React.FC<StaffDashboardProps> = () => {
       });
     }
 
-    if (permissions.includes('booking_management')) {
+    // Booking Management permissions
+    if (permissions.includes('bookings') || permissions.includes('booking_management')) {
       navigation.push({
         id: 'bookings',
         label: 'Booking Management',
@@ -46,12 +49,33 @@ const StaffDashboard: React.FC<StaffDashboardProps> = () => {
       });
     }
 
-    if (permissions.includes('messaging')) {
+    // Services Management permissions
+    if (permissions.includes('services')) {
       navigation.push({
-        id: 'messages',
-        label: 'Messages',
-        icon: MessageSquare,
+        id: 'services',
+        label: 'Services Management',
+        icon: Settings,
         color: 'from-orange-500 to-red-500'
+      });
+    }
+
+    // Events Management permissions
+    if (permissions.includes('events')) {
+      navigation.push({
+        id: 'events',
+        label: 'Events Management',
+        icon: Calendar,
+        color: 'from-violet-500 to-purple-500'
+      });
+    }
+
+    // Analytics permissions
+    if (permissions.includes('analytics')) {
+      navigation.push({
+        id: 'analytics',
+        label: 'Analytics',
+        icon: MessageSquare,
+        color: 'from-pink-500 to-rose-500'
       });
     }
 
