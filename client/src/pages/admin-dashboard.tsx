@@ -517,6 +517,143 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
   );
 };
 
+// View User Dialog
+function ViewUserDialog({ user }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <User className="h-5 w-5 mr-2 text-purple-500" />
+            User Details
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-6">
+          {/* User Avatar and Basic Info */}
+          <div className="col-span-2 flex items-center space-x-4 p-4 bg-gray-800/50 rounded-lg">
+            <Avatar className="h-16 w-16">
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-xl">
+                {user.username?.charAt(0)?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="text-xl font-bold text-white">{user.username}</h3>
+              <p className="text-gray-400">{user.email}</p>
+              <div className="flex items-center space-x-2 mt-2">
+                <Badge className={`${
+                  user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                  user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                  user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                  'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                }`}>
+                  {user.membershipTier}
+                </Badge>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  {user.role?.replace('_', ' ').toUpperCase()}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Personal Information */}
+          <div>
+            <Label className="text-gray-300 font-medium">Personal Information</Label>
+            <div className="space-y-3 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">Full Name</Label>
+                <p className="text-white">{user.username}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Email Address</Label>
+                <p className="text-white">{user.email}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Phone</Label>
+                <p className="text-white">{user.phone || 'Not provided'}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Location</Label>
+                <p className="text-white">{user.location || 'Not provided'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Information */}
+          <div>
+            <Label className="text-gray-300 font-medium">Account Information</Label>
+            <div className="space-y-3 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">User ID</Label>
+                <p className="text-white font-mono">#{user.id}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Member Since</Label>
+                <p className="text-white">{new Date(user.createdAt).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Account Status</Label>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Last Active</Label>
+                <p className="text-white">Recently</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Membership Details */}
+          <div className="col-span-2">
+            <Label className="text-gray-300 font-medium">Membership Details</Label>
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Membership Tier</Label>
+                <p className="text-white font-semibold">{user.membershipTier}</p>
+              </div>
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Role</Label>
+                <p className="text-white font-semibold capitalize">{user.role?.replace('_', ' ')}</p>
+              </div>
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Language</Label>
+                <p className="text-white font-semibold">{user.language || 'English'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="col-span-2">
+            <Label className="text-gray-300 font-medium">Additional Information</Label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">Stripe Customer ID</Label>
+                <p className="text-white font-mono text-sm">{user.stripeCustomerId || 'Not set'}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Subscription Status</Label>
+                <p className="text-white">{user.stripeSubscriptionId ? 'Active Subscription' : 'No Active Subscription'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Add User Dialog
 function AddUserDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -3617,9 +3754,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <ViewUserDialog user={user} />
                         <EditUserDialog user={user} />
                         <DeleteUserDialog user={user} />
                       </div>
