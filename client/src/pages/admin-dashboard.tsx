@@ -210,71 +210,309 @@ const BookingStatusBadge = ({ booking }: { booking: any }) => {
   );
 };
 
-// Booking Actions Dropdown Component
+// Enhanced Real-Time MBYC Actions Component
 const BookingActionsDropdown = ({ booking }: { booking: any }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Real-time status update mutation with optimistic updates
   const updateStatusMutation = useMutation({
     mutationFn: async ({ status }: { status: string }) => {
-      await apiRequest("PATCH", `/api/admin/bookings/${booking.id}/status`, { status });
+      setActionLoading(status);
+      const response = await apiRequest("PATCH", `/api/admin/bookings/${booking.id}/status`, { status });
+      return { status, bookingId: booking.id };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
-      toast({ title: "Success", description: "Booking status updated successfully" });
+    onMutate: async ({ status }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["/api/admin/bookings"] });
+      
+      // Snapshot the previous value
+      const previousBookings = queryClient.getQueryData(["/api/admin/bookings"]);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData(["/api/admin/bookings"], (old: any) => {
+        if (!old) return old;
+        return old.map((b: any) => 
+          b.id === booking.id ? { ...b, status } : b
+        );
+      });
+
+      return { previousBookings };
+    },
+    onSuccess: (data) => {
+      // Real-time success feedback
+      const statusMessages = {
+        confirmed: "Booking confirmed and yacht prepared for departure",
+        completed: "Experience marked as completed - crew can stand down",
+        cancelled: "Booking cancelled and yacht availability restored",
+        pending: "Booking set to pending - awaiting final confirmation"
+      };
+      
+      toast({ 
+        title: "MBYC Action Completed", 
+        description: statusMessages[data.status as keyof typeof statusMessages] || "Status updated successfully",
+        className: "border-green-500/30 bg-green-950/50"
+      });
+      
       setIsOpen(false);
+      setActionLoading(null);
+      
+      // Force refresh for real-time sync
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/analytics"] });
     },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    onError: (error: any, variables, context) => {
+      // Rollback optimistic update
+      if (context?.previousBookings) {
+        queryClient.setQueryData(["/api/admin/bookings"], context.previousBookings);
+      }
+      
+      toast({ 
+        title: "Action Failed", 
+        description: error.message || "Failed to update booking status", 
+        variant: "destructive" 
+      });
+      setActionLoading(null);
     }
   });
 
+  // Enhanced status options with descriptions and visual improvements
   const statusOptions = [
-    { value: 'confirmed', label: 'Confirm Booking', icon: CheckCircle, color: 'text-green-400' },
-    { value: 'pending', label: 'Set Pending', icon: Clock, color: 'text-orange-400' },
-    { value: 'completed', label: 'Mark Completed', icon: CheckCircle, color: 'text-blue-400' },
-    { value: 'cancelled', label: 'Cancel Booking', icon: XCircle, color: 'text-red-400' }
+    { 
+      value: 'confirmed', 
+      label: 'Confirm Booking', 
+      description: 'Prepare yacht and assign crew',
+      icon: CheckCircle, 
+      color: 'text-green-400',
+      bgColor: 'hover:bg-green-950/30',
+      priority: 1
+    },
+    { 
+      value: 'pending', 
+      label: 'Set Pending', 
+      description: 'Hold for review or member response',
+      icon: Clock, 
+      color: 'text-orange-400',
+      bgColor: 'hover:bg-orange-950/30',
+      priority: 2
+    },
+    { 
+      value: 'completed', 
+      label: 'Mark Completed', 
+      description: 'Experience finished successfully',
+      icon: CheckCircle, 
+      color: 'text-blue-400',
+      bgColor: 'hover:bg-blue-950/30',
+      priority: 3
+    },
+    { 
+      value: 'cancelled', 
+      label: 'Cancel Booking', 
+      description: 'Release yacht and notify member',
+      icon: XCircle, 
+      color: 'text-red-400',
+      bgColor: 'hover:bg-red-950/30',
+      priority: 4
+    }
   ];
+
+  // Filter and sort actions based on current status
+  const availableActions = statusOptions.filter(option => {
+    if (booking.status === option.value) return false;
+    
+    // Smart action filtering based on current status
+    if (booking.status === 'completed' && option.value !== 'pending') return false;
+    if (booking.status === 'cancelled' && option.value === 'completed') return false;
+    
+    return true;
+  }).sort((a, b) => a.priority - b.priority);
+
+  const handleClickOutside = () => {
+    if (isOpen && !updateStatusMutation.isPending) {
+      setIsOpen(false);
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as Element;
+      if (!target.closest('.booking-actions-dropdown')) {
+        handleClickOutside();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [isOpen]);
+
+  return (
+    <div className="relative booking-actions-dropdown">
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setIsOpen(!isOpen)}
+        disabled={updateStatusMutation.isPending}
+        className={`text-gray-400 hover:text-white transition-all ${
+          updateStatusMutation.isPending ? 'animate-pulse' : ''
+        }`}
+      >
+        {updateStatusMutation.isPending ? (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Clock className="h-4 w-4" />
+          </motion.div>
+        ) : (
+          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        )}
+      </Button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-8 w-64 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-2xl z-50"
+          >
+            <div className="p-3">
+              <div className="text-xs text-gray-400 mb-3 font-medium">MBYC Actions</div>
+              {availableActions.map((option, index) => {
+                const Icon = option.icon;
+                const isLoading = actionLoading === option.value;
+                
+                return (
+                  <motion.button
+                    key={option.value}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => updateStatusMutation.mutate({ status: option.value })}
+                    disabled={updateStatusMutation.isPending}
+                    className={`w-full flex items-start space-x-3 px-3 py-3 text-sm rounded-md transition-all ${
+                      updateStatusMutation.isPending && !isLoading
+                        ? 'opacity-50 cursor-not-allowed'
+                        : `${option.bgColor} text-gray-300 hover:text-white`
+                    }`}
+                  >
+                    <div className={`flex-shrink-0 ${isLoading ? 'animate-spin' : ''}`}>
+                      <Icon className={`h-4 w-4 ${option.color}`} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium">{option.label}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
+                    </div>
+                    {isLoading && (
+                      <div className="flex-shrink-0">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                      </div>
+                    )}
+                  </motion.button>
+                );
+              })}
+              
+              {availableActions.length === 0 && (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  No actions available for {booking.status} status
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Quick Action Button Component for Real-Time MBYC Actions
+const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
+  booking: any;
+  action: string;
+  icon: any;
+  tooltip: string;
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [actionProcessing, setActionProcessing] = useState(false);
+  const { toast } = useToast();
+
+  const handleAction = async () => {
+    setActionProcessing(true);
+    
+    try {
+      if (action === 'message') {
+        // Navigate to messages with pre-filled conversation for the booking
+        const conversationId = `booking_conv_${booking.id}`;
+        window.location.href = `/messages?conversation=${conversationId}&member=${booking.member?.name}`;
+        
+        toast({
+          title: "Opening Conversation",
+          description: `Starting conversation with ${booking.member?.name}`,
+          className: "border-purple-500/30 bg-purple-950/50"
+        });
+      } else if (action === 'view') {
+        // Show detailed booking information
+        toast({
+          title: "Booking Details",
+          description: `${booking.yacht?.name} • ${booking.member?.name} • ${booking.timeSlot} ${new Date(booking.startTime).toLocaleDateString()}`,
+          className: "border-blue-500/30 bg-blue-950/50"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Action Failed",
+        description: "Unable to complete action",
+        variant: "destructive"
+      });
+    } finally {
+      setTimeout(() => setActionProcessing(false), 500);
+    }
+  };
 
   return (
     <div className="relative">
       <Button
         size="sm"
         variant="ghost"
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-gray-400 hover:text-white"
+        onClick={handleAction}
+        disabled={actionProcessing}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`text-gray-400 hover:text-white transition-all ${
+          actionProcessing ? 'animate-pulse' : ''
+        }`}
       >
-        <ChevronDown className="h-4 w-4" />
+        {actionProcessing ? (
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 0.5, repeat: Infinity }}
+          >
+            <Clock className="h-4 w-4" />
+          </motion.div>
+        ) : (
+          <Icon className="h-4 w-4" />
+        )}
       </Button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-8 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50">
-          <div className="p-2">
-            {statusOptions.map((option) => {
-              const Icon = option.icon;
-              return (
-                <button
-                  key={option.value}
-                  onClick={() => updateStatusMutation.mutate({ status: option.value })}
-                  disabled={updateStatusMutation.isPending || booking.status === option.value}
-                  className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                    booking.status === option.value
-                      ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
-                      : 'hover:bg-gray-700 text-gray-300 hover:text-white'
-                  }`}
-                >
-                  <Icon className={`h-4 w-4 ${option.color}`} />
-                  <span>{option.label}</span>
-                  {booking.status === option.value && (
-                    <span className="text-xs text-gray-500">(Current)</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      
+      <AnimatePresence>
+        {isHovered && !actionProcessing && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.1 }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-50 pointer-events-none"
+          >
+            {tooltip}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -1792,8 +2030,10 @@ export default function AdminDashboard() {
 
   const { data: bookings = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/bookings'],
-    staleTime: 30000, // Refresh every 30 seconds for real-time data
-    refetchInterval: 30000
+    staleTime: 15000, // Refresh every 15 seconds for real-time MBYC Actions
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true, // Refresh when window gains focus
+    refetchOnMount: true // Always fetch fresh data on mount
   });
 
   const renderOverview = () => (
@@ -2271,12 +2511,18 @@ export default function AdminDashboard() {
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-2">
                           <BookingActionsDropdown booking={booking} />
-                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                            <Eye className="h-4 w-4" />
-                          </Button>
+                          <QuickActionButton 
+                            booking={booking}
+                            action="message"
+                            icon={MessageSquare}
+                            tooltip="Message Member"
+                          />
+                          <QuickActionButton 
+                            booking={booking}
+                            action="view"
+                            icon={Eye}
+                            tooltip="View Details"
+                          />
                         </div>
                       </td>
                     </motion.tr>
