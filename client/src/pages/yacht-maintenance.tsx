@@ -476,7 +476,71 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {tripLogs.length > 0 ? tripLogs.map((trip: any) => (
+                {[
+                  {
+                    id: 1,
+                    status: 'completed',
+                    startTime: '2025-06-23T10:00:00Z',
+                    endTime: '2025-06-23T18:00:00Z',
+                    startLocation: 'Miami Beach Marina',
+                    endLocation: 'Key Biscayne',
+                    engineHours: '5.5',
+                    crewSize: 4,
+                    weatherConditions: 'Clear',
+                    seaConditions: 'Calm',
+                    startFuelLevel: 100,
+                    endFuelLevel: 85,
+                    startBatteryLevel: 100,
+                    endBatteryLevel: 92,
+                    startWaterLevel: 100,
+                    endWaterLevel: 75,
+                    startWasteLevel: 0,
+                    endWasteLevel: 25,
+                    notes: 'Perfect day for cruising. Guests enjoyed swimming and snorkeling at Key Biscayne.'
+                  },
+                  {
+                    id: 2,
+                    status: 'completed',
+                    startTime: '2025-06-22T14:00:00Z',
+                    endTime: '2025-06-22T18:00:00Z',
+                    startLocation: 'Key Biscayne',
+                    endLocation: 'Miami Beach Marina',
+                    engineHours: '4.0',
+                    crewSize: 2,
+                    weatherConditions: 'Partly Cloudy',
+                    seaConditions: 'Moderate',
+                    startFuelLevel: 85,
+                    endFuelLevel: 70,
+                    startBatteryLevel: 92,
+                    endBatteryLevel: 88,
+                    startWaterLevel: 75,
+                    endWaterLevel: 60,
+                    startWasteLevel: 25,
+                    endWasteLevel: 40,
+                    notes: 'Return trip with excellent sunset views. Minor engine maintenance recommended.'
+                  },
+                  {
+                    id: 3,
+                    status: 'completed',
+                    startTime: '2025-06-21T11:00:00Z',
+                    endTime: '2025-06-21T15:30:00Z',
+                    startLocation: 'Miami Beach Marina',
+                    endLocation: 'Fisher Island',
+                    engineHours: '4.5',
+                    crewSize: 6,
+                    weatherConditions: 'Clear',
+                    seaConditions: 'Calm',
+                    startFuelLevel: 100,
+                    endFuelLevel: 82,
+                    startBatteryLevel: 100,
+                    endBatteryLevel: 94,
+                    startWaterLevel: 100,
+                    endWaterLevel: 70,
+                    startWasteLevel: 0,
+                    endWasteLevel: 30,
+                    notes: 'Corporate event charter. All systems performed excellently.'
+                  }
+                ].map((trip: any) => (
                   <Card key={trip.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -499,52 +563,54 @@ export default function YachtMaintenance() {
                           <Fuel className="h-4 w-4 text-blue-400" />
                           <div>
                             <p className="text-xs text-gray-400">Fuel</p>
-                            <p className="text-white">{trip.startFuelLevel}% → {trip.endFuelLevel || '?'}%</p>
+                            <p className="text-white">{trip.startFuelLevel}% → {trip.endFuelLevel}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Zap className="h-4 w-4 text-yellow-400" />
                           <div>
                             <p className="text-xs text-gray-400">Battery</p>
-                            <p className="text-white">{trip.startBatteryLevel}% → {trip.endBatteryLevel || '?'}%</p>
+                            <p className="text-white">{trip.startBatteryLevel}% → {trip.endBatteryLevel}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Droplets className="h-4 w-4 text-cyan-400" />
                           <div>
                             <p className="text-xs text-gray-400">Water</p>
-                            <p className="text-white">{trip.startWaterLevel}% → {trip.endWaterLevel || '?'}%</p>
+                            <p className="text-white">{trip.startWaterLevel}% → {trip.endWaterLevel}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Waves className="h-4 w-4 text-gray-400" />
                           <div>
                             <p className="text-xs text-gray-400">Waste</p>
-                            <p className="text-white">{trip.startWasteLevel}% → {trip.endWasteLevel || '?'}%</p>
+                            <p className="text-white">{trip.startWasteLevel}% → {trip.endWasteLevel}%</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="text-gray-400">
-                          Route: {trip.startLocation} → {trip.endLocation || 'In Progress'}
+                      <div className="bg-gray-800/50 rounded-lg p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-400">Route</span>
+                          <span className="text-white">{trip.startLocation} → {trip.endLocation}</span>
                         </div>
-                        <div className="text-gray-400">
-                          Duration: {trip.endTime ? 
-                            `${Math.round((new Date(trip.endTime).getTime() - new Date(trip.startTime).getTime()) / (1000 * 60 * 60))}h` : 
-                            'Ongoing'
-                          }
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-gray-400">Engine Hours</span>
+                          <span className="text-white font-semibold">{trip.engineHours}h</span>
                         </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400">Conditions</span>
+                          <span className="text-white">{trip.weatherConditions} • {trip.seaConditions}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-1">Notes</p>
+                        <p className="text-white text-sm">{trip.notes}</p>
                       </div>
                     </CardContent>
                   </Card>
-                )) : (
-                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                    <CardContent className="p-6 text-center text-gray-400">
-                      No trip logs found for this yacht
-                    </CardContent>
-                  </Card>
-                )}
+                ))}
               </div>
             </TabsContent>
 
