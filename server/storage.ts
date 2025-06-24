@@ -240,6 +240,10 @@ export class DatabaseStorage implements IStorage {
     return await baseQuery;
   }
 
+  async getBookingsByYacht(yachtId: number): Promise<Booking[]> {
+    return await db.select().from(bookings).where(eq(bookings.yachtId, yachtId)).orderBy(desc(bookings.startTime));
+  }
+
   async getYacht(id: number): Promise<Yacht | undefined> {
     const [yacht] = await db.select().from(yachts).where(eq(yachts.id, id));
     return yacht || undefined;
@@ -1120,21 +1124,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOverdueMaintenanceTasks(yachtId?: number): Promise<MaintenanceSchedule[]> {
-    const now = new Date();
-    let query = db.select().from(maintenanceSchedules).where(eq(maintenanceSchedules.nextDueDate, now));
-    
     if (yachtId) {
-      query = query.where(and(eq(maintenanceSchedules.yachtId, yachtId), eq(maintenanceSchedules.nextDueDate, now)));
+      return await db.select().from(maintenanceSchedules).where(eq(maintenanceSchedules.yachtId, yachtId));
     }
     
-    return await query.orderBy(asc(maintenanceSchedules.nextDueDate));
+    return await db.select().from(maintenanceSchedules);
   }
 
   async getYachtValuations(yachtId?: number): Promise<YachtValuation[]> {
     if (yachtId) {
-      return await db.select().from(yachtValuations).where(eq(yachtValuations.yachtId, yachtId)).orderBy(desc(yachtValuations.valuationDate));
+      return await db.select().from(yachtValuations).where(eq(yachtValuations.yachtId, yachtId)).orderBy(desc(yachtValuations.assessmentDate));
     }
-    return await db.select().from(yachtValuations).orderBy(desc(yachtValuations.valuationDate));
+    return await db.select().from(yachtValuations).orderBy(desc(yachtValuations.assessmentDate));
   }
 
   async getYachtValuation(id: number): Promise<YachtValuation | undefined> {

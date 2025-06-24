@@ -98,6 +98,11 @@ export default function YachtMaintenance() {
 
   const { data: maintenanceOverview = {}, isLoading: overviewLoading } = useQuery({
     queryKey: ['/api/maintenance/overview', selectedYacht],
+    queryFn: async () => {
+      const response = await fetch(`/api/maintenance/overview/${selectedYacht}`);
+      if (!response.ok) throw new Error('Failed to fetch maintenance overview');
+      return response.json();
+    },
     enabled: !!selectedYacht,
   });
 
