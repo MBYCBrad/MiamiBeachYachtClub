@@ -56,12 +56,12 @@ class UltraFastCache {
         pool.query('SELECT id, username, email, role, membership_tier as "membershipTier", created_at as "createdAt" FROM users ORDER BY created_at DESC LIMIT 100'),
         pool.query('SELECT id, name, location, size, capacity, price_per_hour as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
         pool.query('SELECT s.*, u.username as "providerName" FROM services s LEFT JOIN users u ON s.provider_id = u.id ORDER BY s.name'),
-        pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_date DESC'),
+        pool.query('SELECT e.*, u.username as "hostName" FROM events e LEFT JOIN users u ON e.host_id = u.id ORDER BY e.start_time DESC'),
         pool.query(`
           SELECT 
             b.id, b.start_time as "startTime", b.end_time as "endTime", b.status, b.total_price as "totalPrice", b.guest_count as "guestCount",
             u.username as "member.name",
-            y.name as "yacht.name", y.type as "yacht.type"
+            y.name as "yacht.name", 'sailboat' as "yacht.type"
           FROM bookings b
           LEFT JOIN users u ON b.user_id = u.id
           LEFT JOIN yachts y ON b.yacht_id = y.id

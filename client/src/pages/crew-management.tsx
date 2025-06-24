@@ -383,14 +383,14 @@ export default function CrewManagementPage() {
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={member.avatar} />
                         <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                          {member.username.substring(0, 2).toUpperCase()}
+                          {(member.username || 'UN').substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           {getCrewRoleIcon(member.role)}
-                          <span className="font-medium text-white">{member.username}</span>
+                          <span className="font-medium text-white">{member.username || 'Unknown'}</span>
                           <div 
                             className={`w-2 h-2 rounded-full ${
                               member.status === 'active' ? 'bg-green-400' :
@@ -477,11 +477,11 @@ export default function CrewManagementPage() {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-white">
                         <Crown className="h-4 w-4 text-purple-400" />
-                        Captain: {assignment.captain.username}
+                        Captain: {assignment.captain?.username || 'Not Assigned'}
                       </div>
                       <div className="flex items-center gap-2 text-white">
                         <Shield className="h-4 w-4 text-blue-400" />
-                        Coordinator: {assignment.coordinator.username}
+                        Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
                       </div>
                       <div className="text-gray-400">
                         Crew Size: {(assignment.crewMembers || []).length} members
@@ -741,7 +741,7 @@ function CrewAssignmentDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-400 text-sm">Member</p>
-                  <p className="text-white font-semibold">{booking.member?.name || booking.member?.username}</p>
+                  <p className="text-white font-semibold">{booking.member?.name || booking.member?.username || 'Unknown Member'}</p>
                   <p className="text-gray-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
                 </div>
                 <div>
@@ -852,7 +852,7 @@ function CrewAssignmentDialog({
                       className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
                     >
                       <div className="flex flex-col py-1">
-                        <span className="font-medium">{captain.username}</span>
+                        <span className="font-medium">{captain.username || 'Unknown'}</span>
                         <span className="text-sm text-gray-400">{captain.role} • {captain.location}</span>
                       </div>
                     </SelectItem>
@@ -883,7 +883,7 @@ function CrewAssignmentDialog({
                       className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
                     >
                       <div className="flex flex-col py-1">
-                        <span className="font-medium">{coordinator.username}</span>
+                        <span className="font-medium">{coordinator.username || 'Unknown'}</span>
                         <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
                       </div>
                     </SelectItem>
@@ -919,7 +919,7 @@ function CrewAssignmentDialog({
                       className="rounded border-gray-700 bg-gray-700 w-4 h-4"
                     />
                     <div className="flex-1">
-                      <p className="text-white text-sm font-medium">{member.username}</p>
+                      <p className="text-white text-sm font-medium">{member.username || 'Unknown'}</p>
                       <p className="text-gray-400 text-xs">{member.role} • {member.location}</p>
                     </div>
                   </div>
