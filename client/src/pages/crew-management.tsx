@@ -1313,7 +1313,7 @@ function CrewAssignmentDialog({
 // View Assignment Details Dialog
 function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
   return (
-    <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
+    <DialogContent className="max-w-2xl max-h-[85vh] bg-gray-900 border-gray-700">
       <DialogHeader>
         <DialogTitle className="text-white text-xl flex items-center gap-2">
           <Eye className="h-5 w-5 text-purple-400" />
@@ -1324,7 +1324,7 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
         </DialogDescription>
       </DialogHeader>
       
-      <div className="space-y-6">
+      <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)]">
         {/* Assignment Status */}
         <div className="flex items-center gap-2">
           <Badge className={`${getStatusColor(assignment.status)} text-white`}>
