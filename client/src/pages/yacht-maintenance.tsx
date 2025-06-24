@@ -96,8 +96,13 @@ export default function YachtMaintenance() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: conditionAssessments = [], isLoading: assessmentsLoading } = useQuery({
-    queryKey: ['/api/maintenance/assessments'],
+  const { data: conditionAssessments = [], isLoading: assessmentsLoading, refetch: refetchAssessments } = useQuery({
+    queryKey: [`/api/maintenance/assessments/${selectedYacht}`],
+    enabled: !!selectedYacht,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: valuationData = {}, isLoading: valuationLoading } = useQuery({
@@ -173,12 +178,17 @@ export default function YachtMaintenance() {
 
   const createAssessmentMutation = useMutation({
     mutationFn: async (data: z.infer<typeof assessmentSchema>) => {
-      const response = await apiRequest("POST", "/api/maintenance/assessments", data);
+      const response = await apiRequest("POST", "/api/maintenance/assessments", {
+        ...data,
+        yachtId: selectedYacht,
+      });
       return response.json();
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Assessment created successfully" });
-      queryClient.invalidateQueries({ queryKey: ['/api/maintenance/assessments'] });
+      // Force immediate refresh of assessment data
+      queryClient.removeQueries({ queryKey: [`/api/maintenance/assessments/${selectedYacht}`] });
+      refetchAssessments();
       createAssessmentForm.reset();
       setCreateAssessmentOpen(false);
     },
@@ -890,11 +900,11 @@ export default function YachtMaintenance() {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-gray-800 border-gray-700">
-                                    <SelectItem value="excellent">Excellent</SelectItem>
-                                    <SelectItem value="good">Good</SelectItem>
-                                    <SelectItem value="fair">Fair</SelectItem>
-                                    <SelectItem value="poor">Poor</SelectItem>
-                                    <SelectItem value="critical">Critical</SelectItem>
+                                    <SelectItem value="excellent" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Excellent</SelectItem>
+                                    <SelectItem value="good" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Good</SelectItem>
+                                    <SelectItem value="fair" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Fair</SelectItem>
+                                    <SelectItem value="poor" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Poor</SelectItem>
+                                    <SelectItem value="critical" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Critical</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </FormControl>
@@ -951,10 +961,10 @@ export default function YachtMaintenance() {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-gray-800 border-gray-700">
-                                    <SelectItem value="low">Low</SelectItem>
-                                    <SelectItem value="medium">Medium</SelectItem>
-                                    <SelectItem value="high">High</SelectItem>
-                                    <SelectItem value="critical">Critical</SelectItem>
+                                    <SelectItem value="low" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Low</SelectItem>
+                                    <SelectItem value="medium" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Medium</SelectItem>
+                                    <SelectItem value="high" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">High</SelectItem>
+                                    <SelectItem value="critical" className="text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Critical</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </FormControl>
