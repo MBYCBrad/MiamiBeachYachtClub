@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,9 +88,9 @@ export default function YachtMaintenance() {
   });
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
-    queryKey: ['/api/maintenance/records', selectedYacht?.id],
-    queryFn: () => selectedYacht?.id ? getQueryFn({})(`/api/maintenance/records/${selectedYacht.id}`) : Promise.resolve([]),
-    enabled: !!selectedYacht?.id,
+    queryKey: ['/api/maintenance/records', selectedYacht],
+    queryFn: () => selectedYacht ? getQueryFn({})(`/api/maintenance/records/${selectedYacht}`) : Promise.resolve([]),
+    enabled: !!selectedYacht,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',
@@ -155,7 +156,7 @@ export default function YachtMaintenance() {
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
       // Force immediate refresh of maintenance data with cache bypass
-      queryClient.removeQueries({ queryKey: ['/api/maintenance/records', selectedYacht?.id] });
+      queryClient.removeQueries({ queryKey: ['/api/maintenance/records', selectedYacht] });
       queryClient.removeQueries({ queryKey: ['/api/maintenance/schedules'] });
       refetchRecords();
       refetchSchedules();
@@ -806,9 +807,7 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
 
-                <div className="text-white text-sm mb-4 p-4 bg-gray-800 rounded">
-                  Debug: Marina Breeze (ID: {selectedYacht?.id}) | Records: {maintenanceRecords?.length || 0} | Loading: {recordsLoading ? 'Yes' : 'No'}
-                </div>
+
                 {maintenanceRecords && Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
