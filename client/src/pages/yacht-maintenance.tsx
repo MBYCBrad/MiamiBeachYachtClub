@@ -201,24 +201,19 @@ export default function YachtMaintenance() {
       {/* Header */}
       <div className="bg-transparent">
         <div className="max-w-7xl mx-auto px-6 py-8 mt-16">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 mb-6 text-sm">
-            <Link href="/admin-dashboard" className="flex items-center gap-1 text-gray-400 hover:text-purple-400 transition-colors">
-              <Home className="h-4 w-4" />
-              Admin Dashboard
-            </Link>
-            <ChevronRight className="h-4 w-4 text-gray-500" />
-            <Link href="/admin-dashboard" className="text-gray-400 hover:text-purple-400 transition-colors">
-              All Yachts
-            </Link>
-            <ChevronRight className="h-4 w-4 text-gray-500" />
-            <span className="text-white">Marina Breeze Maintenance</span>
-          </div>
-
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
               <p className="text-lg text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
+              
+              {/* Breadcrumbs */}
+              <div className="flex items-center gap-2 mt-4 text-sm">
+                <Link href="/admin-dashboard" className="text-gray-400 hover:text-purple-400 transition-colors">
+                  All Yachts
+                </Link>
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+                <span className="text-white">Marina Breeze Maintenance</span>
+              </div>
             </div>
 
           </div>
@@ -779,76 +774,131 @@ export default function YachtMaintenance() {
                     <DialogHeader>
                       <DialogTitle className="text-white">Condition Assessment</DialogTitle>
                     </DialogHeader>
-                    <Form {...assessmentForm}>
-                      <form onSubmit={assessmentForm.handleSubmit((data) => createAssessmentMutation.mutate(data))}>
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          <FormField
-                            control={assessmentForm.control}
-                            name="assessmentType"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white">Assessment Type</FormLabel>
-                                <FormControl>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
-                                      <SelectValue placeholder="Select assessment type..." />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-gray-900/50 border-gray-600">
-                                      <SelectItem value="routine_inspection">Routine Inspection</SelectItem>
-                                      <SelectItem value="pre_trip_check">Pre-Trip Check</SelectItem>
-                                      <SelectItem value="post_trip_check">Post-Trip Check</SelectItem>
-                                      <SelectItem value="annual_survey">Annual Survey</SelectItem>
-                                      <SelectItem value="damage_assessment">Damage Assessment</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={assessmentForm.control}
-                            name="conditionScore"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white">Condition Score (1-10)</FormLabel>
-                                <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                    <Form {...createAssessmentForm}>
+                      <form onSubmit={createAssessmentForm.handleSubmit((data) => createAssessmentMutation.mutate(data))} className="space-y-4">
+                        <FormField
+                          control={createAssessmentForm.control}
+                          name="condition"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Component Condition</FormLabel>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-gray-800 border-gray-700">
+                                    <SelectItem value="excellent">Excellent</SelectItem>
+                                    <SelectItem value="good">Good</SelectItem>
+                                    <SelectItem value="fair">Fair</SelectItem>
+                                    <SelectItem value="poor">Poor</SelectItem>
+                                    <SelectItem value="critical">Critical</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={createAssessmentForm.control}
+                          name="notes"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Assessment Notes</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field} 
+                                  className="bg-gray-800 border-gray-700 text-white" 
+                                  placeholder="Detailed assessment notes..."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={createAssessmentForm.control}
+                          name="recommendedAction"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Recommended Action</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field} 
+                                  className="bg-gray-800 border-gray-700 text-white" 
+                                  placeholder="Recommended maintenance or repairs..."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={createAssessmentForm.control}
+                          name="priority"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Priority</FormLabel>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-gray-800 border-gray-700">
+                                    <SelectItem value="low">Low</SelectItem>
+                                    <SelectItem value="medium">Medium</SelectItem>
+                                    <SelectItem value="high">High</SelectItem>
+                                    <SelectItem value="critical">Critical</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={createAssessmentForm.control}
+                          name="estimatedCost"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Estimated Cost ($)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number" 
+                                  min="0"
+                                  step="0.01"
+                                  className="bg-gray-800 border-gray-700 text-white"
+                                  onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="flex gap-3 pt-4">
+                          <Button 
+                            type="submit" 
+                            disabled={createAssessmentMutation.isPending}
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                          >
+                            {createAssessmentMutation.isPending ? "Creating..." : "Create Assessment"}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setCreateAssessmentOpen(false)}
+                            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          >
+                            Cancel
+                          </Button>
                         </div>
-                        <FormField
-                          control={assessmentForm.control}
-                          name="findings"
-                          render={({ field }) => (
-                            <FormItem className="mb-4">
-                              <FormLabel className="text-white">Findings</FormLabel>
-                              <FormControl>
-                                <Textarea {...field} className="bg-gray-900/50 border-gray-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={assessmentForm.control}
-                          name="assessedBy"
-                          render={({ field }) => (
-                            <FormItem className="mb-6">
-                              <FormLabel className="text-white">Assessed By</FormLabel>
-                              <FormControl>
-                                <Input {...field} className="bg-gray-900/50 border-gray-600 text-white" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" disabled={createAssessmentMutation.isPending}>
-                          {createAssessmentMutation.isPending ? "Creating..." : "Create Assessment"}
-                        </Button>
                       </form>
                     </Form>
                   </DialogContent>
