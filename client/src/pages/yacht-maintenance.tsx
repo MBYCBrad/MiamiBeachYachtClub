@@ -100,17 +100,17 @@ export default function YachtMaintenance() {
   });
 
   const { data: usageMetrics = [], isLoading: metricsLoading } = useQuery({
-    queryKey: ['/api/usage-metrics', { yachtId: selectedYacht }],
+    queryKey: ['/api/maintenance/usage-metrics', selectedYacht],
     enabled: !!selectedYacht,
   });
 
   const { data: yachtComponents = [], isLoading: componentsLoading } = useQuery({
-    queryKey: ['/api/yacht-components', { yachtId: selectedYacht }],
+    queryKey: ['/api/maintenance/components', selectedYacht],
     enabled: !!selectedYacht,
   });
 
   const { data: maintenanceSchedules = [], isLoading: schedulesLoading } = useQuery({
-    queryKey: ['/api/maintenance-schedules', { yachtId: selectedYacht }],
+    queryKey: ['/api/maintenance/schedules', selectedYacht],
     enabled: !!selectedYacht,
   });
 
@@ -418,7 +418,7 @@ export default function YachtMaintenance() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-white">{maintenanceOverview.totalEngineHours || 0}h</div>
-                    <p className="text-xs text-gray-500 mt-1">+12h this month</p>
+                    <p className="text-xs text-gray-500 mt-1">Total engine usage</p>
                   </CardContent>
                 </Card>
 
@@ -431,7 +431,7 @@ export default function YachtMaintenance() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-white">{maintenanceOverview.totalSunExposure || 0}h</div>
-                    <p className="text-xs text-gray-500 mt-1">UV Index avg: {maintenanceOverview.avgUvIndex || 0}</p>
+                    <p className="text-xs text-gray-500 mt-1">Total UV exposure</p>
                   </CardContent>
                 </Card>
 
@@ -473,23 +473,29 @@ export default function YachtMaintenance() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {[
-                        { name: "Engine", condition: 8.5, nextMaintenance: "2024-07-15" },
-                        { name: "Hull", condition: 7.2, nextMaintenance: "2024-08-01" },
-                        { name: "Electronics", condition: 9.1, nextMaintenance: "2024-06-30" },
-                        { name: "Rigging", condition: 6.8, nextMaintenance: "2024-07-01" },
-                      ].map((component) => (
-                        <div key={component.name} className="flex items-center justify-between">
+                      {yachtComponents.length > 0 ? yachtComponents.slice(0, 4).map((component: any) => (
+                        <div key={component.id} className="flex items-center justify-between">
                           <div>
-                            <p className="text-white font-medium">{component.name}</p>
-                            <p className="text-xs text-gray-400">Next: {component.nextMaintenance}</p>
+                            <p className="text-white font-medium">{component.componentName}</p>
+                            <p className="text-xs text-gray-400">
+                              Next: {component.nextMaintenanceDate ? 
+                                new Date(component.nextMaintenanceDate).toLocaleDateString() : 
+                                'Not scheduled'
+                              }
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Progress value={component.condition * 10} className="w-20" />
-                            <span className="text-sm text-white w-8">{component.condition}</span>
+                            <Progress value={parseFloat(component.currentCondition || 0)} className="w-20" />
+                            <span className="text-sm text-white w-8">
+                              {parseFloat(component.currentCondition || 0).toFixed(1)}
+                            </span>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-center text-gray-400 py-4">
+                          No components found for this yacht
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -504,11 +510,19 @@ export default function YachtMaintenance() {
                   <CardContent>
                     <div className="space-y-4">
                       {[
-                        { action: "Trip completed", details: "4.5h cruise to Key Biscayne", time: "2 hours ago", icon: MapPin },
-                        { action: "Maintenance scheduled", details: "Engine oil change", time: "1 day ago", icon: Wrench },
-                        { action: "Condition assessment", details: "Hull inspection completed", time: "3 days ago", icon: CheckCircle },
-                        { action: "System alert", details: "Battery level monitoring", time: "1 week ago", icon: Zap },
-                      ].map((activity, index) => (
+                        ...tripLogs.slice(0, 2).map((trip: any) => ({
+                          action: trip.status === 'completed' ? 'Trip completed' : 'Trip in progress',
+                          details: `${trip.startLocation} - ${trip.crewSize} crew members`,
+                          time: trip.startTime ? new Date(trip.startTime).toLocaleString() : 'Unknown',
+                          icon: MapPin
+                        })),
+                        ...maintenanceRecords.slice(0, 2).map((record: any) => ({
+                          action: record.status === 'completed' ? 'Maintenance completed' : 'Maintenance scheduled',
+                          details: record.description || record.taskType?.replace('_', ' '),
+                          time: record.scheduledDate ? new Date(record.scheduledDate).toLocaleString() : 'Unknown',
+                          icon: record.status === 'completed' ? CheckCircle : Wrench
+                        }))
+                      ].slice(0, 4).map((activity, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <div className="bg-purple-600/20 p-2 rounded-lg">
                             <activity.icon className="h-4 w-4 text-purple-400" />
@@ -550,7 +564,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {tripLogs.map((trip: any) => (
+                {tripLogs.length > 0 ? tripLogs.map((trip: any) => (
                   <Card key={trip.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -612,7 +626,13 @@ export default function YachtMaintenance() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )) : (
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No trip logs found for this yacht
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </TabsContent>
 
@@ -734,7 +754,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {maintenanceRecords.map((record: any) => (
+                {maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -765,7 +785,13 @@ export default function YachtMaintenance() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )) : (
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No maintenance records found for this yacht
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </TabsContent>
 
@@ -861,7 +887,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {conditionAssessments.map((assessment: any) => (
+                {conditionAssessments.length > 0 ? conditionAssessments.map((assessment: any) => (
                   <Card key={assessment.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -890,7 +916,13 @@ export default function YachtMaintenance() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )) : (
+                  <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No condition assessments found for this yacht
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </TabsContent>
 
@@ -908,13 +940,13 @@ export default function YachtMaintenance() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
                         <div className="text-3xl font-bold text-green-400 mb-2">
-                          ${valuationData.currentValue || 0}
+                          ${parseInt(valuationData.currentValue || 0).toLocaleString()}
                         </div>
                         <p className="text-gray-400">Current Market Value</p>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-yellow-400 mb-2">
-                          ${valuationData.repairCosts || 0}
+                          ${parseInt(valuationData.repairCosts || 0).toLocaleString()}
                         </div>
                         <p className="text-gray-400">Projected Repair Costs</p>
                       </div>
@@ -945,27 +977,27 @@ export default function YachtMaintenance() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {[
-                          { factor: "Engine Hours", impact: "High", value: "850 hours", trend: "increasing" },
-                          { factor: "Sun Damage", impact: "Medium", value: "UV exposure", trend: "moderate" },
-                          { factor: "Salt Exposure", impact: "Medium", value: "Coastal use", trend: "ongoing" },
-                          { factor: "Maintenance History", impact: "Low", value: "Well maintained", trend: "positive" },
-                        ].map((factor) => (
-                          <div key={factor.factor} className="flex items-center justify-between">
-                            <div>
-                              <p className="text-white font-medium">{factor.factor}</p>
-                              <p className="text-xs text-gray-400">{factor.value}</p>
+                        {valuationData.depreciationFactors ? 
+                          Object.entries(valuationData.depreciationFactors).map(([factor, data]: [string, any]) => (
+                            <div key={factor} className="flex items-center justify-between">
+                              <div>
+                                <p className="text-white font-medium">{factor.replace('_', ' ')}</p>
+                                <p className="text-xs text-gray-400">{data.value || data.description || 'No data'}</p>
+                              </div>
+                              <div className="text-right">
+                                <Badge variant={
+                                  data.impact === 'high' ? 'destructive' :
+                                  data.impact === 'medium' ? 'secondary' : 'default'
+                                }>
+                                  {data.impact || 'Unknown'}
+                                </Badge>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <Badge variant={
-                                factor.impact === 'High' ? 'destructive' :
-                                factor.impact === 'Medium' ? 'secondary' : 'default'
-                              }>
-                                {factor.impact}
-                              </Badge>
-                            </div>
+                          )) :
+                          <div className="text-center text-gray-400 py-8">
+                            No depreciation data available
                           </div>
-                        ))}
+                        }
                       </div>
                     </CardContent>
                   </Card>
@@ -979,25 +1011,29 @@ export default function YachtMaintenance() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {[
-                          { period: "Current", value: 285000, change: 0 },
-                          { period: "6 months", value: 275000, change: -3.5 },
-                          { period: "12 months", value: 260000, change: -8.8 },
-                          { period: "18 months", value: 240000, change: -15.8 },
-                          { period: "24 months", value: 220000, change: -22.8 },
-                        ].map((projection) => (
-                          <div key={projection.period} className="flex items-center justify-between">
-                            <span className="text-white">{projection.period}</span>
-                            <div className="text-right">
-                              <span className="text-white">${projection.value.toLocaleString()}</span>
-                              {projection.change !== 0 && (
-                                <span className={`ml-2 text-xs ${projection.change < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                                  {projection.change > 0 ? '+' : ''}{projection.change}%
-                                </span>
-                              )}
+                        {(() => {
+                          const currentValue = valuationData.currentValue || 285000;
+                          const projections = [
+                            { period: "Current", value: currentValue, change: 0 },
+                            { period: "6 months", value: Math.round(currentValue * 0.965), change: -3.5 },
+                            { period: "12 months", value: Math.round(currentValue * 0.912), change: -8.8 },
+                            { period: "18 months", value: Math.round(currentValue * 0.842), change: -15.8 },
+                            { period: "24 months", value: Math.round(currentValue * 0.772), change: -22.8 },
+                          ];
+                          return projections.map((projection) => (
+                            <div key={projection.period} className="flex items-center justify-between">
+                              <span className="text-white">{projection.period}</span>
+                              <div className="text-right">
+                                <span className="text-white">${projection.value.toLocaleString()}</span>
+                                {projection.change !== 0 && (
+                                  <span className={`ml-2 text-xs ${projection.change < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                    {projection.change > 0 ? '+' : ''}{projection.change}%
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ));
+                        })()}
                       </div>
                     </CardContent>
                   </Card>
