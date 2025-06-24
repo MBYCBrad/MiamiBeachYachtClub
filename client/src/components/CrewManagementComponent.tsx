@@ -72,54 +72,113 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
   };
 
   return (
-    <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
-      <DialogHeader>
-        <DialogTitle className="text-xl font-bold">Assign Crew</DialogTitle>
-        <div className="text-sm text-gray-400">
+    <DialogContent className="bg-gray-800/95 border-gray-700/50 text-white max-w-4xl backdrop-blur-xl">
+      <DialogHeader className="pb-6">
+        <DialogTitle className="text-xl font-semibold text-white">Assign Crew</DialogTitle>
+        <div className="text-gray-300 text-sm">
           {booking.yacht?.name} • {booking.guestCount} guests
         </div>
       </DialogHeader>
       
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">Captain *</label>
-          <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
-            <SelectTrigger className="bg-gray-800 border-gray-600">
-              <SelectValue placeholder="Select captain" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-600">
-              {captains.map(captain => (
-                <SelectItem key={captain.id} value={captain.id.toString()}>
-                  {captain.username} • ⭐ {captain.rating}/5
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="grid grid-cols-2 gap-8">
+        {/* Left Side - Yacht & Booking Details */}
+        <div className="space-y-6">
+          <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+            <h3 className="font-semibold text-white mb-3">Yacht Details</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Name:</span>
+                <span className="text-white">{booking.yacht?.name || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Type:</span>
+                <span className="text-white">{booking.yacht?.type || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Length:</span>
+                <span className="text-white">{booking.yacht?.length || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Capacity:</span>
+                <span className="text-white">{booking.yacht?.capacity || 'N/A'} guests</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
+            <h3 className="font-semibold text-white mb-3">Booking Details</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Date:</span>
+                <span className="text-white">{new Date(booking.startTime).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Time:</span>
+                <span className="text-white">{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Duration:</span>
+                <span className="text-white">4 hours</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Guests:</span>
+                <span className="text-white">{booking.guestCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className="text-green-400 capitalize">{booking.status}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-300 mb-2 block">First Mate</label>
-          <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
-            <SelectTrigger className="bg-gray-800 border-gray-600">
-              <SelectValue placeholder="Select first mate" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-600">
-              {firstMates.map(mate => (
-                <SelectItem key={mate.id} value={mate.id.toString()}>
-                  {mate.username} • ⭐ {mate.rating}/5
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Right Side - Crew Selection */}
+        <div className="space-y-6">
+          <div>
+            <label className="text-sm font-medium text-gray-200 mb-3 block">
+              Captain <span className="text-red-400">*</span>
+            </label>
+            <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
+              <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
+                <SelectValue placeholder="Select captain" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-600">
+                {captains.map((captain) => (
+                  <SelectItem key={captain.id} value={captain.id.toString()} className="text-white hover:bg-gray-700">
+                    {captain.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <Button 
-          onClick={handleAssign}
-          disabled={!selectedCaptain}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
-        >
-          Assign Crew
-        </Button>
+          <div>
+            <label className="text-sm font-medium text-gray-200 mb-3 block">First Mate</label>
+            <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
+              <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
+                <SelectValue placeholder="Select first mate" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-600">
+                {firstMates.map((mate) => (
+                  <SelectItem key={mate.id} value={mate.id.toString()} className="text-white hover:bg-gray-700">
+                    {mate.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Assign Button positioned bottom right */}
+          <div className="flex justify-end pt-8">
+            <Button 
+              onClick={handleAssign}
+              disabled={!selectedCaptain}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-8 py-3"
+            >
+              Assign Crew
+            </Button>
+          </div>
+        </div>
       </div>
     </DialogContent>
   );
