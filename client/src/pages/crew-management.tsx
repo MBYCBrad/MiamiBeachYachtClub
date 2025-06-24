@@ -88,17 +88,31 @@ export default function CrewManagementPage() {
 
   const createCrewAssignmentMutation = useMutation({
     mutationFn: async (assignmentData: any) => {
+      console.log('Frontend - Sending assignment data:', assignmentData);
       const res = await apiRequest("POST", "/api/crew/assignments", assignmentData);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create crew assignment');
+      }
       return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/crew/members"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staff"] });
       toast({
         title: "Crew Assignment Created",
         description: "Crew successfully assigned to booking",
       });
       setAssignmentDialog(false);
+    },
+    onError: (error: Error) => {
+      console.error('Frontend - Assignment creation failed:', error);
+      toast({
+        title: "Assignment Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 

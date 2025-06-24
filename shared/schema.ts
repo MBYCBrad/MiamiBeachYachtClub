@@ -187,7 +187,7 @@ export const crewMembers = pgTable("crew_members", {
 export const crewAssignments = pgTable("crew_assignments", {
   id: text("id").primaryKey(),
   bookingId: integer("booking_id").references(() => bookings.id).notNull(),
-  crewMemberIds: jsonb("crew_member_ids").$type<number[]>().notNull(),
+  crewMemberIds: jsonb("crew_member_ids").$type<number[]>().default([]),
   captainId: integer("captain_id").references(() => staff.id).notNull(),
   coordinatorId: integer("coordinator_id").references(() => staff.id).notNull(),
   status: text("status").notNull().default("planned"),
