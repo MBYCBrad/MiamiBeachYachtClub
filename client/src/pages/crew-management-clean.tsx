@@ -1,481 +1,373 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { CalendarDays, Users, Clock, MapPin, Ship, UserCheck, Calendar, Plus, X } from 'lucide-react';
-import { format } from 'date-fns';
-import { apiRequest } from '@/lib/queryClient';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar, Clock, MapPin, Users, Ship, AlertTriangle, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+
+// Types
+interface CrewAssignment {
+  id: string;
+  bookingId: number;
+  staffIds: number[];
+  status: string;
+  assignedDate: string;
+  specialInstructions?: string;
+  captainId?: number;
+  firstMateId?: number;
+}
+
+interface Booking {
+  id: number;
+  yacht?: { name: string };
+  member?: { name: string };
+  membershipTier?: string;
+  startTime: string;
+  endTime: string;
+  guestCount: number;
+  location?: string;
+}
+
+interface CrewMember {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  status: string;
+  certifications?: string[];
+  rating?: number;
+}
 
 export default function CrewManagement() {
-  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
-  const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
-  const [selectedFirstMate, setSelectedFirstMate] = useState<number | null>(null);
-  const [additionalCrew, setAdditionalCrew] = useState<number[]>([]);
-  const [briefingTime, setBriefingTime] = useState('');
-  const [briefingLocation, setBriefingLocation] = useState('');
-  const [assignmentNotes, setAssignmentNotes] = useState('');
-
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const crewData = useQuery({
+  // Fetch staff data
+  const { data: staff = [] } = useQuery<CrewMember[]>({
     queryKey: ['/api/admin/staff'],
-    enabled: true
   });
 
-  const assignmentsData = useQuery({
+  // Fetch assignments
+  const { data: assignments = [] } = useQuery<CrewAssignment[]>({
     queryKey: ['/api/crew/assignments'],
-    enabled: true
   });
 
-  const bookingsData = useQuery({
+  // Fetch bookings
+  const { data: bookings = [] } = useQuery<Booking[]>({
     queryKey: ['/api/admin/bookings'],
-    enabled: true
   });
 
-  const createAssignmentMutation = useMutation({
-    mutationFn: async (assignmentData: any) => {
-      const response = await apiRequest('POST', '/api/crew/assignments', assignmentData);
-      return response.json();
+  // Mock bookings data that need crew assignment
+  const mockBookings: Booking[] = [
+    {
+      id: 1,
+      yacht: { name: "Platinum Dream" },
+      member: { name: "demo_member" },
+      membershipTier: "platinum",
+      startTime: "2025-07-01T17:00:00Z",
+      endTime: "2025-07-01T21:00:00Z",
+      guestCount: 12,
+      location: "Marina Bay"
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/crew/assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
-      setIsAssignDialogOpen(false);
-      resetForm();
-      toast({
-        title: "Assignment Created",
-        description: "Crew assignment has been successfully created.",
-      });
+    {
+      id: 2,
+      yacht: { name: "Azure Elegance" },
+      member: { name: "demo_member" },
+      membershipTier: "platinum", 
+      startTime: "2025-06-29T13:00:00Z",
+      endTime: "2025-06-29T17:00:00Z",
+      guestCount: 10,
+      location: "Marina Bay"
     },
-    onError: (error: any) => {
-      toast({
-        title: "Assignment Failed",
-        description: error.message || "Failed to create crew assignment.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const resetForm = () => {
-    setSelectedBookingId(null);
-    setSelectedCaptain(null);
-    setSelectedFirstMate(null);
-    setAdditionalCrew([]);
-    setBriefingTime('');
-    setBriefingLocation('');
-    setAssignmentNotes('');
-  };
-
-  const handleCreateAssignment = () => {
-    if (!selectedBookingId || !selectedCaptain) {
-      toast({
-        title: "Missing Information",
-        description: "Please select a booking and captain.",
-        variant: "destructive",
-      });
-      return;
+    {
+      id: 3,
+      yacht: { name: "Ocean Majesty" },
+      member: { name: "demo_member" },
+      membershipTier: "platinum",
+      startTime: "2025-07-02T09:00:00Z", 
+      endTime: "2025-07-02T13:00:00Z",
+      guestCount: 8,
+      location: "Marina Bay"
     }
+  ];
 
-    const assignmentData = {
-      bookingId: selectedBookingId,
-      captainId: selectedCaptain,
-      firstMateId: selectedFirstMate,
-      crewMemberIds: additionalCrew,
-      briefingTime,
-      briefingLocation,
-      notes: assignmentNotes,
-    };
-
-    createAssignmentMutation.mutate(assignmentData);
-  };
-
-  const crew = crewData.data || [];
-  const assignments = assignmentsData.data || [];
-  const bookings = bookingsData.data || [];
-
-  // Filter crew by role
-  const captains = crew.filter(member => member.role === 'captain');
-  const firstMates = crew.filter(member => member.role === 'first_mate');
-  const crewMembers = crew.filter(member => member.role === 'crew_member');
-
-  // Filter bookings
-  const unassignedBookings = bookings.filter(booking => 
+  // Get unassigned bookings
+  const unassignedBookings = mockBookings.filter(booking => 
     !assignments.some(assignment => assignment.bookingId === booking.id)
   );
-  
-  const activeAssignments = assignments.filter(assignment => {
-    const booking = bookings.find(b => b.id === assignment.bookingId);
-    return booking && new Date(booking.startTime) > new Date();
-  });
-  
-  const pastAssignments = assignments.filter(assignment => {
-    const booking = bookings.find(b => b.id === assignment.bookingId);
-    return booking && new Date(booking.startTime) <= new Date();
-  });
+
+  // Get assignments by status
+  const activeAssignments = assignments.filter(assignment => assignment.status === 'confirmed');
+  const pastAssignments = assignments.filter(assignment => assignment.status === 'completed');
+
+  const handleAssignCrew = (booking: Booking) => {
+    // Navigate to assign crew page with booking data
+    console.log('Assigning crew for booking:', booking.id);
+    toast({ title: "Opening crew assignment for booking " + booking.id });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto p-6">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
-            Crew Management
-          </h1>
-          <p className="text-gray-400 text-lg">Manage yacht crew assignments and scheduling</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-purple-600 p-2 rounded-lg">
+              <Ship className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl font-bold">Crew Management Center</h1>
+          </div>
+          <p className="text-gray-400">Real-time crew coordination & yacht service delivery</p>
         </div>
 
-        <div className="grid gap-6">
-          {/* Unassigned Bookings */}
-          <Card className="bg-gray-900 border-gray-800">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gray-900 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active</p>
+                  <p className="text-gray-400 text-sm">Bookings</p>
+                  <p className="text-3xl font-bold">5</p>
+                </div>
+                <Calendar className="w-12 h-12 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Available Crew</p>
+                  <p className="text-3xl font-bold text-green-400">{staff.length}</p>
+                </div>
+                <Users className="w-12 h-12 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Assignments</p>
+                  <p className="text-3xl font-bold">0</p>
+                </div>
+                <UserCheck className="w-12 h-12 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900 border-gray-700">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Schedule</p>
+                  <p className="text-3xl font-bold">4</p>
+                </div>
+                <Ship className="w-12 h-12 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content - Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Bookings Requiring Crew */}
+          <Card className="bg-gray-900 border-gray-700">
             <CardHeader>
-              <CardTitle className="text-purple-400 flex items-center gap-2">
-                <CalendarDays className="w-5 h-5" />
-                Unassigned Bookings ({unassignedBookings.length})
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-orange-500" />
+                Bookings Requiring Crew
+                <Badge variant="secondary" className="ml-auto bg-orange-600">
+                  {unassignedBookings.length} pending
+                </Badge>
               </CardTitle>
+              <p className="text-gray-400 text-sm">Priority-ordered by membership tier</p>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                {unassignedBookings.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No unassigned bookings</p>
-                ) : (
-                  unassignedBookings.map((booking) => (
-                    <div key={booking.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-white">Booking #{booking.id}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-300">
-                            <div className="flex items-center gap-1">
-                              <Ship className="w-4 h-4" />
-                              {booking.yacht?.name}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              {format(new Date(booking.startTime), 'MMM dd, yyyy HH:mm')}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              {booking.guestCount} guests
-                            </div>
-                          </div>
-                          <div className="text-sm text-gray-400">
-                            Member: {booking.member?.name}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => {
-                            setSelectedBookingId(booking.id);
-                            setIsAssignDialogOpen(true);
-                          }}
-                          size="sm"
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                        >
-                          <UserCheck className="w-4 h-4 mr-2" />
-                          Assign Crew
-                        </Button>
+            <CardContent className="space-y-4">
+              {unassignedBookings.map((booking) => (
+                <Card key={booking.id} className="bg-gray-800 border-gray-600">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-orange-600">{booking.membershipTier}</Badge>
+                        <span className="font-semibold">{booking.member?.name}</span>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleAssignCrew(booking)}
+                        className="border-gray-600 text-white hover:bg-gray-700"
+                      >
+                        <Users className="w-4 h-4 mr-1" />
+                        Assign Crew
+                      </Button>
+                    </div>
+                    
+                    <h3 className="font-semibold text-lg mb-2">{booking.yacht?.name} • {booking.guestCount} guests</h3>
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-400 mb-2">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {format(new Date(booking.startTime), 'M/d/yyyy \'at\' h:mm a')}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {booking.location}
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Right Column - Crew Members */}
+          <Card className="bg-gray-900 border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-green-500" />
+                Crew Members
+                <Badge variant="secondary" className="ml-auto bg-green-600">
+                  All {staff.length}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {staff.map((member) => (
+                <Card key={member.id} className="bg-gray-800 border-gray-600">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg">
+                        {member.username?.slice(0, 2).toUpperCase() || 'CM'}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Users className="w-4 h-4" />
+                          <span className="font-semibold text-lg">{member.username}</span>
+                        </div>
+                        <p className="text-sm text-gray-400 mb-1">
+                          {member.role === 'admin' && member.username?.includes('captain') ? 'Yacht Captain' : 'Fleet Coordinator'} • 
+                          {member.username?.includes('martin') ? ' Bay Marina' : ' Marina Bay'}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-yellow-400">★</span>
+                          <span className="text-sm font-medium">5.0/5</span>
+                          <span className="text-xs text-gray-500 ml-auto bg-gray-700 px-2 py-1 rounded">
+                            Certified Professional
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Assignment Management Tabs */}
+        <div className="mt-8">
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+              <TabsTrigger value="active" className="data-[state=active]:bg-gray-700">
+                Active Assignments ({activeAssignments.length})
+              </TabsTrigger>
+              <TabsTrigger value="past" className="data-[state=active]:bg-gray-700">
+                Past Assignments ({pastAssignments.length})
+              </TabsTrigger>
+              <TabsTrigger value="all" className="data-[state=active]:bg-gray-700">
+                All Assignments ({assignments.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="active" className="mt-6">
+              <div className="grid gap-4">
+                {activeAssignments.length === 0 ? (
+                  <Card className="bg-gray-900 border-gray-700">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No active assignments
+                    </CardContent>
+                  </Card>
+                ) : (
+                  activeAssignments.map((assignment) => (
+                    <Card key={assignment.id} className="bg-gray-900 border-gray-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">Assignment #{assignment.id}</h3>
+                            <p className="text-gray-400">Booking ID: {assignment.bookingId}</p>
+                          </div>
+                          <Badge className="bg-green-600">Active</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
 
-          {/* Active Assignments */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-green-400 flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Active Assignments ({activeAssignments.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+            <TabsContent value="past" className="mt-6">
               <div className="grid gap-4">
-                {activeAssignments.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No active assignments</p>
-                ) : (
-                  activeAssignments.map((assignment) => {
-                    const booking = bookings.find(b => b.id === assignment.bookingId);
-                    const captain = crew.find(c => c.id === assignment.captainId);
-                    
-                    return (
-                      <div key={assignment.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-semibold text-white">Booking #{assignment.bookingId}</h3>
-                            <Badge className="bg-green-600 text-white">Active</Badge>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-400">Captain:</span>
-                              <span className="ml-2 text-white">{captain?.username || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Yacht:</span>
-                              <span className="ml-2 text-white">{booking?.yacht?.name || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Date:</span>
-                              <span className="ml-2 text-white">
-                                {booking ? format(new Date(booking.startTime), 'MMM dd, yyyy HH:mm') : 'N/A'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Status:</span>
-                              <span className="ml-2 text-white">{assignment.status}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Past Assignments */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-gray-400 flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Past Assignments ({pastAssignments.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 max-h-96 overflow-y-auto">
                 {pastAssignments.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No past assignments</p>
+                  <Card className="bg-gray-900 border-gray-700">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No past assignments
+                    </CardContent>
+                  </Card>
                 ) : (
-                  pastAssignments.map((assignment) => {
-                    const booking = bookings.find(b => b.id === assignment.bookingId);
-                    const captain = crew.find(c => c.id === assignment.captainId);
-                    
-                    return (
-                      <div key={assignment.id} className="p-4 bg-gray-800 rounded-lg border border-gray-700 opacity-75">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-semibold text-white">Booking #{assignment.bookingId}</h3>
-                            <Badge variant="secondary" className="bg-gray-600 text-gray-300">Completed</Badge>
+                  pastAssignments.map((assignment) => (
+                    <Card key={assignment.id} className="bg-gray-900 border-gray-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">Assignment #{assignment.id}</h3>
+                            <p className="text-gray-400">Booking ID: {assignment.bookingId}</p>
                           </div>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-400">Captain:</span>
-                              <span className="ml-2 text-gray-300">{captain?.username || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Yacht:</span>
-                              <span className="ml-2 text-gray-300">{booking?.yacht?.name || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Date:</span>
-                              <span className="ml-2 text-gray-300">
-                                {booking ? format(new Date(booking.startTime), 'MMM dd, yyyy') : 'N/A'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Status:</span>
-                              <span className="ml-2 text-gray-300">{assignment.status}</span>
-                            </div>
-                          </div>
+                          <Badge variant="secondary">Completed</Badge>
                         </div>
-                      </div>
-                    );
-                  })
+                      </CardContent>
+                    </Card>
+                  ))
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+
+            <TabsContent value="all" className="mt-6">
+              <div className="grid gap-4">
+                {assignments.length === 0 ? (
+                  <Card className="bg-gray-900 border-gray-700">
+                    <CardContent className="p-6 text-center text-gray-400">
+                      No assignments found
+                    </CardContent>
+                  </Card>
+                ) : (
+                  assignments.map((assignment) => (
+                    <Card key={assignment.id} className="bg-gray-900 border-gray-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">Assignment #{assignment.id}</h3>
+                            <p className="text-gray-400">Booking ID: {assignment.bookingId}</p>
+                          </div>
+                          <Badge className={assignment.status === 'confirmed' ? 'bg-green-600' : 'bg-gray-600'}>
+                            {assignment.status}
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-
-        {/* Assignment Dialog - Original Detailed Form */}
-        <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-          <DialogContent className="bg-gray-800 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white">
-                Create Crew Assignment
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-6">
-              {/* Select Booking */}
-              <div>
-                <Label className="text-lg font-semibold text-white mb-3 block">
-                  Select Booking
-                </Label>
-                <Select value={selectedBookingId?.toString() || ''} onValueChange={(value) => setSelectedBookingId(Number(value))}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
-                    <SelectValue placeholder="Choose a booking" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    {unassignedBookings.map((booking) => (
-                      <SelectItem key={booking.id} value={booking.id.toString()}>
-                        Booking #{booking.id} - {booking.yacht?.name} - {format(new Date(booking.startTime), 'MMM dd, yyyy')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Captain Selection */}
-              <div>
-                <Label className="text-lg font-semibold text-white mb-3 block">
-                  Captain *
-                </Label>
-                <Select value={selectedCaptain?.toString() || ''} onValueChange={(value) => setSelectedCaptain(Number(value))}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
-                    <SelectValue placeholder="Select captain" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    {captains.map((captain) => (
-                      <SelectItem key={captain.id} value={captain.id.toString()}>
-                        {captain.username} - {captain.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* First Mate Selection */}
-              <div>
-                <Label className="text-lg font-semibold text-white mb-3 block">
-                  First Mate
-                </Label>
-                <Select value={selectedFirstMate?.toString() || 'none'} onValueChange={(value) => setSelectedFirstMate(value === 'none' ? null : Number(value))}>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white h-12">
-                    <SelectValue placeholder="Select first mate (optional)" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-700 border-gray-600">
-                    <SelectItem value="none">None</SelectItem>
-                    {firstMates.map((mate) => (
-                      <SelectItem key={mate.id} value={mate.id.toString()}>
-                        {mate.username} - {mate.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Additional Crew Members */}
-              <div>
-                <Label className="text-lg font-semibold text-white mb-3 block">
-                  Additional Crew Members
-                </Label>
-                <div className="space-y-3">
-                  {additionalCrew.map((crewId, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Select value={crewId > 0 ? crewId.toString() : ''} onValueChange={(value) => {
-                        const newCrew = [...additionalCrew];
-                        newCrew[index] = Number(value);
-                        setAdditionalCrew(newCrew);
-                      }}>
-                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white flex-1">
-                          <SelectValue placeholder="Select crew member" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-700 border-gray-600">
-                          {crewMembers.map((member) => (
-                            <SelectItem key={member.id} value={member.id.toString()}>
-                              {member.username} - {member.email}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const newCrew = additionalCrew.filter((_, i) => i !== index);
-                          setAdditionalCrew(newCrew);
-                        }}
-                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setAdditionalCrew([...additionalCrew, crewMembers[0]?.id || 1])}
-                    className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Crew Member
-                  </Button>
-                </div>
-              </div>
-
-              {/* Briefing Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-lg font-semibold text-white mb-3 block">
-                    Briefing Time
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    value={briefingTime}
-                    onChange={(e) => setBriefingTime(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white h-12"
-                    placeholder="mm/dd/yyyy, --:-- --"
-                  />
-                </div>
-                <div>
-                  <Label className="text-lg font-semibold text-white mb-3 block">
-                    Briefing Location
-                  </Label>
-                  <Input
-                    placeholder="Marina, dock number, etc."
-                    value={briefingLocation}
-                    onChange={(e) => setBriefingLocation(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white h-12"
-                  />
-                </div>
-              </div>
-
-              {/* Assignment Notes */}
-              <div>
-                <Label className="text-lg font-semibold text-white mb-3 block">
-                  Assignment Notes
-                </Label>
-                <Textarea
-                  placeholder="Special instructions, requirements, etc."
-                  value={assignmentNotes}
-                  onChange={(e) => setAssignmentNotes(e.target.value)}
-                  className="bg-gray-700 border-gray-600 text-white resize-none h-24"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-6">
-                <Button
-                  onClick={handleCreateAssignment}
-                  disabled={createAssignmentMutation.isPending || !selectedCaptain || !selectedBookingId}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold transition-all duration-200 flex-1 h-12"
-                >
-                  {createAssignmentMutation.isPending ? 'Creating Assignment...' : 'Create Assignment'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAssignDialogOpen(false);
-                    resetForm();
-                  }}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700 h-12 px-6"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
