@@ -1463,9 +1463,17 @@ function EditAssignmentDialog({
   // Initialize form state with current assignment data
   const [editedCaptainId, setEditedCaptainId] = useState(assignment.captainId || null);
   const [editedCoordinatorId, setEditedCoordinatorId] = useState(assignment.coordinatorId || null);
-  const [editedCrewMemberIds, setEditedCrewMemberIds] = useState<number[]>(
-    assignment.crewMemberIds ? JSON.parse(assignment.crewMemberIds) : []
-  );
+  const [editedCrewMemberIds, setEditedCrewMemberIds] = useState<number[]>(() => {
+    try {
+      if (assignment.crewMemberIds && typeof assignment.crewMemberIds === 'string') {
+        const parsed = JSON.parse(assignment.crewMemberIds);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return Array.isArray(assignment.crewMemberIds) ? assignment.crewMemberIds : [];
+    } catch {
+      return [];
+    }
+  });
   const [editedNotes, setEditedNotes] = useState(assignment.notes || "");
   const [editedBriefingTime, setEditedBriefingTime] = useState(() => {
     if (assignment.briefingTime) {
