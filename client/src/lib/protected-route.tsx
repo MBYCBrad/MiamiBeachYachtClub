@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
-import { Redirect, Route } from "wouter";
+import { Redirect, Route, useLocation } from "wouter";
 
 export function ProtectedRoute({
   path,
@@ -10,6 +10,7 @@ export function ProtectedRoute({
   component: () => React.JSX.Element;
 }) {
   const { user, isLoading } = useAuth();
+  const [location] = useLocation();
 
   if (isLoading) {
     return (
@@ -27,6 +28,31 @@ export function ProtectedRoute({
         <Redirect to="/auth" />
       </Route>
     );
+  }
+
+  // Role-based routing: redirect users to their appropriate dashboards
+  if (path === "/" && user.role) {
+    if (user.role === "admin") {
+      return (
+        <Route path={path}>
+          <Redirect to="/admin" />
+        </Route>
+      );
+    }
+    if (user.role === "yacht_owner") {
+      return (
+        <Route path={path}>
+          <Redirect to="/yacht-owner" />
+        </Route>
+      );
+    }
+    if (user.role === "service_provider") {
+      return (
+        <Route path={path}>
+          <Redirect to="/service-provider" />
+        </Route>
+      );
+    }
   }
 
   return (

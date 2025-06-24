@@ -46,6 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Login successful",
         description: `Welcome back, ${user.username}!`,
       });
+      
+      // Trigger role-based routing after successful login
+      setTimeout(() => {
+        if (user.role === "admin") {
+          window.location.href = "/admin";
+        } else if (user.role === "yacht_owner") {
+          window.location.href = "/yacht-owner";
+        } else if (user.role === "service_provider") {
+          window.location.href = "/service-provider";
+        } else {
+          window.location.href = "/";
+        }
+      }, 100);
     },
     onError: (error: Error) => {
       toast({

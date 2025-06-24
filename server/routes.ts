@@ -3608,7 +3608,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create User
   app.post("/api/admin/users", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newUser = await dbStorage.createUser(req.body);
+      // Import hashPassword function
+      const { hashPassword } = await import("./auth");
+      
+      // Hash the password before creating the user
+      const userData = { ...req.body };
+      if (userData.password) {
+        userData.password = await hashPassword(userData.password);
+      }
+      
+      const newUser = await dbStorage.createUser(userData);
       await auditService.logAction(req, 'create', 'user', newUser.id, req.body);
       res.status(201).json(newUser);
     } catch (error: any) {
