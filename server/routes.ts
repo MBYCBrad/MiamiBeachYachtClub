@@ -7,7 +7,6 @@ import { setupPaymentRoutes } from "./payments";
 import { notificationService } from "./notifications";
 import { auditService, auditMiddleware } from "./audit";
 import { mediaStorageService } from "./media-storage";
-import { setupFastAdminRoutes } from "./fast-routes";
 import Stripe from "stripe";
 import twilio from "twilio";
 import { WebSocketServer, WebSocket } from "ws";
