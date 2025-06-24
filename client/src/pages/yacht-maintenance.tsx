@@ -1024,16 +1024,16 @@ export default function YachtMaintenance() {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <Badge variant="outline" className="border-purple-500 text-purple-400">
-                            {assessment.assessmentType.replace('_', ' ')}
+                            {assessment.assessmentType?.replace('_', ' ') || 'Condition Assessment'}
                           </Badge>
-                          <span className="text-white font-medium">Score: {assessment.conditionScore}/10</span>
+                          <span className="text-white font-medium">Score: {assessment.overallScore || assessment.conditionScore || 'N/A'}/10</span>
                         </div>
                         <div className="text-gray-400 text-sm">
-                          {new Date(assessment.createdAt).toLocaleDateString()}
+                          {assessment.createdAt ? new Date(assessment.createdAt).toLocaleDateString() : new Date(assessment.assessmentDate).toLocaleDateString()}
                         </div>
                       </div>
                       
-                      <p className="text-gray-300 mb-4">{assessment.findings}</p>
+                      <p className="text-gray-300 mb-4">{assessment.findings || assessment.recommendations || 'No detailed findings recorded'}</p>
                       
                       {assessment.recommendations && (
                         <div className="bg-gray-900/50 rounded-lg p-3 mb-4">
@@ -1043,7 +1043,7 @@ export default function YachtMaintenance() {
                       )}
                       
                       <div className="text-sm text-gray-400">
-                        Assessed by: {assessment.assessedBy}
+                        Assessed by: {assessment.assessedBy || `User ${assessment.assessorId}` || 'System'}
                       </div>
                     </CardContent>
                   </Card>
