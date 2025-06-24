@@ -172,7 +172,7 @@ export default function AdminNotificationCenter() {
     }
   };
 
-  const filteredNotifications = (notifications || []).filter(notification => {
+  const filteredNotifications = notifications.filter(notification => {
     switch (filter) {
       case 'unread':
         return !notification.read;
@@ -183,8 +183,8 @@ export default function AdminNotificationCenter() {
     }
   });
 
-  const urgentCount = (notifications || []).filter(n => !n.read && (n.priority === 'urgent' || n.priority === 'high')).length;
-  const totalUnread = (notifications || []).filter(n => !n.read).length;
+  const urgentCount = notifications.filter(n => !n.read && (n.priority === 'urgent' || n.priority === 'high')).length;
+  const totalUnread = notifications.filter(n => !n.read).length;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
