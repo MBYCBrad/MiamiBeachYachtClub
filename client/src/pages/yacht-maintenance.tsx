@@ -615,102 +615,174 @@ export default function YachtMaintenance() {
                     <DialogHeader>
                       <DialogTitle className="text-white">Schedule Maintenance</DialogTitle>
                     </DialogHeader>
-                    <Form {...maintenanceForm}>
-                      <form onSubmit={maintenanceForm.handleSubmit((data) => createMaintenanceMutation.mutate(data))}>
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          <FormField
-                            control={maintenanceForm.control}
-                            name="taskType"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white">Task Type</FormLabel>
-                                <FormControl>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
-                                      <SelectValue placeholder="Select task type..." />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-gray-900/50 border-gray-600">
-                                      <SelectItem value="engine_service">Engine Service</SelectItem>
-                                      <SelectItem value="hull_cleaning">Hull Cleaning</SelectItem>
-                                      <SelectItem value="electronics_check">Electronics Check</SelectItem>
-                                      <SelectItem value="rigging_inspection">Rigging Inspection</SelectItem>
-                                      <SelectItem value="safety_equipment">Safety Equipment</SelectItem>
-                                      <SelectItem value="preventive">Preventive Maintenance</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={maintenanceForm.control}
-                            name="priority"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white">Priority</FormLabel>
-                                <FormControl>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="bg-gray-900/50 border-gray-600">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-gray-900/50 border-gray-600">
-                                      <SelectItem value="low">Low</SelectItem>
-                                      <SelectItem value="medium">Medium</SelectItem>
-                                      <SelectItem value="high">High</SelectItem>
-                                      <SelectItem value="critical">Critical</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                    <Form {...scheduleMaintenanceForm}>
+                      <form onSubmit={scheduleMaintenanceForm.handleSubmit((data) => scheduleMaintenanceMutation.mutate(data))} className="space-y-4">
                         <FormField
-                          control={maintenanceForm.control}
-                          name="description"
+                          control={scheduleMaintenanceForm.control}
+                          name="taskType"
                           render={({ field }) => (
-                            <FormItem className="mb-4">
-                              <FormLabel className="text-white">Description</FormLabel>
+                            <FormItem>
+                              <FormLabel className="text-white">Task Type</FormLabel>
                               <FormControl>
-                                <Textarea {...field} className="bg-gray-900/50 border-gray-600 text-white" />
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectValue placeholder="Select task type" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-gray-800 border-gray-700">
+                                    <SelectItem value="engine">Engine Maintenance</SelectItem>
+                                    <SelectItem value="hull">Hull Inspection</SelectItem>
+                                    <SelectItem value="electrical">Electrical System</SelectItem>
+                                    <SelectItem value="plumbing">Plumbing System</SelectItem>
+                                    <SelectItem value="safety">Safety Equipment</SelectItem>
+                                    <SelectItem value="cosmetic">Cosmetic Repairs</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-2 gap-4 mb-6">
+                        
+                        <FormField
+                          control={scheduleMaintenanceForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Description</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field} 
+                                  className="bg-gray-800 border-gray-700 text-white" 
+                                  placeholder="Describe the maintenance task..."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={scheduleMaintenanceForm.control}
+                          name="scheduledDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Scheduled Date</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="date" 
+                                  className="bg-gray-800 border-gray-700 text-white"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={scheduleMaintenanceForm.control}
+                          name="priority"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Priority</FormLabel>
+                              <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-gray-800 border-gray-700">
+                                    <SelectItem value="low">Low</SelectItem>
+                                    <SelectItem value="medium">Medium</SelectItem>
+                                    <SelectItem value="high">High</SelectItem>
+                                    <SelectItem value="critical">Critical</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-4">
                           <FormField
-                            control={maintenanceForm.control}
+                            control={scheduleMaintenanceForm.control}
                             name="estimatedCost"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white">Estimated Cost ($)</FormLabel>
+                                <FormLabel className="text-white">Est. Cost ($)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input 
+                                    {...field} 
+                                    type="number" 
+                                    min="0"
+                                    step="0.01"
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                    onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+
                           <FormField
-                            control={maintenanceForm.control}
-                            name="beforeCondition"
+                            control={scheduleMaintenanceForm.control}
+                            name="estimatedHours"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white">Current Condition (1-10)</FormLabel>
+                                <FormLabel className="text-white">Est. Hours</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" min="0" max="10" className="bg-gray-900/50 border-gray-600 text-white" onChange={(e) => field.onChange(Number(e.target.value))} />
+                                  <Input 
+                                    {...field} 
+                                    type="number" 
+                                    min="0"
+                                    step="0.5"
+                                    className="bg-gray-800 border-gray-700 text-white"
+                                    onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" disabled={createMaintenanceMutation.isPending}>
-                          {createMaintenanceMutation.isPending ? "Scheduling..." : "Schedule Maintenance"}
-                        </Button>
+
+                        <FormField
+                          control={scheduleMaintenanceForm.control}
+                          name="assignedTo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Assigned To (Optional)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  className="bg-gray-800 border-gray-700 text-white" 
+                                  placeholder="Technician name or company"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="flex gap-3 pt-4">
+                          <Button 
+                            type="submit" 
+                            disabled={scheduleMaintenanceMutation.isPending}
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                          >
+                            {scheduleMaintenanceMutation.isPending ? "Scheduling..." : "Schedule Maintenance"}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setScheduleMaintenanceOpen(false)}
+                            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
                       </form>
                     </Form>
                   </DialogContent>
