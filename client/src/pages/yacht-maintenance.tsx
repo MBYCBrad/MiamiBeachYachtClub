@@ -36,7 +36,7 @@ const assessmentSchema = z.object({
   condition: z.enum(['excellent', 'good', 'fair', 'poor', 'critical']),
   notes: z.string().min(1, "Notes are required"),
   recommendedAction: z.string().optional(),
-  estimatedCost: z.string().optional(),
+  estimatedCost: z.union([z.string(), z.number()]).transform(val => String(val)).optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
 });
 
@@ -986,7 +986,7 @@ export default function YachtMaintenance() {
                                   min="0"
                                   step="0.01"
                                   className="bg-gray-800 border-gray-700 text-white"
-                                  onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                  onChange={e => field.onChange(e.target.value)}
                                 />
                               </FormControl>
                               <FormMessage />
