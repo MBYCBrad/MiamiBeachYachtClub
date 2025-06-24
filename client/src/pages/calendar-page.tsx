@@ -716,7 +716,7 @@ export default function CalendarPage() {
             </div>
             <div className={`
               w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold
-              ${isSameDay(currentDate, today) ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-300'}
+              ${isSameDay(currentDate, today) ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'bg-gray-700 text-gray-300'}
             `}>
               {currentDate.getDate()}
             </div>
