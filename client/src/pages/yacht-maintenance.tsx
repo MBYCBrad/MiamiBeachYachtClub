@@ -146,7 +146,7 @@ export default function YachtMaintenance() {
       condition: "good" as const,
       notes: "",
       recommendedAction: "",
-      estimatedCost: "0",
+      estimatedCost: "",
       priority: "medium" as const,
     },
   });

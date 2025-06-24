@@ -1950,13 +1950,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/maintenance/assessments", requireAuth, async (req, res) => {
     try {
+      console.log('Received assessment data:', req.body);
+      
       const conditionScore = req.body.condition === 'excellent' ? 10 : 
                             req.body.condition === 'good' ? 8 :
                             req.body.condition === 'fair' ? 6 :
                             req.body.condition === 'poor' ? 4 : 2;
 
       const assessmentData = {
-        yachtId: req.body.yachtId,
+        yachtId: parseInt(req.body.yachtId),
         assessorId: req.user.id,
         overallScore: conditionScore,
         assessmentDate: new Date(),
@@ -1964,7 +1966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           visualInspection: conditionScore,
           functionalTest: conditionScore,
           performanceMetrics: conditionScore,
-          wearAndTear: conditionScore - 1
+          wearAndTear: Math.max(1, conditionScore - 1)
         },
         criticalIssues: conditionScore < 6 ? [{
           issue: req.body.notes || 'Condition requires attention',
@@ -1977,11 +1979,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         nextAssessmentDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
       };
 
+      console.log('Processed assessment data:', assessmentData);
       const assessment = await dbStorage.createConditionAssessment(assessmentData);
+      console.log('Created assessment:', assessment);
       res.status(201).json(assessment);
     } catch (error: any) {
       console.error('Error creating condition assessment:', error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message, stack: error.stack });
     }
   });
 
