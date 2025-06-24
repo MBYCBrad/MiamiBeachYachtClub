@@ -520,74 +520,29 @@ function CrewAssignmentDialog({
   const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
   const [selectedCoordinator, setSelectedCoordinator] = useState<number | null>(null);
   const [selectedCrew, setSelectedCrew] = useState<number[]>([]);
-  // Auto-populate briefing time to 1 hour before booking start time
-  const getDefaultBriefingTime = () => {
+  // Calculate briefing time exactly 1 hour before booking start time
+  const calculateBriefingTime = () => {
+    if (!booking.startTime) return "";
+    
     try {
-      console.log('Booking data for briefing calculation:', {
-        date: booking.date,
-        startTime: booking.startTime,
-        endTime: booking.endTime
-      });
-
-      // If startTime is a full datetime (contains both date and time)
-      if (booking.startTime && booking.startTime.includes('T')) {
-        const bookingDateTime = new Date(booking.startTime);
-        if (!isNaN(bookingDateTime.getTime())) {
-          const briefingDateTime = new Date(bookingDateTime.getTime() - 60 * 60 * 1000);
-          console.log('Using full datetime startTime:', {
-            original: booking.startTime,
-            briefing: briefingDateTime.toISOString().slice(0, 16)
-          });
-          return briefingDateTime.toISOString().slice(0, 16);
-        }
-      }
+      const bookingStart = new Date(booking.startTime);
+      // Subtract 1 hour (3600000 milliseconds)
+      const briefingTime = new Date(bookingStart.getTime() - 3600000);
       
-      // If we have separate date and time fields
-      if (booking.date && booking.startTime) {
-        let dateStr = booking.date;
-        
-        // Convert various date formats to YYYY-MM-DD
-        if (dateStr.includes('/')) {
-          const parts = dateStr.split('/');
-          if (parts.length === 3) {
-            // Handle MM/DD/YYYY format
-            dateStr = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-          }
-        }
-        
-        // Extract just the time part if startTime has date info
-        let timeStr = booking.startTime;
-        if (timeStr.includes('T')) {
-          timeStr = timeStr.split('T')[1];
-        }
-        if (timeStr.includes(' ')) {
-          timeStr = timeStr.split(' ')[1];
-        }
-        
-        const bookingDateTime = new Date(`${dateStr}T${timeStr}`);
-        console.log('Constructed datetime:', {
-          dateStr,
-          timeStr,
-          fullDateTime: `${dateStr}T${timeStr}`,
-          parsed: bookingDateTime
-        });
-        
-        if (!isNaN(bookingDateTime.getTime())) {
-          const briefingDateTime = new Date(bookingDateTime.getTime() - 60 * 60 * 1000);
-          console.log('Final briefing time:', briefingDateTime.toISOString().slice(0, 16));
-          return briefingDateTime.toISOString().slice(0, 16);
-        }
-      }
+      // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+      const year = briefingTime.getFullYear();
+      const month = String(briefingTime.getMonth() + 1).padStart(2, '0');
+      const day = String(briefingTime.getDate()).padStart(2, '0');
+      const hours = String(briefingTime.getHours()).padStart(2, '0');
+      const minutes = String(briefingTime.getMinutes()).padStart(2, '0');
       
-      console.log('Could not calculate briefing time');
-      return "";
-    } catch (error) {
-      console.error('Error calculating briefing time:', error);
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } catch {
       return "";
     }
   };
 
-  const [briefingTime, setBriefingTime] = useState(getDefaultBriefingTime());
+  const [briefingTime, setBriefingTime] = useState(calculateBriefingTime());
   const [notes, setNotes] = useState("");
 
   // Fetch live staff data from the database
