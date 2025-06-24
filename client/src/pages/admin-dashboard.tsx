@@ -2130,6 +2130,8 @@ export default function AdminDashboard() {
 
   // Filter and sort bookings based on active filters
   const filteredBookings = useMemo(() => {
+    if (activeSection !== 'bookings') return allBookings;
+    
     let filtered = [...allBookings];
 
     // Status filter
@@ -2716,7 +2718,19 @@ export default function AdminDashboard() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('Filter button clicked, current showFilters:', showFilters);
+              console.log('Bookings filter button clicked, current showFilters:', showFilters);
+              
+              if (showFilters) {
+                // If closing filters, reset all filters to default
+                setBookingFilters({
+                  status: 'all',
+                  timeRange: 'all',
+                  membershipTier: 'all',
+                  yachtSize: 'all',
+                  sortBy: 'date'
+                });
+              }
+              
               setShowFilters(!showFilters);
             }}
             className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
@@ -2733,9 +2747,9 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
 
-      {/* Advanced Filter Panel */}
+      {/* Advanced Filter Panel for Bookings */}
       <AnimatePresence>
-        {showFilters && (
+        {showFilters && activeSection === 'bookings' && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
