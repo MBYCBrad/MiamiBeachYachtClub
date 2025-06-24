@@ -1085,25 +1085,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createConditionAssessment(assessment: any): Promise<ConditionAssessment> {
-    console.log('Storage - Creating assessment:', assessment);
+    console.log('Storage - Creating assessment with data:', assessment);
     try {
-      // Insert directly without validation, like maintenance records
+      // Force insert with explicit values
       const [created] = await db
         .insert(conditionAssessments)
         .values({
-          yachtId: assessment.yachtId,
-          assessorId: assessment.assessorId,
-          overallScore: assessment.overallScore,
-          assessmentDate: assessment.assessmentDate,
-          recommendations: assessment.recommendations
+          yachtId: Number(assessment.yachtId),
+          assessorId: Number(assessment.assessorId), 
+          overallScore: Number(assessment.overallScore),
+          assessmentDate: new Date(),
+          recommendations: String(assessment.recommendations || '')
         })
         .returning();
       
-      console.log('Storage - Assessment created successfully:', created);
+      console.log('Storage - Assessment created:', created);
       return created;
     } catch (error) {
-      console.error('Storage - Assessment creation failed:', error);
-      throw error;
+      console.error('Storage - Assessment failed:', error);
+      // If Drizzle fails, use raw SQL
+      try {
+        const result = await db.execute(sql`
+          INSERT INTO condition_assessments (yacht_id, assessor_id, overall_score, assessment_date, recommendations)
+          VALUES (${assessment.yachtId}, ${assessment.assessorId}, ${assessment.overallScore}, ${new Date()}, ${assessment.recommendations || ''})
+          RETURNING *
+        `);
+        console.log('Storage - Raw SQL success:', result);
+        return result.rows[0] as ConditionAssessment;
+      } catch (rawError) {
+        console.error('Storage - Raw SQL also failed:', rawError);
+        throw rawError;
+      }
     }
   }
 
