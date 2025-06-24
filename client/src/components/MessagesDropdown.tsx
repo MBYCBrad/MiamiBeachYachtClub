@@ -1,314 +1,342 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
-import { 
-  MessageSquare, 
-  Send, 
-  Dot, 
-  Clock,
-  User,
-  ChevronDown,
-  Reply,
-  Eye,
-  X,
-  Search,
-  Filter
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { formatDistanceToNow } from "date-fns";
-
-interface Conversation {
-  id: string;
-  memberId: number;
-  memberName: string;
-  lastMessage: string;
-  unreadCount: number;
-  lastActivity: string;
-  status: 'active' | 'pending' | 'resolved';
-}
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { MessageSquare, Send, Phone, Video, MoreHorizontal, Clock, CheckCheck } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 interface Message {
   id: number;
+  conversationId: number;
   senderId: number;
+  receiverId: number;
   content: string;
-  status: string;
+  isRead: boolean;
   createdAt: string;
-  senderName?: string;
+  sender?: {
+    id: number;
+    username: string;
+    role: string;
+    avatar?: string;
+  };
+  receiver?: {
+    id: number;
+    username: string;
+    role: string;
+    avatar?: string;
+  };
 }
 
-export default function MessagesDropdown() {
-  const { user } = useAuth();
+interface Conversation {
+  id: number;
+  participant1Id: number;
+  participant2Id: number;
+  lastMessage?: Message;
+  unreadCount: number;
+  participant?: {
+    id: number;
+    username: string;
+    role: string;
+    avatar?: string;
+  };
+}
+
+interface MessagesDropdownProps {
+  userId?: number;
+}
+
+const MessagesDropdown: React.FC<MessagesDropdownProps> = ({ userId }) => {
   const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-  const [newMessage, setNewMessage] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
 
-  // Fetch conversations
-  const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
-    queryKey: ['/api/conversations'],
-    enabled: !!user && (user.role === 'admin' || user.role?.startsWith('staff')),
-    refetchInterval: 5000, // Real-time updates every 5 seconds
-  });
-
-  // Fetch messages for selected conversation
-  const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
-    queryKey: ['/api/messages', selectedConversation],
-    enabled: !!selectedConversation,
-  });
-
-  // Send message mutation
-  const sendMessageMutation = useMutation({
-    mutationFn: async (messageData: { conversationId: string; content: string }) => {
-      const response = await apiRequest('POST', '/api/messages', messageData);
+  const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
+    queryKey: ['/api/messages/conversations', userId],
+    queryFn: async () => {
+      const response = await apiRequest('GET', `/api/messages/conversations?userId=${userId}`);
       return response.json();
     },
+    refetchInterval: 15000, // Refresh every 15 seconds
+  });
+
+  const { data: messages = [] } = useQuery<Message[]>({
+    queryKey: ['/api/messages', selectedConversation],
+    queryFn: async () => {
+      if (!selectedConversation) return [];
+      const response = await apiRequest('GET', `/api/messages/${selectedConversation}`);
+      return response.json();
+    },
+    enabled: !!selectedConversation,
+    refetchInterval: 10000, // Refresh every 10 seconds when viewing conversation
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ conversationId, content }: { conversationId: number; content: string }) => {
+      await apiRequest('POST', '/api/messages', {
+        conversationId,
+        content,
+        senderId: userId,
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/messages', selectedConversation] });
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
-      setNewMessage("");
+      queryClient.invalidateQueries({ queryKey: ['/api/messages'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
     },
   });
 
-  // Mark conversation as read
   const markAsReadMutation = useMutation({
-    mutationFn: async (conversationId: string) => {
-      await apiRequest('PUT', `/api/conversations/${conversationId}/read`);
+    mutationFn: async (conversationId: number) => {
+      await apiRequest('PUT', `/api/messages/${conversationId}/read`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
     },
   });
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+  const totalUnreadCount = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+
+  const getRoleColor = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'text-red-400';
+      case 'yacht_owner':
+        return 'text-blue-400';
+      case 'service_provider':
+        return 'text-green-400';
+      case 'member':
+        return 'text-purple-400';
+      default:
+        if (role.startsWith('Staff')) return 'text-orange-400';
+        return 'text-gray-400';
+    }
+  };
+
+  const getStatusDot = (role: string) => {
+    // Simulate online status based on role
+    const isOnline = Math.random() > 0.3; // 70% chance of being online
+    return isOnline ? 'bg-green-500' : 'bg-gray-500';
+  };
+
+  if (selectedConversation) {
+    const conversation = conversations.find(c => c.id === selectedConversation);
     
-    sendMessageMutation.mutate({
-      conversationId: selectedConversation,
-      content: newMessage.trim()
-    });
-  };
+    return (
+      <Card className="w-96 h-96 bg-gray-900/95 border-gray-700/50 backdrop-blur-xl shadow-2xl flex flex-col">
+        <CardHeader className="pb-3 border-b border-gray-700/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedConversation(null)}
+                className="text-gray-400 hover:text-white p-1"
+              >
+                ←
+              </Button>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={conversation?.participant?.avatar} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-sm">
+                  {conversation?.participant?.username?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h4 className="text-white font-medium text-sm">
+                  {conversation?.participant?.username}
+                </h4>
+                <p className={`text-xs ${getRoleColor(conversation?.participant?.role || '')}`}>
+                  {conversation?.participant?.role}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-1">
+                <Phone className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-1">
+                <Video className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-1">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
 
-  const handleConversationSelect = (conversationId: string) => {
-    setSelectedConversation(conversationId);
-    markAsReadMutation.mutate(conversationId);
-  };
+        <ScrollArea className="flex-1 p-4">
+          <div className="space-y-4">
+            {messages.map((message, index) => {
+              const isFromUser = message.senderId === userId;
+              
+              return (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`flex ${isFromUser ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[80%] ${isFromUser ? 'order-2' : 'order-1'}`}>
+                    <div className={`p-3 rounded-2xl ${
+                      isFromUser 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white ml-2' 
+                        : 'bg-gray-800/60 text-gray-200 mr-2'
+                    }`}>
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                    <div className={`flex items-center mt-1 text-xs text-gray-500 ${
+                      isFromUser ? 'justify-end' : 'justify-start'
+                    }`}>
+                      <Clock className="h-3 w-3 mr-1" />
+                      {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
+                      {isFromUser && message.isRead && (
+                        <CheckCheck className="h-3 w-3 ml-1 text-blue-400" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  {!isFromUser && (
+                    <Avatar className="h-6 w-6 order-1">
+                      <AvatarImage src={message.sender?.avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-gray-600 to-gray-700 text-white text-xs">
+                        {message.sender?.username?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </ScrollArea>
 
-  const filteredConversations = conversations.filter(conv =>
-    conv.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-
-  if (!user || (user.role !== 'admin' && !user.role?.startsWith('staff'))) {
-    return null;
+        <div className="border-t border-gray-700/50 p-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              className="flex-1 bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  sendMessageMutation.mutate({
+                    conversationId: selectedConversation,
+                    content: e.currentTarget.value.trim(),
+                  });
+                  e.currentTarget.value = '';
+                }
+              }}
+            />
+            <Button
+              size="sm"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="relative h-9 w-9 p-0 hover:bg-purple-500/10 transition-colors"
-        >
-          <MessageSquare className="h-5 w-5 text-purple-400" />
-          {totalUnread > 0 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-            >
-              {totalUnread > 99 ? '99+' : totalUnread}
-            </motion.div>
+    <Card className="w-96 bg-gray-900/95 border-gray-700/50 backdrop-blur-xl shadow-2xl">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-white flex items-center">
+          <MessageSquare className="h-5 w-5 mr-2 text-blue-400" />
+          Messages
+          {totalUnreadCount > 0 && (
+            <Badge className="ml-2 bg-blue-500 text-white text-xs">
+              {totalUnreadCount}
+            </Badge>
           )}
-        </Button>
-      </PopoverTrigger>
+        </CardTitle>
+      </CardHeader>
       
-      <PopoverContent 
-        className="w-96 p-0 bg-gray-900/95 backdrop-blur-xl border-purple-500/20"
-        align="end"
-      >
-        <div className="flex h-[500px]">
-          {/* Conversations List */}
-          <div className={`${selectedConversation ? 'w-1/3' : 'w-full'} border-r border-purple-500/20 transition-all`}>
-            <div className="p-4 border-b border-purple-500/20">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-purple-400" />
-                  Messages
-                </h3>
-                {selectedConversation && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedConversation(null)}
-                    className="h-6 w-6 p-0 hover:bg-purple-500/20"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search conversations..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-purple-500/20 text-white placeholder-gray-400"
-                />
-              </div>
+      <CardContent className="p-0">
+        <ScrollArea className="h-80">
+          {isLoading ? (
+            <div className="p-6 text-center text-gray-400">
+              Loading conversations...
             </div>
-            
-            <ScrollArea className="h-[400px]">
-              {conversationsLoading ? (
-                <div className="p-4 text-center text-gray-400">
-                  <Clock className="h-8 w-8 mx-auto mb-2 animate-spin" />
-                  Loading conversations...
-                </div>
-              ) : filteredConversations.length === 0 ? (
-                <div className="p-4 text-center text-gray-400">
-                  <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  No conversations found
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {filteredConversations.map((conversation) => (
-                    <motion.div
-                      key={conversation.id}
-                      whileHover={{ backgroundColor: "rgba(168, 85, 247, 0.1)" }}
-                      className={`p-3 cursor-pointer border-l-4 transition-all ${
-                        selectedConversation === conversation.id
-                          ? 'border-l-purple-500 bg-purple-500/10'
-                          : 'border-l-transparent hover:border-l-purple-400'
-                      }`}
-                      onClick={() => handleConversationSelect(conversation.id)}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-white text-sm">
-                          {conversation.memberName}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          {conversation.unreadCount > 0 && (
-                            <Badge className="bg-purple-500 text-white text-xs h-5 px-2">
-                              {conversation.unreadCount}
-                            </Badge>
-                          )}
-                          <span className="text-xs text-gray-400">
-                            {conversation.lastActivity ? formatDistanceToNow(new Date(conversation.lastActivity), { addSuffix: true }) : 'Just now'}
-                          </span>
-                        </div>
+          ) : conversations.length === 0 ? (
+            <div className="p-6 text-center text-gray-400">
+              No conversations yet
+            </div>
+          ) : (
+            <div className="space-y-2 p-4">
+              {conversations.map((conversation, index) => (
+                <motion.div
+                  key={conversation.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="p-3 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 cursor-pointer group"
+                  onClick={() => {
+                    setSelectedConversation(conversation.id);
+                    if (conversation.unreadCount > 0) {
+                      markAsReadMutation.mutate(conversation.id);
+                    }
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={conversation.participant?.avatar} />
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                          {conversation.participant?.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 ${getStatusDot(conversation.participant?.role || '')} rounded-full border-2 border-gray-900`} />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-white font-medium truncate">
+                          {conversation.participant?.username}
+                        </h4>
+                        {conversation.unreadCount > 0 && (
+                          <Badge className="bg-blue-500 text-white text-xs">
+                            {conversation.unreadCount}
+                          </Badge>
+                        )}
                       </div>
                       
-                      <p className="text-xs text-gray-400 truncate">
-                        {conversation.lastMessage}
+                      <p className={`text-xs mt-0.5 ${getRoleColor(conversation.participant?.role || '')}`}>
+                        {conversation.participant?.role}
                       </p>
                       
-                      <div className="flex items-center justify-between mt-2">
-                        <Badge 
-                          variant={conversation.status === 'active' ? 'default' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {conversation.status}
-                        </Badge>
-                        <Dot className={`h-4 w-4 ${
-                          conversation.status === 'active' ? 'text-green-400' :
-                          conversation.status === 'pending' ? 'text-yellow-400' : 'text-gray-400'
-                        }`} />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-          
-          {/* Message Thread */}
-          {selectedConversation && (
-            <div className="w-2/3 flex flex-col">
-              <div className="p-4 border-b border-purple-500/20">
-                <h4 className="font-medium text-white">
-                  {conversations.find(c => c.id === selectedConversation)?.memberName}
-                </h4>
-                <p className="text-xs text-gray-400">
-                  Conversation ID: {selectedConversation}
-                </p>
-              </div>
-              
-              <ScrollArea className="flex-1 p-4">
-                {messagesLoading ? (
-                  <div className="text-center text-gray-400">
-                    <Clock className="h-6 w-6 mx-auto mb-2 animate-spin" />
-                    Loading messages...
+                      {conversation.lastMessage && (
+                        <p className="text-sm text-gray-400 truncate mt-1">
+                          {conversation.lastMessage.content}
+                        </p>
+                      )}
+                      
+                      {conversation.lastMessage && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formatDistanceToNow(new Date(conversation.lastMessage.createdAt), { addSuffix: true })}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                ) : messages.length === 0 ? (
-                  <div className="text-center text-gray-400">
-                    <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                    No messages yet
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {messages.map((message) => (
-                      <motion.div
-                        key={message.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex ${message.senderId === user.id ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-[80%] p-3 rounded-lg ${
-                          message.senderId === user.id
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-gray-800 text-gray-200'
-                        }`}>
-                          <p className="text-sm">{message.content}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-              
-              <div className="p-4 border-t border-purple-500/20">
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder="Type your message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    className="flex-1 bg-gray-800/50 border-purple-500/20 text-white placeholder-gray-400 resize-none"
-                    rows={2}
-                  />
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim() || sendMessageMutation.isPending}
-                    className="bg-purple-500 hover:bg-purple-600 text-white"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+                </motion.div>
+              ))}
             </div>
           )}
+        </ScrollArea>
+        
+        <div className="border-t border-gray-700/50 p-4">
+          <Button 
+            variant="outline" 
+            className="w-full border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white"
+          >
+            View All Messages
+          </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default MessagesDropdown;
