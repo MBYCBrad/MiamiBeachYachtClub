@@ -98,7 +98,21 @@ export interface IStorage {
   // Message methods
   getConversations(userId: number): Promise<any[]>;
   getMessages(conversationId: string): Promise<Message[]>;
+  getAllMessages(): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
+  updateMessage(id: number, message: Partial<InsertMessage>): Promise<Message | undefined>;
+
+  // Conversation methods
+  getConversationByMember(memberId: number): Promise<Conversation | undefined>;
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  updateConversation(id: string, conversation: Partial<InsertConversation>): Promise<Conversation | undefined>;
+
+  // Phone Call methods
+  getPhoneCalls(): Promise<PhoneCall[]>;
+  getPhoneCall(id: string): Promise<PhoneCall | undefined>;
+  createPhoneCall(phoneCall: InsertPhoneCall): Promise<PhoneCall>;
+  updatePhoneCall(id: string, phoneCall: Partial<InsertPhoneCall>): Promise<PhoneCall | undefined>;
+  getPhoneCallsByMember(memberId: number): Promise<PhoneCall[]>;
   markMessageAsRead(id: number): Promise<Message | undefined>;
 
   // Notification methods
@@ -1264,6 +1278,56 @@ export class DatabaseStorage implements IStorage {
     };
     
     return await this.createYachtValuation(valuation);
+  }
+
+  // Message system methods
+  async getAllMessages(): Promise<Message[]> {
+    return await db.select().from(messages).orderBy(desc(messages.createdAt));
+  }
+
+  async updateMessage(id: number, message: Partial<InsertMessage>): Promise<Message | undefined> {
+    const [updated] = await db.update(messages).set(message).where(eq(messages.id, id)).returning();
+    return updated || undefined;
+  }
+
+  // Conversation methods
+  async getConversationByMember(memberId: number): Promise<Conversation | undefined> {
+    const [conversation] = await db.select().from(conversations).where(eq(conversations.memberId, memberId));
+    return conversation || undefined;
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const [created] = await db.insert(conversations).values(conversation).returning();
+    return created;
+  }
+
+  async updateConversation(id: string, conversation: Partial<InsertConversation>): Promise<Conversation | undefined> {
+    const [updated] = await db.update(conversations).set(conversation).where(eq(conversations.id, id)).returning();
+    return updated || undefined;
+  }
+
+  // Phone Call methods
+  async getPhoneCalls(): Promise<PhoneCall[]> {
+    return await db.select().from(phoneCalls).orderBy(desc(phoneCalls.startTime));
+  }
+
+  async getPhoneCall(id: string): Promise<PhoneCall | undefined> {
+    const [call] = await db.select().from(phoneCalls).where(eq(phoneCalls.id, id));
+    return call || undefined;
+  }
+
+  async createPhoneCall(phoneCall: InsertPhoneCall): Promise<PhoneCall> {
+    const [created] = await db.insert(phoneCalls).values(phoneCall).returning();
+    return created;
+  }
+
+  async updatePhoneCall(id: string, phoneCall: Partial<InsertPhoneCall>): Promise<PhoneCall | undefined> {
+    const [updated] = await db.update(phoneCalls).set(phoneCall).where(eq(phoneCalls.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async getPhoneCallsByMember(memberId: number): Promise<PhoneCall[]> {
+    return await db.select().from(phoneCalls).where(eq(phoneCalls.memberId, memberId)).orderBy(desc(phoneCalls.startTime));
   }
 }
 

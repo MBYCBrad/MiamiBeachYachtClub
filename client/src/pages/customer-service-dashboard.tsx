@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Phone, 
   Search,
@@ -25,54 +25,105 @@ import {
   Calendar,
   MessageSquare,
   X,
-  Info
+  Info,
+  Crown,
+  Star,
+  Anchor
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import type { PhoneCall as PhoneCallType, User as UserType } from "@shared/schema";
+
+const keypadNumbers = [
+  ['1', '2', '3'],
+  ['4', '5', '6'], 
+  ['7', '8', '9'],
+  ['*', '0', '#']
+];
+
+interface CallSession {
+  id: string;
+  contact: UserType;
+  startTime: Date;
+  status: 'ringing' | 'connected' | 'on-hold';
+  duration: number;
+}
 
 export default function CustomerServiceDashboard() {
   const [activeTab, setActiveTab] = useState<'contacts' | 'recents' | 'keypad'>('contacts');
   const [recentsSubTab, setRecentsSubTab] = useState<'all' | 'missed'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [dialNumber, setDialNumber] = useState("");
-  const [isCallActive, setIsCallActive] = useState(false);
+  const [activeCall, setActiveCall] = useState<CallSession | null>(null);
   const [selectedContact, setSelectedContact] = useState<UserType | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [callTimer, setCallTimer] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout>();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   // Fetch phone calls for recents
   const { data: phoneCalls = [], isLoading: callsLoading } = useQuery<PhoneCallType[]>({
     queryKey: ["/api/phone-calls"],
+    staleTime: 30000,
+    cacheTime: 300000
   });
 
   // Fetch all users for contacts
   const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
     queryKey: ["/api/admin/users"],
+    staleTime: 60000,
+    cacheTime: 300000
   });
 
-  // Filter contacts based on search
+  // Filter contacts based on search and exclude admin users
   const filteredContacts = users.filter(user => 
-    user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    user.role !== 'admin' &&
+    (user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     user.membershipTier?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // Filter recent calls
   const filteredRecents = phoneCalls.filter(call => {
-    const matchesSearch = call.caller_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         call.phone_number?.includes(searchQuery);
+    const matchesSearch = call.memberName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         call.memberPhone?.includes(searchQuery);
     
     if (recentsSubTab === 'missed') {
-      return matchesSearch && call.status === 'missed';
+      return matchesSearch && (call.status === 'missed' || call.status === 'no-answer');
     }
     return matchesSearch;
   });
 
   // Get contact call history
   const contactCallHistory = selectedContact ? phoneCalls.filter(call => 
-    call.phone_number === selectedContact.phone
+    call.memberPhone === selectedContact.phone
   ) : [];
+
+  // Call timer effect
+  useEffect(() => {
+    if (activeCall && activeCall.status === 'connected') {
+      timerRef.current = setInterval(() => {
+        setCallTimer(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [activeCall]);
+
+  const formatCallDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const openContactModal = (contact: UserType) => {
     setSelectedContact(contact);
@@ -86,29 +137,54 @@ export default function CustomerServiceDashboard() {
 
   // Make call mutation
   const makeCallMutation = useMutation({
-    mutationFn: async (phoneNumber: string) => {
+    mutationFn: async (data: { phoneNumber: string; memberName: string; memberId?: number }) => {
       const response = await fetch('/api/phone-calls/outbound', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          phone_number: phoneNumber,
-          caller_name: 'Customer Service',
-          reason: 'Outbound customer service call'
+          phone_number: data.phoneNumber,
+          member_name: data.memberName,
+          member_id: data.memberId,
+          reason: 'Customer service outbound call'
         })
       });
-      if (!response.ok) throw new Error('Failed to make call');
+      if (!response.ok) throw new Error('Failed to initiate call');
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
-      setDialNumber("");
-      setIsCallActive(true);
-      toast({
-        title: "Call Connected",
-        description: `Calling ${formatPhoneNumber(dialNumber)}...`,
+    onSuccess: (callData, variables) => {
+      const contact = users.find(u => u.phone === variables.phoneNumber) || {
+        id: 0,
+        username: variables.memberName,
+        phone: variables.phoneNumber,
+        membershipTier: 'bronze'
+      } as UserType;
+
+      setActiveCall({
+        id: callData.call_sid,
+        contact,
+        startTime: new Date(),
+        status: 'ringing',
+        duration: 0
       });
-      // Auto-end call after 30 seconds for demo
-      setTimeout(() => setIsCallActive(false), 30000);
+      
+      setCallTimer(0);
+      
+      toast({
+        title: "Call Initiated",
+        description: `Calling ${variables.memberName}...`,
+      });
+
+      // Simulate call progression
+      setTimeout(() => {
+        setActiveCall(prev => prev ? { ...prev, status: 'connected' } : null);
+        toast({
+          title: "Call Connected",
+          description: `Connected to ${variables.memberName}`,
+        });
+      }, 3000);
+
+      // Refresh calls data
+      queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
     },
     onError: (error: Error) => {
       toast({
@@ -116,541 +192,572 @@ export default function CustomerServiceDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const handleKeypadPress = (digit: string) => {
-    if (dialNumber.length < 15) {
-      setDialNumber(prev => prev + digit);
+  const handleKeypadPress = (key: string) => {
+    if (key === '*' || key === '#') {
+      setDialNumber(prev => prev + key);
+    } else {
+      setDialNumber(prev => prev + key);
     }
   };
 
-  const handleKeypadDelete = () => {
-    setDialNumber(prev => prev.slice(0, -1));
+  const clearDialNumber = () => {
+    setDialNumber("");
   };
 
-  const formatPhoneNumber = (number: string) => {
-    const cleaned = number.replace(/\D/g, '');
-    if (cleaned.length >= 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+  const makeCall = (phoneNumber: string, memberName?: string, memberId?: number) => {
+    if (!phoneNumber) {
+      toast({
+        title: "Invalid Number",
+        description: "Please enter a valid phone number",
+        variant: "destructive",
+      });
+      return;
     }
-    return number;
+
+    makeCallMutation.mutate({
+      phoneNumber,
+      memberName: memberName || phoneNumber,
+      memberId
+    });
   };
 
-  const getCallTypeIcon = (call: PhoneCallType) => {
-    if (call.status === 'missed') return <PhoneMissed className="h-4 w-4 text-red-400" />;
-    if (call.direction === 'inbound') return <PhoneIncoming className="h-4 w-4 text-green-400" />;
-    return <PhoneOutgoing className="h-4 w-4 text-blue-400" />;
+  const endCall = () => {
+    if (activeCall) {
+      // Update call record with end time and duration
+      fetch(`/api/phone-calls/${activeCall.id}/end`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          duration: callTimer,
+          status: 'completed'
+        })
+      });
+
+      toast({
+        title: "Call Ended",
+        description: `Call duration: ${formatCallDuration(callTimer)}`,
+      });
+    }
+
+    setActiveCall(null);
+    setCallTimer(0);
+    queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'text-red-400';
-      case 'yacht_owner': return 'text-blue-400';
-      case 'service_provider': return 'text-purple-400';
-      case 'member': return 'text-green-400';
-      default: return 'text-gray-400';
+  const getMembershipIcon = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+      case 'platinum': return <Crown className="h-4 w-4 text-purple-400" />;
+      case 'gold': return <Star className="h-4 w-4 text-yellow-400" />;
+      case 'silver': return <Anchor className="h-4 w-4 text-gray-400" />;
+      default: return <User className="h-4 w-4 text-bronze-400" />;
     }
   };
 
-  const keypadButtons = [
-    [{ digit: '1', letters: '' }, { digit: '2', letters: 'ABC' }, { digit: '3', letters: 'DEF' }],
-    [{ digit: '4', letters: 'GHI' }, { digit: '5', letters: 'JKL' }, { digit: '6', letters: 'MNO' }],
-    [{ digit: '7', letters: 'PQRS' }, { digit: '8', letters: 'TUV' }, { digit: '9', letters: 'WXYZ' }],
-    [{ digit: '*', letters: '' }, { digit: '0', letters: '+' }, { digit: '#', letters: '' }]
-  ];
+  const getMembershipColor = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+      case 'platinum': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+      case 'gold': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+      case 'silver': return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      default: return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 mt-16">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Customer Service Dashboard</h1>
-              <p className="text-lg text-gray-400">Manage customer calls and communications</p>
-            </div>
-            {isCallActive && (
-              <motion.div 
-                className="flex items-center gap-3 bg-green-500/20 border border-green-500/30 rounded-lg px-4 py-2"
-                animate={{ opacity: [1, 0.7, 1] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                <Volume2 className="h-5 w-5 text-green-400" />
-                <span className="text-green-400 font-medium">Call Active</span>
-              </motion.div>
-            )}
-          </div>
+        <div className="text-center mb-8">
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2"
+          >
+            Customer Service Center
+          </motion.h1>
+          <p className="text-gray-400">Premium yacht club member support system</p>
         </div>
 
-        {/* Main Interface Card */}
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Phone className="h-6 w-6 text-blue-400" />
-              Communication Center
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent>
-            {/* Tab Navigation */}
-            <div className="flex space-x-2 mb-8 bg-gray-700/30 rounded-xl p-2">
-              {[
-                { key: 'contacts', label: 'Contacts', icon: Users, count: filteredContacts.length },
-                { key: 'recents', label: 'Recent Calls', icon: History, count: filteredRecents.length },
-                { key: 'keypad', label: 'Dial Pad', icon: Calculator, count: null }
-              ].map(({ key, label, icon: Icon, count }) => (
-                <button
-                  key={key}
-                  onClick={() => setActiveTab(key as any)}
-                  className={`flex-1 py-4 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-3 relative ${
-                    activeTab === key 
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/20' 
-                      : 'text-gray-400 hover:text-white hover:bg-gray-600/50'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{label}</span>
-                  {count !== null && (
-                    <Badge variant="secondary" className="ml-2 bg-white/10 text-white">
-                      {count}
-                    </Badge>
-                  )}
-                </button>
-              ))}
-            </div>
+        {/* Active Call Display */}
+        <AnimatePresence>
+          {activeCall && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="mb-6"
+            >
+              <Card className="border-green-500/50 bg-green-500/10">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                          <User className="h-6 w-6 text-green-400" />
+                        </div>
+                        {activeCall.status === 'connected' && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-white">{activeCall.contact.username}</h3>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={getMembershipColor(activeCall.contact.membershipTier || 'bronze')}>
+                            {getMembershipIcon(activeCall.contact.membershipTier || 'bronze')}
+                            {activeCall.contact.membershipTier?.toUpperCase()}
+                          </Badge>
+                          <span className="text-gray-400 text-sm">{activeCall.contact.phone}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-mono text-white mb-1">
+                        {formatCallDuration(callTimer)}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={activeCall.status === 'connected' ? 'default' : 'secondary'}>
+                          {activeCall.status === 'ringing' && <Phone className="h-3 w-3 mr-1 animate-pulse" />}
+                          {activeCall.status === 'connected' && <PhoneCall className="h-3 w-3 mr-1" />}
+                          {activeCall.status.toUpperCase()}
+                        </Badge>
+                        <Button
+                          onClick={endCall}
+                          variant="destructive"
+                          size="sm"
+                          className="bg-red-500 hover:bg-red-600"
+                        >
+                          <Phone className="h-4 w-4 mr-1" />
+                          End Call
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Tab Content */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
+        {/* Main Interface */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Phone Interface */}
+          <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Phone className="h-5 w-5 mr-2 text-purple-400" />
+                Phone System
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Tab Navigation */}
+              <div className="flex space-x-1 mb-6 bg-slate-900/50 p-1 rounded-lg">
+                {[
+                  { id: 'contacts', label: 'Contacts', icon: Users },
+                  { id: 'recents', label: 'Recents', icon: History }, 
+                  { id: 'keypad', label: 'Keypad', icon: Calculator }
+                ].map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id as any)}
+                    className={`flex-1 flex items-center justify-center py-2 px-3 rounded-md transition-all ${
+                      activeTab === id 
+                        ? 'bg-purple-500 text-white' 
+                        : 'text-gray-400 hover:text-white hover:bg-slate-700'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 mr-1" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Bar */}
+              {activeTab !== 'keypad' && (
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder={`Search ${activeTab}...`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-slate-900/50 border-slate-600 text-white"
+                  />
+                </div>
+              )}
+
+              {/* Tab Content */}
+              <div className="h-96 overflow-y-auto">
                 {/* Contacts Tab */}
                 {activeTab === 'contacts' && (
-                  <div className="space-y-6">
-                    {/* Search */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="Search contacts..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400"
-                      />
-                    </div>
-
-                    {/* Contact List */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                      {usersLoading ? (
-                        <div className="col-span-full text-center py-8 text-gray-400">Loading contacts...</div>
-                      ) : filteredContacts.length === 0 ? (
-                        <div className="col-span-full text-center py-8 text-gray-400">No contacts found</div>
-                      ) : (
-                        filteredContacts.map((user) => (
-                          <Card 
-                            key={user.id} 
-                            className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-900/50 transition-colors cursor-pointer w-full"
-                            onClick={() => openContactModal(user)}
-                          >
-                            <CardContent className="p-4 w-full">
-                              <div className="flex items-center justify-between w-full min-w-0">
-                                <div className="flex items-center space-x-3 min-w-0 flex-1">
-                                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                                    {user.username?.charAt(0).toUpperCase()}
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-white font-medium truncate">{user.username}</p>
-                                    <p className={`text-sm capitalize truncate ${getRoleColor(user.role || '')}`}>
-                                      {user.role?.replace('_', ' ')}
-                                    </p>
-                                  </div>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    user.phone && makeCallMutation.mutate(user.phone);
-                                  }}
-                                  disabled={!user.phone || makeCallMutation.isPending}
-                                  className="bg-green-500 hover:bg-green-600 flex-shrink-0 ml-2"
-                                >
-                                  <Phone className="h-4 w-4" />
-                                </Button>
+                  <div className="space-y-2">
+                    {usersLoading ? (
+                      <div className="text-center py-8 text-gray-400">Loading contacts...</div>
+                    ) : filteredContacts.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400">No contacts found</div>
+                    ) : (
+                      filteredContacts.map((contact) => (
+                        <motion.div
+                          key={contact.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg hover:bg-slate-700/50 transition-all cursor-pointer"
+                          onClick={() => openContactModal(contact)}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                              <User className="h-5 w-5 text-purple-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-white">{contact.username}</h4>
+                              <div className="flex items-center space-x-2">
+                                <Badge className={getMembershipColor(contact.membershipTier || 'bronze')} variant="outline">
+                                  {getMembershipIcon(contact.membershipTier || 'bronze')}
+                                  {contact.membershipTier?.toUpperCase()}
+                                </Badge>
+                                {contact.phone && (
+                                  <span className="text-xs text-gray-400">{contact.phone}</span>
+                                )}
                               </div>
-                            </CardContent>
-                          </Card>
-                        ))
-                      )}
-                    </div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              makeCall(contact.phone || '', contact.username, contact.id);
+                            }}
+                            className="bg-green-500 hover:bg-green-600"
+                            disabled={!contact.phone || makeCallMutation.isPending}
+                          >
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
+                      ))
+                    )}
                   </div>
                 )}
 
                 {/* Recents Tab */}
                 {activeTab === 'recents' && (
-                  <div className="space-y-6">
-                    {/* Sub-tabs */}
-                    <div className="flex space-x-2">
-                      {[
-                        { key: 'all', label: 'All Calls' },
-                        { key: 'missed', label: 'Missed Calls' }
-                      ].map(({ key, label }) => (
-                        <button
-                          key={key}
-                          onClick={() => setRecentsSubTab(key as any)}
-                          className={`px-4 py-2 rounded-lg transition-colors ${
-                            recentsSubTab === key 
-                              ? 'bg-blue-500 text-white' 
-                              : 'text-gray-400 hover:text-white'
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
+                  <>
+                    {/* Recents Sub-tabs */}
+                    <div className="flex space-x-1 mb-4 bg-slate-900/50 p-1 rounded-lg">
+                      <button
+                        onClick={() => setRecentsSubTab('all')}
+                        className={`flex-1 py-1 px-2 rounded text-sm transition-all ${
+                          recentsSubTab === 'all' 
+                            ? 'bg-slate-700 text-white' 
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        All Calls
+                      </button>
+                      <button
+                        onClick={() => setRecentsSubTab('missed')}
+                        className={`flex-1 py-1 px-2 rounded text-sm transition-all ${
+                          recentsSubTab === 'missed' 
+                            ? 'bg-slate-700 text-white' 
+                            : 'text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        Missed
+                      </button>
                     </div>
 
-                    {/* Search */}
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="Search call history..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400"
-                      />
-                    </div>
-
-                    {/* Call History */}
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    <div className="space-y-2">
                       {callsLoading ? (
                         <div className="text-center py-8 text-gray-400">Loading call history...</div>
                       ) : filteredRecents.length === 0 ? (
-                        <div className="text-center py-8 text-gray-400">No calls found</div>
+                        <div className="text-center py-8 text-gray-400">No recent calls</div>
                       ) : (
                         filteredRecents.map((call) => (
-                          <Card key={call.id} className="bg-gray-700/30 border-gray-600">
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  {getCallTypeIcon(call)}
-                                  <div>
-                                    <p className="text-white font-medium">{call.caller_name || 'Unknown'}</p>
-                                    <p className="text-gray-400 text-sm">{formatPhoneNumber(call.phone_number || '')}</p>
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-gray-400 text-sm">
-                                    {call.created_at ? new Date(call.created_at).toLocaleTimeString() : ''}
-                                  </p>
-                                  <Badge 
-                                    variant={call.status === 'missed' ? 'destructive' : 'secondary'}
-                                    className="mt-1"
-                                  >
-                                    {call.status}
-                                  </Badge>
+                          <motion.div
+                            key={call.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center justify-between p-3 bg-slate-900/30 rounded-lg hover:bg-slate-700/50 transition-all"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="text-gray-400">
+                                {call.direction === 'inbound' ? (
+                                  call.status === 'missed' ? 
+                                    <PhoneMissed className="h-5 w-5 text-red-400" /> :
+                                    <PhoneIncoming className="h-5 w-5 text-green-400" />
+                                ) : (
+                                  <PhoneOutgoing className="h-5 w-5 text-blue-400" />
+                                )}
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-white">{call.memberName}</h4>
+                                <div className="flex items-center space-x-2 text-xs text-gray-400">
+                                  <span>{call.memberPhone}</span>
+                                  <span>•</span>
+                                  <span>{new Date(call.startTime).toLocaleDateString()}</span>
+                                  {call.duration && (
+                                    <>
+                                      <span>•</span>
+                                      <span>{formatCallDuration(call.duration)}</span>
+                                    </>
+                                  )}
                                 </div>
                               </div>
-                            </CardContent>
-                          </Card>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => makeCall(call.memberPhone, call.memberName)}
+                              disabled={makeCallMutation.isPending}
+                            >
+                              <Phone className="h-4 w-4" />
+                            </Button>
+                          </motion.div>
                         ))
                       )}
                     </div>
-                  </div>
+                  </>
                 )}
 
                 {/* Keypad Tab */}
                 {activeTab === 'keypad' && (
-                  <div className="max-w-md mx-auto space-y-8">
+                  <div className="space-y-4">
                     {/* Display */}
-                    <div className="text-center">
-                      <div className="bg-gray-700/50 rounded-lg p-6 mb-4">
-                        <p className="text-2xl font-mono text-white mb-2">
-                          {dialNumber || "Enter number"}
-                        </p>
-                        <p className="text-gray-400 text-sm">
-                          {dialNumber ? formatPhoneNumber(dialNumber) : "Use keypad to dial"}
-                        </p>
+                    <div className="bg-slate-900/50 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-mono text-white min-h-[2rem] flex items-center justify-center">
+                        {dialNumber || "Enter number"}
                       </div>
                     </div>
 
                     {/* Keypad */}
-                    <div className="grid grid-cols-3 gap-4">
-                      {keypadButtons.flat().map(({ digit, letters }) => (
+                    <div className="grid grid-cols-3 gap-3">
+                      {keypadNumbers.flat().map((num) => (
                         <Button
-                          key={digit}
-                          onClick={() => handleKeypadPress(digit)}
-                          className="h-16 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 text-white text-xl font-semibold flex flex-col items-center justify-center"
+                          key={num}
+                          onClick={() => handleKeypadPress(num)}
+                          className="h-12 text-xl font-bold bg-slate-700 hover:bg-slate-600 border-slate-600"
+                          disabled={makeCallMutation.isPending}
                         >
-                          <span>{digit}</span>
-                          {letters && <span className="text-xs text-gray-400">{letters}</span>}
+                          {num}
                         </Button>
                       ))}
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex justify-center space-x-4">
+                    <div className="flex space-x-2">
                       <Button
-                        onClick={handleKeypadDelete}
-                        disabled={!dialNumber}
-                        variant="outline"
-                        className="border-gray-600 text-gray-400 hover:text-white"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      
-                      <Button
-                        onClick={() => makeCallMutation.mutate(dialNumber)}
+                        onClick={() => makeCall(dialNumber)}
                         disabled={!dialNumber || makeCallMutation.isPending}
-                        className="bg-green-500 hover:bg-green-600 px-8"
+                        className="flex-1 bg-green-500 hover:bg-green-600"
                       >
                         <Phone className="h-4 w-4 mr-2" />
                         Call
                       </Button>
+                      <Button
+                        onClick={clearDialNumber}
+                        variant="outline"
+                        className="border-slate-600 text-gray-300 hover:text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 )}
-              </motion.div>
-            </AnimatePresence>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Contact Detail Modal */}
-        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
-          <DialogContent className="max-w-2xl bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
-                    {selectedContact?.username?.charAt(0).toUpperCase()}
+          {/* Quick Stats */}
+          <div className="space-y-6">
+            {/* Call Statistics */}
+            <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Volume2 className="h-5 w-5 mr-2 text-blue-400" />
+                  Call Statistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-slate-900/30 rounded-lg">
+                    <div className="text-2xl font-bold text-green-400">
+                      {phoneCalls.filter(c => c.status === 'completed').length}
+                    </div>
+                    <div className="text-sm text-gray-400">Completed</div>
                   </div>
-                  <div>
-                    <DialogTitle className="text-white text-xl">
-                      {selectedContact?.username}
-                    </DialogTitle>
-                    <p className={`text-sm capitalize ${getRoleColor(selectedContact?.role || '')}`}>
-                      {selectedContact?.role?.replace('_', ' ')}
-                    </p>
+                  <div className="text-center p-4 bg-slate-900/30 rounded-lg">
+                    <div className="text-2xl font-bold text-red-400">
+                      {phoneCalls.filter(c => c.status === 'missed').length}
+                    </div>
+                    <div className="text-sm text-gray-400">Missed</div>
+                  </div>
+                  <div className="text-center p-4 bg-slate-900/30 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-400">
+                      {phoneCalls.filter(c => c.direction === 'inbound').length}
+                    </div>
+                    <div className="text-sm text-gray-400">Inbound</div>
+                  </div>
+                  <div className="text-center p-4 bg-slate-900/30 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-400">
+                      {phoneCalls.filter(c => c.direction === 'outbound').length}
+                    </div>
+                    <div className="text-sm text-gray-400">Outbound</div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Member Tier Distribution */}
+            <Card className="border-slate-700 bg-slate-800/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <UserCheck className="h-5 w-5 mr-2 text-purple-400" />
+                  Member Tiers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {['platinum', 'gold', 'silver', 'bronze'].map((tier) => {
+                    const count = filteredContacts.filter(c => c.membershipTier?.toLowerCase() === tier).length;
+                    const percentage = filteredContacts.length > 0 ? (count / filteredContacts.length) * 100 : 0;
+                    
+                    return (
+                      <div key={tier} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {getMembershipIcon(tier)}
+                          <span className="text-white capitalize">{tier}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-500 ${
+                                tier === 'platinum' ? 'bg-purple-500' :
+                                tier === 'gold' ? 'bg-yellow-500' :
+                                tier === 'silver' ? 'bg-gray-500' : 'bg-orange-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-300 text-sm min-w-[2rem]">{count}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Contact Details Modal */}
+        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+          <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <User className="h-5 w-5 text-purple-400" />
+                <span>Contact Details</span>
                 <Button
-                  onClick={closeContactModal}
                   variant="ghost"
                   size="sm"
-                  className="text-gray-400 hover:text-white"
+                  onClick={closeContactModal}
+                  className="ml-auto"
                 >
                   <X className="h-4 w-4" />
                 </Button>
-              </div>
+              </DialogTitle>
             </DialogHeader>
-
+            
             {selectedContact && (
-              <div className="space-y-6 mt-6">
-                {/* Contact Information */}
-                <Card className="bg-gray-700/30 border-gray-600">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Info className="h-5 w-5 text-blue-400" />
-                      Contact Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-3">
-                        <User className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Username</p>
-                          <p className="text-white">{selectedContact.username}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Phone</p>
-                          <p className="text-white">{selectedContact.phone || 'Not provided'}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Email</p>
-                          <p className="text-white">{selectedContact.email || 'Not provided'}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <MapPin className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Location</p>
-                          <p className="text-white">{selectedContact.location || 'Not provided'}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Member Since</p>
-                          <p className="text-white">
-                            {selectedContact.createdAt 
-                              ? new Date(selectedContact.createdAt).toLocaleDateString()
-                              : 'Unknown'
-                            }
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <UserCheck className="h-4 w-4 text-gray-400" />
-                        <div>
-                          <p className="text-gray-400 text-sm">Membership Tier</p>
-                          <p className="text-white capitalize">
-                            {selectedContact.membershipTier || 'Not specified'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Call History */}
-                <Card className="bg-gray-700/30 border-gray-600">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <History className="h-5 w-5 text-blue-400" />
-                      Call History
-                      <Badge variant="secondary" className="ml-2 bg-white/10 text-white">
-                        {contactCallHistory.length}
+              <div className="space-y-6">
+                {/* Contact Info */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <User className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold">{selectedContact.username}</h3>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Badge className={getMembershipColor(selectedContact.membershipTier || 'bronze')}>
+                        {getMembershipIcon(selectedContact.membershipTier || 'bronze')}
+                        {selectedContact.membershipTier?.toUpperCase()} MEMBER
                       </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {contactCallHistory.length === 0 ? (
-                      <div className="text-center py-8 text-gray-400">
-                        No call history found
-                      </div>
-                    ) : (
-                      <div className="space-y-3 max-h-64 overflow-y-auto">
-                        {contactCallHistory.map((call) => (
-                          <div 
-                            key={call.id} 
-                            className="flex items-center justify-between p-3 bg-gray-600/30 rounded-lg"
-                          >
-                            <div className="flex items-center space-x-3">
-                              {getCallTypeIcon(call)}
-                              <div>
-                                <p className="text-white text-sm">
-                                  {call.direction === 'inbound' ? 'Incoming' : 'Outgoing'} Call
-                                </p>
-                                <p className="text-gray-400 text-xs">
-                                  {call.created_at 
-                                    ? new Date(call.created_at).toLocaleString()
-                                    : 'Unknown time'
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-gray-400 text-xs">Duration</p>
-                              <p className="text-white text-sm">
-                                {call.duration ? `${call.duration}s` : 'Unknown'}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Quick Actions */}
-                <Card className="bg-gray-700/30 border-gray-600">
-                  <CardHeader>
-                    <CardTitle className="text-white">Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-3">
-                      <Button
-                        onClick={() => {
-                          if (selectedContact.phone) {
-                            makeCallMutation.mutate(selectedContact.phone);
-                          }
-                        }}
-                        disabled={!selectedContact.phone || makeCallMutation.isPending}
-                        className="bg-green-500 hover:bg-green-600"
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        Call Now
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Send Message
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
-                      >
-                        <Mail className="h-4 w-4 mr-2" />
-                        Send Email
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          if (selectedContact.phone) {
-                            setDialNumber(selectedContact.phone);
-                            setActiveTab('keypad');
-                            closeContactModal();
-                          }
-                        }}
-                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-600"
-                      >
-                        <Calculator className="h-4 w-4 mr-2" />
-                        Add to Dialpad
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Additional Notes */}
-                <Card className="bg-gray-700/30 border-gray-600">
-                  <CardHeader>
-                    <CardTitle className="text-white">Notes & Comments</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="p-3 bg-gray-600/30 rounded-lg">
-                        <p className="text-gray-400 text-sm">Last interaction</p>
-                        <p className="text-white">
-                          {contactCallHistory.length > 0 
-                            ? `Last call: ${new Date(contactCallHistory[0].created_at!).toLocaleDateString()}`
-                            : 'No previous interactions'
-                          }
-                        </p>
-                      </div>
-                      
-                      <div className="p-3 bg-gray-600/30 rounded-lg">
-                        <p className="text-gray-400 text-sm">Total calls</p>
-                        <p className="text-white">{contactCallHistory.length} calls</p>
-                      </div>
-                      
-                      {selectedContact.role === 'member' && (
-                        <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                          <p className="text-blue-400 text-sm">Member Status</p>
-                          <p className="text-white">Active MBYC Member</p>
+                    <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                      {selectedContact.email && (
+                        <div className="flex items-center space-x-2">
+                          <Mail className="h-4 w-4 text-gray-400" />
+                          <span>{selectedContact.email}</span>
                         </div>
                       )}
+                      {selectedContact.phone && (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="h-4 w-4 text-gray-400" />
+                          <span>{selectedContact.phone}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span>Joined {new Date(selectedContact.createdAt || '').toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Info className="h-4 w-4 text-gray-400" />
+                        <span>ID: {selectedContact.id}</span>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
+
+                {/* Call History */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center">
+                    <History className="h-4 w-4 mr-2 text-blue-400" />
+                    Call History ({contactCallHistory.length})
+                  </h4>
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {contactCallHistory.length === 0 ? (
+                      <p className="text-gray-400 text-sm">No call history</p>
+                    ) : (
+                      contactCallHistory.map((call) => (
+                        <div key={call.id} className="flex items-center justify-between p-2 bg-slate-900/30 rounded">
+                          <div className="flex items-center space-x-2">
+                            {call.direction === 'inbound' ? (
+                              <PhoneIncoming className="h-4 w-4 text-green-400" />
+                            ) : (
+                              <PhoneOutgoing className="h-4 w-4 text-blue-400" />
+                            )}
+                            <span className="text-sm">{new Date(call.startTime).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm text-gray-400">
+                            <Badge variant={call.status === 'completed' ? 'default' : 'secondary'}>
+                              {call.status}
+                            </Badge>
+                            {call.duration && <span>{formatCallDuration(call.duration)}</span>}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <Button
+                    onClick={() => {
+                      if (selectedContact.phone) {
+                        makeCall(selectedContact.phone, selectedContact.username, selectedContact.id);
+                        closeContactModal();
+                      }
+                    }}
+                    disabled={!selectedContact.phone || makeCallMutation.isPending}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Call Now
+                  </Button>
+                  <Button variant="outline" className="border-slate-600">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Send Message
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
