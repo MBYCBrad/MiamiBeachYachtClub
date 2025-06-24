@@ -89,7 +89,9 @@ export default function YachtMaintenance() {
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: ['/api/maintenance/records'],
     staleTime: 0,
-    cacheTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: conditionAssessments = [], isLoading: assessmentsLoading } = useQuery({
@@ -150,7 +152,9 @@ export default function YachtMaintenance() {
     },
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
-      // Force immediate refresh of maintenance data
+      // Force immediate refresh of maintenance data with cache bypass
+      queryClient.removeQueries({ queryKey: ['/api/maintenance/records'] });
+      queryClient.removeQueries({ queryKey: ['/api/maintenance/schedules'] });
       refetchRecords();
       refetchSchedules();
       scheduleMaintenanceForm.reset();
@@ -701,10 +705,10 @@ export default function YachtMaintenance() {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="bg-gray-800 border-gray-700">
-                                    <SelectItem value="low">Low</SelectItem>
-                                    <SelectItem value="medium">Medium</SelectItem>
-                                    <SelectItem value="high">High</SelectItem>
-                                    <SelectItem value="critical">Critical</SelectItem>
+                                    <SelectItem value="low" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Low</SelectItem>
+                                    <SelectItem value="medium" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Medium</SelectItem>
+                                    <SelectItem value="high" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">High</SelectItem>
+                                    <SelectItem value="critical" className="text-white data-[highlighted]:bg-gradient-to-r data-[highlighted]:from-purple-600 data-[highlighted]:to-blue-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600">Critical</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </FormControl>
@@ -799,7 +803,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
+                {maintenanceRecords && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
