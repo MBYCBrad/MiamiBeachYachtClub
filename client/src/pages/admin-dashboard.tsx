@@ -671,6 +671,9 @@ function ViewYachtDialog({ yacht }: { yacht: any }) {
             <Anchor className="h-5 w-5 mr-2 text-blue-500" />
             Yacht Details
           </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            View detailed information about this yacht
+          </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Yacht Image */}
