@@ -14,7 +14,7 @@ import {
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
   AlertTriangle, CheckCircle2, UserPlus, RotateCcw, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
-  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle
+  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
