@@ -24,18 +24,11 @@ import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { insertMaintenanceRecordSchema } from "@shared/schema";
 
 // Form schemas
-const maintenanceScheduleSchema = z.object({
-  yachtId: z.number(),
-  taskType: z.string().min(1, "Task type is required"),
-  description: z.string().min(1, "Description is required"),
-  scheduledDate: z.string().min(1, "Scheduled date is required"),
-  priority: z.enum(['low', 'medium', 'high', 'critical']),
-  estimatedCost: z.number().min(0, "Cost must be positive"),
-  estimatedHours: z.number().min(0, "Hours must be positive"),
-  assignedTo: z.string().optional(),
-});
+// Use the proper schema from shared/schema.ts
+const maintenanceRecordSchema = insertMaintenanceRecordSchema;
 
 const assessmentSchema = z.object({
   yachtId: z.number(),
@@ -119,15 +112,16 @@ export default function YachtMaintenance() {
 
   // Forms
   const scheduleMaintenanceForm = useForm({
-    resolver: zodResolver(maintenanceScheduleSchema),
+    resolver: zodResolver(maintenanceRecordSchema),
     defaultValues: {
       yachtId: selectedYacht || 33,
       taskType: "",
+      category: "",
       description: "",
-      scheduledDate: "",
+      scheduledDate: new Date().toISOString().split('T')[0],
       priority: "medium" as const,
       estimatedCost: 0,
-      estimatedHours: 0,
+      estimatedDuration: 0,
       assignedTo: "",
     },
   });
@@ -146,7 +140,7 @@ export default function YachtMaintenance() {
 
   // Mutations
   const scheduleMaintenanceMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof maintenanceScheduleSchema>) => {
+    mutationFn: async (data: z.infer<typeof maintenanceRecordSchema>) => {
       const response = await apiRequest("POST", "/api/maintenance/records", data);
       return response.json();
     },
