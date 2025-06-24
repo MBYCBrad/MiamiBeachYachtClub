@@ -138,14 +138,13 @@ export default function CustomerServiceDashboard() {
   // Make call mutation
   const makeCallMutation = useMutation({
     mutationFn: async (data: { phoneNumber: string; memberName: string; memberId?: number }) => {
-      const response = await fetch('/api/phone-calls/outbound', {
+      const response = await fetch('/api/twilio/make-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          phone_number: data.phoneNumber,
-          member_name: data.memberName,
-          member_id: data.memberId,
-          reason: 'Customer service outbound call'
+          phoneNumber: data.phoneNumber,
+          memberName: data.memberName,
+          memberId: data.memberId
         })
       });
       if (!response.ok) throw new Error('Failed to initiate call');
@@ -226,14 +225,15 @@ export default function CustomerServiceDashboard() {
 
   const endCall = () => {
     if (activeCall) {
-      // Update call record with end time and duration
-      fetch(`/api/phone-calls/${activeCall.id}/end`, {
+      // End call using Twilio API
+      fetch(`/api/twilio/end-call`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          duration: callTimer,
-          status: 'completed'
+          callSid: activeCall.id
         })
+      }).catch(error => {
+        console.error('Error ending call:', error);
       });
 
       toast({

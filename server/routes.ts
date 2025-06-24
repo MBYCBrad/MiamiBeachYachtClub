@@ -4483,14 +4483,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Phone number is required" });
       }
 
+      // Check if Twilio is configured
+      if (!twilioClient) {
+        return res.status(503).json({ 
+          success: false, 
+          message: "Twilio service not configured. Please check your Twilio credentials." 
+        });
+      }
+
       // Initialize Twilio call
       const call = await twilioClient.calls.create({
-        url: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/call-response`,
+        url: `${process.env.BASE_URL || 'https://8b2f9f3b-e5c7-4d8e-9f1a-2c3d4e5f6789-00-1234567890abcdef.global.replit.dev'}/api/twilio/call-response`,
         to: phoneNumber,
-        from: process.env.TWILIO_PHONE_NUMBER,
+        from: process.env.TWILIO_PHONE_NUMBER!,
         record: true,
-        recordingStatusCallback: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/recording-status`,
-        statusCallback: `${process.env.BASE_URL || 'http://localhost:5000'}/api/twilio/call-status`,
+        recordingStatusCallback: `${process.env.BASE_URL || 'https://8b2f9f3b-e5c7-4d8e-9f1a-2c3d4e5f6789-00-1234567890abcdef.global.replit.dev'}/api/twilio/recording-status`,
+        statusCallback: `${process.env.BASE_URL || 'https://8b2f9f3b-e5c7-4d8e-9f1a-2c3d4e5f6789-00-1234567890abcdef.global.replit.dev'}/api/twilio/call-status`,
         statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
         statusCallbackMethod: 'POST'
       });
@@ -4502,7 +4510,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conversationId: `call_${call.sid}`,
         messageType: 'call_log',
         metadata: {
-          callSid: call.sid,
           phoneNumber,
           memberName,
           memberId,
@@ -4522,8 +4529,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Twilio call error:', error);
       res.status(500).json({ 
+        success: false,
         message: error.message || 'Failed to initiate call',
-        code: error.code
+        code: error.code,
+        details: error.toString()
       });
     }
   });
