@@ -592,13 +592,7 @@ function CrewAssignmentDialog({
     !coordinators.some(c => c.id === m.id)
   );
 
-  console.log('Available crew breakdown:', {
-    total: availableCrew.length,
-    captains: captains.length,
-    coordinators: coordinators.length,
-    otherCrew: otherCrew.length,
-    otherCrewRoles: otherCrew.map(c => c.role)
-  });
+
 
   const handleAssign = () => {
     if (!selectedCaptain || !selectedCoordinator) {
@@ -670,11 +664,38 @@ function CrewAssignmentDialog({
   };
 
   const formatTime = (timeString: string) => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    try {
+      if (!timeString) return 'Time not specified';
+      
+      // Handle full datetime strings
+      if (timeString.includes('T')) {
+        const date = new Date(timeString);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+        }
+      }
+      
+      // Handle time-only strings (HH:MM format)
+      if (timeString.includes(':')) {
+        const date = new Date(`2000-01-01T${timeString}`);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
+        }
+      }
+      
+      return timeString;
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return timeString || 'Invalid Time';
+    }
   };
 
   const getTimeSlotName = (startTime: string) => {
@@ -721,12 +742,22 @@ function CrewAssignmentDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-400 text-sm">Date</p>
-                  <p className="text-white font-semibold">{formatDate(booking.date)}</p>
+                  <p className="text-white font-semibold">
+                    {booking.date ? formatDate(booking.date) : 
+                     booking.startTime ? formatDate(booking.startTime) : 
+                     'Date not specified'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm">Time Slot</p>
-                  <p className="text-white">{getTimeSlotName(booking.startTime)}</p>
-                  <p className="text-gray-300 text-sm">{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</p>
+                  <p className="text-white">
+                    {booking.startTime ? getTimeSlotName(booking.startTime) : 'Night Cruise'}
+                  </p>
+                  <p className="text-gray-300 text-sm">
+                    {booking.startTime && booking.endTime ? 
+                      `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}` : 
+                      'Time not specified'}
+                  </p>
                 </div>
               </div>
 
