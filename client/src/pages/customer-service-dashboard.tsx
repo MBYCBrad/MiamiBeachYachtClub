@@ -161,7 +161,7 @@ export default function CustomerServiceDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black admin-luxury-background">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
         <div className="mb-8 mt-16">
