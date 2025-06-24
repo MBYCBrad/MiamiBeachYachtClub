@@ -3091,23 +3091,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // STAFF MANAGEMENT ROUTES - Hierarchical Staff System
   app.get("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      // Only return staff users (specific staff positions or admin)
+      console.log('=== STAFF MANAGEMENT DEBUG ===');
+      
+      // Return all non-member users (admin, yacht owners, service providers)
       const allUsers = await dbStorage.getAllUsers();
-      const staffRoles = [
-        'admin',
-        'Marina Manager', 'Fleet Coordinator', 'Dock Master', 'Yacht Captain', 'First Mate', 'Crew Supervisor',
-        'Member Relations Specialist', 'Concierge Manager', 'Concierge Agent', 'Guest Services Representative', 'VIP Coordinator',
-        'Operations Manager', 'Booking Coordinator', 'Service Coordinator', 'Event Coordinator', 'Safety Officer',
-        'Finance Manager', 'Billing Specialist', 'Accounts Manager',
-        'IT Specialist', 'Data Analyst', 'Systems Administrator'
-      ];
-      const staffUsers = allUsers.filter(user => 
-        staffRoles.includes(user.role || '')
-      );
+      console.log('Total users found:', allUsers.length);
+      
+      // Filter for staff-level users (exclude regular members)
+      const staffUsers = allUsers.filter(user => {
+        const role = user.role || '';
+        const isStaff = ['admin', 'yacht_owner', 'service_provider'].includes(role);
+        console.log(`User ${user.username} - Role: ${role} - Is Staff: ${isStaff}`);
+        return isStaff;
+      });
+      
+      console.log('Staff users found:', staffUsers.length);
 
-      // Enrich with created by information
+      // Enrich with created by information and ensure proper structure
       const enrichedStaff = staffUsers.map(staff => {
         const createdByUser = allUsers.find(u => u.id === staff.createdBy);
+        console.log(`Enriching staff user: ${staff.username} (ID: ${staff.id})`);
         return {
           ...staff,
           createdByName: createdByUser?.username || 'System',
@@ -3116,6 +3119,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: staff.status || 'active'
         };
       });
+      
+      console.log('Enriched staff count:', enrichedStaff.length);
+      console.log('=== END STAFF MANAGEMENT DEBUG ===');
 
       res.json(enrichedStaff);
     } catch (error: any) {
