@@ -65,118 +65,166 @@ function AssignCrewDialog({ booking, crew, onAssign }: AssignCrewDialogProps) {
       captainId: parseInt(selectedCaptain),
       firstMateId: selectedFirstMate ? parseInt(selectedFirstMate) : null,
       crewMembers: selectedCrew.map(id => parseInt(id)),
-      briefingTime: new Date(booking.startTime).toISOString(),
+      briefingTime: new Date(new Date(booking.startTime).getTime() - 60 * 60 * 1000).toISOString(), // 1 hour before
       assignmentNotes: `Crew assignment for ${booking.yacht?.name || 'yacht'} charter`
     };
     onAssign(assignment);
   };
 
   return (
-    <DialogContent className="bg-gray-800/95 border-gray-700/50 text-white max-w-4xl backdrop-blur-xl">
-      <DialogHeader className="pb-6">
-        <DialogTitle className="text-xl font-semibold text-white">Assign Crew</DialogTitle>
-        <div className="text-gray-300 text-sm">
-          {booking.yacht?.name} • {booking.guestCount} guests
-        </div>
-      </DialogHeader>
+    <DialogContent className="bg-gray-900/98 border-gray-700/60 text-white max-w-5xl backdrop-blur-2xl rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] overflow-hidden">
+      {/* Enhanced Header with Gradient */}
+      <div className="bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-purple-600/20 p-6 border-b border-gray-700/50">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-bold text-white flex items-center gap-4">
+            <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-xl shadow-lg">
+              <User className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                Assign Crew
+              </span>
+              <div className="text-sm font-normal text-gray-300 mt-1">
+                {booking.yacht?.name || 'Royal Serenity'} • {booking.guestCount} guests • {new Date(booking.startTime).toLocaleDateString()}
+              </div>
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+      </div>
       
-      <div className="grid grid-cols-2 gap-8">
-        {/* Left Side - Yacht & Booking Details */}
-        <div className="space-y-6">
-          <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-            <h3 className="font-semibold text-white mb-3">Yacht Details</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Name:</span>
-                <span className="text-white">{booking.yacht?.name || 'N/A'}</span>
+      <div className="p-8">
+        <div className="grid grid-cols-2 gap-10">
+          {/* Left Side - Enhanced Details */}
+          <div className="space-y-8">
+            {/* Yacht Details - Sophisticated Card */}
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-400/30">
+                  <Ship className="w-5 h-5 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Yacht Details</h3>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Type:</span>
-                <span className="text-white">{booking.yacht?.type || 'N/A'}</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Name:</span>
+                  <span className="text-white font-semibold">{booking.yacht?.name || 'Royal Serenity'}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Type:</span>
+                  <span className="text-white font-semibold">Luxury Motor Yacht</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Length:</span>
+                  <span className="text-white font-semibold">65 ft</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Capacity:</span>
+                  <span className="text-white font-semibold">24 guests</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Length:</span>
-                <span className="text-white">{booking.yacht?.length || 'N/A'}</span>
+            </div>
+
+            {/* Booking Details - Sophisticated Card */}
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-400/30">
+                  <Calendar className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Booking Details</h3>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Capacity:</span>
-                <span className="text-white">{booking.yacht?.capacity || 'N/A'} guests</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Date:</span>
+                  <span className="text-white font-semibold">{format(new Date(booking.startTime), 'MMM dd, yyyy')}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Time:</span>
+                  <span className="text-white font-semibold">{format(new Date(booking.startTime), 'h:mm a')}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Duration:</span>
+                  <span className="text-white font-semibold">4 hours</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Guests:</span>
+                  <span className="text-white font-semibold">{booking.guestCount}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/30">
+                  <span className="text-gray-400 font-medium">Status:</span>
+                  <span className="text-emerald-400 font-semibold flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    Confirmed
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-700/30 rounded-lg p-4 border border-gray-600/30">
-            <h3 className="font-semibold text-white mb-3">Booking Details</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Date:</span>
-                <span className="text-white">{new Date(booking.startTime).toLocaleDateString()}</span>
+          {/* Right Side - Enhanced Crew Selection */}
+          <div className="space-y-8">
+            {/* Captain Selection */}
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-400/30">
+                  <UserCheck className="w-5 h-5 text-yellow-400" />
+                </div>
+                <label className="text-xl font-bold text-white">
+                  Captain <span className="text-red-400 text-lg">*</span>
+                </label>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Time:</span>
-                <span className="text-white">{new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Duration:</span>
-                <span className="text-white">4 hours</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Guests:</span>
-                <span className="text-white">{booking.guestCount}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Status:</span>
-                <span className="text-green-400 capitalize">{booking.status}</span>
-              </div>
+              <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
+                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-14 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-lg font-medium shadow-lg">
+                  <SelectValue placeholder="Select captain" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl">
+                  {captains.map((captain) => (
+                    <SelectItem key={captain.id} value={captain.id.toString()} className="text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 py-3 text-base font-medium rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        {captain.username}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
-        </div>
 
-        {/* Right Side - Crew Selection */}
-        <div className="space-y-6">
-          <div>
-            <label className="text-sm font-medium text-gray-200 mb-3 block">
-              Captain <span className="text-red-400">*</span>
-            </label>
-            <Select value={selectedCaptain} onValueChange={setSelectedCaptain}>
-              <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
-                <SelectValue placeholder="Select captain" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {captains.map((captain) => (
-                  <SelectItem key={captain.id} value={captain.id.toString()} className="text-white hover:bg-gray-700">
-                    {captain.username}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            {/* First Mate Selection */}
+            <div className="bg-gradient-to-br from-gray-800/80 via-gray-800/60 to-gray-900/80 rounded-2xl p-7 border border-gray-700/40 shadow-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-cyan-500/20 p-2 rounded-lg border border-cyan-400/30">
+                  <Users className="w-5 h-5 text-cyan-400" />
+                </div>
+                <label className="text-xl font-bold text-white">First Mate</label>
+              </div>
+              <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
+                <SelectTrigger className="bg-gray-900/70 border-gray-600/60 text-white h-14 rounded-xl hover:border-purple-500/70 hover:bg-gradient-to-r hover:from-purple-600/10 hover:to-blue-600/10 transition-all duration-300 text-lg font-medium shadow-lg">
+                  <SelectValue placeholder="Select first mate (optional)" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600 rounded-xl shadow-2xl">
+                  {firstMates.map((mate) => (
+                    <SelectItem key={mate.id} value={mate.id.toString()} className="text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 py-3 text-base font-medium rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        {mate.username}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-200 mb-3 block">First Mate</label>
-            <Select value={selectedFirstMate} onValueChange={setSelectedFirstMate}>
-              <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
-                <SelectValue placeholder="Select first mate" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-600">
-                {firstMates.map((mate) => (
-                  <SelectItem key={mate.id} value={mate.id.toString()} className="text-white hover:bg-gray-700">
-                    {mate.username}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Assign Button positioned bottom right */}
-          <div className="flex justify-end pt-8">
-            <Button 
-              onClick={handleAssign}
-              disabled={!selectedCaptain}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-8 py-3"
-            >
-              Assign Crew
-            </Button>
+            {/* Enhanced Assign Button */}
+            <div className="flex justify-end pt-6">
+              <Button 
+                onClick={handleAssign}
+                disabled={!selectedCaptain}
+                className="bg-gradient-to-r from-purple-600 via-purple-700 to-blue-600 hover:from-purple-700 hover:via-purple-800 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold px-10 py-4 rounded-xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg border border-purple-500/20 hover:border-purple-400/40"
+              >
+                <UserCheck className="w-5 h-5 mr-2" />
+                Assign Crew
+              </Button>
+            </div>
           </div>
         </div>
       </div>
