@@ -88,8 +88,8 @@ export default function YachtMaintenance() {
   });
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
-    queryKey: ['/api/maintenance/records', selectedYacht],
-    queryFn: () => selectedYacht ? getQueryFn({})(`/api/maintenance/records/${selectedYacht}`) : Promise.resolve([]),
+    queryKey: [`/api/maintenance/records/${selectedYacht}`],
+    queryFn: getQueryFn({}),
     enabled: !!selectedYacht,
     staleTime: 0,
     gcTime: 0,
@@ -156,7 +156,7 @@ export default function YachtMaintenance() {
     onSuccess: () => {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
       // Force immediate refresh of maintenance data with cache bypass
-      queryClient.removeQueries({ queryKey: ['/api/maintenance/records', selectedYacht] });
+      queryClient.removeQueries({ queryKey: [`/api/maintenance/records/${selectedYacht}`] });
       queryClient.removeQueries({ queryKey: ['/api/maintenance/schedules'] });
       refetchRecords();
       refetchSchedules();
@@ -806,6 +806,7 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
+
 
 
                 {maintenanceRecords && Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
