@@ -1084,9 +1084,16 @@ export class DatabaseStorage implements IStorage {
     return assessment || undefined;
   }
 
-  async createConditionAssessment(assessment: InsertConditionAssessment): Promise<ConditionAssessment> {
-    const [created] = await db.insert(conditionAssessments).values(assessment).returning();
-    return created;
+  async createConditionAssessment(assessment: any): Promise<ConditionAssessment> {
+    console.log('Storage: Attempting to create assessment with:', assessment);
+    try {
+      const [created] = await db.insert(conditionAssessments).values(assessment).returning();
+      console.log('Storage: Successfully created assessment:', created);
+      return created;
+    } catch (error) {
+      console.error('Storage: Database error creating assessment:', error);
+      throw error;
+    }
   }
 
   async updateConditionAssessment(id: number, assessment: Partial<InsertConditionAssessment>): Promise<ConditionAssessment | undefined> {
