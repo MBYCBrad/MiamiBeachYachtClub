@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Admin Dropdown Styling */
+[data-radix-select-content] [data-radix-select-item] {
+  @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600;
+}
+
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */

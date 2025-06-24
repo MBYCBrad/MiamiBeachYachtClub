@@ -12,9 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
-  AlertTriangle, CheckCircle2, UserPlus, Settings, 
+  AlertTriangle, CheckCircle2, UserPlus, RotateCcw, 
   Anchor, Waves, Crown, Shield, Coffee, Utensils,
-  Sparkles, FileText
+  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle
 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -54,7 +54,7 @@ interface CrewAssignment {
   crewMembers: CrewMember[];
   captain: CrewMember;
   coordinator: CrewMember;
-  status: 'planned' | 'assigned' | 'active' | 'completed';
+  status: 'planned' | 'in-progress' | 'completed';
   briefingTime: string;
   notes: string;
 }
@@ -64,6 +64,7 @@ export default function CrewManagementPage() {
   const [selectedBooking, setSelectedBooking] = useState<YachtBooking | null>(null);
   const [crewFilter, setCrewFilter] = useState("all");
   const [assignmentDialog, setAssignmentDialog] = useState(false);
+  const [viewDetailsDialog, setViewDetailsDialog] = useState(false);
 
   // Fetch active bookings requiring crew assignment
   const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
@@ -125,7 +126,7 @@ export default function CrewManagementPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
       toast({
         title: "Status Updated",
-        description: "Crew assignment status updated successfully",
+        description: "Trip status updated successfully",
       });
     },
   });
@@ -133,6 +134,44 @@ export default function CrewManagementPage() {
   const filteredCrewMembers = (crewMembers || []).filter(member => 
     crewFilter === "all" || member?.status === crewFilter
   );
+
+  // Separate active and past assignments
+  const activeAssignments = (crewAssignments || []).filter(assignment => 
+    assignment.status === 'planned' || assignment.status === 'in-progress'
+  );
+  
+  const pastAssignments = (crewAssignments || []).filter(assignment => 
+    assignment.status === 'completed'
+  );
+
+  // Function to get the next status in the progression
+  const getNextStatus = (currentStatus: string) => {
+    switch (currentStatus) {
+      case 'planned': return 'in-progress';
+      case 'in-progress': return 'completed';
+      default: return currentStatus;
+    }
+  };
+
+  // Function to get status icon
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'planned': return <Clock className="h-4 w-4" />;
+      case 'in-progress': return <Play className="h-4 w-4" />;
+      case 'completed': return <CheckCircle className="h-4 w-4" />;
+      default: return <Clock className="h-4 w-4" />;
+    }
+  };
+
+  // Function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'planned': return 'bg-gradient-to-r from-purple-600 to-indigo-600';
+      case 'in-progress': return 'bg-gradient-to-r from-blue-600 to-cyan-600';
+      case 'completed': return 'bg-gradient-to-r from-green-600 to-emerald-600';
+      default: return 'bg-gray-600';
+    }
+  };
 
   const getCrewRoleIcon = (role: string) => {
     switch (role.toLowerCase()) {
@@ -263,7 +302,7 @@ export default function CrewManagementPage() {
           </Card>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Active Bookings Requiring Crew */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -438,84 +477,167 @@ export default function CrewManagementPage() {
           </motion.div>
         </div>
 
-        {/* Active Crew Assignments */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8"
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-400" />
-                Active Crew Assignments
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Monitor ongoing yacht service deliveries
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {(crewAssignments || []).map((assignment) => (
-                  <motion.div
-                    key={assignment.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <Badge 
-                        className={`${
-                          assignment.status === 'active' ? 'bg-green-600' :
-                          assignment.status === 'assigned' ? 'bg-gradient-to-r from-purple-600 to-blue-600' :
-                          assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-600'
-                        }`}
-                      >
-                        {assignment.status}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateCrewStatusMutation.mutate({
-                          assignmentId: assignment.id,
-                          status: assignment.status === 'planned' ? 'assigned' : 'active'
-                        })}
-                        className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                        title="Update Status"
-                      >
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
+        {/* Active Bookings and Past Bookings Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
+          {/* Active Bookings */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Play className="h-5 w-5 text-blue-400" />
+                  Active Bookings
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Monitor ongoing yacht trips and status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  {activeAssignments.map((assignment) => (
+                    <motion.div
+                      key={assignment.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge className={getStatusColor(assignment.status)}>
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(assignment.status)}
+                            {assignment.status}
+                          </div>
+                        </Badge>
+                        {assignment.status !== 'completed' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateCrewStatusMutation.mutate({
+                              assignmentId: assignment.id,
+                              status: getNextStatus(assignment.status)
+                            })}
+                            className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                            title={`Mark as ${getNextStatus(assignment.status)}`}
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-white">
-                        <Crown className="h-4 w-4 text-purple-400" />
-                        Captain: {assignment.captain?.username || 'Not Assigned'}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-white">
+                          <Crown className="h-4 w-4 text-purple-400" />
+                          Captain: {assignment.captain?.username || 'Not Assigned'}
+                        </div>
+                        <div className="flex items-center gap-2 text-white">
+                          <Shield className="h-4 w-4 text-blue-400" />
+                          Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
+                        </div>
+                        <div className="text-gray-400">
+                          Crew Size: {(assignment.crewMembers || []).length} members
+                        </div>
+                        <div className="text-gray-400">
+                          Briefing: {new Date(assignment.briefingTime).toLocaleTimeString()}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-white">
-                        <Shield className="h-4 w-4 text-blue-400" />
-                        Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
-                      </div>
-                      <div className="text-gray-400">
-                        Crew Size: {(assignment.crewMembers || []).length} members
-                      </div>
-                      <div className="text-gray-400">
-                        Briefing: {new Date(assignment.briefingTime).toLocaleTimeString()}
-                      </div>
-                    </div>
 
-                    {assignment.notes && (
-                      <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs text-gray-300">
-                        {assignment.notes}
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                      {assignment.notes && (
+                        <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs text-gray-300">
+                          {assignment.notes}
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                  {activeAssignments.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Play className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>No active bookings</p>
+                      <p className="text-sm mt-1">Active yacht trips will appear here</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Past Bookings */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <History className="h-5 w-5 text-green-400" />
+                  Past Bookings
+                </CardTitle>
+                <CardDescription className="text-gray-400">
+                  Completed yacht trips and service records
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  {pastAssignments.length > 0 ? (
+                    pastAssignments.map((assignment) => (
+                      <motion.div
+                        key={assignment.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-4 bg-gray-800/30 rounded-lg border border-gray-700/50"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <Badge className={getStatusColor(assignment.status)}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(assignment.status)}
+                              {assignment.status}
+                            </div>
+                          </Badge>
+                          <Badge variant="outline" className="text-gray-400 border-gray-600">
+                            Trip Completed
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2 text-gray-300">
+                            <Crown className="h-4 w-4 text-purple-400" />
+                            Captain: {assignment.captain?.username || 'Not Assigned'}
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-300">
+                            <Shield className="h-4 w-4 text-blue-400" />
+                            Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
+                          </div>
+                          <div className="text-gray-500">
+                            Crew Size: {(assignment.crewMembers || []).length} members
+                          </div>
+                          <div className="text-gray-500">
+                            Completed: {new Date(assignment.briefingTime).toLocaleDateString()}
+                          </div>
+                        </div>
+
+                        {assignment.notes && (
+                          <div className="mt-3 p-2 bg-gray-600/20 rounded text-xs text-gray-400">
+                            {assignment.notes}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>No completed trips yet</p>
+                      <p className="text-sm mt-1">Completed bookings will appear here</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
       </div>
     </motion.div>
   );
