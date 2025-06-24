@@ -621,12 +621,37 @@ function CrewAssignmentDialog({
   ).filter(Boolean);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    try {
+      if (!dateString) return 'Date not specified';
+      
+      // Handle different date formats
+      let date = new Date(dateString);
+      
+      // If invalid, try parsing MM/DD/YYYY format
+      if (isNaN(date.getTime()) && dateString.includes('/')) {
+        const parts = dateString.split('/');
+        if (parts.length === 3) {
+          // Convert MM/DD/YYYY to YYYY-MM-DD
+          date = new Date(`${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+        }
+      }
+      
+      // If still invalid, try other common formats
+      if (isNaN(date.getTime())) {
+        console.warn('Unable to parse date:', dateString);
+        return dateString; // Return original string if can't parse
+      }
+      
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString || 'Invalid Date';
+    }
   };
 
   const formatTime = (timeString: string) => {
