@@ -100,6 +100,103 @@ export function setupFastAdminRoutes(app: Express) {
     }
   });
 
+  app.get("/api/admin/stats", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=30',
+        'Expires': new Date(Date.now() + 30000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getStats());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/analytics", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=30',
+        'Expires': new Date(Date.now() + 30000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getAnalytics());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/payments", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=30',
+        'Expires': new Date(Date.now() + 30000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getPayments());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Ultra-fast conversations endpoint
+  app.get("/api/conversations", requireAuth, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=10',
+        'Expires': new Date(Date.now() + 10000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getConversations());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Ultra-fast staff endpoint
+  app.get("/api/admin/staff", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=30',
+        'Expires': new Date(Date.now() + 30000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getStaff());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Ultra-fast crew assignments endpoint
+  app.get("/api/crew/assignments", requireAuth, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=30',
+        'Expires': new Date(Date.now() + 30000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getCrewAssignments());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Ultra-fast phone calls endpoint
+  app.get("/api/phone-calls", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'private, max-age=5',
+        'Expires': new Date(Date.now() + 5000).toUTCString()
+      });
+      
+      res.json(ultraFastCache.getPhoneCallLogs());
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+}
+  });
+
   app.get("/api/admin/analytics", requireAuth, requireAdmin, async (req, res) => {
     try {
       res.set({

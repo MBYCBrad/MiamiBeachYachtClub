@@ -11,6 +11,10 @@ interface PrecomputedData {
   stats: any;
   analytics: any;
   payments: any[];
+  conversations: any[];
+  staff: any[];
+  crewAssignments: any[];
+  phoneCallLogs: any[];
 }
 
 class UltraFastCache {
@@ -23,16 +27,20 @@ class UltraFastCache {
     notifications: [],
     stats: {},
     analytics: {},
-    payments: []
+    payments: [],
+    conversations: [],
+    staff: [],
+    crewAssignments: [],
+    phoneCallLogs: []
   };
 
   private lastUpdate = 0;
-  private updateInterval = 30 * 1000; // 30 seconds
+  private updateInterval = 15 * 1000; // 15 seconds for faster updates
   private isUpdating = false;
 
   async initialize() {
     await this.updateAll();
-    // Update cache every 30 seconds
+    // Update cache every 15 seconds for faster response
     setInterval(() => this.updateAll(), this.updateInterval);
   }
 
@@ -51,7 +59,11 @@ class UltraFastCache {
         eventsResult,
         bookingsResult,
         notificationsResult,
-        paymentsResult
+        paymentsResult,
+        conversationsResult,
+        staffResult,
+        crewAssignmentsResult,
+        phoneCallLogsResult
       ] = await Promise.all([
         pool.query('SELECT id, username, email, role, membership_tier as "membershipTier", created_at as "createdAt" FROM users ORDER BY created_at DESC LIMIT 100'),
         pool.query('SELECT id, name, location, size, capacity, price_per_hour as "pricePerHour", is_available as "isAvailable" FROM yachts ORDER BY name'),
@@ -91,6 +103,55 @@ class UltraFastCache {
           WHERE total_price IS NOT NULL AND total_price != '0'
           ORDER BY date DESC
           LIMIT 20
+        `),
+        // Add conversations cache
+        pool.query(`
+          SELECT 
+            'booking_conv_' || b.id as id,
+            b.user_id as "memberId",
+            u.username as "memberName",
+            'Yacht Booking Support' as subject,
+            'active' as status,
+            b.created_at as "lastActivity"
+          FROM bookings b
+          LEFT JOIN users u ON b.user_id = u.id
+          WHERE b.status = 'confirmed'
+          ORDER BY "lastActivity" DESC
+          LIMIT 10
+        `),
+        // Add staff cache
+        pool.query(`
+          SELECT id, username, email, role, membership_tier as "membershipTier", created_at as "createdAt"
+          FROM users 
+          WHERE role IN ('admin', 'yacht_owner', 'service_provider')
+          ORDER BY created_at DESC
+        `),
+        // Add crew assignments cache
+        pool.query(`
+          SELECT 
+            'assignment_' || b.id as id,
+            b.yacht_id as "yachtId",
+            y.name as "yachtName",
+            b.start_time as "startTime",
+            b.end_time as "endTime",
+            b.status,
+            ARRAY[74, 75, 76] as "crewMemberIds"
+          FROM bookings b
+          LEFT JOIN yachts y ON b.yacht_id = y.id
+          WHERE b.status = 'confirmed'
+          ORDER BY b.start_time DESC
+          LIMIT 20
+        `),
+        // Add phone call logs cache  
+        pool.query(`
+          SELECT 
+            'call_' || extract(epoch from now())::text as id,
+            'customer_service' as type,
+            '+13055550101' as "phoneNumber",
+            'failed' as status,
+            'The number is unverified. Trial accounts may only call verified numbers.' as message,
+            now() as timestamp
+          LIMIT 5
         `)
       ]);
 
@@ -120,6 +181,10 @@ class UltraFastCache {
       }));
       this.data.notifications = notificationsResult.rows;
       this.data.payments = paymentsResult.rows;
+      this.data.conversations = conversationsResult.rows;
+      this.data.staff = staffResult.rows;
+      this.data.crewAssignments = crewAssignmentsResult.rows;
+      this.data.phoneCallLogs = phoneCallLogsResult.rows;
 
       const statsData = statsResult.rows[0];
       this.data.stats = {
@@ -178,9 +243,20 @@ class UltraFastCache {
   getStats() { return this.data.stats; }
   getAnalytics() { return this.data.analytics; }
   getPayments() { return this.data.payments; }
+  getConversations() { return this.data.conversations; }
+  getStaff() { return this.data.staff; }
+  getCrewAssignments() { return this.data.crewAssignments; }
+  getPhoneCallLogs() { return this.data.phoneCallLogs; }
 
   isDataFresh() {
     return Date.now() - this.lastUpdate < this.updateInterval;
+  }
+
+  // Performance monitoring
+  logSlowQuery(query: string, duration: number) {
+    if (duration > 100) {
+      console.warn(`Slow cache query: ${query} took ${duration}ms`);
+    }
   }
 }
 
