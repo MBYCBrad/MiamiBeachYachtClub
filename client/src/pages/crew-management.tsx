@@ -520,7 +520,52 @@ function CrewAssignmentDialog({
   const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
   const [selectedCoordinator, setSelectedCoordinator] = useState<number | null>(null);
   const [selectedCrew, setSelectedCrew] = useState<number[]>([]);
-  const [briefingTime, setBriefingTime] = useState("");
+  // Auto-populate briefing time to 1 hour before booking start time
+  const getDefaultBriefingTime = () => {
+    try {
+      // Handle different possible date formats
+      let bookingDate = booking.date;
+      let startTime = booking.startTime;
+      
+      // If no date/time, return empty
+      if (!startTime) return "";
+      
+      // If no date field, try to extract from startTime if it's a full datetime
+      if (!bookingDate && startTime) {
+        const dateFromStartTime = new Date(startTime);
+        if (!isNaN(dateFromStartTime.getTime())) {
+          // startTime is a full datetime, use it directly
+          const briefingDateTime = new Date(dateFromStartTime.getTime() - 60 * 60 * 1000);
+          return briefingDateTime.toISOString().slice(0, 16);
+        }
+      }
+      
+      // Try to construct date from separate date and time fields
+      if (bookingDate && startTime) {
+        // Ensure date is in YYYY-MM-DD format
+        let formattedDate = bookingDate;
+        if (formattedDate.includes('/')) {
+          const parts = formattedDate.split('/');
+          if (parts.length === 3) {
+            formattedDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+          }
+        }
+        
+        const bookingDateTime = new Date(`${formattedDate}T${startTime}`);
+        if (!isNaN(bookingDateTime.getTime())) {
+          const briefingDateTime = new Date(bookingDateTime.getTime() - 60 * 60 * 1000);
+          return briefingDateTime.toISOString().slice(0, 16);
+        }
+      }
+      
+      return "";
+    } catch (error) {
+      console.error('Error calculating briefing time:', error);
+      return "";
+    }
+  };
+
+  const [briefingTime, setBriefingTime] = useState(getDefaultBriefingTime());
   const [notes, setNotes] = useState("");
 
   // Fetch live staff data from the database
@@ -843,16 +888,30 @@ function CrewAssignmentDialog({
                 Pre-Departure Briefing
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-gray-300 text-sm">Briefing Schedule</Label>
-                <Input
-                  type="datetime-local"
-                  value={briefingTime}
-                  onChange={(e) => setBriefingTime(e.target.value)}
-                  className="bg-gray-700 border-gray-700 mt-1"
-                />
-                <p className="text-gray-400 text-xs mt-1">Recommended: 30-60 minutes before departure</p>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="briefing-time" className="text-white">Staff Meeting Time</Label>
+                  <Input
+                    id="briefing-time"
+                    type="datetime-local"
+                    value={briefingTime}
+                    onChange={(e) => setBriefingTime(e.target.value)}
+                    className="bg-gray-700 border-gray-700 mt-1"
+                  />
+                  <p className="text-gray-400 text-xs mt-1">Auto-set to 1 hour before departure for crew coordination</p>
+                </div>
+                
+                <div>
+                  <Label className="text-white">Meeting Location</Label>
+                  <div className="mt-1 p-3 bg-gray-700/50 rounded-lg border border-gray-700">
+                    <p className="text-white font-medium">Miami Marina - Main Gate</p>
+                    <p className="text-gray-300 text-sm">401 Biscayne Blvd, Miami, FL 33132</p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Meet at the main gate entrance 1 hour early for staff briefing and equipment check
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
