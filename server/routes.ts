@@ -2983,7 +2983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/maintenance/records/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/records/:yachtId", requireAuth, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       const records = await dbStorage.getMaintenanceRecords(yachtId);
@@ -3032,7 +3032,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/maintenance/records", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.post("/api/maintenance/records", requireAuth, async (req, res) => {
     try {
       const record = await dbStorage.createMaintenanceRecord(req.body);
       res.status(201).json(record);
