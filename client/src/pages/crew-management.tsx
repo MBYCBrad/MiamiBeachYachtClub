@@ -454,7 +454,7 @@ export default function CrewManagementPage() {
                       <Badge 
                         className={`${
                           assignment.status === 'active' ? 'bg-green-600' :
-                          assignment.status === 'assigned' ? 'bg-blue-600' :
+                          assignment.status === 'assigned' ? 'bg-gradient-to-r from-purple-600 to-blue-600' :
                           assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-600'
                         }`}
                       >
