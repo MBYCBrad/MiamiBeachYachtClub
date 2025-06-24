@@ -743,7 +743,7 @@ export default function YachtMaintenance() {
                                     min="0"
                                     step="1"
                                     className="bg-gray-800 border-gray-700 text-white"
-                                    onChange={e => field.onChange(e.target.value || "0")}
+                                    onChange={e => field.onChange(parseInt(e.target.value) || 0)}
                                   />
                                 </FormControl>
                                 <FormMessage />
