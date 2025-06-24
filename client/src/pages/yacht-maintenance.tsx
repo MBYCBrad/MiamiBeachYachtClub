@@ -88,7 +88,7 @@ export default function YachtMaintenance() {
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: ['/api/maintenance/records', selectedYacht?.id],
-    queryFn: () => selectedYacht?.id ? fetch(`/api/maintenance/records/${selectedYacht.id}`).then(res => res.json()) : Promise.resolve([]),
+    queryFn: () => selectedYacht?.id ? getQueryFn({})(`/api/maintenance/records/${selectedYacht.id}`) : Promise.resolve([]),
     enabled: !!selectedYacht?.id,
     staleTime: 0,
     gcTime: 0,
@@ -806,6 +806,9 @@ export default function YachtMaintenance() {
 
               <div className="grid gap-6">
 
+                <div className="text-white text-sm mb-4 p-4 bg-gray-800 rounded">
+                  Debug: Marina Breeze (ID: {selectedYacht?.id}) | Records: {maintenanceRecords?.length || 0} | Loading: {recordsLoading ? 'Yes' : 'No'}
+                </div>
                 {maintenanceRecords && Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
@@ -827,14 +830,26 @@ export default function YachtMaintenance() {
                       
                       <p className="text-gray-300 mb-4">{record.description}</p>
                       
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div className="text-gray-400">
-                          Scheduled: {new Date(record.scheduledDate).toLocaleDateString()}
+                          <span className="font-medium">Scheduled:</span> {new Date(record.scheduledDate).toLocaleDateString()}
                         </div>
                         <div className="text-gray-400">
-                          Status: {record.status || 'Pending'}
+                          <span className="font-medium">Status:</span> <span className="capitalize">{record.status || 'Pending'}</span>
+                        </div>
+                        <div className="text-gray-400">
+                          <span className="font-medium">Assigned to:</span> {record.assignedTo || 'Not assigned'}
+                        </div>
+                        <div className="text-gray-400">
+                          <span className="font-medium">Duration:</span> {record.estimatedDuration || 'TBD'} hours
                         </div>
                       </div>
+                      {record.workNotes && (
+                        <div className="mt-4 p-3 bg-gray-800/50 rounded">
+                          <span className="text-gray-400 text-sm font-medium">Work Notes:</span>
+                          <p className="text-gray-300 text-sm mt-1">{record.workNotes}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 )) : (
