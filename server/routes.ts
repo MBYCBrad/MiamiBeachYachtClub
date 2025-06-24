@@ -4418,10 +4418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get crew assignments and pending bookings - Real-time database integration
-  app.get("/api/crew/assignments", async (req, res) => {
-    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
-      return res.sendStatus(401);
-    }
+  app.get("/api/crew/assignments", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       // Get all confirmed bookings that are upcoming
       const allBookings = await dbStorage.getBookings();
