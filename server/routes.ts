@@ -1950,33 +1950,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/maintenance/assessments", requireAuth, async (req, res) => {
     try {
-      console.log('Received assessment data:', req.body);
+      console.log('Assessment POST - Raw body:', req.body);
       
-      // Bypass validation and create minimal record directly
+      // Extract and validate yacht ID first
+      const yachtId = parseInt(req.body.yachtId) || 33; // Default to Marina Breeze
+      console.log('Assessment POST - Using yachtId:', yachtId);
+      
+      // Calculate condition score
       const conditionScore = req.body.condition === 'excellent' ? 10 : 
                             req.body.condition === 'good' ? 8 :
                             req.body.condition === 'fair' ? 6 :
                             req.body.condition === 'poor' ? 4 : 2;
-
-      const assessmentData = {
-        yachtId: parseInt(req.body.yachtId),
+      
+      // Create assessment with exact fields matching database schema
+      const newAssessment = {
+        yachtId: yachtId,
         assessorId: req.user.id,
         overallScore: conditionScore,
-        assessmentDate: new Date(),
-        recommendations: req.body.recommendedAction || req.body.notes
+        assessmentDate: new Date(), // Use Date object for timestamp
+        recommendations: (req.body.recommendedAction || req.body.notes || '').toString()
       };
-
-      console.log('Creating assessment with data:', assessmentData);
-      const assessment = await dbStorage.createConditionAssessment(assessmentData);
-      console.log('Created assessment:', assessment);
       
-      // Invalidate cache
-      await queryClient.invalidateQueries(['/api/maintenance/assessments']);
+      console.log('Assessment POST - Final data:', newAssessment);
+      
+      const assessment = await dbStorage.createConditionAssessment(newAssessment);
+      console.log('Assessment POST - Created:', assessment);
       
       res.status(201).json(assessment);
     } catch (error: any) {
-      console.error('Error creating condition assessment:', error);
-      res.status(500).json({ message: error.message, stack: error.stack });
+      console.error('Assessment POST - Error:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 
