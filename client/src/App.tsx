@@ -30,7 +30,7 @@ function Router() {
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} />
+      <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
