@@ -201,20 +201,7 @@ export default function YachtMaintenance() {
               <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Yacht Maintenance System</h1>
               <p className="text-lg text-gray-400">Comprehensive yacht tracking, maintenance, and resale optimization</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Select value={selectedYacht?.toString() || ""} onValueChange={(value) => setSelectedYacht(Number(value))}>
-                <SelectTrigger className="w-64 bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
-                  <SelectValue placeholder="Select a yacht..." />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
-                  {yachts.map((yacht: any) => (
-                    <SelectItem key={yacht.id} value={yacht.id.toString()}>
-                      {yacht.name} ({yacht.size}ft)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
           </div>
         </div>
       </div>
