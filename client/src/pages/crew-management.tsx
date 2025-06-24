@@ -299,11 +299,11 @@ export default function CrewManagementPage() {
                         <DialogTrigger asChild>
                           <Button 
                             size="sm" 
-                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 w-8 h-8 p-0"
                             onClick={() => setSelectedBooking(booking)}
+                            title="Assign Crew"
                           >
-                            <UserPlus className="h-4 w-4 mr-1" />
-                            Assign Crew
+                            <UserPlus className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
                         <CrewAssignmentDialog 
@@ -391,14 +391,13 @@ export default function CrewManagementPage() {
                         <div className="flex items-center gap-2 mb-1">
                           {getCrewRoleIcon(member.role)}
                           <span className="font-medium text-white">{member.username}</span>
-                          <Badge 
-                            className={`text-xs ${
-                              member.status === 'active' ? 'bg-green-600' :
-                              member.status === 'inactive' ? 'bg-blue-600' : 'bg-gray-600'
+                          <div 
+                            className={`w-2 h-2 rounded-full ${
+                              member.status === 'active' ? 'bg-green-400' :
+                              member.status === 'inactive' ? 'bg-blue-400' : 'bg-gray-400'
                             }`}
-                          >
-                            {member.status}
-                          </Badge>
+                            title={member.status}
+                          />
                         </div>
                         
                         <p className="text-sm text-gray-300 mb-2">{member.role} • {member.location || 'Marina Bay'}</p>
@@ -468,10 +467,10 @@ export default function CrewManagementPage() {
                           assignmentId: assignment.id,
                           status: assignment.status === 'planned' ? 'assigned' : 'active'
                         })}
-                        className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
+                        className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                        title="Update Status"
                       >
-                        <Settings className="h-4 w-4 mr-1" />
-                        Update
+                        <Settings className="h-4 w-4" />
                       </Button>
                     </div>
 
