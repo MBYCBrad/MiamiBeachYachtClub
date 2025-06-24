@@ -3079,7 +3079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/maintenance/assessments", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.post("/api/maintenance/assessments", requireAuth, requireRole([UserRole.ADMIN, UserRole.OWNER]), async (req, res) => {
     try {
       const assessment = await dbStorage.createConditionAssessment(req.body);
       res.status(201).json(assessment);
@@ -3152,21 +3152,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username or email already exists" });
       }
 
-      // Hash password before creating staff user
-      const { hashPassword } = await import('./auth');
-      const hashedPassword = await hashPassword(password);
-      
       // Create staff user with admin as creator
       const newStaff = await dbStorage.createUser({
         username,
         email,
-        password: hashedPassword,
+        password,
         role,
         permissions: permissions || [],
         phone: phone || null,
         location: location || null,
         createdBy: req.user!.id,
-        membershipStatus: 'active'
+        status: 'active'
       });
 
       // Create notification for staff creation
@@ -4109,7 +4105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userId, reason, tripId, yachtId } = req.body;
       
       // Get member details
-      const member = await dbStorage.getUser(userId);
+      const member = await storage.getUser(userId);
       if (!member || !member.phone) {
         return res.status(400).json({ message: 'Member not found or phone number missing' });
       }
@@ -4117,7 +4113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const callId = `call_${Date.now()}_${userId}`;
       
       // Create call record
-      const call = await dbStorage.createPhoneCall({
+      const call = await storage.createPhoneCall({
         id: callId,
         memberId: userId,
         memberName: member.username,
@@ -4144,13 +4140,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             record: true
           });
 
-          await dbStorage.updatePhoneCall(callId, {
+          await storage.updatePhoneCall(callId, {
             metadata: { twilioCallSid: twilioCall.sid },
             status: 'ringing'
           });
         } catch (twilioError: any) {
           console.error('Twilio call error:', twilioError);
-          await dbStorage.updatePhoneCall(callId, {
+          await storage.updatePhoneCall(callId, {
             status: 'failed',
             metadata: { errorMessage: twilioError.message }
           });
@@ -4180,7 +4176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
-      const call = await dbStorage.updatePhoneCall(id, {
+      const call = await storage.updatePhoneCall(id, {
         status: 'active',
         agentId: req.user!.id
       });
