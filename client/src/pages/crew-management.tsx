@@ -383,9 +383,8 @@ export default function CrewManagementPage() {
                   >
                     <div className="flex items-start gap-3">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={member.avatar} />
                         <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                          {member.username.substring(0, 2).toUpperCase()}
+                          {(member.username || member.name || 'CM').substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       
@@ -742,7 +741,7 @@ function CrewAssignmentDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-400 text-sm">Member</p>
-                  <p className="text-white font-semibold">{booking.member?.name || booking.member?.username}</p>
+                  <p className="text-white font-semibold">{booking.memberName || 'Member'}</p>
                   <p className="text-gray-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
                 </div>
                 <div>
