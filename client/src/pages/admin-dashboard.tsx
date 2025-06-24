@@ -848,7 +848,7 @@ function AddUserDialog() {
           Add User
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl dialog-content-spacing">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Add New User</DialogTitle>
         </DialogHeader>
@@ -975,7 +975,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl dialog-content-spacing">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Edit User</DialogTitle>
         </DialogHeader>
@@ -1080,7 +1080,7 @@ function DeleteUserDialog({ user: userData }: { user: any }) {
           <Trash2 className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Delete User</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -1361,7 +1361,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl dialog-content-spacing">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-3xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
         </DialogHeader>
@@ -1512,7 +1512,7 @@ function DeleteYachtDialog({ yacht }: { yacht: any }) {
           <Trash2 className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Delete Yacht</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -1585,7 +1585,7 @@ function AddServiceDialog() {
           Add Service
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl dialog-content-spacing">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-4xl dialog-content-spacing">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Service</DialogTitle>
         </DialogHeader>
@@ -1744,7 +1744,7 @@ function EditServiceDialog({ service }: { service: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Service</DialogTitle>
         </DialogHeader>
@@ -1869,7 +1869,7 @@ function DeleteServiceDialog({ service }: { service: any }) {
           <Trash2 className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Delete Service</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -1954,7 +1954,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
           Add Event
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Add New Event</DialogTitle>
         </DialogHeader>
@@ -2142,7 +2142,7 @@ function EditEventDialog({ event }: { event: any }) {
           <Edit className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Event</DialogTitle>
         </DialogHeader>
@@ -2274,7 +2274,7 @@ function DeleteEventDialog({ event }: { event: any }) {
           <Trash2 className="h-3 w-3" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Delete Event</DialogTitle>
           <DialogDescription className="text-gray-400">

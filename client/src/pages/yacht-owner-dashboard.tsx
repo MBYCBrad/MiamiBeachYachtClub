@@ -131,7 +131,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
           <DialogDescription className="text-gray-400">

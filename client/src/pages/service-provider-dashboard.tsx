@@ -140,7 +140,7 @@ function AddServiceDialog() {
           Create New Service
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Create New Service</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -340,7 +340,7 @@ function EditServiceDialog({ service }: { service: any }) {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Edit Service</DialogTitle>
           <DialogDescription className="text-gray-400">
