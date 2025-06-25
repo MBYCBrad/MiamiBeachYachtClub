@@ -2554,7 +2554,7 @@ function DeleteUserDialog({ user: userData }: { user: any }) {
             </div>
 
             <div className="flex items-center space-x-4">
-              <NotificationDropdown />
+              <AdminNotificationCenter />
               <MessagesDropdown />
               
               <div className="flex items-center space-x-2 text-sm text-gray-400">
