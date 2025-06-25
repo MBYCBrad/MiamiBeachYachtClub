@@ -37,6 +37,7 @@ export interface IStorage {
   // Staff methods - completely separate from user methods
   getStaff(id: number): Promise<Staff | undefined>;
   getStaffByUsername(username: string): Promise<Staff | undefined>;
+  getStaffByUserId(userId: number): Promise<Staff | undefined>;
   createStaff(staff: InsertStaff): Promise<Staff>;
   updateStaff(id: number, staff: Partial<InsertStaff>): Promise<Staff | undefined>;
   deleteStaff(id: number): Promise<boolean>;
@@ -231,6 +232,16 @@ export class DatabaseStorage implements IStorage {
 
   async getStaffByUsername(username: string): Promise<Staff | undefined> {
     const [staffMember] = await db.select().from(staff).where(eq(staff.username, username));
+    return staffMember || undefined;
+  }
+
+  async getStaffByUserId(userId: number): Promise<Staff | undefined> {
+    // For now, we'll use username mapping since staff table doesn't have userId reference
+    // This could be enhanced later to add proper user relationship
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    
+    const [staffMember] = await db.select().from(staff).where(eq(staff.username, user.username));
     return staffMember || undefined;
   }
 
