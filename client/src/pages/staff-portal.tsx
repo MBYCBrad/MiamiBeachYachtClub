@@ -2702,6 +2702,30 @@ export default function StaffPortal() {
                 </tr>
               </thead>
               <tbody>
+                {/* Debug test row */}
+                <tr className="border-b border-gray-800">
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST ID</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST CUSTOMER NAME</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST SERVICE NAME</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">$999.99</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST DATE</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST STATUS</span>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span className="text-white font-bold">TEST ACTIONS</span>
+                  </td>
+                </tr>
                 {filteredPayments.slice(0, 10).map((payment: any, index: number) => (
                   <motion.tr
                     key={payment.id}
@@ -2740,7 +2764,7 @@ export default function StaffPortal() {
                             position: 'relative',
                             zIndex: 99999
                           }}>
-                            {payment.customer || 'TEST CUSTOMER'}
+                            CUSTOMER: {payment.customer || payment.fullName || payment.username || 'NO DATA'}
                           </div>
                           <div style={{ 
                             color: '#9CA3AF', 
@@ -2764,7 +2788,7 @@ export default function StaffPortal() {
                           position: 'relative',
                           zIndex: 99999
                         }}>
-                          {payment.serviceEvent || 'TEST SERVICE'}
+                          SERVICE: {payment.serviceEvent || payment.serviceName || 'NO DATA'}
                         </div>
                         <div style={{ 
                           color: '#9CA3AF', 
