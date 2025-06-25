@@ -2753,7 +2753,7 @@ export default function StaffPortal() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-violet-400 hover:text-white"
+                        className="text-emerald-400 hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
                         onClick={() => handleViewEvent(event)}
                       >
                         <Eye className="h-4 w-4" />
@@ -4680,6 +4680,71 @@ export default function StaffPortal() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* View Event Dialog */}
+      {selectedEvent && (
+        <Dialog open={showViewEventDialog} onOpenChange={setShowViewEventDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">View Event Details</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Event Name</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedEvent.title || selectedEvent.name || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Event Type</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedEvent.eventType || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Date</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedEvent.eventDate ? new Date(selectedEvent.eventDate).toLocaleDateString() : 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Location</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedEvent.location || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Capacity</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedEvent.maxCapacity || selectedEvent.capacity || 'N/A'} guests
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Ticket Price</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    ${selectedEvent.ticketPrice || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Description</label>
+                <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                  {selectedEvent.description || 'N/A'}
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewEventDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* View Booking Dialog */}
       <Dialog open={showViewBookingDialog} onOpenChange={setShowViewBookingDialog}>
