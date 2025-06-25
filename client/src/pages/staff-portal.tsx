@@ -213,6 +213,84 @@ export default function StaffPortal() {
     }
   });
 
+  // Yacht mutations
+  const createYachtMutation = useMutation({
+    mutationFn: (yachtData: any) => apiRequest('/api/staff/yachts', {
+      method: 'POST',
+      body: JSON.stringify(yachtData)
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/yachts'] });
+      setIsAddYachtDialogOpen(false);
+      setNewYachtData({
+        name: '',
+        location: '',
+        capacity: '',
+        type: '',
+        length: '',
+        yearMade: '',
+        totalCost: '',
+        description: '',
+        amenities: [],
+        ownerId: ''
+      });
+      toast({
+        title: "Success",
+        description: "Yacht created successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create yacht",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const updateYachtMutation = useMutation({
+    mutationFn: ({ id, ...yachtData }: any) => apiRequest(`/api/staff/yachts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(yachtData)
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/yachts'] });
+      setIsEditYachtDialogOpen(false);
+      setSelectedYacht(null);
+      toast({
+        title: "Success",
+        description: "Yacht updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update yacht",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deleteYachtMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/staff/yachts/${id}`, {
+      method: 'DELETE'
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/yachts'] });
+      toast({
+        title: "Success",
+        description: "Yacht deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete yacht",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Logout function
   const handleLogout = async () => {
     try {
@@ -283,6 +361,24 @@ export default function StaffPortal() {
     fullName: '',
     phone: '',
     location: ''
+  });
+
+  // Yacht dialog states
+  const [isAddYachtDialogOpen, setIsAddYachtDialogOpen] = useState(false);
+  const [isEditYachtDialogOpen, setIsEditYachtDialogOpen] = useState(false);
+  const [isViewYachtDialogOpen, setIsViewYachtDialogOpen] = useState(false);
+  const [selectedYacht, setSelectedYacht] = useState<any>(null);
+  const [newYachtData, setNewYachtData] = useState({
+    name: '',
+    location: '',
+    capacity: '',
+    type: '',
+    length: '',
+    yearMade: '',
+    totalCost: '',
+    description: '',
+    amenities: [] as string[],
+    ownerId: ''
   });
 
   // API Queries - using staff endpoints where appropriate
@@ -980,7 +1076,7 @@ export default function StaffPortal() {
                   id="username"
                   value={newUserData.username}
                   onChange={(e) => setNewUserData({...newUserData, username: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter username"
                 />
               </div>
@@ -992,7 +1088,7 @@ export default function StaffPortal() {
                   type="email"
                   value={newUserData.email}
                   onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter email address"
                 />
               </div>
@@ -1004,7 +1100,7 @@ export default function StaffPortal() {
                   type="password"
                   value={newUserData.password}
                   onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter password"
                 />
               </div>
@@ -1015,7 +1111,7 @@ export default function StaffPortal() {
                   id="fullName"
                   value={newUserData.fullName}
                   onChange={(e) => setNewUserData({...newUserData, fullName: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter full name"
                 />
               </div>
@@ -1023,10 +1119,10 @@ export default function StaffPortal() {
               <div className="space-y-2">
                 <Label htmlFor="role" className="text-white">Role</Label>
                 <Select value={newUserData.role} onValueChange={(value) => setNewUserData({...newUserData, role: value})}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                  <SelectContent className="bg-gray-950 border-gray-600 text-white">
                     <SelectItem value="member">Member</SelectItem>
                     <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                     <SelectItem value="service_provider">Service Provider</SelectItem>
@@ -1038,10 +1134,10 @@ export default function StaffPortal() {
               <div className="space-y-2">
                 <Label htmlFor="membershipTier" className="text-white">Membership Tier</Label>
                 <Select value={newUserData.membershipTier} onValueChange={(value) => setNewUserData({...newUserData, membershipTier: value})}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
                     <SelectValue placeholder="Select tier" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                  <SelectContent className="bg-gray-950 border-gray-600 text-white">
                     <SelectItem value="bronze">Bronze</SelectItem>
                     <SelectItem value="silver">Silver</SelectItem>
                     <SelectItem value="gold">Gold</SelectItem>
@@ -1056,7 +1152,7 @@ export default function StaffPortal() {
                   id="phone"
                   value={newUserData.phone}
                   onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter phone number"
                 />
               </div>
@@ -1067,7 +1163,7 @@ export default function StaffPortal() {
                   id="location"
                   value={newUserData.location}
                   onChange={(e) => setNewUserData({...newUserData, location: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-gray-950 border-gray-600 text-white"
                   placeholder="Enter location"
                 />
               </div>
@@ -1191,7 +1287,7 @@ export default function StaffPortal() {
                     id="edit-username"
                     value={selectedUser.username}
                     onChange={(e) => setSelectedUser({...selectedUser, username: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-gray-950 border-gray-600 text-white"
                   />
                 </div>
                 
@@ -1202,7 +1298,7 @@ export default function StaffPortal() {
                     type="email"
                     value={selectedUser.email}
                     onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-gray-950 border-gray-600 text-white"
                   />
                 </div>
                 
@@ -1212,17 +1308,17 @@ export default function StaffPortal() {
                     id="edit-fullName"
                     value={selectedUser.fullName || ''}
                     onChange={(e) => setSelectedUser({...selectedUser, fullName: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-gray-950 border-gray-600 text-white"
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="edit-role" className="text-white">Role</Label>
                   <Select value={selectedUser.role} onValueChange={(value) => setSelectedUser({...selectedUser, role: value})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                    <SelectContent className="bg-gray-950 border-gray-600 text-white">
                       <SelectItem value="member">Member</SelectItem>
                       <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                       <SelectItem value="service_provider">Service Provider</SelectItem>
@@ -1234,10 +1330,10 @@ export default function StaffPortal() {
                 <div className="space-y-2">
                   <Label htmlFor="edit-membershipTier" className="text-white">Membership Tier</Label>
                   <Select value={selectedUser.membershipTier || 'bronze'} onValueChange={(value) => setSelectedUser({...selectedUser, membershipTier: value})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                    <SelectContent className="bg-gray-950 border-gray-600 text-white">
                       <SelectItem value="bronze">Bronze</SelectItem>
                       <SelectItem value="silver">Silver</SelectItem>
                       <SelectItem value="gold">Gold</SelectItem>
@@ -1252,7 +1348,7 @@ export default function StaffPortal() {
                     id="edit-phone"
                     value={selectedUser.phone || ''}
                     onChange={(e) => setSelectedUser({...selectedUser, phone: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-gray-950 border-gray-600 text-white"
                   />
                 </div>
                 
@@ -1262,17 +1358,17 @@ export default function StaffPortal() {
                     id="edit-location"
                     value={selectedUser.location || ''}
                     onChange={(e) => setSelectedUser({...selectedUser, location: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-gray-950 border-gray-600 text-white"
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="edit-status" className="text-white">Status</Label>
                   <Select value={selectedUser.isActive !== false ? 'active' : 'inactive'} onValueChange={(value) => setSelectedUser({...selectedUser, isActive: value === 'active'})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                    <SelectContent className="bg-gray-950 border-gray-600 text-white">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                     </SelectContent>
@@ -2115,8 +2211,39 @@ export default function StaffPortal() {
                       Available
                     </Badge>
                     <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="ghost" className="text-blue-400 hover:text-white">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-gray-400 hover:text-white"
+                        onClick={() => {
+                          setSelectedYacht(yacht);
+                          setIsViewYachtDialogOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-gray-400 hover:text-white"
+                        onClick={() => {
+                          setSelectedYacht(yacht);
+                          setIsEditYachtDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-gray-400 hover:text-red-400"
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete yacht ${yacht.name}?`)) {
+                            deleteYachtMutation.mutate(yacht.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -2126,6 +2253,283 @@ export default function StaffPortal() {
           ))
         )}
       </div>
+
+      {/* Add Yacht Dialog */}
+      <Dialog open={isAddYachtDialogOpen} onOpenChange={setIsAddYachtDialogOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Add New Yacht</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Create a new yacht listing for the fleet
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="yacht-name" className="text-white">Yacht Name</Label>
+              <Input
+                id="yacht-name"
+                value={newYachtData.name}
+                onChange={(e) => setNewYachtData({...newYachtData, name: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter yacht name"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="yacht-location" className="text-white">Location</Label>
+              <Input
+                id="yacht-location"
+                value={newYachtData.location}
+                onChange={(e) => setNewYachtData({...newYachtData, location: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter location"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="yacht-type" className="text-white">Type</Label>
+              <Select value={newYachtData.type} onValueChange={(value) => setNewYachtData({...newYachtData, type: value})}>
+                <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-950 border-gray-600 text-white">
+                  <SelectItem value="Motor Yacht">Motor Yacht</SelectItem>
+                  <SelectItem value="Sailing Yacht">Sailing Yacht</SelectItem>
+                  <SelectItem value="Catamaran">Catamaran</SelectItem>
+                  <SelectItem value="Sport Fishing">Sport Fishing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="yacht-capacity" className="text-white">Capacity</Label>
+              <Input
+                id="yacht-capacity"
+                type="number"
+                value={newYachtData.capacity}
+                onChange={(e) => setNewYachtData({...newYachtData, capacity: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter capacity"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="yacht-length" className="text-white">Length (ft)</Label>
+              <Input
+                id="yacht-length"
+                type="number"
+                value={newYachtData.length}
+                onChange={(e) => setNewYachtData({...newYachtData, length: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter length"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="yacht-year" className="text-white">Year Made</Label>
+              <Input
+                id="yacht-year"
+                type="number"
+                value={newYachtData.yearMade}
+                onChange={(e) => setNewYachtData({...newYachtData, yearMade: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter year"
+              />
+            </div>
+            
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="yacht-description" className="text-white">Description</Label>
+              <Input
+                id="yacht-description"
+                value={newYachtData.description}
+                onChange={(e) => setNewYachtData({...newYachtData, description: e.target.value})}
+                className="bg-gray-950 border-gray-600 text-white"
+                placeholder="Enter description"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddYachtDialogOpen(false)} className="border-gray-600 text-gray-400">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => createYachtMutation.mutate(newYachtData)}
+              disabled={createYachtMutation.isPending}
+              className="bg-gradient-to-r from-purple-600 to-blue-600"
+            >
+              {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Yacht Dialog */}
+      <Dialog open={isViewYachtDialogOpen} onOpenChange={setIsViewYachtDialogOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Yacht Details</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View yacht information and specifications
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedYacht && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label className="text-gray-400">Yacht Name</Label>
+                <p className="text-white font-medium">{selectedYacht.name}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-400">Location</Label>
+                <p className="text-white font-medium">{selectedYacht.location}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-400">Type</Label>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  {selectedYacht.type}
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-400">Capacity</Label>
+                <p className="text-white font-medium">{selectedYacht.capacity} guests</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-400">Length</Label>
+                <p className="text-white font-medium">{selectedYacht.size || selectedYacht.length}ft</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-400">Year Made</Label>
+                <p className="text-white font-medium">{selectedYacht.yearMade || 'Not specified'}</p>
+              </div>
+              
+              <div className="col-span-2 space-y-2">
+                <Label className="text-gray-400">Description</Label>
+                <p className="text-white font-medium">{selectedYacht.description || 'No description available'}</p>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewYachtDialogOpen(false)} className="border-gray-600 text-gray-400">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Yacht Dialog */}
+      <Dialog open={isEditYachtDialogOpen} onOpenChange={setIsEditYachtDialogOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Edit Yacht</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update yacht information and specifications
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedYacht && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-name" className="text-white">Yacht Name</Label>
+                <Input
+                  id="edit-yacht-name"
+                  value={selectedYacht.name}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, name: e.target.value})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-location" className="text-white">Location</Label>
+                <Input
+                  id="edit-yacht-location"
+                  value={selectedYacht.location}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, location: e.target.value})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-type" className="text-white">Type</Label>
+                <Select value={selectedYacht.type} onValueChange={(value) => setSelectedYacht({...selectedYacht, type: value})}>
+                  <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-950 border-gray-600 text-white">
+                    <SelectItem value="Motor Yacht">Motor Yacht</SelectItem>
+                    <SelectItem value="Sailing Yacht">Sailing Yacht</SelectItem>
+                    <SelectItem value="Catamaran">Catamaran</SelectItem>
+                    <SelectItem value="Sport Fishing">Sport Fishing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-capacity" className="text-white">Capacity</Label>
+                <Input
+                  id="edit-yacht-capacity"
+                  type="number"
+                  value={selectedYacht.capacity}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, capacity: parseInt(e.target.value)})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-length" className="text-white">Length (ft)</Label>
+                <Input
+                  id="edit-yacht-length"
+                  type="number"
+                  value={selectedYacht.size || selectedYacht.length}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, size: parseInt(e.target.value), length: parseInt(e.target.value)})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-yacht-year" className="text-white">Year Made</Label>
+                <Input
+                  id="edit-yacht-year"
+                  type="number"
+                  value={selectedYacht.yearMade || ''}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, yearMade: parseInt(e.target.value)})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="edit-yacht-description" className="text-white">Description</Label>
+                <Input
+                  id="edit-yacht-description"
+                  value={selectedYacht.description || ''}
+                  onChange={(e) => setSelectedYacht({...selectedYacht, description: e.target.value})}
+                  className="bg-gray-950 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditYachtDialogOpen(false)} className="border-gray-600 text-gray-400">
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => updateYachtMutation.mutate(selectedYacht)}
+              disabled={updateYachtMutation.isPending}
+              className="bg-gradient-to-r from-purple-600 to-blue-600"
+            >
+              {updateYachtMutation.isPending ? "Updating..." : "Update Yacht"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 
@@ -2346,8 +2750,46 @@ export default function StaffPortal() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-orange-400 hover:text-white">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => {
+                        toast({
+                          title: "Service Details",
+                          description: `Viewing details for ${service.name}`,
+                        });
+                      }}
+                    >
                       <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => {
+                        toast({
+                          title: "Edit Service",
+                          description: `Editing ${service.name}`,
+                        });
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-red-400"
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete service ${service.name}?`)) {
+                          toast({
+                            title: "Service Deleted",
+                            description: `${service.name} has been removed`,
+                          });
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -2393,9 +2835,13 @@ export default function StaffPortal() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
-            <DollarSign className="h-4 w-4 mr-2" />
-            Export Data
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+            onClick={() => setIsAddYachtDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Yacht
           </Button>
           <Popover>
             <PopoverTrigger asChild>

@@ -365,6 +365,14 @@ Changelog:
   - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
   - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
   - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
+- June 25, 2025. Complete staff portal CRUD functionality with bg-gray-950 form styling implemented
+  - Implemented full CRUD operations for user management: Add/View/Edit/Delete with complete database integration
+  - Added comprehensive dialog forms with validation, error handling, and real-time cache invalidation
+  - Form backgrounds updated to bg-gray-950 per user requirement for improved dark theme consistency
+  - All action icons (Eye, Edit, Delete) now fully functional with toast notifications and confirmation dialogs
+  - Payment and notification management buttons operational with proper click handlers
+  - Complete user management system with role-based permissions and membership tier controls
+  - Real-time database persistence with React Query mutations and automatic UI updates
 - June 25, 2025. Staff portal yacht maintenance system fixed and operational
   - Resolved critical React hooks ordering error that caused black screen crashes
   - Created yacht-maintenance-fixed.tsx with proper hooks structure (all hooks at top level before any conditional logic)
