@@ -2734,37 +2734,79 @@ export default function StaffPortal() {
                         </Badge>
                       </div>
                     </td>
-                    <td className="py-4 px-4 relative z-10">
-                      <div className="flex items-center space-x-3 relative z-20">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center relative z-30">
-                          <span className="text-white text-xs font-semibold" style={{ color: 'white', zIndex: 1000 }}>
+                    <td className="py-4 px-4" style={{ zIndex: 9999, position: 'relative' }}>
+                      <div className="flex items-center space-x-3" style={{ zIndex: 9999, position: 'relative' }}>
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center" style={{ zIndex: 9999, position: 'relative' }}>
+                          <span className="text-xs font-semibold" style={{ 
+                            color: 'white !important', 
+                            zIndex: 9999, 
+                            position: 'relative',
+                            backgroundColor: 'transparent',
+                            display: 'block'
+                          }}>
                             {(payment.customer || payment.fullName || payment.username || 'Demo Member')[0].toUpperCase()}
                           </span>
                         </div>
-                        <div className="relative z-10">
-                          <p className="text-white font-medium relative z-20" style={{ color: 'white', zIndex: 1000 }}>
+                        <div className="relative" style={{ zIndex: 9999 }}>
+                          <p className="font-medium" style={{ 
+                            color: 'white !important', 
+                            zIndex: 9999, 
+                            position: 'relative',
+                            backgroundColor: 'transparent',
+                            display: 'block'
+                          }}>
                             {payment.customer || payment.fullName || payment.username || 'Demo Member'}
                           </p>
-                          <p className="text-gray-400 text-xs relative z-20" style={{ color: '#9CA3AF', zIndex: 1000 }}>
+                          <p className="text-xs" style={{ 
+                            color: '#9CA3AF !important', 
+                            zIndex: 9999, 
+                            position: 'relative',
+                            backgroundColor: 'transparent',
+                            display: 'block'
+                          }}>
                             {payment.customerEmail || payment.email || 'demo@mbyc.com'}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4 relative z-10">
-                      <div className="relative z-10">
-                        <p className="text-white font-medium relative z-20" style={{ color: 'white', zIndex: 1000 }}>
+                    <td className="py-4 px-4" style={{ zIndex: 9999, position: 'relative' }}>
+                      <div className="relative" style={{ zIndex: 9999 }}>
+                        <p className="font-medium" style={{ 
+                          color: 'white !important', 
+                          zIndex: 9999, 
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          display: 'block'
+                        }}>
                           {payment.serviceEvent || payment.serviceName || 'Professional Makeup Artist'}
                         </p>
-                        <p className="text-gray-400 text-xs relative z-20" style={{ color: '#9CA3AF', zIndex: 1000 }}>
+                        <p className="text-xs" style={{ 
+                          color: '#9CA3AF !important', 
+                          zIndex: 9999, 
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          display: 'block'
+                        }}>
                           {payment.serviceCategory || 'Concierge & Lifestyle'}
                         </p>
                       </div>
                     </td>
-                    <td className="py-4 px-4 relative z-10">
-                      <div className="relative z-20">
-                        <p className="text-white font-bold text-lg" style={{ color: 'white', zIndex: 1000 }}>${Number(payment.amount || 0).toFixed(2)}</p>
-                        <p className="text-gray-400 text-xs" style={{ color: '#9CA3AF', zIndex: 1000 }}>{payment.currency || 'USD'}</p>
+                    <td className="py-4 px-4" style={{ zIndex: 9999, position: 'relative' }}>
+                      <div className="relative" style={{ zIndex: 9999 }}>
+                        <p className="font-bold text-lg" style={{ 
+                          color: 'white !important', 
+                          zIndex: 9999, 
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          display: 'block'
+                        }}>${Number(payment.amount || 0).toFixed(2)}</p>
+                        <p className="text-xs" style={{ 
+                          color: '#9CA3AF !important', 
+                          zIndex: 9999, 
+                          position: 'relative',
+                          backgroundColor: 'transparent',
+                          display: 'block'
+                        }}>{payment.currency || 'USD'}</p>
                       </div>
                     </td>
                     <td className="py-4 px-4">
