@@ -5391,6 +5391,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/staff/profile", requireAuth, async (req, res) => {
+    try {
+      const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+      if (!staffUser) {
+        return res.status(404).json({ message: "Staff profile not found" });
+      }
+      res.json(staffUser);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get('/api/staff/notifications', requireAuth, async (req, res) => {
     try {
       const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);

@@ -49,12 +49,30 @@ export default function YachtMaintenance() {
   const queryClient = useQueryClient();
   const { user, staffUser } = useAuth();
 
+  // Query staff data for permission checking
+  const { data: staffData } = useQuery({
+    queryKey: ['/api/staff/profile'],
+    enabled: !!user && user.role !== 'admin' && user.role !== 'yacht_owner',
+  });
+
   // Check if user has yacht maintenance access
   const hasYachtMaintenanceAccess = user && (
     user.role === 'admin' || 
     user.role === 'yacht_owner' || 
-    (staffUser && staffUser.permissions && staffUser.permissions.includes('yachts'))
+    (staffData && staffData.permissions && staffData.permissions.includes('yachts'))
   );
+
+  // Show loading while checking staff permissions
+  if (user && user.role !== 'admin' && user.role !== 'yacht_owner' && !staffData) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-white">Checking permissions...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasYachtMaintenanceAccess) {
     return (
@@ -69,6 +87,9 @@ export default function YachtMaintenance() {
           </p>
           <p className="text-sm text-gray-500">
             Current role: {user?.role || 'Not authenticated'}
+          </p>
+          <p className="text-sm text-gray-500">
+            Staff permissions: {staffData?.permissions?.join(', ') || 'None'}
           </p>
         </div>
       </div>
