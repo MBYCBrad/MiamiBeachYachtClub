@@ -49,8 +49,14 @@ export default function YachtMaintenance() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Check user access - only yacht owners and admins can access maintenance
-  if (!user || (user.role !== 'admin' && user.role !== 'yacht_owner')) {
+  // Check user access - allow admins, yacht owners, and staff with yacht management permissions
+  const hasYachtAccess = user && (
+    user.role === 'admin' || 
+    user.role === 'yacht_owner' || 
+    (user.role === 'staff' && user.permissions?.includes('yachts'))
+  );
+
+  if (!user || !hasYachtAccess) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -59,7 +65,7 @@ export default function YachtMaintenance() {
           </div>
           <h2 className="text-2xl font-bold text-white mb-4">Access Restricted</h2>
           <p className="text-gray-400 mb-4">
-            The Yacht Maintenance System is only accessible to yacht owners and administrators.
+            The Yacht Maintenance System is only accessible to yacht owners, administrators, and staff with yacht management permissions.
           </p>
           <p className="text-sm text-gray-500">
             Current role: {user?.role || 'Not authenticated'}
