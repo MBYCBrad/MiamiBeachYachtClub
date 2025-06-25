@@ -158,7 +158,7 @@ export default function StaffManagement() {
   // Fetch staff users only (excluding members, yacht owners, service providers)
   const { data: staffUsers = [], isLoading: staffLoading } = useQuery<StaffUser[]>({
     queryKey: ['/api/admin/staff'],
-    enabled: !!user && user.role === 'admin',
+    enabled: !!hasStaffManagementAccess,
   });
 
   // Add staff mutation
