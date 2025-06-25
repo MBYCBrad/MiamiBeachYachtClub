@@ -177,18 +177,20 @@ export default function StaffManagement() {
 
   // Fetch staff users only (excluding members, yacht owners, service providers)
   const { data: staffUsers = [], isLoading: staffLoading } = useQuery<StaffUser[]>({
-    queryKey: ['/api/admin/staff'],
+    queryKey: user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'],
     enabled: !!hasStaffManagementAccess,
   });
 
   // Add staff mutation
   const addStaffMutation = useMutation({
     mutationFn: async (staffData: typeof newStaffData) => {
-      const response = await apiRequest('POST', '/api/admin/staff', staffData);
+      const endpoint = user?.role === 'admin' ? '/api/admin/staff' : '/api/staff/users';
+      const response = await apiRequest('POST', endpoint, staffData);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
+      queryClient.invalidateQueries({ queryKey });
       setShowAddDialog(false);
       setNewStaffData({
         fullName: "",
@@ -210,11 +212,13 @@ export default function StaffManagement() {
   // Update staff mutation
   const updateStaffMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<StaffUser> }) => {
-      const response = await apiRequest('PUT', `/api/admin/staff/${data.id}`, data.updates);
+      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${data.id}` : `/api/staff/users/${data.id}`;
+      const response = await apiRequest('PUT', endpoint, data.updates);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
+      queryClient.invalidateQueries({ queryKey });
       setShowEditDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff updated", description: "Staff member has been updated successfully" });
@@ -227,11 +231,13 @@ export default function StaffManagement() {
   // Delete staff mutation
   const deleteStaffMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest('DELETE', `/api/admin/staff/${id}`);
+      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${id}` : `/api/staff/users/${id}`;
+      const response = await apiRequest('DELETE', endpoint);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
+      queryClient.invalidateQueries({ queryKey });
       setShowDeleteDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff deleted", description: "Staff member has been removed successfully" });
