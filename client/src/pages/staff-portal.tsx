@@ -361,24 +361,8 @@ export default function StaffPortal() {
     });
   }, [events, eventFilters]);
 
-  const filteredPayments = useMemo(() => {
-    if (!payments) return [];
-    return (payments as any[]).filter((payment: any) => {
-      const typeMatch = paymentFilters.type === "all" || payment.type === paymentFilters.type;
-      const statusMatch = paymentFilters.status === "all" || payment.status === paymentFilters.status;
-      
-      const now = new Date();
-      const paymentDate = new Date(payment.createdAt);
-      const daysDiff = Math.floor((now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      const dateMatch = paymentFilters.dateRange === "all" ||
-        (paymentFilters.dateRange === "today" && daysDiff === 0) ||
-        (paymentFilters.dateRange === "week" && daysDiff <= 7) ||
-        (paymentFilters.dateRange === "month" && daysDiff <= 30);
-        
-      return typeMatch && statusMatch && dateMatch;
-    });
-  }, [payments, paymentFilters]);
+  // Remove filtering - display all payments directly
+  const filteredPayments = payments || [];
 
 
 
@@ -918,8 +902,8 @@ export default function StaffPortal() {
                           <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
                           {payment.platformFee > 0 && (
                             <div className="mt-1">
-                              <p className="text-gray-400 text-xs">Platform: ${payment.adminRevenue.toFixed(2)}</p>
-                              <p className="text-blue-400 text-xs">Provider: ${payment.providerRevenue.toFixed(2)}</p>
+                              <p className="text-gray-400 text-xs">Platform: ${Number(payment.adminRevenue || 0).toFixed(2)}</p>
+                              <p className="text-blue-400 text-xs">Provider: ${Number(payment.providerRevenue || 0).toFixed(2)}</p>
                             </div>
                           )}
                         </div>
@@ -2601,7 +2585,7 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0).toFixed(2) || '0.00'}
+            ${Number(payments?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0) || 0).toFixed(2)}
           </p>
           <p className="text-green-400 text-sm mt-1">All time revenue</p>
         </motion.div>
@@ -2719,7 +2703,7 @@ export default function StaffPortal() {
                     </td>
                     <td className="py-4 px-4">
                       <div>
-                        <p className="text-white font-bold text-lg">${payment.amount.toFixed(2)}</p>
+                        <p className="text-white font-bold text-lg">${Number(payment.amount || 0).toFixed(2)}</p>
                         <p className="text-gray-400 text-xs">{payment.currency || 'USD'}</p>
                       </div>
                     </td>
