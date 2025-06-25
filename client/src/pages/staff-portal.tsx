@@ -276,6 +276,40 @@ export default function StaffPortal() {
     });
   }, [users, userFilters]);
 
+  const filteredBookings = useMemo(() => {
+    if (!bookings) return [];
+    return (bookings as any[]).filter((booking: any) => {
+      const statusMatch = bookingFilters.status === "all" || booking.status === bookingFilters.status;
+      const tierMatch = bookingFilters.membershipTier === "all" || booking.memberTier === bookingFilters.membershipTier;
+      const sizeMatch = bookingFilters.yachtSize === "all" || 
+        (bookingFilters.yachtSize === "small" && booking.yachtSize <= 30) ||
+        (bookingFilters.yachtSize === "medium" && booking.yachtSize > 30 && booking.yachtSize <= 50) ||
+        (bookingFilters.yachtSize === "large" && booking.yachtSize > 50 && booking.yachtSize <= 80) ||
+        (bookingFilters.yachtSize === "luxury" && booking.yachtSize > 80);
+      
+      const timeMatch = bookingFilters.timeRange === "all" ||
+        (bookingFilters.timeRange === "today" && new Date(booking.startTime).toDateString() === new Date().toDateString()) ||
+        (bookingFilters.timeRange === "week" && new Date(booking.startTime) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) ||
+        (bookingFilters.timeRange === "month" && new Date(booking.startTime) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) ||
+        (bookingFilters.timeRange === "upcoming" && new Date(booking.startTime) >= new Date());
+
+      return statusMatch && tierMatch && sizeMatch && timeMatch;
+    }).sort((a: any, b: any) => {
+      switch (bookingFilters.sortBy) {
+        case 'date':
+          return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
+        case 'yacht':
+          return (a.yachtName || '').localeCompare(b.yachtName || '');
+        case 'member':
+          return (a.memberName || '').localeCompare(b.memberName || '');
+        case 'status':
+          return (a.status || '').localeCompare(b.status || '');
+        default:
+          return 0;
+      }
+    });
+  }, [bookings, bookingFilters]);
+
   const filteredYachts = useMemo(() => {
     if (!yachts) return [];
     return (yachts as any[]).filter((yacht: any) => {
@@ -346,24 +380,7 @@ export default function StaffPortal() {
     });
   }, [payments, paymentFilters]);
 
-  const filteredBookings = useMemo(() => {
-    if (!bookings) return [];
-    return (bookings as any[]).filter((booking: any) => {
-      const typeMatch = bookingFilters.type === "all" || booking.type === bookingFilters.type;
-      const statusMatch = bookingFilters.status === "all" || booking.status === bookingFilters.status;
-      
-      const now = new Date();
-      const bookingDate = new Date(booking.createdAt);
-      const daysDiff = Math.floor((now.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      const dateMatch = bookingFilters.dateRange === "all" ||
-        (bookingFilters.dateRange === "today" && daysDiff === 0) ||
-        (bookingFilters.dateRange === "week" && daysDiff <= 7) ||
-        (bookingFilters.dateRange === "month" && daysDiff <= 30);
-        
-      return typeMatch && statusMatch && dateMatch;
-    });
-  }, [bookings, bookingFilters]);
+
 
   // Search functionality
   const searchResults = sidebarItems.filter(item =>
