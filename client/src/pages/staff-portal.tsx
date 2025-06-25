@@ -670,25 +670,10 @@ export default function StaffPortal() {
   const [isViewYachtDialogOpen, setIsViewYachtDialogOpen] = useState(false);
 
   // Service dialog states
-  const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
-  const [isEditServiceDialogOpen, setIsEditServiceDialogOpen] = useState(false);
   const [isViewServiceDialogOpen, setIsViewServiceDialogOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [newServiceData, setNewServiceData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    pricePerSession: '',
-    duration: '',
-    location: '',
-    providerId: ''
-  });
 
   // Event dialog states
-  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
-  const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
   const [isViewEventDialogOpen, setIsViewEventDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   
   // Payment dialog states
   const [isViewPaymentDialogOpen, setIsViewPaymentDialogOpen] = useState(false);
@@ -699,15 +684,6 @@ export default function StaffPortal() {
   const [isViewBookingDialogOpen, setIsViewBookingDialogOpen] = useState(false);
   const [isEditBookingDialogOpen, setIsEditBookingDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
-  const [newEventData, setNewEventData] = useState({
-    title: '',
-    description: '',
-    eventType: '',
-    location: '',
-    maxCapacity: '',
-    ticketPrice: '',
-    eventDate: ''
-  });
 
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
