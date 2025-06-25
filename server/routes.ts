@@ -5122,12 +5122,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analytics = {
         totalUsers: users.length,
         totalBookings: bookings.length,
-        totalRevenue: totalRevenue,
+        totalRevenue: Number(totalRevenue) || 0,
         totalServices: services.length,
         totalEvents: events.length,
         todayBookings: todayBookings.length,
-        todayRevenue: todayRevenue,
-        averageBookingValue: bookings.length > 0 ? totalRevenue / bookings.length : 0,
+        todayRevenue: Number(todayRevenue) || 0,
+        averageBookingValue: bookings.length > 0 ? Number(totalRevenue) / bookings.length : 0,
         // Member tier breakdown
         memberTiers: {
           bronze: users.filter((u: any) => u.membershipTier === 'Bronze').length,
