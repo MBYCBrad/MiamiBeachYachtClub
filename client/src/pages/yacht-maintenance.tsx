@@ -49,8 +49,8 @@ export default function YachtMaintenance() {
   const queryClient = useQueryClient();
   const { user, staffUser } = useAuth();
 
-  // Query staff data for permission checking
-  const { data: staffData } = useQuery({
+  // Always call useQuery at top level - enabled controls when it runs
+  const { data: staffData, isLoading: staffLoading } = useQuery({
     queryKey: ['/api/staff/profile'],
     enabled: !!user && user.role !== 'admin' && user.role !== 'yacht_owner',
   });
@@ -63,7 +63,7 @@ export default function YachtMaintenance() {
   );
 
   // Show loading while checking staff permissions
-  if (user && user.role !== 'admin' && user.role !== 'yacht_owner' && !staffData) {
+  if (user && user.role !== 'admin' && user.role !== 'yacht_owner' && staffLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
