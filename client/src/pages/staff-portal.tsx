@@ -134,6 +134,7 @@ export default function StaffPortal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [crewFilter, setCrewFilter] = useState("all");
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -1271,40 +1272,247 @@ export default function StaffPortal() {
     </motion.div>
   );
 
-  const renderCrewManagement = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
-          >
-            Crew Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Yacht crew scheduling and assignment coordination
-          </motion.p>
+  const renderCrewManagement = () => {
+    const { data: activeBookings = [], isLoading: bookingsLoading } = useQuery<YachtBooking[]>({
+      queryKey: ["/api/staff/bookings"],
+      staleTime: 2 * 60 * 1000,
+    });
+
+    const { data: crewMembers = [], isLoading: crewLoading } = useQuery<any[]>({
+      queryKey: ["/api/staff/users"],
+      staleTime: 5 * 60 * 1000,
+    });
+
+    const [crewFilter, setCrewFilter] = useState("all");
+    const [selectedBooking, setSelectedBooking] = useState<YachtBooking | null>(null);
+
+    const filteredCrewMembers = (crewMembers || []).filter((member: any) => 
+      crewFilter === "all" || member?.status === crewFilter
+    );
+
+    const pendingBookings = activeBookings.filter((booking: any) => 
+      booking.status === 'confirmed' && new Date(booking.startTime) > new Date()
+    );
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Crew Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Yacht crew scheduling, assignment coordination, and team management
+            </motion.p>
+          </div>
         </div>
-      </div>
-      <Card className="bg-gray-900/50 border-gray-700/50">
-        <CardContent className="p-12 text-center">
-          <Anchor className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 text-lg">Crew Assignment System</p>
-          <p className="text-gray-500 text-sm">Yacht crew coordination and scheduling tools</p>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Crew</p>
+                  <p className="text-2xl font-bold text-white">{filteredCrewMembers.filter((m: any) => m.status === 'active').length}</p>
+                </div>
+                <Users className="h-8 w-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Pending Assignments</p>
+                  <p className="text-2xl font-bold text-white">{pendingBookings.length}</p>
+                </div>
+                <Clock className="h-8 w-8 text-yellow-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">This Week</p>
+                  <p className="text-2xl font-bold text-white">{activeBookings.length}</p>
+                </div>
+                <CheckCircle2 className="h-8 w-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Service Quality</p>
+                  <p className="text-2xl font-bold text-white">4.9/5</p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Pending Assignments */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Anchor className="h-5 w-5 mr-2 text-blue-400" />
+                Pending Crew Assignments
+              </CardTitle>
+              <CardDescription>Yacht bookings requiring crew assignment</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
+              {bookingsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+                  <p className="text-gray-400 mt-2">Loading bookings...</p>
+                </div>
+              ) : pendingBookings.length === 0 ? (
+                <div className="text-center py-8">
+                  <Anchor className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400">No pending assignments</p>
+                  <p className="text-gray-500 text-sm">All yacht bookings have crew assigned</p>
+                </div>
+              ) : (
+                pendingBookings.map((booking: any) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition-all cursor-pointer"
+                    onClick={() => setSelectedBooking(booking)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                          <Anchor className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-medium">{booking.yacht?.name || 'Yacht Booking'}</h4>
+                          <p className="text-gray-400 text-sm">{booking.user?.fullName || booking.user?.username}</p>
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" className="bg-purple-500/20 border-purple-500/30 text-purple-400 hover:bg-purple-500/30">
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Assign
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-400">Date:</span>
+                        <p className="text-white">{new Date(booking.startTime).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Time:</span>
+                        <p className="text-white">{new Date(booking.startTime).toLocaleTimeString()}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Guests:</span>
+                        <p className="text-white">{booking.guestCount || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Status:</span>
+                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
+                          Needs Crew
+                        </Badge>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Crew Members */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white">Crew Members</CardTitle>
+                <Select value={crewFilter} onValueChange={setCrewFilter}>
+                  <SelectTrigger className="w-40 bg-gray-900/50 border-gray-700">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Crew</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 max-h-[600px] overflow-y-auto">
+              {crewLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+                  <p className="text-gray-400 mt-2">Loading crew...</p>
+                </div>
+              ) : filteredCrewMembers.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400">No crew members found</p>
+                  <p className="text-gray-500 text-sm">Try adjusting your filter</p>
+                </div>
+              ) : (
+                filteredCrewMembers.map((member: any) => (
+                  <motion.div
+                    key={member.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:bg-gray-700/50 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                          <span className="text-white text-sm font-semibold">
+                            {(member.username || member.fullName || 'U')[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">{member.username || member.fullName || 'Unknown'}</p>
+                          <p className="text-gray-400 text-sm">{member.role || 'Crew Member'}</p>
+                        </div>
+                      </div>
+                      <Badge className={`${
+                        member.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        member.status === 'inactive' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                        'bg-red-500/20 text-red-400 border-red-500/30'
+                      }`}>
+                        {member.status || 'active'}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </motion.div>
+    );
+  };
 
   const renderCustomerService = () => (
     <motion.div
