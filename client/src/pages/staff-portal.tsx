@@ -2775,7 +2775,7 @@ export default function StaffPortal() {
                       </div>
                     </td>
                   </motion.tr>
-                ))
+                ))}
               </tbody>
             </table>
           </div>
