@@ -969,13 +969,7 @@ export default function CalendarPage() {
               Today
             </Button>
             
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-purple-600 to-blue-600"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Event
-            </Button>
+
           </div>
         </motion.div>
 
