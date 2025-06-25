@@ -25,7 +25,7 @@ import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
-import StaffPortal from "@/pages/staff-portal";
+import StaffPortalIntegrated from "@/pages/staff-portal-integrated";
 import CrewManagement from "@/pages/crew-management";
 import NotFound from "@/pages/not-found";
 
@@ -39,8 +39,8 @@ function Router() {
       <ProtectedRoute path="/admin/staff-management" component={StaffManagement} />
       <ProtectedRoute path="/admin/yacht-maintenance" component={YachtMaintenance} />
       <ProtectedRoute path="/crew-management" component={CrewManagement} />
-      <ProtectedRoute path="/staff" component={StaffPortal} />
-      <ProtectedRoute path="/staff-portal" component={StaffPortal} />
+      <ProtectedRoute path="/staff" component={StaffPortalIntegrated} />
+      <ProtectedRoute path="/staff-portal" component={StaffPortalIntegrated} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
