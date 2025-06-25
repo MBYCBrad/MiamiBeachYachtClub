@@ -71,13 +71,13 @@ export default function CrewManagementPage() {
 
   // Fetch active bookings requiring crew assignment
   const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
-    queryKey: ["/api/staff/bookings"],
+    queryKey: ["/api/admin/bookings"],
     staleTime: 2 * 60 * 1000,
   });
 
   // Fetch available staff members who can serve as crew
   const { data: crewMembers = [], isLoading: crewLoading, error: crewError } = useQuery<CrewMember[]>({
-    queryKey: ["/api/staff/users"],
+    queryKey: ["/api/admin/staff"],
     staleTime: 5 * 60 * 1000,
   });
 
@@ -88,7 +88,7 @@ export default function CrewManagementPage() {
   });
 
   const isLoading = bookingsLoading || crewLoading || assignmentsLoading;
-  const hasError = false; // Disable error state to show content with available data
+  const hasError = bookingsError || crewError || assignmentsError;
 
   const createCrewAssignmentMutation = useMutation({
     mutationFn: async (assignmentData: any) => {
@@ -102,8 +102,8 @@ export default function CrewManagementPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/bookings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/staff"] });
       toast({
         title: "Crew Assignment Created",
         description: "Crew successfully assigned to booking",
@@ -271,7 +271,7 @@ export default function CrewManagementPage() {
   // Show error state
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="text-red-400 text-6xl">⚠️</div>
           <p className="text-red-200">Error loading crew management data</p>
@@ -309,7 +309,7 @@ export default function CrewManagementPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <Card className="bg-gray-900/50 border-gray-700/50">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -321,7 +321,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -335,7 +335,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -347,7 +347,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -367,7 +367,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white">Crew Members</CardTitle>
@@ -543,7 +543,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Play className="h-5 w-5 text-blue-400" />
@@ -706,7 +706,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <History className="h-5 w-5 text-green-400" />

@@ -29,10 +29,7 @@ import {
   Info,
   Crown,
   Star,
-  Anchor,
-  Gem,
-  Shield,
-  Briefcase
+  Anchor
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -75,14 +72,14 @@ export default function CustomerServiceDashboard() {
 
   // Fetch all users for contacts
   const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
-    queryKey: ["/api/staff/users"],
+    queryKey: ["/api/admin/users"],
     staleTime: 60000,
     cacheTime: 300000
   });
 
-  // Filter contacts based on search and exclude admin/staff users
+  // Filter contacts based on search and exclude admin users
   const filteredContacts = users.filter(user => 
-    ['member', 'yacht_owner', 'service_provider'].includes(user.role) &&
+    user.role !== 'admin' &&
     (user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      user.membershipTier?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -253,11 +250,10 @@ export default function CustomerServiceDashboard() {
 
   const getMembershipIcon = (tier: string) => {
     switch (tier?.toLowerCase()) {
-      case 'platinum': return <Crown className="h-3 w-3 mr-1" />;
-      case 'gold': return <Star className="h-3 w-3 mr-1" />;
-      case 'silver': return <Gem className="h-3 w-3 mr-1" />;
-      case 'bronze': return <Shield className="h-3 w-3 mr-1" />;
-      default: return <Shield className="h-3 w-3 mr-1" />;
+      case 'platinum': return <Crown className="h-4 w-4 text-purple-400" />;
+      case 'gold': return <Star className="h-4 w-4 text-yellow-400" />;
+      case 'silver': return <Anchor className="h-4 w-4 text-gray-400" />;
+      default: return <User className="h-4 w-4 text-bronze-400" />;
     }
   };
 
@@ -266,26 +262,7 @@ export default function CustomerServiceDashboard() {
       case 'platinum': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
       case 'gold': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
       case 'silver': return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-      case 'bronze': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
-
-  const getRoleIcon = (role: string) => {
-    switch (role?.toLowerCase()) {
-      case 'member': return <User className="h-3 w-3 mr-1" />;
-      case 'yacht_owner': return <Anchor className="h-3 w-3 mr-1" />;
-      case 'service_provider': return <Briefcase className="h-3 w-3 mr-1" />;
-      default: return <User className="h-3 w-3 mr-1" />;
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role?.toLowerCase()) {
-      case 'member': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'yacht_owner': return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
-      case 'service_provider': return 'bg-green-500/20 text-green-300 border-green-500/30';
-      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      default: return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
     }
   };
 
@@ -436,16 +413,10 @@ export default function CustomerServiceDashboard() {
                             <div>
                               <h4 className="font-medium text-white">{contact.username}</h4>
                               <div className="flex items-center space-x-2">
-                                <Badge className={getRoleColor(contact.role)} variant="outline">
-                                  {getRoleIcon(contact.role)}
-                                  {contact.role?.replace('_', ' ').toUpperCase()}
+                                <Badge className={getMembershipColor(contact.membershipTier || 'bronze')} variant="outline">
+                                  {getMembershipIcon(contact.membershipTier || 'bronze')}
+                                  {contact.membershipTier?.toUpperCase()}
                                 </Badge>
-                                {contact.membershipTier && (
-                                  <Badge className={getMembershipColor(contact.membershipTier)} variant="outline">
-                                    {getMembershipIcon(contact.membershipTier)}
-                                    {contact.membershipTier.toUpperCase()}
-                                  </Badge>
-                                )}
                                 {contact.phone && (
                                   <span className="text-xs text-gray-400">{contact.phone}</span>
                                 )}
@@ -642,27 +613,28 @@ export default function CustomerServiceDashboard() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <UserCheck className="h-5 w-5 mr-2 text-purple-400" />
-                  Customer Types
+                  Member Tiers
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {['member', 'yacht_owner', 'service_provider'].map((role) => {
-                    const count = filteredContacts.filter(c => c.role === role).length;
+                  {['platinum', 'gold', 'silver', 'bronze'].map((tier) => {
+                    const count = filteredContacts.filter(c => c.membershipTier?.toLowerCase() === tier).length;
                     const percentage = filteredContacts.length > 0 ? (count / filteredContacts.length) * 100 : 0;
                     
                     return (
-                      <div key={role} className="flex items-center justify-between">
+                      <div key={tier} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          {getRoleIcon(role)}
-                          <span className="text-white capitalize">{role.replace('_', ' ')}</span>
+                          {getMembershipIcon(tier)}
+                          <span className="text-white capitalize">{tier}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
                             <div 
                               className={`h-full transition-all duration-500 ${
-                                role === 'member' ? 'bg-blue-500' :
-                                role === 'yacht_owner' ? 'bg-cyan-500' : 'bg-green-500'
+                                tier === 'platinum' ? 'bg-purple-500' :
+                                tier === 'gold' ? 'bg-yellow-500' :
+                                tier === 'silver' ? 'bg-gray-500' : 'bg-orange-500'
                               }`}
                               style={{ width: `${percentage}%` }}
                             />
@@ -706,16 +678,10 @@ export default function CustomerServiceDashboard() {
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{selectedContact.username}</h3>
                     <div className="flex items-center space-x-2 mt-1">
-                      <Badge className={getRoleColor(selectedContact.role)}>
-                        {getRoleIcon(selectedContact.role)}
-                        {selectedContact.role?.replace('_', ' ').toUpperCase()}
+                      <Badge className={getMembershipColor(selectedContact.membershipTier || 'bronze')}>
+                        {getMembershipIcon(selectedContact.membershipTier || 'bronze')}
+                        {selectedContact.membershipTier?.toUpperCase()} MEMBER
                       </Badge>
-                      {selectedContact.membershipTier && (
-                        <Badge className={getMembershipColor(selectedContact.membershipTier)}>
-                          {getMembershipIcon(selectedContact.membershipTier)}
-                          {selectedContact.membershipTier.toUpperCase()}
-                        </Badge>
-                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                       {selectedContact.email && (

@@ -136,26 +136,6 @@ export default function StaffManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Check if user has admin access or staff permissions for user management
-  const hasStaffManagementAccess = user && (
-    user.role === 'admin' || 
-    user.permissions?.includes('users')
-  );
-
-  if (!hasStaffManagementAccess) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl p-8">
-          <div className="text-center">
-            <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-            <p className="text-gray-400">Insufficient permissions to access staff management.</p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -177,20 +157,18 @@ export default function StaffManagement() {
 
   // Fetch staff users only (excluding members, yacht owners, service providers)
   const { data: staffUsers = [], isLoading: staffLoading } = useQuery<StaffUser[]>({
-    queryKey: user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'],
-    enabled: !!hasStaffManagementAccess,
+    queryKey: ['/api/admin/staff'],
+    enabled: !!user && user.role === 'admin',
   });
 
   // Add staff mutation
   const addStaffMutation = useMutation({
     mutationFn: async (staffData: typeof newStaffData) => {
-      const endpoint = user?.role === 'admin' ? '/api/admin/staff' : '/api/staff/users';
-      const response = await apiRequest('POST', endpoint, staffData);
+      const response = await apiRequest('POST', '/api/admin/staff', staffData);
       return response.json();
     },
     onSuccess: () => {
-      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
       setShowAddDialog(false);
       setNewStaffData({
         fullName: "",
@@ -212,13 +190,11 @@ export default function StaffManagement() {
   // Update staff mutation
   const updateStaffMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<StaffUser> }) => {
-      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${data.id}` : `/api/staff/users/${data.id}`;
-      const response = await apiRequest('PUT', endpoint, data.updates);
+      const response = await apiRequest('PUT', `/api/admin/staff/${data.id}`, data.updates);
       return response.json();
     },
     onSuccess: () => {
-      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
       setShowEditDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff updated", description: "Staff member has been updated successfully" });
@@ -231,13 +207,11 @@ export default function StaffManagement() {
   // Delete staff mutation
   const deleteStaffMutation = useMutation({
     mutationFn: async (id: number) => {
-      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${id}` : `/api/staff/users/${id}`;
-      const response = await apiRequest('DELETE', endpoint);
+      const response = await apiRequest('DELETE', `/api/admin/staff/${id}`);
       return response.json();
     },
     onSuccess: () => {
-      const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
       setShowDeleteDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff deleted", description: "Staff member has been removed successfully" });
@@ -317,7 +291,19 @@ export default function StaffManagement() {
     }
   };
 
-
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl p-8">
+          <div className="text-center">
+            <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+            <p className="text-gray-400">Only administrators can access staff management.</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">

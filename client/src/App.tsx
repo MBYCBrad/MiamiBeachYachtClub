@@ -26,8 +26,6 @@ import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
-import CrewManagement from "@/pages/crew-management";
-import LogoutPage from "@/pages/logout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -39,7 +37,6 @@ function Router() {
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
       <ProtectedRoute path="/admin/staff-management" component={StaffManagement} />
       <ProtectedRoute path="/admin/yacht-maintenance" component={YachtMaintenance} />
-      <ProtectedRoute path="/crew-management" component={CrewManagement} />
       <ProtectedRoute path="/staff" component={StaffPortal} />
       <ProtectedRoute path="/staff-portal" component={StaffPortal} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
