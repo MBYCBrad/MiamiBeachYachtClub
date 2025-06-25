@@ -53,13 +53,6 @@ export function ProtectedRoute({
         </Route>
       );
     }
-    if (user.role === "staff") {
-      return (
-        <Route path={path}>
-          <Redirect to="/staff-portal" />
-        </Route>
-      );
-    }
   }
 
   return (
