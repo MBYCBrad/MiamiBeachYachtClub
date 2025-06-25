@@ -271,7 +271,7 @@ export default function CrewManagementPage() {
   // Show error state
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="text-red-400 text-6xl">⚠️</div>
           <p className="text-red-200">Error loading crew management data</p>
@@ -309,7 +309,7 @@ export default function CrewManagementPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -321,7 +321,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -335,7 +335,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -347,7 +347,7 @@ export default function CrewManagementPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -367,7 +367,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-white">Crew Members</CardTitle>
@@ -543,7 +543,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Play className="h-5 w-5 text-blue-400" />
@@ -706,7 +706,7 @@ export default function CrewManagementPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+            <Card className="bg-gray-900/50 border-gray-700/50">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <History className="h-5 w-5 text-green-400" />
