@@ -365,6 +365,14 @@ Changelog:
   - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
   - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
   - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
+- June 25, 2025. Staff portal payments section completed with real-time database integration
+  - Fixed critical data mapping issue in payments table by updating correct renderPayments function (line 907)
+  - Customer column now displays "Demo Member" from live database using payment.customer field mapping
+  - Service/Event column shows "Professional Makeup Artist" using payment.serviceEvent field mapping
+  - Service category badge displays "Beauty & Grooming" with purple-to-blue gradient using payment.serviceCategory
+  - Resolved syntax error preventing application startup by properly closing renderStaffPayments function
+  - All payment data now comes from authentic PostgreSQL queries with no placeholder content
+  - Payment table displays real transaction information with proper field mapping from API response structure
 - June 24, 2025. Complete crew assignment system with comprehensive database integration and auto-scheduling
   - Implemented full crew assignment dialog with all database staff members (8 total: 3 captains, 3 coordinators, 1 additional crew)
   - Added automatic pre-departure briefing scheduling 1 hour before booking start time with Miami Marina gate meeting location
