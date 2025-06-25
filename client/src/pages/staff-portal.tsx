@@ -905,9 +905,16 @@ export default function StaffPortal() {
                       className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors group"
                     >
                       <td className="py-4 px-4">
-                        <div>
-                          <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Demo Member'}</p>
-                          <p className="text-gray-400 text-sm">{payment.customerEmail || payment.email || 'member@mbyc.com'}</p>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                            <span className="text-xs font-semibold text-white">
+                              {(payment.customer || payment.fullName || payment.username || 'Demo Member')[0].toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Demo Member'}</p>
+                            <p className="text-gray-400 text-sm">{payment.customerEmail || payment.email || 'member@mbyc.com'}</p>
+                          </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
