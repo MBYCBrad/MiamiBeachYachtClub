@@ -140,6 +140,70 @@ export default function StaffPortal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  
+  // Dialog states
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isAddYachtDialogOpen, setIsAddYachtDialogOpen] = useState(false);
+  const [isEditYachtDialogOpen, setIsEditYachtDialogOpen] = useState(false);
+  const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
+  const [isEditServiceDialogOpen, setIsEditServiceDialogOpen] = useState(false);
+  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
+  const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
+  
+  // Selected items
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedYacht, setSelectedYacht] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  
+  // Form data
+  const [newUserData, setNewUserData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'member',
+    membershipTier: 'bronze',
+    fullName: '',
+    phone: '',
+    location: ''
+  });
+  
+  const [newYachtData, setNewYachtData] = useState({
+    name: '',
+    type: '',
+    size: '',
+    capacity: '',
+    location: '',
+    amenities: [] as string[],
+    images: [] as string[],
+    description: '',
+    ownerId: ''
+  });
+  
+  const [newServiceData, setNewServiceData] = useState({
+    name: '',
+    description: '',
+    category: '',
+    price: '',
+    duration: '',
+    providerId: ''
+  });
+  
+  const [newEventData, setNewEventData] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    capacity: '',
+    price: '',
+    hostId: ''
+  });
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -600,38 +664,10 @@ export default function StaffPortal() {
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
 
   // Dialog states for CRUD operations
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
-  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isViewUserDialogOpen, setIsViewUserDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [newUserData, setNewUserData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    role: 'member',
-    membershipTier: 'bronze',
-    fullName: '',
-    phone: '',
-    location: ''
-  });
 
   // Yacht dialog states
-  const [isAddYachtDialogOpen, setIsAddYachtDialogOpen] = useState(false);
-  const [isEditYachtDialogOpen, setIsEditYachtDialogOpen] = useState(false);
   const [isViewYachtDialogOpen, setIsViewYachtDialogOpen] = useState(false);
-  const [selectedYacht, setSelectedYacht] = useState<any>(null);
-  const [newYachtData, setNewYachtData] = useState({
-    name: '',
-    location: '',
-    capacity: '',
-    type: '',
-    length: '',
-    yearMade: '',
-    totalCost: '',
-    description: '',
-    amenities: [] as string[],
-    ownerId: ''
-  });
 
   // Service dialog states
   const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
