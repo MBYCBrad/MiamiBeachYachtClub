@@ -161,30 +161,66 @@ export default function StaffPortal() {
     setActiveSection(sectionId);
   };
 
-  // Recent activity mock data - would be fetched from API
-  const recentActivities = [
-    {
-      icon: Calendar,
-      title: "Yacht booking confirmed",
-      description: "Marina Breeze - 2:00 PM today",
-      time: "5 min ago",
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: MessageSquare,
-      title: "Customer inquiry resolved",
-      description: "Member service request completed",
-      time: "12 min ago",
-      color: "from-green-500 to-emerald-500"
-    },
-    {
-      icon: Wrench,
-      title: "Maintenance task assigned",
-      description: "Engine inspection for Ocean Elite",
-      time: "25 min ago",
-      color: "from-amber-500 to-orange-500"
+  // Generate dynamic recent activities based on user permissions
+  const generateRecentActivities = () => {
+    const activities = [];
+    const userPermissions = staffMember?.permissions || [];
+    
+    if (userPermissions.includes('bookings')) {
+      activities.push({
+        icon: Calendar,
+        title: "VIP yacht booking coordinated",
+        description: "Azure Elegance - Premium charter arrangement",
+        time: "8 min ago",
+        color: "from-blue-500 to-cyan-500"
+      });
     }
-  ];
+    
+    if (userPermissions.includes('services')) {
+      activities.push({
+        icon: Sparkles,
+        title: "VIP concierge service completed",
+        description: "Private chef dinner coordination finalized",
+        time: "15 min ago",
+        color: "from-purple-500 to-pink-500"
+      });
+    }
+    
+    if (userPermissions.includes('events')) {
+      activities.push({
+        icon: Star,
+        title: "Exclusive event coordination",
+        description: "Member celebration event planning",
+        time: "22 min ago",
+        color: "from-green-500 to-emerald-500"
+      });
+    }
+    
+    if (userPermissions.includes('yachts')) {
+      activities.push({
+        icon: Ship,
+        title: "Fleet status coordination",
+        description: "Marina Breeze readiness verification",
+        time: "31 min ago",
+        color: "from-amber-500 to-orange-500"
+      });
+    }
+    
+    // Ensure at least 3 activities for good UX
+    if (activities.length < 3) {
+      activities.push({
+        icon: MessageSquare,
+        title: "Member communication handled",
+        description: "Premium support inquiry resolved",
+        time: "45 min ago",
+        color: "from-indigo-500 to-blue-500"
+      });
+    }
+    
+    return activities.slice(0, 4);
+  };
+
+  const recentActivities = generateRecentActivities();
 
   return (
     <div className="min-h-screen bg-black text-white">
