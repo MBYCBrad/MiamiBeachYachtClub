@@ -67,6 +67,7 @@ import { formatDistanceToNow } from "date-fns";
 // Types for staff management
 interface StaffUser {
   id: number;
+  fullName: string;
   username: string;
   email: string;
   role: string;
@@ -144,6 +145,7 @@ export default function StaffManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffUser | null>(null);
   const [newStaffData, setNewStaffData] = useState({
+    fullName: "",
     username: "",
     email: "",
     password: "",
@@ -169,6 +171,7 @@ export default function StaffManagement() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
       setShowAddDialog(false);
       setNewStaffData({
+        fullName: "",
         username: "",
         email: "",
         password: "",
@@ -221,7 +224,8 @@ export default function StaffManagement() {
   // Filter staff users
   const filteredStaff = staffUsers.filter(staff => {
     const matchesSearch = staff.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         staff.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         staff.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (staff.fullName && staff.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesRole = roleFilter === "all" || staff.role === roleFilter;
     const matchesStatus = statusFilter === "all" || staff.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
@@ -423,12 +427,13 @@ export default function StaffManagement() {
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
                               <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                                {staff.username.slice(0, 2).toUpperCase()}
+                                {staff.fullName ? staff.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : staff.username.slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-medium text-white">{staff.username}</div>
+                              <div className="font-medium text-white">{staff.fullName || staff.username}</div>
                               <div className="text-sm text-gray-400">{staff.email}</div>
+                              <div className="text-xs text-gray-500">@{staff.username}</div>
                             </div>
                           </div>
                         </TableCell>
@@ -525,6 +530,19 @@ export default function StaffManagement() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
+                <Label htmlFor="fullName" className="text-sm font-medium text-gray-300">
+                  Full Name
+                </Label>
+                <Input
+                  id="fullName"
+                  value={newStaffData.fullName}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, fullName: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter full name"
+                />
+              </div>
+              
+              <div>
                 <Label htmlFor="username" className="text-sm font-medium text-gray-300">
                   Username
                 </Label>
@@ -536,7 +554,9 @@ export default function StaffManagement() {
                   placeholder="Enter username"
                 />
               </div>
-              
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-gray-300">
                   Email
@@ -550,9 +570,7 @@ export default function StaffManagement() {
                   placeholder="Enter email"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+              
               <div>
                 <Label htmlFor="password" className="text-sm font-medium text-gray-300">
                   Password
@@ -564,6 +582,21 @@ export default function StaffManagement() {
                   onChange={(e) => setNewStaffData(prev => ({ ...prev, password: e.target.value }))}
                   className="bg-gray-900/50 border-gray-700/50 text-white"
                   placeholder="Enter password"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="department" className="text-sm font-medium text-gray-300">
+                  Department
+                </Label>
+                <Input
+                  id="department"
+                  value={newStaffData.department}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, department: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter department"
                 />
               </div>
               
@@ -824,11 +857,11 @@ export default function StaffManagement() {
               <div className="flex items-center gap-3 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
                 <Avatar className="h-12 w-12">
                   <AvatarFallback className="bg-red-500/20 text-red-400">
-                    {selectedStaff.username.slice(0, 2).toUpperCase()}
+                    {selectedStaff.fullName ? selectedStaff.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : selectedStaff.username.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium text-white">{selectedStaff.username}</div>
+                  <div className="font-medium text-white">{selectedStaff.fullName || selectedStaff.username}</div>
                   <div className="text-sm text-gray-400">{selectedStaff.email}</div>
                   <div className="text-sm text-gray-400">{selectedStaff.role}</div>
                 </div>
