@@ -107,12 +107,10 @@ const sidebarItems = [
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-cyan-500' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-indigo-500' },
-  { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-red-500 to-orange-500' },
   { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-blue-500 to-indigo-500' },
   { id: 'staff-management', label: 'Staff Management', icon: UserCheck, color: 'from-purple-500 to-indigo-500' },
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
-  { id: 'messenger', label: 'Messenger', icon: MessageSquare, color: 'from-blue-500 to-purple-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
@@ -138,6 +136,20 @@ export default function StaffPortal() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/auth';
+    } catch (error) {
+      toast({
+        title: "Logout Error",
+        description: "Failed to logout properly",
+        variant: "destructive",
+      });
+    }
+  };
 
   // User filters for the users section
   const [userFilters, setUserFilters] = useState({
@@ -1214,6 +1226,15 @@ export default function StaffPortal() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={handleLogout}
+            className="border-red-600 text-red-400 hover:text-red-300 hover:border-red-500"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
           <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
             <Save className="h-4 w-4 mr-2" />
             Save Changes
@@ -3354,12 +3375,10 @@ export default function StaffPortal() {
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'payments' && renderPayments()}
             {activeSection === 'calendar' && <CalendarPage />}
-            {activeSection === 'notifications' && renderNotifications()}
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'yacht-maintenance' && <YachtMaintenanceFixed />}
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
-            {activeSection === 'messenger' && <MessengerDashboard />}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderStaffSettings()}
           </AnimatePresence>
