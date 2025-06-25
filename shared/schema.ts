@@ -10,6 +10,32 @@ export const UserRole = {
   ADMIN: "admin"
 } as const;
 
+// Staff role definitions - separate from user roles
+export const StaffRole = {
+  MARINA_MANAGER: "Marina Manager",
+  FLEET_COORDINATOR: "Fleet Coordinator",
+  DOCK_MASTER: "Dock Master",
+  YACHT_CAPTAIN: "Yacht Captain",
+  FIRST_MATE: "First Mate",
+  CREW_SUPERVISOR: "Crew Supervisor",
+  MEMBER_RELATIONS: "Member Relations Specialist",
+  CONCIERGE_MANAGER: "Concierge Manager",
+  CONCIERGE_AGENT: "Concierge Agent",
+  GUEST_SERVICES: "Guest Services Representative",
+  VIP_COORDINATOR: "VIP Coordinator",
+  OPERATIONS_MANAGER: "Operations Manager",
+  BOOKING_COORDINATOR: "Booking Coordinator",
+  SERVICE_COORDINATOR: "Service Coordinator",
+  EVENT_COORDINATOR: "Event Coordinator",
+  SAFETY_OFFICER: "Safety Officer",
+  FINANCE_MANAGER: "Finance Manager",
+  BILLING_SPECIALIST: "Billing Specialist",
+  ACCOUNTS_MANAGER: "Accounts Manager",
+  IT_SPECIALIST: "IT Specialist",
+  DATA_ANALYST: "Data Analyst",
+  SYSTEMS_ADMIN: "Systems Administrator"
+} as const;
+
 export const MembershipTier = {
   BRONZE: "bronze",
   SILVER: "silver", 
@@ -731,3 +757,7 @@ export type MaintenanceSchedule = typeof maintenanceSchedules.$inferSelect;
 export type InsertMaintenanceSchedule = z.infer<typeof insertMaintenanceScheduleSchema>;
 export type YachtValuation = typeof yachtValuations.$inferSelect;
 export type InsertYachtValuation = z.infer<typeof insertYachtValuationSchema>;
+
+// Staff types - separate from user types
+export type Staff = typeof staff.$inferSelect;
+export type InsertStaff = z.infer<typeof insertStaffSchema>;

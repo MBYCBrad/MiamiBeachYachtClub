@@ -34,6 +34,16 @@ export interface IStorage {
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
 
+  // Staff methods - completely separate from user methods
+  getStaff(id: number): Promise<Staff | undefined>;
+  getStaffByUsername(username: string): Promise<Staff | undefined>;
+  createStaff(staff: InsertStaff): Promise<Staff>;
+  updateStaff(id: number, staff: Partial<InsertStaff>): Promise<Staff | undefined>;
+  deleteStaff(id: number): Promise<boolean>;
+  getAllStaff(): Promise<Staff[]>;
+  getStaffByRole(role: string): Promise<Staff[]>;
+  getStaffByDepartment(department: string): Promise<Staff[]>;
+
   // Yacht methods
   getYachts(filters?: { available?: boolean, maxSize?: number, location?: string }): Promise<Yacht[]>;
   getYacht(id: number): Promise<Yacht | undefined>;
@@ -211,6 +221,51 @@ export class DatabaseStorage implements IStorage {
 
   async getUsersByRole(role: string): Promise<User[]> {
     return await db.select().from(users).where(eq(users.role, role));
+  }
+
+  // Staff management methods - completely separate from user methods
+  async getStaff(id: number): Promise<Staff | undefined> {
+    const [staffMember] = await db.select().from(staff).where(eq(staff.id, id));
+    return staffMember || undefined;
+  }
+
+  async getStaffByUsername(username: string): Promise<Staff | undefined> {
+    const [staffMember] = await db.select().from(staff).where(eq(staff.username, username));
+    return staffMember || undefined;
+  }
+
+  async createStaff(insertStaff: InsertStaff): Promise<Staff> {
+    console.log('DatabaseStorage.createStaff called with:', { ...insertStaff, password: '[REDACTED]' });
+    const [staffMember] = await db.insert(staff).values(insertStaff).returning();
+    console.log('DatabaseStorage.createStaff returned:', { ...staffMember, password: '[REDACTED]' });
+    return staffMember;
+  }
+
+  async updateStaff(id: number, updates: Partial<InsertStaff>): Promise<Staff | undefined> {
+    console.log('DatabaseStorage.updateStaff called with:', id, { ...updates, password: updates.password ? '[REDACTED]' : undefined });
+    const [staffMember] = await db.update(staff).set(updates).where(eq(staff.id, id)).returning();
+    console.log('DatabaseStorage.updateStaff returned:', staffMember ? { ...staffMember, password: '[REDACTED]' } : undefined);
+    return staffMember || undefined;
+  }
+
+  async deleteStaff(id: number): Promise<boolean> {
+    console.log('DatabaseStorage.deleteStaff called with:', id);
+    const result = await db.delete(staff).where(eq(staff.id, id));
+    const success = result.rowCount !== null && result.rowCount > 0;
+    console.log('DatabaseStorage.deleteStaff returned:', success);
+    return success;
+  }
+
+  async getAllStaff(): Promise<Staff[]> {
+    return await db.select().from(staff);
+  }
+
+  async getStaffByRole(role: string): Promise<Staff[]> {
+    return await db.select().from(staff).where(eq(staff.staffRole, role));
+  }
+
+  async getStaffByDepartment(department: string): Promise<Staff[]> {
+    return await db.select().from(staff).where(eq(staff.department, department));
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

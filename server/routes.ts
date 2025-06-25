@@ -3088,35 +3088,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // STAFF MANAGEMENT ROUTES - Hierarchical Staff System
+  // STAFF MANAGEMENT ROUTES - Completely separate from user management
   app.get("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       console.log('=== STAFF MANAGEMENT DEBUG ===');
       
-      // Return all non-member users (admin, yacht owners, service providers)
+      // Get all staff from separate staff table
+      const allStaff = await dbStorage.getAllStaff();
+      console.log('Total staff found:', allStaff.length);
+      
+      // Get all users for createdBy lookup
       const allUsers = await dbStorage.getAllUsers();
-      console.log('Total users found:', allUsers.length);
-      
-      // Filter for staff-level users (exclude regular members)
-      const staffUsers = allUsers.filter(user => {
-        const role = user.role || '';
-        const isStaff = ['admin', 'yacht_owner', 'service_provider'].includes(role);
-        console.log(`User ${user.username} - Role: ${role} - Is Staff: ${isStaff}`);
-        return isStaff;
-      });
-      
-      console.log('Staff users found:', staffUsers.length);
 
-      // Enrich with created by information and ensure proper structure
-      const enrichedStaff = staffUsers.map(staff => {
-        const createdByUser = allUsers.find(u => u.id === staff.createdBy);
-        console.log(`Enriching staff user: ${staff.username} (ID: ${staff.id})`);
+      // Enrich with created by information
+      const enrichedStaff = allStaff.map(staffMember => {
+        const createdByUser = allUsers.find(u => u.id === staffMember.createdBy);
+        console.log(`Enriching staff member: ${staffMember.username} (ID: ${staffMember.id})`);
         return {
-          ...staff,
+          ...staffMember,
           createdByName: createdByUser?.username || 'System',
-          permissions: staff.permissions || [],
-          lastLogin: staff.lastLogin || null,
-          status: staff.status || 'active'
+          permissions: staffMember.permissions || [],
+          role: staffMember.staffRole, // Map staffRole to role for compatibility
+          status: staffMember.status || 'active'
         };
       });
       
@@ -3125,169 +3118,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(enrichedStaff);
     } catch (error: any) {
-      console.error('Error fetching staff users:', error);
-      res.status(500).json({ message: "Failed to fetch staff users" });
+      console.error('Error fetching staff data:', error);
+      res.status(500).json({ 
+        message: "Error fetching staff data", 
+        error: error.message,
+        details: error
+      });
     }
   });
 
   app.post("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const { username, email, password, role, permissions, phone, location } = req.body;
+      const { username, email, password, staffRole, department, permissions, phone, location, emergencyContact } = req.body;
 
       // Validate required fields
-      if (!username || !email || !password || !role) {
-        return res.status(400).json({ message: "Username, email, password, and role are required" });
+      if (!username || !email || !password || !staffRole) {
+        return res.status(400).json({ message: "Username, email, password, and staff role are required" });
       }
 
-      // Validate role is a staff role
-      const validStaffRoles = [
-        'Marina Manager', 'Fleet Coordinator', 'Dock Master', 'Yacht Captain', 'First Mate', 'Crew Supervisor',
-        'Member Relations Specialist', 'Concierge Manager', 'Concierge Agent', 'Guest Services Representative', 'VIP Coordinator',
-        'Operations Manager', 'Booking Coordinator', 'Service Coordinator', 'Event Coordinator', 'Safety Officer',
-        'Finance Manager', 'Billing Specialist', 'Accounts Manager',
-        'IT Specialist', 'Data Analyst', 'Systems Administrator'
-      ];
-      if (!validStaffRoles.includes(role)) {
-        return res.status(400).json({ message: "Invalid staff role" });
+      // Check if username already exists in staff table
+      const existingStaff = await dbStorage.getStaffByUsername(username);
+      if (existingStaff) {
+        return res.status(400).json({ message: "Staff username already exists" });
       }
 
-      // Check if username or email already exists
-      const existingUsers = await dbStorage.getAllUsers();
-      const existingUser = existingUsers.find(u => u.username === username || u.email === email);
-      if (existingUser) {
-        return res.status(400).json({ message: "Username or email already exists" });
-      }
+      // Hash password
+      const hashedPassword = await hashPassword(password);
 
-      // Create staff user with admin as creator
-      const newStaff = await dbStorage.createUser({
+      // Create new staff member
+      const newStaff = await dbStorage.createStaff({
         username,
         email,
-        password,
-        role,
+        password: hashedPassword,
+        staffRole,
+        department: department || 'General',
         permissions: permissions || [],
         phone: phone || null,
         location: location || null,
-        createdBy: req.user!.id,
-        status: 'active'
+        emergencyContact: emergencyContact || null,
+        createdBy: req.user!.id
       });
 
       // Create notification for staff creation
       await dbStorage.createNotification({
         userId: req.user!.id,
         type: "staff_created",
-        title: "New Staff Member Added",
-        message: `${username} added as ${role}`,
+        title: "New Staff Member Created",
+        message: `Staff member ${username} has been created with role: ${staffRole}`,
         priority: "medium",
         read: false,
         actionUrl: "/admin/staff",
         data: {
           staffId: newStaff.id,
           staffName: username,
-          staffRole: role
+          staffRole: staffRole
         }
       });
 
-      await auditService.logAction(req, 'create', 'staff', newStaff.id, newStaff);
-      res.status(201).json(newStaff);
+      res.status(201).json({
+        ...newStaff,
+        password: undefined // Don't return password
+      });
+
     } catch (error: any) {
-      console.error('Error creating staff user:', error);
-      await auditService.logAction(req, 'create', 'staff', undefined, req.body, false, error.message);
-      res.status(400).json({ message: error.message });
+      console.error('Error creating staff member:', error);
+      res.status(500).json({ message: "Error creating staff member", error: error.message });
     }
   });
 
   app.put("/api/admin/staff/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const { id } = req.params;
-      const updates = req.body;
+      const staffId = parseInt(req.params.id);
+      const { staffRole, department, permissions, phone, location, status, emergencyContact } = req.body;
 
-      // Get current staff user
-      const allUsers = await dbStorage.getAllUsers();
-      const staffUser = allUsers.find(u => u.id === parseInt(id) && (u.role === 'admin' || u.role?.startsWith('Staff')));
-      
-      if (!staffUser) {
+      // Get current staff member
+      const currentStaff = await dbStorage.getStaff(staffId);
+      if (!currentStaff) {
         return res.status(404).json({ message: "Staff member not found" });
       }
 
-      // Prevent admin from updating their own role/permissions
-      if (staffUser.id === req.user!.id && (updates.role || updates.permissions)) {
-        return res.status(400).json({ message: "Cannot modify your own role or permissions" });
-      }
+      // Update staff member
+      const updatedStaff = await dbStorage.updateStaff(staffId, {
+        staffRole: staffRole || currentStaff.staffRole,
+        department: department || currentStaff.department,
+        permissions: permissions !== undefined ? permissions : currentStaff.permissions,
+        phone: phone || currentStaff.phone,
+        location: location || currentStaff.location,
+        status: status || currentStaff.status,
+        emergencyContact: emergencyContact || currentStaff.emergencyContact
+      });
 
-      // Update staff user
-      const updatedStaff = await dbStorage.updateUser(parseInt(id), updates);
+      if (!updatedStaff) {
+        return res.status(404).json({ message: "Failed to update staff member" });
+      }
 
       // Create notification for staff update
       await dbStorage.createNotification({
         userId: req.user!.id,
         type: "staff_updated",
         title: "Staff Member Updated",
-        message: `${staffUser.username} profile updated`,
+        message: `Staff member ${updatedStaff.username} has been updated`,
         priority: "low",
         read: false,
         actionUrl: "/admin/staff",
         data: {
-          staffId: parseInt(id),
-          staffName: staffUser.username,
-          updatedFields: Object.keys(updates)
+          staffName: updatedStaff.username,
+          staffRole: updatedStaff.staffRole
         }
       });
 
-      await auditService.logAction(req, 'update', 'staff', parseInt(id), updates);
-      res.json(updatedStaff);
+      res.json({
+        ...updatedStaff,
+        password: undefined // Don't return password
+      });
+
     } catch (error: any) {
-      console.error('Error updating staff user:', error);
-      await auditService.logAction(req, 'update', 'staff', parseInt(req.params.id), req.body, false, error.message);
-      res.status(400).json({ message: error.message });
+      console.error('Error updating staff member:', error);
+      res.status(500).json({ message: "Error updating staff member", error: error.message });
     }
   });
 
   app.delete("/api/admin/staff/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const { id } = req.params;
+      const staffId = parseInt(req.params.id);
 
-      // Get staff user to delete
-      const allUsers = await dbStorage.getAllUsers();
-      const staffUser = allUsers.find(u => u.id === parseInt(id) && (u.role === 'admin' || u.role?.startsWith('Staff')));
-      
-      if (!staffUser) {
+      // Get staff info before deletion for notification
+      const staffToDelete = await dbStorage.getStaff(staffId);
+      if (!staffToDelete) {
         return res.status(404).json({ message: "Staff member not found" });
       }
 
-      // Prevent admin from deleting themselves
-      if (staffUser.id === req.user!.id) {
-        return res.status(400).json({ message: "Cannot delete your own account" });
+      // Delete the staff member
+      const deleted = await dbStorage.deleteStaff(staffId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Failed to delete staff member" });
       }
-
-      // Prevent deleting other admins (only allow deleting staff)
-      if (staffUser.role === 'admin') {
-        return res.status(400).json({ message: "Cannot delete other admin accounts" });
-      }
-
-      // Delete staff user
-      await dbStorage.deleteUser(parseInt(id));
 
       // Create notification for staff deletion
       await dbStorage.createNotification({
         userId: req.user!.id,
         type: "staff_deleted",
-        title: "Staff Member Removed",
-        message: `${staffUser.username} (${staffUser.role}) has been removed`,
+        title: "Staff Member Deleted",
+        message: `Staff member ${staffToDelete.username} has been deleted`,
         priority: "medium",
         read: false,
         actionUrl: "/admin/staff",
         data: {
-          staffName: staffUser.username,
-          staffRole: staffUser.role
+          staffName: staffToDelete.username,
+          staffRole: staffToDelete.staffRole
         }
       });
 
-      await auditService.logAction(req, 'delete', 'staff', parseInt(id), { username: staffUser.username, role: staffUser.role });
-      res.status(204).send();
+      res.json({ message: "Staff member deleted successfully" });
+
     } catch (error: any) {
-      console.error('Error deleting staff user:', error);
-      await auditService.logAction(req, 'delete', 'staff', parseInt(req.params.id), undefined, false, error.message);
-      res.status(400).json({ message: error.message });
+      console.error('Error deleting staff member:', error);
+      res.status(500).json({ message: "Error deleting staff member", error: error.message });
     }
   });
 
