@@ -142,7 +142,7 @@ export function setupFastAdminRoutes(app: Express) {
   // Ultra-fast conversations endpoint
   app.get("/api/conversations", requireAuth, async (req, res) => {
     try {
-      if (req.user.role !== 'admin' && req.user.role !== 'service_provider') {
+      if (req.user.role !== 'admin' && req.user.role !== 'service_provider' && !req.user.role?.startsWith('staff')) {
         return res.status(403).json({ message: "Not authorized" });
       }
 

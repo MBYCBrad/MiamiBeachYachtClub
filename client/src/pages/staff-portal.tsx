@@ -1146,11 +1146,1080 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+// View User Dialog - EXACT COPY from admin dashboard
+function ViewUserDialog({ user }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <User className="h-5 w-5 mr-2 text-purple-500" />
+            User Details
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-6">
+          {/* User Avatar and Basic Info */}
+          <div className="col-span-2 flex items-center space-x-4 p-4 bg-gray-800/50 rounded-lg">
+            <Avatar className="h-16 w-16">
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-xl">
+                {user.username?.charAt(0)?.toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="text-xl font-bold text-white">{user.username}</h3>
+              <p className="text-gray-400">{user.email}</p>
+              <div className="flex items-center space-x-2 mt-2">
+                <Badge className={`${
+                  user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                  user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                  user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                  'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                }`}>
+                  {user.membershipTier}
+                </Badge>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  {user.role?.replace('_', ' ').toUpperCase()}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Personal Information */}
+          <div>
+            <Label className="text-gray-300 font-medium">Personal Information</Label>
+            <div className="space-y-3 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">Full Name</Label>
+                <p className="text-white">{user.username}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Email Address</Label>
+                <p className="text-white">{user.email}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Phone</Label>
+                <p className="text-white">{user.phone || 'Not provided'}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Location</Label>
+                <p className="text-white">{user.location || 'Not provided'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Information */}
+          <div>
+            <Label className="text-gray-300 font-medium">Account Information</Label>
+            <div className="space-y-3 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">User ID</Label>
+                <p className="text-white font-mono">#{user.id}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Member Since</Label>
+                <p className="text-white">{new Date(user.createdAt).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Account Status</Label>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Last Active</Label>
+                <p className="text-white">Recently</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Membership Details */}
+          <div className="col-span-2">
+            <Label className="text-gray-300 font-medium">Membership Details</Label>
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Membership Tier</Label>
+                <p className="text-white font-semibold">{user.membershipTier}</p>
+              </div>
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Role</Label>
+                <p className="text-white font-semibold capitalize">{user.role?.replace('_', ' ')}</p>
+              </div>
+              <div className="p-3 bg-gray-800/30 rounded-lg">
+                <Label className="text-gray-400 text-sm">Language</Label>
+                <p className="text-white font-semibold">{user.language || 'English'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="col-span-2">
+            <Label className="text-gray-300 font-medium">Additional Information</Label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <Label className="text-gray-400 text-sm">Stripe Customer ID</Label>
+                <p className="text-white font-mono text-sm">{user.stripeCustomerId || 'Not set'}</p>
+              </div>
+              <div>
+                <Label className="text-gray-400 text-sm">Subscription Status</Label>
+                <p className="text-white">{user.stripeSubscriptionId ? 'Active Subscription' : 'No Active Subscription'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Add User Dialog - EXACT COPY from admin dashboard
+function AddUserDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'member',
+    membershipTier: 'bronze'
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/staff/users", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/users"] });
+      toast({ title: "Success", description: "User created successfully" });
+      setIsOpen(false);
+      setFormData({ username: '', email: '', password: '', role: 'member', membershipTier: 'bronze' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+          <Users className="h-4 w-4 mr-2" />
+          Add User
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl dialog-content-spacing">
+        <DialogHeader>
+          <DialogTitle className="text-white">Add New User</DialogTitle>
+        </DialogHeader>
+        <div className="dialog-form-spacing">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="username" className="form-label text-gray-300">Username</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter username"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="email" className="form-label text-gray-300">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter email"
+              />
+            </div>
+          </div>
+          
+          <div className="form-field-spacing">
+            <Label htmlFor="password" className="form-label text-gray-300">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="form-input bg-gray-900 border-gray-700 text-white"
+              placeholder="Enter password"
+            />
+          </div>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value, membershipTier: value === 'member' ? 'bronze' : ''})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                  <SelectItem value="service_provider">Service Provider</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.role === 'member' && (
+              <div className="form-field-spacing">
+                <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
+                <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                  <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="bronze">Bronze</SelectItem>
+                    <SelectItem value="silver">Silver</SelectItem>
+                    <SelectItem value="gold">Gold</SelectItem>
+                    <SelectItem value="platinum">Platinum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="form-button-group">
+          <Button 
+            onClick={() => createUserMutation.mutate(formData)}
+            disabled={createUserMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+          >
+            {createUserMutation.isPending ? "Creating..." : "Create User"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Edit User Dialog - EXACT COPY from admin dashboard
+function EditUserDialog({ user: userData }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: userData.username || '',
+    email: userData.email || '',
+    role: userData.role || '',
+    membershipTier: userData.membershipTier || ''
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/staff/users/${userData.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/users"] });
+      toast({ title: "Success", description: "User updated successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+          <Edit className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl dialog-content-spacing">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit User</DialogTitle>
+        </DialogHeader>
+        <div className="dialog-form-spacing">
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="username" className="form-label text-gray-300">Username</Label>
+              <Input
+                id="username"
+                value={formData.username}
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
+            <div className="form-field-spacing">
+              <Label htmlFor="email" className="form-label text-gray-300">Email</Label>
+              <Input
+                id="email"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+              />
+            </div>
+          </div>
+          
+          <div className="form-grid-2">
+            <div className="form-field-spacing">
+              <Label htmlFor="role" className="form-label text-gray-300">Role</Label>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value, membershipTier: value === 'member' ? (formData.membershipTier || 'bronze') : ''})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                  <SelectItem value="service_provider">Service Provider</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.role === 'member' && (
+              <div className="form-field-spacing">
+                <Label htmlFor="tier" className="form-label text-gray-300">Membership Tier</Label>
+                <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                  <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectItem value="Bronze">Bronze</SelectItem>
+                    <SelectItem value="Silver">Silver</SelectItem>
+                    <SelectItem value="Gold">Gold</SelectItem>
+                    <SelectItem value="Platinum">Platinum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="form-button-group">
+          <Button 
+            onClick={() => updateUserMutation.mutate(formData)} 
+            disabled={updateUserMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+          >
+            {updateUserMutation.isPending ? "Updating..." : "Update User"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Delete User Dialog - EXACT COPY from admin dashboard
+function DeleteUserDialog({ user: userData }: { user: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("DELETE", `/api/staff/users/${userData.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/users"] });
+      toast({ title: "Success", description: "User deleted successfully" });
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-red-500">
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Delete User</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Are you sure you want to delete {userData.username}? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={() => deleteUserMutation.mutate()} 
+            disabled={deleteUserMutation.isPending}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
   // EXACT COPY from admin dashboard - renderUsers function
   const renderUsers = () => {
     if (!users) {
       return (
         <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-6">
+                  <div className="h-20 bg-gray-800 rounded mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded w-2/3 animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              User Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage member accounts, roles, and access permissions
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <AddUserDialog />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filter Users
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* User Filter Controls */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-gray-300 mb-2 block">Role</Label>
+                <Select value={userFilters.role} onValueChange={(value) => setUserFilters(prev => ({ ...prev, role: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="member">Members</SelectItem>
+                    <SelectItem value="yacht_owner">Yacht Owners</SelectItem>
+                    <SelectItem value="service_provider">Service Providers</SelectItem>
+                    <SelectItem value="admin">Admins</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Membership Tier</Label>
+                <Select value={userFilters.membershipTier} onValueChange={(value) => setUserFilters(prev => ({ ...prev, membershipTier: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Tiers</SelectItem>
+                    <SelectItem value="bronze">Bronze</SelectItem>
+                    <SelectItem value="silver">Silver</SelectItem>
+                    <SelectItem value="gold">Gold</SelectItem>
+                    <SelectItem value="platinum">Platinum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Status</Label>
+                <Select value={userFilters.status} onValueChange={(value) => setUserFilters(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Users Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredUsers.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12">
+              <Users className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-400 mb-2">No users found</h3>
+              <p className="text-gray-500 text-center">
+                No users match your current filter criteria.
+              </p>
+            </div>
+          ) : (
+            filteredUsers.map((user: any, index: number) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={user.avatar} />
+                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">
+                            {user.username}
+                          </h3>
+                          <p className="text-gray-400 text-sm">{user.email}</p>
+                          <Badge className={`text-xs mt-1 ${
+                            user.role === 'admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                            user.role === 'yacht_owner' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                            user.role === 'service_provider' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                            'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                          }`}>
+                            {user.role?.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 mb-4">
+                      {user.membershipTier && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400 text-sm">Membership</span>
+                          <Badge className={`text-xs ${
+                            user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                            user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                            user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                            'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                          }`}>
+                            {user.membershipTier}
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Joined</span>
+                        <span className="text-white text-sm">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Recently'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <ViewUserDialog user={user} />
+                        <EditUserDialog user={user} />
+                        <DeleteUserDialog user={user} />
+                      </div>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                        Active
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // EXACT COPY from admin dashboard - renderYachts function
+  const renderYachts = () => {
+    if (!yachts) {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-6">
+                  <div className="h-40 bg-gray-800 rounded mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded w-2/3 animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Fleet Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage yacht fleet, specifications, and availability
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+            >
+              <Anchor className="h-4 w-4 mr-2" />
+              Add Yacht
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-gray-600 hover:border-blue-500 text-gray-300 hover:text-white"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filter Fleet
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Yacht Filter Controls */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-gray-300 mb-2 block">Type</Label>
+                <Select value={yachtFilters.type} onValueChange={(value) => setYachtFilters(prev => ({ ...prev, type: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="motor">Motor Yacht</SelectItem>
+                    <SelectItem value="sailing">Sailing Yacht</SelectItem>
+                    <SelectItem value="catamaran">Catamaran</SelectItem>
+                    <SelectItem value="sport">Sport Yacht</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Availability</Label>
+                <Select value={yachtFilters.availability} onValueChange={(value) => setYachtFilters(prev => ({ ...prev, availability: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="unavailable">Unavailable</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Capacity</Label>
+                <Select value={yachtFilters.capacity} onValueChange={(value) => setYachtFilters(prev => ({ ...prev, capacity: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Sizes</SelectItem>
+                    <SelectItem value="small">Small (≤8)</SelectItem>
+                    <SelectItem value="medium">Medium (9-15)</SelectItem>
+                    <SelectItem value="large">Large (16+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Sort By</Label>
+                <Select value="name" onValueChange={() => {}}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="size">Size</SelectItem>
+                    <SelectItem value="capacity">Capacity</SelectItem>
+                    <SelectItem value="availability">Availability</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Yachts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredYachts.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12">
+              <Anchor className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-400 mb-2">No yachts found</h3>
+              <p className="text-gray-500 text-center">
+                No yachts match your current filter criteria.
+              </p>
+            </div>
+          ) : (
+            filteredYachts.map((yacht: any, index: number) => (
+              <motion.div
+                key={yacht.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                      alt={yacht.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Badge className={`${yacht.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                        {yacht.isAvailable ? 'Available' : 'In Use'}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors mb-2">
+                        {yacht.name}
+                      </h3>
+                      <div className="flex items-center text-gray-400 text-sm mb-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {yacht.location}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                      <div>
+                        <span className="text-gray-400">Size:</span>
+                        <span className="text-white ml-1">{yacht.size}ft</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-400">Capacity:</span>
+                        <span className="text-white ml-1">{yacht.capacity} guests</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400">ID: #{yacht.id}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // EXACT COPY from admin dashboard - renderServices function
+  const renderServices = () => {
+    if (!services) {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-6">
+                  <div className="h-40 bg-gray-800 rounded mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded w-2/3 animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Service Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage premium yacht concierge services and providers
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+            >
+              <Wrench className="h-4 w-4 mr-2" />
+              Add Service
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-gray-600 hover:border-green-500 text-gray-300 hover:text-white"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filter Services
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Service Filter Controls */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-gray-300 mb-2 block">Category</Label>
+                <Select value={serviceFilters.category} onValueChange={(value) => setServiceFilters(prev => ({ ...prev, category: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="beauty & grooming">Beauty & Grooming</SelectItem>
+                    <SelectItem value="culinary">Culinary</SelectItem>
+                    <SelectItem value="wellness & spa">Wellness & Spa</SelectItem>
+                    <SelectItem value="photography & media">Photography & Media</SelectItem>
+                    <SelectItem value="entertainment">Entertainment</SelectItem>
+                    <SelectItem value="water sports">Water Sports</SelectItem>
+                    <SelectItem value="concierge & lifestyle">Concierge & Lifestyle</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Availability</Label>
+                <Select value={serviceFilters.availability} onValueChange={(value) => setServiceFilters(prev => ({ ...prev, availability: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="unavailable">Unavailable</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Price Range</Label>
+                <Select value={serviceFilters.priceRange} onValueChange={(value) => setServiceFilters(prev => ({ ...prev, priceRange: value }))}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="all">All Prices</SelectItem>
+                    <SelectItem value="low">Low ($0-$100)</SelectItem>
+                    <SelectItem value="medium">Medium ($100-$500)</SelectItem>
+                    <SelectItem value="high">High ($500+)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-gray-300 mb-2 block">Sort By</Label>
+                <Select value="name" onValueChange={() => {}}>
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="price">Price</SelectItem>
+                    <SelectItem value="category">Category</SelectItem>
+                    <SelectItem value="availability">Availability</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredServices.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12">
+              <Wrench className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-400 mb-2">No services found</h3>
+              <p className="text-gray-500 text-center">
+                No services match your current filter criteria.
+              </p>
+            </div>
+          ) : (
+            filteredServices.map((service: any, index: number) => (
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300 overflow-hidden group">
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={service.imageUrl || '/api/media/pexels-cottonbro-4004374_1750537359646.jpg'}
+                      alt={service.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Badge className={`${service.isAvailable ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}>
+                        {service.isAvailable ? 'Available' : 'Unavailable'}
+                      </Badge>
+                    </div>
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">
+                        {service.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-white group-hover:text-green-400 transition-colors mb-2">
+                        {service.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm line-clamp-2">
+                        {service.description}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-white">${service.basePrice}</p>
+                        <p className="text-xs text-gray-400">Base Price</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-300">{service.provider?.name || 'System Service'}</p>
+                        <p className="text-xs text-gray-500">Provider</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400">ID: #{service.id}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // EXACT COPY from admin dashboard - renderEvents function
+  const renderEvents = () => {
+    if (!events
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="bg-gray-900/50 border-gray-700/50">
