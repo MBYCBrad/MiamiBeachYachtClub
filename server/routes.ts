@@ -5123,6 +5123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
 
       res.json(payments);
+      console.log("Staff payments response structure:", JSON.stringify(payments.slice(0,1), null, 2));
     } catch (error) {
       console.error('Error fetching staff payments:', error);
       res.status(500).json({ message: 'Failed to fetch payments' });
