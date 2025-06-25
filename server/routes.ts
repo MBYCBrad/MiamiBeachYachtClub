@@ -3129,11 +3129,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/staff", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const { username, email, password, staffRole, department, permissions, phone, location, emergencyContact } = req.body;
+      const { username, email, password, role, department, permissions, phone, location, fullName } = req.body;
 
       // Validate required fields
-      if (!username || !email || !password || !staffRole) {
-        return res.status(400).json({ message: "Username, email, password, and staff role are required" });
+      if (!username || !email || !password || !role) {
+        return res.status(400).json({ message: "Username, email, password, and role are required" });
       }
 
       // Check if username already exists in staff table
@@ -3143,6 +3143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Hash password
+      const { hashPassword } = await import('./auth');
       const hashedPassword = await hashPassword(password);
 
       // Create new staff member
@@ -3150,13 +3151,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username,
         email,
         password: hashedPassword,
-        fullName: username, // Use username as fallback for fullName
-        role: staffRole,
+        fullName: fullName || username, // Use fullName from form or username as fallback
+        role: role,
         department: department || 'General',
         permissions: permissions || [],
         phone: phone || null,
         location: location || null,
-        emergencyContact: emergencyContact || null,
         createdBy: req.user!.id
       });
 
@@ -3165,14 +3165,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user!.id,
         type: "staff_created",
         title: "New Staff Member Created",
-        message: `Staff member ${username} has been created with role: ${staffRole}`,
+        message: `Staff member ${fullName || username} has been created with role: ${role}`,
         priority: "medium",
         read: false,
         actionUrl: "/admin/staff",
         data: {
-          staffId: newStaff.id,
-          staffName: username,
-          staffRole: staffRole
+          staffName: fullName || username,
+          staffRole: role
         }
       });
 
@@ -3190,7 +3189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/staff/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const staffId = parseInt(req.params.id);
-      const { staffRole, department, permissions, phone, location, status, emergencyContact } = req.body;
+      const { role, department, permissions, phone, location, status, fullName } = req.body;
 
       // Get current staff member
       const currentStaff = await dbStorage.getStaff(staffId);
@@ -3200,13 +3199,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update staff member
       const updatedStaff = await dbStorage.updateStaff(staffId, {
-        staffRole: staffRole || currentStaff.staffRole,
+        role: role || currentStaff.role,
         department: department || currentStaff.department,
         permissions: permissions !== undefined ? permissions : currentStaff.permissions,
         phone: phone || currentStaff.phone,
         location: location || currentStaff.location,
         status: status || currentStaff.status,
-        emergencyContact: emergencyContact || currentStaff.emergencyContact
+        fullName: fullName || currentStaff.fullName
       });
 
       if (!updatedStaff) {
@@ -3218,13 +3217,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user!.id,
         type: "staff_updated",
         title: "Staff Member Updated",
-        message: `Staff member ${updatedStaff.username} has been updated`,
+        message: `Staff member ${updatedStaff.fullName || updatedStaff.username} has been updated`,
         priority: "low",
         read: false,
         actionUrl: "/admin/staff",
         data: {
-          staffName: updatedStaff.username,
-          staffRole: updatedStaff.staffRole
+          staffName: updatedStaff.fullName || updatedStaff.username,
+          staffRole: updatedStaff.role
         }
       });
 
@@ -3265,8 +3264,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         read: false,
         actionUrl: "/admin/staff",
         data: {
-          staffName: staffToDelete.username,
-          staffRole: staffToDelete.staffRole
+          staffName: staffToDelete.fullName || staffToDelete.username,
+          staffRole: staffToDelete.role
         }
       });
 
