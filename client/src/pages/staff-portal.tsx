@@ -53,7 +53,10 @@ import {
   BellRing,
   Dot,
   Wrench,
-  User
+  User,
+  Hash,
+  Briefcase,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,18 +99,20 @@ interface AdminStats {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
-  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
-  { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
-  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
-  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500' },
-  { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-teal-500 to-cyan-500' },
-  { id: 'staff-management', label: 'Staff Management', icon: Shield, color: 'from-purple-500 to-indigo-500' },
-  { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500' },
-  { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
-  { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500' },
-  { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500' },
-  { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
+  { id: 'users', label: 'Users', icon: Users, color: 'from-purple-500 to-pink-500' },
+  { id: 'yachts', label: 'Yachts', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
+  { id: 'services', label: 'Services', icon: Star, color: 'from-orange-500 to-red-500' },
+  { id: 'events', label: 'Events', icon: Calendar, color: 'from-green-500 to-emerald-500' },
+  { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-cyan-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
+  { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-cyan-500' },
+  { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-indigo-500' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-red-500 to-orange-500' },
+  { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-blue-500 to-indigo-500' },
+  { id: 'staff-management', label: 'Staff Management', icon: UserCheck, color: 'from-purple-500 to-indigo-500' },
+  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
+  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
+  { id: 'messenger', label: 'Messenger', icon: MessageSquare, color: 'from-blue-500 to-purple-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
@@ -210,6 +215,27 @@ export default function StaffPortal() {
   const { data: notifications } = useQuery({
     queryKey: ['/api/staff/notifications'],
   });
+
+  // Process stats data to match admin dashboard structure
+  const adminStats = stats ? {
+    totalUsers: stats.totalUsers || 0,
+    totalBookings: stats.totalBookings || 0,
+    totalRevenue: stats.totalRevenue || 0,
+    activeServices: stats.activeServices || 0,
+    monthlyGrowth: stats.monthlyGrowth || 0,
+    membershipBreakdown: stats.membershipBreakdown || []
+  } : {
+    totalUsers: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    activeServices: 0,
+    monthlyGrowth: 0,
+    membershipBreakdown: []
+  };
+
+
+
+
 
   // Mobile detection
   useEffect(() => {
@@ -357,8 +383,261 @@ export default function StaffPortal() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  // EXACT COPY of Admin Dashboard render functions
-  // Exact copy from admin dashboard - renderUsers function
+  // EXACT COPY FROM ADMIN DASHBOARD - renderOverview function with complete styling
+  const renderOverview = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Overview
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Miami Beach Yacht Club Staff Dashboard
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4 relative z-10"
+        >
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowFilters(!showFilters);
+            }}
+            className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white bg-gray-900/50 hover:bg-gray-800/80 transition-all duration-300"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+          
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-purple-600/30"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Quick Add
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardContent className="p-6 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-400 mb-1">Total Users</p>
+                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalUsers || 0}</p>
+                  <div className="flex items-center text-sm">
+                    <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                    <span className="text-green-400 font-medium">+{adminStats.monthlyGrowth || 0}%</span>
+                    <span className="text-gray-500 ml-1">this month</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
+                  <Users className="h-8 w-8 text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardContent className="p-6 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-400 mb-1">Total Bookings</p>
+                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalBookings || 0}</p>
+                  <div className="flex items-center text-sm">
+                    <Calendar className="h-4 w-4 text-blue-400 mr-1" />
+                    <span className="text-gray-400">Active reservations</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
+                  <CalendarDays className="h-8 w-8 text-blue-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-emerald-500/50 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardContent className="p-6 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-400 mb-1">Total Revenue</p>
+                  <p className="text-3xl font-bold text-white mb-2">${(adminStats.totalRevenue || 0).toLocaleString()}</p>
+                  <div className="flex items-center text-sm">
+                    <DollarSign className="h-4 w-4 text-emerald-400 mr-1" />
+                    <span className="text-emerald-400 font-medium">Revenue streams</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
+                  <TrendingUp className="h-8 w-8 text-emerald-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+          whileHover={{ scale: 1.02 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <CardContent className="p-6 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-400 mb-1">Active Services</p>
+                  <p className="text-3xl font-bold text-white mb-2">{adminStats.activeServices || 0}</p>
+                  <div className="flex items-center text-sm">
+                    <Star className="h-4 w-4 text-orange-400 mr-1" />
+                    <span className="text-gray-400">Premium offerings</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
+                  <Sparkles className="h-8 w-8 text-orange-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Membership Breakdown */}
+      {adminStats.membershipBreakdown && adminStats.membershipBreakdown.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-white">Membership Distribution</CardTitle>
+              <CardDescription className="text-gray-400">Current membership tier breakdown</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {adminStats.membershipBreakdown.map((tier: any, index: number) => (
+                  <motion.div
+                    key={tier.tier}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 + index * 0.1 }}
+                    className="text-center p-4 rounded-lg bg-gray-800/50 border border-gray-700/50"
+                  >
+                    <div className="text-2xl font-bold text-white mb-1">{tier.count}</div>
+                    <div className="text-sm text-gray-400 mb-2">{tier.tier}</div>
+                    <div className="text-xs text-purple-400 font-medium">{tier.percentage}%</div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-white">Quick Actions</CardTitle>
+            <CardDescription className="text-gray-400">Frequently used staff functions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Button
+                onClick={() => setActiveSection('users')}
+                variant="outline"
+                className="h-20 flex-col space-y-2 border-gray-600 hover:border-purple-500 bg-gray-800/50 hover:bg-gray-700/80"
+              >
+                <Users className="h-6 w-6 text-purple-400" />
+                <span className="text-white">Manage Users</span>
+              </Button>
+              
+              <Button
+                onClick={() => setActiveSection('yachts')}
+                variant="outline"
+                className="h-20 flex-col space-y-2 border-gray-600 hover:border-blue-500 bg-gray-800/50 hover:bg-gray-700/80"
+              >
+                <Anchor className="h-6 w-6 text-blue-400" />
+                <span className="text-white">Fleet Management</span>
+              </Button>
+              
+              <Button
+                onClick={() => setActiveSection('bookings')}
+                variant="outline"
+                className="h-20 flex-col space-y-2 border-gray-600 hover:border-emerald-500 bg-gray-800/50 hover:bg-gray-700/80"
+              >
+                <Calendar className="h-6 w-6 text-emerald-400" />
+                <span className="text-white">View Bookings</span>
+              </Button>
+              
+              <Button
+                onClick={() => setActiveSection('analytics')}
+                variant="outline"
+                className="h-20 flex-col space-y-2 border-gray-600 hover:border-pink-500 bg-gray-800/50 hover:bg-gray-700/80"
+              >
+                <TrendingUp className="h-6 w-6 text-pink-400" />
+                <span className="text-white">Analytics</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  // EXACT COPY from admin dashboard - renderUsers function
   const renderUsers = () => {
     if (!users) {
       return (
@@ -1060,254 +1339,6 @@ export default function StaffPortal() {
       </Card>
     </motion.div>
   );
-
-  function renderOverview() {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="space-y-8"
-      >
-        {/* Header */}
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            Staff Portal
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Comprehensive staff management and operations dashboard
-          </motion.p>
-        </div>
-
-        {/* Stats Cards */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:from-blue-400 group-hover:to-cyan-400 transition-all duration-300">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <motion.div
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30 transition-colors">
-                    Total
-                  </Badge>
-                </motion.div>
-              </div>
-              <div>
-                <motion.h3 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold text-white mb-1"
-                >
-                  {stats?.totalUsers?.toLocaleString() || '0'}
-                </motion.h3>
-                <p className="text-gray-400 text-sm">Platform Users</p>
-                <div className="flex items-center mt-2">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-green-500 text-sm">+12% from last month</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 group-hover:from-purple-400 group-hover:to-pink-400 transition-all duration-300">
-                  <Calendar className="h-8 w-8 text-white" />
-                </div>
-                <motion.div
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30 transition-colors">
-                    Active
-                  </Badge>
-                </motion.div>
-              </div>
-              <div>
-                <motion.h3 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-3xl font-bold text-white mb-1"
-                >
-                  {stats?.totalBookings?.toLocaleString() || '0'}
-                </motion.h3>
-                <p className="text-gray-400 text-sm">Total Bookings</p>
-                <div className="flex items-center mt-2">
-                  <Calendar className="h-4 w-4 text-purple-500 mr-1" />
-                  <span className="text-purple-400 text-sm">+8% this week</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 group-hover:from-green-400 group-hover:to-emerald-400 transition-all duration-300">
-                  <DollarSign className="h-8 w-8 text-white" />
-                </div>
-                <motion.div
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
-                    Revenue
-                  </Badge>
-                </motion.div>
-              </div>
-              <div>
-                <motion.h3 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-3xl font-bold text-white mb-1"
-                >
-                  ${stats?.totalRevenue?.toLocaleString() || '0'}
-                </motion.h3>
-                <p className="text-gray-400 text-sm">Total Revenue</p>
-                <div className="flex items-center mt-2">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-green-500 text-sm">+{stats?.monthlyGrowth || 0}% growth</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 group">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 group-hover:from-orange-400 group-hover:to-red-400 transition-all duration-300">
-                  <Sparkles className="h-8 w-8 text-white" />
-                </div>
-                <motion.div
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 hover:bg-orange-500/30 transition-colors">
-                    Services
-                  </Badge>
-                </motion.div>
-              </div>
-              <div>
-                <motion.h3 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-3xl font-bold text-white mb-1"
-                >
-                  {stats?.activeServices?.toLocaleString() || '0'}
-                </motion.h3>
-                <p className="text-gray-400 text-sm">Active Services</p>
-                <div className="flex items-center mt-2">
-                  <Sparkles className="h-4 w-4 text-orange-500 mr-1" />
-                  <span className="text-orange-400 text-sm">All categories</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <Zap className="h-5 w-5 mr-2 text-yellow-500" />
-                Quick Actions
-              </CardTitle>
-              <CardDescription>Frequently used staff operations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <Button
-                  onClick={() => setActiveSection('users')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-green-600 hover:to-emerald-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <Users className="h-6 w-6 mb-2 text-green-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Users</span>
-                </Button>
-
-                <Button
-                  onClick={() => setActiveSection('bookings')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <Calendar className="h-6 w-6 mb-2 text-purple-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Bookings</span>
-                </Button>
-
-                <Button
-                  onClick={() => setActiveSection('yachts')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-blue-600 hover:to-cyan-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <Anchor className="h-6 w-6 mb-2 text-blue-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Fleet</span>
-                </Button>
-
-                <Button
-                  onClick={() => setActiveSection('services')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-orange-600 hover:to-red-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <Sparkles className="h-6 w-6 mb-2 text-orange-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Services</span>
-                </Button>
-
-                <Button
-                  onClick={() => setActiveSection('events')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-violet-600 hover:to-purple-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <CalendarDays className="h-6 w-6 mb-2 text-violet-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Events</span>
-                </Button>
-
-                <Button
-                  onClick={() => setActiveSection('analytics')}
-                  variant="outline"
-                  className="h-20 bg-gray-800/50 border-gray-700 hover:bg-gradient-to-r hover:from-pink-600 hover:to-rose-600 hover:border-transparent flex flex-col items-center justify-center group transition-all duration-300"
-                >
-                  <TrendingUp className="h-6 w-6 mb-2 text-pink-500 group-hover:text-white transition-colors" />
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Analytics</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-    );
-  }
 
   const renderYachts = () => (
     <motion.div
@@ -3207,21 +3238,22 @@ export default function StaffPortal() {
         >
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
-
-            {activeSection === 'my-profile' && <MyProfile />}
-            {activeSection === 'settings' && <div>Settings coming soon</div>}
-            {activeSection === 'bookings' && renderBookings()}
-            {activeSection === 'calendar' && <CalendarPage />}
-            {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
-            {activeSection === 'crew-management' && <CrewManagementPage />}
-            {activeSection === 'customer-service' && <CustomerServiceDashboard />}
-            {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
             {activeSection === 'services' && renderServices()}
             {activeSection === 'events' && renderEvents()}
-            {activeSection === 'payments' && renderPayments()}
+            {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'analytics' && renderAnalytics()}
+            {activeSection === 'payments' && renderPayments()}
+            {activeSection === 'calendar' && <CalendarPage />}
+            {activeSection === 'notifications' && renderNotifications()}
+            {activeSection === 'crew-management' && <CrewManagementPage />}
+            {activeSection === 'staff-management' && <StaffManagement />}
+            {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
+            {activeSection === 'customer-service' && <CustomerServiceDashboard />}
+            {activeSection === 'messenger' && <MessengerDashboard />}
+            {activeSection === 'my-profile' && <MyProfile />}
+            {activeSection === 'settings' && renderSettings()}
           </AnimatePresence>
         </motion.div>
       </div>
