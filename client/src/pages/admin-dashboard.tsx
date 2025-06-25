@@ -69,6 +69,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -2310,6 +2312,25 @@ export default function AdminDashboard() {
     yachtSize: 'all',
     sortBy: 'date'
   });
+  
+  // Filter states for yacht, service, and event management
+  const [yachtFilters, setYachtFilters] = useState({
+    availability: "all", // all, available, unavailable
+    size: "all", // all, small (0-40ft), medium (41-80ft), large (81ft+)
+    location: "all", // all, specific locations
+    priceRange: "all" // all, free, low (<$500/hr), medium ($500-1000/hr), high (>$1000/hr)
+  });
+  const [serviceFilters, setServiceFilters] = useState({
+    category: "all", // all, specific categories
+    availability: "all", // all, available, unavailable
+    priceRange: "all" // all, low (<$100), medium ($100-500), high (>$500)
+  });
+  const [eventFilters, setEventFilters] = useState({
+    status: "all", // all, upcoming, past
+    capacity: "all", // all, small (<20), medium (20-50), large (>50)
+    priceRange: "all" // all, free, paid
+  });
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
 
@@ -2563,6 +2584,139 @@ export default function AdminDashboard() {
   }, [allBookings, bookingFilters]);
 
   const bookings = filteredBookings;
+
+  // Filter yachts based on active filters
+  const filteredYachts = useMemo(() => {
+    if (activeSection !== 'yachts') return yachts;
+    
+    let filtered = [...yachts];
+
+    // Availability filter
+    if (yachtFilters.availability !== 'all') {
+      filtered = filtered.filter(yacht => {
+        if (yachtFilters.availability === 'available') return yacht.isAvailable;
+        if (yachtFilters.availability === 'unavailable') return !yacht.isAvailable;
+        return true;
+      });
+    }
+
+    // Size filter
+    if (yachtFilters.size !== 'all') {
+      filtered = filtered.filter(yacht => {
+        const size = yacht.size || 0;
+        switch (yachtFilters.size) {
+          case 'small': return size <= 40;
+          case 'medium': return size > 40 && size <= 80;
+          case 'large': return size > 80;
+          default: return true;
+        }
+      });
+    }
+
+    // Location filter
+    if (yachtFilters.location !== 'all') {
+      filtered = filtered.filter(yacht => 
+        yacht.location?.toLowerCase().includes(yachtFilters.location.toLowerCase())
+      );
+    }
+
+    // Price range filter
+    if (yachtFilters.priceRange !== 'all') {
+      filtered = filtered.filter(yacht => {
+        const price = parseFloat(yacht.pricePerHour) || 0;
+        switch (yachtFilters.priceRange) {
+          case 'free': return price === 0;
+          case 'low': return price > 0 && price < 500;
+          case 'medium': return price >= 500 && price <= 1000;
+          case 'high': return price > 1000;
+          default: return true;
+        }
+      });
+    }
+
+    return filtered;
+  }, [yachts, yachtFilters, activeSection]);
+
+  // Filter services based on active filters
+  const filteredServices = useMemo(() => {
+    if (activeSection !== 'services') return services;
+    
+    let filtered = [...services];
+
+    // Category filter
+    if (serviceFilters.category !== 'all') {
+      filtered = filtered.filter(service => 
+        service.category?.toLowerCase() === serviceFilters.category.toLowerCase()
+      );
+    }
+
+    // Availability filter
+    if (serviceFilters.availability !== 'all') {
+      filtered = filtered.filter(service => {
+        if (serviceFilters.availability === 'available') return service.isAvailable;
+        if (serviceFilters.availability === 'unavailable') return !service.isAvailable;
+        return true;
+      });
+    }
+
+    // Price range filter
+    if (serviceFilters.priceRange !== 'all') {
+      filtered = filtered.filter(service => {
+        const price = parseFloat(service.basePrice) || 0;
+        switch (serviceFilters.priceRange) {
+          case 'low': return price < 100;
+          case 'medium': return price >= 100 && price <= 500;
+          case 'high': return price > 500;
+          default: return true;
+        }
+      });
+    }
+
+    return filtered;
+  }, [services, serviceFilters, activeSection]);
+
+  // Filter events based on active filters
+  const filteredEvents = useMemo(() => {
+    if (activeSection !== 'events') return events;
+    
+    let filtered = [...events];
+
+    // Status filter
+    if (eventFilters.status !== 'all') {
+      const now = new Date();
+      filtered = filtered.filter(event => {
+        const eventDate = new Date(event.eventDate);
+        if (eventFilters.status === 'upcoming') return eventDate >= now;
+        if (eventFilters.status === 'past') return eventDate < now;
+        return true;
+      });
+    }
+
+    // Capacity filter
+    if (eventFilters.capacity !== 'all') {
+      filtered = filtered.filter(event => {
+        const capacity = event.maxCapacity || 0;
+        switch (eventFilters.capacity) {
+          case 'small': return capacity < 20;
+          case 'medium': return capacity >= 20 && capacity <= 50;
+          case 'large': return capacity > 50;
+          default: return true;
+        }
+      });
+    }
+
+    // Price filter
+    if (eventFilters.priceRange !== 'all') {
+      filtered = filtered.filter(event => {
+        const price = parseFloat(event.ticketPrice) || 0;
+        if (eventFilters.priceRange === 'free') return price === 0;
+        if (eventFilters.priceRange === 'paid') return price > 0;
+        return true;
+      });
+    }
+
+    return filtered;
+  }, [events, eventFilters, activeSection]);
 
   const renderOverview = () => (
     <motion.div
@@ -3926,6 +4080,24 @@ export default function AdminDashboard() {
     </motion.div>
   );
 
+
+
+
+
+  // Get unique locations for yacht filter
+  const yachtLocations = useMemo(() => {
+    if (!yachts) return [];
+    const locations = [...new Set(yachts.map((yacht: any) => yacht.location))];
+    return locations.filter(Boolean);
+  }, [yachts]);
+
+  // Get unique service categories for service filter
+  const serviceCategories = useMemo(() => {
+    if (!services) return [];
+    const categories = [...new Set(services.map((service: any) => service.category))];
+    return categories.filter(Boolean);
+  }, [services]);
+
   const renderYachts = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -3960,16 +4132,159 @@ export default function AdminDashboard() {
           className="flex items-center space-x-4"
         >
           <AddYachtDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Yachts
+                {(yachtFilters.availability !== "all" || yachtFilters.size !== "all" || 
+                  yachtFilters.location !== "all" || yachtFilters.priceRange !== "all") && (
+                  <Badge className="ml-2 bg-blue-500 text-white text-xs">
+                    {Object.values(yachtFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Yachts</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setYachtFilters({
+                      availability: "all",
+                      size: "all", 
+                      location: "all",
+                      priceRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Availability</Label>
+                    <Select value={yachtFilters.availability} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, availability: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Yachts</SelectItem>
+                        <SelectItem value="available">Available Only</SelectItem>
+                        <SelectItem value="unavailable">Unavailable Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Size</Label>
+                    <Select value={yachtFilters.size} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, size: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Sizes</SelectItem>
+                        <SelectItem value="small">Small (0-40ft)</SelectItem>
+                        <SelectItem value="medium">Medium (41-80ft)</SelectItem>
+                        <SelectItem value="large">Large (81ft+)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Location</Label>
+                    <Select value={yachtFilters.location} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, location: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {yachtLocations.map((location) => (
+                          <SelectItem key={location} value={location}>{location}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Price Range</Label>
+                    <Select value={yachtFilters.priceRange} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, priceRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="low">Low ($1-$499/hr)</SelectItem>
+                        <SelectItem value="medium">Medium ($500-$1000/hr)</SelectItem>
+                        <SelectItem value="high">High ($1000+/hr)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredYachts.length} of {yachts?.length || 0} yachts
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setYachtFilters({
+                      availability: "all",
+                      size: "all", 
+                      location: "all",
+                      priceRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-blue-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </motion.div>
       </div>
 
       {/* Yachts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {yachts?.map((yacht: any, index: number) => (
+        {filteredYachts.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Ship className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No yachts found</h3>
+            <p className="text-gray-500 text-center">
+              No yachts match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-blue-400 hover:text-blue-300 p-0"
+                onClick={() => setYachtFilters({
+                  availability: "all",
+                  size: "all", 
+                  location: "all",
+                  priceRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all yachts.
+            </p>
+          </div>
+        ) : 
+          filteredYachts.map((yacht: any, index: number) => (
           <motion.div
             key={yacht.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -4052,17 +4367,139 @@ export default function AdminDashboard() {
           className="flex items-center space-x-4"
         >
           <AddServiceDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Services
+                {(serviceFilters.category !== "all" || serviceFilters.availability !== "all" || 
+                  serviceFilters.priceRange !== "all") && (
+                  <Badge className="ml-2 bg-orange-500 text-white text-xs">
+                    {Object.values(serviceFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Services</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setServiceFilters({
+                      category: "all",
+                      availability: "all",
+                      priceRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Category</Label>
+                    <Select value={serviceFilters.category} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, category: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {serviceCategories.map((category) => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Availability</Label>
+                    <Select value={serviceFilters.availability} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, availability: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Services</SelectItem>
+                        <SelectItem value="available">Available Only</SelectItem>
+                        <SelectItem value="unavailable">Unavailable Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Price Range</Label>
+                    <Select value={serviceFilters.priceRange} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, priceRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="low">Low ($1-$99)</SelectItem>
+                        <SelectItem value="medium">Medium ($100-$500)</SelectItem>
+                        <SelectItem value="high">High ($500+)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredServices.length} of {services?.length || 0} services
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setServiceFilters({
+                      category: "all",
+                      availability: "all",
+                      priceRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-orange-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </motion.div>
       </div>
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services?.map((service: any, index: number) => (
-          <motion.div
+        {filteredServices.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Settings className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No services found</h3>
+            <p className="text-gray-500 text-center">
+              No services match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-orange-400 hover:text-orange-300 p-0"
+                onClick={() => setServiceFilters({
+                  category: "all",
+                  availability: "all",
+                  priceRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all services.
+            </p>
+          </div>
+        ) : (
+          filteredServices.map((service: any, index: number) => (
+            <motion.div
             key={service.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -4123,8 +4560,9 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))
+        )}
       </div>
     </motion.div>
   );
@@ -4163,16 +4601,137 @@ export default function AdminDashboard() {
           className="flex items-center space-x-4"
         >
           <AddEventDialog currentUser={user} />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Events
+                {(eventFilters.status !== "all" || eventFilters.capacity !== "all" || 
+                  eventFilters.priceRange !== "all") && (
+                  <Badge className="ml-2 bg-violet-500 text-white text-xs">
+                    {Object.values(eventFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Events</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEventFilters({
+                      status: "all",
+                      capacity: "all",
+                      priceRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Status</Label>
+                    <Select value={eventFilters.status} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, status: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Events</SelectItem>
+                        <SelectItem value="upcoming">Upcoming Only</SelectItem>
+                        <SelectItem value="past">Past Events</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Capacity</Label>
+                    <Select value={eventFilters.capacity} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, capacity: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Sizes</SelectItem>
+                        <SelectItem value="small">Small (1-19 people)</SelectItem>
+                        <SelectItem value="medium">Medium (20-50 people)</SelectItem>
+                        <SelectItem value="large">Large (50+ people)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Price</Label>
+                    <Select value={eventFilters.priceRange} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, priceRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="free">Free Events</SelectItem>
+                        <SelectItem value="paid">Paid Events</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredEvents.length} of {events?.length || 0} events
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setEventFilters({
+                      status: "all",
+                      capacity: "all",
+                      priceRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-violet-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </motion.div>
       </div>
 
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {events?.map((event: any, index: number) => (
+        {filteredEvents.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Calendar className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No events found</h3>
+            <p className="text-gray-500 text-center">
+              No events match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-violet-400 hover:text-violet-300 p-0"
+                onClick={() => setEventFilters({
+                  status: "all",
+                  capacity: "all",
+                  priceRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all events.
+            </p>
+          </div>
+        ) : (
+          filteredEvents.map((event: any, index: number) => (
           <motion.div
             key={event.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -4219,7 +4778,8 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </motion.div>
-        ))}
+          ))
+        )}
       </div>
     </motion.div>
   );

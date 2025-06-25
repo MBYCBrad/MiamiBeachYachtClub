@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, LogOut, Calendar } from 'lucide-react';
+import { X, User, Bell, LogOut, Calendar, HeadphonesIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import CustomerServiceModal from '@/components/CustomerServiceModal';
 import { 
   Explore3DIcon, 
   Trips3DIcon, 
@@ -18,6 +19,7 @@ interface BottomNavigationProps {
 
 export default function BottomNavigation({ currentView, setCurrentView }: BottomNavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCustomerServiceOpen, setIsCustomerServiceOpen] = useState(false);
   const { user, logoutMutation } = useAuth();
   
   // Swipe gesture states
@@ -75,6 +77,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
+    { id: 'support', icon: HeadphonesIcon, label: 'Customer Service', badge: null, action: () => setIsCustomerServiceOpen(true) },
   ];
 
   const handleNavClick = (itemId: string) => {
@@ -86,8 +89,12 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
     }
   };
 
-  const handleMenuItemClick = (itemId: string) => {
-    setCurrentView(itemId);
+  const handleMenuItemClick = (itemId: string, action?: () => void) => {
+    if (action) {
+      action();
+    } else {
+      setCurrentView(itemId);
+    }
     setIsMenuOpen(false);
   };
 
@@ -207,7 +214,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
                   return (
                     <motion.button
                       key={item.id}
-                      onClick={() => handleMenuItemClick(item.id)}
+                      onClick={() => handleMenuItemClick(item.id, item.action)}
                       className={`w-full flex items-center justify-between px-6 py-4 text-left transition-colors ${
                         isActive 
                           ? 'bg-purple-600/20 text-purple-400' 
@@ -245,6 +252,12 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
           </>
         )}
       </AnimatePresence>
+
+      {/* Customer Service Modal */}
+      <CustomerServiceModal 
+        isOpen={isCustomerServiceOpen} 
+        onClose={() => setIsCustomerServiceOpen(false)} 
+      />
     </>
   );
 }
