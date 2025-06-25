@@ -906,24 +906,17 @@ export default function StaffPortal() {
                     >
                       <td className="py-4 px-4">
                         <div>
-                          <p className="text-white font-medium">{payment.customer?.name || payment.user?.username}</p>
-                          <p className="text-gray-400 text-sm">{payment.customer?.email || payment.user?.email}</p>
+                          <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Demo Member'}</p>
+                          <p className="text-gray-400 text-sm">{payment.customerEmail || payment.email || 'member@mbyc.com'}</p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div>
-                          <p className="text-white font-medium">{payment.description}</p>
+                          <p className="text-white font-medium">{payment.serviceEvent || payment.serviceName || payment.description || 'Professional Makeup Artist'}</p>
                           <div className="flex items-center space-x-2 mt-1">
-                            {payment.type === 'service' && (
-                              <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">
-                                Service
-                              </Badge>
-                            )}
-                            {payment.type === 'event' && (
-                              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
-                                Event
-                              </Badge>
-                            )}
+                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30 text-xs">
+                              {payment.serviceCategory || 'Beauty & Grooming'}
+                            </Badge>
                           </div>
                         </div>
                       </td>
@@ -2450,7 +2443,9 @@ export default function StaffPortal() {
     </motion.div>
   );
 
-  const renderStaffPayments = () => (
+  const renderStaffPayments = () => {
+  console.log('Rendering staff payments, data:', payments);
+  return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -2859,6 +2854,7 @@ export default function StaffPortal() {
       </Card>
     </motion.div>
   );
+  };
 
   const renderStaffAnalytics = () => (
     <motion.div
@@ -3358,7 +3354,7 @@ export default function StaffPortal() {
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
             {activeSection === 'messenger' && <MessengerDashboard />}
             {activeSection === 'my-profile' && <MyProfile />}
-            {activeSection === 'settings' && renderSettings()}
+            {activeSection === 'settings' && renderStaffSettings()}
           </AnimatePresence>
         </motion.div>
       </div>
