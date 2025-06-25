@@ -5185,6 +5185,212 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // STAFF YACHT MAINTENANCE ROUTES - Allow staff with yacht permissions to access maintenance
+  app.get("/api/staff/maintenance/overview/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const bookings = await dbStorage.getBookingsByYacht(yachtId);
+      const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
+      
+      const tripLogs = await dbStorage.getTripLogs(yachtId);
+      const totalEngineHours = tripLogs.reduce((total, log) => {
+        return total + parseFloat(log.engineHours || '0');
+      }, 0);
+      
+      const usageMetrics = await dbStorage.getUsageMetrics(yachtId);
+      const sunExposureMetrics = usageMetrics.filter(m => m.metricType === 'sun_exposure');
+      const totalSunExposure = sunExposureMetrics.reduce((total, metric) => {
+        return total + parseFloat(metric.metricValue || '0');
+      }, 0);
+      
+      const overdueTasks = 0;
+      const avgCondition = 85;
+      
+      const overview = {
+        totalEngineHours: Math.round(totalEngineHours * 10) / 10,
+        totalSunExposure: Math.round(totalSunExposure * 10) / 10,
+        overdueTasks,
+        avgCondition: Math.round(avgCondition * 10) / 10,
+      };
+
+      res.json(overview);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/records/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const records = await dbStorage.getMaintenanceRecords(yachtId);
+      res.json(records);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/trip-logs/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const tripLogs = await dbStorage.getTripLogs(yachtId);
+      res.json(tripLogs);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/assessments/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const assessments = await dbStorage.getConditionAssessments(yachtId);
+      res.json(assessments);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/components/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const components = await dbStorage.getYachtComponents(yachtId);
+      res.json(components);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/schedules/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const schedules = await dbStorage.getMaintenanceSchedules(yachtId);
+      res.json(schedules);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/valuation/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const yacht = await dbStorage.getYacht(yachtId);
+      if (!yacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+
+      const bookings = await dbStorage.getBookingsByYacht(yachtId);
+      const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
+      
+      const totalUsageHours = confirmedBookings.reduce((total, booking) => {
+        if (booking.startTime && booking.endTime) {
+          const hours = (new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / (1000 * 60 * 60);
+          return total + hours;
+        }
+        return total;
+      }, 0);
+      
+      const currentYear = new Date().getFullYear();
+      const yachtAge = yacht.yearMade ? currentYear - yacht.yearMade : 5;
+      const baseValue = yacht.totalCost || 500000;
+      
+      const ageDepreciation = Math.min(0.6, yachtAge * 0.05);
+      const usageDepreciation = Math.min(0.3, totalUsageHours / 10000 * 0.3);
+      const totalDepreciation = ageDepreciation + usageDepreciation;
+      
+      const currentValue = baseValue * (1 - totalDepreciation);
+      const repairCosts = Math.min(currentValue * 0.4, totalUsageHours * 50 + yachtAge * 1000);
+      
+      const response = {
+        currentValue: Math.round(currentValue),
+        repairCosts: Math.round(repairCosts),
+        sweetSpotMonths: Math.max(6, 36 - yachtAge * 2),
+        recommendation: yachtAge > 15 ? "Consider selling soon" : "Maintain for continued use",
+        conditionScore: Math.max(20, 100 - yachtAge * 3 - totalUsageHours / 100),
+        depreciationFactors: { age: ageDepreciation, usage: usageDepreciation },
+        valuationDate: new Date()
+      };
+
+      res.json(response);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/maintenance/usage-metrics/:yachtId", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has yacht permissions
+      if (req.user.role !== 'admin' && req.user.role !== 'yacht_owner') {
+        const staffUser = await dbStorage.getStaffByUsername(req.user.username);
+        if (!staffUser || !staffUser.permissions.includes('yachts')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      }
+
+      const yachtId = parseInt(req.params.yachtId);
+      const bookings = await dbStorage.getBookingsByYacht(yachtId);
+      const usageMetrics = await dbStorage.getUsageMetrics(yachtId);
+      
+      res.json(usageMetrics);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get('/api/staff/notifications', requireAuth, async (req, res) => {
     try {
       const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
