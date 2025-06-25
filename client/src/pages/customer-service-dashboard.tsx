@@ -72,7 +72,7 @@ export default function CustomerServiceDashboard() {
 
   // Fetch all users for contacts
   const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
-    queryKey: ["/api/admin/users"],
+    queryKey: ["/api/staff/users"],
     staleTime: 60000,
     cacheTime: 300000
   });
