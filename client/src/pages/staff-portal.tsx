@@ -9,7 +9,7 @@ import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceFixed from "@/pages/customer-service-fixed";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
 import MessagesDropdown from "@/components/MessagesDropdown";
-import LogOut from "@/pages/logout";
+
 import { 
   BarChart3, 
   Users, 
@@ -41,6 +41,7 @@ import {
   Save,
   RotateCcw,
   Trash2,
+  LogOut,
   ExternalLink,
   Menu,
   X,
@@ -415,6 +416,308 @@ export default function StaffPortal() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  // EXACT COPY FROM ADMIN DASHBOARD - StatCard component
+  const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="group relative overflow-hidden"
+    >
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-400 text-sm font-medium">{title}</p>
+              <p className="text-3xl font-bold text-white mt-2">{value}</p>
+              {change !== null && (
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                  <span className="text-green-400 text-sm">+{change}%</span>
+                </div>
+              )}
+            </div>
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+              <Icon className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </CardContent>
+        
+        {/* Animated background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+      </Card>
+    </motion.div>
+  );
+
+  // EXACT COPY FROM ADMIN DASHBOARD - ActivityCard component
+  const ActivityCard = ({ activity, index }: any) => (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.6 + index * 0.1 }}
+      className="flex items-center space-x-4 p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group"
+    >
+      <div className={`p-2 rounded-lg bg-gradient-to-br ${activity.color} group-hover:scale-110 transition-transform`}>
+        <activity.icon className="h-4 w-4 text-white" />
+      </div>
+      <div className="flex-1">
+        <p className="text-white font-medium">{activity.title}</p>
+        <p className="text-sm text-gray-400">{activity.description}</p>
+      </div>
+      <span className="text-xs text-gray-500">{activity.time}</span>
+    </motion.div>
+  );
+
+  // EXACT COPY FROM ADMIN DASHBOARD - Get unique locations for yacht filter
+  const yachtLocations = useMemo(() => {
+    if (!yachts) return [];
+    const locations = [...new Set(yachts.map((yacht: any) => yacht.location))];
+    return locations.filter(Boolean);
+  }, [yachts]);
+
+  // EXACT COPY FROM ADMIN DASHBOARD - Get unique service categories for service filter
+  const serviceCategories = useMemo(() => {
+    if (!services) return [];
+    const categories = [...new Set(services.map((service: any) => service.category))];
+    return categories.filter(Boolean);
+  }, [services]);
+
+  // EXACT COPY FROM ADMIN DASHBOARD - renderYachts function
+  const renderYachts = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Fleet Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht fleet, availability, and specifications
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <AddYachtDialog />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700 border-none">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Yachts
+                {(yachtFilters.availability !== "all" || yachtFilters.size !== "all" || 
+                  yachtFilters.location !== "all" || yachtFilters.priceRange !== "all") && (
+                  <Badge className="ml-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs">
+                    {Object.values(yachtFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Yachts</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setYachtFilters({
+                      availability: "all",
+                      size: "all", 
+                      location: "all",
+                      priceRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Availability</Label>
+                    <Select value={yachtFilters.availability} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, availability: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Yachts</SelectItem>
+                        <SelectItem value="available">Available Only</SelectItem>
+                        <SelectItem value="unavailable">Unavailable Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Size</Label>
+                    <Select value={yachtFilters.size} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, size: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Sizes</SelectItem>
+                        <SelectItem value="small">Small (0-40ft)</SelectItem>
+                        <SelectItem value="medium">Medium (41-80ft)</SelectItem>
+                        <SelectItem value="large">Large (81ft+)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Location</Label>
+                    <Select value={yachtFilters.location} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, location: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {yachtLocations.map((location) => (
+                          <SelectItem key={location} value={location}>{location}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Price Range</Label>
+                    <Select value={yachtFilters.priceRange} onValueChange={(value) => 
+                      setYachtFilters(prev => ({ ...prev, priceRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="low">Low ($1-$499/hr)</SelectItem>
+                        <SelectItem value="medium">Medium ($500-$1000/hr)</SelectItem>
+                        <SelectItem value="high">High ($1000+/hr)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredYachts.length} of {yachts?.length || 0} yachts
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setYachtFilters({
+                      availability: "all",
+                      size: "all", 
+                      location: "all",
+                      priceRange: "all"
+                    })}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-none"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </motion.div>
+      </div>
+
+      {/* Yachts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredYachts.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Ship className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No yachts found</h3>
+            <p className="text-gray-500 text-center">
+              No yachts match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-blue-400 hover:text-blue-300 p-0"
+                onClick={() => setYachtFilters({
+                  availability: "all",
+                  size: "all", 
+                  location: "all",
+                  priceRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all yachts.
+            </p>
+          </div>
+        ) : 
+          filteredYachts.map((yacht: any, index: number) => (
+          <motion.div
+            key={yacht.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                <img 
+                  src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                  alt={yacht.name}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4">
+                  <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                    {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-400">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <span className="text-sm">{yacht.location}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-gray-400">
+                    <span className="text-sm">Size: {yacht.size}ft</span>
+                    <span className="text-sm">Capacity: {yacht.capacity}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-semibold">${yacht.pricePerHour || '0'}/hour</span>
+                  <div className="flex items-center space-x-2">
+                    <ViewYachtDialog yacht={yacht} />
+                    <EditYachtDialog yacht={yacht} />
+                    <DeleteYachtDialog yacht={yacht} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
   // EXACT COPY FROM ADMIN DASHBOARD - renderOverview function with complete styling
   const renderOverview = () => (
     <motion.div
@@ -439,7 +742,7 @@ export default function StaffPortal() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Miami Beach Yacht Club Staff Dashboard
+            Miami Beach Yacht Club Management Dashboard
           </motion.p>
         </div>
         
@@ -455,219 +758,435 @@ export default function StaffPortal() {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              console.log('Overview filter button clicked, current showFilters:', showFilters);
+              
+              if (showFilters) {
+                // If closing filters, reset all filters to default
+                setBookingFilters({
+                  status: 'all',
+                  timeRange: 'all',
+                  membershipTier: 'all',
+                  yachtSize: 'all',
+                  sortBy: 'date'
+                });
+              }
+              
               setShowFilters(!showFilters);
             }}
-            className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white bg-gray-900/50 hover:bg-gray-800/80 transition-all duration-300"
+            className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
+              showFilters ? 'border-purple-500 bg-purple-500/10' : 'hover:border-purple-500'
+            }`}
+            style={{ pointerEvents: 'auto' }}
           >
             <Filter className="h-4 w-4 mr-2" />
-            Filters
+            Filter
+            {Object.values(bookingFilters).some(value => value !== 'all' && value !== 'date') && (
+              <div className="ml-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+            )}
           </Button>
-          
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-purple-600/30"
+        </motion.div>
+      </div>
+
+      {/* Advanced Filter Panel for Overview */}
+      <AnimatePresence>
+        {showFilters && activeSection === 'overview' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Quick Add
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Users</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalUsers || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                    <span className="text-green-400 font-medium">+{adminStats.monthlyGrowth || 0}%</span>
-                    <span className="text-gray-500 ml-1">this month</span>
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl mb-6">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Filter className="h-5 w-5 mr-2 text-purple-500" />
+                    Dashboard Overview Filters
                   </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
-                  <Users className="h-8 w-8 text-purple-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Bookings</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalBookings || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <Calendar className="h-4 w-4 text-blue-400 mr-1" />
-                    <span className="text-gray-400">Active reservations</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
-                  <CalendarDays className="h-8 w-8 text-blue-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-emerald-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Revenue</p>
-                  <p className="text-3xl font-bold text-white mb-2">${(adminStats.totalRevenue || 0).toLocaleString()}</p>
-                  <div className="flex items-center text-sm">
-                    <DollarSign className="h-4 w-4 text-emerald-400 mr-1" />
-                    <span className="text-emerald-400 font-medium">Revenue streams</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
-                  <TrendingUp className="h-8 w-8 text-emerald-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Active Services</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.activeServices || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <Star className="h-4 w-4 text-orange-400 mr-1" />
-                    <span className="text-gray-400">Premium offerings</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
-                  <Sparkles className="h-8 w-8 text-orange-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Membership Breakdown */}
-      {adminStats.membershipBreakdown && adminStats.membershipBreakdown.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-white">Membership Distribution</CardTitle>
-              <CardDescription className="text-gray-400">Current membership tier breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {adminStats.membershipBreakdown.map((tier: any, index: number) => (
-                  <motion.div
-                    key={tier.tier}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                    className="text-center p-4 rounded-lg bg-gray-800/50 border border-gray-700/50"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setBookingFilters({
+                      status: 'all',
+                      timeRange: 'all',
+                      membershipTier: 'all',
+                      yachtSize: 'all',
+                      sortBy: 'date'
+                    })}
+                    className="text-gray-400 hover:text-white"
                   >
-                    <div className="text-2xl font-bold text-white mb-1">{tier.count}</div>
-                    <div className="text-sm text-gray-400 mb-2">{tier.tier}</div>
-                    <div className="text-xs text-purple-400 font-medium">{tier.percentage}%</div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+                    Reset Filters
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Time Range Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Analytics Period</label>
+                    <select
+                      value={bookingFilters.timeRange}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                  </div>
 
-      {/* Quick Actions */}
+                  {/* Membership Tier Filter */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Focus on Tier</label>
+                    <select
+                      value={bookingFilters.membershipTier}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, membershipTier: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Tiers</option>
+                      <option value="bronze">Bronze Members</option>
+                      <option value="silver">Silver Members</option>
+                      <option value="gold">Gold Members</option>
+                      <option value="platinum">Platinum Members</option>
+                    </select>
+                  </div>
+
+                  {/* Status Focus */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Activity Status</label>
+                    <select
+                      value={bookingFilters.status}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="all">All Activities</option>
+                      <option value="confirmed">Active Bookings</option>
+                      <option value="pending">Pending Review</option>
+                      <option value="completed">Recent Completions</option>
+                    </select>
+                  </div>
+
+                  {/* Sort Analytics */}
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">Sort Analytics</label>
+                    <select
+                      value={bookingFilters.sortBy}
+                      onChange={(e) => setBookingFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:border-purple-500 focus:outline-none"
+                    >
+                      <option value="date">By Date</option>
+                      <option value="member">By Member</option>
+                      <option value="yacht">By Yacht</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">
+                      Analytics filtered for enhanced insights
+                    </span>
+                    <div className="flex items-center space-x-4 text-gray-400">
+                      {bookingFilters.timeRange !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Period: {bookingFilters.timeRange}
+                        </span>
+                      )}
+                      {bookingFilters.membershipTier !== 'all' && (
+                        <span className="bg-gray-800 px-2 py-1 rounded text-xs">
+                          Tier: {bookingFilters.membershipTier}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Stats Grid - Updates with Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Members"
+          value={stats?.totalUsers || '0'}
+          change={stats?.monthlyGrowth || 0}
+          icon={Users}
+          gradient="from-purple-500 to-pink-500"
+          delay={0}
+        />
+        <StatCard
+          title="Active Bookings"
+          value={bookingFilters.timeRange !== 'all' && activeSection === 'overview' ? 
+            (filteredOverviewData.analytics?.filteredMetrics?.yachtBookings || '0').toString() :
+            (stats?.totalBookings || '0').toString()
+          }
+          change={stats?.bookingGrowth || 0}
+          icon={Anchor}
+          gradient="from-blue-500 to-cyan-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Monthly Revenue"
+          value={`$${(activeSection === 'overview' && Object.values(bookingFilters).some(v => v !== 'all' && v !== 'date') ? 
+            (filteredOverviewData.analytics?.filteredMetrics?.totalRevenue || 0) :
+            (stats?.totalRevenue || 0)
+          ).toLocaleString()}`}
+          change={stats?.revenueGrowth || 0}
+          icon={CreditCard}
+          gradient="from-green-500 to-emerald-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Filtered Transactions"
+          value={activeSection === 'overview' && Object.values(bookingFilters).some(v => v !== 'all' && v !== 'date') ?
+            (filteredOverviewData.analytics?.filteredMetrics?.transactionCount?.toString() || '0') :
+            (stats?.activeServices || '0')
+          }
+          change={stats?.serviceGrowth || 0}
+          icon={Filter}
+          gradient="from-orange-500 to-red-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Membership Tiers */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
+        transition={{ delay: 0.4 }}
       >
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold text-white">Quick Actions</CardTitle>
-            <CardDescription className="text-gray-400">Frequently used staff functions</CardDescription>
+            <CardTitle className="text-white flex items-center">
+              <Crown className="h-5 w-5 mr-2 text-yellow-500" />
+              Membership Distribution
+            </CardTitle>
+            <CardDescription>Current membership tier breakdown</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
-                onClick={() => setActiveSection('users')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-purple-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Users className="h-6 w-6 text-purple-400" />
-                <span className="text-white">Manage Users</span>
-              </Button>
+              {stats?.membershipBreakdown?.map((tier, index) => (
+                <motion.div
+                  key={tier.tier}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  className="text-center p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className={`text-2xl font-bold mb-2 ${
+                    tier.tier === 'Platinum' ? 'text-purple-400' :
+                    tier.tier === 'Gold' ? 'text-yellow-400' :
+                    tier.tier === 'Silver' ? 'text-gray-300' : 'text-orange-400'
+                  }`}>
+                    {tier.count}
+                  </div>
+                  <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
+                  <div className="text-xs text-gray-500">{tier.percentage}%</div>
+                </motion.div>
+              )) || (
+                <div className="col-span-4 text-center py-8">
+                  <Crown className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No membership data available</p>
+                  <p className="text-gray-500 text-sm">Data will appear when members join</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Recent Activity - Real-time from database */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Activity className="h-5 w-5 mr-2 text-purple-500" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription>Live database transactions and member interactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {payments?.slice(0, 5).map((payment: any, index: number) => {
+                const getActivityIcon = (type: string) => {
+                  switch (type) {
+                    case 'Yacht Booking': return { icon: Anchor, color: 'from-blue-500 to-cyan-500' };
+                    case 'Service Booking': return { icon: Sparkles, color: 'from-purple-500 to-pink-500' };
+                    case 'Event Registration': return { icon: CalendarDays, color: 'from-green-500 to-emerald-500' };
+                    default: return { icon: Activity, color: 'from-gray-500 to-gray-600' };
+                  }
+                };
+                
+                const { icon: IconComponent, color } = getActivityIcon(payment.type);
+                const timeAgo = payment.createdAt ? 
+                  Math.floor((Date.now() - new Date(payment.createdAt).getTime()) / (1000 * 60)) : 0;
+                
+                const activity = {
+                  icon: IconComponent,
+                  title: payment.type,
+                  description: `${payment.customer?.name || 'Member'} - ${payment.serviceDetails}${payment.amount > 0 ? ` ($${payment.amount.toFixed(2)})` : ' (Free)'}`,
+                  time: timeAgo < 1 ? 'Just now' : timeAgo < 60 ? `${timeAgo}m ago` : `${Math.floor(timeAgo/60)}h ago`,
+                  color
+                };
+                
+                return <ActivityCard key={payment.id} activity={activity} index={index} />;
+              }) || (
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No recent activity</p>
+                  <p className="text-gray-500 text-sm">Activity will appear here as transactions occur</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Performance Metrics Dashboard - Real-time analytics */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+      >
+        {/* Fleet Performance */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
+              Fleet Performance
+            </CardTitle>
+            <CardDescription>Real-time yacht utilization and booking metrics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-medium">Fleet Utilization</span>
+                  <span className="text-blue-400 font-bold">
+                    {analytics?.realTimeMetrics?.fleetUtilization?.toFixed(1) || '0.0'}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${analytics?.realTimeMetrics?.fleetUtilization || 0}%` }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full" 
+                  />
+                </div>
+              </div>
               
-              <Button
-                onClick={() => setActiveSection('yachts')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-blue-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Anchor className="h-6 w-6 text-blue-400" />
-                <span className="text-white">Fleet Management</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('bookings')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-emerald-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Calendar className="h-6 w-6 text-emerald-400" />
-                <span className="text-white">View Bookings</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('analytics')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-pink-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <TrendingUp className="h-6 w-6 text-pink-400" />
-                <span className="text-white">Analytics</span>
-              </Button>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-medium">Average Booking Duration</span>
+                  <span className="text-green-400 font-bold">
+                    {analytics?.realTimeMetrics?.averageBookingDuration || 4.0}h
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(((analytics?.realTimeMetrics?.averageBookingDuration || 4) / 8) * 100, 100)}%` }}
+                    transition={{ duration: 1, delay: 0.4 }}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-medium">Customer Satisfaction</span>
+                  <span className="text-purple-400 font-bold">
+                    {analytics?.realTimeMetrics?.customerSatisfaction || '4.9'}/5
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((analytics?.realTimeMetrics?.customerSatisfaction || 4.9) / 5) * 100}%` }}
+                    transition={{ duration: 1, delay: 0.6 }}
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" 
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Revenue Analytics */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2 text-green-500" />
+              Revenue Analytics
+            </CardTitle>
+            <CardDescription>Live revenue breakdown by service category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                {
+                  category: 'Premium Services',
+                  amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Service Booking').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
+                  adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Service Booking').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
+                  color: 'from-purple-500 to-pink-500',
+                  icon: Sparkles
+                },
+                {
+                  category: 'Event Registrations',
+                  amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Event Registration').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
+                  adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Event Registration').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
+                  color: 'from-green-500 to-emerald-500',
+                  icon: CalendarDays
+                },
+                {
+                  category: 'Yacht Bookings',
+                  amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Yacht Booking').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
+                  adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Yacht Booking').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
+                  color: 'from-blue-500 to-cyan-500',
+                  icon: Anchor
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={item.category}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg bg-gradient-to-r ${item.color}`}>
+                      <item.icon className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{item.category}</p>
+                      <p className="text-gray-400 text-sm">
+                        Platform: ${item.adminRevenue.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-bold">${item.amount.toFixed(2)}</p>
+                    <p className="text-gray-400 text-sm">Total Revenue</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </motion.div>
     </motion.div>
-  );
+  );;
 
   // EXACT COPY from admin dashboard - renderUsers function
   const renderUsers = () => {
@@ -1758,12 +2277,30 @@ export default function StaffPortal() {
               </div>
             </PopoverContent>
           </Popover>
+          
+          <Button 
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+            onClick={() => setIsAddServiceDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Service
+          </Button>
         </motion.div>
       </div>
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredServices.length === 0 ? (
+        {servicesLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-gray-900/50 rounded-xl p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-40 bg-gray-700 rounded-lg"></div>
+                <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : filteredServices.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
             <Settings className="h-12 w-12 text-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-gray-400 mb-2">No services found</h3>
@@ -3273,7 +3810,13 @@ export default function StaffPortal() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + index * 0.1 }}
-                    onClick={() => handleSectionChange(item.id)}
+                    onClick={() => {
+                      if (item.id === 'logout') {
+                        logout();
+                      } else {
+                        handleSectionChange(item.id);
+                      }
+                    }}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden transition-all duration-300 ${
                       isActive 
                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-600/30' 
