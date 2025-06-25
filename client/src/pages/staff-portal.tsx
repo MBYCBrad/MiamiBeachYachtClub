@@ -2484,8 +2484,8 @@ export default function StaffPortal() {
                         <Button 
                           size="sm" 
                           variant="ghost" 
-                          className="text-cyan-400 hover:text-white"
-                          onClick={() => console.log('Viewing booking:', booking)}
+                          className="text-emerald-400 hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
+                          onClick={() => handleViewBooking(booking)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
