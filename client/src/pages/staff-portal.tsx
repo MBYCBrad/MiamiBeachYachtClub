@@ -137,82 +137,6 @@ export default function StaffPortal() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Mutations for CRUD operations
-  const createUserMutation = useMutation({
-    mutationFn: (userData: any) => apiRequest('/api/staff/users', {
-      method: 'POST',
-      body: JSON.stringify(userData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/users'] });
-      setIsAddUserDialogOpen(false);
-      setNewUserData({
-        username: '',
-        email: '',
-        password: '',
-        role: 'member',
-        membershipTier: 'bronze',
-        fullName: '',
-        phone: '',
-        location: ''
-      });
-      toast({
-        title: "Success",
-        description: "User created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create user",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const updateUserMutation = useMutation({
-    mutationFn: ({ id, ...userData }: any) => apiRequest(`/api/staff/users/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(userData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/users'] });
-      setIsEditUserDialogOpen(false);
-      setSelectedUser(null);
-      toast({
-        title: "Success",
-        description: "User updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update user",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/staff/users/${id}`, {
-      method: 'DELETE'
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/users'] });
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete user",
-        variant: "destructive",
-      });
-    }
-  });
-
   // Logout function
   const handleLogout = async () => {
     try {
@@ -268,22 +192,6 @@ export default function StaffPortal() {
   });
 
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
-
-  // Dialog states for CRUD operations
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
-  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
-  const [isViewUserDialogOpen, setIsViewUserDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [newUserData, setNewUserData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    role: 'member',
-    membershipTier: 'bronze',
-    fullName: '',
-    phone: '',
-    location: ''
-  });
 
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
@@ -834,11 +742,7 @@ export default function StaffPortal() {
             transition={{ delay: 0.2 }}
             className="flex items-center space-x-4"
           >
-            <Button 
-              size="sm" 
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-              onClick={() => setIsAddUserDialogOpen(true)}
-            >
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
               <Plus className="h-4 w-4 mr-2" />
               Add User
             </Button>
@@ -855,9 +759,9 @@ export default function StaffPortal() {
               </p>
             </div>
           ) : (
-            filteredUsers.map((userItem: any, index: number) => (
+            filteredUsers.map((user: any, index: number) => (
               <motion.div
-                key={userItem.id}
+                key={user.id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
@@ -868,92 +772,67 @@ export default function StaffPortal() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={userItem.avatar} />
+                          <AvatarImage src={user.avatar} />
                           <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                            {userItem.username?.charAt(0)?.toUpperCase() || 'U'}
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
-                            {userItem.username}
+                            {user.username}
                           </h3>
-                          <p className="text-gray-400 text-sm">{userItem.email}</p>
+                          <p className="text-gray-400 text-sm">{user.email}</p>
                           <Badge className={`text-xs mt-1 ${
-                            userItem.role === 'admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                            userItem.role === 'yacht_owner' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                            userItem.role === 'service_provider' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                            user.role === 'admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                            user.role === 'yacht_owner' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                            user.role === 'service_provider' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                             'bg-purple-500/20 text-purple-400 border-purple-500/30'
                           }`}>
-                            {userItem.role?.replace('_', ' ')}
+                            {user.role?.replace('_', ' ')}
                           </Badge>
                         </div>
                       </div>
                     </div>
                     
                     <div className="space-y-2 mb-4">
-                      {userItem.membershipTier && (
+                      {user.membershipTier && (
                         <div className="flex items-center justify-between">
                           <span className="text-gray-400 text-sm">Membership</span>
                           <Badge className={`text-xs ${
-                            userItem.membershipTier === 'platinum' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                            userItem.membershipTier === 'gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                            userItem.membershipTier === 'silver' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                            user.membershipTier === 'platinum' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                            user.membershipTier === 'gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                            user.membershipTier === 'silver' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
                             'bg-orange-500/20 text-orange-400 border-orange-500/30'
                           }`}>
-                            {userItem.membershipTier}
+                            {user.membershipTier}
                           </Badge>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-gray-400 text-sm">Joined</span>
                         <span className="text-white text-sm">
-                          {userItem.createdAt ? new Date(userItem.createdAt).toLocaleDateString() : 'Recently'}
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Recently'}
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-white"
-                          onClick={() => {
-                            setSelectedUser(userItem);
-                            setIsViewUserDialogOpen(true);
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-white"
-                          onClick={() => {
-                            setSelectedUser(userItem);
-                            setIsEditUserDialogOpen(true);
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-red-400"
-                          onClick={() => {
-                            if (confirm(`Are you sure you want to delete user ${userItem.username}?`)) {
-                              deleteUserMutation.mutate(userItem.id);
-                            }
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                       <Badge className={`text-xs ${
-                        userItem.isActive !== false ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        user.isActive !== false ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                         'bg-gray-500/20 text-gray-400 border-gray-500/30'
                       }`}>
-                        {userItem.isActive !== false ? 'Active' : 'Inactive'}
+                        {user.isActive !== false ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
                   </CardContent>
@@ -962,339 +841,6 @@ export default function StaffPortal() {
             ))
           )}
         </div>
-
-        {/* Add User Dialog */}
-        <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
-          <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white">Add New User</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Create a new user account with role and membership settings
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-white">Username</Label>
-                <Input
-                  id="username"
-                  value={newUserData.username}
-                  onChange={(e) => setNewUserData({...newUserData, username: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter username"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newUserData.email}
-                  onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter email address"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={newUserData.password}
-                  onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter password"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-white">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={newUserData.fullName}
-                  onChange={(e) => setNewUserData({...newUserData, fullName: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter full name"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="role" className="text-white">Role</Label>
-                <Select value={newUserData.role} onValueChange={(value) => setNewUserData({...newUserData, role: value})}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                    <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
-                    <SelectItem value="service_provider">Service Provider</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="membershipTier" className="text-white">Membership Tier</Label>
-                <Select value={newUserData.membershipTier} onValueChange={(value) => setNewUserData({...newUserData, membershipTier: value})}>
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                    <SelectValue placeholder="Select tier" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                    <SelectItem value="bronze">Bronze</SelectItem>
-                    <SelectItem value="silver">Silver</SelectItem>
-                    <SelectItem value="gold">Gold</SelectItem>
-                    <SelectItem value="platinum">Platinum</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white">Phone</Label>
-                <Input
-                  id="phone"
-                  value={newUserData.phone}
-                  onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter phone number"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="location" className="text-white">Location</Label>
-                <Input
-                  id="location"
-                  value={newUserData.location}
-                  onChange={(e) => setNewUserData({...newUserData, location: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="Enter location"
-                />
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(false)} className="border-gray-600 text-gray-400">
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => createUserMutation.mutate(newUserData)}
-                disabled={createUserMutation.isPending}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600"
-              >
-                {createUserMutation.isPending ? "Creating..." : "Create User"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* View User Dialog */}
-        <Dialog open={isViewUserDialogOpen} onOpenChange={setIsViewUserDialogOpen}>
-          <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white">User Details</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                View user information and account details
-              </DialogDescription>
-            </DialogHeader>
-            
-            {selectedUser && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Username</Label>
-                  <p className="text-white font-medium">{selectedUser.username}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Email</Label>
-                  <p className="text-white font-medium">{selectedUser.email}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Full Name</Label>
-                  <p className="text-white font-medium">{selectedUser.fullName || 'Not provided'}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Role</Label>
-                  <Badge className={`${
-                    selectedUser.role === 'admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                    selectedUser.role === 'yacht_owner' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                    selectedUser.role === 'service_provider' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                    'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                  }`}>
-                    {selectedUser.role?.replace('_', ' ')}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Membership Tier</Label>
-                  <Badge className={`${
-                    selectedUser.membershipTier === 'platinum' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                    selectedUser.membershipTier === 'gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                    selectedUser.membershipTier === 'silver' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                    'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                  }`}>
-                    {selectedUser.membershipTier || 'bronze'}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Status</Label>
-                  <Badge className={selectedUser.isActive !== false ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}>
-                    {selectedUser.isActive !== false ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Phone</Label>
-                  <p className="text-white font-medium">{selectedUser.phone || 'Not provided'}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Location</Label>
-                  <p className="text-white font-medium">{selectedUser.location || 'Not provided'}</p>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-gray-400">Member Since</Label>
-                  <p className="text-white font-medium">
-                    {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Recently'}
-                  </p>
-                </div>
-              </div>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsViewUserDialogOpen(false)} className="border-gray-600 text-gray-400">
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit User Dialog */}
-        <Dialog open={isEditUserDialogOpen} onOpenChange={setIsEditUserDialogOpen}>
-          <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white">Edit User</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Update user information and account settings
-              </DialogDescription>
-            </DialogHeader>
-            
-            {selectedUser && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-username" className="text-white">Username</Label>
-                  <Input
-                    id="edit-username"
-                    value={selectedUser.username}
-                    onChange={(e) => setSelectedUser({...selectedUser, username: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-email" className="text-white">Email</Label>
-                  <Input
-                    id="edit-email"
-                    type="email"
-                    value={selectedUser.email}
-                    onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-fullName" className="text-white">Full Name</Label>
-                  <Input
-                    id="edit-fullName"
-                    value={selectedUser.fullName || ''}
-                    onChange={(e) => setSelectedUser({...selectedUser, fullName: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-role" className="text-white">Role</Label>
-                  <Select value={selectedUser.role} onValueChange={(value) => setSelectedUser({...selectedUser, role: value})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
-                      <SelectItem value="service_provider">Service Provider</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-membershipTier" className="text-white">Membership Tier</Label>
-                  <Select value={selectedUser.membershipTier || 'bronze'} onValueChange={(value) => setSelectedUser({...selectedUser, membershipTier: value})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      <SelectItem value="bronze">Bronze</SelectItem>
-                      <SelectItem value="silver">Silver</SelectItem>
-                      <SelectItem value="gold">Gold</SelectItem>
-                      <SelectItem value="platinum">Platinum</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-phone" className="text-white">Phone</Label>
-                  <Input
-                    id="edit-phone"
-                    value={selectedUser.phone || ''}
-                    onChange={(e) => setSelectedUser({...selectedUser, phone: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-location" className="text-white">Location</Label>
-                  <Input
-                    id="edit-location"
-                    value={selectedUser.location || ''}
-                    onChange={(e) => setSelectedUser({...selectedUser, location: e.target.value})}
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-status" className="text-white">Status</Label>
-                  <Select value={selectedUser.isActive !== false ? 'active' : 'inactive'} onValueChange={(value) => setSelectedUser({...selectedUser, isActive: value === 'active'})}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditUserDialogOpen(false)} className="border-gray-600 text-gray-400">
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => updateUserMutation.mutate(selectedUser)}
-                disabled={updateUserMutation.isPending}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600"
-              >
-                {updateUserMutation.isPending ? "Updating..." : "Update User"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </motion.div>
     );
   };
@@ -1422,18 +968,7 @@ export default function StaffPortal() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-white"
-                            onClick={() => {
-                              // View payment details functionality
-                              toast({
-                                title: "Payment Details",
-                                description: `Viewing details for payment ${payment.id}`,
-                              });
-                            }}
-                          >
+                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -1641,34 +1176,10 @@ export default function StaffPortal() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-white"
-                          onClick={() => {
-                            // View notification details
-                            toast({
-                              title: "Notification Details",
-                              description: `Viewing details for: ${notification.title}`,
-                            });
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-red-400"
-                          onClick={() => {
-                            // Delete notification functionality
-                            if (confirm(`Are you sure you want to dismiss this notification?`)) {
-                              toast({
-                                title: "Notification Dismissed",
-                                description: "Notification has been removed",
-                              });
-                            }
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
