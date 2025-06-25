@@ -5091,7 +5091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get service bookings (payments) 
       const serviceBookings = await dbStorage.getServiceBookings();
       const users = await dbStorage.getAllUsers();
-      const services = await dbStorage.getAllServices();
+      const services = await dbStorage.getServices();
       
       const payments = serviceBookings.map(booking => {
         const customer = users.find(u => u.id === booking.userId);
