@@ -3178,7 +3178,7 @@ export default function StaffPortal() {
                           size="sm" 
                           variant="ghost" 
                           className="text-emerald-400 hover:text-white"
-                          onClick={() => handleViewUser(user)}
+                          onClick={() => handleViewPayment(payment)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -3186,7 +3186,7 @@ export default function StaffPortal() {
                           size="sm" 
                           variant="ghost" 
                           className="text-gray-400 hover:text-white"
-                          onClick={() => handleEditUser(user)}
+                          onClick={() => handleEditPayment(payment)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -4729,12 +4729,12 @@ export default function StaffPortal() {
       </Dialog>
 
       {/* View Payment Dialog */}
-      <Dialog open={showViewPaymentDialog} onOpenChange={setShowViewPaymentDialog}>
-        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">View Payment Details</DialogTitle>
-          </DialogHeader>
-          {selectedPayment && (
+      {selectedPayment && (
+        <Dialog open={showViewPaymentDialog} onOpenChange={setShowViewPaymentDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">View Payment Details</DialogTitle>
+            </DialogHeader>
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -4771,9 +4771,448 @@ export default function StaffPortal() {
                 </Button>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit User Dialog */}
+      {selectedUser && (
+        <Dialog open={showEditUserDialog} onOpenChange={setShowEditUserDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Username</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedUser.username || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Email</label>
+                  <input 
+                    type="email" 
+                    defaultValue={selectedUser.email || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Role</label>
+                  <select 
+                    defaultValue={selectedUser.role || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="member">Member</option>
+                    <option value="yacht_owner">Yacht Owner</option>
+                    <option value="service_provider">Service Provider</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Membership Tier</label>
+                  <select 
+                    defaultValue={selectedUser.membershipTier || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="bronze">Bronze</option>
+                    <option value="silver">Silver</option>
+                    <option value="gold">Gold</option>
+                    <option value="platinum">Platinum</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditUserDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditUserDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Event Dialog */}
+      {selectedEvent && (
+        <Dialog open={showEditEventDialog} onOpenChange={setShowEditEventDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit Event</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Event Name</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedEvent.title || selectedEvent.name || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Location</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedEvent.location || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Date</label>
+                  <input 
+                    type="date" 
+                    defaultValue={selectedEvent.date ? new Date(selectedEvent.date).toISOString().split('T')[0] : ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Capacity</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedEvent.capacity || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Description</label>
+                <textarea 
+                  defaultValue={selectedEvent.description || ''}
+                  rows={3}
+                  className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditEventDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditEventDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Yacht Dialog */}
+      {selectedYacht && (
+        <Dialog open={showEditYachtDialog} onOpenChange={setShowEditYachtDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit Yacht</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Yacht Name</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedYacht.name || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Size (ft)</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedYacht.size || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Type</label>
+                  <select 
+                    defaultValue={selectedYacht.type || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="motor_yacht">Motor Yacht</option>
+                    <option value="sailing_yacht">Sailing Yacht</option>
+                    <option value="catamaran">Catamaran</option>
+                    <option value="luxury_yacht">Luxury Yacht</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Capacity</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedYacht.capacity || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Location</label>
+                <input 
+                  type="text" 
+                  defaultValue={selectedYacht.location || ''}
+                  className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditYachtDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditYachtDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Service Dialog */}
+      {selectedService && (
+        <Dialog open={showEditServiceDialog} onOpenChange={setShowEditServiceDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit Service</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Service Name</label>
+                  <input 
+                    type="text" 
+                    defaultValue={selectedService.name || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Category</label>
+                  <select 
+                    defaultValue={selectedService.category || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="Beauty & Grooming">Beauty & Grooming</option>
+                    <option value="Culinary">Culinary</option>
+                    <option value="Wellness & Spa">Wellness & Spa</option>
+                    <option value="Photography & Media">Photography & Media</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Water Sports">Water Sports</option>
+                    <option value="Concierge & Lifestyle">Concierge & Lifestyle</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Price per Session</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedService.pricePerSession || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Duration (min)</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedService.duration || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Description</label>
+                <textarea 
+                  defaultValue={selectedService.description || ''}
+                  rows={3}
+                  className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditServiceDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditServiceDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Booking Dialog */}
+      {selectedBooking && (
+        <Dialog open={showEditBookingDialog} onOpenChange={setShowEditBookingDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit Booking</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
+                  <select 
+                    defaultValue={selectedBooking.status || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Guest Count</label>
+                  <input 
+                    type="number" 
+                    defaultValue={selectedBooking.guestCount || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Start Date</label>
+                  <input 
+                    type="datetime-local" 
+                    defaultValue={selectedBooking.startTime ? new Date(selectedBooking.startTime).toISOString().slice(0, 16) : ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">End Date</label>
+                  <input 
+                    type="datetime-local" 
+                    defaultValue={selectedBooking.endTime ? new Date(selectedBooking.endTime).toISOString().slice(0, 16) : ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Special Requests</label>
+                <textarea 
+                  defaultValue={selectedBooking.specialRequests || ''}
+                  rows={3}
+                  className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditBookingDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditBookingDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Payment Dialog */}
+      {selectedPayment && (
+        <Dialog open={showEditPaymentDialog} onOpenChange={setShowEditPaymentDialog}>
+          <DialogContent className="bg-gray-950 border-gray-700 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Edit Payment</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
+                  <select 
+                    defaultValue={selectedPayment.status || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                    <option value="refunded">Refunded</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Amount</label>
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    defaultValue={selectedPayment.amount || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Currency</label>
+                  <select 
+                    defaultValue={selectedPayment.currency || 'USD'}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Payment Method</label>
+                  <select 
+                    defaultValue={selectedPayment.paymentMethod || ''}
+                    className="mt-1 w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white focus:border-purple-500"
+                  >
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="cash">Cash</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditPaymentDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => setShowEditPaymentDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
