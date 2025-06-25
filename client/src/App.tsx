@@ -25,7 +25,7 @@ import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
-import StaffPortal from "@/pages/staff-portal";
+import { StaffPortal } from "@/pages/staff-portal-new";
 import CrewManagement from "@/pages/crew-management";
 import NotFound from "@/pages/not-found";
 
