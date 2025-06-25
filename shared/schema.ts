@@ -182,7 +182,6 @@ export const staff = pgTable("staff", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   email: text("email").unique().notNull(),
-  password: text("password").notNull(),
   fullName: text("full_name").notNull(),
   role: text("role").notNull(),
   department: text("department").notNull(),
@@ -752,8 +751,6 @@ export type MaintenanceRecord = typeof maintenanceRecords.$inferSelect;
 export type InsertMaintenanceRecord = z.infer<typeof insertMaintenanceRecordSchema>;
 export type UsageMetric = typeof usageMetrics.$inferSelect;
 export type InsertUsageMetric = z.infer<typeof insertUsageMetricSchema>;
-export type Staff = typeof staff.$inferSelect;
-export type InsertStaff = z.infer<typeof insertStaffSchema>;
 export type ConditionAssessment = typeof conditionAssessments.$inferSelect;
 export type InsertConditionAssessment = z.infer<typeof insertConditionAssessmentSchema>;
 export type MaintenanceSchedule = typeof maintenanceSchedules.$inferSelect;

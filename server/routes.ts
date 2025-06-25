@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage as dbStorage } from "./storage";
-import { setupAuth, hashPassword } from "./auth";
+import { setupAuth } from "./auth";
 import { setupTwilioRoutes } from "./twilio";
 import { setupPaymentRoutes } from "./payments";
 import { notificationService } from "./notifications";
@@ -3169,7 +3169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         priority: "medium",
         read: false,
         actionUrl: "/admin/staff",
-        data: {}
+        data: {
+          staffId: newStaff.id,
+          staffName: username,
+          staffRole: staffRole
+        }
       });
 
       res.status(201).json({
