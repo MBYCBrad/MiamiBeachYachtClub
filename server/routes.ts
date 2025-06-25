@@ -5101,7 +5101,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const analytics = await dbStorage.getAdminAnalytics();
+      
+      // Get real analytics data from database
+      const users = await dbStorage.getAllUsers();
+      const bookings = await dbStorage.getBookings();
+      const services = await dbStorage.getServices();
+      const events = await dbStorage.getEvents();
+      
+      // Calculate revenue from bookings and service bookings
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const totalRevenue = serviceBookings.reduce((sum: number, booking: any) => sum + (booking.totalPrice || 0), 0);
+      
+      // Calculate today's stats
+      const today = new Date().toDateString();
+      const todayBookings = bookings.filter((b: any) => new Date(b.createdAt).toDateString() === today);
+      const todayRevenue = serviceBookings
+        .filter((b: any) => new Date(b.createdAt).toDateString() === today)
+        .reduce((sum: number, booking: any) => sum + (booking.totalPrice || 0), 0);
+      
+      const analytics = {
+        totalUsers: users.length,
+        totalBookings: bookings.length,
+        totalRevenue: totalRevenue,
+        totalServices: services.length,
+        totalEvents: events.length,
+        todayBookings: todayBookings.length,
+        todayRevenue: todayRevenue,
+        averageBookingValue: bookings.length > 0 ? totalRevenue / bookings.length : 0,
+        // Member tier breakdown
+        memberTiers: {
+          bronze: users.filter((u: any) => u.membershipTier === 'Bronze').length,
+          silver: users.filter((u: any) => u.membershipTier === 'Silver').length,
+          gold: users.filter((u: any) => u.membershipTier === 'Gold').length,
+          platinum: users.filter((u: any) => u.membershipTier === 'Platinum').length
+        },
+        // Booking status breakdown
+        bookingStatus: {
+          confirmed: bookings.filter((b: any) => b.status === 'confirmed').length,
+          pending: bookings.filter((b: any) => b.status === 'pending').length,
+          cancelled: bookings.filter((b: any) => b.status === 'cancelled').length
+        }
+      };
+      
       res.json(analytics);
     } catch (error) {
       console.error('Error fetching staff analytics:', error);
