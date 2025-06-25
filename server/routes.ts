@@ -4967,5 +4967,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }));
   });
 
+  // Staff Portal API Routes - Real-time database connectivity for all staff functions
+  app.get('/api/staff/stats', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const stats = await dbStorage.getAdminStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching staff stats:', error);
+      res.status(500).json({ message: 'Failed to fetch stats' });
+    }
+  });
+
+  app.get('/api/staff/users', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const users = await dbStorage.getAdminUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching staff users:', error);
+      res.status(500).json({ message: 'Failed to fetch users' });
+    }
+  });
+
+  app.get('/api/staff/yachts', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const yachts = await dbStorage.getAdminYachts();
+      res.json(yachts);
+    } catch (error) {
+      console.error('Error fetching staff yachts:', error);
+      res.status(500).json({ message: 'Failed to fetch yachts' });
+    }
+  });
+
+  app.get('/api/staff/services', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const services = await dbStorage.getAdminServices();
+      res.json(services);
+    } catch (error) {
+      console.error('Error fetching staff services:', error);
+      res.status(500).json({ message: 'Failed to fetch services' });
+    }
+  });
+
+  app.get('/api/staff/events', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const events = await dbStorage.getAdminEvents();
+      res.json(events);
+    } catch (error) {
+      console.error('Error fetching staff events:', error);
+      res.status(500).json({ message: 'Failed to fetch events' });
+    }
+  });
+
+  app.get('/api/staff/bookings', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const bookings = await dbStorage.getAdminBookings();
+      res.json(bookings);
+    } catch (error) {
+      console.error('Error fetching staff bookings:', error);
+      res.status(500).json({ message: 'Failed to fetch bookings' });
+    }
+  });
+
+  app.get('/api/staff/payments', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const payments = await dbStorage.getAdminPayments();
+      res.json(payments);
+    } catch (error) {
+      console.error('Error fetching staff payments:', error);
+      res.status(500).json({ message: 'Failed to fetch payments' });
+    }
+  });
+
+  app.get('/api/staff/analytics', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const analytics = await dbStorage.getAdminAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching staff analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch analytics' });
+    }
+  });
+
+  app.get('/api/staff/notifications', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const notifications = await dbStorage.getAdminNotifications();
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching staff notifications:', error);
+      res.status(500).json({ message: 'Failed to fetch notifications' });
+    }
+  });
+
+  app.get('/api/staff/conversations', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const conversations = await dbStorage.getConversations();
+      res.json(conversations);
+    } catch (error) {
+      console.error('Error fetching staff conversations:', error);
+      res.status(500).json({ message: 'Failed to fetch conversations' });
+    }
+  });
+
+  app.get('/api/staff/staff-members', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const staff = await dbStorage.getAllStaff();
+      res.json(staff);
+    } catch (error) {
+      console.error('Error fetching staff members:', error);
+      res.status(500).json({ message: 'Failed to fetch staff members' });
+    }
+  });
+
+  app.get('/api/staff/crew-assignments', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const assignments = await dbStorage.getCrewAssignments();
+      res.json(assignments);
+    } catch (error) {
+      console.error('Error fetching crew assignments:', error);
+      res.status(500).json({ message: 'Failed to fetch crew assignments' });
+    }
+  });
+
   return httpServer;
 }

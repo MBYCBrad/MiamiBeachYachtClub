@@ -148,29 +148,27 @@ export default function StaffPortal() {
     capacity: "all"
   });
 
-  // Service filters
   const [serviceFilters, setServiceFilters] = useState({
     category: "all",
     availability: "all",
     priceRange: "all"
   });
 
-  // Event filters
   const [eventFilters, setEventFilters] = useState({
     status: "all",
     capacity: "all",
     priceRange: "all"
   });
 
-  // Payment filters
-  const [paymentFilters, setPaymentFilters] = useState({
-    type: "all",
-    status: "all",
-    dateRange: "all"
+  const [bookingFilters, setBookingFilters] = useState({
+    status: 'all',
+    timeRange: 'all',
+    membershipTier: 'all',
+    yachtSize: 'all',
+    sortBy: 'date'
   });
 
-  // Booking filters
-  const [bookingFilters, setBookingFilters] = useState({
+  const [paymentFilters, setPaymentFilters] = useState({
     type: "all",
     status: "all",
     dateRange: "all"
@@ -360,6 +358,709 @@ export default function StaffPortal() {
   };
 
   // EXACT COPY of Admin Dashboard render functions
+  // Exact copy from admin dashboard - renderUsers function
+  const renderUsers = () => {
+    if (!users) {
+      return (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-6">
+                  <div className="h-20 bg-gray-800 rounded mb-4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded mb-2 animate-pulse"></div>
+                  <div className="h-4 bg-gray-800 rounded w-2/3 animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    const filteredUsers = users.filter((user: any) => {
+      if (userFilters.role !== 'all' && user.role !== userFilters.role) return false;
+      if (userFilters.membershipTier !== 'all' && user.membershipTier !== userFilters.membershipTier) return false;
+      if (userFilters.status !== 'all') {
+        if (userFilters.status === 'active' && !user.isActive) return false;
+        if (userFilters.status === 'inactive' && user.isActive) return false;
+      }
+      return true;
+    });
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              User Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage member accounts and user profiles
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Add User
+            </Button>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredUsers.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12">
+              <Users className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-400 mb-2">No users found</h3>
+              <p className="text-gray-500 text-center">
+                No users match your current filter criteria.
+              </p>
+            </div>
+          ) : (
+            filteredUsers.map((user: any, index: number) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={user.avatar} />
+                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                            {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
+                            {user.username}
+                          </h3>
+                          <p className="text-gray-400 text-sm">{user.email}</p>
+                          <Badge className={`text-xs mt-1 ${
+                            user.role === 'admin' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                            user.role === 'yacht_owner' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                            user.role === 'service_provider' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                            'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                          }`}>
+                            {user.role?.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 mb-4">
+                      {user.membershipTier && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400 text-sm">Membership</span>
+                          <Badge className={`text-xs ${
+                            user.membershipTier === 'platinum' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                            user.membershipTier === 'gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                            user.membershipTier === 'silver' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                            'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                          }`}>
+                            {user.membershipTier}
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Joined</span>
+                        <span className="text-white text-sm">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Recently'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Badge className={`text-xs ${
+                        user.isActive !== false ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                      }`}>
+                        {user.isActive !== false ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Exact copy from admin dashboard - renderPayments function
+  const renderPayments = () => {
+    if (!payments) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <CreditCard className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Loading payments...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl font-bold text-white mb-2"
+            >
+              Payment Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Track transactions, revenue, and payment analytics
+            </motion.p>
+          </div>
+        </div>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-green-500" />
+              Transaction History
+            </CardTitle>
+            <CardDescription>Real-time payment tracking and revenue analytics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Customer</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Service/Event</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Amount</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Date</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((payment: any, index: number) => (
+                    <motion.tr
+                      key={payment.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors group"
+                    >
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">{payment.customer?.name || payment.user?.username}</p>
+                          <p className="text-gray-400 text-sm">{payment.customer?.email || payment.user?.email}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">{payment.description}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            {payment.type === 'service' && (
+                              <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">
+                                Service
+                              </Badge>
+                            )}
+                            {payment.type === 'event' && (
+                              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                                Event
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-right">
+                          <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
+                          {payment.platformFee > 0 && (
+                            <div className="mt-1">
+                              <p className="text-gray-400 text-xs">Platform: ${payment.adminRevenue.toFixed(2)}</p>
+                              <p className="text-blue-400 text-xs">Provider: ${payment.providerRevenue.toFixed(2)}</p>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <span className="text-gray-300">{new Date(payment.createdAt).toLocaleDateString()}</span>
+                          <p className="text-gray-400 text-xs">{new Date(payment.createdAt).toLocaleTimeString()}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <Badge className={`${
+                          payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          payment.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                          'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}>
+                          {payment.status}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {payments.length === 0 && (
+                <div className="text-center py-12">
+                  <CreditCard className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No transactions found</p>
+                  <p className="text-gray-500 text-sm">Payment data will appear here in real-time</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
+
+  // Exact copy from admin dashboard - renderAnalytics function
+  const renderAnalytics = () => {
+    if (!analytics) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <BarChart3 className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Loading analytics...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl font-bold text-white mb-2"
+            >
+              Analytics Dashboard
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Advanced business intelligence and performance metrics
+            </motion.p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Revenue</p>
+                  <p className="text-2xl font-bold text-white">${analytics.totalRevenue?.toFixed(2) || '0.00'}</p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Members</p>
+                  <p className="text-2xl font-bold text-white">{analytics.activeMembers || 0}</p>
+                </div>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Monthly Bookings</p>
+                  <p className="text-2xl font-bold text-white">{analytics.monthlyBookings || 0}</p>
+                </div>
+                <Calendar className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Avg Rating</p>
+                  <p className="text-2xl font-bold text-white">{analytics.averageRating?.toFixed(1) || '0.0'}</p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Exact copy from admin dashboard - renderNotifications function
+  const renderNotifications = () => {
+    if (!notifications) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Loading notifications...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl font-bold text-white mb-2"
+            >
+              Notification Center
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              System alerts and real-time notifications
+            </motion.p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {notifications.length === 0 ? (
+            <Card className="bg-gray-900/50 border-gray-700/50">
+              <CardContent className="p-12 text-center">
+                <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No notifications</p>
+                <p className="text-gray-500 text-sm">All caught up! New notifications will appear here.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            notifications.map((notification: any, index: number) => (
+              <motion.div
+                key={notification.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-2 rounded-lg ${
+                          notification.priority === 'high' ? 'bg-red-500/20' :
+                          notification.priority === 'medium' ? 'bg-yellow-500/20' :
+                          'bg-blue-500/20'
+                        }`}>
+                          <Bell className={`h-5 w-5 ${
+                            notification.priority === 'high' ? 'text-red-400' :
+                            notification.priority === 'medium' ? 'text-yellow-400' :
+                            'text-blue-400'
+                          }`} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold mb-1">{notification.title}</h3>
+                          <p className="text-gray-400 text-sm mb-2">{notification.message}</p>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500">
+                            <span>{new Date(notification.createdAt).toLocaleDateString()}</span>
+                            <span>{new Date(notification.createdAt).toLocaleTimeString()}</span>
+                            <Badge className={`text-xs ${
+                              notification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              notification.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            }`}>
+                              {notification.priority}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Exact copy from admin dashboard - renderSettings function
+  const renderStaffSettings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            System Settings
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Configure system preferences and operational parameters
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-purple-500" />
+              Security Settings
+            </CardTitle>
+            <CardDescription>Authentication and access control</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
+              <div>
+                <p className="text-white font-medium">Two-Factor Authentication</p>
+                <p className="text-sm text-gray-400">Enhanced security for staff access</p>
+              </div>
+              <div className="w-12 h-6 bg-purple-500 rounded-full p-1">
+                <div className="w-4 h-4 bg-white rounded-full ml-auto" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Database className="h-5 w-5 mr-2 text-purple-500" />
+              System Management
+            </CardTitle>
+            <CardDescription>Backup and maintenance settings</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-xl bg-gray-900/30">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white font-medium">Database Backup</p>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </motion.div>
+  );
+
+  // Basic placeholders for staff-specific sections
+  const renderStaffManagement = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Staff Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage staff members and team coordination
+          </motion.p>
+        </div>
+      </div>
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardContent className="p-12 text-center">
+          <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400 text-lg">Staff Management System</p>
+          <p className="text-gray-500 text-sm">Team coordination and staff oversight tools</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderCrewManagement = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Crew Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Yacht crew scheduling and assignment coordination
+          </motion.p>
+        </div>
+      </div>
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardContent className="p-12 text-center">
+          <Anchor className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400 text-lg">Crew Assignment System</p>
+          <p className="text-gray-500 text-sm">Yacht crew coordination and scheduling tools</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderCustomerService = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Customer Service
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Member support and service coordination
+          </motion.p>
+        </div>
+      </div>
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardContent className="p-12 text-center">
+          <Phone className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400 text-lg">Customer Support Center</p>
+          <p className="text-gray-500 text-sm">Member assistance and service management tools</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
   function renderOverview() {
     return (
       <motion.div
@@ -1087,252 +1788,6 @@ export default function StaffPortal() {
     </motion.div>
   );
 
-  const renderUsers = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            User Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage members, yacht owners, and service providers
-          </motion.p>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter Users
-                {(userFilters.role !== "all" || userFilters.membershipTier !== "all" || 
-                  userFilters.status !== "all") && (
-                  <Badge className="ml-2 bg-green-500 text-white text-xs">
-                    {Object.values(userFilters).filter(v => v !== "all").length}
-                  </Badge>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-white">Filter Users</h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setUserFilters({
-                      role: "all",
-                      membershipTier: "all",
-                      status: "all"
-                    })}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <Separator className="bg-gray-700" />
-                
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-gray-300 text-sm">Role</Label>
-                    <Select value={userFilters.role} onValueChange={(value) => 
-                      setUserFilters(prev => ({ ...prev, role: value }))
-                    }>
-                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-600">
-                        <SelectItem value="all">All Roles</SelectItem>
-                        <SelectItem value="Member">Members</SelectItem>
-                        <SelectItem value="Yacht Owner">Yacht Owners</SelectItem>
-                        <SelectItem value="Service Provider">Service Providers</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-gray-300 text-sm">Membership Tier</Label>
-                    <Select value={userFilters.membershipTier} onValueChange={(value) => 
-                      setUserFilters(prev => ({ ...prev, membershipTier: value }))
-                    }>
-                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-600">
-                        <SelectItem value="all">All Tiers</SelectItem>
-                        <SelectItem value="Bronze">Bronze</SelectItem>
-                        <SelectItem value="Silver">Silver</SelectItem>
-                        <SelectItem value="Gold">Gold</SelectItem>
-                        <SelectItem value="Platinum">Platinum</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-gray-300 text-sm">Status</Label>
-                    <Select value={userFilters.status} onValueChange={(value) => 
-                      setUserFilters(prev => ({ ...prev, status: value }))
-                    }>
-                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-600">
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="suspended">Suspended</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm text-gray-400">
-                    {filteredUsers.length} of {users?.length || 0} users
-                  </span>
-                  <Button
-                    size="sm"
-                    onClick={() => setUserFilters({
-                      role: "all",
-                      membershipTier: "all",
-                      status: "all"
-                    })}
-                    variant="outline"
-                    className="border-gray-600 hover:border-green-500"
-                  >
-                    Clear All
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </motion.div>
-      </div>
-
-      {/* Users Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredUsers.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-12">
-            <Users className="h-12 w-12 text-gray-600 mb-4" />
-            <h3 className="text-lg font-medium text-gray-400 mb-2">No users found</h3>
-            <p className="text-gray-500 text-center">
-              No users match your current filter criteria.{" "}
-              <Button 
-                variant="link" 
-                className="text-green-400 hover:text-green-300 p-0"
-                onClick={() => setUserFilters({
-                  role: "all",
-                  membershipTier: "all",
-                  status: "all"
-                })}
-              >
-                Clear filters
-              </Button>{" "}
-              to see all users.
-            </p>
-          </div>
-        ) : (
-          filteredUsers.map((user: any, index: number) => (
-            <motion.div
-              key={user.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-            >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300 overflow-hidden group">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg font-semibold">
-                        {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-white">{user.username}</h3>
-                      <p className="text-gray-400 text-sm">{user.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">Role</span>
-                      <Badge className={`${
-                        user.role === 'Member' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                        user.role === 'Yacht Owner' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                        user.role === 'Service Provider' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
-                        'bg-gray-500/20 text-gray-400 border-gray-500/30'
-                      }`}>
-                        {user.role}
-                      </Badge>
-                    </div>
-                    
-                    {user.membershipTier && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-400 text-sm">Tier</span>
-                        <Badge className={`${
-                          user.membershipTier === 'Platinum' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' :
-                          user.membershipTier === 'Gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                          user.membershipTier === 'Silver' ? 'bg-gray-300/20 text-gray-300 border-gray-300/30' :
-                          'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                        }`}>
-                          {user.membershipTier}
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">Status</span>
-                      <Badge className={`${
-                        user.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                        user.status === 'inactive' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                        'bg-red-500/20 text-red-400 border-red-500/30'
-                      }`}>
-                        {user.status || 'active'}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-400 text-sm">
-                      Joined {new Date(user.createdAt).toLocaleDateString()}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="ghost" className="text-green-400 hover:text-white">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))
-        )}
-      </div>
-    </motion.div>
-  );
-
   const renderBookings = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1933,7 +2388,7 @@ export default function StaffPortal() {
     </motion.div>
   );
 
-  const renderPayments = () => (
+  const renderStaffPayments = () => (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -2269,7 +2724,7 @@ export default function StaffPortal() {
     </motion.div>
   );
 
-  const renderAnalytics = () => (
+  const renderStaffAnalytics = () => (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
