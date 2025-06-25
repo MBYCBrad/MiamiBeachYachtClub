@@ -112,8 +112,7 @@ const sidebarItems = [
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
-  { id: 'logout', label: 'Log Out', icon: LogOut, color: 'from-red-500 to-red-600' }
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
 
 const serviceCategories = [
@@ -442,105 +441,17 @@ export default function StaffPortal() {
     }
   });
 
-  // Payment mutations
-  const updatePaymentMutation = useMutation({
-    mutationFn: (paymentData: any) => apiRequest(`/api/staff/payments/${paymentData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(paymentData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/payments'] });
-      setIsEditPaymentDialogOpen(false);
-      setSelectedPayment(null);
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/auth';
+    } catch (error) {
       toast({
-        title: "Success",
-        description: "Payment updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update payment",
+        title: "Logout Error",
+        description: "Failed to logout properly",
         variant: "destructive",
       });
-    }
-  });
-
-  const deletePaymentMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/staff/payments/${id}`, {
-      method: 'DELETE'
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/payments'] });
-      toast({
-        title: "Success",
-        description: "Payment deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete payment",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Booking mutations
-  const updateBookingMutation = useMutation({
-    mutationFn: (bookingData: any) => apiRequest(`/api/staff/bookings/${bookingData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(bookingData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/event-registrations'] });
-      setIsEditBookingDialogOpen(false);
-      setSelectedBooking(null);
-      toast({
-        title: "Success",
-        description: "Booking updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update booking",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const deleteBookingMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/staff/bookings/${id}`, {
-      method: 'DELETE'
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/event-registrations'] });
-      toast({
-        title: "Success",
-        description: "Booking deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete booking",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Handle section change
-  const handleSectionChange = (sectionId: string) => {
-    setActiveSection(sectionId);
-    if (isMobile) {
-      setSidebarCollapsed(true);
     }
   };
 
@@ -640,16 +551,6 @@ export default function StaffPortal() {
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
   const [isViewEventDialogOpen, setIsViewEventDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  
-  // Payment dialog states
-  const [isViewPaymentDialogOpen, setIsViewPaymentDialogOpen] = useState(false);
-  const [isEditPaymentDialogOpen, setIsEditPaymentDialogOpen] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<any>(null);
-  
-  // Booking dialog states
-  const [isViewBookingDialogOpen, setIsViewBookingDialogOpen] = useState(false);
-  const [isEditBookingDialogOpen, setIsEditBookingDialogOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [newEventData, setNewEventData] = useState({
     title: '',
     description: '',
@@ -941,7 +842,13 @@ export default function StaffPortal() {
             Filters
           </Button>
           
-
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-purple-600/30"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Quick Add
+          </Button>
         </motion.div>
       </div>
 
@@ -1334,7 +1241,7 @@ export default function StaffPortal() {
 
         {/* Add User Dialog */}
         <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
-          <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-white">Add New User</DialogTitle>
               <DialogDescription className="text-gray-400">
@@ -1796,34 +1703,14 @@ export default function StaffPortal() {
                             variant="ghost" 
                             className="text-gray-400 hover:text-white"
                             onClick={() => {
-                              setSelectedPayment(payment);
-                              setIsViewPaymentDialogOpen(true);
+                              // View payment details functionality
+                              toast({
+                                title: "Payment Details",
+                                description: `Viewing details for payment ${payment.id}`,
+                              });
                             }}
                           >
                             <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-white"
-                            onClick={() => {
-                              setSelectedPayment(payment);
-                              setIsEditPaymentDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-red-400"
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete payment ${payment.id}?`)) {
-                                deletePaymentMutation.mutate(payment.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -2163,395 +2050,6 @@ export default function StaffPortal() {
       </div>
     </motion.div>
   );
-
-  // Exact copy from admin dashboard - renderBookings function
-  const renderStaffBookings = () => {
-    if (!allBookings) {
-      return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">Loading bookings...</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Filter bookings based on current filter settings
-    const filteredBookings = allBookings.filter((booking: any) => {
-      if (bookingFilters.status !== 'all' && booking.status !== bookingFilters.status) return false;
-      if (bookingFilters.membershipTier !== 'all' && booking.membershipTier !== bookingFilters.membershipTier) return false;
-      return true;
-    });
-
-    // Sort bookings
-    const sortedBookings = [...filteredBookings].sort((a: any, b: any) => {
-      switch (bookingFilters.sortBy) {
-        case 'date':
-          return new Date(b.startTime || b.createdAt).getTime() - new Date(a.startTime || a.createdAt).getTime();
-        case 'member':
-          return (a.userName || '').localeCompare(b.userName || '');
-        case 'yacht':
-          return (a.yachtName || '').localeCompare(b.yachtName || '');
-        default:
-          return 0;
-      }
-    });
-
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="space-y-8"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl font-bold text-white mb-2"
-            >
-              Booking Management
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-lg text-gray-400"
-            >
-              Monitor and manage all yacht reservations
-            </motion.p>
-          </div>
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center space-x-4"
-          >
-            <Button 
-              onClick={() => setShowFilters(!showFilters)}
-              variant="outline"
-              size="sm"
-              className="border-gray-600 text-gray-300"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-          </motion.div>
-        </div>
-
-        {/* Booking Filters */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-gray-900/50 border border-gray-700/50 rounded-xl p-6"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Select value={bookingFilters.status} onValueChange={(value) => setBookingFilters({...bookingFilters, status: value})}>
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label className="text-gray-300">Time Range</Label>
-                  <Select value={bookingFilters.timeRange} onValueChange={(value) => setBookingFilters({...bookingFilters, timeRange: value})}>
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label className="text-gray-300">Membership Tier</Label>
-                  <Select value={bookingFilters.membershipTier} onValueChange={(value) => setBookingFilters({...bookingFilters, membershipTier: value})}>
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="all">All Tiers</SelectItem>
-                      <SelectItem value="Bronze">Bronze</SelectItem>
-                      <SelectItem value="Silver">Silver</SelectItem>
-                      <SelectItem value="Gold">Gold</SelectItem>
-                      <SelectItem value="Platinum">Platinum</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label className="text-gray-300">Yacht Size</Label>
-                  <Select value={bookingFilters.yachtSize} onValueChange={(value) => setBookingFilters({...bookingFilters, yachtSize: value})}>
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="all">All Sizes</SelectItem>
-                      <SelectItem value="small">Small (0-40ft)</SelectItem>
-                      <SelectItem value="medium">Medium (41-80ft)</SelectItem>
-                      <SelectItem value="large">Large (81ft+)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label className="text-gray-300">Sort By</Label>
-                  <Select value={bookingFilters.sortBy} onValueChange={(value) => setBookingFilters({...bookingFilters, sortBy: value})}>
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="date">Date</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="yacht">Yacht</SelectItem>
-                      <SelectItem value="status">Status</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Booking Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Total Bookings</p>
-                    <p className="text-2xl font-bold text-white">{allBookings.length}</p>
-                  </div>
-                  <Calendar className="h-8 w-8 text-purple-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Confirmed</p>
-                    <p className="text-2xl font-bold text-green-400">
-                      {allBookings.filter((b: any) => b.status === 'confirmed').length}
-                    </p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">Pending</p>
-                    <p className="text-2xl font-bold text-yellow-400">
-                      {allBookings.filter((b: any) => b.status === 'pending').length}
-                    </p>
-                  </div>
-                  <Clock className="h-8 w-8 text-yellow-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-400 text-sm">This Month</p>
-                    <p className="text-2xl font-bold text-blue-400">
-                      {allBookings.filter((b: any) => {
-                        const bookingDate = new Date(b.startTime || b.createdAt);
-                        const now = new Date();
-                        return bookingDate.getMonth() === now.getMonth() && bookingDate.getFullYear() === now.getFullYear();
-                      }).length}
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-blue-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Bookings Table */}
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Calendar className="h-5 w-5 mr-2" />
-              Recent Bookings
-            </CardTitle>
-            <CardDescription>Latest yacht reservations and their status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-700">
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Booking ID</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Member</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Yacht</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Date & Time</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Status</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Guests</th>
-                    <th className="text-left text-gray-400 font-medium py-3 px-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedBookings.map((booking: any, index: number) => (
-                    <motion.tr
-                      key={booking.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="border-b border-gray-800 hover:bg-gray-800/30 transition-colors"
-                    >
-                      <td className="py-4 px-4">
-                        <span className="text-purple-400 font-mono">#{booking.id}</span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div>
-                          <p className="text-white font-medium">{booking.userName || 'Unknown Member'}</p>
-                          <p className="text-gray-400 text-sm">{booking.membershipTier || 'Standard'}</p>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div>
-                          <p className="text-white font-medium">{booking.yachtName || 'Yacht N/A'}</p>
-                          <p className="text-gray-400 text-sm">{booking.yachtSize || 'Size N/A'}</p>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div>
-                          <p className="text-white">
-                            {booking.startTime ? new Date(booking.startTime).toLocaleDateString() : 'Date N/A'}
-                          </p>
-                          <p className="text-gray-400 text-sm">
-                            {booking.startTime ? new Date(booking.startTime).toLocaleTimeString() : 'Time N/A'}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <Badge className={
-                          booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                          booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                          booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                          'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                        }>
-                          {booking.status}
-                        </Badge>
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className="text-white">{booking.guestCount || 1} guest{(booking.guestCount || 1) !== 1 ? 's' : ''}</span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-white"
-                            onClick={() => {
-                              toast({
-                                title: "Booking Details",
-                                description: `Viewing details for booking #${booking.id}`,
-                              });
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-white"
-                            onClick={() => {
-                              toast({
-                                title: "Edit Booking",
-                                description: `Editing booking #${booking.id}`,
-                              });
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-gray-400 hover:text-red-400"
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to cancel booking #${booking.id}?`)) {
-                                toast({
-                                  title: "Booking Cancelled",
-                                  description: `Booking #${booking.id} has been cancelled`,
-                                });
-                              }
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-              
-              {sortedBookings.length === 0 && (
-                <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400 text-lg">No bookings found</p>
-                  <p className="text-gray-500 text-sm">Bookings will appear here in real-time</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  };
 
   // Basic placeholders for staff-specific sections
   const renderStaffManagement = () => (
@@ -4044,39 +3542,11 @@ export default function StaffPortal() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-cyan-400 hover:text-white"
-                          onClick={() => {
-                            setSelectedBooking(booking);
-                            setIsViewBookingDialogOpen(true);
-                          }}
-                        >
+                        <Button size="sm" variant="ghost" className="text-cyan-400 hover:text-white">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-white"
-                          onClick={() => {
-                            setSelectedBooking(booking);
-                            setIsEditBookingDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-red-400"
-                          onClick={() => {
-                            if (confirm(`Are you sure you want to delete booking ${booking.id}?`)) {
-                              deleteBookingMutation.mutate(booking.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -5572,234 +5042,6 @@ export default function StaffPortal() {
           </AnimatePresence>
         </motion.div>
       </div>
-
-      {/* Payment View Dialog */}
-      <Dialog open={isViewPaymentDialogOpen} onOpenChange={setIsViewPaymentDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Payment Details</DialogTitle>
-          </DialogHeader>
-          {selectedPayment && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-300">Payment ID</Label>
-                  <p className="text-white font-medium">{selectedPayment.id}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Amount</Label>
-                  <p className="text-white font-medium">${selectedPayment.amount}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Customer</Label>
-                  <p className="text-white font-medium">{selectedPayment.customer}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Badge className={`${
-                    selectedPayment.status === 'completed' ? 'bg-green-600' :
-                    selectedPayment.status === 'pending' ? 'bg-yellow-600' :
-                    'bg-red-600'
-                  }`}>
-                    {selectedPayment.status}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Service/Event</Label>
-                  <p className="text-white font-medium">{selectedPayment.serviceEvent}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Date</Label>
-                  <p className="text-white font-medium">{new Date(selectedPayment.createdAt).toLocaleDateString()}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Payment Edit Dialog */}
-      <Dialog open={isEditPaymentDialogOpen} onOpenChange={setIsEditPaymentDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Edit Payment</DialogTitle>
-          </DialogHeader>
-          {selectedPayment && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-300">Amount</Label>
-                  <Input
-                    value={selectedPayment.amount}
-                    onChange={(e) => setSelectedPayment({...selectedPayment, amount: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Select 
-                    value={selectedPayment.status} 
-                    onValueChange={(value) => setSelectedPayment({...selectedPayment, status: value})}
-                  >
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEditPaymentDialogOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => updatePaymentMutation.mutate(selectedPayment)}
-                  disabled={updatePaymentMutation.isPending}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                >
-                  {updatePaymentMutation.isPending ? 'Updating...' : 'Update Payment'}
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Booking View Dialog */}
-      <Dialog open={isViewBookingDialogOpen} onOpenChange={setIsViewBookingDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Booking Details</DialogTitle>
-          </DialogHeader>
-          {selectedBooking && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-300">Booking ID</Label>
-                  <p className="text-white font-medium">{selectedBooking.id}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Guest Name</Label>
-                  <p className="text-white font-medium">{selectedBooking.guestName}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Yacht</Label>
-                  <p className="text-white font-medium">{selectedBooking.yachtName}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Date</Label>
-                  <p className="text-white font-medium">{new Date(selectedBooking.bookingDate).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Time Slot</Label>
-                  <p className="text-white font-medium">{selectedBooking.timeSlot}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Badge className={`${
-                    selectedBooking.status === 'confirmed' ? 'bg-green-600' :
-                    selectedBooking.status === 'pending' ? 'bg-yellow-600' :
-                    'bg-red-600'
-                  }`}>
-                    {selectedBooking.status || 'confirmed'}
-                  </Badge>
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-gray-300">Guest Count</Label>
-                  <p className="text-white font-medium">{selectedBooking.guestCount || 'Not specified'}</p>
-                </div>
-                {selectedBooking.specialRequests && (
-                  <div className="col-span-2">
-                    <Label className="text-gray-300">Special Requests</Label>
-                    <p className="text-white font-medium">{selectedBooking.specialRequests}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Booking Edit Dialog */}
-      <Dialog open={isEditBookingDialogOpen} onOpenChange={setIsEditBookingDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Edit Booking</DialogTitle>
-          </DialogHeader>
-          {selectedBooking && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-300">Guest Name</Label>
-                  <Input
-                    value={selectedBooking.guestName || ''}
-                    onChange={(e) => setSelectedBooking({...selectedBooking, guestName: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-300">Guest Count</Label>
-                  <Input
-                    type="number"
-                    value={selectedBooking.guestCount || ''}
-                    onChange={(e) => setSelectedBooking({...selectedBooking, guestCount: parseInt(e.target.value)})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Select 
-                    value={selectedBooking.status || 'confirmed'} 
-                    onValueChange={(value) => setSelectedBooking({...selectedBooking, status: value})}
-                  >
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-gray-300">Special Requests</Label>
-                  <Textarea
-                    value={selectedBooking.specialRequests || ''}
-                    onChange={(e) => setSelectedBooking({...selectedBooking, specialRequests: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                    rows={3}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEditBookingDialogOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => updateBookingMutation.mutate(selectedBooking)}
-                  disabled={updateBookingMutation.isPending}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                >
-                  {updateBookingMutation.isPending ? 'Updating...' : 'Update Booking'}
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -163,8 +163,6 @@ export default function StaffManagement() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isViewStaffDialogOpen, setIsViewStaffDialogOpen] = useState(false);
-  const [isEditStaffDialogOpen, setIsEditStaffDialogOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffUser | null>(null);
   const [newStaffData, setNewStaffData] = useState({
     fullName: "",
@@ -213,17 +211,15 @@ export default function StaffManagement() {
 
   // Update staff mutation
   const updateStaffMutation = useMutation({
-    mutationFn: async (staffData: any) => {
-      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${staffData.id}` : `/api/staff/users/${staffData.id}`;
-      return apiRequest(endpoint, {
-        method: 'PUT',
-        body: JSON.stringify(staffData)
-      });
+    mutationFn: async (data: { id: number; updates: Partial<StaffUser> }) => {
+      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${data.id}` : `/api/staff/users/${data.id}`;
+      const response = await apiRequest('PUT', endpoint, data.updates);
+      return response.json();
     },
     onSuccess: () => {
       const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
       queryClient.invalidateQueries({ queryKey });
-      setIsEditStaffDialogOpen(false);
+      setShowEditDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff updated", description: "Staff member has been updated successfully" });
     },
@@ -236,13 +232,13 @@ export default function StaffManagement() {
   const deleteStaffMutation = useMutation({
     mutationFn: async (id: number) => {
       const endpoint = user?.role === 'admin' ? `/api/admin/staff/${id}` : `/api/staff/users/${id}`;
-      return apiRequest(endpoint, {
-        method: 'DELETE'
-      });
+      const response = await apiRequest('DELETE', endpoint);
+      return response.json();
     },
     onSuccess: () => {
       const queryKey = user?.role === 'admin' ? ['/api/admin/staff'] : ['/api/staff/users'];
       queryClient.invalidateQueries({ queryKey });
+      setShowDeleteDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff deleted", description: "Staff member has been removed successfully" });
     },
@@ -501,37 +497,25 @@ export default function StaffManagement() {
                         
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-gray-400 hover:text-white"
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => {
                                 setSelectedStaff(staff);
-                                setIsViewStaffDialogOpen(true);
+                                setShowEditDialog(true);
                               }}
+                              className="h-8 w-8 p-0 hover:bg-gray-700/50"
                             >
-                              <Eye className="h-4 w-4" />
+                              <Edit className="h-4 w-4 text-gray-400" />
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-gray-400 hover:text-white"
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => {
                                 setSelectedStaff(staff);
-                                setIsEditStaffDialogOpen(true);
+                                setShowDeleteDialog(true);
                               }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-gray-400 hover:text-red-400"
-                              onClick={() => {
-                                if (confirm(`Are you sure you want to delete staff member ${staff.fullName || staff.username}?`)) {
-                                  deleteStaffMutation.mutate(staff.id);
-                                }
-                              }}
+                              className="h-8 w-8 p-0 hover:bg-gray-700/50 text-red-400 hover:text-red-300"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -547,112 +531,249 @@ export default function StaffManagement() {
         </motion.div>
       </div>
 
-      {/* Staff View Dialog */}
-      <Dialog open={isViewStaffDialogOpen} onOpenChange={setIsViewStaffDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+      {/* Add Staff Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Staff Member Details</DialogTitle>
+            <DialogTitle>Add New Staff Member</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Create a new MBYC staff account with specific roles and permissions.
+            </DialogDescription>
           </DialogHeader>
-          {selectedStaff && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-300">Full Name</Label>
-                  <p className="text-white font-medium">{selectedStaff.fullName || 'Not specified'}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Username</Label>
-                  <p className="text-white font-medium">{selectedStaff.username}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Email</Label>
-                  <p className="text-white font-medium">{selectedStaff.email}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Role</Label>
-                  <p className="text-white font-medium">{selectedStaff.role}</p>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Status</Label>
-                  <Badge className={`${
-                    selectedStaff.status === 'active' ? 'bg-green-600' :
-                    selectedStaff.status === 'inactive' ? 'bg-gray-600' :
-                    'bg-red-600'
-                  }`}>
-                    {selectedStaff.status}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-gray-300">Phone</Label>
-                  <p className="text-white font-medium">{selectedStaff.phone || 'Not specified'}</p>
-                </div>
-                <div className="col-span-2">
-                  <Label className="text-gray-300">Permissions</Label>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {(selectedStaff.permissions || []).map(permission => (
-                      <Badge key={permission} variant="secondary" className="text-xs">
-                        {availablePermissions.find(p => p.id === permission)?.name || permission}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="fullName" className="text-sm font-medium text-gray-300">
+                  Full Name
+                </Label>
+                <Input
+                  id="fullName"
+                  value={newStaffData.fullName}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, fullName: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter full name"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="username" className="text-sm font-medium text-gray-300">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  value={newStaffData.username}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, username: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter username"
+                />
               </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-300">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newStaffData.email}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, email: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter email"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="password" className="text-sm font-medium text-gray-300">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={newStaffData.password}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, password: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="department" className="text-sm font-medium text-gray-300">
+                  Department
+                </Label>
+                <Input
+                  id="department"
+                  value={newStaffData.department}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, department: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter department"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="role" className="text-sm font-medium text-gray-300">
+                  Staff Role
+                </Label>
+                <Select value={newStaffData.role} onValueChange={(value) => setNewStaffData(prev => ({ ...prev, role: value }))}>
+                  <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
+                    <SelectValue placeholder="Select staff role" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                    {staffRoles.map(role => (
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-300">
+                  Phone (Optional)
+                </Label>
+                <Input
+                  id="phone"
+                  value={newStaffData.phone}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter phone number"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="location" className="text-sm font-medium text-gray-300">
+                  Location (Optional)
+                </Label>
+                <Input
+                  id="location"
+                  value={newStaffData.location}
+                  onChange={(e) => setNewStaffData(prev => ({ ...prev, location: e.target.value }))}
+                  className="bg-gray-900/50 border-gray-700/50 text-white"
+                  placeholder="Enter location"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-gray-300 mb-3 block">
+                Permissions
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/50/30 p-4 rounded-lg border border-gray-700/50">
+                {availablePermissions.map(permission => (
+                  <div key={permission.id} className="flex items-start space-x-2">
+                    <Checkbox
+                      id={`new-${permission.id}`}
+                      checked={newStaffData.permissions.includes(permission.id)}
+                      onCheckedChange={(checked) => handlePermissionChange(permission.id, checked as boolean)}
+                      className="mt-1"
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label
+                        htmlFor={`new-${permission.id}`}
+                        className="text-sm font-medium text-white cursor-pointer"
+                      >
+                        {permission.name}
+                      </Label>
+                      <p className="text-xs text-gray-400">
+                        {permission.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAddStaff}
+              disabled={addStaffMutation.isPending || !newStaffData.username || !newStaffData.email || !newStaffData.password || !newStaffData.role}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {addStaffMutation.isPending ? "Adding..." : "Add Staff Member"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Staff Edit Dialog */}
-      <Dialog open={isEditStaffDialogOpen} onOpenChange={setIsEditStaffDialogOpen}>
-        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      {/* Edit Staff Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Edit Staff Member</DialogTitle>
+            <DialogTitle>Edit Staff Member</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Update staff role, permissions, and account details.
+            </DialogDescription>
           </DialogHeader>
+          
           {selectedStaff && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-300">Full Name</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    Username
+                  </Label>
                   <Input
-                    value={selectedStaff.fullName || ''}
-                    onChange={(e) => setSelectedStaff({...selectedStaff, fullName: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
+                    value={selectedStaff.username}
+                    disabled
+                    className="bg-gray-900/50/30 border-gray-700/50 text-gray-400"
                   />
                 </div>
+                
                 <div>
-                  <Label className="text-gray-300">Phone</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    Email
+                  </Label>
                   <Input
-                    value={selectedStaff.phone || ''}
-                    onChange={(e) => setSelectedStaff({...selectedStaff, phone: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
+                    value={selectedStaff.email}
+                    disabled
+                    className="bg-gray-900/50/30 border-gray-700/50 text-gray-400"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-gray-300">Role</Label>
+                  <Label htmlFor="edit-role" className="text-sm font-medium text-gray-300">
+                    Staff Role
+                  </Label>
                   <Select 
                     value={selectedStaff.role} 
-                    onValueChange={(value) => setSelectedStaff({...selectedStaff, role: value})}
+                    onValueChange={(value) => setSelectedStaff(prev => prev ? ({ ...prev, role: value }) : null)}
                   >
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                       {staffRoles.map(role => (
                         <SelectItem key={role} value={role}>{role}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+                
                 <div>
-                  <Label className="text-gray-300">Status</Label>
+                  <Label htmlFor="edit-status" className="text-sm font-medium text-gray-300">
+                    Status
+                  </Label>
                   <Select 
                     value={selectedStaff.status} 
-                    onValueChange={(value) => setSelectedStaff({...selectedStaff, status: value})}
+                    onValueChange={(value: 'active' | 'inactive' | 'suspended') => 
+                      setSelectedStaff(prev => prev ? ({ ...prev, status: value }) : null)
+                    }
                   >
-                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-700">
+                    <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="inactive">Inactive</SelectItem>
                       <SelectItem value="suspended">Suspended</SelectItem>
@@ -660,47 +781,120 @@ export default function StaffManagement() {
                   </Select>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-phone" className="text-sm font-medium text-gray-300">
+                    Phone
+                  </Label>
+                  <Input
+                    id="edit-phone"
+                    value={selectedStaff.phone || ""}
+                    onChange={(e) => setSelectedStaff(prev => prev ? ({ ...prev, phone: e.target.value }) : null)}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="edit-location" className="text-sm font-medium text-gray-300">
+                    Location
+                  </Label>
+                  <Input
+                    id="edit-location"
+                    value={selectedStaff.location || ""}
+                    onChange={(e) => setSelectedStaff(prev => prev ? ({ ...prev, location: e.target.value }) : null)}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                    placeholder="Enter location"
+                  />
+                </div>
+              </div>
+
               <div>
-                <Label className="text-gray-300">Permissions</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2 max-h-40 overflow-y-auto bg-gray-900 p-3 rounded border border-gray-700">
+                <Label className="text-sm font-medium text-gray-300 mb-3 block">
+                  Permissions
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto bg-gray-900/50/30 p-4 rounded-lg border border-gray-700/50">
                   {availablePermissions.map(permission => (
-                    <label key={permission.id} className="flex items-center space-x-2 text-sm">
-                      <input
-                        type="checkbox"
+                    <div key={permission.id} className="flex items-start space-x-2">
+                      <Checkbox
+                        id={`edit-${permission.id}`}
                         checked={(selectedStaff.permissions || []).includes(permission.id)}
-                        onChange={(e) => {
-                          const permissions = selectedStaff.permissions || [];
-                          if (e.target.checked) {
-                            setSelectedStaff({...selectedStaff, permissions: [...permissions, permission.id]});
-                          } else {
-                            setSelectedStaff({...selectedStaff, permissions: permissions.filter(p => p !== permission.id)});
-                          }
-                        }}
-                        className="rounded border-gray-600"
+                        onCheckedChange={(checked) => handlePermissionChange(permission.id, checked as boolean)}
+                        className="mt-1"
                       />
-                      <span className="text-white">{permission.name}</span>
-                    </label>
+                      <div className="grid gap-1.5 leading-none">
+                        <Label
+                          htmlFor={`edit-${permission.id}`}
+                          className="text-sm font-medium text-white cursor-pointer"
+                        >
+                          {permission.name}
+                        </Label>
+                        <p className="text-xs text-gray-400">
+                          {permission.description}
+                        </p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEditStaffDialogOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => updateStaffMutation.mutate(selectedStaff)}
-                  disabled={updateStaffMutation.isPending}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                >
-                  {updateStaffMutation.isPending ? 'Updating...' : 'Update Staff'}
-                </Button>
-              </DialogFooter>
             </div>
           )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleUpdateStaff}
+              disabled={updateStaffMutation.isPending}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              {updateStaffMutation.isPending ? "Updating..." : "Update Staff Member"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Staff Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 text-white">
+          <DialogHeader>
+            <DialogTitle>Delete Staff Member</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Are you sure you want to delete this staff member? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedStaff && (
+            <div className="py-4">
+              <div className="flex items-center gap-3 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-red-500/20 text-red-400">
+                    {selectedStaff.fullName ? selectedStaff.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : selectedStaff.username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-white">{selectedStaff.fullName || selectedStaff.username}</div>
+                  <div className="text-sm text-gray-400">{selectedStaff.email}</div>
+                  <div className="text-sm text-gray-400">{selectedStaff.role}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleDeleteStaff}
+              disabled={deleteStaffMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteStaffMutation.isPending ? "Deleting..." : "Delete Staff Member"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
