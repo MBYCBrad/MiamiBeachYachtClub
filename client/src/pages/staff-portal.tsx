@@ -74,16 +74,17 @@ const allStaffMenuItems = [
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500', permission: 'bookings' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500', permission: 'customer_service' },
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500', permission: 'yachts' },
-  { id: 'fleet', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'yachts' },
+  { id: 'crew_management', label: 'Crew Management', icon: Ship, color: 'from-teal-500 to-cyan-500', permission: 'crew_management' },
+  { id: 'staff-management', label: 'Staff Management', icon: Shield, color: 'from-purple-500 to-indigo-500', permission: 'users' },
+  { id: 'users', label: 'Users', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'users' },
+  { id: 'yachts', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'yachts' },
   { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500', permission: 'services' },
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'events' },
-  { id: 'members', label: 'Members', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'users' },
+  { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500', permission: 'payments' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics' },
-  { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-teal-500', permission: 'payments' },
   { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-yellow-500 to-amber-500', permission: 'notifications' },
-  { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-indigo-500 to-blue-500', permission: 'crew_management' },
-  { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'profile_access' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'settings_access' },
+  { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'dashboard_access' },
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'dashboard_access' }
 ];
 
 const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
@@ -1587,20 +1588,7 @@ export default function StaffPortal() {
             </motion.div>
           )}
 
-          {/* Remaining placeholder sections */}
-          {!['overview', 'my-profile', 'users', 'bookings', 'services', 'yachts', 'events', 'analytics', 'payments', 'calendar', 'customer-service', 'yacht-maintenance', 'crew_management', 'notifications', 'staff-management', 'settings'].includes(activeSection) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
-            >
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {allowedMenuItems.find(item => item.id === activeSection)?.label} Section
-              </h3>
-              <p className="text-gray-400">This section is under development</p>
-            </motion.div>
-          )}
+
         </main>
       </div>
     </div>
