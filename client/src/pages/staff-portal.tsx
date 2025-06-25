@@ -135,7 +135,7 @@ export default function StaffPortal() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -3320,10 +3320,21 @@ export default function StaffPortal() {
                 <p className="text-xs text-gray-400">Staff Member</p>
               </div>
               
-              {/* Messages and Notifications beside username */}
+              {/* Messages, Notifications, and Logout beside username */}
               <div className="flex items-center space-x-2">
                 <MessagesDropdown />
                 <AdminNotificationCenter />
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    logoutMutation.mutate();
+                  }}
+                  className="p-2 rounded-lg bg-gray-800/50 hover:bg-red-500/20 border border-gray-600/50 hover:border-red-500/50 transition-all duration-300 group"
+                  title="Sign Out"
+                >
+                  <LogOut className="h-4 w-4 text-gray-400 group-hover:text-red-400 transition-colors" />
+                </motion.button>
               </div>
             </div>
           </div>
