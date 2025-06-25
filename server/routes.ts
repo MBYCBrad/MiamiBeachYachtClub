@@ -5088,8 +5088,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Staff access required' });
       }
       
-      // Get service bookings (payments)
-      const serviceBookings = await dbStorage.getAllServiceBookings();
+      // Get service bookings (payments) 
+      const serviceBookings = await dbStorage.getServiceBookings();
       const users = await dbStorage.getAllUsers();
       const services = await dbStorage.getAllServices();
       
