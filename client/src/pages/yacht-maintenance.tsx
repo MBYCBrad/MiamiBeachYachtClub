@@ -253,7 +253,7 @@ export default function YachtMaintenance() {
     },
   });
 
-  // Mutations
+  // Mutations - KEEP ALL HOOKS AT TOP LEVEL
   const scheduleMaintenanceMutation = useMutation({
     mutationFn: async (data: z.infer<typeof maintenanceRecordSchema>) => {
       const response = await apiRequest("POST", "/api/maintenance/records", data);
