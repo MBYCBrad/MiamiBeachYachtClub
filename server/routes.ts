@@ -5087,7 +5087,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const payments = await dbStorage.getAllUsers(); // Temporary fallback until proper payments function exists
+      
+      // Get service bookings (payments)
+      const serviceBookings = await dbStorage.getAllServiceBookings();
+      const users = await dbStorage.getAllUsers();
+      const services = await dbStorage.getAllServices();
+      
+      const payments = serviceBookings.map(booking => {
+        const customer = users.find(u => u.id === booking.userId);
+        const service = services.find(s => s.id === booking.serviceId);
+        
+        return {
+          id: booking.id,
+          stripePaymentIntentId: booking.stripePaymentIntentId,
+          customer: customer ? customer.fullName || customer.username : 'Unknown Customer',
+          customerEmail: customer ? customer.email : '',
+          serviceEvent: service ? service.name : 'Unknown Service',
+          serviceCategory: service ? service.category : '',
+          amount: booking.totalPrice || 0,
+          currency: 'USD',
+          status: booking.status === 'confirmed' ? 'completed' : booking.status,
+          paymentMethod: 'card',
+          adminRevenue: (booking.totalPrice * 0.15) || 0, // 15% platform fee
+          providerRevenue: (booking.totalPrice * 0.85) || 0, // 85% to provider
+          platformFee: (booking.totalPrice * 0.15) || 0,
+          createdAt: booking.createdAt,
+          updatedAt: booking.updatedAt
+        };
+      });
+      
       res.json(payments);
     } catch (error) {
       console.error('Error fetching staff payments:', error);
