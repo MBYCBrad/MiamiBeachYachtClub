@@ -1376,6 +1376,17 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
+  // Staff methods
+  async getStaffById(id: number): Promise<any | null> {
+    try {
+      const result = await db.select().from(staff).where(eq(staff.id, id));
+      return result[0] || null;
+    } catch (error) {
+      console.error('Error fetching staff by ID:', error);
+      return null;
+    }
+  }
+
   // Phone Call methods
   async getPhoneCalls(): Promise<PhoneCall[]> {
     return await db.select().from(phoneCalls).orderBy(desc(phoneCalls.startTime));

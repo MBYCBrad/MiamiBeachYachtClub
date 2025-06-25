@@ -178,35 +178,39 @@ export default function StaffPortal() {
 
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
-    queryKey: ['/api/admin/stats'],
+    queryKey: ['/api/staff/stats'],
   });
 
   const { data: users } = useQuery({
-    queryKey: ['/api/admin/users'],
+    queryKey: ['/api/staff/users'],
   });
 
   const { data: yachts } = useQuery({
-    queryKey: ['/api/admin/yachts'],
+    queryKey: ['/api/staff/yachts'],
   });
 
   const { data: services } = useQuery({
-    queryKey: ['/api/admin/services'],
+    queryKey: ['/api/staff/services'],
   });
 
   const { data: events } = useQuery({
-    queryKey: ['/api/admin/events'],
+    queryKey: ['/api/staff/events'],
   });
 
   const { data: payments } = useQuery({
-    queryKey: ['/api/admin/payments'],
+    queryKey: ['/api/staff/payments'],
   });
 
   const { data: bookings } = useQuery({
-    queryKey: ['/api/admin/bookings'],
+    queryKey: ['/api/staff/bookings'],
   });
 
   const { data: analytics } = useQuery({
-    queryKey: ['/api/admin/analytics'],
+    queryKey: ['/api/staff/analytics'],
+  });
+
+  const { data: notifications } = useQuery({
+    queryKey: ['/api/staff/notifications'],
   });
 
   // Mobile detection
@@ -1673,6 +1677,892 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+  const renderEvents = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Event Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht club events and experiences
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Event
+          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Events
+                {(eventFilters.status !== "all" || eventFilters.type !== "all" || 
+                  eventFilters.dateRange !== "all") && (
+                  <Badge className="ml-2 bg-violet-500 text-white text-xs">
+                    {Object.values(eventFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Events</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEventFilters({
+                      status: "all",
+                      type: "all",
+                      dateRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Status</Label>
+                    <Select value={eventFilters.status} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, status: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Type</Label>
+                    <Select value={eventFilters.type} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, type: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Types</SelectItem>
+                        <SelectItem value="Networking">Networking</SelectItem>
+                        <SelectItem value="Entertainment">Entertainment</SelectItem>
+                        <SelectItem value="Dining">Dining</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Educational">Educational</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Date Range</Label>
+                    <Select value={eventFilters.dateRange} onValueChange={(value) => 
+                      setEventFilters(prev => ({ ...prev, dateRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="week">This Week</SelectItem>
+                        <SelectItem value="month">This Month</SelectItem>
+                        <SelectItem value="quarter">This Quarter</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredEvents.length} of {events?.length || 0} events
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setEventFilters({
+                      status: "all",
+                      type: "all",
+                      dateRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-violet-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </motion.div>
+      </div>
+
+      {/* Events Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredEvents.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Calendar className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No events found</h3>
+            <p className="text-gray-500 text-center">
+              No events match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-violet-400 hover:text-violet-300 p-0"
+                onClick={() => setEventFilters({
+                  status: "all",
+                  type: "all",
+                  dateRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all events.
+            </p>
+          </div>
+        ) : (
+          filteredEvents.map((event: any, index: number) => (
+            <motion.div
+              key={event.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
+            >
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-violet-500/50 transition-all duration-300 overflow-hidden group">
+                <div className="relative">
+                  {event.images && event.images.length > 1 ? (
+                    <div className="relative h-48 bg-gray-900">
+                      <img 
+                        src={event.images[0] || event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                        alt={event.title}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute bottom-2 right-2 flex space-x-1">
+                        {event.images.slice(0, 4).map((img: string, idx: number) => (
+                          <div key={idx} className="relative">
+                            <img 
+                              src={img}
+                              alt={`${event.title} ${idx + 1}`}
+                              className="w-8 h-8 object-cover rounded border border-white/20"
+                            />
+                            {idx === 3 && event.images.length > 4 && (
+                              <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                                <span className="text-white text-xs font-medium">+{event.images.length - 4}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <img 
+                      src={event.imageUrl || (event.images && event.images[0]) || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                      alt={event.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-violet-500/30">
+                      {event.maxCapacity} guests
+                    </Badge>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">{event.description}</p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">Date</span>
+                      <span className="text-white font-medium">{new Date(event.eventDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">Location</span>
+                      <span className="text-white font-medium">{event.location}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm">Price</span>
+                      <span className="text-white font-medium">${event.ticketPrice}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
+                      {event.eventType}
+                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Button size="sm" variant="ghost" className="text-violet-400 hover:text-white">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const renderPayments = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Payment Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Monitor transactions and financial operations
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Export Report
+          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Payments
+                {(paymentFilters.status !== "all" || paymentFilters.method !== "all" || 
+                  paymentFilters.dateRange !== "all") && (
+                  <Badge className="ml-2 bg-emerald-500 text-white text-xs">
+                    {Object.values(paymentFilters).filter(v => v !== "all").length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Payments</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPaymentFilters({
+                      status: "all",
+                      method: "all",
+                      dateRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Status</Label>
+                    <Select value={paymentFilters.status} onValueChange={(value) => 
+                      setPaymentFilters(prev => ({ ...prev, status: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                        <SelectItem value="refunded">Refunded</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Method</Label>
+                    <Select value={paymentFilters.method} onValueChange={(value) => 
+                      setPaymentFilters(prev => ({ ...prev, method: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Methods</SelectItem>
+                        <SelectItem value="stripe">Stripe</SelectItem>
+                        <SelectItem value="paypal">PayPal</SelectItem>
+                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Date Range</Label>
+                    <Select value={paymentFilters.dateRange} onValueChange={(value) => 
+                      setPaymentFilters(prev => ({ ...prev, dateRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="week">This Week</SelectItem>
+                        <SelectItem value="month">This Month</SelectItem>
+                        <SelectItem value="quarter">This Quarter</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredPayments.length} of {payments?.length || 0} payments
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setPaymentFilters({
+                      status: "all",
+                      method: "all",
+                      dateRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-emerald-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </motion.div>
+      </div>
+
+      {/* Payment Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+              <DollarSign className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Total</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
+          <p className="text-2xl font-bold text-white">
+            ${payments?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0).toFixed(2) || '0.00'}
+          </p>
+          <p className="text-green-400 text-sm mt-1">All time revenue</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+              <CreditCard className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Completed</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Completed</h3>
+          <p className="text-2xl font-bold text-white">
+            {payments?.filter((p: any) => p.status === 'completed').length || 0}
+          </p>
+          <p className="text-blue-400 text-sm mt-1">Successful payments</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500">
+              <Clock className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Pending</h3>
+          <p className="text-2xl font-bold text-white">
+            {payments?.filter((p: any) => p.status === 'pending').length || 0}
+          </p>
+          <p className="text-yellow-400 text-sm mt-1">Awaiting processing</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-6 rounded-xl bg-gradient-to-br from-red-500/10 to-pink-500/10 border border-red-500/20"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-red-500 to-pink-500">
+              <XCircle className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Failed</Badge>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">Failed</h3>
+          <p className="text-2xl font-bold text-white">
+            {payments?.filter((p: any) => p.status === 'failed').length || 0}
+          </p>
+          <p className="text-red-400 text-sm mt-1">Failed transactions</p>
+        </motion.div>
+      </div>
+
+      {/* Payments Table */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-emerald-500" />
+            Recent Transactions
+          </CardTitle>
+          <CardDescription>Live payment activity and financial transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction ID</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Method</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPayments.slice(0, 10).map((payment: any, index: number) => (
+                  <motion.tr
+                    key={payment.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors group"
+                  >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-300 font-mono text-sm">#{payment.stripePaymentIntentId || payment.id}</span>
+                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs">
+                          {payment.paymentMethod || 'stripe'}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                          <span className="text-white text-xs font-semibold">
+                            {(payment.user?.username || payment.member?.name || 'U')[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">{payment.user?.username || payment.member?.name || 'Unknown'}</p>
+                          <p className="text-gray-400 text-xs">{payment.user?.email || payment.member?.email || 'No email'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-white font-bold text-lg">${payment.amount.toFixed(2)}</p>
+                        <p className="text-gray-400 text-xs">{payment.currency || 'USD'}</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                          <CreditCard className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="text-gray-300 text-sm capitalize">{payment.paymentMethod || 'stripe'}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-white text-sm">
+                          {payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : 'Unknown'}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {payment.createdAt ? new Date(payment.createdAt).toLocaleTimeString() : 'Unknown time'}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={`${
+                        payment.status === 'completed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        payment.status === 'failed' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                        payment.status === 'refunded' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                        'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                      }`}>
+                        {payment.status || 'completed'}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" variant="ghost" className="text-emerald-400 hover:text-white">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderAnalytics = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Advanced Analytics
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Real-time insights into club performance and optimization opportunities
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Generate Report
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Time Period
+          </Button>
+        </motion.div>
+      </div>
+
+      {analytics ? (
+        <>
+          {/* Real-time Analytics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <StatCard
+              title="Total Revenue"
+              value={`$${analytics.overview.totalRevenue.toFixed(2)}`}
+              change={analytics.trends.revenueGrowth}
+              icon={TrendingUp}
+              gradient="from-green-500 to-emerald-500"
+              delay={0}
+            />
+            <StatCard
+              title="Active Bookings"
+              value={analytics.overview.totalBookings.toString()}
+              change={analytics.trends.memberGrowth}
+              icon={Activity}
+              gradient="from-blue-500 to-cyan-500"
+              delay={0.1}
+            />
+            <StatCard
+              title="Active Members"
+              value={analytics.overview.activeMembers.toString()}
+              change={analytics.trends.memberGrowth}
+              icon={Users}
+              gradient="from-purple-500 to-pink-500"
+              delay={0.2}
+            />
+            <StatCard
+              title="Customer Satisfaction"
+              value={`${analytics.realTimeMetrics.customerSatisfaction}/5`}
+              change={12}
+              icon={Star}
+              gradient="from-yellow-500 to-orange-500"
+              delay={0.3}
+            />
+          </div>
+
+          {/* Performance Metrics Dashboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Service Performance */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  Top Service Performance
+                </CardTitle>
+                <CardDescription>Highest revenue generating services</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.performance.services.slice(0, 5).map((service: any, index: number) => (
+                    <motion.div
+                      key={service.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{service.name}</p>
+                        <p className="text-gray-400 text-sm">{service.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold">${service.totalRevenue.toFixed(2)}</p>
+                        <p className="text-gray-400 text-sm">{service.totalBookings} bookings</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Yacht Utilization */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Activity className="h-5 w-5 mr-2 text-blue-500" />
+                  Fleet Utilization
+                </CardTitle>
+                <CardDescription>Yacht performance and booking rates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.performance.yachts.slice(0, 5).map((yacht: any, index: number) => (
+                    <motion.div
+                      key={yacht.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
+                    >
+                      <div>
+                        <p className="text-white font-medium">{yacht.name}</p>
+                        <p className="text-gray-400 text-sm">{yacht.size}ft</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold">{yacht.utilizationRate.toFixed(1)}%</p>
+                        <p className="text-gray-400 text-sm">{yacht.totalBookings} bookings</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Monthly Trends and Member Distribution */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Monthly Booking Trends */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
+                  Monthly Booking Trends
+                </CardTitle>
+                <CardDescription>Booking volume over the last 6 months</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.trends.monthlyBookings.map((month: any, index: number) => {
+                    const maxBookings = Math.max(...analytics.trends.monthlyBookings.map((m: any) => m.bookings));
+                    const percentage = maxBookings > 0 ? (month.bookings / maxBookings) * 100 : 0;
+                    
+                    return (
+                      <motion.div
+                        key={month.month}
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "100%" }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        className="flex items-center space-x-4"
+                      >
+                        <span className="text-white font-medium w-12">{month.month}</span>
+                        <div className="flex-1 bg-gray-900 rounded-full h-3 overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ delay: index * 0.1 + 0.2, duration: 0.8 }}
+                            className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                          />
+                        </div>
+                        <span className="text-gray-400 text-sm w-12">{month.bookings}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Membership Distribution */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-cyan-500" />
+                  Membership Distribution
+                </CardTitle>
+                <CardDescription>Member tier breakdown and growth</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(analytics.demographics.membershipBreakdown).map(([tier, count]: [string, any], index: number) => {
+                    const totalMembers = Object.values(analytics.demographics.membershipBreakdown).reduce((a: any, b: any) => a + b, 0);
+                    const percentage = totalMembers > 0 ? (count / totalMembers) * 100 : 0;
+                    
+                    const tierColors = {
+                      platinum: 'from-purple-500 to-indigo-500',
+                      gold: 'from-yellow-500 to-orange-500',
+                      silver: 'from-gray-400 to-gray-500',
+                      bronze: 'from-orange-600 to-red-500'
+                    };
+                    
+                    return (
+                      <motion.div
+                        key={tier}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${tierColors[tier as keyof typeof tierColors] || 'from-gray-500 to-gray-600'}`} />
+                          <span className="text-white capitalize font-medium">{tier}</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-bold">{count}</p>
+                          <p className="text-gray-400 text-sm">{percentage.toFixed(1)}%</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Event Performance */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-orange-500" />
+                Event Performance
+              </CardTitle>
+              <CardDescription>Event capacity and revenue analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analytics.performance.events.slice(0, 6).map((event: any, index: number) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-4 rounded-lg bg-gray-900/50 hover:bg-gray-700/50 transition-all"
+                  >
+                    <h4 className="text-white font-medium mb-2">{event.title}</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Capacity</span>
+                        <span className="text-white">{event.capacityFilled.toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
+                          style={{ width: `${Math.min(event.capacityFilled, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Revenue</span>
+                        <span className="text-white">${event.totalRevenue.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <BarChart3 className="h-16 w-16 text-gray-500 mx-auto mb-4 animate-pulse" />
+              <h3 className="text-xl font-bold text-white mb-2">Loading Analytics...</h3>
+              <p className="text-gray-400">Fetching real-time data from database</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile overlay */}
@@ -1862,7 +2752,7 @@ export default function StaffPortal() {
         >
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
-            {activeSection === 'analytics' && <div>Analytics coming soon</div>}
+
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && <div>Settings coming soon</div>}
             {activeSection === 'bookings' && renderBookings()}
@@ -1874,8 +2764,9 @@ export default function StaffPortal() {
             {activeSection === 'users' && renderUsers()}
             {activeSection === 'yachts' && renderYachts()}
             {activeSection === 'services' && renderServices()}
-            {activeSection === 'events' && <div>Events coming soon</div>}
-            {activeSection === 'payments' && <div>Payments coming soon</div>}
+            {activeSection === 'events' && renderEvents()}
+            {activeSection === 'payments' && renderPayments()}
+            {activeSection === 'analytics' && renderAnalytics()}
           </AnimatePresence>
         </motion.div>
       </div>
