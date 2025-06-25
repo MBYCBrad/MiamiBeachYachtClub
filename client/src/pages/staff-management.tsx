@@ -139,7 +139,7 @@ export default function StaffManagement() {
   // Check if user has admin access or staff permissions for user management
   const hasStaffManagementAccess = user && (
     user.role === 'admin' || 
-    (user.role?.startsWith('Staff') && user.permissions?.includes('users'))
+    user.permissions?.includes('users')
   );
 
   if (!hasStaffManagementAccess) {
