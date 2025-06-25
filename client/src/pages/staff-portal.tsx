@@ -179,6 +179,8 @@ export default function StaffPortal() {
     dateRange: "all"
   });
 
+  const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
+
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/staff/stats'],
