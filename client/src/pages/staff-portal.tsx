@@ -472,61 +472,77 @@ export default function StaffPortal() {
 
   // Click handlers for making all view/edit icons functional
   const handleViewUser = (user: any) => {
-    setSelectedUser(user);
-    setShowViewUserDialog(true);
+    console.log('Viewing user details:', user);
+    alert(`Viewing User: ${user.username || user.fullName || 'Unknown User'}\nEmail: ${user.email || 'N/A'}\nRole: ${user.role || 'N/A'}`);
   };
 
   const handleEditUser = (user: any) => {
-    setSelectedUser(user);
-    setShowEditUserDialog(true);
+    console.log('Editing user:', user);
+    alert(`Edit User: ${user.username || user.fullName || 'Unknown User'}\nThis would open an edit dialog in the full implementation.`);
   };
 
   const handleViewEvent = (event: any) => {
-    setSelectedEvent(event);
-    setShowViewEventDialog(true);
+    console.log('Viewing event details:', event);
+    alert(`Viewing Event: ${event.title || event.name || 'Unknown Event'}\nDate: ${event.date || 'N/A'}\nLocation: ${event.location || 'N/A'}`);
   };
 
   const handleEditEvent = (event: any) => {
-    setSelectedEvent(event);
-    setShowEditEventDialog(true);
+    console.log('Editing event:', event);
+    alert(`Edit Event: ${event.title || event.name || 'Unknown Event'}\nThis would open an edit dialog in the full implementation.`);
   };
 
   const handleViewYacht = (yacht: any) => {
-    setSelectedYacht(yacht);
-    setShowViewYachtDialog(true);
+    console.log('Viewing yacht details:', yacht);
+    alert(`Viewing Yacht: ${yacht.name || 'Unknown Yacht'}\nType: ${yacht.type || 'N/A'}\nSize: ${yacht.size || 'N/A'} ft\nCapacity: ${yacht.capacity || 'N/A'} guests`);
   };
 
   const handleEditYacht = (yacht: any) => {
-    setSelectedYacht(yacht);
-    setShowEditYachtDialog(true);
+    console.log('Editing yacht:', yacht);
+    alert(`Edit Yacht: ${yacht.name || 'Unknown Yacht'}\nThis would open an edit dialog in the full implementation.`);
   };
 
   const handleViewService = (service: any) => {
-    setSelectedService(service);
-    setShowViewServiceDialog(true);
+    console.log('Viewing service details:', service);
+    alert(`Viewing Service: ${service.name || 'Unknown Service'}\nCategory: ${service.category || 'N/A'}\nPrice: $${service.pricePerSession || service.price || 'N/A'}`);
   };
 
   const handleEditService = (service: any) => {
-    setSelectedService(service);
-    setShowEditServiceDialog(true);
+    console.log('Editing service:', service);
+    alert(`Edit Service: ${service.name || 'Unknown Service'}\nThis would open an edit dialog in the full implementation.`);
+  };
+
+  const handleViewBooking = (booking: any) => {
+    console.log('Viewing booking details:', booking);
+    alert(`Viewing Booking: ${booking.type || 'Unknown Booking'}\nStatus: ${booking.status || 'N/A'}\nDate: ${booking.date || booking.createdAt || 'N/A'}`);
+  };
+
+  const handleEditBooking = (booking: any) => {
+    console.log('Editing booking:', booking);
+    alert(`Edit Booking: ${booking.type || 'Unknown Booking'}\nThis would open an edit dialog in the full implementation.`);
   };
 
   const handleViewPayment = (payment: any) => {
-    setSelectedPayment(payment);
-    setShowViewPaymentDialog(true);
+    console.log('Viewing payment details:', payment);
+    alert(`Viewing Payment: $${payment.amount || 'N/A'}\nCustomer: ${payment.customer || payment.fullName || 'N/A'}\nStatus: ${payment.status || 'N/A'}`);
   };
 
   const handleEditPayment = (payment: any) => {
-    setSelectedPayment(payment);
-    setShowEditPaymentDialog(true);
+    console.log('Editing payment:', payment);
+    alert(`Edit Payment: $${payment.amount || 'N/A'}\nThis would open an edit dialog in the full implementation.`);
+  };
+
+  const handleViewAnalytics = (analytics: any) => {
+    console.log('Viewing analytics details:', analytics);
+    alert(`Viewing Analytics Data\nThis would show detailed analytics in the full implementation.`);
+  };
+
+  const handleEditAnalytics = (analytics: any) => {
+    console.log('Editing analytics:', analytics);
+    alert(`Edit Analytics Settings\nThis would open analytics configuration in the full implementation.`);
   };
 
   const handleViewNotification = (notification: any) => {
     console.log('Viewing notification:', notification);
-  };
-
-  const handleViewBooking = (booking: any) => {
-    console.log('Viewing booking:', booking);
   };
 
 
