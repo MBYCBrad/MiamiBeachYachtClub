@@ -365,6 +365,14 @@ Changelog:
   - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
   - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
   - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
+- June 25, 2025. Complete staff management and crew management system integration with permission-based access control
+  - Fixed staff management access control to allow staff members with 'users' permission to access staff management functionality
+  - Updated all API endpoints in staff management to use role-based routing (admin uses /api/admin/staff, staff uses /api/staff/users)
+  - Added crew management route to application router and fixed 404 errors for /crew-management path
+  - Updated crew management data fetching to use staff-specific endpoints instead of admin-only endpoints
+  - Removed duplicate permission checks that were blocking staff access to management sections
+  - Both crew management and staff management now fully functional for staff members with appropriate permissions
+  - Complete permission system allowing granular access control based on individual staff member permissions
 - June 25, 2025. Staff portal payments section completed with real-time database integration
   - Fixed critical data mapping issue in payments table by updating correct renderPayments function (line 907)
   - Customer column now displays "Demo Member" from live database using payment.customer field mapping

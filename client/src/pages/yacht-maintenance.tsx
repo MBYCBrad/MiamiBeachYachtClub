@@ -47,10 +47,16 @@ export default function YachtMaintenance() {
   const [createAssessmentOpen, setCreateAssessmentOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, staffUser } = useAuth();
 
-  // Check user access - only yacht owners and admins can access maintenance
-  if (!user || (user.role !== 'admin' && user.role !== 'yacht_owner')) {
+  // Check if user has yacht maintenance access
+  const hasYachtMaintenanceAccess = user && (
+    user.role === 'admin' || 
+    user.role === 'yacht_owner' || 
+    (staffUser && staffUser.permissions && staffUser.permissions.includes('yachts'))
+  );
+
+  if (!hasYachtMaintenanceAccess) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -59,7 +65,7 @@ export default function YachtMaintenance() {
           </div>
           <h2 className="text-2xl font-bold text-white mb-4">Access Restricted</h2>
           <p className="text-gray-400 mb-4">
-            The Yacht Maintenance System is only accessible to yacht owners and administrators.
+            Insufficient permissions to access yacht maintenance.
           </p>
           <p className="text-sm text-gray-500">
             Current role: {user?.role || 'Not authenticated'}
@@ -69,16 +75,19 @@ export default function YachtMaintenance() {
     );
   }
 
-  // Data queries
+  // Data queries with role-based API endpoints
   const { data: yachts = [], isLoading: yachtsLoading } = useQuery({
-    queryKey: ['/api/yachts'],
+    queryKey: user?.role === 'admin' || user?.role === 'yacht_owner' ? ['/api/yachts'] : ['/api/staff/yachts'],
   });
 
   const { data: maintenanceOverview = {}, isLoading: overviewLoading } = useQuery({
     queryKey: ['/api/maintenance/overview', selectedYacht],
     queryFn: async () => {
       if (!selectedYacht) return {};
-      const response = await fetch(`/api/maintenance/overview/${selectedYacht}`);
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/overview/${selectedYacht}`
+        : `/api/staff/maintenance/overview/${selectedYacht}`;
+      const response = await fetch(endpoint);
       if (!response.ok) throw new Error('Failed to fetch maintenance overview');
       return response.json();
     },
@@ -86,11 +95,30 @@ export default function YachtMaintenance() {
   });
 
   const { data: tripLogs = [], isLoading: tripsLoading } = useQuery({
-    queryKey: ['/api/maintenance/trip-logs'],
+    queryKey: [`/api/maintenance/trip-logs/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/trip-logs/${selectedYacht}`
+        : `/api/staff/maintenance/trip-logs/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch trip logs');
+      return response.json();
+    },
+    enabled: !!selectedYacht,
   });
 
   const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: [`/api/maintenance/records/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/records/${selectedYacht}`
+        : `/api/staff/maintenance/records/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch maintenance records');
+      return response.json();
+    },
     enabled: !!selectedYacht,
     staleTime: 0,
     gcTime: 0,
@@ -100,6 +128,15 @@ export default function YachtMaintenance() {
 
   const { data: conditionAssessments = [], isLoading: assessmentsLoading, refetch: refetchAssessments } = useQuery({
     queryKey: [`/api/maintenance/assessments/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/assessments/${selectedYacht}`
+        : `/api/staff/maintenance/assessments/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch assessments');
+      return response.json();
+    },
     enabled: !!selectedYacht,
     staleTime: 0,
     gcTime: 0,
@@ -109,21 +146,57 @@ export default function YachtMaintenance() {
 
   const { data: valuationData = {}, isLoading: valuationLoading } = useQuery({
     queryKey: [`/api/maintenance/valuation/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return {};
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/valuation/${selectedYacht}`
+        : `/api/staff/maintenance/valuation/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch valuation');
+      return response.json();
+    },
     enabled: !!selectedYacht,
   });
 
   const { data: usageMetrics = [], isLoading: metricsLoading } = useQuery({
     queryKey: [`/api/maintenance/usage-metrics/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/usage-metrics/${selectedYacht}`
+        : `/api/staff/maintenance/usage-metrics/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch usage metrics');
+      return response.json();
+    },
     enabled: !!selectedYacht,
   });
 
   const { data: yachtComponents = [], isLoading: componentsLoading } = useQuery({
     queryKey: [`/api/maintenance/components/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/components/${selectedYacht}`
+        : `/api/staff/maintenance/components/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch components');
+      return response.json();
+    },
     enabled: !!selectedYacht,
   });
 
   const { data: maintenanceSchedules = [], isLoading: schedulesLoading, refetch: refetchSchedules } = useQuery({
     queryKey: [`/api/maintenance/schedules/${selectedYacht}`],
+    queryFn: async () => {
+      if (!selectedYacht) return [];
+      const endpoint = user?.role === 'admin' || user?.role === 'yacht_owner' 
+        ? `/api/maintenance/schedules/${selectedYacht}`
+        : `/api/staff/maintenance/schedules/${selectedYacht}`;
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch schedules');
+      return response.json();
+    },
     enabled: !!selectedYacht,
     staleTime: 0,
     cacheTime: 0,
