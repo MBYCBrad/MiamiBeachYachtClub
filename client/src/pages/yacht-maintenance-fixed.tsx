@@ -381,14 +381,64 @@ export default function YachtMaintenance() {
               <div
                 key={yacht.id}
                 onClick={() => setSelectedYacht(yacht.id)}
-                className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg p-6 cursor-pointer hover:bg-gray-800/50 transition-all duration-200"
+                className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:bg-gray-800/50 transition-all duration-200"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-white">{yacht.name}</h3>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                {/* Yacht Image Thumbnail */}
+                <div className="relative h-48 bg-gray-800">
+                  {yacht.images && yacht.images.length > 0 ? (
+                    <img
+                      src={yacht.images[0]}
+                      alt={yacht.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                  ) : null}
+                  <div className={`absolute inset-0 flex items-center justify-center ${yacht.images && yacht.images.length > 0 ? 'hidden' : ''}`}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <Anchor className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                  
+                  {/* Status Indicator */}
+                  <div className="absolute top-4 right-4">
+                    <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg"></div>
+                  </div>
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 </div>
-                <p className="text-gray-400 text-sm mb-2">{yacht.location}</p>
-                <p className="text-gray-500 text-sm">{yacht.type} • {yacht.length}ft • {yacht.capacity} guests</p>
+
+                {/* Yacht Details */}
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-white">{yacht.name}</h3>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                      Active
+                    </Badge>
+                  </div>
+                  <p className="text-gray-400 text-sm mb-2">{yacht.location}</p>
+                  <p className="text-gray-500 text-sm">{yacht.type} • {yacht.length}ft • {yacht.capacity} guests</p>
+                  
+                  {/* Quick Stats */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">Condition</p>
+                      <p className="text-sm font-semibold text-green-400">85%</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">Next Service</p>
+                      <p className="text-sm font-semibold text-blue-400">15 days</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">Priority</p>
+                      <p className="text-sm font-semibold text-yellow-400">Medium</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
