@@ -37,7 +37,6 @@ function Router() {
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
       <ProtectedRoute path="/admin/staff-management" component={StaffManagement} />
       <ProtectedRoute path="/admin/yacht-maintenance" component={YachtMaintenance} />
-      <ProtectedRoute path="/staff" component={StaffPortal} />
       <ProtectedRoute path="/staff-portal" component={StaffPortal} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />

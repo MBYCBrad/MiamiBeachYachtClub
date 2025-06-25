@@ -51,23 +51,79 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
-        return done(null, false);
-      } else {
-        return done(null, user);
+      // First try to find a regular user
+      let user = await storage.getUserByUsername(username);
+      if (user && (await comparePasswords(password, user.password))) {
+        return done(null, { ...user, userType: 'user' });
       }
+      
+      // If not found in users, try staff table
+      const staff = await storage.getStaffByUsername(username);
+      if (staff && (await comparePasswords(password, staff.password))) {
+        // Convert staff to user-like object for session compatibility
+        const staffAsUser = {
+          id: staff.id,
+          username: staff.username,
+          email: staff.email,
+          password: staff.password,
+          fullName: staff.fullName,
+          role: 'staff', // Mark as staff for routing
+          membershipTier: null,
+          phone: staff.phone,
+          location: staff.location,
+          joinedAt: staff.createdAt,
+          lastLoginAt: null,
+          isActive: staff.status === 'active',
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+          userType: 'staff', // Additional identifier
+          staffRole: staff.role,
+          department: staff.department,
+          permissions: staff.permissions
+        };
+        return done(null, staffAsUser);
+      }
+      
+      return done(null, false);
     }),
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
     try {
-      const user = await storage.getUser(id);
-      if (!user) {
-        return done(null, false);
+      // First try to find in users table
+      let user = await storage.getUser(id);
+      if (user) {
+        return done(null, { ...user, userType: 'user' });
       }
-      done(null, user);
+      
+      // If not found in users, try staff table
+      const staff = await storage.getStaff(id);
+      if (staff) {
+        const staffAsUser = {
+          id: staff.id,
+          username: staff.username,
+          email: staff.email,
+          password: staff.password,
+          fullName: staff.fullName,
+          role: 'staff',
+          membershipTier: null,
+          phone: staff.phone,
+          location: staff.location,
+          joinedAt: staff.createdAt,
+          lastLoginAt: null,
+          isActive: staff.status === 'active',
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+          userType: 'staff',
+          staffRole: staff.role,
+          department: staff.department,
+          permissions: staff.permissions
+        };
+        return done(null, staffAsUser);
+      }
+      
+      done(null, false);
     } catch (error) {
       console.error('Error deserializing user:', error);
       done(null, false);
