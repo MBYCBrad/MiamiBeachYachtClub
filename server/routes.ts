@@ -3968,11 +3968,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get messages for a specific conversation
-  app.get("/api/messages/:conversationId", requireAuth, async (req, res) => {
-    // Check if user has access (admin, service provider, or staff)
-    if (req.user!.role !== UserRole.ADMIN && req.user!.role !== UserRole.SERVICE_PROVIDER && !req.user!.role?.startsWith('staff')) {
-      return res.status(403).json({ message: "Insufficient permissions" });
-    }
+  app.get("/api/messages/:conversationId", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { conversationId } = req.params;
       const messages = await dbStorage.getMessagesByConversation(conversationId);
