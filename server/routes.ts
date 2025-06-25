@@ -5121,6 +5121,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
+      console.log('=== STAFF PAYMENTS DEBUG ===');
+      console.log('Service bookings count:', serviceBookings.length);
+      console.log('Users count:', users.length);
+      console.log('Services count:', services.length);
+      if (serviceBookings.length > 0) {
+        console.log('First service booking:', JSON.stringify(serviceBookings[0], null, 2));
+      }
+      if (payments.length > 0) {
+        console.log('First payment mapped:', JSON.stringify(payments[0], null, 2));
+      }
+      console.log('=== END DEBUG ===');
       res.json(payments);
     } catch (error) {
       console.error('Error fetching staff payments:', error);

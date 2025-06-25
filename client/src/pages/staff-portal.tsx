@@ -2696,15 +2696,15 @@ export default function StaffPortal() {
                           </span>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Unknown'}</p>
+                          <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Unknown Customer'}</p>
                           <p className="text-gray-400 text-xs">{payment.customerEmail || payment.email || 'No email'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-4">
                       <div>
-                        <p className="text-white font-medium">{payment.serviceEvent || payment.serviceName || 'Premium Service'}</p>
-                        <p className="text-gray-400 text-xs">{payment.serviceCategory || 'Concierge Service'}</p>
+                        <p className="text-white font-medium">{payment.serviceEvent || payment.serviceName || 'Premium Concierge Service'}</p>
+                        <p className="text-gray-400 text-xs">{payment.serviceCategory || 'Concierge & Lifestyle'}</p>
                       </div>
                     </td>
                     <td className="py-4 px-4">
