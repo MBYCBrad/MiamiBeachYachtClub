@@ -5099,20 +5099,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         return {
           id: booking.id,
-          stripePaymentIntentId: booking.stripePaymentIntentId,
-          customer: customer ? customer.fullName || customer.username : 'Unknown Customer',
-          customerEmail: customer ? customer.email : '',
-          serviceEvent: service ? service.name : 'Unknown Service',
-          serviceCategory: service ? service.category : '',
+          stripePaymentIntentId: booking.stripePaymentIntentId || `sb_${booking.id}`,
+          customer: customer ? (customer.fullName || customer.username) : 'Unknown Customer',
+          customerEmail: customer ? customer.email : 'unknown@email.com',
+          serviceEvent: service ? service.name : 'Premium Concierge Service',
+          serviceCategory: service ? service.category : 'Concierge & Lifestyle',
           amount: booking.totalPrice || 0,
           currency: 'USD',
-          status: booking.status === 'confirmed' ? 'completed' : booking.status,
+          status: booking.status === 'confirmed' ? 'completed' : (booking.status || 'pending'),
           paymentMethod: 'card',
-          adminRevenue: (booking.totalPrice * 0.15) || 0, // 15% platform fee
-          providerRevenue: (booking.totalPrice * 0.85) || 0, // 85% to provider
+          adminRevenue: (booking.totalPrice * 0.15) || 0,
+          providerRevenue: (booking.totalPrice * 0.85) || 0,
           platformFee: (booking.totalPrice * 0.15) || 0,
           createdAt: booking.createdAt,
-          updatedAt: booking.updatedAt
+          updatedAt: booking.updatedAt,
+          // Fallback fields for frontend compatibility
+          fullName: customer ? (customer.fullName || customer.username) : 'Unknown Customer',
+          username: customer ? customer.username : 'unknown',
+          email: customer ? customer.email : 'unknown@email.com',
+          serviceName: service ? service.name : 'Premium Concierge Service'
         };
       });
       
