@@ -253,10 +253,11 @@ export default function CustomerServiceDashboard() {
 
   const getMembershipIcon = (tier: string) => {
     switch (tier?.toLowerCase()) {
-      case 'platinum': return <Crown className="h-4 w-4 text-purple-400" />;
-      case 'gold': return <Star className="h-4 w-4 text-yellow-400" />;
-      case 'silver': return <Anchor className="h-4 w-4 text-gray-400" />;
-      default: return <User className="h-4 w-4 text-bronze-400" />;
+      case 'platinum': return <Crown className="h-3 w-3 mr-1" />;
+      case 'gold': return <Star className="h-3 w-3 mr-1" />;
+      case 'silver': return <Gem className="h-3 w-3 mr-1" />;
+      case 'bronze': return <Shield className="h-3 w-3 mr-1" />;
+      default: return <Shield className="h-3 w-3 mr-1" />;
     }
   };
 
@@ -265,7 +266,26 @@ export default function CustomerServiceDashboard() {
       case 'platinum': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
       case 'gold': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
       case 'silver': return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-      default: return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+      case 'bronze': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role?.toLowerCase()) {
+      case 'member': return <User className="h-3 w-3 mr-1" />;
+      case 'yacht_owner': return <Anchor className="h-3 w-3 mr-1" />;
+      case 'service_provider': return <Briefcase className="h-3 w-3 mr-1" />;
+      default: return <User className="h-3 w-3 mr-1" />;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role?.toLowerCase()) {
+      case 'member': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+      case 'yacht_owner': return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30';
+      case 'service_provider': return 'bg-green-500/20 text-green-300 border-green-500/30';
+      default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
     }
   };
 
