@@ -3108,7 +3108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...staffMember,
           createdByName: createdByUser?.username || 'System',
           permissions: staffMember.permissions || [],
-          role: staffMember.staffRole, // Map staffRole to role for compatibility
+          // role field already exists in staff table, no mapping needed
           status: staffMember.status || 'active'
         };
       });

@@ -23,6 +23,8 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import YachtOwnerDashboard from "@/pages/yacht-owner-dashboard";
 import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
+import StaffManagement from "@/pages/staff-management";
+import YachtMaintenance from "@/pages/yacht-maintenance";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +34,8 @@ function Router() {
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
+      <ProtectedRoute path="/admin/staff-management" component={StaffManagement} />
+      <ProtectedRoute path="/admin/yacht-maintenance" component={YachtMaintenance} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
