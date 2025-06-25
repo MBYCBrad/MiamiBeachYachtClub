@@ -456,7 +456,7 @@ export default function StaffPortal() {
               e.stopPropagation();
               setShowFilters(!showFilters);
             }}
-            className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white bg-gray-900/50 hover:bg-gray-800/80 transition-all duration-300"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0"
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters
