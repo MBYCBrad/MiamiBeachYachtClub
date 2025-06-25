@@ -4134,7 +4134,7 @@ export default function AdminDashboard() {
           <AddYachtDialog />
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="border-gray-600 hover:border-blue-500">
+              <Button variant="outline" size="sm" className="border-gray-600 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-none">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter Yachts
                 {(yachtFilters.availability !== "all" || yachtFilters.size !== "all" || 
@@ -4248,8 +4248,7 @@ export default function AdminDashboard() {
                       location: "all",
                       priceRange: "all"
                     })}
-                    variant="outline"
-                    className="border-gray-600 hover:border-blue-500"
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-none"
                   >
                     Clear All
                   </Button>
