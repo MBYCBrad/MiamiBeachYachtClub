@@ -55,6 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           window.location.href = "/yacht-owner";
         } else if (user.role === "service_provider") {
           window.location.href = "/service-provider";
+        } else if (user.role === "staff") {
+          window.location.href = "/staff-portal";
         } else {
           window.location.href = "/";
         }

@@ -132,15 +132,17 @@ export default function StaffPortal() {
   const queryClient = useQueryClient();
 
   // Fetch current staff member details
-  const { data: staffMember } = useQuery<StaffMember>({
+  const { data: staffMember, isLoading: staffLoading } = useQuery<StaffMember>({
     queryKey: ['/api/staff/profile'],
-    enabled: !!user
+    enabled: !!user && user.role === 'staff',
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Fetch staff statistics
-  const { data: staffStats } = useQuery<StaffStats>({
+  const { data: staffStats, isLoading: statsLoading } = useQuery<StaffStats>({
     queryKey: ['/api/staff/stats'],
-    enabled: !!user
+    enabled: !!user && user.role === 'staff',
+    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 
   // Filter menu items based on staff permissions

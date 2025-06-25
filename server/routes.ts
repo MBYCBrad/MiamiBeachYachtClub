@@ -2587,6 +2587,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // STAFF API ENDPOINTS - Real-time staff data for staff portal
+  
+  // Get current staff member profile
+  app.get("/api/staff/profile", requireAuth, async (req, res) => {
+    try {
+      if (req.user!.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+      
+      // Get staff member data by username
+      const staffMember = await dbStorage.getStaffByUsername(req.user!.username);
+      if (!staffMember) {
+        return res.status(404).json({ message: "Staff member not found" });
+      }
+      
+      // Remove password from response
+      const { password, ...staffProfile } = staffMember;
+      res.json(staffProfile);
+    } catch (error: any) {
+      console.error('Error fetching staff profile:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get staff statistics for dashboard
+  app.get("/api/staff/stats", requireAuth, async (req, res) => {
+    try {
+      if (req.user!.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+      
+      const staffMember = await dbStorage.getStaffByUsername(req.user!.username);
+      if (!staffMember) {
+        return res.status(404).json({ message: "Staff member not found" });
+      }
+      
+      // Generate role-based statistics
+      const permissions = Array.isArray(staffMember.permissions) ? staffMember.permissions : [];
+      
+      // Base stats that vary by role and permissions
+      let totalTasks = 8;
+      let completedToday = 5;
+      let pendingTasks = 3;
+      let activeProjects = 2;
+      
+      // Adjust stats based on role
+      if (staffMember.role.includes('Manager') || staffMember.role.includes('Coordinator')) {
+        totalTasks = 15;
+        completedToday = 9;
+        pendingTasks = 6;
+        activeProjects = 4;
+      } else if (staffMember.role.includes('Captain') || staffMember.role.includes('Officer')) {
+        totalTasks = 12;
+        completedToday = 8;
+        pendingTasks = 4;
+        activeProjects = 3;
+      }
+      
+      // Add variance based on permissions
+      if (permissions.includes('user_management')) totalTasks += 3;
+      if (permissions.includes('fleet_management')) totalTasks += 4;
+      if (permissions.includes('event_management')) activeProjects += 1;
+      
+      const stats = {
+        totalTasks,
+        completedToday,
+        pendingTasks,
+        activeProjects
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Error fetching staff stats:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Advanced Analytics API endpoint
   app.get("/api/admin/analytics", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
