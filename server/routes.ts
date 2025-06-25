@@ -94,6 +94,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
+  // Middleware to check role or staff permissions
+  const requireYachtAccess = (req: any, res: any, next: any) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
+    
+    // Allow admin and yacht owners
+    if (req.user.role === UserRole.ADMIN || req.user.role === UserRole.YACHT_OWNER) {
+      return next();
+    }
+    
+    // Allow staff with yacht management permissions
+    if (req.user.role && req.user.role.startsWith('Staff') && req.user.permissions && req.user.permissions.includes('yachts')) {
+      return next();
+    }
+    
+    return res.status(403).json({ message: "Insufficient permissions" });
+  };
+
   // Multi-image upload endpoint
   app.post('/api/media/upload', requireAuth, upload.array('images', 10), async (req, res) => {
     try {
@@ -2901,7 +2920,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // YACHT MAINTENANCE ROUTES - Real-time usage tracking from bookings
-  app.get("/api/maintenance/overview/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/overview/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       
@@ -2988,7 +3007,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/maintenance/valuation/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/valuation/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       
@@ -3108,7 +3127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/maintenance/assessments/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/assessments/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       const assessments = await dbStorage.getConditionAssessments(yachtId);
@@ -3118,7 +3137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/maintenance/components/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/components/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       const components = await dbStorage.getYachtComponents(yachtId);
@@ -3128,7 +3147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/maintenance/schedules/:yachtId", requireAuth, requireRole([UserRole.ADMIN, UserRole.YACHT_OWNER]), async (req, res) => {
+  app.get("/api/maintenance/schedules/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const yachtId = parseInt(req.params.yachtId);
       const schedules = await dbStorage.getMaintenanceSchedules(yachtId);
@@ -3156,7 +3175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/maintenance/assessments", requireAuth, requireRole([UserRole.ADMIN, UserRole.OWNER]), async (req, res) => {
+  app.post("/api/maintenance/assessments", requireAuth, requireYachtAccess, async (req, res) => {
     try {
       const assessment = await dbStorage.createConditionAssessment(req.body);
       res.status(201).json(assessment);
