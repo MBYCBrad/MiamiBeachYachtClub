@@ -1222,7 +1222,7 @@ export default function StaffPortal() {
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            className="text-gray-400 hover:text-white"
+                            className="text-emerald-400 hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
                             onClick={() => handleViewPayment(payment)}
                           >
                             <Eye className="h-4 w-4" />
@@ -2761,7 +2761,7 @@ export default function StaffPortal() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-gray-400 hover:text-white"
+                        className="text-purple-400 hover:text-white hover:bg-purple-500/20 transition-all duration-200"
                         onClick={() => handleEditEvent(event)}
                       >
                         <Edit className="h-4 w-4" />
