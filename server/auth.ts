@@ -38,7 +38,7 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || 'mbyc-development-secret-key-2025',
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
@@ -51,25 +51,55 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      // First try to find in users table
-      const user = await storage.getUserByUsername(username);
-      if (user && (await comparePasswords(password, user.password))) {
-        return done(null, user);
+      try {
+        console.log('Login attempt for username:', username);
+        
+        // First try to find in users table
+        const user = await storage.getUserByUsername(username);
+        if (user) {
+          console.log('Found user in users table:', user.username);
+          if (await comparePasswords(password, user.password)) {
+            console.log('User password verified successfully');
+            return done(null, user);
+          } else {
+            console.log('User password verification failed');
+          }
+        } else {
+          console.log('User not found in users table, checking staff table');
+        }
+        
+        // If not found in users, try staff table
+        const staffMember = await storage.getStaffByUsername(username);
+        if (staffMember) {
+          console.log('Found staff member:', staffMember.username, 'with role:', staffMember.role);
+          console.log('Staff password exists:', !!staffMember.password, 'length:', staffMember.password?.length);
+          if (staffMember.password && staffMember.password.trim() !== '') {
+            console.log('Staff member has password, verifying...');
+            if (await comparePasswords(password, staffMember.password)) {
+              console.log('Staff password verified successfully');
+              // Convert staff to user-like object for session compatibility
+              const staffAsUser = {
+                ...staffMember,
+                role: 'staff', // Mark as staff for routing
+                staffRole: staffMember.role, // Keep original staff role
+              };
+              return done(null, staffAsUser);
+            } else {
+              console.log('Staff password verification failed');
+            }
+          } else {
+            console.log('Staff member has no password set or password is empty');
+          }
+        } else {
+          console.log('Staff member not found');
+        }
+        
+        console.log('Authentication failed for username:', username);
+        return done(null, false);
+      } catch (error) {
+        console.error('Authentication error:', error);
+        return done(error);
       }
-      
-      // If not found in users, try staff table
-      const staffMember = await storage.getStaffByUsername(username);
-      if (staffMember && staffMember.password && (await comparePasswords(password, staffMember.password))) {
-        // Convert staff to user-like object for session compatibility
-        const staffAsUser = {
-          ...staffMember,
-          role: 'staff', // Mark as staff for routing
-          staffRole: staffMember.role, // Keep original staff role
-        };
-        return done(null, staffAsUser);
-      }
-      
-      return done(null, false);
     }),
   );
 
@@ -130,8 +160,30 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/login", (req, res, next) => {
+    console.log('Login endpoint hit with username:', req.body.username);
+    passport.authenticate("local", (err, user, info) => {
+      console.log('Passport authenticate callback - err:', err, 'user:', user ? { ...user, password: '[REDACTED]' } : null, 'info:', info);
+      
+      if (err) {
+        console.error('Passport authentication error:', err);
+        return next(err);
+      }
+      
+      if (!user) {
+        console.log('Authentication failed - no user returned');
+        return res.status(401).send("Unauthorized");
+      }
+      
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error('Session login error:', loginErr);
+          return next(loginErr);
+        }
+        console.log('Login successful for user:', user.username);
+        res.status(200).json(user);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {

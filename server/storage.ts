@@ -231,7 +231,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStaffByUsername(username: string): Promise<Staff | undefined> {
+    console.log('DatabaseStorage.getStaffByUsername called with:', username);
     const [staffMember] = await db.select().from(staff).where(eq(staff.username, username));
+    console.log('DatabaseStorage.getStaffByUsername result:', staffMember ? { ...staffMember, password: '[REDACTED]' } : 'undefined');
     return staffMember || undefined;
   }
 

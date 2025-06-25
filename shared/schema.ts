@@ -182,6 +182,7 @@ export const staff = pgTable("staff", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   email: text("email").unique().notNull(),
+  password: text("password"),
   fullName: text("full_name").notNull(),
   role: text("role").notNull(),
   department: text("department").notNull(),
