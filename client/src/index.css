@@ -2,9 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Admin Dropdown Styling */
+/* Global Admin Dropdown and Interactive Element Styling */
 [data-radix-select-content] [data-radix-select-item] {
-  @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600;
+  @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-indigo-600;
+}
+
+/* Command dropdown items */
+[data-radix-collection-item] {
+  @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-indigo-600;
+}
+
+/* Popover content items */
+[data-radix-popover-content] [role="menuitem"] {
+  @apply hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-indigo-600;
+}
+
+/* Generic interactive elements with grey hover */
+.hover\\:bg-gray-100:hover,
+.hover\\:bg-gray-200:hover,
+.hover\\:bg-gray-300:hover,
+.hover\\:bg-gray-700:hover,
+.hover\\:bg-gray-800:hover,
+.hover\\:bg-gray-900:hover,
+.hover\\:bg-slate-100:hover,
+.hover\\:bg-slate-200:hover,
+.hover\\:bg-slate-700:hover,
+.hover\\:bg-slate-800:hover {
+  @apply !bg-gradient-to-r !from-purple-600 !to-indigo-600;
+}
+
+/* SelectContent and SelectItem specific styling */
+.select-content-item:hover,
+.select-item:hover {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-white;
+}
+
+/* Command items */
+.command-item:hover {
+  @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-white;
 }
 
 /* Hide scrollbars globally */

@@ -83,6 +83,10 @@ import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
 import MyProfile from "./my-profile";
 import { Overview3DIcon, Users3DIcon, Yacht3DIcon, Services3DIcon, Events3DIcon, Bookings3DIcon, Analytics3DIcon, Payments3DIcon } from '@/components/Animated3DAdminIcons';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface AdminStats {
   totalUsers: number;
@@ -129,6 +133,18 @@ const serviceCategories = [
 
 const membershipTiers = ["Bronze", "Silver", "Gold", "Platinum"];
 
+// User creation form schema
+const createUserSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(['member', 'yacht_owner', 'service_provider', 'admin']),
+  membershipTier: z.enum(['bronze', 'silver', 'gold', 'platinum']).optional(),
+  isActive: z.boolean().default(true)
+});
+
+type CreateUserData = z.infer<typeof createUserSchema>;
+
 export default function StaffPortal() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
@@ -144,6 +160,208 @@ export default function StaffPortal() {
     role: "all",
     membershipTier: "all",
     status: "all"
+  });
+
+  // Dialog states
+  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const [showAddEventDialog, setShowAddEventDialog] = useState(false);
+  const [showAddYachtDialog, setShowAddYachtDialog] = useState(false);
+  const [showAddServiceDialog, setShowAddServiceDialog] = useState(false);
+  const [showEditUserDialog, setShowEditUserDialog] = useState(false);
+  const [showEditEventDialog, setShowEditEventDialog] = useState(false);
+  const [showEditYachtDialog, setShowEditYachtDialog] = useState(false);
+  const [showEditServiceDialog, setShowEditServiceDialog] = useState(false);
+  const [showEditPaymentDialog, setShowEditPaymentDialog] = useState(false);
+  const [showViewUserDialog, setShowViewUserDialog] = useState(false);
+  const [showViewEventDialog, setShowViewEventDialog] = useState(false);
+  const [showViewYachtDialog, setShowViewYachtDialog] = useState(false);
+  const [showViewServiceDialog, setShowViewServiceDialog] = useState(false);
+  const [showViewPaymentDialog, setShowViewPaymentDialog] = useState(false);
+  
+  // Selected items for editing/viewing
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedYacht, setSelectedYacht] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+
+  // Form schemas
+  const createUserSchema = z.object({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    role: z.enum(["Member", "Yacht Owner", "Service Provider", "Admin"]),
+    membershipTier: z.enum(["Bronze", "Silver", "Gold", "Platinum"]).optional(),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required")
+  });
+
+  type CreateUserData = z.infer<typeof createUserSchema>;
+
+  // Additional form schemas
+  const createEventSchema = z.object({
+    name: z.string().min(1, "Event name is required"),
+    category: z.string().min(1, "Category is required"),
+    description: z.string().min(1, "Description is required"),
+    date: z.string().min(1, "Date is required"),
+    time: z.string().min(1, "Time is required"),
+    capacity: z.string().transform(Number),
+    ticketPrice: z.string().transform(Number),
+    location: z.string().min(1, "Location is required"),
+  });
+
+  const createYachtSchema = z.object({
+    name: z.string().min(1, "Yacht name is required"),
+    type: z.string().min(1, "Type is required"),
+    description: z.string().min(1, "Description is required"),
+    size: z.string().transform(Number),
+    capacity: z.string().transform(Number),
+    location: z.string().min(1, "Location is required"),
+  });
+
+  const createServiceSchema = z.object({
+    name: z.string().min(1, "Service name is required"),
+    category: z.string().min(1, "Category is required"),
+    description: z.string().min(1, "Description is required"),
+    pricePerSession: z.string().transform(Number),
+    duration: z.string().transform(Number),
+  });
+
+  type CreateEventData = z.infer<typeof createEventSchema>;
+  type CreateYachtData = z.infer<typeof createYachtSchema>;
+  type CreateServiceData = z.infer<typeof createServiceSchema>;
+
+  // Form for adding users
+  const userForm = useForm<CreateUserData>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      role: "Member",
+      membershipTier: "Bronze",
+      firstName: "",
+      lastName: ""
+    }
+  });
+
+  // Additional forms
+  const eventForm = useForm<CreateEventData>({
+    resolver: zodResolver(createEventSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      description: "",
+      date: "",
+      time: "",
+      capacity: "0",
+      ticketPrice: "0",
+      location: ""
+    }
+  });
+
+  const yachtForm = useForm<CreateYachtData>({
+    resolver: zodResolver(createYachtSchema),
+    defaultValues: {
+      name: "",
+      type: "",
+      description: "",
+      size: "0",
+      capacity: "0",
+      location: ""
+    }
+  });
+
+  const serviceForm = useForm<CreateServiceData>({
+    resolver: zodResolver(createServiceSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      description: "",
+      pricePerSession: "0",
+      duration: "0"
+    }
+  });
+
+  // Mutation for creating users
+  const createUserMutation = useMutation({
+    mutationFn: async (data: CreateUserData) => {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to create user');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({ title: "User created successfully" });
+      setShowAddUserDialog(false);
+      userForm.reset();
+    },
+    onError: (error) => {
+      toast({ 
+        title: "Error creating user", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Additional mutations
+  const createEventMutation = useMutation({
+    mutationFn: async (data: CreateEventData) => {
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to create event');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
+      toast({ title: "Event created successfully" });
+      setShowAddEventDialog(false);
+      eventForm.reset();
+    }
+  });
+
+  const createYachtMutation = useMutation({
+    mutationFn: async (data: CreateYachtData) => {
+      const response = await fetch('/api/admin/yachts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to create yacht');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/yachts'] });
+      toast({ title: "Yacht created successfully" });
+      setShowAddYachtDialog(false);
+      yachtForm.reset();
+    }
+  });
+
+  const createServiceMutation = useMutation({
+    mutationFn: async (data: CreateServiceData) => {
+      const response = await fetch('/api/admin/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to create service');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
+      toast({ title: "Service created successfully" });
+      setShowAddServiceDialog(false);
+      serviceForm.reset();
+    }
   });
 
   // Yacht filters
@@ -233,6 +451,82 @@ export default function StaffPortal() {
     activeServices: 0,
     monthlyGrowth: 0,
     membershipBreakdown: []
+  };
+
+  // Form submission handlers
+  const onCreateUser = (data: CreateUserData) => {
+    createUserMutation.mutate(data);
+  };
+
+  const onCreateEvent = (data: CreateEventData) => {
+    createEventMutation.mutate(data);
+  };
+
+  const onCreateYacht = (data: CreateYachtData) => {
+    createYachtMutation.mutate(data);
+  };
+
+  const onCreateService = (data: CreateServiceData) => {
+    createServiceMutation.mutate(data);
+  };
+
+  // Click handlers for making all view/edit icons functional
+  const handleViewUser = (user: any) => {
+    setSelectedUser(user);
+    setShowViewUserDialog(true);
+  };
+
+  const handleEditUser = (user: any) => {
+    setSelectedUser(user);
+    setShowEditUserDialog(true);
+  };
+
+  const handleViewEvent = (event: any) => {
+    setSelectedEvent(event);
+    setShowViewEventDialog(true);
+  };
+
+  const handleEditEvent = (event: any) => {
+    setSelectedEvent(event);
+    setShowEditEventDialog(true);
+  };
+
+  const handleViewYacht = (yacht: any) => {
+    setSelectedYacht(yacht);
+    setShowViewYachtDialog(true);
+  };
+
+  const handleEditYacht = (yacht: any) => {
+    setSelectedYacht(yacht);
+    setShowEditYachtDialog(true);
+  };
+
+  const handleViewService = (service: any) => {
+    setSelectedService(service);
+    setShowViewServiceDialog(true);
+  };
+
+  const handleEditService = (service: any) => {
+    setSelectedService(service);
+    setShowEditServiceDialog(true);
+  };
+
+  const handleViewPayment = (payment: any) => {
+    setSelectedPayment(payment);
+    setShowViewPaymentDialog(true);
+  };
+
+  const handleEditPayment = (payment: any) => {
+    setSelectedPayment(payment);
+    setShowEditPaymentDialog(true);
+  };
+
+  const handleViewNotification = (notification: any) => {
+    console.log('Viewing notification:', notification);
+  };
+
+  const handleViewBooking = (booking: any) => {
+    console.log('Viewing booking:', booking);
   };
 
 
@@ -673,7 +967,11 @@ export default function StaffPortal() {
             transition={{ delay: 0.2 }}
             className="flex items-center space-x-4"
           >
-            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+            <Button 
+              size="sm" 
+              onClick={() => setShowAddUserDialog(true)}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add User
             </Button>
@@ -749,10 +1047,20 @@ export default function StaffPortal() {
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-blue-400 hover:text-white"
+                          onClick={() => handleViewUser(user)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-white"
+                          onClick={() => handleEditUser(user)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
@@ -892,7 +1200,12 @@ export default function StaffPortal() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-2">
-                          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => handleViewPayment(payment)}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -1100,7 +1413,12 @@ export default function StaffPortal() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-white"
+                          onClick={() => console.log('Viewing notification:', notification)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
@@ -1514,7 +1832,7 @@ export default function StaffPortal() {
                     />
                   )}
                   <div className="absolute top-4 right-4">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500/30">
+                    <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
                       {yacht.size}ft
                     </Badge>
                   </div>
@@ -1541,8 +1859,24 @@ export default function StaffPortal() {
                       Available
                     </Badge>
                     <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="ghost" className="text-blue-400 hover:text-white">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-blue-400 hover:text-white"
+                        onClick={() => handleViewYacht(yacht)}
+                      >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-gray-400 hover:text-white"
+                        onClick={() => handleEditYacht(yacht)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -1772,8 +2106,24 @@ export default function StaffPortal() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-orange-400 hover:text-white">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-orange-400 hover:text-white"
+                      onClick={() => handleViewService(service)}
+                    >
                       <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => handleEditService(service)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -2112,7 +2462,12 @@ export default function StaffPortal() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-cyan-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-cyan-400 hover:text-white"
+                          onClick={() => console.log('Viewing booking:', booking)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
@@ -2163,7 +2518,11 @@ export default function StaffPortal() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+          <Button 
+            size="sm" 
+            onClick={() => setShowAddEventDialog(true)}
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Event
           </Button>
@@ -2372,8 +2731,24 @@ export default function StaffPortal() {
                       {event.eventType}
                     </Badge>
                     <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="ghost" className="text-violet-400 hover:text-white">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-violet-400 hover:text-white"
+                        onClick={() => handleViewEvent(event)}
+                      >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-gray-400 hover:text-white"
+                        onClick={() => handleEditEvent(event)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -2780,11 +3155,24 @@ export default function StaffPortal() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-emerald-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-emerald-400 hover:text-white"
+                          onClick={() => handleViewUser(user)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-white"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -3312,6 +3700,670 @@ export default function StaffPortal() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Add User Dialog */}
+      <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-white">Add New User</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Create a new user account for the yacht club
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...userForm}>
+            <form onSubmit={userForm.handleSubmit((data) => createUserMutation.mutate(data))} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={userForm.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">First Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter first name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={userForm.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Last Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter last name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={userForm.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Username</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter username"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={userForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="email"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter email"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={userForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="password"
+                        className="bg-gray-900 border-gray-700 text-white" 
+                        placeholder="Enter password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={userForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="Member">Member</SelectItem>
+                          <SelectItem value="Yacht Owner">Yacht Owner</SelectItem>
+                          <SelectItem value="Service Provider">Service Provider</SelectItem>
+                          <SelectItem value="Admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={userForm.control}
+                  name="membershipTier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Membership Tier</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                            <SelectValue placeholder="Select tier" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="Bronze">Bronze</SelectItem>
+                          <SelectItem value="Silver">Silver</SelectItem>
+                          <SelectItem value="Gold">Gold</SelectItem>
+                          <SelectItem value="Platinum">Platinum</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowAddUserDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createUserMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  {createUserMutation.isPending ? "Creating..." : "Create User"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Event Dialog */}
+      <Dialog open={showAddEventDialog} onOpenChange={setShowAddEventDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Add New Event</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Create a new yacht club event
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...eventForm}>
+            <form onSubmit={eventForm.handleSubmit(onCreateEvent)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={eventForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Event Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter event name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={eventForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="Racing">Racing</SelectItem>
+                          <SelectItem value="Social">Social</SelectItem>
+                          <SelectItem value="Educational">Educational</SelectItem>
+                          <SelectItem value="Charity">Charity</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={eventForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Description</FormLabel>
+                    <FormControl>
+                      <textarea 
+                        {...field} 
+                        className="w-full min-h-[100px] p-3 rounded-md bg-gray-900 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none resize-none"
+                        placeholder="Enter event description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={eventForm.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Event Date</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="date"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={eventForm.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Event Time</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="time"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={eventForm.control}
+                  name="capacity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Capacity</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Max attendees"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={eventForm.control}
+                  name="ticketPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Ticket Price</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          step="0.01"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="0.00"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={eventForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Location</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Event location"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowAddEventDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createEventMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  {createEventMutation.isPending ? "Creating..." : "Create Event"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Yacht Dialog */}
+      <Dialog open={showAddYachtDialog} onOpenChange={setShowAddYachtDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Add New Yacht</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a new yacht to the fleet
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...yachtForm}>
+            <form onSubmit={yachtForm.handleSubmit(onCreateYacht)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={yachtForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Yacht Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter yacht name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={yachtForm.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="Motor Yacht">Motor Yacht</SelectItem>
+                          <SelectItem value="Sailing Yacht">Sailing Yacht</SelectItem>
+                          <SelectItem value="Catamaran">Catamaran</SelectItem>
+                          <SelectItem value="Sport Fishing">Sport Fishing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={yachtForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Description</FormLabel>
+                    <FormControl>
+                      <textarea 
+                        {...field} 
+                        className="w-full min-h-[100px] p-3 rounded-md bg-gray-900 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none resize-none"
+                        placeholder="Enter yacht description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={yachtForm.control}
+                  name="size"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Size (ft)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Length in feet"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={yachtForm.control}
+                  name="capacity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Capacity</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Max guests"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={yachtForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Location</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Marina location"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowAddYachtDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createYachtMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Service Dialog */}
+      <Dialog open={showAddServiceDialog} onOpenChange={setShowAddServiceDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Add New Service</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a new concierge service
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...serviceForm}>
+            <form onSubmit={serviceForm.handleSubmit(onCreateService)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={serviceForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Service Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Enter service name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={serviceForm.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                          <SelectItem value="Culinary">Culinary</SelectItem>
+                          <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                          <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                          <SelectItem value="Entertainment">Entertainment</SelectItem>
+                          <SelectItem value="Water Sports">Water Sports</SelectItem>
+                          <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={serviceForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Description</FormLabel>
+                    <FormControl>
+                      <textarea 
+                        {...field} 
+                        className="w-full min-h-[100px] p-3 rounded-md bg-gray-900 border border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none resize-none"
+                        placeholder="Enter service description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={serviceForm.control}
+                  name="pricePerSession"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Price per Session</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          step="0.01"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="0.00"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={serviceForm.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300">Duration (minutes)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number"
+                          className="bg-gray-900 border-gray-700 text-white" 
+                          placeholder="Duration in minutes"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowAddServiceDialog(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createServiceMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  {createServiceMutation.isPending ? "Creating..." : "Create Service"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
