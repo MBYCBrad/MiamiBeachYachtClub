@@ -2692,13 +2692,19 @@ export default function StaffPortal() {
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                           <span className="text-white text-xs font-semibold">
-                            {(payment.user?.username || payment.member?.name || 'U')[0].toUpperCase()}
+                            {(payment.customer || payment.fullName || payment.username || 'U')[0].toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{payment.user?.username || payment.member?.name || 'Unknown'}</p>
-                          <p className="text-gray-400 text-xs">{payment.user?.email || payment.member?.email || 'No email'}</p>
+                          <p className="text-white font-medium">{payment.customer || payment.fullName || payment.username || 'Unknown'}</p>
+                          <p className="text-gray-400 text-xs">{payment.customerEmail || payment.email || 'No email'}</p>
                         </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-white font-medium">{payment.serviceEvent || payment.serviceName || 'Premium Service'}</p>
+                        <p className="text-gray-400 text-xs">{payment.serviceCategory || 'Concierge Service'}</p>
                       </div>
                     </td>
                     <td className="py-4 px-4">
