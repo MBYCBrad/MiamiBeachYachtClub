@@ -1,455 +1,452 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
 import { 
-  Ship, 
-  Users, 
-  Calendar, 
-  ClipboardList, 
-  MessageSquare, 
   BarChart3, 
+  Users, 
+  Anchor, 
+  CalendarDays, 
   Settings, 
-  LogOut,
+  Shield,
+  TrendingUp,
+  Activity,
   Bell,
+  Search,
+  Calendar,
+  Star,
+  DollarSign,
   Clock,
   MapPin,
-  Phone,
-  Anchor,
-  Waves,
-  Navigation
+  LogOut,
+  Menu,
+  X,
+  MessageSquare,
+  Ship,
+  Wrench,
+  User,
+  Sparkles,
+  CreditCard
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+
+interface StaffMember {
+  id: number;
+  username: string;
+  email: string;
+  fullName: string;
+  role: string;
+  department: string;
+  permissions: string[] | null;
+  status: string;
+  phone: string | null;
+  location: string | null;
+}
+
+interface StaffStats {
+  totalTasks: number;
+  completedToday: number;
+  pendingTasks: number;
+  activeProjects: number;
+}
+
+// Staff portal menu items - filtered by permissions
+const allStaffMenuItems = [
+  { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500', permission: 'dashboard_access' },
+  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500', permission: 'booking_management' },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500', permission: 'calendar_access' },
+  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500', permission: 'customer_service' },
+  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500', permission: 'maintenance_access' },
+  { id: 'fleet', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'fleet_management' },
+  { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500', permission: 'service_management' },
+  { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'event_management' },
+  { id: 'members', label: 'Members', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'member_access' },
+  { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics_access' },
+  { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'profile_access' },
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'settings_access' },
+];
+
+const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="group relative overflow-hidden"
+  >
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-400 text-sm font-medium">{title}</p>
+            <p className="text-3xl font-bold text-white mt-2">{value}</p>
+            {change !== null && (
+              <div className="flex items-center mt-2">
+                <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                <span className="text-green-400 text-sm">+{change}%</span>
+              </div>
+            )}
+          </div>
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </CardContent>
+      
+      {/* Animated background gradient */}
+      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+    </Card>
+  </motion.div>
+);
+
+const ActivityCard = ({ activity, index }: any) => (
+  <motion.div
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay: index * 0.1 }}
+    className="flex items-center space-x-4 p-4 bg-gray-900/30 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition-all duration-300"
+  >
+    <div className={`p-2 rounded-lg bg-gradient-to-br ${activity.color}`}>
+      <activity.icon className="h-4 w-4 text-white" />
+    </div>
+    <div className="flex-1">
+      <p className="text-white font-medium">{activity.title}</p>
+      <p className="text-gray-400 text-sm">{activity.description}</p>
+    </div>
+    <span className="text-gray-400 text-sm">{activity.time}</span>
+  </motion.div>
+);
 
 export default function StaffPortal() {
+  const [activeSection, setActiveSection] = useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { user, logoutMutation } = useAuth();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Get staff member data - user is populated from staff table
-  const staffMember = user;
-
-  const { data: dashboardStats } = useQuery({
-    queryKey: ["/api/staff/dashboard-stats"],
-    enabled: !!staffMember?.id,
+  // Fetch current staff member details
+  const { data: staffMember } = useQuery<StaffMember>({
+    queryKey: ['/api/staff/profile'],
+    enabled: !!user
   });
 
-  const { data: activeBookings } = useQuery({
-    queryKey: ["/api/staff/active-bookings"],
-    enabled: !!staffMember?.id,
+  // Fetch staff statistics
+  const { data: staffStats } = useQuery<StaffStats>({
+    queryKey: ['/api/staff/stats'],
+    enabled: !!user
   });
 
-  const { data: pendingTasks } = useQuery({
-    queryKey: ["/api/staff/pending-tasks"],
-    enabled: !!staffMember?.id,
+  // Filter menu items based on staff permissions
+  const allowedMenuItems = allStaffMenuItems.filter(item => {
+    if (!staffMember?.permissions) return item.id === 'overview' || item.id === 'my-profile';
+    return staffMember.permissions.includes(item.permission) || item.id === 'my-profile';
   });
 
-  if (!staffMember) {
-    return <div>Loading staff portal...</div>;
-  }
-
-  const getStaffRoleColor = (role: string) => {
-    const roleColors = {
-      "Marina Manager": "bg-blue-500/10 text-blue-600 border-blue-200",
-      "Fleet Coordinator": "bg-purple-500/10 text-purple-600 border-purple-200",
-      "Member Relations": "bg-green-500/10 text-green-600 border-green-200",
-      "Concierge Manager": "bg-amber-500/10 text-amber-600 border-amber-200",
-      "Lead Captain": "bg-cyan-500/10 text-cyan-600 border-cyan-200",
-      "Events Coordinator": "bg-pink-500/10 text-pink-600 border-pink-200",
-    };
-    return roleColors[role as keyof typeof roleColors] || "bg-gray-500/10 text-gray-600 border-gray-200";
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
-  const getPermissionMenus = (permissions: string[]) => {
-    const menuItems = [];
-    
-    if (permissions.includes("dashboard_access")) {
-      menuItems.push({ id: "dashboard", label: "Dashboard", icon: BarChart3 });
+  const handleSectionChange = (sectionId: string) => {
+    if (sectionId === 'logout') {
+      handleLogout();
+      return;
     }
-    if (permissions.includes("booking_management")) {
-      menuItems.push({ id: "bookings", label: "Bookings", icon: Calendar });
-    }
-    if (permissions.includes("maintenance_access")) {
-      menuItems.push({ id: "maintenance", label: "Maintenance", icon: Settings });
-    }
-    if (permissions.includes("member_support")) {
-      menuItems.push({ id: "members", label: "Members", icon: Users });
-    }
-    if (permissions.includes("fleet_coordination")) {
-      menuItems.push({ id: "fleet", label: "Fleet", icon: Ship });
-    }
-    if (permissions.includes("event_management")) {
-      menuItems.push({ id: "events", label: "Events", icon: Calendar });
-    }
-    if (permissions.includes("communication")) {
-      menuItems.push({ id: "messages", label: "Messages", icon: MessageSquare });
-    }
-
-    return menuItems;
+    setActiveSection(sectionId);
   };
 
-  const menuItems = getPermissionMenus(staffMember.permissions || []);
+  // Recent activity mock data - would be fetched from API
+  const recentActivities = [
+    {
+      icon: Calendar,
+      title: "Yacht booking confirmed",
+      description: "Marina Breeze - 2:00 PM today",
+      time: "5 min ago",
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: MessageSquare,
+      title: "Customer inquiry resolved",
+      description: "Member service request completed",
+      time: "12 min ago",
+      color: "from-green-500 to-emerald-500"
+    },
+    {
+      icon: Wrench,
+      title: "Maintenance task assigned",
+      description: "Engine inspection for Ocean Elite",
+      time: "25 min ago",
+      color: "from-amber-500 to-orange-500"
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg">
-                  <Anchor className="h-6 w-6 text-blue-400" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-white">Staff Portal</h1>
-                  <p className="text-sm text-blue-200">Miami Beach Yacht Club</p>
-                </div>
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50 sticky top-0 z-50"
+      >
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden text-gray-400 hover:text-white"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Staff Portal
+                </h1>
+                <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2">
+              <Search className="h-4 w-4 text-gray-400" />
+              <Input 
+                placeholder="Search..." 
+                className="w-64 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400"
+              />
+            </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-white">{staffMember.fullName}</p>
-                  <Badge className={`text-xs ${getStaffRoleColor(staffMember.staffRole || staffMember.role)}`}>
-                    {staffMember.staffRole || staffMember.role}
-                  </Badge>
-                </div>
-                <div className="h-8 w-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-white">
-                    {staffMember.fullName?.charAt(0) || 'S'}
-                  </span>
-                </div>
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="h-5 w-5 text-gray-400" />
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"></span>
+            </Button>
+
+            <div className="flex items-center space-x-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder-avatar.jpg" />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                  {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium text-white">{staffMember?.fullName || 'Staff Member'}</p>
+                <p className="text-xs text-gray-400">{staffMember?.role || 'Staff'}</p>
               </div>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => logoutMutation.mutate()}
-                className="text-red-300 hover:text-red-200 hover:bg-red-500/10"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </motion.header>
 
-      {/* Main Content */}
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 min-h-screen bg-black/20 backdrop-blur-sm border-r border-white/10">
-          <nav className="p-4">
-            <ul className="space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => setActiveTab(item.id)}
-                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                        activeTab === item.id
-                          ? "bg-blue-500/20 text-blue-200 border border-blue-400/30"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="text-sm font-medium">{item.label}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </div>
+        <AnimatePresence>
+          {isSidebarOpen && (
+            <motion.aside
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="w-64 bg-gray-950 border-r border-gray-800/50 min-h-screen sticky top-16"
+            >
+              <div className="p-6 space-y-2">
+                {allowedMenuItems.map((item, index) => (
+                  <motion.button
+                    key={item.id}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                      activeSection === item.id
+                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
+                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                    }`}
+                  >
+                    <item.icon className={`h-5 w-5 transition-transform duration-300 ${
+                      activeSection === item.id ? 'scale-110' : 'group-hover:scale-105'
+                    }`} />
+                    <span className="font-medium">{item.label}</span>
+                  </motion.button>
+                ))}
+                
+                <Separator className="my-4 bg-gray-800" />
+                
+                <motion.button
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: allowedMenuItems.length * 0.05 }}
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                >
+                  <LogOut className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" />
+                  <span className="font-medium">Log Out</span>
+                </motion.button>
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
-        {/* Content Area */}
-        <div className="flex-1 p-6">
-          {activeTab === "dashboard" && (
-            <div className="space-y-6">
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          {activeSection === 'overview' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
               <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Dashboard</h2>
-                <p className="text-gray-300">Welcome back, {staffMember.fullName}</p>
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  Welcome back, {staffMember?.fullName?.split(' ')[0] || 'Staff'}
+                </h2>
+                <p className="text-gray-400">
+                  {staffMember?.role || 'Staff Member'} • {staffMember?.department || 'Operations'}
+                </p>
               </div>
 
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium text-gray-300">
-                          Active Bookings
-                        </CardTitle>
-                        <Calendar className="h-4 w-4 text-blue-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">
-                        {dashboardStats?.activeBookings || 0}
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium text-gray-300">
-                          Pending Tasks
-                        </CardTitle>
-                        <ClipboardList className="h-4 w-4 text-purple-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">
-                        {dashboardStats?.pendingTasks || 0}
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium text-gray-300">
-                          Fleet Status
-                        </CardTitle>
-                        <Ship className="h-4 w-4 text-green-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">
-                        {dashboardStats?.fleetAvailable || 0}/{dashboardStats?.totalFleet || 0}
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium text-gray-300">
-                          Notifications
-                        </CardTitle>
-                        <Bell className="h-4 w-4 text-amber-400" />
-                      </div>
-                      <div className="text-2xl font-bold text-white">
-                        {dashboardStats?.notifications || 0}
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </motion.div>
+                <StatCard
+                  title="Total Tasks"
+                  value={staffStats?.totalTasks || 12}
+                  change={8}
+                  icon={Activity}
+                  gradient="from-purple-500 to-indigo-500"
+                  delay={0}
+                />
+                <StatCard
+                  title="Completed Today"
+                  value={staffStats?.completedToday || 8}
+                  change={15}
+                  icon={Star}
+                  gradient="from-green-500 to-emerald-500"
+                  delay={0.1}
+                />
+                <StatCard
+                  title="Pending Tasks"
+                  value={staffStats?.pendingTasks || 4}
+                  change={null}
+                  icon={Clock}
+                  gradient="from-amber-500 to-orange-500"
+                  delay={0.2}
+                />
+                <StatCard
+                  title="Active Projects"
+                  value={staffStats?.activeProjects || 3}
+                  change={25}
+                  icon={MapPin}
+                  gradient="from-blue-500 to-cyan-500"
+                  delay={0.3}
+                />
               </div>
 
               {/* Recent Activity */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-white">Recent Bookings</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Latest yacht reservations
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {activeBookings?.slice(0, 5).map((booking: any, index: number) => (
-                        <div key={index} className="flex items-center space-x-4 p-3 bg-white/5 rounded-lg">
-                          <div className="p-2 bg-blue-500/20 rounded-lg">
-                            <Ship className="h-4 w-4 text-blue-400" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-white">
-                              {booking.yachtName || `Yacht #${booking.yachtId}`}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {new Date(booking.startTime).toLocaleDateString()} - {booking.status}
-                            </p>
-                          </div>
-                        </div>
-                      )) || (
-                        <p className="text-gray-400 text-center py-4">No recent bookings</p>
-                      )}
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center space-x-2">
+                    <Activity className="h-5 w-5 text-purple-400" />
+                    <span>Recent Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {recentActivities.map((activity, index) => (
+                    <ActivityCard key={index} activity={activity} index={index} />
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {activeSection === 'my-profile' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <h2 className="text-3xl font-bold text-white">My Profile</h2>
+              
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-white">Staff Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src="/placeholder-avatar.jpg" />
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg">
+                        {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{staffMember?.fullName}</h3>
+                      <p className="text-gray-400">{staffMember?.role}</p>
+                      <Badge variant="secondary" className="mt-1">
+                        {staffMember?.status || 'Active'}
+                      </Badge>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-white">Pending Tasks</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Items requiring attention
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {pendingTasks?.slice(0, 5).map((task: any, index: number) => (
-                        <div key={index} className="flex items-center space-x-4 p-3 bg-white/5 rounded-lg">
-                          <div className="p-2 bg-purple-500/20 rounded-lg">
-                            <ClipboardList className="h-4 w-4 text-purple-400" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-white">
-                              {task.title || "Staff Task"}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {task.priority || "Normal"} Priority - {task.department || "General"}
-                            </p>
-                          </div>
-                        </div>
-                      )) || (
-                        <p className="text-gray-400 text-center py-4">No pending tasks</p>
-                      )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-gray-400">Email</label>
+                      <p className="text-white">{staffMember?.email}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "bookings" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Booking Management</h2>
-                <p className="text-gray-300">Manage yacht reservations and schedules</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Booking Management</h3>
-                    <p className="text-gray-400">
-                      Full booking management interface will be available here
-                    </p>
+                    <div>
+                      <label className="text-sm text-gray-400">Phone</label>
+                      <p className="text-white">{staffMember?.phone || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400">Department</label>
+                      <p className="text-white">{staffMember?.department}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400">Location</label>
+                      <p className="text-white">{staffMember?.location || 'Not specified'}</p>
+                    </div>
                   </div>
+
+                  {staffMember?.permissions && staffMember.permissions.length > 0 && (
+                    <div>
+                      <label className="text-sm text-gray-400 mb-2 block">Permissions</label>
+                      <div className="flex flex-wrap gap-2">
+                        {staffMember.permissions.map((permission, index) => (
+                          <Badge key={index} variant="outline" className="text-purple-400 border-purple-400">
+                            {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           )}
 
-          {activeTab === "maintenance" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Maintenance</h2>
-                <p className="text-gray-300">Fleet maintenance and service records</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Maintenance System</h3>
-                    <p className="text-gray-400">
-                      Comprehensive maintenance tracking interface will be available here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          {/* Placeholder for other sections */}
+          {!['overview', 'my-profile'].includes(activeSection) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="text-6xl mb-4">🚧</div>
+              <h3 className="text-2xl font-bold text-white mb-2">
+                {allowedMenuItems.find(item => item.id === activeSection)?.label} Section
+              </h3>
+              <p className="text-gray-400">This section is under development</p>
+            </motion.div>
           )}
-
-          {activeTab === "members" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Member Relations</h2>
-                <p className="text-gray-300">Member support and communication</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Member Management</h3>
-                    <p className="text-gray-400">
-                      Member relations and support tools will be available here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === "fleet" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Fleet Coordination</h2>
-                <p className="text-gray-300">Yacht fleet status and coordination</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <Ship className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Fleet Management</h3>
-                    <p className="text-gray-400">
-                      Complete fleet coordination system will be available here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === "events" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Event Management</h2>
-                <p className="text-gray-300">Club events and special occasions</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Event Planning</h3>
-                    <p className="text-gray-400">
-                      Event coordination and management tools will be available here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === "messages" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">Communication</h2>
-                <p className="text-gray-300">Staff and member communications</p>
-              </div>
-
-              <Card className="bg-black/40 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="text-center py-12">
-                    <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">Communication Hub</h3>
-                    <p className="text-gray-400">
-                      Integrated messaging and communication system will be available here
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
+        </main>
       </div>
     </div>
   );

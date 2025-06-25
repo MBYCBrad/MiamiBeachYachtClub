@@ -182,7 +182,6 @@ export const staff = pgTable("staff", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   email: text("email").unique().notNull(),
-  password: text("password").notNull(),
   fullName: text("full_name").notNull(),
   role: text("role").notNull(),
   department: text("department").notNull(),
@@ -190,7 +189,6 @@ export const staff = pgTable("staff", {
   permissions: jsonb("permissions").$type<string[]>().default([]),
   status: text("status").notNull().default("active"),
   location: text("location"),
-  emergencyContact: text("emergency_contact"),
   createdBy: integer("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -600,15 +598,15 @@ export const insertMediaAssetSchema = createInsertSchema(mediaAssets).omit({
   createdAt: true,
 });
 
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertStaffSchema = createInsertSchema(staff).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-});
-
-export const insertFavoriteSchema = createInsertSchema(favorites).omit({
-  id: true,
-  createdAt: true,
 });
 
 export const insertCrewMemberSchema = createInsertSchema(crewMembers).omit({

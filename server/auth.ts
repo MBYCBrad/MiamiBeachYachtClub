@@ -51,62 +51,40 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
-      try {
-        console.log('Login attempt for username:', username);
-        
-        // First try to find a regular user
-        let user = await storage.getUserByUsername(username);
-        if (user) {
-          console.log('Found user in users table:', user.username);
-          if (await comparePasswords(password, user.password)) {
-            console.log('User password validated successfully');
-            return done(null, { ...user, userType: 'user' });
-          }
-        }
-        
-        // If not found in users, try staff table
-        const staff = await storage.getStaffByUsername(username);
-        if (staff) {
-          console.log('Found staff member:', staff.username, 'with role:', staff.role);
-          console.log('Staff password hash exists:', !!staff.password);
-          
-          if (staff.password && (await comparePasswords(password, staff.password))) {
-            console.log('Staff password validated successfully');
-            // Convert staff to user-like object for session compatibility
-            const staffAsUser = {
-              id: staff.id,
-              username: staff.username,
-              email: staff.email,
-              password: staff.password,
-              fullName: staff.fullName,
-              role: 'staff', // Mark as staff for routing
-              membershipTier: null,
-              phone: staff.phone,
-              location: staff.location,
-              joinedAt: staff.createdAt,
-              lastLoginAt: null,
-              isActive: staff.status === 'active',
-              stripeCustomerId: null,
-              stripeSubscriptionId: null,
-              userType: 'staff', // Additional identifier
-              staffRole: staff.role,
-              department: staff.department,
-              permissions: staff.permissions
-            };
-            return done(null, staffAsUser);
-          } else {
-            console.log('Staff password validation failed');
-          }
-        } else {
-          console.log('No staff member found with username:', username);
-        }
-        
-        console.log('Authentication failed for username:', username);
-        return done(null, false);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        return done(error);
+      // First try to find a regular user
+      let user = await storage.getUserByUsername(username);
+      if (user && (await comparePasswords(password, user.password))) {
+        return done(null, { ...user, userType: 'user' });
       }
+      
+      // If not found in users, try staff table
+      const staff = await storage.getStaffByUsername(username);
+      if (staff && (await comparePasswords(password, staff.password))) {
+        // Convert staff to user-like object for session compatibility
+        const staffAsUser = {
+          id: staff.id,
+          username: staff.username,
+          email: staff.email,
+          password: staff.password,
+          fullName: staff.fullName,
+          role: 'staff', // Mark as staff for routing
+          membershipTier: null,
+          phone: staff.phone,
+          location: staff.location,
+          joinedAt: staff.createdAt,
+          lastLoginAt: null,
+          isActive: staff.status === 'active',
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+          userType: 'staff', // Additional identifier
+          staffRole: staff.role,
+          department: staff.department,
+          permissions: staff.permissions
+        };
+        return done(null, staffAsUser);
+      }
+      
+      return done(null, false);
     }),
   );
 
