@@ -1,25 +1,19 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
-  Users, Ship, MapPin, Clock, Star, Phone, Calendar, 
-  AlertTriangle, CheckCircle2, UserPlus, Edit, 
-  Anchor, Waves, Crown, Shield, Coffee, Utensils,
-  Sparkles, FileText, Eye, History, Plus, Play, Pause, CheckCircle, Settings,
-  Save, Loader2
-} from "lucide-react";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+  Ship, Users, Crown, Shield, Clock, MapPin, Eye, Edit, UserPlus, ToggleLeft,
+  Star, Calendar, FileText, AlertCircle, CheckCircle, Play, Pause, Square
+} from 'lucide-react';
 
+// Interfaces for staff portal compatibility
 interface CrewMember {
   id: number;
   username: string;
@@ -30,7 +24,6 @@ interface CrewMember {
   location?: string;
   status: 'active' | 'inactive' | 'suspended';
   createdAt: Date;
-  // Compatibility fields for existing code
   name?: string;
   availability?: 'available' | 'assigned' | 'off-duty';
   rating?: number;
@@ -39,14 +32,22 @@ interface CrewMember {
 
 interface YachtBooking {
   id: number;
-  member: { name: string; membershipTier: string };
-  yacht: { name: string; size: number; capacity: number };
+  type: string;
+  status: string;
   startTime: string;
   endTime: string;
   guestCount: number;
-  services: any[];
-  status: string;
+  memberName: string;
+  memberTier: string;
+  memberEmail: string;
+  yachtName: string;
+  yachtSize: string;
+  createdAt: string;
   specialRequests?: string;
+  user?: any;
+  yacht?: any;
+  member?: { name: string; membershipTier: string };
+  services?: any[];
 }
 
 interface CrewAssignment {
@@ -58,189 +59,71 @@ interface CrewAssignment {
   status: 'planned' | 'in-progress' | 'completed';
   briefingTime: string;
   notes: string;
+  booking?: YachtBooking;
+  startTime?: string;
+  endTime?: string;
+  duration?: string;
+  isActive?: boolean;
+  completedTime?: string;
 }
 
 export default function CrewManagementPage() {
-  const { toast } = useToast();
-  const [selectedBooking, setSelectedBooking] = useState<YachtBooking | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<CrewAssignment | null>(null);
-  const [crewFilter, setCrewFilter] = useState("all");
-  const [assignmentDialog, setAssignmentDialog] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const [selectedBooking, setSelectedBooking] = useState<number | null>(null);
+  const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
+  const [selectedCoordinator, setSelectedCoordinator] = useState<number | null>(null);
+  const [selectedCrew, setSelectedCrew] = useState<number[]>([]);
+  const [briefingTime, setBriefingTime] = useState('');
+  const [notes, setNotes] = useState('');
+  const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [viewDetailsDialog, setViewDetailsDialog] = useState(false);
   const [editDetailsDialog, setEditDetailsDialog] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<CrewAssignment | null>(null);
 
-  // Fetch active bookings requiring crew assignment
-  const { data: activeBookings = [], isLoading: bookingsLoading, error: bookingsError } = useQuery<YachtBooking[]>({
-    queryKey: ["/api/admin/bookings"],
-    staleTime: 2 * 60 * 1000,
+  // Staff portal API endpoints
+  const { data: activeBookings = [] } = useQuery({
+    queryKey: ['/api/staff/bookings'],
+    staleTime: 30000,
   });
 
-  // Fetch available staff members who can serve as crew
-  const { data: crewMembers = [], isLoading: crewLoading, error: crewError } = useQuery<CrewMember[]>({
-    queryKey: ["/api/admin/staff"],
-    staleTime: 5 * 60 * 1000,
+  const { data: crewMembers = [] } = useQuery({
+    queryKey: ['/api/staff/crew'],
+    staleTime: 30000,
   });
 
-  // Fetch crew assignments
-  const { data: crewAssignments = [], isLoading: assignmentsLoading, error: assignmentsError } = useQuery<CrewAssignment[]>({
-    queryKey: ["/api/crew/assignments"],
-    staleTime: 2 * 60 * 1000,
+  const { data: assignments = [] } = useQuery({
+    queryKey: ['/api/staff/assignments'],
+    staleTime: 30000,
   });
 
-  const isLoading = bookingsLoading || crewLoading || assignmentsLoading;
-  const hasError = bookingsError || crewError || assignmentsError;
+  // Transform booking data for staff portal compatibility
+  const transformedBookings = (Array.isArray(activeBookings) ? activeBookings : []).map((booking: any) => ({
+    ...booking,
+    member: {
+      name: booking.memberName,
+      membershipTier: booking.memberTier
+    },
+    yacht: {
+      name: booking.yachtName,
+      size: booking.yachtSize
+    }
+  }));
 
-  const createCrewAssignmentMutation = useMutation({
-    mutationFn: async (assignmentData: any) => {
-      console.log('Frontend - Sending assignment data:', assignmentData);
-      const res = await apiRequest("POST", "/api/crew/assignments", assignmentData);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to create crew assignment');
-      }
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/staff"] });
-      toast({
-        title: "Crew Assignment Created",
-        description: "Crew successfully assigned to booking",
-      });
-      setAssignmentDialog(false);
-    },
-    onError: (error: Error) => {
-      console.error('Frontend - Assignment creation failed:', error);
-      toast({
-        title: "Assignment Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateCrewStatusMutation = useMutation({
-    mutationFn: async ({ assignmentId, status }: { assignmentId: string; status: string }) => {
-      const res = await apiRequest("PATCH", `/api/crew/assignments/${assignmentId}`, { status });
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-      toast({
-        title: "Status Updated",
-        description: "Trip status updated successfully",
-      });
-    },
-  });
-
-  const filteredCrewMembers = (crewMembers || []).filter(member => 
-    crewFilter === "all" || member?.status === crewFilter
+  // Filter crew by role
+  const captains = (Array.isArray(crewMembers) ? crewMembers : []).filter((member: CrewMember) => 
+    member.role?.toLowerCase().includes('captain') && member.status === 'active'
   );
-
-  // Process active and past assignments based on time and status with enhanced booking data
-  const now = new Date();
   
-  // Enhanced active assignments with full booking details
-  const activeAssignments = (crewAssignments || []).map(assignment => {
-    const booking = activeBookings.find(b => b.id === assignment.bookingId);
-    if (!booking) return null;
-    
-    const endTime = new Date(booking.endTime);
-    const startTime = new Date(booking.startTime);
-    
-    // Calculate proper briefing time (30 minutes before start time)
-    const briefingTime = new Date(startTime.getTime() - 30 * 60 * 1000);
-    
-    // Only include if booking hasn't ended and isn't completed
-    if (endTime > now && assignment.status !== 'completed') {
-      return {
-        ...assignment,
-        booking,
-        briefingTime: briefingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        duration: `${Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))}h`,
-        isActive: startTime <= now && endTime > now
-      };
-    }
-    return null;
-  }).filter(Boolean);
-
-  // Enhanced past assignments with full booking details
-  const pastAssignments = (crewAssignments || []).map(assignment => {
-    const booking = activeBookings.find(b => b.id === assignment.bookingId);
-    if (!booking) {
-      // Include completed assignments even without booking data
-      if (assignment.status === 'completed') {
-        return {
-          ...assignment,
-          booking: null,
-          briefingTime: new Date(assignment.briefingTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          completedTime: 'Historical Record'
-        };
-      }
-      return null;
-    }
-    
-    const endTime = new Date(booking.endTime);
-    const startTime = new Date(booking.startTime);
-    const briefingTime = new Date(startTime.getTime() - 30 * 60 * 1000);
-    
-    // Include if booking has ended or is completed
-    if (endTime <= now || assignment.status === 'completed') {
-      return {
-        ...assignment,
-        booking,
-        briefingTime: briefingTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        duration: `${Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))}h`,
-        completedTime: endTime.toLocaleString()
-      };
-    }
-    return null;
-  }).filter(Boolean);
-
-  // Function to get the next status in the progression
-  const getNextStatus = (currentStatus: string) => {
-    switch (currentStatus) {
-      case 'planned': return 'in-progress';
-      case 'in-progress': return 'completed';
-      default: return currentStatus;
-    }
-  };
-
-  // Function to get status icon
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'planned': return <Clock className="h-4 w-4" />;
-      case 'in-progress': return <Play className="h-4 w-4" />;
-      case 'completed': return <CheckCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  // Function to get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'planned': return 'bg-gradient-to-r from-purple-600 to-indigo-600';
-      case 'in-progress': return 'bg-gradient-to-r from-blue-600 to-cyan-600';
-      case 'completed': return 'bg-gradient-to-r from-green-600 to-emerald-600';
-      default: return 'bg-gray-600';
-    }
-  };
-
-  const getCrewRoleIcon = (role: string) => {
-    switch (role.toLowerCase()) {
-      case 'captain': return <Crown className="h-4 w-4" />;
-      case 'first mate': return <Shield className="h-4 w-4" />;
-      case 'chef': return <Utensils className="h-4 w-4" />;
-      case 'steward': return <Coffee className="h-4 w-4" />;
-      case 'deckhand': return <Anchor className="h-4 w-4" />;
-      default: return <Users className="h-4 w-4" />;
-    }
-  };
+  const coordinators = (Array.isArray(crewMembers) ? crewMembers : []).filter((member: CrewMember) => 
+    member.role?.toLowerCase().includes('coordinator') && member.status === 'active'
+  );
+  
+  const otherCrew = (Array.isArray(crewMembers) ? crewMembers : []).filter((member: CrewMember) => 
+    !member.role?.toLowerCase().includes('captain') && 
+    !member.role?.toLowerCase().includes('coordinator') && 
+    member.status === 'active'
+  );
 
   const getBookingPriority = (booking: YachtBooking) => {
     const membershipPriority = {
@@ -249,635 +132,375 @@ export default function CrewManagementPage() {
       'Silver': 2,
       'Bronze': 1
     };
-    return membershipPriority[booking.member?.membershipTier as keyof typeof membershipPriority] || 1;
+    return membershipPriority[booking.memberTier as keyof typeof membershipPriority] || 1;
   };
 
-  const prioritizedBookings = (activeBookings || [])
-    .filter(booking => booking?.status === 'confirmed' && booking?.member)
+  const prioritizedBookings = transformedBookings
+    .filter(booking => booking?.status === 'confirmed')
     .sort((a, b) => getBookingPriority(b) - getBookingPriority(a));
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400"></div>
-          <p className="text-gray-200">Loading crew management system...</p>
-        </div>
-      </div>
-    );
-  }
+  const createAssignmentMutation = useMutation({
+    mutationFn: (data: any) => apiRequest('/api/staff/assignments', { method: 'POST', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
+      setShowAssignmentDialog(false);
+      resetForm();
+    },
+    onError: (error: Error) => {
+      console.error('Assignment creation failed:', error);
+    }
+  });
 
-  // Show error state
-  if (hasError) {
-    return (
-      <div className="min-h-screen bg-gray-900/50 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="text-red-400 text-6xl">⚠️</div>
-          <p className="text-red-200">Error loading crew management data</p>
-          <p className="text-gray-400 text-sm">Please refresh the page or contact support</p>
-        </div>
-      </div>
-    );
-  }
+  const updateAssignmentMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => 
+      apiRequest(`/api/staff/assignments/${id}`, { method: 'PATCH', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
+      setEditDetailsDialog(false);
+    },
+    onError: (error: Error) => {
+      console.error('Assignment update failed:', error);
+    }
+  });
+
+  const resetForm = () => {
+    setSelectedBooking(null);
+    setSelectedCaptain(null);
+    setSelectedCoordinator(null);
+    setSelectedCrew([]);
+    setBriefingTime('');
+    setNotes('');
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'planned': return <Clock className="h-4 w-4" />;
+      case 'in-progress': return <Play className="h-4 w-4" />;
+      case 'completed': return <CheckCircle className="h-4 w-4" />;
+      default: return <Users className="h-4 w-4" />;
+    }
+  };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen bg-black text-white">
+      <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 mt-16"
-        >
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-xl">
+              <Ship className="h-8 w-8 text-white" />
+            </div>
             <div>
-              <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>Crew Management Center</h1>
-              <p className="text-gray-300">Real-time crew coordination & yacht service delivery</p>
+              <h1 className="text-5xl font-bold tracking-tight mb-2" style={{ fontFamily: 'SF Pro Display, system-ui, sans-serif' }}>
+                Crew Management
+              </h1>
+              <p className="text-lg text-gray-400">Assign crew members to yacht bookings and manage operations</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Stats Overview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Bookings</p>
-                  <p className="text-2xl font-bold text-white">{prioritizedBookings.length}</p>
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-600/20 p-3 rounded-lg">
+                  <Users className="h-6 w-6 text-blue-400" />
                 </div>
-                <Calendar className="h-8 w-8 text-purple-400" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{crewMembers.length || 0}</p>
+                  <p className="text-gray-400 text-sm">Active Crew</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Available Crew</p>
-                  <p className="text-2xl font-bold text-white">
-                    {(crewMembers || []).filter(m => m.status === 'active').length}
-                  </p>
+              <div className="flex items-center gap-4">
+                <div className="bg-green-600/20 p-3 rounded-lg">
+                  <CheckCircle className="h-6 w-6 text-green-400" />
                 </div>
-                <Users className="h-8 w-8 text-green-400" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{assignments.length || 0}</p>
+                  <p className="text-gray-400 text-sm">Active Assignments</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Assignments</p>
-                  <p className="text-2xl font-bold text-white">{(crewAssignments || []).length}</p>
+              <div className="flex items-center gap-4">
+                <div className="bg-orange-600/20 p-3 rounded-lg">
+                  <Ship className="h-6 w-6 text-orange-400" />
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-blue-400" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{prioritizedBookings.length || 0}</p>
+                  <p className="text-gray-400 text-sm">Pending Bookings</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
+          <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Service Quality</p>
-                  <p className="text-2xl font-bold text-white">4.9/5</p>
+              <div className="flex items-center gap-4">
+                <div className="bg-purple-600/20 p-3 rounded-lg">
+                  <Crown className="h-6 w-6 text-purple-400" />
                 </div>
-                <Star className="h-8 w-8 text-yellow-400" />
+                <div>
+                  <p className="text-2xl font-bold text-white">{captains.length || 0}</p>
+                  <p className="text-gray-400 text-sm">Captains Available</p>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Active Bookings Requiring Crew */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-400" />
-                    <CardTitle className="text-white">Bookings Requiring Crew</CardTitle>
-                  </div>
-                  <Badge variant="secondary" className="bg-orange-600/20 text-orange-300">
-                    {prioritizedBookings.length} pending
-                  </Badge>
-                </div>
-                <CardDescription className="text-gray-400">
-                  Priority-ordered by membership tier
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 max-h-[600px] overflow-y-auto">
-                {prioritizedBookings.map((booking) => (
-                  <motion.div
-                    key={booking.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge 
-                            className={`${
-                              booking.member.membershipTier === 'Platinum' ? 'bg-purple-600' :
-                              booking.member.membershipTier === 'Gold' ? 'bg-yellow-600' :
-                              booking.member.membershipTier === 'Silver' ? 'bg-gray-600' : 'bg-amber-700'
-                            } text-white`}
-                          >
-                            {booking.member.membershipTier}
-                          </Badge>
-                          <span className="text-white font-medium">{booking.member.name}</span>
+        {/* Action Buttons */}
+        <div className="flex gap-4 mb-6">
+          <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                <UserPlus className="h-4 w-4 mr-2" />
+                New Assignment
+              </Button>
+            </DialogTrigger>
+            <CrewAssignmentDialog 
+              booking={selectedBooking ? prioritizedBookings.find(b => b.id === selectedBooking) : null}
+              crewMembers={crewMembers}
+              captains={captains}
+              coordinators={coordinators}
+              otherCrew={otherCrew}
+              onAssign={(data) => createAssignmentMutation.mutate(data)}
+            />
+          </Dialog>
+        </div>
+
+        {/* Current Assignments */}
+        <Card className="bg-gray-900/50 border-gray-700/50 mb-8">
+          <CardHeader>
+            <CardTitle className="text-xl text-white flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Current Assignments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {assignments.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Assignments</h3>
+                <p className="text-gray-500">Create your first crew assignment to get started.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {assignments.map((assignment: CrewAssignment) => (
+                  <div key={assignment.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <Badge 
+                          variant="outline" 
+                          className={`border-gray-600 ${
+                            assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' :
+                            assignment.status === 'in-progress' ? 'bg-yellow-600 text-white' :
+                            'bg-green-600 text-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(assignment.status)}
+                            {assignment.status}
+                          </div>
+                        </Badge>
+                        {assignment.isActive && (
+                          <div className="flex items-center gap-1 text-green-400 text-xs">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                            LIVE
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Dialog open={viewDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setViewDetailsDialog}>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                              title="View Details"
+                              onClick={() => setSelectedAssignment(assignment)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <ViewAssignmentDialog assignment={assignment} />
+                        </Dialog>
+                        <Dialog open={editDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setEditDetailsDialog}>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
+                              title="Edit Assignment"
+                              onClick={() => setSelectedAssignment(assignment)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <EditAssignmentDialog 
+                            assignment={assignment} 
+                            crewMembers={crewMembers}
+                            onUpdate={() => {
+                              queryClient.invalidateQueries({ queryKey: ["/api/staff/assignments"] });
+                              setEditDetailsDialog(false);
+                            }}
+                          />
+                        </Dialog>
+                      </div>
+                    </div>
+
+                    {/* Booking Information */}
+                    {assignment.booking && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-3 bg-gray-700/30 rounded-lg">
+                        <div>
+                          <div className="text-gray-400 text-xs">Yacht</div>
+                          <div className="text-white font-medium">{assignment.booking.yachtName || 'Unknown'}</div>
                         </div>
-                        <p className="text-gray-300 text-sm">{booking.yacht.name} • {booking.guestCount} guests</p>
-                      </div>
-                      <Dialog open={assignmentDialog && selectedBooking?.id === booking.id} onOpenChange={setAssignmentDialog}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 w-8 h-8 p-0"
-                            onClick={() => setSelectedBooking(booking)}
-                            title="Assign Crew"
-                          >
-                            <UserPlus className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <CrewAssignmentDialog 
-                          booking={booking}
-                          crewMembers={crewMembers}
-                          onAssign={createCrewAssignmentMutation}
-                        />
-                      </Dialog>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {new Date(booking.startTime).toLocaleDateString()} at {new Date(booking.startTime).toLocaleTimeString()}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        Marina Bay
-                      </div>
-                    </div>
-
-                    {(booking.services || []).length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-xs text-gray-400 mb-2">Concierge Services ({(booking.services || []).length})</p>
-                        <div className="flex flex-wrap gap-1">
-                          {(booking.services || []).slice(0, 3).map((service, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs border-gray-700 text-gray-300">
-                              {service.name}
-                            </Badge>
-                          ))}
-                          {(booking.services || []).length > 3 && (
-                            <Badge variant="outline" className="text-xs border-gray-700 text-gray-300">
-                              +{(booking.services || []).length - 3} more
-                            </Badge>
-                          )}
+                        <div>
+                          <div className="text-gray-400 text-xs">Member</div>
+                          <div className="text-white">{assignment.booking.memberName || 'Unknown'}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-400 text-xs">Duration</div>
+                          <div className="text-white">{assignment.duration || 'TBD'}</div>
                         </div>
                       </div>
                     )}
-                  </motion.div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
 
-          {/* Crew Members */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-white">Crew Members</CardTitle>
-                  <Select value={crewFilter} onValueChange={setCrewFilter}>
-                    <SelectTrigger className="w-40 bg-gray-900/50 border-gray-700">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Crew</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="suspended">Suspended</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 max-h-[600px] overflow-y-auto">
-                {filteredCrewMembers.map((member) => (
-                  <motion.div
-                    key={member.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 bg-gray-800/50 rounded-lg border border-gray-700"
-                  >
-                    <div className="flex items-start gap-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={member.avatar} />
-                        <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                          {(member.username || 'UN').substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          {getCrewRoleIcon(member.role)}
-                          <span className="font-medium text-white">{member.username || 'Unknown'}</span>
-                          <div 
-                            className={`w-2 h-2 rounded-full ${
-                              member.status === 'active' ? 'bg-green-400' :
-                              member.status === 'inactive' ? 'bg-blue-400' : 'bg-gray-400'
-                            }`}
-                            title={member.status}
-                          />
-                        </div>
-                        
-                        <p className="text-sm text-gray-300 mb-2">{member.role} • {member.location || 'Marina Bay'}</p>
-                        
-                        <div className="flex items-center gap-4 text-xs text-gray-400">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 text-yellow-400" />
-                            5.0/5
-                          </div>
-                          <span>Certified Professional</span>
-                          {member.phone && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              {member.phone}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Active Bookings and Past Bookings Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
-          {/* Active Bookings */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Play className="h-5 w-5 text-blue-400" />
-                  Active Bookings
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Monitor ongoing yacht trips and status
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                  {activeAssignments.map((assignment) => (
-                    <motion.div
-                      key={assignment.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="p-5 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-purple-600/50 transition-all duration-300"
-                    >
-                      {/* Header with status and actions */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <Badge className={`${getStatusColor(assignment.status)} px-3 py-1 text-xs font-medium`}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(assignment.status)}
-                              {assignment.status}
-                            </div>
-                          </Badge>
-                          {assignment.isActive && (
-                            <div className="flex items-center gap-1 text-green-400 text-xs">
-                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                              LIVE
-                            </div>
-                          )}
-                        </div>
+                    {/* Crew Display */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Captain</div>
                         <div className="flex items-center gap-2">
-                          <Dialog open={viewDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setViewDetailsDialog}>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                                title="View Details"
-                                onClick={() => setSelectedAssignment(assignment)}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <ViewAssignmentDialog assignment={assignment} />
-                          </Dialog>
-                          <Dialog open={editDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setEditDetailsDialog}>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                                title="Edit Assignment"
-                                onClick={() => setSelectedAssignment(assignment)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <EditAssignmentDialog 
-                              assignment={assignment} 
-                              crewMembers={crewMembers}
-                              onUpdate={() => {
-                                queryClient.invalidateQueries({ queryKey: ["/api/crew/assignments"] });
-                                setEditDetailsDialog(false);
-                              }}
-                            />
-                          </Dialog>
-                        </div>
-                      </div>
-
-                      {/* Booking Information */}
-                      {assignment.booking && (
-                        <div className="mb-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600/50">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Ship className="h-4 w-4 text-blue-400" />
-                            <span className="text-white font-medium">
-                              {assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <div className="text-gray-400">Member</div>
-                              <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-400">Guests</div>
-                              <div className="text-white">{assignment.booking.guestCount} people</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-400">Duration</div>
-                              <div className="text-white">{assignment.duration}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-400">Trip Time</div>
-                              <div className="text-white">{assignment.startTime} - {assignment.endTime}</div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Crew Assignment Details */}
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-2 text-white">
                           <Crown className="h-4 w-4 text-purple-400" />
-                          <span className="font-medium">Captain:</span>
-                          <span>{assignment.captain?.username || 'Not Assigned'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Shield className="h-4 w-4 text-blue-400" />
-                          <span className="font-medium">Coordinator:</span>
-                          <span>{assignment.coordinator?.username || 'Not Assigned'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Users className="h-4 w-4 text-green-400" />
-                          <span className="font-medium">Crew Size:</span>
-                          <span>{(assignment.crewMembers || []).length} members</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white">
-                          <Clock className="h-4 w-4 text-yellow-400" />
-                          <span className="font-medium">Briefing Time:</span>
-                          <span className="text-purple-400">{assignment.briefingTime}</span>
+                          <span className="text-white">{assignment.captain?.username || 'Unassigned'}</span>
                         </div>
                       </div>
-
-                      {/* Special Requests */}
-                      {assignment.booking?.specialRequests && (
-                        <div className="mt-3 p-2 bg-indigo-900/20 rounded text-xs">
-                          <div className="text-indigo-400 font-medium mb-1">Special Requests:</div>
-                          <div className="text-gray-300">{assignment.booking.specialRequests}</div>
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Coordinator</div>
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-blue-400" />
+                          <span className="text-white">{assignment.coordinator?.username || 'Unassigned'}</span>
                         </div>
-                      )}
-
-                      {/* Assignment Notes */}
-                      {assignment.notes && (
-                        <div className="mt-3 p-2 bg-gray-600/30 rounded text-xs">
-                          <div className="text-gray-400 font-medium mb-1">Assignment Notes:</div>
-                          <div className="text-gray-300">{assignment.notes}</div>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                  {activeAssignments.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <Play className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <p>No active bookings</p>
-                      <p className="text-sm mt-1">Active yacht trips will appear here</p>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs mb-1">Additional Crew</div>
+                        <div className="text-white">{assignment.crewMembers?.length || 0} members</div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Past Bookings */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <History className="h-5 w-5 text-green-400" />
-                  Past Bookings
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                  Completed yacht trips and service records
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                  {pastAssignments.length > 0 ? (
-                    pastAssignments.map((assignment) => (
-                      <motion.div
-                        key={assignment.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="p-4 bg-gray-800/30 rounded-lg border border-gray-700/50"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge className={getStatusColor(assignment.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(assignment.status)}
-                              {assignment.status}
-                            </div>
-                          </Badge>
-                          <Badge variant="outline" className="text-gray-400 border-gray-600">
-                            Trip Completed
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2 text-gray-300">
-                            <Crown className="h-4 w-4 text-purple-400" />
-                            Captain: {assignment.captain?.username || 'Not Assigned'}
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-300">
-                            <Shield className="h-4 w-4 text-blue-400" />
-                            Coordinator: {assignment.coordinator?.username || 'Not Assigned'}
-                          </div>
-                          <div className="text-gray-500">
-                            Crew Size: {(assignment.crewMembers || []).length} members
-                          </div>
-                          <div className="text-gray-500">
-                            Completed: {new Date(assignment.briefingTime).toLocaleDateString()}
-                          </div>
-                        </div>
-
-                        {assignment.notes && (
-                          <div className="mt-3 p-2 bg-gray-600/20 rounded text-xs text-gray-400">
-                            {assignment.notes}
-                          </div>
-                        )}
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <History className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <p>No completed trips yet</p>
-                      <p className="text-sm mt-1">Completed bookings will appear here</p>
+        {/* Upcoming Bookings */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-xl text-white flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Unassigned Bookings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {prioritizedBookings.length === 0 ? (
+              <div className="text-center py-8">
+                <Ship className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-400 mb-2">No Pending Bookings</h3>
+                <p className="text-gray-500">All bookings have been assigned crew members.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {prioritizedBookings.map((booking: YachtBooking) => (
+                  <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                      <div>
+                        <div className="text-gray-400 text-xs">Yacht</div>
+                        <div className="text-white font-medium">{booking.yachtName}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs">Member</div>
+                        <div className="text-white">{booking.memberName}</div>
+                        <Badge variant="outline" className="text-xs mt-1 border-gray-600">
+                          {booking.memberTier}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs">Time</div>
+                        <div className="text-white">{new Date(booking.startTime).toLocaleDateString()}</div>
+                        <div className="text-gray-400 text-xs">{new Date(booking.startTime).toLocaleTimeString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-400 text-xs">Guests</div>
+                        <div className="text-white">{booking.guestCount} people</div>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                          onClick={() => {
+                            setSelectedBooking(booking.id);
+                            setShowAssignmentDialog(true);
+                          }}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Assign Crew
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// Helper Functions
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'planned': return 'bg-gradient-to-r from-purple-600 to-indigo-600';
-    case 'in-progress': return 'bg-gradient-to-r from-blue-600 to-cyan-600';
-    case 'completed': return 'bg-gradient-to-r from-green-600 to-emerald-600';
-    default: return 'bg-gray-600';
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'planned': return <Clock className="h-4 w-4" />;
-    case 'in-progress': return <Play className="h-4 w-4" />;
-    case 'completed': return <CheckCircle className="h-4 w-4" />;
-    default: return <Clock className="h-4 w-4" />;
-  }
-};
-
-const getCrewRoleIcon = (role: string) => {
-  switch (role.toLowerCase()) {
-    case 'captain': return <Crown className="h-4 w-4" />;
-    case 'first mate': return <Shield className="h-4 w-4" />;
-    case 'chef': return <Utensils className="h-4 w-4" />;
-    case 'steward': return <Coffee className="h-4 w-4" />;
-    case 'deckhand': return <Anchor className="h-4 w-4" />;
-    default: return <Users className="h-4 w-4" />;
-  }
-};
-
-// Crew Assignment Dialog Component
+// Assignment Dialog Components
 function CrewAssignmentDialog({ 
   booking, 
   crewMembers, 
+  captains, 
+  coordinators, 
+  otherCrew, 
   onAssign 
 }: { 
-  booking: YachtBooking; 
-  crewMembers: CrewMember[]; 
-  onAssign: any;
+  booking: YachtBooking | null; 
+  crewMembers: CrewMember[];
+  captains: CrewMember[];
+  coordinators: CrewMember[];
+  otherCrew: CrewMember[];
+  onAssign: (data: any) => void;
 }) {
   const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
   const [selectedCoordinator, setSelectedCoordinator] = useState<number | null>(null);
   const [selectedCrew, setSelectedCrew] = useState<number[]>([]);
-  // Calculate briefing time exactly 1 hour before booking start time
-  const calculateBriefingTime = () => {
-    if (!booking.startTime) return "";
-    
-    try {
-      const bookingStart = new Date(booking.startTime);
-      // Subtract 1 hour (3600000 milliseconds)
-      const briefingTime = new Date(bookingStart.getTime() - 3600000);
-      
-      // Format for datetime-local input (YYYY-MM-DDTHH:MM)
-      const year = briefingTime.getFullYear();
-      const month = String(briefingTime.getMonth() + 1).padStart(2, '0');
-      const day = String(briefingTime.getDate()).padStart(2, '0');
-      const hours = String(briefingTime.getHours()).padStart(2, '0');
-      const minutes = String(briefingTime.getMinutes()).padStart(2, '0');
-      
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
-    } catch {
-      return "";
+  const [briefingTime, setBriefingTime] = useState('');
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    if (booking) {
+      const startTime = new Date(booking.startTime);
+      const briefing = new Date(startTime.getTime() - 60 * 60 * 1000);
+      setBriefingTime(briefing.toISOString().slice(0, 16));
     }
-  };
+  }, [booking]);
 
-  const [briefingTime, setBriefingTime] = useState(calculateBriefingTime());
-  const [notes, setNotes] = useState("");
-
-  // Fetch live staff data from the database
-  const { data: staffData = [] } = useQuery({
-    queryKey: ['/api/admin/staff'],
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Show all staff members from database (no status filtering since we want all available crew)
-  const availableCrew = (staffData || []);
-  
-  const captains = availableCrew.filter((m: any) => 
-    ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
-  );
-  
-  const coordinators = availableCrew.filter((m: any) => 
-    ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
-  );
-  
-  // Show ALL crew members except captains, coordinators, and admin - everyone else is selectable crew
-  const otherCrew = availableCrew.filter((m: any) => 
-    !['admin'].includes(m.role) && 
-    !captains.some(c => c.id === m.id) && 
-    !coordinators.some(c => c.id === m.id)
-  );
-
-
-
-  const handleAssign = () => {
-    if (!selectedCaptain || !selectedCoordinator) {
-      return;
-    }
+  const handleSubmit = () => {
+    if (!booking || !selectedCaptain || !selectedCoordinator) return;
 
     const assignmentData = {
       bookingId: booking.id,
@@ -885,453 +508,270 @@ function CrewAssignmentDialog({
       coordinatorId: selectedCoordinator,
       crewMemberIds: selectedCrew,
       briefingTime,
-      notes,
-      status: 'planned'
+      notes: notes || 'Standard crew assignment for yacht booking'
     };
 
-    onAssign.mutate(assignmentData);
+    onAssign(assignmentData);
   };
 
-  // Fetch yacht details for this booking
-  const { data: yachts = [] } = useQuery({
-    queryKey: ['/api/admin/yachts'],
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Fetch all services to match with booking services
-  const { data: services = [] } = useQuery({
-    queryKey: ['/api/admin/services'],
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const yacht = yachts.find((y: any) => y.id === booking.yachtId);
-  const bookingServices = (booking.services || []).map((serviceId: number) => 
-    services.find((s: any) => s.id === serviceId)
-  ).filter(Boolean);
-
-  const formatDate = (dateString: string) => {
-    try {
-      if (!dateString) return 'Date not specified';
-      
-      // Handle different date formats
-      let date = new Date(dateString);
-      
-      // If invalid, try parsing MM/DD/YYYY format
-      if (isNaN(date.getTime()) && dateString.includes('/')) {
-        const parts = dateString.split('/');
-        if (parts.length === 3) {
-          // Convert MM/DD/YYYY to YYYY-MM-DD
-          date = new Date(`${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
-        }
-      }
-      
-      // If still invalid, try other common formats
-      if (isNaN(date.getTime())) {
-        console.warn('Unable to parse date:', dateString);
-        return dateString; // Return original string if can't parse
-      }
-      
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return dateString || 'Invalid Date';
-    }
-  };
-
-  const formatTime = (timeString: string) => {
-    try {
-      if (!timeString) return 'Time not specified';
-      
-      // Handle full datetime strings
-      if (timeString.includes('T')) {
-        const date = new Date(timeString);
-        if (!isNaN(date.getTime())) {
-          return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          });
-        }
-      }
-      
-      // Handle time-only strings (HH:MM format)
-      if (timeString.includes(':')) {
-        const date = new Date(`2000-01-01T${timeString}`);
-        if (!isNaN(date.getTime())) {
-          return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          });
-        }
-      }
-      
-      return timeString;
-    } catch (error) {
-      console.error('Error formatting time:', error);
-      return timeString || 'Invalid Time';
-    }
-  };
-
-  const getTimeSlotName = (startTime: string) => {
-    const hour = parseInt(startTime.split(':')[0]);
-    if (hour >= 9 && hour < 13) return 'Morning Cruise';
-    if (hour >= 13 && hour < 17) return 'Afternoon Cruise';
-    if (hour >= 17 && hour < 21) return 'Evening Cruise';
-    return 'Night Cruise';
-  };
+  if (!booking) {
+    return (
+      <DialogContent className="max-w-md bg-gray-950 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-xl text-purple-400">Select a Booking</DialogTitle>
+        </DialogHeader>
+        <div className="text-center py-8">
+          <AlertCircle className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400">Please select a booking from the list to assign crew members.</p>
+        </div>
+      </DialogContent>
+    );
+  }
 
   return (
-    <DialogContent className="bg-gray-900 border-slate-700 text-white max-w-6xl max-h-[95vh] overflow-y-auto">
-      <DialogHeader className="space-y-3 pb-6">
-        <DialogTitle className="text-2xl font-bold text-purple-400">Crew Assignment Center</DialogTitle>
-        <DialogDescription className="text-gray-300 text-base">
-          Comprehensive crew coordination for premium yacht experience
-        </DialogDescription>
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-950 border-gray-700">
+      <DialogHeader>
+        <DialogTitle className="text-xl text-purple-400 flex items-center gap-2">
+          <UserPlus className="h-5 w-5" />
+          Assign Crew - {booking.yachtName}
+        </DialogTitle>
       </DialogHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Booking Details */}
-        <div className="space-y-6">
-          {/* Yacht & Booking Information */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
-                <Ship className="h-5 w-5" />
-                Yacht & Booking Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">Yacht</p>
-                  <p className="text-white font-semibold">{yacht?.name || booking.yacht?.name || 'Loading...'}</p>
-                  <p className="text-gray-300 text-sm">{yacht?.size || booking.yacht?.size}ft • {yacht?.capacity || booking.yacht?.capacity} guests max</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Location</p>
-                  <p className="text-white">{yacht?.location || booking.yacht?.location || 'Miami Marina'}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">Date</p>
-                  <p className="text-white font-semibold">
-                    {booking.date ? formatDate(booking.date) : 
-                     booking.startTime ? formatDate(booking.startTime) : 
-                     'Date not specified'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Time Slot</p>
-                  <p className="text-white">
-                    {booking.startTime ? getTimeSlotName(booking.startTime) : 'Night Cruise'}
-                  </p>
-                  <p className="text-gray-300 text-sm">
-                    {booking.startTime && booking.endTime ? 
-                      `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}` : 
-                      'Time not specified'}
-                  </p>
-                </div>
-              </div>
+      <div className="space-y-6">
+        {/* Booking Summary */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+              <Ship className="h-5 w-5" />
+              Booking Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-gray-400 text-sm">Yacht</div>
+              <div className="text-white font-medium">{booking.yachtName}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Member</div>
+              <div className="text-white">{booking.memberName}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Date & Time</div>
+              <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Guests</div>
+              <div className="text-white">{booking.guestCount} people</div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">Member</p>
-                  <p className="text-white font-semibold">{booking.member?.name || booking.member?.username || 'Unknown Member'}</p>
-                  <p className="text-gray-300 text-sm">{booking.member?.membershipTier || 'Gold'} Member</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Guest Count</p>
-                  <p className="text-white text-2xl font-bold">{booking.guestCount}</p>
-                </div>
-              </div>
-
-              {booking.specialRequests && (
-                <div>
-                  <p className="text-gray-400 text-sm">Special Requests</p>
-                  <p className="text-gray-300 text-sm bg-gray-800/50 p-3 rounded-lg">{booking.specialRequests}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Premium Services Ordered */}
-          {bookingServices.length > 0 && (
-            <Card className="bg-gray-900/50 border-gray-700/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
-                  Premium Services Included ({bookingServices.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {bookingServices.map((service: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
-                      <div>
-                        <p className="text-white font-medium">{service?.name}</p>
-                        <p className="text-gray-400 text-sm">{service?.category}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-green-400 font-semibold">${service?.price}</p>
-                        <p className="text-gray-400 text-xs">Premium Service</p>
-                      </div>
+        {/* Captain Selection */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
+              <Crown className="h-5 w-5" />
+              Yacht Captain *
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
+              <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
+                <SelectValue placeholder="Select yacht captain" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                {captains.map((captain: CrewMember) => (
+                  <SelectItem 
+                    key={captain.id} 
+                    value={captain.id.toString()}
+                    className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
+                  >
+                    <div className="flex flex-col py-1">
+                      <span className="font-medium">{captain.username || 'Unknown'}</span>
+                      <span className="text-sm text-gray-400">{captain.role} • {captain.location}</span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
 
-          {/* Yacht Specifications */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-green-400 flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Yacht Specifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-400">Length</p>
-                  <p className="text-white">{yacht?.size || booking.yacht?.size || '50'} feet</p>
+        {/* Coordinator Selection */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Service Coordinator *
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
+              <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
+                <SelectValue placeholder="Select service coordinator" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700">
+                {coordinators.map((coordinator: CrewMember) => (
+                  <SelectItem 
+                    key={coordinator.id} 
+                    value={coordinator.id.toString()}
+                    className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
+                  >
+                    <div className="flex flex-col py-1">
+                      <span className="font-medium">{coordinator.username || 'Unknown'}</span>
+                      <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        {/* Additional Crew Selection */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Additional Crew Members
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-48 overflow-y-auto">
+              {otherCrew.map((member: CrewMember) => (
+                <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-700/30 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id={`crew-${member.id}`}
+                    checked={selectedCrew.includes(member.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedCrew([...selectedCrew, member.id]);
+                      } else {
+                        setSelectedCrew(selectedCrew.filter(id => id !== member.id));
+                      }
+                    }}
+                    className="rounded border-gray-700 bg-gray-700 w-4 h-4"
+                  />
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-medium">{member.username || 'Unknown'}</p>
+                    <p className="text-gray-400 text-xs">{member.role} • {member.location}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-400">Type</p>
-                  <p className="text-white">{yacht?.type || booking.yacht?.type || 'Motor Yacht'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">Capacity</p>
-                  <p className="text-white">{yacht?.capacity || booking.yacht?.capacity || '12'} guests</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">Crew Required</p>
-                  <p className="text-white">{Math.ceil((yacht?.capacity || booking.yacht?.capacity || 12) / 8) + 1} members</p>
-                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pre-Departure Briefing */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Pre-Departure Briefing
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="briefing-time" className="text-white">Staff Meeting Time</Label>
+                <Input
+                  id="briefing-time"
+                  type="datetime-local"
+                  value={briefingTime}
+                  onChange={(e) => setBriefingTime(e.target.value)}
+                  className="bg-gray-700 border-gray-700 mt-1"
+                />
+                <p className="text-gray-400 text-xs mt-1">Auto-set to 1 hour before departure for crew coordination</p>
               </div>
               
               <div>
-                <p className="text-gray-400 text-sm mb-2">Key Amenities</p>
-                <div className="flex flex-wrap gap-1">
-                  {(yacht?.amenities || booking.yacht?.amenities || ['Deck Space', 'Sound System', 'Kitchen', 'Bathroom', 'Seating', 'Navigation']).slice(0, 6).map((amenity: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-300 text-xs">
-                      {amenity}
-                    </Badge>
-                  ))}
+                <Label className="text-white">Meeting Location</Label>
+                <div className="mt-1 p-3 bg-gray-700/50 rounded-lg border border-gray-700">
+                  <p className="text-white font-medium">Miami Marina - Main Gate</p>
+                  <p className="text-gray-300 text-sm">401 Biscayne Blvd, Miami, FL 33132</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    Meet at the main gate entrance 1 hour early for staff briefing and equipment check
+                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Right Column - Crew Assignment */}
-        <div className="space-y-6">
-          {/* Captain Selection */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
-                <Crown className="h-5 w-5" />
-                Captain Assignment *
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedCaptain?.toString()} onValueChange={(value) => setSelectedCaptain(parseInt(value))}>
-                <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
-                  <SelectValue placeholder="Select experienced captain" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  {captains.map((captain) => (
-                    <SelectItem 
-                      key={captain.id} 
-                      value={captain.id.toString()}
-                      className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
-                    >
-                      <div className="flex flex-col py-1">
-                        <span className="font-medium">{captain.username || 'Unknown'}</span>
-                        <span className="text-sm text-gray-400">{captain.role} • {captain.location}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
+        {/* Assignment Notes & Instructions */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Special Notes & Instructions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any special instructions or notes for this crew assignment..."
+              rows={4}
+              className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 resize-none"
+            />
+          </CardContent>
+        </Card>
 
-          {/* Service Coordinator Selection */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Service Coordinator *
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedCoordinator?.toString()} onValueChange={(value) => setSelectedCoordinator(parseInt(value))}>
-                <SelectTrigger className="bg-gray-700 border-gray-700 h-12">
-                  <SelectValue placeholder="Select service coordinator" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  {coordinators.map((coordinator) => (
-                    <SelectItem 
-                      key={coordinator.id} 
-                      value={coordinator.id.toString()}
-                      className="hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 focus:bg-gradient-to-r focus:from-purple-600 focus:to-blue-600"
-                    >
-                      <div className="flex flex-col py-1">
-                        <span className="font-medium">{coordinator.username || 'Unknown'}</span>
-                        <span className="text-sm text-gray-400">{coordinator.role} • {coordinator.location}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {/* Additional Crew Selection */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-green-400 flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Additional Crew Members
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-h-48 overflow-y-auto">
-                {otherCrew.map((member) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-700/30 rounded-lg">
-                    <input
-                      type="checkbox"
-                      id={`crew-${member.id}`}
-                      checked={selectedCrew.includes(member.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedCrew([...selectedCrew, member.id]);
-                        } else {
-                          setSelectedCrew(selectedCrew.filter(id => id !== member.id));
-                        }
-                      }}
-                      className="rounded border-gray-700 bg-gray-700 w-4 h-4"
-                    />
-                    <div className="flex-1">
-                      <p className="text-white text-sm font-medium">{member.username || 'Unknown'}</p>
-                      <p className="text-gray-400 text-xs">{member.role} • {member.location}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pre-Departure Briefing */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Pre-Departure Briefing
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="briefing-time" className="text-white">Staff Meeting Time</Label>
-                  <Input
-                    id="briefing-time"
-                    type="datetime-local"
-                    value={briefingTime}
-                    onChange={(e) => setBriefingTime(e.target.value)}
-                    className="bg-gray-700 border-gray-700 mt-1"
-                  />
-                  <p className="text-gray-400 text-xs mt-1">Auto-set to 1 hour before departure for crew coordination</p>
-                </div>
-                
-                <div>
-                  <Label className="text-white">Meeting Location</Label>
-                  <div className="mt-1 p-3 bg-gray-700/50 rounded-lg border border-gray-700">
-                    <p className="text-white font-medium">Miami Marina - Main Gate</p>
-                    <p className="text-gray-300 text-sm">401 Biscayne Blvd, Miami, FL 33132</p>
-                    <p className="text-gray-400 text-xs mt-1">
-                      Meet at the main gate entrance 1 hour early for staff briefing and equipment check
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Assignment Notes & Instructions */}
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-yellow-400 flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Crew Instructions & Notes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="• Safety protocols and guest preferences&#10;• Service delivery requirements&#10;• Special dietary needs or allergies&#10;• Equipment setup instructions&#10;• Emergency contact information&#10;• Member VIP status notes"
-                className="bg-gray-700 border-gray-700 min-h-[120px] text-sm"
-                rows={6}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => onAssign.mutate({ cancel: true })}
-              className="bg-gray-700 border-gray-700 text-white hover:bg-gray-600"
-            >
-              Cancel Assignment
-            </Button>
-            <Button
-              onClick={handleAssign}
-              disabled={!selectedCaptain || !selectedCoordinator || onAssign.isPending}
-              className="bg-purple-600 hover:bg-purple-700 px-8"
-            >
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              {onAssign.isPending ? "Assigning..." : "Assign Crew Team"}
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
+          <Button variant="outline" className="border-gray-600 text-gray-400">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={!selectedCaptain || !selectedCoordinator}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Create Assignment
+          </Button>
         </div>
       </div>
     </DialogContent>
   );
 }
 
-// View Assignment Details Dialog
 function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
+  if (!assignment) return null;
+
   return (
-    <DialogContent className="max-w-2xl max-h-[85vh] bg-gray-900 border-gray-700">
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-950 border-gray-700">
       <DialogHeader>
-        <DialogTitle className="text-white text-xl flex items-center gap-2">
-          <Eye className="h-5 w-5 text-purple-400" />
+        <DialogTitle className="text-xl text-purple-400 flex items-center gap-2">
+          <Eye className="h-5 w-5" />
           Assignment Details
         </DialogTitle>
-        <DialogDescription className="text-gray-400">
-          Complete crew assignment information
-        </DialogDescription>
       </DialogHeader>
-      
-      <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)]">
+
+      <div className="space-y-6">
         {/* Assignment Status */}
-        <div className="flex items-center gap-2">
-          <Badge className={`${getStatusColor(assignment.status)} text-white`}>
-            {getStatusIcon(assignment.status)}
-            <span className="ml-1 capitalize">{assignment.status}</span>
-          </Badge>
-        </div>
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Status & Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-white">{assignment.status}</div>
+              <div className="text-gray-400 text-sm uppercase tracking-wide">Current Status</div>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-blue-400">{assignment.crewMembers.length + 2}</div>
+              <div className="text-gray-400 text-sm uppercase tracking-wide">Total Crew</div>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-orange-400">{new Date(assignment.briefingTime).toLocaleTimeString()}</div>
+              <div className="text-gray-400 text-sm uppercase tracking-wide">Briefing Time</div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Booking Information */}
         {assignment.booking && (
@@ -1345,11 +785,11 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-gray-400 text-sm">Yacht</div>
-                <div className="text-white font-medium">{assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}</div>
+                <div className="text-white font-medium">{assignment.booking.yachtName || 'Unknown Yacht'}</div>
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Member</div>
-                <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
+                <div className="text-white">{assignment.booking.memberName || 'Unknown Member'}</div>
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Guests</div>
@@ -1357,7 +797,7 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Duration</div>
-                <div className="text-white">{assignment.duration}</div>
+                <div className="text-white">{assignment.duration || 'TBD'}</div>
               </div>
             </CardContent>
           </Card>
@@ -1368,44 +808,40 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg text-green-400 flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Crew Assignment
+              Assigned Crew
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center gap-2 text-purple-400 mb-1">
-                  <Crown className="h-4 w-4" />
-                  <span className="font-medium">Captain</span>
+              <div className="p-3 bg-purple-900/20 rounded-lg border border-purple-700/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-4 w-4 text-purple-400" />
+                  <span className="font-medium text-purple-400">Captain</span>
                 </div>
-                <div className="text-white">{assignment.captain?.username || 'Not Assigned'}</div>
+                <div className="text-white font-medium">{assignment.captain?.username || 'Unassigned'}</div>
+                <div className="text-gray-400 text-sm">{assignment.captain?.role}</div>
               </div>
-              <div>
-                <div className="flex items-center gap-2 text-blue-400 mb-1">
-                  <Shield className="h-4 w-4" />
-                  <span className="font-medium">Coordinator</span>
+              <div className="p-3 bg-blue-900/20 rounded-lg border border-blue-700/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Shield className="h-4 w-4 text-blue-400" />
+                  <span className="font-medium text-blue-400">Coordinator</span>
                 </div>
-                <div className="text-white">{assignment.coordinator?.username || 'Not Assigned'}</div>
+                <div className="text-white font-medium">{assignment.coordinator?.username || 'Unassigned'}</div>
+                <div className="text-gray-400 text-sm">{assignment.coordinator?.role}</div>
               </div>
             </div>
             
-            <div>
-              <div className="flex items-center gap-2 text-yellow-400 mb-2">
-                <Clock className="h-4 w-4" />
-                <span className="font-medium">Briefing Time</span>
-              </div>
-              <div className="text-purple-400">{assignment.briefingTime}</div>
-            </div>
-
-            {(assignment.crewMembers || []).length > 0 && (
+            {assignment.crewMembers.length > 0 && (
               <div>
-                <div className="text-gray-400 text-sm mb-2">Additional Crew ({(assignment.crewMembers || []).length})</div>
+                <div className="text-gray-400 text-sm mb-2">Additional Crew Members</div>
                 <div className="grid grid-cols-2 gap-2">
-                  {(assignment.crewMembers || []).map((member, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      {getCrewRoleIcon(member.role || 'crew')}
-                      <span className="text-white">{member.username}</span>
-                      <span className="text-gray-400">({member.role})</span>
+                  {assignment.crewMembers.map((member: CrewMember) => (
+                    <div key={member.id} className="p-2 bg-gray-700/30 rounded flex items-center gap-2">
+                      <Users className="h-4 w-4 text-gray-400" />
+                      <div>
+                        <div className="text-white text-sm">{member.username}</div>
+                        <div className="text-gray-400 text-xs">{member.role}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1415,163 +851,94 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
         </Card>
 
         {/* Special Requests & Notes */}
-        {(assignment.booking?.specialRequests || assignment.notes) && (
-          <Card className="bg-gray-800/50 border-gray-700">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Additional Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {assignment.booking?.specialRequests && (
-                <div>
-                  <div className="text-gray-400 text-sm mb-1">Special Requests</div>
-                  <div className="text-white bg-indigo-900/20 p-2 rounded text-sm">{assignment.booking.specialRequests}</div>
-                </div>
-              )}
-              {assignment.notes && (
-                <div>
-                  <div className="text-gray-400 text-sm mb-1">Assignment Notes</div>
-                  <div className="text-white bg-gray-700/30 p-2 rounded text-sm">{assignment.notes}</div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Additional Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {assignment.booking?.specialRequests && (
+              <div>
+                <div className="text-gray-400 text-sm mb-1">Special Requests</div>
+                <div className="text-white bg-indigo-900/20 p-2 rounded text-sm">{assignment.booking.specialRequests}</div>
+              </div>
+            )}
+            <div>
+              <div className="text-gray-400 text-sm mb-1">Assignment Notes</div>
+              <div className="text-white bg-gray-700/30 p-2 rounded text-sm">{assignment.notes || 'No additional notes'}</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DialogContent>
   );
 }
 
-// Edit Assignment Dialog
 function EditAssignmentDialog({ 
   assignment, 
   crewMembers, 
   onUpdate 
 }: { 
   assignment: CrewAssignment; 
-  crewMembers: CrewMember[]; 
+  crewMembers: CrewMember[];
   onUpdate: () => void;
 }) {
-  // Fetch live staff data from the database for selectors
-  const { data: staffData = [] } = useQuery({
-    queryKey: ['/api/admin/staff'],
-    staleTime: 5 * 60 * 1000,
-  });
+  const [editedCaptainId, setEditedCaptainId] = useState<number | null>(assignment.captain?.id || null);
+  const [editedCoordinatorId, setEditedCoordinatorId] = useState<number | null>(assignment.coordinator?.id || null);
+  const [editedCrewMemberIds, setEditedCrewMemberIds] = useState<number[]>(assignment.crewMembers?.map(m => m.id) || []);
+  const [editedBriefingTime, setEditedBriefingTime] = useState(assignment.briefingTime);
+  const [editedNotes, setEditedNotes] = useState(assignment.notes);
+  const [editedStatus, setEditedStatus] = useState<'planned' | 'in-progress' | 'completed'>(assignment.status);
 
-  // Initialize form state with current assignment data
-  const [editedCaptainId, setEditedCaptainId] = useState(assignment.captainId || null);
-  const [editedCoordinatorId, setEditedCoordinatorId] = useState(assignment.coordinatorId || null);
-  const [editedCrewMemberIds, setEditedCrewMemberIds] = useState<number[]>(() => {
-    try {
-      if (assignment.crewMemberIds && typeof assignment.crewMemberIds === 'string') {
-        const parsed = JSON.parse(assignment.crewMemberIds);
-        return Array.isArray(parsed) ? parsed : [];
-      }
-      return Array.isArray(assignment.crewMemberIds) ? assignment.crewMemberIds : [];
-    } catch {
-      return [];
-    }
-  });
-  const [editedNotes, setEditedNotes] = useState(assignment.notes || "");
-  const [editedBriefingTime, setEditedBriefingTime] = useState(() => {
-    if (assignment.briefingTime) {
-      try {
-        const date = new Date(assignment.briefingTime);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-      } catch {
-        return "";
-      }
-    }
-    return "";
-  });
-  const [editedStatus, setEditedStatus] = useState(assignment.status || "planned");
+  const captains = crewMembers.filter(member => 
+    member.role?.toLowerCase().includes('captain') && member.status === 'active'
+  );
   
-  const { toast } = useToast();
-
-  // Filter staff members into roles
-  const availableCrew = (staffData || []);
-  const captains = availableCrew.filter((m: any) => 
-    ['Yacht Captain', 'Marina Manager', 'Fleet Coordinator'].includes(m.role)
+  const coordinators = crewMembers.filter(member => 
+    member.role?.toLowerCase().includes('coordinator') && member.status === 'active'
   );
-  const coordinators = availableCrew.filter((m: any) => 
-    ['Service Coordinator', 'Concierge Manager', 'Operations Manager', 'Member Relations Specialist'].includes(m.role)
-  );
-  const otherCrew = availableCrew.filter((m: any) => 
-    !['admin'].includes(m.role) && 
-    !captains.some(c => c.id === m.id) && 
-    !coordinators.some(c => c.id === m.id)
+  
+  const otherCrew = crewMembers.filter(member => 
+    !member.role?.toLowerCase().includes('captain') && 
+    !member.role?.toLowerCase().includes('coordinator') && 
+    member.status === 'active'
   );
 
   const updateAssignmentMutation = useMutation({
-    mutationFn: async (updates: any) => {
-      const res = await apiRequest("PATCH", `/api/crew/assignments/${assignment.id}`, updates);
-      return await res.json();
-    },
+    mutationFn: (data: any) => apiRequest(`/api/staff/assignments/${assignment.id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
-      toast({
-        title: "Assignment Updated",
-        description: "Crew assignment has been updated successfully",
-      });
       onUpdate();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Update Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+      console.error('Assignment update failed:', error);
+    }
   });
 
-  const handleSave = () => {
-    updateAssignmentMutation.mutate({
+  const handleUpdate = () => {
+    const updateData = {
       captainId: editedCaptainId,
       coordinatorId: editedCoordinatorId,
       crewMemberIds: editedCrewMemberIds,
-      notes: editedNotes,
       briefingTime: editedBriefingTime,
-      status: editedStatus,
-    });
+      notes: editedNotes,
+      status: editedStatus
+    };
+
+    updateAssignmentMutation.mutate(updateData);
   };
 
   return (
-    <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-700">
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-950 border-gray-700">
       <DialogHeader>
-        <DialogTitle className="text-white text-xl flex items-center gap-2">
-          <Edit className="h-5 w-5 text-purple-400" />
+        <DialogTitle className="text-xl text-purple-400 flex items-center gap-2">
+          <Edit className="h-5 w-5" />
           Edit Assignment
         </DialogTitle>
-        <DialogDescription className="text-gray-400">
-          Update crew assignment details
-        </DialogDescription>
       </DialogHeader>
-      
-      <div className="space-y-6">
-        {/* Assignment Status */}
-        <div className="flex items-center gap-2">
-          <Badge className={`${getStatusColor(editedStatus)} text-white`}>
-            {getStatusIcon(editedStatus)}
-            <span className="ml-1 capitalize">{editedStatus}</span>
-          </Badge>
-          <Select value={editedStatus} onValueChange={setEditedStatus}>
-            <SelectTrigger className="w-40 bg-gray-800/50 border-gray-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="planned">Planned</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
+      <div className="space-y-6">
         {/* Booking Information */}
         {assignment.booking && (
           <Card className="bg-gray-800/50 border-gray-700">
@@ -1584,11 +951,11 @@ function EditAssignmentDialog({
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-gray-400 text-sm">Yacht</div>
-                <div className="text-white font-medium">{assignment.booking.yacht?.name || `Yacht #${assignment.booking.yachtId}`}</div>
+                <div className="text-white font-medium">{assignment.booking.yachtName || 'Unknown Yacht'}</div>
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Member</div>
-                <div className="text-white">{assignment.booking.member?.name || 'Unknown Member'}</div>
+                <div className="text-white">{assignment.booking.memberName || 'Unknown Member'}</div>
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Guests</div>
@@ -1596,7 +963,7 @@ function EditAssignmentDialog({
               </div>
               <div>
                 <div className="text-gray-400 text-sm">Duration</div>
-                <div className="text-white">{assignment.duration}</div>
+                <div className="text-white">{assignment.duration || 'TBD'}</div>
               </div>
             </CardContent>
           </Card>
@@ -1622,7 +989,7 @@ function EditAssignmentDialog({
                     <SelectValue placeholder="Select Captain" />
                   </SelectTrigger>
                   <SelectContent>
-                    {captains.map((captain) => (
+                    {captains.map((captain: CrewMember) => (
                       <SelectItem key={captain.id} value={captain.id.toString()}>
                         {captain.username} ({captain.role})
                       </SelectItem>
@@ -1640,7 +1007,7 @@ function EditAssignmentDialog({
                     <SelectValue placeholder="Select Coordinator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {coordinators.map((coordinator) => (
+                    {coordinators.map((coordinator: CrewMember) => (
                       <SelectItem key={coordinator.id} value={coordinator.id.toString()}>
                         {coordinator.username} ({coordinator.role})
                       </SelectItem>
@@ -1667,7 +1034,7 @@ function EditAssignmentDialog({
             <div>
               <div className="text-gray-400 text-sm mb-2">Additional Crew Members</div>
               <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                {otherCrew.map((member) => (
+                {otherCrew.map((member: CrewMember) => (
                   <div key={member.id} className="flex items-center space-x-2 p-2 bg-gray-700/30 rounded">
                     <input
                       type="checkbox"
@@ -1721,30 +1088,39 @@ function EditAssignmentDialog({
           </CardContent>
         </Card>
 
+        {/* Status & Actions */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <ToggleLeft className="h-5 w-5" />
+              Assignment Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Select value={editedStatus} onValueChange={(value: 'planned' | 'in-progress' | 'completed') => setEditedStatus(value)}>
+              <SelectTrigger className="bg-gray-700/50 border-gray-600">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="planned">Planned</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-4">
-          <Button
-            onClick={handleSave}
-            disabled={updateAssignmentMutation.isPending}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-          >
-            {updateAssignmentMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Save Changes
-              </>
-            )}
+        <div className="flex justify-end gap-3 pt-4">
+          <Button variant="outline" className="border-gray-600 text-gray-400">
+            Cancel
           </Button>
-          <DialogClose asChild>
-            <Button variant="outline" className="border-gray-600 text-gray-400 hover:bg-gray-700">
-              Cancel
-            </Button>
-          </DialogClose>
+          <Button 
+            onClick={handleUpdate}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Update Assignment
+          </Button>
         </div>
       </div>
     </DialogContent>

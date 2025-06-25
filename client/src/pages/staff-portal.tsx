@@ -56,7 +56,8 @@ import {
   User,
   Hash,
   Briefcase,
-  Plus
+  Plus,
+  Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +88,30 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
+// StatCard component for dashboard stats
+const StatCard = ({ title, value, subtitle, icon: Icon, change, gradient, delay }: { 
+  title: string; 
+  value: string | number; 
+  subtitle?: string; 
+  icon?: any;
+  change?: number;
+  gradient?: string;
+  delay?: number;
+}) => (
+  <Card className="bg-gray-900/50 border-gray-700/50">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-400">{title}</p>
+          <p className="text-2xl font-bold text-white">{value}</p>
+          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+        </div>
+        {Icon && <Icon className="h-8 w-8 text-purple-400" />}
+      </div>
+    </CardContent>
+  </Card>
+);
 
 interface AdminStats {
   totalUsers: number;
@@ -161,6 +186,32 @@ export default function StaffPortal() {
     membershipTier: "all",
     status: "all"
   });
+
+  // Filters for all sections
+  const [showFilters, setShowFilters] = useState(false);
+  const [eventFilters, setEventFilters] = useState({
+    status: "all",
+    type: "all",
+    capacity: "all",
+    priceRange: "all",
+    dateRange: "all"
+  });
+  const [bookingFilters, setBookingFilters] = useState({
+    status: "all",
+    timeRange: "all",
+    membershipTier: "all",
+    yachtSize: "all",
+    sortBy: "date",
+    type: "all",
+    dateRange: "all"
+  });
+  const [paymentFilters, setPaymentFilters] = useState({
+    type: "all",
+    status: "all",
+    method: "all",
+    dateRange: "all"
+  });
+  const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
 
   // Dialog states
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
@@ -259,8 +310,8 @@ export default function StaffPortal() {
       description: "",
       date: "",
       time: "",
-      capacity: "0",
-      ticketPrice: "0",
+      capacity: 0,
+      ticketPrice: 0,
       location: ""
     }
   });
@@ -271,8 +322,8 @@ export default function StaffPortal() {
       name: "",
       type: "",
       description: "",
-      size: "0",
-      capacity: "0",
+      size: 0,
+      capacity: 0,
       location: ""
     }
   });
@@ -283,8 +334,8 @@ export default function StaffPortal() {
       name: "",
       category: "",
       description: "",
-      pricePerSession: "0",
-      duration: "0"
+      pricePerSession: 0,
+      duration: 0
     }
   });
 
@@ -382,62 +433,40 @@ export default function StaffPortal() {
     priceRange: "all"
   });
 
-  const [eventFilters, setEventFilters] = useState({
-    status: "all",
-    capacity: "all",
-    priceRange: "all"
-  });
-
-  const [bookingFilters, setBookingFilters] = useState({
-    status: 'all',
-    timeRange: 'all',
-    membershipTier: 'all',
-    yachtSize: 'all',
-    sortBy: 'date'
-  });
-
-  const [paymentFilters, setPaymentFilters] = useState({
-    type: "all",
-    status: "all",
-    dateRange: "all"
-  });
-
-  const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
-
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/staff/stats'],
   });
 
-  const { data: users } = useQuery({
+  const { data: users = [] } = useQuery({
     queryKey: ['/api/staff/users'],
   });
 
-  const { data: yachts } = useQuery({
+  const { data: yachts = [] } = useQuery({
     queryKey: ['/api/staff/yachts'],
   });
 
-  const { data: services } = useQuery({
+  const { data: services = [] } = useQuery({
     queryKey: ['/api/staff/services'],
   });
 
-  const { data: events } = useQuery({
+  const { data: events = [] } = useQuery({
     queryKey: ['/api/staff/events'],
   });
 
-  const { data: payments } = useQuery({
+  const { data: payments = [] } = useQuery({
     queryKey: ['/api/staff/payments'],
   });
 
-  const { data: bookings } = useQuery({
+  const { data: bookings = [] } = useQuery({
     queryKey: ['/api/staff/bookings'],
   });
 
-  const { data: analytics } = useQuery({
+  const { data: analytics = {} } = useQuery({
     queryKey: ['/api/staff/analytics'],
   });
 
-  const { data: notifications } = useQuery({
+  const { data: notifications = [] } = useQuery({
     queryKey: ['/api/staff/notifications'],
   });
 
@@ -640,7 +669,7 @@ export default function StaffPortal() {
   }, [yachts, yachtFilters]);
 
   const filteredServices = useMemo(() => {
-    if (!services) return [];
+    if (!services || !Array.isArray(services)) return [];
     return (services as any[]).filter((service: any) => {
       const categoryMatch = serviceFilters.category === "all" || service.category === serviceFilters.category;
       const availabilityMatch = serviceFilters.availability === "all" || 
@@ -654,7 +683,7 @@ export default function StaffPortal() {
   }, [services, serviceFilters]);
 
   const filteredEvents = useMemo(() => {
-    if (!events) return [];
+    if (!events || !Array.isArray(events)) return [];
     return (events as any[]).filter((event: any) => {
       const now = new Date();
       const eventDate = new Date(event.startTime);
@@ -678,7 +707,7 @@ export default function StaffPortal() {
 
   // Filter payments based on search and filters
   const filteredPayments = useMemo(() => {
-    if (!payments) return [];
+    if (!payments || !Array.isArray(payments)) return [];
     
     return payments.filter((payment: any) => {
       // Status filter
@@ -944,7 +973,7 @@ export default function StaffPortal() {
       );
     }
 
-    const filteredUsers = users.filter((user: any) => {
+    const filteredUsers = (users || []).filter((user: any) => {
       if (userFilters.role !== 'all' && user.role !== userFilters.role) return false;
       if (userFilters.membershipTier !== 'all' && user.membershipTier !== userFilters.membershipTier) return false;
       if (userFilters.status !== 'all') {
@@ -1166,7 +1195,7 @@ export default function StaffPortal() {
                   </tr>
                 </thead>
                 <tbody>
-                  {payments.map((payment: any, index: number) => (
+                  {(payments || []).map((payment: any, index: number) => (
                     <motion.tr
                       key={payment.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -1234,7 +1263,7 @@ export default function StaffPortal() {
                 </tbody>
               </table>
               
-              {payments.length === 0 && (
+              {(payments || []).length === 0 && (
                 <div className="text-center py-12">
                   <CreditCard className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                   <p className="text-gray-400 text-lg">No transactions found</p>
@@ -1295,7 +1324,7 @@ export default function StaffPortal() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Total Revenue</p>
-                  <p className="text-2xl font-bold text-white">${analytics.totalRevenue?.toFixed(2) || '0.00'}</p>
+                  <p className="text-2xl font-bold text-white">${analytics?.totalRevenue?.toFixed(2) || '0.00'}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-500" />
               </div>
@@ -1384,7 +1413,7 @@ export default function StaffPortal() {
         </div>
 
         <div className="space-y-4">
-          {notifications.length === 0 ? (
+          {(notifications || []).length === 0 ? (
             <Card className="bg-gray-900/50 border-gray-700/50">
               <CardContent className="p-12 text-center">
                 <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
@@ -1393,7 +1422,7 @@ export default function StaffPortal() {
               </CardContent>
             </Card>
           ) : (
-            notifications.map((notification: any, index: number) => (
+            (notifications || []).map((notification: any, index: number) => (
               <motion.div
                 key={notification.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -1765,7 +1794,7 @@ export default function StaffPortal() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm text-gray-400">
-                    {filteredYachts.length} of {yachts?.length || 0} yachts
+                    {(filteredYachts || []).length} of {yachts?.length || 0} yachts
                   </span>
                   <Button
                     size="sm"
@@ -2028,7 +2057,7 @@ export default function StaffPortal() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm text-gray-400">
-                    {filteredServices.length} of {services?.length || 0} services
+                    {(filteredServices || []).length} of {services?.length || 0} services
                   </span>
                   <Button
                     size="sm"
@@ -2213,8 +2242,12 @@ export default function StaffPortal() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setBookingFilters({
-                      type: "all",
                       status: "all",
+                      timeRange: "all",
+                      membershipTier: "all",
+                      yachtSize: "all",
+                      sortBy: "date",
+                      type: "all",
                       dateRange: "all"
                     })}
                     className="text-gray-400 hover:text-white"
@@ -2280,13 +2313,17 @@ export default function StaffPortal() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm text-gray-400">
-                    {filteredBookings.length} of {bookings?.length || 0} bookings
+                    {(filteredBookings || []).length} of {bookings?.length || 0} bookings
                   </span>
                   <Button
                     size="sm"
                     onClick={() => setBookingFilters({
-                      type: "all",
                       status: "all",
+                      timeRange: "all",
+                      membershipTier: "all",
+                      yachtSize: "all",
+                      sortBy: "date",
+                      type: "all",
                       dateRange: "all"
                     })}
                     variant="outline"
@@ -2316,7 +2353,7 @@ export default function StaffPortal() {
             <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">Total</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Bookings</h3>
-          <p className="text-2xl font-bold text-white">{bookings?.length || 0}</p>
+          <p className="text-2xl font-bold text-white">{(bookings || []).length}</p>
           <p className="text-cyan-400 text-sm mt-1">All time bookings</p>
         </motion.div>
 
@@ -2334,7 +2371,7 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Confirmed</h3>
           <p className="text-2xl font-bold text-white">
-            {bookings?.filter((b: any) => b.status === 'confirmed').length || 0}
+            {(bookings || []).filter((b: any) => b.status === 'confirmed').length}
           </p>
           <p className="text-green-400 text-sm mt-1">Ready to sail</p>
         </motion.div>
@@ -2353,7 +2390,7 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Pending</h3>
           <p className="text-2xl font-bold text-white">
-            {bookings?.filter((b: any) => b.status === 'pending').length || 0}
+            {(bookings || []).filter((b: any) => b.status === 'pending').length}
           </p>
           <p className="text-yellow-400 text-sm mt-1">Awaiting confirmation</p>
         </motion.div>
@@ -2568,6 +2605,8 @@ export default function StaffPortal() {
                     onClick={() => setEventFilters({
                       status: "all",
                       type: "all",
+                      capacity: "all",
+                      priceRange: "all",
                       dateRange: "all"
                     })}
                     className="text-gray-400 hover:text-white"
@@ -2644,6 +2683,8 @@ export default function StaffPortal() {
                     onClick={() => setEventFilters({
                       status: "all",
                       type: "all",
+                      capacity: "all",
+                      priceRange: "all",
                       dateRange: "all"
                     })}
                     variant="outline"
@@ -2672,6 +2713,8 @@ export default function StaffPortal() {
                 onClick={() => setEventFilters({
                   status: "all",
                   type: "all",
+                  capacity: "all",
+                  priceRange: "all",
                   dateRange: "all"
                 })}
               >
@@ -2840,6 +2883,7 @@ export default function StaffPortal() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setPaymentFilters({
+                      type: "all",
                       status: "all",
                       method: "all",
                       dateRange: "all"
@@ -2915,6 +2959,7 @@ export default function StaffPortal() {
                   <Button
                     size="sm"
                     onClick={() => setPaymentFilters({
+                      type: "all",
                       status: "all",
                       method: "all",
                       dateRange: "all"
@@ -2947,7 +2992,7 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${Number(payments?.reduce((sum: number, p: any) => sum + (p.amount || 0), 0) || 0).toFixed(2)}
+            ${Number(Array.isArray(payments) ? payments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0) : 0).toFixed(2)}
           </p>
           <p className="text-green-400 text-sm mt-1">All time revenue</p>
         </motion.div>
