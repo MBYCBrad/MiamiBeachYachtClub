@@ -271,7 +271,7 @@ export default function CrewManagementPage() {
   // Show error state
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900/50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="text-red-400 text-6xl">⚠️</div>
           <p className="text-red-200">Error loading crew management data</p>
