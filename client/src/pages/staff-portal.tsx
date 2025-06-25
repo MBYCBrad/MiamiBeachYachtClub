@@ -441,6 +441,100 @@ export default function StaffPortal() {
     }
   });
 
+  // Payment mutations
+  const updatePaymentMutation = useMutation({
+    mutationFn: (paymentData: any) => apiRequest(`/api/staff/payments/${paymentData.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(paymentData)
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/payments'] });
+      setIsEditPaymentDialogOpen(false);
+      setSelectedPayment(null);
+      toast({
+        title: "Success",
+        description: "Payment updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update payment",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deletePaymentMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/staff/payments/${id}`, {
+      method: 'DELETE'
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/payments'] });
+      toast({
+        title: "Success",
+        description: "Payment deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete payment",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Booking mutations
+  const updateBookingMutation = useMutation({
+    mutationFn: (bookingData: any) => apiRequest(`/api/staff/bookings/${bookingData.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(bookingData)
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/event-registrations'] });
+      setIsEditBookingDialogOpen(false);
+      setSelectedBooking(null);
+      toast({
+        title: "Success",
+        description: "Booking updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update booking",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deleteBookingMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/staff/bookings/${id}`, {
+      method: 'DELETE'
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/event-registrations'] });
+      toast({
+        title: "Success",
+        description: "Booking deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete booking",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Logout function
   const handleLogout = async () => {
     try {
@@ -551,6 +645,16 @@ export default function StaffPortal() {
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
   const [isViewEventDialogOpen, setIsViewEventDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  
+  // Payment dialog states
+  const [isViewPaymentDialogOpen, setIsViewPaymentDialogOpen] = useState(false);
+  const [isEditPaymentDialogOpen, setIsEditPaymentDialogOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  
+  // Booking dialog states
+  const [isViewBookingDialogOpen, setIsViewBookingDialogOpen] = useState(false);
+  const [isEditBookingDialogOpen, setIsEditBookingDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [newEventData, setNewEventData] = useState({
     title: '',
     description: '',
@@ -842,13 +946,7 @@ export default function StaffPortal() {
             Filters
           </Button>
           
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-purple-600/30"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Quick Add
-          </Button>
+
         </motion.div>
       </div>
 
@@ -1241,7 +1339,7 @@ export default function StaffPortal() {
 
         {/* Add User Dialog */}
         <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
-          <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-white">Add New User</DialogTitle>
               <DialogDescription className="text-gray-400">
@@ -1703,14 +1801,34 @@ export default function StaffPortal() {
                             variant="ghost" 
                             className="text-gray-400 hover:text-white"
                             onClick={() => {
-                              // View payment details functionality
-                              toast({
-                                title: "Payment Details",
-                                description: `Viewing details for payment ${payment.id}`,
-                              });
+                              setSelectedPayment(payment);
+                              setIsViewPaymentDialogOpen(true);
                             }}
                           >
                             <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => {
+                              setSelectedPayment(payment);
+                              setIsEditPaymentDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-gray-400 hover:text-red-400"
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete payment ${payment.id}?`)) {
+                                deletePaymentMutation.mutate(payment.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -3542,11 +3660,39 @@ export default function StaffPortal() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost" className="text-cyan-400 hover:text-white">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-cyan-400 hover:text-white"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            setIsViewBookingDialogOpen(true);
+                          }}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-white"
+                          onClick={() => {
+                            setSelectedBooking(booking);
+                            setIsEditBookingDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-red-400"
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete booking ${booking.id}?`)) {
+                              deleteBookingMutation.mutate(booking.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -5042,6 +5188,234 @@ export default function StaffPortal() {
           </AnimatePresence>
         </motion.div>
       </div>
+
+      {/* Payment View Dialog */}
+      <Dialog open={isViewPaymentDialogOpen} onOpenChange={setIsViewPaymentDialogOpen}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Payment Details</DialogTitle>
+          </DialogHeader>
+          {selectedPayment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Payment ID</Label>
+                  <p className="text-white font-medium">{selectedPayment.id}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Amount</Label>
+                  <p className="text-white font-medium">${selectedPayment.amount}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Customer</Label>
+                  <p className="text-white font-medium">{selectedPayment.customer}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Status</Label>
+                  <Badge className={`${
+                    selectedPayment.status === 'completed' ? 'bg-green-600' :
+                    selectedPayment.status === 'pending' ? 'bg-yellow-600' :
+                    'bg-red-600'
+                  }`}>
+                    {selectedPayment.status}
+                  </Badge>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Service/Event</Label>
+                  <p className="text-white font-medium">{selectedPayment.serviceEvent}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Date</Label>
+                  <p className="text-white font-medium">{new Date(selectedPayment.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Edit Dialog */}
+      <Dialog open={isEditPaymentDialogOpen} onOpenChange={setIsEditPaymentDialogOpen}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Edit Payment</DialogTitle>
+          </DialogHeader>
+          {selectedPayment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Amount</Label>
+                  <Input
+                    value={selectedPayment.amount}
+                    onChange={(e) => setSelectedPayment({...selectedPayment, amount: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300">Status</Label>
+                  <Select 
+                    value={selectedPayment.status} 
+                    onValueChange={(value) => setSelectedPayment({...selectedPayment, status: value})}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditPaymentDialogOpen(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => updatePaymentMutation.mutate(selectedPayment)}
+                  disabled={updatePaymentMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                >
+                  {updatePaymentMutation.isPending ? 'Updating...' : 'Update Payment'}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking View Dialog */}
+      <Dialog open={isViewBookingDialogOpen} onOpenChange={setIsViewBookingDialogOpen}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Booking Details</DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Booking ID</Label>
+                  <p className="text-white font-medium">{selectedBooking.id}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Guest Name</Label>
+                  <p className="text-white font-medium">{selectedBooking.guestName}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Yacht</Label>
+                  <p className="text-white font-medium">{selectedBooking.yachtName}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Date</Label>
+                  <p className="text-white font-medium">{new Date(selectedBooking.bookingDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Time Slot</Label>
+                  <p className="text-white font-medium">{selectedBooking.timeSlot}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Status</Label>
+                  <Badge className={`${
+                    selectedBooking.status === 'confirmed' ? 'bg-green-600' :
+                    selectedBooking.status === 'pending' ? 'bg-yellow-600' :
+                    'bg-red-600'
+                  }`}>
+                    {selectedBooking.status || 'confirmed'}
+                  </Badge>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-gray-300">Guest Count</Label>
+                  <p className="text-white font-medium">{selectedBooking.guestCount || 'Not specified'}</p>
+                </div>
+                {selectedBooking.specialRequests && (
+                  <div className="col-span-2">
+                    <Label className="text-gray-300">Special Requests</Label>
+                    <p className="text-white font-medium">{selectedBooking.specialRequests}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking Edit Dialog */}
+      <Dialog open={isEditBookingDialogOpen} onOpenChange={setIsEditBookingDialogOpen}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">Edit Booking</DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-300">Guest Name</Label>
+                  <Input
+                    value={selectedBooking.guestName || ''}
+                    onChange={(e) => setSelectedBooking({...selectedBooking, guestName: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300">Guest Count</Label>
+                  <Input
+                    type="number"
+                    value={selectedBooking.guestCount || ''}
+                    onChange={(e) => setSelectedBooking({...selectedBooking, guestCount: parseInt(e.target.value)})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-gray-300">Status</Label>
+                  <Select 
+                    value={selectedBooking.status || 'confirmed'} 
+                    onValueChange={(value) => setSelectedBooking({...selectedBooking, status: value})}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-gray-300">Special Requests</Label>
+                  <Textarea
+                    value={selectedBooking.specialRequests || ''}
+                    onChange={(e) => setSelectedBooking({...selectedBooking, specialRequests: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditBookingDialogOpen(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => updateBookingMutation.mutate(selectedBooking)}
+                  disabled={updateBookingMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                >
+                  {updateBookingMutation.isPending ? 'Updating...' : 'Update Booking'}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
