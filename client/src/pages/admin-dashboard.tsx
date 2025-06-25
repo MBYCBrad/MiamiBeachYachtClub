@@ -901,10 +901,6 @@ function AddUserDialog() {
                   <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                   <SelectItem value="service_provider">Service Provider</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
-                  <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
-                  <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
-                  <SelectItem value="staff_management">Staff - Management</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1013,10 +1009,6 @@ function EditUserDialog({ user: userData }: { user: any }) {
                   <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
                   <SelectItem value="service_provider">Service Provider</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="staff_crew_manager">Staff - Crew Manager</SelectItem>
-                  <SelectItem value="staff_customer_support">Staff - Customer Support</SelectItem>
-                  <SelectItem value="staff_concierge">Staff - Concierge</SelectItem>
-                  <SelectItem value="staff_management">Staff - Management</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -5115,7 +5107,7 @@ export default function AdminDashboard() {
           <Button 
             variant="outline" 
             size="sm" 
-            className="border-gray-600 hover:border-purple-500"
+            className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent"
             onClick={() => {
               toast({ title: "Settings Reset", description: "System settings have been reset to defaults" });
             }}
@@ -5178,7 +5170,7 @@ export default function AdminDashboard() {
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="border-gray-600 hover:border-purple-500"
+                className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent"
                 onClick={() => {
                   toast({ title: "Backup Created", description: "Database backup created successfully" });
                 }}

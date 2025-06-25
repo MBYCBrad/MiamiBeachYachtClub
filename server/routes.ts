@@ -3150,7 +3150,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username,
         email,
         password: hashedPassword,
-        staffRole,
+        fullName: username, // Use username as fallback for fullName
+        role: staffRole,
         department: department || 'General',
         permissions: permissions || [],
         phone: phone || null,
