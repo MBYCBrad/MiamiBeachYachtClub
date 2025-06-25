@@ -57,18 +57,21 @@ interface StaffStats {
   activeProjects: number;
 }
 
-// Staff portal menu items - filtered by permissions
+// Staff portal menu items - mapped to actual database permissions
 const allStaffMenuItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500', permission: 'dashboard_access' },
-  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500', permission: 'booking_management' },
-  { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500', permission: 'calendar_access' },
+  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500', permission: 'bookings' },
+  { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500', permission: 'bookings' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500', permission: 'customer_service' },
-  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500', permission: 'maintenance_access' },
-  { id: 'fleet', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'fleet_management' },
-  { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500', permission: 'service_management' },
-  { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'event_management' },
-  { id: 'members', label: 'Members', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'member_access' },
-  { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics_access' },
+  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500', permission: 'yachts' },
+  { id: 'fleet', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'yachts' },
+  { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500', permission: 'services' },
+  { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'events' },
+  { id: 'members', label: 'Members', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'users' },
+  { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics' },
+  { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-teal-500', permission: 'payments' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-yellow-500 to-amber-500', permission: 'notifications' },
+  { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-indigo-500 to-blue-500', permission: 'crew_management' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'profile_access' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'settings_access' },
 ];
@@ -147,8 +150,14 @@ export default function StaffPortal() {
 
   // Filter menu items based on staff permissions
   const allowedMenuItems = allStaffMenuItems.filter(item => {
-    if (!staffMember?.permissions) return item.id === 'overview' || item.id === 'my-profile';
-    return staffMember.permissions.includes(item.permission) || item.id === 'my-profile';
+    // Always show overview and profile
+    if (item.id === 'overview' || item.id === 'my-profile') return true;
+    
+    // If no permissions available, only show basic items
+    if (!staffMember?.permissions) return false;
+    
+    // Check if user has the specific permission for this menu item
+    return staffMember.permissions.includes(item.permission);
   });
 
   const handleLogout = () => {

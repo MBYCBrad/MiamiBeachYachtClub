@@ -347,6 +347,15 @@ Changelog:
   - Enhanced password comparison function with proper error handling for invalid password formats
   - Cleaned up database by removing users with plain text passwords and updating existing users with proper hashed passwords
   - Authentication system now works properly for both admin-created users and registration flow
+- June 25, 2025. Staff portal real-time database integration and permission system completed
+  - Fixed staff portal authentication to display real staff member data instead of stock placeholder information
+  - Added missing API endpoints /api/staff/profile and /api/staff/stats for real-time staff data retrieval
+  - Connected staff authentication to proper role-based routing for automatic redirection to staff portal
+  - Fixed permission mapping between database permissions and staff portal menu items
+  - Staff portal now displays all accessible menu sections based on individual staff member permissions
+  - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
+  - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
+  - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
 - June 24, 2025. Complete crew assignment system with comprehensive database integration and auto-scheduling
   - Implemented full crew assignment dialog with all database staff members (8 total: 3 captains, 3 coordinators, 1 additional crew)
   - Added automatic pre-departure briefing scheduling 1 hour before booking start time with Miami Marina gate meeting location
