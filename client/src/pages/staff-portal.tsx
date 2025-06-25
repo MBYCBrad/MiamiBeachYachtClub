@@ -80,7 +80,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
-import YachtMaintenancePage from "./yacht-maintenance";
+import YachtMaintenanceFixed from "./yacht-maintenance-fixed";
 import MyProfile from "./my-profile";
 import { Overview3DIcon, Users3DIcon, Yacht3DIcon, Services3DIcon, Events3DIcon, Bookings3DIcon, Analytics3DIcon, Payments3DIcon } from '@/components/Animated3DAdminIcons';
 
@@ -3357,7 +3357,7 @@ export default function StaffPortal() {
             {activeSection === 'notifications' && renderNotifications()}
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'staff-management' && <StaffManagement />}
-            {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
+            {activeSection === 'yacht-maintenance' && <YachtMaintenanceFixed />}
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
             {activeSection === 'messenger' && <MessengerDashboard />}
             {activeSection === 'my-profile' && <MyProfile />}
