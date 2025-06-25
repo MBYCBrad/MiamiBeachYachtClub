@@ -51,23 +51,49 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
+      // First try to find in users table
       const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
-        return done(null, false);
-      } else {
+      if (user && (await comparePasswords(password, user.password))) {
         return done(null, user);
       }
+      
+      // If not found in users, try staff table
+      const staffMember = await storage.getStaffByUsername(username);
+      if (staffMember && staffMember.password && (await comparePasswords(password, staffMember.password))) {
+        // Convert staff to user-like object for session compatibility
+        const staffAsUser = {
+          ...staffMember,
+          role: 'staff', // Mark as staff for routing
+          staffRole: staffMember.role, // Keep original staff role
+        };
+        return done(null, staffAsUser);
+      }
+      
+      return done(null, false);
     }),
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id: number, done) => {
     try {
+      // First try to find in users table
       const user = await storage.getUser(id);
-      if (!user) {
-        return done(null, false);
+      if (user) {
+        return done(null, user);
       }
-      done(null, user);
+      
+      // If not found in users, try staff table
+      const staffMember = await storage.getStaff(id);
+      if (staffMember) {
+        const staffAsUser = {
+          ...staffMember,
+          role: 'staff',
+          staffRole: staffMember.role,
+        };
+        return done(null, staffAsUser);
+      }
+      
+      done(null, false);
     } catch (error) {
       console.error('Error deserializing user:', error);
       done(null, false);

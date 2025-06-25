@@ -38,6 +38,12 @@ export function ProtectedRoute({
           <Redirect to="/admin" />
         </Route>
       );
+    } else if (user.role === "staff") {
+      return (
+        <Route path={path}>
+          <Redirect to="/staff-portal" />
+        </Route>
+      );
     }
     if (user.role === "yacht_owner") {
       return (
