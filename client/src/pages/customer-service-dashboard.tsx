@@ -14,6 +14,7 @@ import {
   UserCheck,
   PhoneIncoming,
   PhoneOutgoing,
+  PhoneOff,
   Users,
   History,
   Calculator,
@@ -556,9 +557,9 @@ export default function CustomerServiceDashboard() {
                       <Button
                         onClick={clearDialNumber}
                         variant="outline"
-                        className="border-slate-600 text-gray-300 hover:text-white"
+                        className="border-red-600 text-red-400 hover:text-red-300 hover:border-red-500"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <PhoneOff className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

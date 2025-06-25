@@ -41,7 +41,7 @@ const assessmentSchema = z.object({
 });
 
 export default function YachtMaintenance() {
-  const [selectedYacht, setSelectedYacht] = useState<number | null>(33); // Default to Marina Breeze
+  const [selectedYacht, setSelectedYacht] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [scheduleMaintenanceOpen, setScheduleMaintenanceOpen] = useState(false);
   const [createAssessmentOpen, setCreateAssessmentOpen] = useState(false);
@@ -75,12 +75,14 @@ export default function YachtMaintenance() {
   });
 
   const { data: maintenanceOverview = {}, isLoading: overviewLoading } = useQuery({
-    queryKey: ['/api/maintenance/overview', 33],
+    queryKey: ['/api/maintenance/overview', selectedYacht],
     queryFn: async () => {
-      const response = await fetch(`/api/maintenance/overview/33`);
+      if (!selectedYacht) return {};
+      const response = await fetch(`/api/maintenance/overview/${selectedYacht}`);
       if (!response.ok) throw new Error('Failed to fetch maintenance overview');
       return response.json();
     },
+    enabled: !!selectedYacht,
   });
 
   const { data: tripLogs = [], isLoading: tripsLoading } = useQuery({
@@ -106,19 +108,23 @@ export default function YachtMaintenance() {
   });
 
   const { data: valuationData = {}, isLoading: valuationLoading } = useQuery({
-    queryKey: ['/api/maintenance/valuation'],
+    queryKey: [`/api/maintenance/valuation/${selectedYacht}`],
+    enabled: !!selectedYacht,
   });
 
   const { data: usageMetrics = [], isLoading: metricsLoading } = useQuery({
-    queryKey: ['/api/maintenance/usage-metrics'],
+    queryKey: [`/api/maintenance/usage-metrics/${selectedYacht}`],
+    enabled: !!selectedYacht,
   });
 
   const { data: yachtComponents = [], isLoading: componentsLoading } = useQuery({
-    queryKey: ['/api/maintenance/components'],
+    queryKey: [`/api/maintenance/components/${selectedYacht}`],
+    enabled: !!selectedYacht,
   });
 
   const { data: maintenanceSchedules = [], isLoading: schedulesLoading, refetch: refetchSchedules } = useQuery({
-    queryKey: ['/api/maintenance/schedules'],
+    queryKey: [`/api/maintenance/schedules/${selectedYacht}`],
+    enabled: !!selectedYacht,
     staleTime: 0,
     cacheTime: 0,
   });
@@ -127,7 +133,7 @@ export default function YachtMaintenance() {
   const scheduleMaintenanceForm = useForm({
     resolver: zodResolver(maintenanceRecordSchema),
     defaultValues: {
-      yachtId: selectedYacht || 33,
+      yachtId: selectedYacht || 0,
       taskType: "",
       category: "",
       description: "",
@@ -142,7 +148,7 @@ export default function YachtMaintenance() {
   const createAssessmentForm = useForm({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
-      yachtId: selectedYacht || 33,
+      yachtId: selectedYacht || 0,
       condition: "good" as const,
       notes: "",
       recommendedAction: "",

@@ -449,22 +449,20 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
     
     try {
       if (action === 'message') {
-        // Navigate to messages with pre-filled conversation for the booking
-        const conversationId = `booking_conv_${booking.id}`;
-        window.location.href = `/messages?conversation=${conversationId}&member=${booking.member?.name}`;
+        // Navigate to messages page with the specific member
+        window.location.href = `/messages?member=${encodeURIComponent(booking.member?.name || '')}&id=${booking.member?.id || booking.userId}`;
         
         toast({
-          title: "Opening Conversation",
+          title: "Opening Messages",
           description: `Starting conversation with ${booking.member?.name}`,
           className: "border-purple-500/30 bg-purple-950/50"
         });
       } else if (action === 'view') {
-        // Show detailed booking information
-        toast({
-          title: "Booking Details",
-          description: `${booking.yacht?.name} • ${booking.member?.name} • ${booking.timeSlot} ${new Date(booking.startTime).toLocaleDateString()}`,
-          className: "border-blue-500/30 bg-blue-950/50"
+        // Trigger custom event to open booking details dialog
+        const event = new CustomEvent('openBookingDetailsDialog', { 
+          detail: booking 
         });
+        window.dispatchEvent(event);
       }
     } catch (error) {
       toast({
