@@ -2685,7 +2685,7 @@ export default function AdminDashboard() {
     if (eventFilters.status !== 'all') {
       const now = new Date();
       filtered = filtered.filter(event => {
-        const eventDate = new Date(event.eventDate);
+        const eventDate = new Date(event.startTime);
         if (eventFilters.status === 'upcoming') return eventDate >= now;
         if (eventFilters.status === 'past') return eventDate < now;
         return true;
@@ -4755,7 +4755,7 @@ export default function AdminDashboard() {
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-gray-400">
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{new Date(event.eventDate).toLocaleDateString()}</span>
+                    <span className="text-sm">{new Date(event.startTime).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center text-gray-400">
                     <Clock className="h-4 w-4 mr-2" />
@@ -5541,11 +5541,11 @@ function ViewEventDialog({ event }: { event: any }) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-gray-300">Event Date</Label>
-                  <p className="text-white font-medium">{new Date(event.eventDate).toLocaleDateString()}</p>
+                  <p className="text-white font-medium">{new Date(event.startTime).toLocaleDateString()}</p>
                 </div>
                 <div>
                   <Label className="text-gray-300">Event Time</Label>
-                  <p className="text-white font-medium">{new Date(event.eventDate).toLocaleTimeString()}</p>
+                  <p className="text-white font-medium">{new Date(event.startTime).toLocaleTimeString()}</p>
                 </div>
                 <div>
                   <Label className="text-gray-300">Capacity</Label>
