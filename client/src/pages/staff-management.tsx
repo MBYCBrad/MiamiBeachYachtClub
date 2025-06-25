@@ -147,7 +147,6 @@ export default function StaffManagement() {
     username: "",
     email: "",
     password: "",
-    fullName: "",
     role: "",
     permissions: [] as string[],
     phone: "",
@@ -173,7 +172,6 @@ export default function StaffManagement() {
         username: "",
         email: "",
         password: "",
-        fullName: "",
         role: "",
         permissions: [],
         phone: "",
@@ -556,19 +554,6 @@ export default function StaffManagement() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="fullName" className="text-sm font-medium text-gray-300">
-                  Full Name
-                </Label>
-                <Input
-                  id="fullName"
-                  value={newStaffData.fullName}
-                  onChange={(e) => setNewStaffData(prev => ({ ...prev, fullName: e.target.value }))}
-                  className="bg-gray-900/50 border-gray-700/50 text-white"
-                  placeholder="Enter full name"
-                />
-              </div>
-              
-              <div>
                 <Label htmlFor="password" className="text-sm font-medium text-gray-300">
                   Password
                 </Label>
@@ -581,22 +566,22 @@ export default function StaffManagement() {
                   placeholder="Enter password"
                 />
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="role" className="text-sm font-medium text-gray-300">
-                Staff Role
-              </Label>
-              <Select value={newStaffData.role} onValueChange={(value) => setNewStaffData(prev => ({ ...prev, role: value }))}>
-                <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
-                  <SelectValue placeholder="Select staff role" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
-                  {staffRoles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              
+              <div>
+                <Label htmlFor="role" className="text-sm font-medium text-gray-300">
+                  Staff Role
+                </Label>
+                <Select value={newStaffData.role} onValueChange={(value) => setNewStaffData(prev => ({ ...prev, role: value }))}>
+                  <SelectTrigger className="bg-gray-900/50 border-gray-700/50">
+                    <SelectValue placeholder="Select staff role" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                    {staffRoles.map(role => (
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -663,7 +648,7 @@ export default function StaffManagement() {
             </Button>
             <Button 
               onClick={handleAddStaff}
-              disabled={addStaffMutation.isPending || !newStaffData.username || !newStaffData.email || !newStaffData.password || !newStaffData.fullName || !newStaffData.role}
+              disabled={addStaffMutation.isPending || !newStaffData.username || !newStaffData.email || !newStaffData.password || !newStaffData.role}
               className="bg-purple-600 hover:bg-purple-700"
             >
               {addStaffMutation.isPending ? "Adding..." : "Add Staff Member"}
