@@ -3223,7 +3223,7 @@ export default function AdminDashboard() {
           <Button 
             size="sm" 
             onClick={() => setActiveSection('calendar')}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
+            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all cursor-pointer"
           >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
