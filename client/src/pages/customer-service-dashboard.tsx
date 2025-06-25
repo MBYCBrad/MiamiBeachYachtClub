@@ -269,15 +269,16 @@ export default function CustomerServiceDashboard() {
     <div className="min-h-screen bg-gray-950 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="mb-8">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2"
+            className="text-4xl font-semibold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif' }}
           >
-            Customer Service Center
+            Customer Service
           </motion.h1>
-          <p className="text-gray-400">Premium yacht club member support system</p>
+          <p className="text-gray-400 text-lg">Premium yacht club member support system</p>
         </div>
 
         {/* Active Call Display */}
