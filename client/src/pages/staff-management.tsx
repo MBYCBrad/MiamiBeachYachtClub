@@ -317,19 +317,7 @@ export default function StaffManagement() {
     }
   };
 
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl p-8">
-          <div className="text-center">
-            <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-            <p className="text-gray-400">Insufficient permissions to access staff management.</p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-black">
