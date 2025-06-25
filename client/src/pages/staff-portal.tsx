@@ -2664,8 +2664,8 @@ export default function StaffPortal() {
                 <tr className="border-b border-gray-700">
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction ID</th>
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Service/Event</th>
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Method</th>
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
                   <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
@@ -2711,14 +2711,6 @@ export default function StaffPortal() {
                       <div>
                         <p className="text-white font-bold text-lg">${Number(payment.amount || 0).toFixed(2)}</p>
                         <p className="text-gray-400 text-xs">{payment.currency || 'USD'}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                          <CreditCard className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="text-gray-300 text-sm capitalize">{payment.paymentMethod || 'stripe'}</span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
