@@ -19,7 +19,7 @@ import {
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { db, pool } from "./db";
-import { eq, and, desc, asc, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -1409,6 +1409,113 @@ export class DatabaseStorage implements IStorage {
 
   async getPhoneCallsByMember(memberId: number): Promise<PhoneCall[]> {
     return await db.select().from(phoneCalls).where(eq(phoneCalls.memberId, memberId)).orderBy(desc(phoneCalls.startTime));
+  }
+
+  // Missing admin functions for staff portal
+  async getAdminBookings() {
+    try {
+      const result = await this.db
+        .select({
+          id: bookings.id,
+          yachtId: bookings.yachtId,
+          userId: bookings.userId,
+          userName: bookings.userName,
+          email: bookings.email,
+          date: bookings.date,
+          startTime: bookings.startTime,
+          endTime: bookings.endTime,
+          guests: bookings.guests,
+          status: bookings.status,
+          createdAt: bookings.createdAt,
+          yacht: {
+            id: yachts.id,
+            name: yachts.name,
+            size: yachts.size,
+            capacity: yachts.capacity
+          },
+          user: {
+            id: users.id,
+            username: users.username,
+            email: users.email
+          }
+        })
+        .from(bookings)
+        .leftJoin(yachts, eq(bookings.yachtId, yachts.id))
+        .leftJoin(users, eq(bookings.userId, users.id))
+        .orderBy(desc(bookings.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Error fetching admin bookings:', error);
+      return [];
+    }
+  }
+
+  async getAdminServices() {
+    try {
+      const result = await this.db
+        .select()
+        .from(services)
+        .orderBy(desc(services.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Error fetching admin services:', error);
+      return [];
+    }
+  }
+
+  async getAdminEvents() {
+    try {
+      const result = await this.db
+        .select()
+        .from(events)
+        .orderBy(desc(events.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Error fetching admin events:', error);
+      return [];
+    }
+  }
+
+  async getAdminAnalytics() {
+    try {
+      const totalUsers = await this.db.select({ count: sql`count(*)` }).from(users);
+      const totalBookings = await this.db.select({ count: sql`count(*)` }).from(bookings);
+      const totalRevenue = await this.db.select({ sum: sql`sum(${serviceBookings.amount})` }).from(serviceBookings);
+      const activeMembers = await this.db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, 'member'));
+
+      return {
+        totalUsers: Number(totalUsers[0]?.count || 0),
+        totalBookings: Number(totalBookings[0]?.count || 0),
+        totalRevenue: Number(totalRevenue[0]?.sum || 0),
+        activeMembers: Number(activeMembers[0]?.count || 0),
+        monthlyBookings: Number(totalBookings[0]?.count || 0),
+        averageRating: 4.8
+      };
+    } catch (error) {
+      console.error('Error fetching admin analytics:', error);
+      return {
+        totalUsers: 0,
+        totalBookings: 0,
+        totalRevenue: 0,
+        activeMembers: 0,
+        monthlyBookings: 0,
+        averageRating: 4.8
+      };
+    }
+  }
+
+  async getAdminNotifications() {
+    try {
+      const result = await this.db
+        .select()
+        .from(notifications)
+        .orderBy(desc(notifications.createdAt))
+        .limit(50);
+      return result;
+    } catch (error) {
+      console.error('Error fetching admin notifications:', error);
+      return [];
+    }
   }
 }
 

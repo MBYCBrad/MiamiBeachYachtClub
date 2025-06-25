@@ -2016,7 +2016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const notifications = await dbStorage.getAdminNotifications();
+      const notifications = await dbStorage.getNotifications();
       res.json(notifications);
     } catch (error: any) {
       console.error('Error fetching admin notifications:', error);
@@ -4987,7 +4987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const users = await dbStorage.getAdminUsers();
+      const users = await dbStorage.getAllUsers();
       res.json(users);
     } catch (error) {
       console.error('Error fetching staff users:', error);
@@ -5001,7 +5001,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const yachts = await dbStorage.getAdminYachts();
+      const yachts = await dbStorage.getYachts();
       res.json(yachts);
     } catch (error) {
       console.error('Error fetching staff yachts:', error);
@@ -5015,7 +5015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const services = await dbStorage.getAdminServices();
+      const services = await dbStorage.getServices();
       res.json(services);
     } catch (error) {
       console.error('Error fetching staff services:', error);
@@ -5029,7 +5029,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const events = await dbStorage.getAdminEvents();
+      const events = await dbStorage.getEvents();
       res.json(events);
     } catch (error) {
       console.error('Error fetching staff events:', error);
@@ -5043,7 +5043,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const bookings = await dbStorage.getAdminBookings();
+      const bookings = await dbStorage.getAllBookings();
       res.json(bookings);
     } catch (error) {
       console.error('Error fetching staff bookings:', error);
@@ -5057,7 +5057,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const payments = await dbStorage.getAdminPayments();
+      const payments = await dbStorage.getAllServiceBookings();
       res.json(payments);
     } catch (error) {
       console.error('Error fetching staff payments:', error);
@@ -5071,7 +5071,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const analytics = await dbStorage.getAdminAnalytics();
+      const analytics = await dbStorage.getAnalytics();
       res.json(analytics);
     } catch (error) {
       console.error('Error fetching staff analytics:', error);
@@ -5085,7 +5085,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const notifications = await dbStorage.getAdminNotifications();
+      const notifications = await dbStorage.getNotifications();
       res.json(notifications);
     } catch (error) {
       console.error('Error fetching staff notifications:', error);
