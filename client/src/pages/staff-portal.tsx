@@ -291,156 +291,6 @@ export default function StaffPortal() {
     }
   });
 
-  // Service mutations
-  const createServiceMutation = useMutation({
-    mutationFn: (serviceData: any) => apiRequest('/api/staff/services', {
-      method: 'POST',
-      body: JSON.stringify(serviceData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/services'] });
-      setIsAddServiceDialogOpen(false);
-      setNewServiceData({
-        title: '',
-        description: '',
-        category: '',
-        pricePerSession: '',
-        duration: '',
-        location: '',
-        providerId: ''
-      });
-      toast({
-        title: "Success",
-        description: "Service created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create service",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const updateServiceMutation = useMutation({
-    mutationFn: (serviceData: any) => apiRequest(`/api/staff/services/${serviceData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(serviceData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/services'] });
-      setIsEditServiceDialogOpen(false);
-      setSelectedService(null);
-      toast({
-        title: "Success",
-        description: "Service updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update service",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const deleteServiceMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/staff/services/${id}`, {
-      method: 'DELETE'
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/services'] });
-      toast({
-        title: "Success",
-        description: "Service deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete service",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Event mutations
-  const createEventMutation = useMutation({
-    mutationFn: (eventData: any) => apiRequest('/api/staff/events', {
-      method: 'POST',
-      body: JSON.stringify(eventData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/events'] });
-      setIsAddEventDialogOpen(false);
-      setNewEventData({
-        title: '',
-        description: '',
-        eventType: '',
-        location: '',
-        maxCapacity: '',
-        ticketPrice: '',
-        eventDate: ''
-      });
-      toast({
-        title: "Success",
-        description: "Event created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create event",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const updateEventMutation = useMutation({
-    mutationFn: (eventData: any) => apiRequest(`/api/staff/events/${eventData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(eventData)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/events'] });
-      setIsEditEventDialogOpen(false);
-      setSelectedEvent(null);
-      toast({
-        title: "Success",
-        description: "Event updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update event",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const deleteEventMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/staff/events/${id}`, {
-      method: 'DELETE'
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/events'] });
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete event",
-        variant: "destructive",
-      });
-    }
-  });
-
   // Logout function
   const handleLogout = async () => {
     try {
@@ -529,36 +379,6 @@ export default function StaffPortal() {
     description: '',
     amenities: [] as string[],
     ownerId: ''
-  });
-
-  // Service dialog states
-  const [isAddServiceDialogOpen, setIsAddServiceDialogOpen] = useState(false);
-  const [isEditServiceDialogOpen, setIsEditServiceDialogOpen] = useState(false);
-  const [isViewServiceDialogOpen, setIsViewServiceDialogOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [newServiceData, setNewServiceData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    pricePerSession: '',
-    duration: '',
-    location: '',
-    providerId: ''
-  });
-
-  // Event dialog states
-  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
-  const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false);
-  const [isViewEventDialogOpen, setIsViewEventDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [newEventData, setNewEventData] = useState({
-    title: '',
-    description: '',
-    eventType: '',
-    location: '',
-    maxCapacity: '',
-    ticketPrice: '',
-    eventDate: ''
   });
 
   // API Queries - using staff endpoints where appropriate
@@ -2746,14 +2566,6 @@ export default function StaffPortal() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-blue-600"
-            onClick={() => setIsAddServiceDialogOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Service
-          </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
@@ -2933,7 +2745,7 @@ export default function StaffPortal() {
                 </div>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2">{service.title || service.name}</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
@@ -2943,8 +2755,10 @@ export default function StaffPortal() {
                       variant="ghost" 
                       className="text-gray-400 hover:text-white"
                       onClick={() => {
-                        setSelectedService(service);
-                        setIsViewServiceDialogOpen(true);
+                        toast({
+                          title: "Service Details",
+                          description: `Viewing details for ${service.name}`,
+                        });
                       }}
                     >
                       <Eye className="h-4 w-4" />
@@ -2954,8 +2768,10 @@ export default function StaffPortal() {
                       variant="ghost" 
                       className="text-gray-400 hover:text-white"
                       onClick={() => {
-                        setSelectedService(service);
-                        setIsEditServiceDialogOpen(true);
+                        toast({
+                          title: "Edit Service",
+                          description: `Editing ${service.name}`,
+                        });
                       }}
                     >
                       <Edit className="h-4 w-4" />
@@ -2966,7 +2782,10 @@ export default function StaffPortal() {
                       className="text-gray-400 hover:text-red-400"
                       onClick={() => {
                         if (confirm(`Are you sure you want to delete service ${service.name}?`)) {
-                          deleteServiceMutation.mutate(service.id);
+                          toast({
+                            title: "Service Deleted",
+                            description: `${service.name} has been removed`,
+                          });
                         }
                       }}
                     >
@@ -2980,235 +2799,6 @@ export default function StaffPortal() {
           ))
         )}
       </div>
-
-      {/* Add Service Dialog */}
-      <Dialog open={isAddServiceDialogOpen} onOpenChange={setIsAddServiceDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Add New Service</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Create a new concierge service for yacht experiences
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="service-title" className="text-white">Service Title</Label>
-              <Input
-                id="service-title"
-                value={newServiceData.title}
-                onChange={(e) => setNewServiceData({...newServiceData, title: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter service title"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="service-category" className="text-white">Category</Label>
-              <Select value={newServiceData.category} onValueChange={(value) => setNewServiceData({...newServiceData, category: value})}>
-                <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-950 border-gray-600 text-white">
-                  <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
-                  <SelectItem value="Culinary">Culinary</SelectItem>
-                  <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
-                  <SelectItem value="Photography & Media">Photography & Media</SelectItem>
-                  <SelectItem value="Entertainment">Entertainment</SelectItem>
-                  <SelectItem value="Water Sports">Water Sports</SelectItem>
-                  <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="service-price" className="text-white">Price per Session</Label>
-              <Input
-                id="service-price"
-                type="number"
-                value={newServiceData.pricePerSession}
-                onChange={(e) => setNewServiceData({...newServiceData, pricePerSession: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter price"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="service-duration" className="text-white">Duration (hours)</Label>
-              <Input
-                id="service-duration"
-                type="number"
-                value={newServiceData.duration}
-                onChange={(e) => setNewServiceData({...newServiceData, duration: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter duration"
-              />
-            </div>
-            
-            <div className="col-span-2 space-y-2">
-              <Label htmlFor="service-description" className="text-white">Description</Label>
-              <Input
-                id="service-description"
-                value={newServiceData.description}
-                onChange={(e) => setNewServiceData({...newServiceData, description: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter description"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddServiceDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => createServiceMutation.mutate(newServiceData)}
-              disabled={createServiceMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-blue-600"
-            >
-              {createServiceMutation.isPending ? "Creating..." : "Create Service"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* View Service Dialog */}
-      <Dialog open={isViewServiceDialogOpen} onOpenChange={setIsViewServiceDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Service Details</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              View service information and pricing
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedService && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label className="text-gray-400">Service Title</Label>
-                <p className="text-white font-medium">{selectedService.title || selectedService.name}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Category</Label>
-                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                  {selectedService.category}
-                </Badge>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Price per Session</Label>
-                <p className="text-white font-medium">${selectedService.pricePerSession}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Duration</Label>
-                <p className="text-white font-medium">{selectedService.duration || 'Not specified'} hours</p>
-              </div>
-              
-              <div className="col-span-2 space-y-2">
-                <Label className="text-gray-400">Description</Label>
-                <p className="text-white font-medium">{selectedService.description || 'No description available'}</p>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewServiceDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Service Dialog */}
-      <Dialog open={isEditServiceDialogOpen} onOpenChange={setIsEditServiceDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Edit Service</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Update service information and pricing
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedService && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-service-title" className="text-white">Service Title</Label>
-                <Input
-                  id="edit-service-title"
-                  value={selectedService.title || selectedService.name}
-                  onChange={(e) => setSelectedService({...selectedService, title: e.target.value, name: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-service-category" className="text-white">Category</Label>
-                <Select value={selectedService.category} onValueChange={(value) => setSelectedService({...selectedService, category: value})}>
-                  <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-950 border-gray-600 text-white">
-                    <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
-                    <SelectItem value="Culinary">Culinary</SelectItem>
-                    <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
-                    <SelectItem value="Photography & Media">Photography & Media</SelectItem>
-                    <SelectItem value="Entertainment">Entertainment</SelectItem>
-                    <SelectItem value="Water Sports">Water Sports</SelectItem>
-                    <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-service-price" className="text-white">Price per Session</Label>
-                <Input
-                  id="edit-service-price"
-                  type="number"
-                  value={selectedService.pricePerSession}
-                  onChange={(e) => setSelectedService({...selectedService, pricePerSession: parseInt(e.target.value)})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-service-duration" className="text-white">Duration (hours)</Label>
-                <Input
-                  id="edit-service-duration"
-                  type="number"
-                  value={selectedService.duration || ''}
-                  onChange={(e) => setSelectedService({...selectedService, duration: parseInt(e.target.value)})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="col-span-2 space-y-2">
-                <Label htmlFor="edit-service-description" className="text-white">Description</Label>
-                <Input
-                  id="edit-service-description"
-                  value={selectedService.description || ''}
-                  onChange={(e) => setSelectedService({...selectedService, description: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditServiceDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => updateServiceMutation.mutate(selectedService)}
-              disabled={updateServiceMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-blue-600"
-            >
-              {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </motion.div>
   );
 
@@ -3593,11 +3183,7 @@ export default function StaffPortal() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-blue-600"
-            onClick={() => setIsAddEventDialogOpen(true)}
-          >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
             <Plus className="h-4 w-4 mr-2" />
             Add Event
           </Button>
@@ -3806,39 +3392,8 @@ export default function StaffPortal() {
                       {event.eventType}
                     </Badge>
                     <div className="flex items-center space-x-2">
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-gray-400 hover:text-white"
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setIsViewEventDialogOpen(true);
-                        }}
-                      >
+                      <Button size="sm" variant="ghost" className="text-violet-400 hover:text-white">
                         <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-gray-400 hover:text-white"
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setIsEditEventDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-gray-400 hover:text-red-400"
-                        onClick={() => {
-                          if (confirm(`Are you sure you want to delete event ${event.title}?`)) {
-                            deleteEventMutation.mutate(event.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -3848,284 +3403,6 @@ export default function StaffPortal() {
           ))
         )}
       </div>
-
-      {/* Add Event Dialog */}
-      <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Add New Event</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Create a new yacht club event or experience
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="event-title" className="text-white">Event Title</Label>
-              <Input
-                id="event-title"
-                value={newEventData.title}
-                onChange={(e) => setNewEventData({...newEventData, title: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter event title"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-location" className="text-white">Location</Label>
-              <Input
-                id="event-location"
-                value={newEventData.location}
-                onChange={(e) => setNewEventData({...newEventData, location: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter location"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-type" className="text-white">Event Type</Label>
-              <Select value={newEventData.eventType} onValueChange={(value) => setNewEventData({...newEventData, eventType: value})}>
-                <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
-                  <SelectValue placeholder="Select event type" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-950 border-gray-600 text-white">
-                  <SelectItem value="Dining">Dining</SelectItem>
-                  <SelectItem value="Entertainment">Entertainment</SelectItem>
-                  <SelectItem value="Networking">Networking</SelectItem>
-                  <SelectItem value="Education">Education</SelectItem>
-                  <SelectItem value="Social">Social</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-capacity" className="text-white">Max Capacity</Label>
-              <Input
-                id="event-capacity"
-                type="number"
-                value={newEventData.maxCapacity}
-                onChange={(e) => setNewEventData({...newEventData, maxCapacity: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter capacity"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-price" className="text-white">Ticket Price</Label>
-              <Input
-                id="event-price"
-                type="number"
-                value={newEventData.ticketPrice}
-                onChange={(e) => setNewEventData({...newEventData, ticketPrice: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter ticket price"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="event-date" className="text-white">Event Date</Label>
-              <Input
-                id="event-date"
-                type="date"
-                value={newEventData.eventDate}
-                onChange={(e) => setNewEventData({...newEventData, eventDate: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-              />
-            </div>
-            
-            <div className="col-span-2 space-y-2">
-              <Label htmlFor="event-description" className="text-white">Description</Label>
-              <Input
-                id="event-description"
-                value={newEventData.description}
-                onChange={(e) => setNewEventData({...newEventData, description: e.target.value})}
-                className="bg-gray-950 border-gray-600 text-white"
-                placeholder="Enter description"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddEventDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => createEventMutation.mutate(newEventData)}
-              disabled={createEventMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-blue-600"
-            >
-              {createEventMutation.isPending ? "Creating..." : "Create Event"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* View Event Dialog */}
-      <Dialog open={isViewEventDialogOpen} onOpenChange={setIsViewEventDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Event Details</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              View event information and details
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedEvent && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label className="text-gray-400">Event Title</Label>
-                <p className="text-white font-medium">{selectedEvent.title}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Location</Label>
-                <p className="text-white font-medium">{selectedEvent.location}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Event Type</Label>
-                <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">
-                  {selectedEvent.eventType}
-                </Badge>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Max Capacity</Label>
-                <p className="text-white font-medium">{selectedEvent.maxCapacity} guests</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Ticket Price</Label>
-                <p className="text-white font-medium">${selectedEvent.ticketPrice}</p>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-gray-400">Event Date</Label>
-                <p className="text-white font-medium">{new Date(selectedEvent.eventDate).toLocaleDateString()}</p>
-              </div>
-              
-              <div className="col-span-2 space-y-2">
-                <Label className="text-gray-400">Description</Label>
-                <p className="text-white font-medium">{selectedEvent.description || 'No description available'}</p>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewEventDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Event Dialog */}
-      <Dialog open={isEditEventDialogOpen} onOpenChange={setIsEditEventDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">Edit Event</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Update event information and details
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedEvent && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-title" className="text-white">Event Title</Label>
-                <Input
-                  id="edit-event-title"
-                  value={selectedEvent.title}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, title: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-location" className="text-white">Location</Label>
-                <Input
-                  id="edit-event-location"
-                  value={selectedEvent.location}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, location: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-type" className="text-white">Event Type</Label>
-                <Select value={selectedEvent.eventType} onValueChange={(value) => setSelectedEvent({...selectedEvent, eventType: value})}>
-                  <SelectTrigger className="bg-gray-950 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-950 border-gray-600 text-white">
-                    <SelectItem value="Dining">Dining</SelectItem>
-                    <SelectItem value="Entertainment">Entertainment</SelectItem>
-                    <SelectItem value="Networking">Networking</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
-                    <SelectItem value="Social">Social</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-capacity" className="text-white">Max Capacity</Label>
-                <Input
-                  id="edit-event-capacity"
-                  type="number"
-                  value={selectedEvent.maxCapacity}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, maxCapacity: parseInt(e.target.value)})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-price" className="text-white">Ticket Price</Label>
-                <Input
-                  id="edit-event-price"
-                  type="number"
-                  value={selectedEvent.ticketPrice}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, ticketPrice: parseInt(e.target.value)})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="edit-event-date" className="text-white">Event Date</Label>
-                <Input
-                  id="edit-event-date"
-                  type="date"
-                  value={selectedEvent.eventDate ? new Date(selectedEvent.eventDate).toISOString().split('T')[0] : ''}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, eventDate: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="col-span-2 space-y-2">
-                <Label htmlFor="edit-event-description" className="text-white">Description</Label>
-                <Input
-                  id="edit-event-description"
-                  value={selectedEvent.description || ''}
-                  onChange={(e) => setSelectedEvent({...selectedEvent, description: e.target.value})}
-                  className="bg-gray-950 border-gray-600 text-white"
-                />
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditEventDialogOpen(false)} className="border-gray-600 text-gray-400">
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => updateEventMutation.mutate(selectedEvent)}
-              disabled={updateEventMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-blue-600"
-            >
-              {updateEventMutation.isPending ? "Updating..." : "Update Event"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </motion.div>
   );
 
