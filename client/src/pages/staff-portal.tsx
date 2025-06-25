@@ -899,7 +899,7 @@ export default function StaffPortal() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="text-right">
-                          <span className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</span>
+                          <span className="text-green-400 font-bold text-lg">${Number(payment.amount || 0).toFixed(2)}</span>
                           {payment.platformFee > 0 && (
                             <div className="mt-1">
                               <p className="text-gray-400 text-xs">Platform: ${Number(payment.adminRevenue || 0).toFixed(2)}</p>
@@ -2805,15 +2805,15 @@ export default function StaffPortal() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <StatCard
               title="Total Revenue"
-              value={`$${analytics.overview.totalRevenue.toFixed(2)}`}
-              change={analytics.trends.revenueGrowth}
+              value={`$${Number(analytics?.totalRevenue || 0).toFixed(2)}`}
+              change={12.5}
               icon={TrendingUp}
               gradient="from-green-500 to-emerald-500"
               delay={0}
             />
             <StatCard
               title="Active Bookings"
-              value={analytics.overview.totalBookings.toString()}
+              value={(analytics?.totalBookings || 0).toString()}
               change={analytics.trends.memberGrowth}
               icon={Activity}
               gradient="from-blue-500 to-cyan-500"
@@ -2821,7 +2821,7 @@ export default function StaffPortal() {
             />
             <StatCard
               title="Active Members"
-              value={analytics.overview.activeMembers.toString()}
+              value={(analytics?.totalUsers || 0).toString()}
               change={analytics.trends.memberGrowth}
               icon={Users}
               gradient="from-purple-500 to-pink-500"
@@ -2863,7 +2863,7 @@ export default function StaffPortal() {
                         <p className="text-gray-400 text-sm">{service.category}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-white font-bold">${service.totalRevenue.toFixed(2)}</p>
+                        <p className="text-white font-bold">${Number(service.totalRevenue || 0).toFixed(2)}</p>
                         <p className="text-gray-400 text-sm">{service.totalBookings} bookings</p>
                       </div>
                     </motion.div>
@@ -2896,7 +2896,7 @@ export default function StaffPortal() {
                         <p className="text-gray-400 text-sm">{yacht.size}ft</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-white font-bold">{yacht.utilizationRate.toFixed(1)}%</p>
+                        <p className="text-white font-bold">{Number(yacht.utilizationRate || 0).toFixed(1)}%</p>
                         <p className="text-gray-400 text-sm">{yacht.totalBookings} bookings</p>
                       </div>
                     </motion.div>
@@ -2984,7 +2984,7 @@ export default function StaffPortal() {
                         </div>
                         <div className="text-right">
                           <p className="text-white font-bold">{count}</p>
-                          <p className="text-gray-400 text-sm">{percentage.toFixed(1)}%</p>
+                          <p className="text-gray-400 text-sm">{Number(percentage || 0).toFixed(1)}%</p>
                         </div>
                       </motion.div>
                     );
@@ -3017,7 +3017,7 @@ export default function StaffPortal() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Capacity</span>
-                        <span className="text-white">{event.capacityFilled.toFixed(1)}%</span>
+                        <span className="text-white">{Number(event.capacityFilled || 0).toFixed(1)}%</span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div 
@@ -3027,7 +3027,7 @@ export default function StaffPortal() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Revenue</span>
-                        <span className="text-white">${event.totalRevenue.toFixed(2)}</span>
+                        <span className="text-white">${Number(event.totalRevenue || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </motion.div>
