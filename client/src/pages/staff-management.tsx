@@ -324,7 +324,7 @@ export default function StaffManagement() {
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-            <p className="text-gray-400">Only administrators can access staff management.</p>
+            <p className="text-gray-400">Insufficient permissions to access staff management.</p>
           </div>
         </Card>
       </div>
