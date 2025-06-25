@@ -1,452 +1,297 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  BarChart3, 
-  Users, 
-  Anchor, 
-  CalendarDays, 
-  Settings, 
-  Shield,
-  TrendingUp,
-  Activity,
-  Bell,
-  Search,
-  Calendar,
-  Star,
-  DollarSign,
-  Clock,
-  MapPin,
-  LogOut,
-  Menu,
-  X,
-  MessageSquare,
-  Ship,
-  Wrench,
-  User,
-  Sparkles,
-  CreditCard
-} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-
-interface StaffMember {
-  id: number;
-  username: string;
-  email: string;
-  fullName: string;
-  role: string;
-  department: string;
-  permissions: string[] | null;
-  status: string;
-  phone: string | null;
-  location: string | null;
-}
-
-interface StaffStats {
-  totalTasks: number;
-  completedToday: number;
-  pendingTasks: number;
-  activeProjects: number;
-}
-
-// Staff portal menu items - filtered by permissions
-const allStaffMenuItems = [
-  { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500', permission: 'dashboard_access' },
-  { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500', permission: 'booking_management' },
-  { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500', permission: 'calendar_access' },
-  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500', permission: 'customer_service' },
-  { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500', permission: 'maintenance_access' },
-  { id: 'fleet', label: 'Fleet', icon: Anchor, color: 'from-blue-500 to-cyan-500', permission: 'fleet_management' },
-  { id: 'services', label: 'Services', icon: Sparkles, color: 'from-orange-500 to-red-500', permission: 'service_management' },
-  { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'event_management' },
-  { id: 'members', label: 'Members', icon: Users, color: 'from-green-500 to-emerald-500', permission: 'member_access' },
-  { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics_access' },
-  { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'profile_access' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'settings_access' },
-];
-
-const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="group relative overflow-hidden"
-  >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm font-medium">{title}</p>
-            <p className="text-3xl font-bold text-white mt-2">{value}</p>
-            {change !== null && (
-              <div className="flex items-center mt-2">
-                <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                <span className="text-green-400 text-sm">+{change}%</span>
-              </div>
-            )}
-          </div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-        </div>
-      </CardContent>
-      
-      {/* Animated background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-    </Card>
-  </motion.div>
-);
-
-const ActivityCard = ({ activity, index }: any) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1 }}
-    className="flex items-center space-x-4 p-4 bg-gray-900/30 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition-all duration-300"
-  >
-    <div className={`p-2 rounded-lg bg-gradient-to-br ${activity.color}`}>
-      <activity.icon className="h-4 w-4 text-white" />
-    </div>
-    <div className="flex-1">
-      <p className="text-white font-medium">{activity.title}</p>
-      <p className="text-gray-400 text-sm">{activity.description}</p>
-    </div>
-    <span className="text-gray-400 text-sm">{activity.time}</span>
-  </motion.div>
-);
+import { 
+  Anchor, 
+  Calendar, 
+  Users, 
+  BarChart3, 
+  Settings, 
+  LogOut,
+  Bell,
+  Activity,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Ship,
+  UserCheck,
+  Wrench,
+  Phone
+} from "lucide-react";
+import { Redirect } from "wouter";
 
 export default function StaffPortal() {
-  const [activeSection, setActiveSection] = useState('overview');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { user, logoutMutation } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [activeSection, setActiveSection] = useState('overview');
 
-  // Fetch current staff member details
-  const { data: staffMember } = useQuery<StaffMember>({
-    queryKey: ['/api/staff/profile'],
-    enabled: !!user
-  });
+  // Redirect non-staff users
+  if (!user || user.role !== 'staff') {
+    return <Redirect to="/auth" />;
+  }
 
-  // Fetch staff statistics
-  const { data: staffStats } = useQuery<StaffStats>({
+  const { data: staffStats } = useQuery({
     queryKey: ['/api/staff/stats'],
-    enabled: !!user
+    enabled: !!user,
   });
 
-  // Filter menu items based on staff permissions
-  const allowedMenuItems = allStaffMenuItems.filter(item => {
-    if (!staffMember?.permissions) return item.id === 'overview' || item.id === 'my-profile';
-    return staffMember.permissions.includes(item.permission) || item.id === 'my-profile';
+  const { data: tasks } = useQuery({
+    queryKey: ['/api/staff/tasks'],
+    enabled: !!user,
+  });
+
+  const { data: notifications } = useQuery({
+    queryKey: ['/api/staff/notifications'],
+    enabled: !!user,
   });
 
   const handleLogout = () => {
     logoutMutation.mutate();
   };
 
-  const handleSectionChange = (sectionId: string) => {
-    if (sectionId === 'logout') {
-      handleLogout();
-      return;
-    }
-    setActiveSection(sectionId);
-  };
-
-  // Recent activity mock data - would be fetched from API
-  const recentActivities = [
-    {
-      icon: Calendar,
-      title: "Yacht booking confirmed",
-      description: "Marina Breeze - 2:00 PM today",
-      time: "5 min ago",
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: MessageSquare,
-      title: "Customer inquiry resolved",
-      description: "Member service request completed",
-      time: "12 min ago",
-      color: "from-green-500 to-emerald-500"
-    },
-    {
-      icon: Wrench,
-      title: "Maintenance task assigned",
-      description: "Engine inspection for Ocean Elite",
-      time: "25 min ago",
-      color: "from-amber-500 to-orange-500"
-    }
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'tasks', label: 'My Tasks', icon: CheckCircle },
+    { id: 'schedule', label: 'Schedule', icon: Calendar },
+    { id: 'members', label: 'Members', icon: Users, permission: 'member_relations' },
+    { id: 'yachts', label: 'Fleet Status', icon: Ship, permission: 'yacht_management' },
+    { id: 'bookings', label: 'Bookings', icon: Calendar, permission: 'booking_oversight' },
+    { id: 'maintenance', label: 'Maintenance', icon: Wrench, permission: 'maintenance_oversight' },
+    { id: 'concierge', label: 'Concierge', icon: Phone, permission: 'concierge_services' },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50 sticky top-0 z-50"
-      >
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden text-gray-400 hover:text-white"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-white" />
+  const filteredSidebarItems = sidebarItems.filter(item => 
+    !item.permission || user.permissions?.includes(item.permission)
+  );
+
+  const renderOverview = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold text-white mb-2">
+          Welcome back, {user.fullName}
+        </h2>
+        <p className="text-gray-300">
+          {user.staffRole} • {user.department} Department • {user.location}
+        </p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Active Tasks</CardTitle>
+            <CheckCircle className="h-4 w-4 text-purple-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{staffStats?.activeTasks || 0}</div>
+            <p className="text-xs text-gray-400">
+              +2 from yesterday
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Today's Schedule</CardTitle>
+            <Clock className="h-4 w-4 text-blue-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{staffStats?.todayEvents || 0}</div>
+            <p className="text-xs text-gray-400">
+              events scheduled
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Notifications</CardTitle>
+            <Bell className="h-4 w-4 text-yellow-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{notifications?.length || 0}</div>
+            <p className="text-xs text-gray-400">
+              unread messages
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Activity className="h-5 w-5 text-purple-400" />
+            Recent Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {tasks?.slice(0, 5).map((task: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    task.priority === 'high' ? 'bg-red-400' :
+                    task.priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400'
+                  }`} />
+                  <div>
+                    <p className="text-white font-medium">{task.title}</p>
+                    <p className="text-gray-400 text-sm">{task.description}</p>
+                  </div>
+                </div>
+                <Badge variant={task.status === 'completed' ? 'default' : 'secondary'}>
+                  {task.status}
+                </Badge>
               </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Staff Portal
-                </h1>
-                <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
-              </div>
-            </div>
+            )) || (
+              <p className="text-gray-400 text-center py-8">No recent activities</p>
+            )}
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2">
-              <Search className="h-4 w-4 text-gray-400" />
-              <Input 
-                placeholder="Search..." 
-                className="w-64 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400"
-              />
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return renderOverview();
+      case 'tasks':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white">My Tasks</h2>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-6">
+                <p className="text-gray-400 text-center py-8">Task management coming soon...</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'schedule':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white">Schedule</h2>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-6">
+                <p className="text-gray-400 text-center py-8">Schedule management coming soon...</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      default:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-white capitalize">{activeSection}</h2>
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-6">
+                <p className="text-gray-400 text-center py-8">This section is coming soon...</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-950 flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+              <Anchor className="h-6 w-6 text-white" />
             </div>
-            
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5 text-gray-400" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"></span>
-            </Button>
-
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.jpg" />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                  {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-white">{staffMember?.fullName || 'Staff Member'}</p>
-                <p className="text-xs text-gray-400">{staffMember?.role || 'Staff'}</p>
-              </div>
+            <div>
+              <h1 className="text-white font-bold">MBYC Staff</h1>
+              <p className="text-gray-400 text-sm">Portal</p>
             </div>
           </div>
         </div>
-      </motion.header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <motion.aside
-              initial={{ x: -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="w-64 bg-gray-950 border-r border-gray-800/50 min-h-screen sticky top-16"
-            >
-              <div className="p-6 space-y-2">
-                {allowedMenuItems.map((item, index) => (
-                  <motion.button
-                    key={item.id}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => handleSectionChange(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-                      activeSection === item.id
-                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                    }`}
-                  >
-                    <item.icon className={`h-5 w-5 transition-transform duration-300 ${
-                      activeSection === item.id ? 'scale-110' : 'group-hover:scale-105'
-                    }`} />
-                    <span className="font-medium">{item.label}</span>
-                  </motion.button>
-                ))}
-                
-                <Separator className="my-4 bg-gray-800" />
-                
-                <motion.button
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: allowedMenuItems.length * 0.05 }}
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                >
-                  <LogOut className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" />
-                  <span className="font-medium">Log Out</span>
-                </motion.button>
-              </div>
-            </motion.aside>
-          )}
-        </AnimatePresence>
+        {/* Navigation */}
+        <div className="flex-1 p-4">
+          <nav className="space-y-2">
+            {filteredSidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeSection === item.id
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {activeSection === 'overview' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
-              <div>
-                <h2 className="text-3xl font-bold text-white mb-2">
-                  Welcome back, {staffMember?.fullName?.split(' ')[0] || 'Staff'}
-                </h2>
-                <p className="text-gray-400">
-                  {staffMember?.role || 'Staff Member'} • {staffMember?.department || 'Operations'}
-                </p>
-              </div>
+        {/* User Info & Logout */}
+        <div className="p-4 border-t border-gray-800">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+              <UserCheck className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-medium truncate">{user.fullName}</p>
+              <p className="text-gray-400 text-sm truncate">{user.staffRole}</p>
+            </div>
+          </div>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
+            disabled={logoutMutation.isPending}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
+      </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                  title="Total Tasks"
-                  value={staffStats?.totalTasks || 12}
-                  change={8}
-                  icon={Activity}
-                  gradient="from-purple-500 to-indigo-500"
-                  delay={0}
-                />
-                <StatCard
-                  title="Completed Today"
-                  value={staffStats?.completedToday || 8}
-                  change={15}
-                  icon={Star}
-                  gradient="from-green-500 to-emerald-500"
-                  delay={0.1}
-                />
-                <StatCard
-                  title="Pending Tasks"
-                  value={staffStats?.pendingTasks || 4}
-                  change={null}
-                  icon={Clock}
-                  gradient="from-amber-500 to-orange-500"
-                  delay={0.2}
-                />
-                <StatCard
-                  title="Active Projects"
-                  value={staffStats?.activeProjects || 3}
-                  change={25}
-                  icon={MapPin}
-                  gradient="from-blue-500 to-cyan-500"
-                  delay={0.3}
-                />
-              </div>
-
-              {/* Recent Activity */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center space-x-2">
-                    <Activity className="h-5 w-5 text-purple-400" />
-                    <span>Recent Activity</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <ActivityCard key={index} activity={activity} index={index} />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="bg-gray-900 border-b border-gray-800 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl font-semibold text-white capitalize">
+                {activeSection.replace('_', ' ')}
+              </h1>
+              {user.permissions && user.permissions.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {user.permissions.slice(0, 3).map((permission) => (
+                    <Badge key={permission} variant="secondary" className="text-xs">
+                      {permission.replace('_', ' ')}
+                    </Badge>
                   ))}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {activeSection === 'my-profile' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
-              <h2 className="text-3xl font-bold text-white">My Profile</h2>
-              
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white">Staff Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src="/placeholder-avatar.jpg" />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg">
-                        {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{staffMember?.fullName}</h3>
-                      <p className="text-gray-400">{staffMember?.role}</p>
-                      <Badge variant="secondary" className="mt-1">
-                        {staffMember?.status || 'Active'}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-400">Email</label>
-                      <p className="text-white">{staffMember?.email}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Phone</label>
-                      <p className="text-white">{staffMember?.phone || 'Not provided'}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Department</label>
-                      <p className="text-white">{staffMember?.department}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Location</label>
-                      <p className="text-white">{staffMember?.location || 'Not specified'}</p>
-                    </div>
-                  </div>
-
-                  {staffMember?.permissions && staffMember.permissions.length > 0 && (
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Permissions</label>
-                      <div className="flex flex-wrap gap-2">
-                        {staffMember.permissions.map((permission, index) => (
-                          <Badge key={index} variant="outline" className="text-purple-400 border-purple-400">
-                            {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                  {user.permissions.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{user.permissions.length - 3} more
+                    </Badge>
                   )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+                <Bell className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
 
-          {/* Placeholder for other sections */}
-          {!['overview', 'my-profile'].includes(activeSection) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
-            >
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {allowedMenuItems.find(item => item.id === activeSection)?.label} Section
-              </h3>
-              <p className="text-gray-400">This section is under development</p>
-            </motion.div>
-          )}
-        </main>
+        {/* Content Area */}
+        <div className="flex-1 p-6 overflow-auto">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
