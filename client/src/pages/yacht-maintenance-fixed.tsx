@@ -977,23 +977,21 @@ function YachtMaintenanceSystem({ yachtId, yachtData, onBack }: { yachtId: numbe
           </TabsTrigger>
         </TabsList>
 
-        <AnimatePresence mode="wait">
-          <TabsContent value="overview" key="overview">
-            {renderOverviewTab()}
-          </TabsContent>
-          
-          <TabsContent value="components" key="components">
-            {renderComponentsTab()}
-          </TabsContent>
-          
-          <TabsContent value="maintenance" key="maintenance">
-            {renderMaintenanceTab()}
-          </TabsContent>
-          
-          <TabsContent value="analytics" key="analytics">
-            {renderAnalyticsTab()}
-          </TabsContent>
-        </AnimatePresence>
+        <TabsContent value="overview">
+          {renderOverviewTab()}
+        </TabsContent>
+        
+        <TabsContent value="components">
+          {renderComponentsTab()}
+        </TabsContent>
+        
+        <TabsContent value="maintenance">
+          {renderMaintenanceTab()}
+        </TabsContent>
+        
+        <TabsContent value="analytics">
+          {renderAnalyticsTab()}
+        </TabsContent>
       </Tabs>
     </div>
   );
