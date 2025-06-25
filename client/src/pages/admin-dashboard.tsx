@@ -4139,13 +4139,13 @@ export default function AdminDashboard() {
                 Filter Yachts
                 {(yachtFilters.availability !== "all" || yachtFilters.size !== "all" || 
                   yachtFilters.location !== "all" || yachtFilters.priceRange !== "all") && (
-                  <Badge className="ml-2 bg-blue-500 text-white text-xs">
+                  <Badge className="ml-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs">
                     {Object.values(yachtFilters).filter(v => v !== "all").length}
                   </Badge>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-white">Filter Yachts</h4>
@@ -4380,7 +4380,7 @@ export default function AdminDashboard() {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-white">Filter Services</h4>
@@ -4614,7 +4614,7 @@ export default function AdminDashboard() {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 bg-gray-900 border-gray-700" align="end">
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-white">Filter Events</h4>
