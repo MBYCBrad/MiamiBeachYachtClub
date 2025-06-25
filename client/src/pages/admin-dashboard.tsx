@@ -4550,9 +4550,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <ViewServiceDialog service={service} />
                     <EditServiceDialog service={service} />
                     <DeleteServiceDialog service={service} />
                   </div>
@@ -4767,9 +4765,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${event.ticketPrice || '0'}</span>
                   <div className="flex items-center space-x-2">
-                    <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <ViewEventDialog event={event} />
                     <EditEventDialog event={event} />
                     <DeleteEventDialog event={event} />
                   </div>
@@ -5052,9 +5048,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <ViewPaymentDialog payment={payment} />
                         <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                           <ChevronRight className="h-4 w-4" />
                         </Button>
@@ -5427,3 +5421,322 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+// Additional View Dialog Components
+function ViewServiceDialog({ service }: { service: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
+            Service Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Complete service information and provider details
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <img 
+                src={service.imageUrl || '/api/media/pexels-goumbik-296278_1750537277229.jpg'} 
+                alt={service.name}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-gray-300">Service Name</Label>
+                  <p className="text-xl font-bold text-white">{service.name}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Price</Label>
+                  <p className="text-green-400 font-bold text-lg">${service.price}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Category</Label>
+                  <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                    {service.category}
+                  </Badge>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Duration</Label>
+                  <p className="text-white font-medium">{service.duration} minutes</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-gray-300">Description</Label>
+                <p className="text-gray-300 text-sm leading-relaxed">{service.description}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Provider Information</Label>
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-900/50">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{service.provider?.name || 'MBYC Staff'}</p>
+                    <p className="text-gray-400 text-sm">{service.provider?.role || 'Service Provider'}</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-gray-300">Service ID</Label>
+                <p className="text-white font-mono">#{service.id}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Status</Label>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                  Available
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ViewEventDialog({ event }: { event: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-4xl">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <Calendar className="h-5 w-5 mr-2 text-orange-500" />
+            Event Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Complete event information and registration details
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <img 
+                src={event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'} 
+                alt={event.title}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-300">Event Date</Label>
+                  <p className="text-white font-medium">{new Date(event.eventDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Event Time</Label>
+                  <p className="text-white font-medium">{new Date(event.eventDate).toLocaleTimeString()}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Capacity</Label>
+                  <p className="text-white font-medium">{event.capacity} guests</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Ticket Price</Label>
+                  <p className="text-green-400 font-bold">${event.ticketPrice || '0'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-gray-300">Event Title</Label>
+                <p className="text-xl font-bold text-white">{event.title}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Description</Label>
+                <p className="text-gray-300 text-sm leading-relaxed">{event.description}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Location</Label>
+                <p className="text-white font-medium flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-orange-500" />
+                  {event.location}
+                </p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Event Host</Label>
+                <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-900/50">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{event.host?.name || 'MBYC Events'}</p>
+                    <p className="text-gray-400 text-sm">{event.host?.role || 'Event Organizer'}</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-gray-300">Event ID</Label>
+                <p className="text-white font-mono">#{event.id}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Status</Label>
+                <Badge className={`${
+                  event.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                  event.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                  'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                }`}>
+                  {event.status || 'Active'}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ViewPaymentDialog({ payment }: { payment: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-green-500" />
+            Payment Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Complete transaction information and payment breakdown
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-gray-900/50">
+                <Label className="text-gray-300">Customer Information</Label>
+                <div className="flex items-center space-x-3 mt-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <span className="text-white text-sm font-semibold">
+                      {(payment.customer?.name || 'U')[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{payment.customer?.name || 'Unknown Customer'}</p>
+                    <p className="text-gray-400 text-sm">{payment.customer?.email || 'No email provided'}</p>
+                    {payment.customer?.membershipTier && (
+                      <Badge className="text-xs bg-purple-500/20 text-purple-400 border-purple-500/30 mt-1">
+                        {payment.customer.membershipTier}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-300">Transaction Type</Label>
+                  <p className="text-white font-medium">{payment.type}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Amount</Label>
+                  <p className="text-green-400 font-bold text-lg">${payment.amount.toFixed(2)}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Transaction Date</Label>
+                  <p className="text-white">{new Date(payment.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300">Status</Label>
+                  <Badge className={`${
+                    payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    payment.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                    'bg-red-500/20 text-red-400 border-red-500/30'
+                  }`}>
+                    {payment.status}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-gray-300">Service Details</Label>
+                <p className="text-white font-medium">{payment.serviceDetails}</p>
+              </div>
+              <div>
+                <Label className="text-gray-300">Payment ID</Label>
+                <p className="text-white font-mono text-sm">{payment.stripePaymentIntentId || `TXN-${payment.id}`}</p>
+              </div>
+              {payment.provider && (
+                <div>
+                  <Label className="text-gray-300">Service Provider</Label>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-900/50 mt-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{payment.provider.name}</p>
+                      {payment.provider.isAdmin ? (
+                        <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30">
+                          Admin Service (100% revenue)
+                        </Badge>
+                      ) : (
+                        <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30">
+                          3rd Party (20% platform fee)
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {payment.platformFee > 0 && (
+                <div className="p-4 rounded-lg bg-gray-900/50">
+                  <Label className="text-gray-300">Payment Breakdown</Label>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Platform Revenue:</span>
+                      <span className="text-green-400 font-medium">${payment.adminRevenue.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Provider Revenue:</span>
+                      <span className="text-blue-400 font-medium">${payment.providerRevenue.toFixed(2)}</span>
+                    </div>
+                    <Separator className="bg-gray-700" />
+                    <div className="flex justify-between font-bold">
+                      <span className="text-white">Total:</span>
+                      <span className="text-green-400">${payment.amount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
