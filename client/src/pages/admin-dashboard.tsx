@@ -687,7 +687,7 @@ function ViewYachtDialog({ yacht }: { yacht: any }) {
                 className="w-full h-64 object-cover"
               />
               <div className="absolute top-4 right-4">
-                <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
                   {yacht.isAvailable ? 'Available' : 'Unavailable'}
                 </Badge>
               </div>
@@ -845,7 +845,7 @@ function AddUserDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
           <Users className="h-4 w-4 mr-2" />
           Add User
         </Button>
@@ -933,7 +933,7 @@ function AddUserDialog() {
           <Button 
             onClick={() => createUserMutation.mutate(formData)}
             disabled={createUserMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {createUserMutation.isPending ? "Creating..." : "Create User"}
           </Button>
@@ -1045,7 +1045,7 @@ function EditUserDialog({ user: userData }: { user: any }) {
           <Button 
             onClick={() => updateUserMutation.mutate(formData)} 
             disabled={updateUserMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {updateUserMutation.isPending ? "Updating..." : "Update User"}
           </Button>
@@ -1154,7 +1154,7 @@ function AddYachtDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
           <Anchor className="h-4 w-4 mr-2" />
           Add Yacht
         </Button>
@@ -1313,7 +1313,7 @@ function AddYachtDialog() {
           <Button 
             onClick={() => createYachtMutation.mutate(formData)}
             disabled={createYachtMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
           </Button>
@@ -1477,7 +1477,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Button 
             onClick={() => updateYachtMutation.mutate(formData)} 
             disabled={updateYachtMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {updateYachtMutation.isPending ? "Updating..." : "Update Yacht"}
           </Button>
@@ -1582,7 +1582,7 @@ function AddServiceDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
           <Settings className="h-4 w-4 mr-2" />
           Add Service
         </Button>
@@ -1691,7 +1691,7 @@ function AddServiceDialog() {
           <Button 
             onClick={() => createServiceMutation.mutate(formData)}
             disabled={createServiceMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {createServiceMutation.isPending ? "Creating..." : "Create Service"}
           </Button>
@@ -1831,7 +1831,7 @@ function EditServiceDialog({ service }: { service: any }) {
           <Button 
             onClick={() => updateServiceMutation.mutate(formData)} 
             disabled={updateServiceMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {updateServiceMutation.isPending ? "Updating..." : "Update Service"}
           </Button>
@@ -1951,7 +1951,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
           <Calendar className="h-4 w-4 mr-2" />
           Add Event
         </Button>
@@ -2085,7 +2085,7 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
           <Button 
             onClick={() => createEventMutation.mutate(formData)}
             disabled={createEventMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {createEventMutation.isPending ? "Creating..." : "Create Event"}
           </Button>
@@ -2239,7 +2239,7 @@ function EditEventDialog({ event }: { event: any }) {
           <Button 
             onClick={() => updateEventMutation.mutate(formData)} 
             disabled={updateEventMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
           >
             {updateEventMutation.isPending ? "Updating..." : "Update Event"}
           </Button>
@@ -3223,7 +3223,7 @@ export default function AdminDashboard() {
           <Button 
             size="sm" 
             onClick={() => setActiveSection('calendar')}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
           >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
@@ -3516,7 +3516,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="text-center">
-                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm">
+                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm">
                             {booking.guestCount}
                           </div>
                           <p className="text-gray-400 text-xs mt-1">Guests</p>
@@ -4299,7 +4299,7 @@ export default function AdminDashboard() {
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-4 right-4">
-                  <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                  <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
                     {yacht.isAvailable ? 'Available' : 'Unavailable'}
                   </Badge>
                 </div>
@@ -4539,7 +4539,7 @@ export default function AdminDashboard() {
                   />
                 )}
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30">
                     {service.category}
                   </Badge>
                 </div>
@@ -4746,7 +4746,7 @@ export default function AdminDashboard() {
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30">
                     {event.capacity} spots
                   </Badge>
                 </div>
@@ -4815,7 +4815,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
             <DollarSign className="h-4 w-4 mr-2" />
             Export Data
           </Button>
