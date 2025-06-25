@@ -5050,10 +5050,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform the data to include member and yacht information
       const bookingsWithDetails = await Promise.all(yachtBookings.map(async (booking: any) => {
         // Get member details
-        const member = await dbStorage.getUserById(booking.userId);
+        const member = await dbStorage.getUser(booking.userId);
         
         // Get yacht details
-        const yacht = await dbStorage.getYachtById(booking.yachtId);
+        const yacht = await dbStorage.getYacht(booking.yachtId);
         
         return {
           id: booking.id,
