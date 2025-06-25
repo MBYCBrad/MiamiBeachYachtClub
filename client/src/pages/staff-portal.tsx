@@ -204,22 +204,6 @@ export default function StaffPortal() {
 
   const { data: payments } = useQuery({
     queryKey: ['/api/staff/payments'],
-    select: (data) => {
-      console.log('Raw payments data:', data);
-      // Ensure proper data mapping for all payment fields
-      const mapped = data?.map((payment: any) => {
-        console.log('Individual payment object:', payment);
-        return {
-          ...payment,
-          // Ensure customer field is properly mapped
-          customer: payment.customer || payment.fullName || payment.username || 'Unknown Customer',
-          // Ensure service field is properly mapped  
-          serviceEvent: payment.serviceEvent || payment.serviceName || 'Premium Concierge Service'
-        };
-      }) || [];
-      console.log('Mapped payments:', mapped);
-      return mapped;
-    }
   });
 
   const { data: bookings } = useQuery({
@@ -2747,48 +2731,50 @@ export default function StaffPortal() {
                             {(payment.customer || payment.fullName || payment.username || 'Demo Member')[0].toUpperCase()}
                           </span>
                         </div>
-                        <div className="relative" style={{ zIndex: 9999 }}>
-                          <p className="font-medium" style={{ 
-                            color: 'white !important', 
-                            zIndex: 9999, 
+                        <div>
+                          <div style={{ 
+                            color: '#FFFFFF', 
+                            fontSize: '14px', 
+                            fontWeight: 'bold',
+                            textShadow: '0 0 2px black',
                             position: 'relative',
-                            backgroundColor: 'transparent',
-                            display: 'block'
+                            zIndex: 99999
                           }}>
-                            {payment.customer || payment.fullName || payment.username || 'Demo Member'}
-                          </p>
-                          <p className="text-xs" style={{ 
-                            color: '#9CA3AF !important', 
-                            zIndex: 9999, 
+                            {payment.customer || 'TEST CUSTOMER'}
+                          </div>
+                          <div style={{ 
+                            color: '#9CA3AF', 
+                            fontSize: '12px',
+                            textShadow: '0 0 2px black',
                             position: 'relative',
-                            backgroundColor: 'transparent',
-                            display: 'block'
+                            zIndex: 99999
                           }}>
-                            {payment.customerEmail || payment.email || 'demo@mbyc.com'}
-                          </p>
+                            {payment.customerEmail || 'test@email.com'}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-4" style={{ zIndex: 9999, position: 'relative' }}>
-                      <div className="relative" style={{ zIndex: 9999 }}>
-                        <p className="font-medium" style={{ 
-                          color: 'white !important', 
-                          zIndex: 9999, 
+                      <div>
+                        <div style={{ 
+                          color: '#FFFFFF', 
+                          fontSize: '14px', 
+                          fontWeight: 'bold',
+                          textShadow: '0 0 2px black',
                           position: 'relative',
-                          backgroundColor: 'transparent',
-                          display: 'block'
+                          zIndex: 99999
                         }}>
-                          {payment.serviceEvent || payment.serviceName || 'Professional Makeup Artist'}
-                        </p>
-                        <p className="text-xs" style={{ 
-                          color: '#9CA3AF !important', 
-                          zIndex: 9999, 
+                          {payment.serviceEvent || 'TEST SERVICE'}
+                        </div>
+                        <div style={{ 
+                          color: '#9CA3AF', 
+                          fontSize: '12px',
+                          textShadow: '0 0 2px black',
                           position: 'relative',
-                          backgroundColor: 'transparent',
-                          display: 'block'
+                          zIndex: 99999
                         }}>
-                          {payment.serviceCategory || 'Concierge & Lifestyle'}
-                        </p>
+                          {payment.serviceCategory || 'Test Category'}
+                        </div>
                       </div>
                     </td>
                     <td className="py-4 px-4" style={{ zIndex: 9999, position: 'relative' }}>
