@@ -4368,7 +4368,7 @@ export default function AdminDashboard() {
           <AddServiceDialog />
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="border-gray-600 hover:border-orange-500">
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter Services
                 {(serviceFilters.category !== "all" || serviceFilters.availability !== "all" || 
