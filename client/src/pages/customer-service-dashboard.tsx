@@ -266,7 +266,7 @@ export default function CustomerServiceDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 p-6">
+    <div className="min-h-screen bg-black p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
