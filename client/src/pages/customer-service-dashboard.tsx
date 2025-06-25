@@ -29,7 +29,10 @@ import {
   Info,
   Crown,
   Star,
-  Anchor
+  Anchor,
+  Gem,
+  Shield,
+  Briefcase
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -72,14 +75,14 @@ export default function CustomerServiceDashboard() {
 
   // Fetch all users for contacts
   const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
-    queryKey: ["/api/admin/users"],
+    queryKey: ["/api/staff/users"],
     staleTime: 60000,
     cacheTime: 300000
   });
 
-  // Filter contacts based on search and exclude admin users
+  // Filter contacts based on search and exclude admin/staff users
   const filteredContacts = users.filter(user => 
-    user.role !== 'admin' &&
+    ['member', 'yacht_owner', 'service_provider'].includes(user.role) &&
     (user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      user.membershipTier?.toLowerCase().includes(searchQuery.toLowerCase()))
