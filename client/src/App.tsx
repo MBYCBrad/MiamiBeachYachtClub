@@ -27,6 +27,7 @@ import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
 import CrewManagement from "@/pages/crew-management";
+import LogoutPage from "@/pages/logout";
 import NotFound from "@/pages/not-found";
 
 function Router() {

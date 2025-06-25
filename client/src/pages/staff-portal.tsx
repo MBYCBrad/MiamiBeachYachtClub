@@ -6,9 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
-import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
+import CustomerServiceFixed from "@/pages/customer-service-fixed";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
 import MessagesDropdown from "@/components/MessagesDropdown";
+import LogOut from "@/pages/logout";
 import { 
   BarChart3, 
   Users, 
@@ -40,7 +41,6 @@ import {
   Save,
   RotateCcw,
   Trash2,
-  LogOut,
   ExternalLink,
   Menu,
   X,
@@ -114,7 +114,8 @@ const sidebarItems = [
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
   { id: 'messenger', label: 'Messenger', icon: MessageSquare, color: 'from-blue-500 to-purple-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
+  { id: 'logout', label: 'Logout', icon: LogOut, color: 'from-red-500 to-red-600' }
 ];
 
 const serviceCategories = [
@@ -3358,7 +3359,7 @@ export default function StaffPortal() {
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'yacht-maintenance' && <YachtMaintenanceFixed />}
-            {activeSection === 'customer-service' && <CustomerServiceDashboard />}
+            {activeSection === 'customer-service' && <CustomerServiceFixed />}
             {activeSection === 'messenger' && <MessengerDashboard />}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderStaffSettings()}
