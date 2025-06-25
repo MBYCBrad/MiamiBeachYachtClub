@@ -28,8 +28,7 @@ import {
   Wrench,
   User,
   Sparkles,
-  CreditCard,
-  BellRing
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -224,149 +223,118 @@ export default function StaffPortal() {
   const recentActivities = generateRecentActivities();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="flex">
-        {/* Fixed Hamburger Menu Button */}
-        <AnimatePresence>
-          {!isSidebarOpen && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              onClick={() => setIsSidebarOpen(true)}
-              className="fixed top-6 left-6 z-[9999] p-3 bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-xl text-purple-400 hover:text-white hover:bg-purple-600/20 transition-all duration-300"
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50 sticky top-0 z-50"
+      >
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden text-gray-400 hover:text-white"
             >
-              <Menu className="h-6 w-6" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Staff Portal
+                </h1>
+                <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
+              </div>
+            </div>
+          </div>
 
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2">
+              <Search className="h-4 w-4 text-gray-400" />
+              <Input 
+                placeholder="Search..." 
+                className="w-64 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400"
+              />
+            </div>
+            
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="h-5 w-5 text-gray-400" />
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"></span>
+            </Button>
+
+            <div className="flex items-center space-x-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src="/placeholder-avatar.jpg" />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                  {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium text-white">{staffMember?.fullName || 'Staff Member'}</p>
+                <p className="text-xs text-gray-400">{staffMember?.role || 'Staff'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
+      <div className="flex">
         {/* Sidebar */}
         <AnimatePresence>
           {isSidebarOpen && (
-            <motion.div
-              initial={{ x: -320 }}
-              animate={{ x: 0 }}
-              exit={{ x: -320 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="fixed top-0 left-0 w-80 h-screen bg-gray-900/80 backdrop-blur-xl border-r border-gray-700/50 z-[9998] overflow-hidden flex flex-col"
+            <motion.aside
+              initial={{ x: -300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="w-64 bg-gray-950 border-r border-gray-800/50 min-h-screen sticky top-16"
             >
-              {/* Animated background */}
-              <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-blue-900/20" />
-              
-              {/* Close Button */}
-              <motion.button
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 300, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                onClick={() => setIsSidebarOpen(false)}
-                className="absolute top-6 right-6 p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300 z-10"
-              >
-                <X className="h-5 w-5" />
-              </motion.button>
-              
-              {/* Logo */}
-              <div className="p-8 border-b border-gray-700/50">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-3"
-                >
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
-                    <Shield className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">Staff Portal</h2>
-                    <p className="text-sm text-gray-400">MBYC Operations</p>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Navigation Menu */}
-              <div className="flex-1 p-6 space-y-2 overflow-y-auto">
-                {allowedMenuItems.filter(item => item.id !== 'logout').map((item, index) => (
+              <div className="p-6 space-y-2">
+                {allowedMenuItems.map((item, index) => (
                   <motion.button
                     key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 + 0.3 }}
-                    onClick={() => handleMenuClick(item.id)}
-                    className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
                       activeSection === item.id
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-600/30'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
+                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                   >
-                    <item.icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                    <item.icon className={`h-5 w-5 transition-transform duration-300 ${
+                      activeSection === item.id ? 'scale-110' : 'group-hover:scale-105'
+                    }`} />
                     <span className="font-medium">{item.label}</span>
                   </motion.button>
                 ))}
                 
-                {/* Logout in menu */}
+                <Separator className="my-4 bg-gray-800" />
+                
                 <motion.button
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: allowedMenuItems.length * 0.1 + 0.3 }}
-                  onClick={() => handleMenuClick('logout')}
-                  className="w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 text-gray-400 hover:text-red-400 hover:bg-red-900/20 group"
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: allowedMenuItems.length * 0.05 }}
+                  onClick={handleLogout}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                 >
-                  <LogOut className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                  <LogOut className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" />
                   <span className="font-medium">Log Out</span>
                 </motion.button>
               </div>
-
-              {/* User Profile at bottom */}
-              <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
-                <div className="flex items-center space-x-3">
-                  <div className="profile-picture-outline h-12 w-12">
-                    <div className="profile-picture-inner w-full h-full">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src="/placeholder-avatar.jpg" />
-                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
-                          {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">
-                      {staffMember?.fullName || 'Staff Member'}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {staffMember?.role || 'Staff'}
-                    </p>
-                  </div>
-                  
-                  {/* Messages and Notifications beside username */}
-                  <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="sm" className="relative p-2 text-gray-400 hover:text-purple-400">
-                      <MessageSquare className="h-4 w-4" />
-                      <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-500 rounded-full"></span>
-                    </Button>
-                    <Button variant="ghost" size="sm" className="relative p-2 text-gray-400 hover:text-purple-400">
-                      <Bell className="h-4 w-4" />
-                      <span className="absolute -top-1 -right-1 h-2 w-2 bg-purple-500 rounded-full"></span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            </motion.aside>
           )}
         </AnimatePresence>
 
         {/* Main Content */}
-        <motion.main 
-          animate={{
-            marginLeft: isSidebarOpen ? "320px" : "0px",
-            width: isSidebarOpen ? "calc(100% - 320px)" : "100%"
-          }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="flex-1 min-h-screen relative"
-        >
-          <div className="p-8">
+        <main className="flex-1 p-6">
           {activeSection === 'overview' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -514,8 +482,7 @@ export default function StaffPortal() {
               <p className="text-gray-400">This section is under development</p>
             </motion.div>
           )}
-          </div>
-        </motion.main>
+        </main>
       </div>
     </div>
   );
