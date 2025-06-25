@@ -266,7 +266,7 @@ export default function CustomerServiceDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6">
+    <div className="min-h-screen bg-gray-950 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -363,7 +363,7 @@ export default function CustomerServiceDashboard() {
                     onClick={() => setActiveTab(id as any)}
                     className={`flex-1 flex items-center justify-center py-2 px-3 rounded-md transition-all ${
                       activeTab === id 
-                        ? 'bg-purple-500 text-white' 
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white' 
                         : 'text-gray-400 hover:text-white hover:bg-slate-700'
                     }`}
                   >
