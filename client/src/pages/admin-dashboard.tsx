@@ -4602,7 +4602,7 @@ export default function AdminDashboard() {
           <AddEventDialog currentUser={user} />
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="border-gray-600 hover:border-violet-500">
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter Events
                 {(eventFilters.status !== "all" || eventFilters.capacity !== "all" || 
@@ -4696,7 +4696,7 @@ export default function AdminDashboard() {
                       priceRange: "all"
                     })}
                     variant="outline"
-                    className="border-gray-600 hover:border-violet-500"
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-none"
                   >
                     Clear All
                   </Button>
