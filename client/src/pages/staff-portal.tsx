@@ -361,8 +361,36 @@ export default function StaffPortal() {
     });
   }, [events, eventFilters]);
 
-  // Remove filtering - display all payments directly
-  const filteredPayments = payments || [];
+  // Filter payments based on search and filters
+  const filteredPayments = useMemo(() => {
+    if (!payments) return [];
+    
+    return payments.filter((payment: any) => {
+      // Status filter
+      if (paymentFilters.status !== 'all' && payment.status !== paymentFilters.status) {
+        return false;
+      }
+      
+      // Method filter
+      if (paymentFilters.method !== 'all' && payment.paymentMethod !== paymentFilters.method) {
+        return false;
+      }
+      
+      // Search filter
+      if (paymentSearchTerm) {
+        const searchTerm = paymentSearchTerm.toLowerCase();
+        const matchesCustomer = (payment.customer || '').toLowerCase().includes(searchTerm);
+        const matchesService = (payment.serviceEvent || '').toLowerCase().includes(searchTerm);
+        const matchesId = (payment.stripePaymentIntentId || payment.id.toString()).toLowerCase().includes(searchTerm);
+        
+        if (!matchesCustomer && !matchesService && !matchesId) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }, [payments, paymentFilters, paymentSearchTerm]);
 
 
 
