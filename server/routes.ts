@@ -5043,8 +5043,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      const bookings = await dbStorage.getAdminBookings();
-      res.json(bookings);
+      
+      // Get all yacht bookings from the database using the working method
+      const yachtBookings = await dbStorage.getBookings();
+      
+      // Transform the data to include member and yacht information
+      const bookingsWithDetails = await Promise.all(yachtBookings.map(async (booking: any) => {
+        // Get member details
+        const member = await dbStorage.getUserById(booking.userId);
+        
+        // Get yacht details
+        const yacht = await dbStorage.getYachtById(booking.yachtId);
+        
+        return {
+          id: booking.id,
+          type: 'Yacht Booking',
+          status: booking.status || 'confirmed',
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          guestCount: booking.guestCount || 1,
+          memberName: member?.username || 'Unknown Member',
+          memberTier: member?.membershipTier || 'Bronze',
+          memberEmail: member?.email || '',
+          yachtName: yacht?.name || 'Unknown Yacht',
+          yachtSize: yacht?.size || 'Unknown',
+          createdAt: booking.createdAt || new Date(),
+          specialRequests: booking.specialRequests || '',
+          user: member,
+          yacht: yacht
+        };
+      }));
+      
+      res.json(bookingsWithDetails);
     } catch (error) {
       console.error('Error fetching staff bookings:', error);
       res.status(500).json({ message: 'Failed to fetch bookings' });
