@@ -1961,7 +1961,7 @@ export default function StaffPortal() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm text-gray-400">
-                    {bookings?.length || 0} bookings total
+                    {filteredBookings.length} of {bookings?.length || 0} bookings
                   </span>
                   <Button
                     size="sm"
@@ -2083,7 +2083,7 @@ export default function StaffPortal() {
                 </tr>
               </thead>
               <tbody>
-                {(bookings || []).slice(0, 10).map((booking: any, index: number) => (
+                {filteredBookings.slice(0, 10).map((booking: any, index: number) => (
                   <motion.tr
                     key={booking.id}
                     initial={{ opacity: 0, y: 20 }}
