@@ -12,6 +12,7 @@ import {
   Ship, Users, Crown, Shield, Clock, MapPin, Eye, Edit, UserPlus, ToggleLeft,
   Star, Calendar, FileText, AlertCircle, CheckCircle, Play, Pause, Square
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Interfaces for staff portal compatibility
 interface CrewMember {
@@ -82,17 +83,17 @@ export default function CrewManagementPage() {
   const [selectedAssignment, setSelectedAssignment] = useState<CrewAssignment | null>(null);
 
   // Staff portal API endpoints
-  const { data: activeBookings = [] } = useQuery({
+  const { data: activeBookings = [] } = useQuery<any[]>({
     queryKey: ['/api/staff/bookings'],
     staleTime: 30000,
   });
 
-  const { data: crewMembers = [] } = useQuery({
+  const { data: crewMembers = [] } = useQuery<any[]>({
     queryKey: ['/api/staff/crew'],
     staleTime: 30000,
   });
 
-  const { data: assignments = [] } = useQuery({
+  const { data: assignments = [] } = useQuery<any[]>({
     queryKey: ['/api/staff/assignments'],
     staleTime: 30000,
   });
@@ -140,7 +141,7 @@ export default function CrewManagementPage() {
     .sort((a, b) => getBookingPriority(b) - getBookingPriority(a));
 
   const createAssignmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/staff/assignments', { method: 'POST', body: data }),
+    mutationFn: (data: any) => apiRequest('/api/staff/assignments', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
       setShowAssignmentDialog(false);
@@ -153,7 +154,7 @@ export default function CrewManagementPage() {
 
   const updateAssignmentMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => 
-      apiRequest(`/api/staff/assignments/${id}`, { method: 'PATCH', body: data }),
+      apiRequest(`/api/staff/assignments/${id}`, data, 'PATCH'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
       setEditDetailsDialog(false);
@@ -258,210 +259,206 @@ export default function CrewManagementPage() {
           </Card>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 mb-6">
-          <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                <UserPlus className="h-4 w-4 mr-2" />
-                New Assignment
-              </Button>
-            </DialogTrigger>
-            <CrewAssignmentDialog 
-              booking={selectedBooking ? prioritizedBookings.find(b => b.id === selectedBooking) : null}
-              crewMembers={crewMembers}
-              captains={captains}
-              coordinators={coordinators}
-              otherCrew={otherCrew}
-              onAssign={(data) => createAssignmentMutation.mutate(data)}
-            />
-          </Dialog>
-        </div>
 
-        {/* Current Assignments */}
+
+        {/* Bookings Management */}
         <Card className="bg-gray-900/50 border-gray-700/50 mb-8">
           <CardHeader>
             <CardTitle className="text-xl text-white flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Current Assignments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {assignments.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Assignments</h3>
-                <p className="text-gray-500">Create your first crew assignment to get started.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {assignments.map((assignment: CrewAssignment) => (
-                  <div key={assignment.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <Badge 
-                          variant="outline" 
-                          className={`border-gray-600 ${
-                            assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' :
-                            assignment.status === 'in-progress' ? 'bg-yellow-600 text-white' :
-                            'bg-green-600 text-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(assignment.status)}
-                            {assignment.status}
-                          </div>
-                        </Badge>
-                        {assignment.isActive && (
-                          <div className="flex items-center gap-1 text-green-400 text-xs">
-                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                            LIVE
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Dialog open={viewDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setViewDetailsDialog}>
-                          <DialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                              title="View Details"
-                              onClick={() => setSelectedAssignment(assignment)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <ViewAssignmentDialog assignment={assignment} />
-                        </Dialog>
-                        <Dialog open={editDetailsDialog && selectedAssignment?.id === assignment.id} onOpenChange={setEditDetailsDialog}>
-                          <DialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white w-8 h-8 p-0"
-                              title="Edit Assignment"
-                              onClick={() => setSelectedAssignment(assignment)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <EditAssignmentDialog 
-                            assignment={assignment} 
-                            crewMembers={crewMembers}
-                            onUpdate={() => {
-                              queryClient.invalidateQueries({ queryKey: ["/api/staff/assignments"] });
-                              setEditDetailsDialog(false);
-                            }}
-                          />
-                        </Dialog>
-                      </div>
-                    </div>
-
-                    {/* Booking Information */}
-                    {assignment.booking && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-3 bg-gray-700/30 rounded-lg">
-                        <div>
-                          <div className="text-gray-400 text-xs">Yacht</div>
-                          <div className="text-white font-medium">{assignment.booking.yachtName || 'Unknown'}</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-400 text-xs">Member</div>
-                          <div className="text-white">{assignment.booking.memberName || 'Unknown'}</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-400 text-xs">Duration</div>
-                          <div className="text-white">{assignment.duration || 'TBD'}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Crew Display */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <div className="text-gray-400 text-xs mb-1">Captain</div>
-                        <div className="flex items-center gap-2">
-                          <Crown className="h-4 w-4 text-purple-400" />
-                          <span className="text-white">{assignment.captain?.username || 'Unassigned'}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400 text-xs mb-1">Coordinator</div>
-                        <div className="flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-blue-400" />
-                          <span className="text-white">{assignment.coordinator?.username || 'Unassigned'}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400 text-xs mb-1">Additional Crew</div>
-                        <div className="text-white">{assignment.crewMembers?.length || 0} members</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Bookings */}
-        <Card className="bg-gray-900/50 border-gray-700/50">
-          <CardHeader>
-            <CardTitle className="text-xl text-white flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Unassigned Bookings
+              Booking Management
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {prioritizedBookings.length === 0 ? (
-              <div className="text-center py-8">
-                <Ship className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-400 mb-2">No Pending Bookings</h3>
-                <p className="text-gray-500">All bookings have been assigned crew members.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {prioritizedBookings.map((booking: YachtBooking) => (
-                  <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                      <div>
-                        <div className="text-gray-400 text-xs">Yacht</div>
-                        <div className="text-white font-medium">{booking.yachtName}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400 text-xs">Member</div>
-                        <div className="text-white">{booking.memberName}</div>
-                        <Badge variant="outline" className="text-xs mt-1 border-gray-600">
-                          {booking.memberTier}
-                        </Badge>
-                      </div>
-                      <div>
-                        <div className="text-gray-400 text-xs">Time</div>
-                        <div className="text-white">{new Date(booking.startTime).toLocaleDateString()}</div>
-                        <div className="text-gray-400 text-xs">{new Date(booking.startTime).toLocaleTimeString()}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-400 text-xs">Guests</div>
-                        <div className="text-white">{booking.guestCount} people</div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button
-                          size="sm"
-                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                          onClick={() => {
-                            setSelectedBooking(booking.id);
-                            setShowAssignmentDialog(true);
-                          }}
-                        >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          Assign Crew
-                        </Button>
-                      </div>
-                    </div>
+            <Tabs defaultValue="unassigned" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 border-gray-700">
+                <TabsTrigger value="unassigned" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+                  Unassigned Bookings
+                </TabsTrigger>
+                <TabsTrigger value="active" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+                  Active Bookings
+                </TabsTrigger>
+                <TabsTrigger value="past" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+                  Past Bookings
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="unassigned" className="mt-6">
+                {activeBookings.filter((booking: any) => booking.status === 'confirmed' && !booking.crewAssigned).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Unassigned Bookings</h3>
+                    <p className="text-gray-500">All yacht bookings have crew assignments.</p>
                   </div>
-                ))}
-              </div>
-            )}
+                ) : (
+                  <div className="space-y-4">
+                    {activeBookings
+                      .filter((booking: any) => booking.status === 'confirmed' && !booking.crewAssigned)
+                      .map((booking: any) => (
+                      <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <Badge 
+                              variant="outline" 
+                              className="border-gray-600 bg-gradient-to-r from-yellow-600 to-orange-600 text-white"
+                            >
+                              <AlertCircle className="h-4 w-4 mr-1" />
+                              Needs Crew
+                            </Badge>
+                            <div className="text-white font-medium">
+                              {booking.yachtName} - {booking.memberName}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                              onClick={() => {
+                                setSelectedBooking(booking.id);
+                                setShowAssignmentDialog(true);
+                              }}
+                            >
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Assign Crew
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-400 mb-1">Time</div>
+                            <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Guests</div>
+                            <div className="text-white">{booking.guestCount} guests</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Member Tier</div>
+                            <div className="text-white">{booking.memberTier}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="active" className="mt-6">
+                {activeBookings.filter((booking: any) => (booking.status === 'confirmed' || booking.status === 'in-progress') && booking.crewAssigned).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Bookings</h3>
+                    <p className="text-gray-500">No yacht bookings are currently active with crew assignments.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activeBookings
+                      .filter((booking: any) => (booking.status === 'confirmed' || booking.status === 'in-progress') && booking.crewAssigned)
+                      .map((booking: any) => (
+                      <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <Badge 
+                              variant="outline" 
+                              className="border-gray-600 bg-gradient-to-r from-green-600 to-emerald-600 text-white"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              {booking.status === 'in-progress' ? 'In Progress' : 'Ready'}
+                            </Badge>
+                            <div className="text-white font-medium">
+                              {booking.yachtName} - {booking.memberName}
+                            </div>
+                            {booking.status === 'in-progress' && (
+                              <div className="flex items-center gap-1 text-green-400 text-xs">
+                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                                LIVE
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Crew
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-400 mb-1">Time</div>
+                            <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Guests</div>
+                            <div className="text-white">{booking.guestCount} guests</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Crew Status</div>
+                            <div className="text-emerald-400">Assigned</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="past" className="mt-6">
+                {activeBookings.filter((booking: any) => booking.status === 'completed').length === 0 ? (
+                  <div className="text-center py-12">
+                    <Clock className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Past Bookings</h3>
+                    <p className="text-gray-500">Completed yacht bookings will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activeBookings
+                      .filter((booking: any) => booking.status === 'completed')
+                      .map((booking: any) => (
+                      <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <Badge 
+                              variant="outline" 
+                              className="border-gray-600 bg-gray-600 text-white"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Completed
+                            </Badge>
+                            <div className="text-white font-medium">
+                              {booking.yachtName} - {booking.memberName}
+                            </div>
+                          </div>
+                          <div className="text-gray-400 text-sm">
+                            {new Date(booking.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-400 mb-1">Duration</div>
+                            <div className="text-white">{new Date(booking.startTime).toLocaleString()} - {new Date(booking.endTime).toLocaleString()}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Guests</div>
+                            <div className="text-white">{booking.guestCount} guests</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-1">Member Tier</div>
+                            <div className="text-white">{booking.memberTier}</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
@@ -907,7 +904,7 @@ function EditAssignmentDialog({
   );
 
   const updateAssignmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest(`/api/staff/assignments/${assignment.id}`, { method: 'PATCH', body: data }),
+    mutationFn: (data: any) => apiRequest(`/api/staff/assignments/${assignment.id}`, data, 'PATCH'),
     onSuccess: () => {
       onUpdate();
     },

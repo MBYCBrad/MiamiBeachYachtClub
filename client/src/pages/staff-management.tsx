@@ -136,6 +136,8 @@ export default function StaffManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+
+
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
@@ -152,13 +154,17 @@ export default function StaffManagement() {
     role: "",
     permissions: [] as string[],
     phone: "",
-    location: ""
+    location: "",
+    department: ""
   });
 
   // Fetch staff users only (excluding members, yacht owners, service providers)
   const { data: staffUsers = [], isLoading: staffLoading } = useQuery<StaffUser[]>({
     queryKey: ['/api/admin/staff'],
-    enabled: !!user && user.role === 'admin',
+    enabled: !!user && (user.role === 'admin' || 
+      (user.permissions && user.permissions.includes('users')) ||
+      user.role?.includes('Manager') ||
+      user.role?.includes('Coordinator')),
   });
 
   // Add staff mutation
@@ -291,14 +297,17 @@ export default function StaffManagement() {
     }
   };
 
-  if (!user || user.role !== 'admin') {
+  if (!user || (user.role !== 'admin' && 
+      !(user.permissions && user.permissions.includes('users')) &&
+      !user.role?.includes('Manager') &&
+      !user.role?.includes('Coordinator'))) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl p-8">
           <div className="text-center">
             <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
-            <p className="text-gray-400">Only administrators can access staff management.</p>
+            <p className="text-gray-400">Staff management requires admin access or user management permissions.</p>
           </div>
         </Card>
       </div>
