@@ -9,6 +9,7 @@ import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import YachtMaintenancePage from "@/pages/yacht-maintenance";
 import CrewManagementPage from "./crew-management";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
+import StaffManagement from "./staff-management";
 import { 
   BarChart3, 
   Users, 
@@ -561,8 +562,8 @@ export default function StaffPortal() {
             </motion.div>
           )}
 
-          {/* Members Section */}
-          {activeSection === 'members' && (
+          {/* Users Section */}
+          {activeSection === 'users' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -890,8 +891,8 @@ export default function StaffPortal() {
             </motion.div>
           )}
 
-          {/* Fleet Section */}
-          {activeSection === 'fleet' && (
+          {/* Yachts/Fleet Section */}
+          {activeSection === 'yachts' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1390,8 +1391,204 @@ export default function StaffPortal() {
             <AdminNotificationCenter />
           )}
 
+          {/* Staff Management Section */}
+          {activeSection === 'staff-management' && (
+            <StaffManagement />
+          )}
+
+          {/* Settings Section */}
+          {activeSection === 'settings' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-8"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <motion.h1 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-5xl font-bold text-white mb-2 tracking-tight"
+                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+                  >
+                    System Settings
+                  </motion.h1>
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-lg text-gray-400"
+                  >
+                    Configure system preferences and operational parameters
+                  </motion.p>
+                </div>
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center space-x-4"
+                >
+                  <Button 
+                    size="sm" 
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    Export Settings
+                  </Button>
+                </motion.div>
+              </div>
+
+              {/* Settings Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Settings className="h-5 w-5 mr-2 text-purple-500" />
+                      General Settings
+                    </CardTitle>
+                    <CardDescription>System configuration and preferences</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Maintenance Mode</span>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Disabled
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Auto Backup</span>
+                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                        Enabled
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Debug Mode</span>
+                      <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
+                        Disabled
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Bell className="h-5 w-5 mr-2 text-purple-500" />
+                      Notification Settings
+                    </CardTitle>
+                    <CardDescription>Alert preferences and thresholds</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Email Alerts</span>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Enabled
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">SMS Notifications</span>
+                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                        Enabled
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Push Notifications</span>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Enabled
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center">
+                      <Shield className="h-5 w-5 mr-2 text-purple-500" />
+                      Security Settings
+                    </CardTitle>
+                    <CardDescription>Authentication and access control</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Two-Factor Auth</span>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Required
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Session Timeout</span>
+                      <span className="text-gray-300">24 hours</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Password Policy</span>
+                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                        Strong
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* System Status */}
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Activity className="h-5 w-5 mr-2 text-purple-500" />
+                    System Status
+                  </CardTitle>
+                  <CardDescription>Real-time system health and performance metrics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                        <Database className="h-8 w-8 text-white" />
+                      </div>
+                      <p className="text-white font-medium">Database</p>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                        Operational
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                        <Activity className="h-8 w-8 text-white" />
+                      </div>
+                      <p className="text-white font-medium">API Server</p>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                        Running
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center">
+                        <Shield className="h-8 w-8 text-white" />
+                      </div>
+                      <p className="text-white font-medium">Security</p>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                        Secure
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
+                        <Bell className="h-8 w-8 text-white" />
+                      </div>
+                      <p className="text-white font-medium">Notifications</p>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
+                        Active
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
           {/* Remaining placeholder sections */}
-          {!['overview', 'my-profile', 'members', 'bookings', 'services', 'fleet', 'events', 'analytics', 'payments', 'calendar', 'customer_service', 'yacht_maintenance', 'crew_management', 'notifications'].includes(activeSection) && (
+          {!['overview', 'my-profile', 'users', 'bookings', 'services', 'yachts', 'events', 'analytics', 'payments', 'calendar', 'customer-service', 'yacht-maintenance', 'crew_management', 'notifications', 'staff-management', 'settings'].includes(activeSection) && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
