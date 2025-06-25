@@ -413,10 +413,16 @@ export default function CustomerServiceDashboard() {
                             <div>
                               <h4 className="font-medium text-white">{contact.username}</h4>
                               <div className="flex items-center space-x-2">
-                                <Badge className={getMembershipColor(contact.membershipTier || 'bronze')} variant="outline">
-                                  {getMembershipIcon(contact.membershipTier || 'bronze')}
-                                  {contact.membershipTier?.toUpperCase()}
+                                <Badge className={getRoleColor(contact.role)} variant="outline">
+                                  {getRoleIcon(contact.role)}
+                                  {contact.role?.replace('_', ' ').toUpperCase()}
                                 </Badge>
+                                {contact.membershipTier && (
+                                  <Badge className={getMembershipColor(contact.membershipTier)} variant="outline">
+                                    {getMembershipIcon(contact.membershipTier)}
+                                    {contact.membershipTier.toUpperCase()}
+                                  </Badge>
+                                )}
                                 {contact.phone && (
                                   <span className="text-xs text-gray-400">{contact.phone}</span>
                                 )}
@@ -613,28 +619,27 @@ export default function CustomerServiceDashboard() {
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <UserCheck className="h-5 w-5 mr-2 text-purple-400" />
-                  Member Tiers
+                  Customer Types
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {['platinum', 'gold', 'silver', 'bronze'].map((tier) => {
-                    const count = filteredContacts.filter(c => c.membershipTier?.toLowerCase() === tier).length;
+                  {['member', 'yacht_owner', 'service_provider'].map((role) => {
+                    const count = filteredContacts.filter(c => c.role === role).length;
                     const percentage = filteredContacts.length > 0 ? (count / filteredContacts.length) * 100 : 0;
                     
                     return (
-                      <div key={tier} className="flex items-center justify-between">
+                      <div key={role} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          {getMembershipIcon(tier)}
-                          <span className="text-white capitalize">{tier}</span>
+                          {getRoleIcon(role)}
+                          <span className="text-white capitalize">{role.replace('_', ' ')}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 h-2 bg-slate-700 rounded-full overflow-hidden">
                             <div 
                               className={`h-full transition-all duration-500 ${
-                                tier === 'platinum' ? 'bg-purple-500' :
-                                tier === 'gold' ? 'bg-yellow-500' :
-                                tier === 'silver' ? 'bg-gray-500' : 'bg-orange-500'
+                                role === 'member' ? 'bg-blue-500' :
+                                role === 'yacht_owner' ? 'bg-cyan-500' : 'bg-green-500'
                               }`}
                               style={{ width: `${percentage}%` }}
                             />
@@ -678,10 +683,16 @@ export default function CustomerServiceDashboard() {
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{selectedContact.username}</h3>
                     <div className="flex items-center space-x-2 mt-1">
-                      <Badge className={getMembershipColor(selectedContact.membershipTier || 'bronze')}>
-                        {getMembershipIcon(selectedContact.membershipTier || 'bronze')}
-                        {selectedContact.membershipTier?.toUpperCase()} MEMBER
+                      <Badge className={getRoleColor(selectedContact.role)}>
+                        {getRoleIcon(selectedContact.role)}
+                        {selectedContact.role?.replace('_', ' ').toUpperCase()}
                       </Badge>
+                      {selectedContact.membershipTier && (
+                        <Badge className={getMembershipColor(selectedContact.membershipTier)}>
+                          {getMembershipIcon(selectedContact.membershipTier)}
+                          {selectedContact.membershipTier.toUpperCase()}
+                        </Badge>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                       {selectedContact.email && (

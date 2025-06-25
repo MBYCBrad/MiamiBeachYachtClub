@@ -365,6 +365,13 @@ Changelog:
   - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
   - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
   - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
+- June 25, 2025. Staff portal yacht maintenance system fixed and operational
+  - Resolved critical React hooks ordering error that caused black screen crashes
+  - Created yacht-maintenance-fixed.tsx with proper hooks structure (all hooks at top level before any conditional logic)
+  - Updated staff portal imports to use the corrected yacht maintenance component
+  - Yacht maintenance section now loads properly for staff members with yacht permissions
+  - System allows yacht selection and displays maintenance dashboard interface
+  - Complete elimination of React hooks violations ensuring stable staff portal experience
 - June 25, 2025. Complete staff management and crew management system integration with permission-based access control
   - Fixed staff management access control to allow staff members with 'users' permission to access staff management functionality
   - Updated all API endpoints in staff management to use role-based routing (admin uses /api/admin/staff, staff uses /api/staff/users)
