@@ -425,211 +425,196 @@ export default function StaffPortal() {
               e.stopPropagation();
               setShowFilters(!showFilters);
             }}
-            className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white bg-gray-900/50 hover:bg-gray-800/80 transition-all duration-300"
+            className={`border-gray-600 transition-all cursor-pointer relative z-20 ${
+              showFilters ? 'border-purple-500 bg-purple-500/10' : 'hover:border-purple-500'
+            }`}
           >
             <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
-          
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 shadow-lg shadow-purple-600/30"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Quick Add
+            Filter
           </Button>
         </motion.div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Dynamic Stats Grid - Updates with Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Users</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalUsers || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                    <span className="text-green-400 font-medium">+{adminStats.monthlyGrowth || 0}%</span>
-                    <span className="text-gray-500 ml-1">this month</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
-                  <Users className="h-8 w-8 text-purple-400" />
-                </div>
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 group">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 group-hover:from-purple-400 group-hover:to-pink-400 transition-all duration-300">
+                <Users className="h-8 w-8 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/30 transition-colors">
+                  Total
+                </Badge>
+              </motion.div>
+            </div>
+            <div>
+              <motion.h3 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-3xl font-bold text-white mb-1"
+              >
+                {stats?.totalUsers?.toLocaleString() || '0'}
+              </motion.h3>
+              <p className="text-gray-400 text-sm">Platform Users</p>
+              <div className="flex items-center mt-2">
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                <span className="text-green-500 text-sm">+{stats?.monthlyGrowth || 0}% from last month</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Bookings</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.totalBookings || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <Calendar className="h-4 w-4 text-blue-400 mr-1" />
-                    <span className="text-gray-400">Active reservations</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
-                  <CalendarDays className="h-8 w-8 text-blue-400" />
-                </div>
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 group">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:from-blue-400 group-hover:to-cyan-400 transition-all duration-300">
+                <Anchor className="h-8 w-8 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30 transition-colors">
+                  Active
+                </Badge>
+              </motion.div>
+            </div>
+            <div>
+              <motion.h3 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-3xl font-bold text-white mb-1"
+              >
+                {stats?.totalBookings?.toLocaleString() || '0'}
+              </motion.h3>
+              <p className="text-gray-400 text-sm">Total Bookings</p>
+              <div className="flex items-center mt-2">
+                <Calendar className="h-4 w-4 text-blue-500 mr-1" />
+                <span className="text-blue-400 text-sm">+8% this week</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-emerald-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Total Revenue</p>
-                  <p className="text-3xl font-bold text-white mb-2">${(adminStats.totalRevenue || 0).toLocaleString()}</p>
-                  <div className="flex items-center text-sm">
-                    <DollarSign className="h-4 w-4 text-emerald-400 mr-1" />
-                    <span className="text-emerald-400 font-medium">Revenue streams</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
-                  <TrendingUp className="h-8 w-8 text-emerald-400" />
-                </div>
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300 group">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 group-hover:from-green-400 group-hover:to-emerald-400 transition-all duration-300">
+                <CreditCard className="h-8 w-8 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
+                  Revenue
+                </Badge>
+              </motion.div>
+            </div>
+            <div>
+              <motion.h3 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-3xl font-bold text-white mb-1"
+              >
+                ${(stats?.totalRevenue || 0).toLocaleString()}
+              </motion.h3>
+              <p className="text-gray-400 text-sm">Total Revenue</p>
+              <div className="flex items-center mt-2">
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                <span className="text-green-500 text-sm">+{stats?.monthlyGrowth || 0}% growth</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardContent className="p-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Active Services</p>
-                  <p className="text-3xl font-bold text-white mb-2">{adminStats.activeServices || 0}</p>
-                  <div className="flex items-center text-sm">
-                    <Star className="h-4 w-4 text-orange-400 mr-1" />
-                    <span className="text-gray-400">Premium offerings</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
-                  <Sparkles className="h-8 w-8 text-orange-400" />
-                </div>
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300 group">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 group-hover:from-orange-400 group-hover:to-red-400 transition-all duration-300">
+                <Filter className="h-8 w-8 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 hover:bg-orange-500/30 transition-colors">
+                  Services
+                </Badge>
+              </motion.div>
+            </div>
+            <div>
+              <motion.h3 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="text-3xl font-bold text-white mb-1"
+              >
+                {stats?.activeServices?.toLocaleString() || '0'}
+              </motion.h3>
+              <p className="text-gray-400 text-sm">Active Services</p>
+              <div className="flex items-center mt-2">
+                <Sparkles className="h-4 w-4 text-orange-500 mr-1" />
+                <span className="text-orange-400 text-sm">All categories</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Membership Breakdown */}
-      {adminStats.membershipBreakdown && adminStats.membershipBreakdown.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-white">Membership Distribution</CardTitle>
-              <CardDescription className="text-gray-400">Current membership tier breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {adminStats.membershipBreakdown.map((tier: any, index: number) => (
-                  <motion.div
-                    key={tier.tier}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                    className="text-center p-4 rounded-lg bg-gray-800/50 border border-gray-700/50"
-                  >
-                    <div className="text-2xl font-bold text-white mb-1">{tier.count}</div>
-                    <div className="text-sm text-gray-400 mb-2">{tier.tier}</div>
-                    <div className="text-xs text-purple-400 font-medium">{tier.percentage}%</div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Quick Actions */}
+      {/* Membership Tiers */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
+        transition={{ delay: 0.4 }}
       >
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
-            <CardTitle className="text-xl font-semibold text-white">Quick Actions</CardTitle>
-            <CardDescription className="text-gray-400">Frequently used staff functions</CardDescription>
+            <CardTitle className="text-white flex items-center">
+              <Crown className="h-5 w-5 mr-2 text-yellow-500" />
+              Membership Distribution
+            </CardTitle>
+            <CardDescription>Current membership tier breakdown</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
-                onClick={() => setActiveSection('users')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-purple-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Users className="h-6 w-6 text-purple-400" />
-                <span className="text-white">Manage Users</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('yachts')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-blue-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Anchor className="h-6 w-6 text-blue-400" />
-                <span className="text-white">Fleet Management</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('bookings')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-emerald-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Calendar className="h-6 w-6 text-emerald-400" />
-                <span className="text-white">View Bookings</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('analytics')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-pink-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <TrendingUp className="h-6 w-6 text-pink-400" />
-                <span className="text-white">Analytics</span>
-              </Button>
+              {stats?.membershipBreakdown?.map((tier, index) => (
+                <motion.div
+                  key={tier.tier}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  className="text-center p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
+                >
+                  <div className={`text-2xl font-bold mb-2 ${
+                    tier.tier === 'Platinum' ? 'text-purple-400' :
+                    tier.tier === 'Gold' ? 'text-yellow-400' :
+                    tier.tier === 'Silver' ? 'text-gray-300' : 'text-orange-400'
+                  }`}>
+                    {tier.count}
+                  </div>
+                  <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
+                  <div className="text-xs text-gray-500">{(tier.percentage || 0).toFixed(1)}%</div>
+                </motion.div>
+              )) || (
+                <div className="col-span-4 text-center py-8">
+                  <Crown className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400">No membership data available</p>
+                  <p className="text-gray-500 text-sm">Data will appear when members join</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
