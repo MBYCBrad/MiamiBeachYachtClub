@@ -167,22 +167,27 @@ export default function StaffPortal() {
   const [showAddEventDialog, setShowAddEventDialog] = useState(false);
   const [showAddYachtDialog, setShowAddYachtDialog] = useState(false);
   const [showAddServiceDialog, setShowAddServiceDialog] = useState(false);
-  const [showEditUserDialog, setShowEditUserDialog] = useState(false);
-  const [showEditEventDialog, setShowEditEventDialog] = useState(false);
-  const [showEditYachtDialog, setShowEditYachtDialog] = useState(false);
-  const [showEditServiceDialog, setShowEditServiceDialog] = useState(false);
-  const [showEditPaymentDialog, setShowEditPaymentDialog] = useState(false);
-  const [showViewUserDialog, setShowViewUserDialog] = useState(false);
-  const [showViewEventDialog, setShowViewEventDialog] = useState(false);
-  const [showViewYachtDialog, setShowViewYachtDialog] = useState(false);
-  const [showViewServiceDialog, setShowViewServiceDialog] = useState(false);
-  const [showViewPaymentDialog, setShowViewPaymentDialog] = useState(false);
   
-  // Selected items for editing/viewing
+  // View and Edit dialog states
+  const [showViewUserDialog, setShowViewUserDialog] = useState(false);
+  const [showEditUserDialog, setShowEditUserDialog] = useState(false);
+  const [showViewEventDialog, setShowViewEventDialog] = useState(false);
+  const [showEditEventDialog, setShowEditEventDialog] = useState(false);
+  const [showViewYachtDialog, setShowViewYachtDialog] = useState(false);
+  const [showEditYachtDialog, setShowEditYachtDialog] = useState(false);
+  const [showViewServiceDialog, setShowViewServiceDialog] = useState(false);
+  const [showEditServiceDialog, setShowEditServiceDialog] = useState(false);
+  const [showViewBookingDialog, setShowViewBookingDialog] = useState(false);
+  const [showEditBookingDialog, setShowEditBookingDialog] = useState(false);
+  const [showViewPaymentDialog, setShowViewPaymentDialog] = useState(false);
+  const [showEditPaymentDialog, setShowEditPaymentDialog] = useState(false);
+
+  // Selected items for dialogs
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [selectedYacht, setSelectedYacht] = useState<any>(null);
   const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
 
   // Form schemas
@@ -472,73 +477,71 @@ export default function StaffPortal() {
 
   // Click handlers for making all view/edit icons functional
   const handleViewUser = (user: any) => {
-    console.log('Viewing user details:', user);
-    alert(`Viewing User: ${user.username || user.fullName || 'Unknown User'}\nEmail: ${user.email || 'N/A'}\nRole: ${user.role || 'N/A'}`);
+    setSelectedUser(user);
+    setShowViewUserDialog(true);
   };
 
   const handleEditUser = (user: any) => {
-    console.log('Editing user:', user);
-    alert(`Edit User: ${user.username || user.fullName || 'Unknown User'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedUser(user);
+    setShowEditUserDialog(true);
   };
 
   const handleViewEvent = (event: any) => {
-    console.log('Viewing event details:', event);
-    alert(`Viewing Event: ${event.title || event.name || 'Unknown Event'}\nDate: ${event.date || 'N/A'}\nLocation: ${event.location || 'N/A'}`);
+    setSelectedEvent(event);
+    setShowViewEventDialog(true);
   };
 
   const handleEditEvent = (event: any) => {
-    console.log('Editing event:', event);
-    alert(`Edit Event: ${event.title || event.name || 'Unknown Event'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedEvent(event);
+    setShowEditEventDialog(true);
   };
 
   const handleViewYacht = (yacht: any) => {
-    console.log('Viewing yacht details:', yacht);
-    alert(`Viewing Yacht: ${yacht.name || 'Unknown Yacht'}\nType: ${yacht.type || 'N/A'}\nSize: ${yacht.size || 'N/A'} ft\nCapacity: ${yacht.capacity || 'N/A'} guests`);
+    setSelectedYacht(yacht);
+    setShowViewYachtDialog(true);
   };
 
   const handleEditYacht = (yacht: any) => {
-    console.log('Editing yacht:', yacht);
-    alert(`Edit Yacht: ${yacht.name || 'Unknown Yacht'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedYacht(yacht);
+    setShowEditYachtDialog(true);
   };
 
   const handleViewService = (service: any) => {
-    console.log('Viewing service details:', service);
-    alert(`Viewing Service: ${service.name || 'Unknown Service'}\nCategory: ${service.category || 'N/A'}\nPrice: $${service.pricePerSession || service.price || 'N/A'}`);
+    setSelectedService(service);
+    setShowViewServiceDialog(true);
   };
 
   const handleEditService = (service: any) => {
-    console.log('Editing service:', service);
-    alert(`Edit Service: ${service.name || 'Unknown Service'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedService(service);
+    setShowEditServiceDialog(true);
   };
 
   const handleViewBooking = (booking: any) => {
-    console.log('Viewing booking details:', booking);
-    alert(`Viewing Booking: ${booking.type || 'Unknown Booking'}\nStatus: ${booking.status || 'N/A'}\nDate: ${booking.date || booking.createdAt || 'N/A'}`);
+    setSelectedBooking(booking);
+    setShowViewBookingDialog(true);
   };
 
   const handleEditBooking = (booking: any) => {
-    console.log('Editing booking:', booking);
-    alert(`Edit Booking: ${booking.type || 'Unknown Booking'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedBooking(booking);
+    setShowEditBookingDialog(true);
   };
 
   const handleViewPayment = (payment: any) => {
-    console.log('Viewing payment details:', payment);
-    alert(`Viewing Payment: $${payment.amount || 'N/A'}\nCustomer: ${payment.customer || payment.fullName || 'N/A'}\nStatus: ${payment.status || 'N/A'}`);
+    setSelectedPayment(payment);
+    setShowViewPaymentDialog(true);
   };
 
   const handleEditPayment = (payment: any) => {
-    console.log('Editing payment:', payment);
-    alert(`Edit Payment: $${payment.amount || 'N/A'}\nThis would open an edit dialog in the full implementation.`);
+    setSelectedPayment(payment);
+    setShowEditPaymentDialog(true);
   };
 
   const handleViewAnalytics = (analytics: any) => {
     console.log('Viewing analytics details:', analytics);
-    alert(`Viewing Analytics Data\nThis would show detailed analytics in the full implementation.`);
   };
 
   const handleEditAnalytics = (analytics: any) => {
     console.log('Editing analytics:', analytics);
-    alert(`Edit Analytics Settings\nThis would open analytics configuration in the full implementation.`);
   };
 
   const handleViewNotification = (notification: any) => {
@@ -4378,6 +4381,397 @@ export default function StaffPortal() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View User Dialog */}
+      <Dialog open={showViewUserDialog} onOpenChange={setShowViewUserDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">View User Details</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Username</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedUser.username || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Full Name</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedUser.fullName || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Email</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedUser.email || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Role</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedUser.role || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewUserDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={showEditUserDialog} onOpenChange={setShowEditUserDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Edit User</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Username</label>
+                  <Input 
+                    defaultValue={selectedUser.username}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Full Name</label>
+                  <Input 
+                    defaultValue={selectedUser.fullName}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Email</label>
+                  <Input 
+                    defaultValue={selectedUser.email}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Role</label>
+                  <Select defaultValue={selectedUser.role}>
+                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-950 border-gray-700/50">
+                      <SelectItem value="member">Member</SelectItem>
+                      <SelectItem value="yacht_owner">Yacht Owner</SelectItem>
+                      <SelectItem value="service_provider">Service Provider</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditUserDialog(false)}
+                  className="border-gray-700/50 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Update User
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Service Dialog */}
+      <Dialog open={showViewServiceDialog} onOpenChange={setShowViewServiceDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">View Service Details</DialogTitle>
+          </DialogHeader>
+          {selectedService && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Service Name</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedService.name || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Category</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedService.category || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Price Per Session</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    ${selectedService.pricePerSession || selectedService.price || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Duration (hours)</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedService.duration || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              {selectedService.description && (
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Description</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedService.description}
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewServiceDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Service Dialog */}
+      <Dialog open={showEditServiceDialog} onOpenChange={setShowEditServiceDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">Edit Service</DialogTitle>
+          </DialogHeader>
+          {selectedService && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Service Name</label>
+                  <Input 
+                    defaultValue={selectedService.name}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Category</label>
+                  <Select defaultValue={selectedService.category}>
+                    <SelectTrigger className="bg-gray-900/50 border-gray-700/50 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-950 border-gray-700/50">
+                      <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                      <SelectItem value="Culinary">Culinary</SelectItem>
+                      <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                      <SelectItem value="Entertainment">Entertainment</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Price Per Session</label>
+                  <Input 
+                    defaultValue={selectedService.pricePerSession}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Duration (hours)</label>
+                  <Input 
+                    defaultValue={selectedService.duration}
+                    className="bg-gray-900/50 border-gray-700/50 text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-300">Description</label>
+                <textarea 
+                  defaultValue={selectedService.description}
+                  className="w-full mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditServiceDialog(false)}
+                  className="border-gray-700/50 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Update Service
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Yacht Dialog */}
+      <Dialog open={showViewYachtDialog} onOpenChange={setShowViewYachtDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">View Yacht Details</DialogTitle>
+          </DialogHeader>
+          {selectedYacht && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Yacht Name</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.name || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Type</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.type || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Size (ft)</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.size || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Capacity</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.capacity || 'N/A'} guests
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Location</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.location || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedYacht.status || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewYachtDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Booking Dialog */}
+      <Dialog open={showViewBookingDialog} onOpenChange={setShowViewBookingDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">View Booking Details</DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Booking Type</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedBooking.type || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedBooking.status || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Date</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedBooking.date || selectedBooking.createdAt || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Member</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedBooking.memberName || selectedBooking.member || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewBookingDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Payment Dialog */}
+      <Dialog open={showViewPaymentDialog} onOpenChange={setShowViewPaymentDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700/50 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white">View Payment Details</DialogTitle>
+          </DialogHeader>
+          {selectedPayment && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Amount</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    ${selectedPayment.amount || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Customer</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedPayment.customer || selectedPayment.fullName || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Status</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedPayment.status || 'N/A'}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300">Service/Event</label>
+                  <div className="mt-1 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white">
+                    {selectedPayment.serviceEvent || selectedPayment.serviceName || 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button 
+                  onClick={() => setShowViewPaymentDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
