@@ -1,51 +1,20 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
-import CalendarPage from "@/pages/calendar-page";
-import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
-import YachtMaintenancePage from "@/pages/yacht-maintenance";
-import CrewManagementPage from "./crew-management";
-import AdminNotificationCenter from "@/components/AdminNotificationCenter";
-import StaffManagement from "./staff-management";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { 
-  BarChart3, 
-  Users, 
-  Anchor, 
-  CalendarDays, 
-  Settings, 
-  Shield,
-  TrendingUp,
-  Activity,
-  Bell,
-  Search,
-  Calendar,
-  Star,
-  DollarSign,
-  Clock,
-  MapPin,
-  LogOut,
-  Menu,
-  X,
-  MessageSquare,
-  Ship,
-  Wrench,
-  User,
-  Sparkles,
-  CreditCard,
-  Filter,
-  Eye,
-  Edit,
-  Database
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+  BarChart3, Calendar, CalendarDays, MessageSquare, Wrench, Ship, Shield, Users, 
+  Anchor, Sparkles, CreditCard, TrendingUp, User, Settings, Bell, Clock, 
+  Search, Menu, X, Zap, Activity, ChevronRight, Eye, Edit, Trash2, Plus,
+  Filter, Star, MapPin, Phone, Mail, Globe, AlertTriangle, CheckCircle,
+  XCircle, RefreshCw, Download, Upload, Share2, MoreVertical
+} from 'lucide-react';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/use-auth';
 
 interface StaffMember {
   id: number;
@@ -82,1514 +51,1064 @@ const allStaffMenuItems = [
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500', permission: 'events' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500', permission: 'payments' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500', permission: 'analytics' },
-  { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-yellow-500 to-amber-500', permission: 'notifications' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500', permission: 'dashboard_access' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500', permission: 'dashboard_access' }
 ];
 
-const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="group relative overflow-hidden"
-  >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-400 text-sm font-medium">{title}</p>
-            <p className="text-3xl font-bold text-white mt-2">{value}</p>
-            {change !== null && (
-              <div className="flex items-center mt-2">
-                <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                <span className="text-green-400 text-sm">+{change}%</span>
-              </div>
-            )}
-          </div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-        </div>
-      </CardContent>
-      
-      {/* Animated background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-    </Card>
-  </motion.div>
-);
-
-const ActivityCard = ({ activity, index }: any) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1 }}
-    className="flex items-center space-x-4 p-4 bg-gray-900/30 rounded-lg border border-gray-700/50 hover:border-purple-500/30 transition-all duration-300"
-  >
-    <div className={`p-2 rounded-lg bg-gradient-to-br ${activity.color}`}>
-      <activity.icon className="h-4 w-4 text-white" />
-    </div>
-    <div className="flex-1">
-      <p className="text-white font-medium">{activity.title}</p>
-      <p className="text-gray-400 text-sm">{activity.description}</p>
-    </div>
-    <span className="text-gray-400 text-sm">{activity.time}</span>
-  </motion.div>
-);
-
 export default function StaffPortal() {
   const [activeSection, setActiveSection] = useState('overview');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { user, logoutMutation } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { user, logout } = useAuth();
 
-  // Fetch current staff member details
-  const { data: staffMember, isLoading: staffLoading } = useQuery<StaffMember>({
+  // Fetch staff profile and stats
+  const { data: staffProfile } = useQuery<StaffMember>({
     queryKey: ['/api/staff/profile'],
-    enabled: !!user && user.role === 'staff',
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!user
   });
 
-  // Fetch staff statistics
-  const { data: staffStats, isLoading: statsLoading } = useQuery<StaffStats>({
+  const { data: staffStats } = useQuery<StaffStats>({
     queryKey: ['/api/staff/stats'],
-    enabled: !!user && user.role === 'staff',
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    enabled: !!user
+  });
+
+  const { data: yachts } = useQuery({
+    queryKey: ['/api/yachts'],
+    enabled: !!user
   });
 
   // Filter menu items based on staff permissions
-  const allowedMenuItems = allStaffMenuItems.filter(item => {
-    // Always show overview and profile
-    if (item.id === 'overview' || item.id === 'my-profile') return true;
+  const filteredMenuItems = allStaffMenuItems.filter(item => {
+    if (!staffProfile?.permissions) return item.permission === 'dashboard_access';
     
-    // If no permissions available, only show basic items
-    if (!staffMember?.permissions) return false;
+    // Map permissions to menu items
+    const permissionMap: { [key: string]: string[] } = {
+      'dashboard_access': ['overview', 'my-profile', 'settings'],
+      'bookings': ['bookings', 'calendar'],
+      'customer_service': ['customer-service'],
+      'yachts': ['yachts', 'yacht-maintenance'],
+      'crew_management': ['crew_management'],
+      'users': ['users', 'staff-management'],
+      'services': ['services'],
+      'events': ['events'],
+      'payments': ['payments'],
+      'analytics': ['analytics']
+    };
+
+    // Check if staff has permission for this menu item
+    for (const [permission, menuIds] of Object.entries(permissionMap)) {
+      if (menuIds.includes(item.id) && staffProfile.permissions.includes(permission)) {
+        return true;
+      }
+    }
     
-    // Check if user has the specific permission for this menu item
-    return staffMember.permissions.includes(item.permission);
+    return false;
   });
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
+  // Search functionality
+  const searchResults = filteredMenuItems.filter(item =>
+    item.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sidebarItems = searchTerm ? searchResults : filteredMenuItems;
 
   const handleSectionChange = (sectionId: string) => {
-    if (sectionId === 'logout') {
-      handleLogout();
-      return;
-    }
     setActiveSection(sectionId);
+    setSidebarCollapsed(true);
   };
 
-  // Generate dynamic recent activities based on user permissions
-  const generateRecentActivities = () => {
-    const activities = [];
-    const userPermissions = staffMember?.permissions || [];
-    
-    if (userPermissions.includes('bookings')) {
-      activities.push({
-        icon: Calendar,
-        title: "VIP yacht booking coordinated",
-        description: "Azure Elegance - Premium charter arrangement",
-        time: "8 min ago",
-        color: "from-blue-500 to-cyan-500"
-      });
-    }
-    
-    if (userPermissions.includes('services')) {
-      activities.push({
-        icon: Sparkles,
-        title: "VIP concierge service completed",
-        description: "Private chef dinner coordination finalized",
-        time: "15 min ago",
-        color: "from-purple-500 to-pink-500"
-      });
-    }
-    
-    if (userPermissions.includes('events')) {
-      activities.push({
-        icon: Star,
-        title: "Exclusive event coordination",
-        description: "Member celebration event planning",
-        time: "22 min ago",
-        color: "from-green-500 to-emerald-500"
-      });
-    }
-    
-    if (userPermissions.includes('yachts')) {
-      activities.push({
-        icon: Ship,
-        title: "Fleet status coordination",
-        description: "Marina Breeze readiness verification",
-        time: "31 min ago",
-        color: "from-amber-500 to-orange-500"
-      });
-    }
-    
-    // Ensure at least 3 activities for good UX
-    if (activities.length < 3) {
-      activities.push({
-        icon: MessageSquare,
-        title: "Member communication handled",
-        description: "Premium support inquiry resolved",
-        time: "45 min ago",
-        color: "from-indigo-500 to-blue-500"
-      });
-    }
-    
-    return activities.slice(0, 4);
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  const recentActivities = generateRecentActivities();
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <motion.header 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50 sticky top-0 z-50"
+  // Customer Service section for staff
+  function renderCustomerService() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
       >
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden text-gray-400 hover:text-white"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Staff Portal
-                </h1>
-                <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2">
-              <Search className="h-4 w-4 text-gray-400" />
-              <Input 
-                placeholder="Search..." 
-                className="w-64 bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-400"
-              />
-            </div>
-            
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5 text-gray-400" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-purple-500 rounded-full"></span>
-            </Button>
-
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.jpg" />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                  {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-white">{staffMember?.fullName || 'Staff Member'}</p>
-                <p className="text-xs text-gray-400">{staffMember?.role || 'Staff'}</p>
-              </div>
-            </div>
-          </div>
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Customer Service
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Handle member inquiries and support requests
+          </motion.p>
         </div>
-      </motion.header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <AnimatePresence>
-          {isSidebarOpen && (
-            <motion.aside
-              initial={{ x: -300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="w-64 bg-gray-950 border-r border-gray-800/50 min-h-screen sticky top-16"
-            >
-              <div className="p-6 space-y-2">
-                {allowedMenuItems.map((item, index) => (
-                  <motion.button
-                    key={item.id}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => handleSectionChange(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-                      activeSection === item.id
-                        ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                    }`}
-                  >
-                    <item.icon className={`h-5 w-5 transition-transform duration-300 ${
-                      activeSection === item.id ? 'scale-110' : 'group-hover:scale-105'
-                    }`} />
-                    <span className="font-medium">{item.label}</span>
-                  </motion.button>
-                ))}
-                
-                <Separator className="my-4 bg-gray-800" />
-                
-                <motion.button
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: allowedMenuItems.length * 0.05 }}
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                >
-                  <LogOut className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" />
-                  <span className="font-medium">Log Out</span>
-                </motion.button>
-              </div>
-            </motion.aside>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {activeSection === 'overview' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Overview
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    {staffMember?.role || 'Staff Member'} • {staffMember?.department || 'Operations'}
-                  </motion.p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                  <MessageSquare className="h-6 w-6 text-white" />
                 </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Live</Badge>
               </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Active Chats</h3>
+              <p className="text-2xl font-bold text-white">12</p>
+              <p className="text-green-400 text-sm mt-1">Ongoing conversations</p>
+            </CardContent>
+          </Card>
 
-              {/* Top Stats Grid */}
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                  <Bell className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Today</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Tickets Resolved</h3>
+              <p className="text-2xl font-bold text-white">28</p>
+              <p className="text-blue-400 text-sm mt-1">+15% from yesterday</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Avg</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Response Time</h3>
+              <p className="text-2xl font-bold text-white">2.5m</p>
+              <p className="text-purple-400 text-sm mt-1">Average response</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">Rating</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Satisfaction</h3>
+              <p className="text-2xl font-bold text-white">4.8/5</p>
+              <p className="text-orange-400 text-sm mt-1">Customer rating</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Recent Support Tickets</CardTitle>
+            <CardDescription>Latest customer inquiries and their status</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { id: 'CS-001', user: 'demo_member', issue: 'Yacht booking inquiry', status: 'Open', priority: 'High' },
+                { id: 'CS-002', user: 'member_2', issue: 'Service cancellation', status: 'In Progress', priority: 'Medium' },
+                { id: 'CS-003', user: 'member_3', issue: 'Payment question', status: 'Resolved', priority: 'Low' }
+              ].map((ticket) => (
+                <div key={ticket.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                      <span className="text-white text-xs font-semibold">
+                        {ticket.user.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{ticket.issue}</p>
+                      <p className="text-gray-400 text-sm">Ticket #{ticket.id} - {ticket.user}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge className={`${
+                      ticket.priority === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                      ticket.priority === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                      'bg-green-500/20 text-green-400 border-green-500/30'
+                    }`}>
+                      {ticket.priority}
+                    </Badge>
+                    <Badge className={`${
+                      ticket.status === 'Open' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                      ticket.status === 'In Progress' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                      'bg-green-500/20 text-green-400 border-green-500/30'
+                    }`}>
+                      {ticket.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Yacht Maintenance section for staff
+  function renderYachtMaintenance() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Yacht Maintenance
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Monitor yacht maintenance schedules and status
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500">
+                  <Wrench className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Active</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Scheduled Maintenance</h3>
+              <p className="text-2xl font-bold text-white">8</p>
+              <p className="text-amber-400 text-sm mt-1">This week</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-red-500 to-pink-500">
+                  <Anchor className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Urgent</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Urgent Repairs</h3>
+              <p className="text-2xl font-bold text-white">3</p>
+              <p className="text-red-400 text-sm mt-1">Need immediate attention</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Complete</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Completed Today</h3>
+              <p className="text-2xl font-bold text-white">12</p>
+              <p className="text-green-400 text-sm mt-1">Maintenance tasks</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                  <Settings className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Available</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Fleet Status</h3>
+              <p className="text-2xl font-bold text-white">85%</p>
+              <p className="text-blue-400 text-sm mt-1">Operational yachts</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Maintenance Schedule</CardTitle>
+            <CardDescription>Upcoming maintenance tasks and inspections</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { yacht: 'Azure Elegance', task: 'Engine Service', date: 'Today', priority: 'High', status: 'In Progress' },
+                { yacht: 'Ocean Pearl', task: 'Hull Cleaning', date: 'Tomorrow', priority: 'Medium', status: 'Scheduled' },
+                { yacht: 'Marina Breeze', task: 'Safety Inspection', date: 'Dec 27', priority: 'High', status: 'Pending' }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                      <Anchor className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{item.yacht}</p>
+                      <p className="text-gray-400 text-sm">{item.task} - {item.date}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge className={`${
+                      item.priority === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                      'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                    }`}>
+                      {item.priority}
+                    </Badge>
+                    <Badge className={`${
+                      item.status === 'In Progress' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                      item.status === 'Scheduled' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                      'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                    }`}>
+                      {item.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Crew Management section for staff
+  function renderCrewManagement() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Crew Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage crew assignments and scheduling
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500">
+                  <Ship className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30">Active</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Active Crew</h3>
+              <p className="text-2xl font-bold text-white">24</p>
+              <p className="text-teal-400 text-sm mt-1">On duty today</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Assigned</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Yacht Assignments</h3>
+              <p className="text-2xl font-bold text-white">16</p>
+              <p className="text-blue-400 text-sm mt-1">Current assignments</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Available</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Available Crew</h3>
+              <p className="text-2xl font-bold text-white">8</p>
+              <p className="text-green-400 text-sm mt-1">Ready for assignment</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">Hours</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Total Hours</h3>
+              <p className="text-2xl font-bold text-white">192</p>
+              <p className="text-orange-400 text-sm mt-1">This week</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Crew Assignments</CardTitle>
+            <CardDescription>Current yacht crew assignments and schedules</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { name: 'Captain Rodriguez', role: 'Captain', yacht: 'Azure Elegance', shift: '6:00 AM - 2:00 PM', status: 'On Duty' },
+                { name: 'First Mate Johnson', role: 'First Mate', yacht: 'Ocean Pearl', shift: '2:00 PM - 10:00 PM', status: 'On Duty' },
+                { name: 'Crew Chief Williams', role: 'Crew Chief', yacht: 'Marina Breeze', shift: '10:00 AM - 6:00 PM', status: 'Break' }
+              ].map((crew, index) => (
+                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                      <span className="text-white text-sm font-semibold">
+                        {crew.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{crew.name}</p>
+                      <p className="text-gray-400 text-sm">{crew.role} - {crew.yacht}</p>
+                      <p className="text-gray-500 text-xs">{crew.shift}</p>
+                    </div>
+                  </div>
+                  <Badge className={`${
+                    crew.status === 'On Duty' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                  }`}>
+                    {crew.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Staff Management section for staff
+  function renderStaffManagement() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Staff Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage MBYC staff members and their roles
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Total</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Total Staff</h3>
+              <p className="text-2xl font-bold text-white">32</p>
+              <p className="text-purple-400 text-sm mt-1">All departments</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Active Staff</h3>
+              <p className="text-2xl font-bold text-white">28</p>
+              <p className="text-green-400 text-sm mt-1">Currently working</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Scheduled</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">On Duty Today</h3>
+              <p className="text-2xl font-bold text-white">22</p>
+              <p className="text-blue-400 text-sm mt-1">Scheduled shifts</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">Performance</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Avg Performance</h3>
+              <p className="text-2xl font-bold text-white">92%</p>
+              <p className="text-orange-400 text-sm mt-1">Team efficiency</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Staff Directory</CardTitle>
+            <CardDescription>MBYC staff members by department</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { name: 'John Smith', role: 'VIP Coordinator', department: 'Customer Experience', status: 'Active', permissions: '10 permissions' },
+                { name: 'Maria Garcia', role: 'Marina Manager', department: 'Operations', status: 'Active', permissions: '8 permissions' },
+                { name: 'David Chen', role: 'Fleet Coordinator', department: 'Operations', status: 'Active', permissions: '6 permissions' }
+              ].map((staff, index) => (
+                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                      <span className="text-white text-sm font-semibold">
+                        {staff.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{staff.name}</p>
+                      <p className="text-gray-400 text-sm">{staff.role} - {staff.department}</p>
+                      <p className="text-gray-500 text-xs">{staff.permissions}</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                    {staff.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Overview section for staff
+  function renderOverview() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Staff Overview
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Welcome back, {staffProfile?.fullName || 'Staff Member'}
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                  <Activity className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Today</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Total Tasks</h3>
+              <p className="text-2xl font-bold text-white">{staffStats?.totalTasks || '42'}</p>
+              <p className="text-blue-400 text-sm mt-1">Assigned to you</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                  <CheckCircle className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Complete</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Completed Today</h3>
+              <p className="text-2xl font-bold text-white">{staffStats?.completedToday || '18'}</p>
+              <p className="text-green-400 text-sm mt-1">Tasks finished</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">Pending</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Pending Tasks</h3>
+              <p className="text-2xl font-bold text-white">{staffStats?.pendingTasks || '8'}</p>
+              <p className="text-orange-400 text-sm mt-1">Need attention</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Active</Badge>
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-1">Active Projects</h3>
+              <p className="text-2xl font-bold text-white">{staffStats?.activeProjects || '5'}</p>
+              <p className="text-purple-400 text-sm mt-1">Ongoing work</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white">Your Profile</CardTitle>
+              <CardDescription>Staff member information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {staffProfile ? (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-xl font-bold">
+                        {staffProfile.username?.charAt(0)?.toUpperCase() || 'S'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{staffProfile.fullName}</h3>
+                      <p className="text-gray-400">{staffProfile.role}</p>
+                      <p className="text-gray-500 text-sm">{staffProfile.department}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-gray-400">
+                      <Mail className="h-4 w-4 mr-2" />
+                      <span className="text-sm">{staffProfile.email}</span>
+                    </div>
+                    {staffProfile.phone && (
+                      <div className="flex items-center text-gray-400">
+                        <Phone className="h-4 w-4 mr-2" />
+                        <span className="text-sm">{staffProfile.phone}</span>
+                      </div>
+                    )}
+                    {staffProfile.location && (
+                      <div className="flex items-center text-gray-400">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        <span className="text-sm">{staffProfile.location}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <Badge className={`${
+                      staffProfile.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                      'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                    }`}>
+                      {staffProfile.status}
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-white">Quick Actions</CardTitle>
+              <CardDescription>Commonly used staff functions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <Button 
+                  onClick={() => setActiveSection('customer-service')}
+                  className="h-20 bg-gradient-to-br from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 flex flex-col items-center justify-center"
+                >
+                  <MessageSquare className="h-6 w-6 mb-2" />
+                  Customer Service
+                </Button>
+                
+                <Button 
+                  onClick={() => setActiveSection('yacht-maintenance')}
+                  className="h-20 bg-gradient-to-br from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex flex-col items-center justify-center"
+                >
+                  <Wrench className="h-6 w-6 mb-2" />
+                  Maintenance
+                </Button>
+                
+                <Button 
+                  onClick={() => setActiveSection('crew_management')}
+                  className="h-20 bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 flex flex-col items-center justify-center"
+                >
+                  <Ship className="h-6 w-6 mb-2" />
+                  Crew Management
+                </Button>
+                
+                <Button 
+                  onClick={() => setActiveSection('staff-management')}
+                  className="h-20 bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 flex flex-col items-center justify-center"
+                >
+                  <Shield className="h-6 w-6 mb-2" />
+                  Staff Management
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </motion.div>
+    );
+  }
+
+  function renderYachts() {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Fleet Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Monitor and manage the yacht fleet
+          </motion.p>
+        </div>
+
+        {yachts && yachts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {yachts.map((yacht: any, index: number) => (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                key={yacht.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
               >
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden group">
+                  <div className="relative">
+                    <img 
+                      src={yacht.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                      alt={yacht.name}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500/30">
+                        {yacht.size}ft
+                      </Badge>
+                    </div>
+                  </div>
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Total Tasks</p>
-                        <p className="text-3xl font-bold text-white mt-2">{staffStats?.totalTasks || 12}</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                          <span className="text-green-400 text-sm">+8%</span>
-                        </div>
+                    <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">{yacht.description}</p>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Capacity</span>
+                        <span className="text-white font-medium">{yacht.capacity} guests</span>
                       </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 shadow-lg">
-                        <Activity className="h-6 w-6 text-white" />
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Type</span>
+                        <span className="text-white font-medium">{yacht.type}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Location</span>
+                        <span className="text-white font-medium">{yacht.location}</span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500">
-                  <CardContent className="p-6">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Completed Today</p>
-                        <p className="text-3xl font-bold text-white mt-2">{staffStats?.completedToday || 8}</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                          <span className="text-green-400 text-sm">+15%</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg">
-                        <Star className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Pending Tasks</p>
-                        <p className="text-3xl font-bold text-white mt-2">{staffStats?.pendingTasks || 4}</p>
-                        <div className="flex items-center mt-2">
-                          <Clock className="h-4 w-4 text-amber-400 mr-1" />
-                          <span className="text-amber-400 text-sm">Urgent</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg">
-                        <Clock className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Active Projects</p>
-                        <p className="text-3xl font-bold text-white mt-2">{staffStats?.activeProjects || 3}</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                          <span className="text-green-400 text-sm">+25%</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
-                        <MapPin className="h-6 w-6 text-white" />
-                      </div>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Available
+                      </Badge>
+                      <Button size="sm" variant="ghost" className="text-blue-400 hover:text-white">
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-12">
+            <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
+          </div>
+        )}
+      </motion.div>
+    );
+  }
 
-              {/* Recent Activity */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Activity className="h-5 w-5 mr-2 text-purple-500" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription>Latest staff operations and tasks</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <ActivityCard key={index} activity={activity} index={index} />
-                  ))}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+  function renderContent() {
+    switch (activeSection) {
+      case 'overview':
+        return renderOverview();
+      case 'yachts':
+        return renderYachts();
+      case 'customer-service':
+        return renderCustomerService();
+      case 'yacht-maintenance':
+        return renderYachtMaintenance();
+      case 'crew_management':
+        return renderCrewManagement();
+      case 'staff-management':
+        return renderStaffManagement();
+      default:
+        return (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="h-12 w-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Settings className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Section Coming Soon</h3>
+              <p className="text-gray-400">This section is being developed and will be available soon.</p>
+            </div>
+          </div>
+        );
+    }
+  }
 
-          {activeSection === 'my-profile' && (
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hamburger menu button */}
+      <AnimatePresence>
+        {sidebarCollapsed && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-4 left-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
+            onClick={toggleSidebar}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Menu className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Close button */}
+      <AnimatePresence>
+        {!sidebarCollapsed && (
+          <motion.button
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed top-4 right-4 z-[9999] p-3 rounded-xl bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all duration-300"
+            onClick={toggleSidebar}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <X className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar */}
+        <motion.div
+          initial={{ x: -300, opacity: 0 }}
+          animate={{ 
+            x: sidebarCollapsed ? -320 : 0,
+            opacity: sidebarCollapsed ? 0 : 1
+          }}
+          transition={{ type: "spring", stiffness: 200, damping: 30 }}
+          className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col fixed h-full flex-shrink-0 z-50"
+        >
+          {/* Logo */}
+          <div className="p-6 border-b border-gray-700/50">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="flex items-center justify-between"
             >
-              <h2 className="text-3xl font-bold text-white">My Profile</h2>
-              
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white">Staff Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src="/placeholder-avatar.jpg" />
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white text-lg">
-                        {staffMember?.fullName?.split(' ').map(n => n[0]).join('') || 'S'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{staffMember?.fullName}</h3>
-                      <p className="text-gray-400">{staffMember?.role}</p>
-                      <Badge variant="secondary" className="mt-1">
-                        {staffMember?.status || 'Active'}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-400">Email</label>
-                      <p className="text-white">{staffMember?.email}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Phone</label>
-                      <p className="text-white">{staffMember?.phone || 'Not provided'}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Department</label>
-                      <p className="text-white">{staffMember?.department}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Location</label>
-                      <p className="text-white">{staffMember?.location || 'Not specified'}</p>
-                    </div>
-                  </div>
-
-                  {staffMember?.permissions && staffMember.permissions.length > 0 && (
-                    <div>
-                      <label className="text-sm text-gray-400 mb-2 block">Permissions</label>
-                      <div className="flex flex-wrap gap-2">
-                        {staffMember.permissions.map((permission, index) => (
-                          <Badge key={index} variant="outline" className="text-purple-400 border-purple-400">
-                            {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Users Section */}
-          {activeSection === 'users' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    User Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Manage member accounts, permissions, and memberships
-                  </motion.p>
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <img 
+                    src="/api/media/MBYC-LOGO-WHITE_1750688569645.png" 
+                    alt="MBYC Logo" 
+                    className="w-8 h-8 object-contain"
+                  />
                 </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Users Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-purple-500" />
-                    Member Directory
-                  </CardTitle>
-                  <CardDescription>All registered yacht club members</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Member</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Tier</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Role</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Joined</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                                  D
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white font-medium">demo_member</p>
-                                <p className="text-sm text-gray-400">demo@mbyc.com</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                              PLATINUM
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-300 capitalize">Member</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-400">June 2025</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Bookings Section */}
-          {activeSection === 'bookings' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
                 <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Bookings Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Manage yacht reservations, service bookings, and event registrations
-                  </motion.p>
+                  <h2 className="text-xl font-bold text-white">Staff Portal</h2>
+                  <p className="text-sm text-gray-400">Miami Beach Yacht Club</p>
                 </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
               </div>
-
-              {/* Bookings Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-purple-500" />
-                    All Bookings
-                  </CardTitle>
-                  <CardDescription>Real-time yacht, service, and event bookings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Booking ID</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Date & Time</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <span className="text-white font-medium">#YB001</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                                  D
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white">demo_member</p>
-                                <p className="text-xs text-gray-400">Premium Member</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                              Yacht Booking
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <span className="text-white">June 25, 2025</span>
-                              <p className="text-xs text-gray-400">9:00 AM - 1:00 PM</p>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                              Confirmed
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-2">
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
             </motion.div>
-          )}
+          </div>
 
-          {/* Services Section */}
-          {activeSection === 'services' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Service Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Manage yacht concierge services and provider operations
-                  </motion.p>
-                </div>
+          {/* Search */}
+          <div className="p-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto px-6">
+            <div className="space-y-2 pb-4">
+              {sidebarItems.map((item, index) => {
+                const Icon = item.icon;
+                const isActive = activeSection === item.id;
                 
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                return (
+                  <motion.button
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl group relative overflow-hidden transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-transparent shadow-lg shadow-purple-600/30' 
+                        : 'bg-transparent text-gray-400 border-transparent hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Services Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
-                    Premium Services
-                  </CardTitle>
-                  <CardDescription>Yacht concierge and luxury service offerings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Service</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Category</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Provider</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Price</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Rating</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                <Sparkles className="h-5 w-5 text-white" />
-                              </div>
-                              <div>
-                                <p className="text-white font-medium">Private Chef Service</p>
-                                <p className="text-sm text-gray-400">Gourmet dining experience</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none">
-                              Culinary
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-300">Chef Rodriguez</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-white font-medium">$450/hr</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span className="text-white">4.9</span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                              Active
-                            </Badge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Yachts/Fleet Section */}
-          {activeSection === 'yachts' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Fleet Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Manage yacht fleet, vessel operations, and maintenance schedules
-                  </motion.p>
-                </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Fleet Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Anchor className="h-5 w-5 mr-2 text-purple-500" />
-                    Active Fleet
-                  </CardTitle>
-                  <CardDescription>Yacht fleet status and operational overview</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Yacht</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Location</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Capacity</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                                <Anchor className="h-6 w-6 text-white" />
-                              </div>
-                              <div>
-                                <p className="text-white font-medium">Marina Breeze</p>
-                                <p className="text-sm text-gray-400">Luxury Motor Yacht</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                              Motor Yacht
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-gray-300">Miami Marina</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-white">12 guests</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                              Available
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-2">
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                                <Wrench className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Events Section */}
-          {activeSection === 'events' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Event Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Manage yacht club events, experiences, and member celebrations
-                  </motion.p>
-                </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Events Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <CalendarDays className="h-5 w-5 mr-2 text-purple-500" />
-                    Upcoming Events
-                  </CardTitle>
-                  <CardDescription>Exclusive yacht club events and member experiences</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Event</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Date & Time</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Capacity</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Registered</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Price</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                                <Star className="h-6 w-6 text-white" />
-                              </div>
-                              <div>
-                                <p className="text-white font-medium">VIP Wine Tasting</p>
-                                <p className="text-sm text-gray-400">Exclusive premium experience</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <span className="text-white">July 15, 2025</span>
-                              <p className="text-xs text-gray-400">7:00 PM - 10:00 PM</p>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none">
-                              25 max
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-green-400 font-medium">18/25</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-white font-medium">$125</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                              Active
-                            </Badge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Analytics Section */}
-          {activeSection === 'analytics' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Analytics
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Performance metrics, insights, and business intelligence
-                  </motion.p>
-                </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Database className="h-4 w-4 mr-2" />
-                    Export Data
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
-                        <p className="text-3xl font-bold text-white mt-2">$124,500</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                          <span className="text-green-400 text-sm">+12.5%</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 shadow-lg">
-                        <DollarSign className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Active Bookings</p>
-                        <p className="text-3xl font-bold text-white mt-2">156</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
-                          <span className="text-blue-400 text-sm">+8.2%</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
-                        <Calendar className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Member Satisfaction</p>
-                        <p className="text-3xl font-bold text-white mt-2">4.8</p>
-                        <div className="flex items-center mt-2">
-                          <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                          <span className="text-yellow-400 text-sm">Excellent</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
-                        <Star className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-400 text-sm font-medium">Fleet Utilization</p>
-                        <p className="text-3xl font-bold text-white mt-2">87%</p>
-                        <div className="flex items-center mt-2">
-                          <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
-                          <span className="text-purple-400 text-sm">+5.1%</span>
-                        </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 shadow-lg">
-                        <Anchor className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Analytics Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2 text-purple-500" />
-                    Performance Metrics
-                  </CardTitle>
-                  <CardDescription>Key performance indicators and trends</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <TrendingUp className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400 text-lg">Analytics data loading...</p>
-                    <p className="text-gray-500 text-sm">Real-time metrics will appear here</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Payments Section */}
-          {activeSection === 'payments' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    Payment Management
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Transaction history, revenue tracking, and payment analytics
-                  </motion.p>
-                </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Database className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Payments Table */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <CreditCard className="h-5 w-5 mr-2 text-purple-500" />
-                    Transaction History
-                  </CardTitle>
-                  <CardDescription>Real-time payment processing and revenue tracking</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Transaction</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Service</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Amount</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="py-4 px-4">
-                            <span className="text-white font-medium">#TXN-001</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
-                                  D
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white">demo_member</p>
-                                <p className="text-xs text-gray-400">Premium Member</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                              Private Chef
-                            </Badge>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="text-green-400 font-bold text-lg">$450.00</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div>
-                              <span className="text-gray-300">June 25, 2025</span>
-                              <p className="text-gray-400 text-xs">2:30 PM</p>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                              Succeeded
-                            </Badge>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Calendar Section */}
-          {activeSection === 'calendar' && (
-            <CalendarPage />
-          )}
-
-          {/* Customer Service Section */}
-          {activeSection === 'customer_service' && (
-            <CustomerServiceDashboard />
-          )}
-
-          {/* Yacht Maintenance Section */}
-          {activeSection === 'yacht_maintenance' && (
-            <YachtMaintenancePage />
-          )}
-
-          {/* Crew Management Section */}
-          {activeSection === 'crew_management' && (
-            <CrewManagementPage />
-          )}
-
-          {/* Notifications Section */}
-          {activeSection === 'notifications' && (
-            <AdminNotificationCenter />
-          )}
-
-          {/* Staff Management Section */}
-          {activeSection === 'staff-management' && (
-            <StaffManagement />
-          )}
-
-          {/* Settings Section */}
-          {activeSection === 'settings' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-8"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <motion.h1 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-5xl font-bold text-white mb-2 tracking-tight"
-                    style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-                  >
-                    System Settings
-                  </motion.h1>
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-lg text-gray-400"
-                  >
-                    Configure system preferences and operational parameters
-                  </motion.p>
-                </div>
-                
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-4"
-                >
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                  >
-                    <Database className="h-4 w-4 mr-2" />
-                    Export Settings
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Settings Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <Settings className="h-5 w-5 mr-2 text-purple-500" />
-                      General Settings
-                    </CardTitle>
-                    <CardDescription>System configuration and preferences</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Maintenance Mode</span>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Disabled
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Auto Backup</span>
-                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                        Enabled
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Debug Mode</span>
-                      <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
-                        Disabled
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <Bell className="h-5 w-5 mr-2 text-purple-500" />
-                      Notification Settings
-                    </CardTitle>
-                    <CardDescription>Alert preferences and thresholds</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Email Alerts</span>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Enabled
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">SMS Notifications</span>
-                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                        Enabled
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Push Notifications</span>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Enabled
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                      <Shield className="h-5 w-5 mr-2 text-purple-500" />
-                      Security Settings
-                    </CardTitle>
-                    <CardDescription>Authentication and access control</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Two-Factor Auth</span>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Required
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Session Timeout</span>
-                      <span className="text-gray-300">24 hours</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Password Policy</span>
-                      <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                        Strong
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* System Status */}
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Activity className="h-5 w-5 mr-2 text-purple-500" />
-                    System Status
-                  </CardTitle>
-                  <CardDescription>Real-time system health and performance metrics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                        <Database className="h-8 w-8 text-white" />
-                      </div>
-                      <p className="text-white font-medium">Database</p>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                        Operational
-                      </Badge>
+                    <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
+                      <Icon className="h-5 w-5" />
                     </div>
                     
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                        <Activity className="h-8 w-8 text-white" />
-                      </div>
-                      <p className="text-white font-medium">API Server</p>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                        Running
-                      </Badge>
-                    </div>
+                    <span className="font-medium">{item.label}</span>
                     
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center">
-                        <Shield className="h-8 w-8 text-white" />
-                      </div>
-                      <p className="text-white font-medium">Security</p>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                        Secure
-                      </Badge>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center">
-                        <Bell className="h-8 w-8 text-white" />
-                      </div>
-                      <p className="text-white font-medium">Notifications</p>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 mt-1">
-                        Active
-                      </Badge>
-                    </div>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="ml-auto"
+                      >
+                        <Zap className="h-4 w-4 text-purple-400" />
+                      </motion.div>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+          </nav>
+
+          {/* User Profile with Logout */}
+          <div className="p-6 border-t border-gray-700/50 bg-gray-900/50">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="profile-picture-outline h-12 w-12">
+                <div className="profile-picture-inner w-full h-full">
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold">
+                      {staffProfile?.username?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'S'}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {staffProfile?.fullName || user?.username || 'Staff User'}
+                </p>
+                <p className="text-xs text-gray-400">{staffProfile?.role || 'Staff Member'}</p>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={logout}
+              variant="outline" 
+              size="sm" 
+              className="w-full border-gray-600 text-gray-300 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400"
+            >
+              Log Out
+            </Button>
+          </div>
+        </motion.div>
 
-
-        </main>
+        {/* Main Content */}
+        <motion.div 
+          animate={{ 
+            marginLeft: sidebarCollapsed ? 0 : 320
+          }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="flex-1 overflow-y-auto p-8 w-full"
+        >
+          <AnimatePresence mode="wait">
+            {renderContent()}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );
