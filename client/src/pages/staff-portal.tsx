@@ -607,58 +607,7 @@ export default function StaffPortal() {
         </motion.div>
       )}
 
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-      >
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-white">Quick Actions</CardTitle>
-            <CardDescription className="text-gray-400">Frequently used staff functions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button
-                onClick={() => setActiveSection('users')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-purple-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Users className="h-6 w-6 text-purple-400" />
-                <span className="text-white">Manage Users</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('yachts')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-blue-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Anchor className="h-6 w-6 text-blue-400" />
-                <span className="text-white">Fleet Management</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('bookings')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-emerald-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <Calendar className="h-6 w-6 text-emerald-400" />
-                <span className="text-white">View Bookings</span>
-              </Button>
-              
-              <Button
-                onClick={() => setActiveSection('analytics')}
-                variant="outline"
-                className="h-20 flex-col space-y-2 border-gray-600 hover:border-pink-500 bg-gray-800/50 hover:bg-gray-700/80"
-              >
-                <TrendingUp className="h-6 w-6 text-pink-400" />
-                <span className="text-white">Analytics</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+
     </motion.div>
   );
 
