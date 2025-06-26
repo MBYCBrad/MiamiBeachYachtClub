@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { MessageSquare, Search, Send, User, Clock } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { MessageSquare, Search, Send, User, Clock, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -35,18 +36,39 @@ export default function MessagesDropdown() {
   const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  // Fetch conversations
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
+
+  // Fetch conversations with real-time updates
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery({
     queryKey: ['/api/staff/conversations'],
     enabled: isOpen,
+    refetchInterval: isOpen ? 3000 : false, // Auto-refresh every 3 seconds when open
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always fetch fresh data
   });
 
-  // Fetch messages for selected conversation
+  // Fetch messages for selected conversation with real-time updates
   const { data: messages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ['/api/staff/messages', selectedConversation],
     enabled: selectedConversation !== null,
+    refetchInterval: selectedConversation !== null ? 2000 : false, // Auto-refresh every 2 seconds when conversation is selected
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always fetch fresh data
   });
 
   // Send message mutation
@@ -105,12 +127,12 @@ export default function MessagesDropdown() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
+        className="relative p-2 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-all duration-200"
       >
         <MessageSquare className="h-5 w-5" />
         {totalUnreadCount > 0 && (
@@ -120,8 +142,15 @@ export default function MessagesDropdown() {
         )}
       </Button>
 
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 bottom-full mb-2 w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50 backdrop-blur-sm"
+          >
           {/* Header */}
           <div className="p-4 border-b border-gray-700/50">
             <div className="flex items-center justify-between mb-3">
@@ -274,8 +303,9 @@ export default function MessagesDropdown() {
               )}
             </div>
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
