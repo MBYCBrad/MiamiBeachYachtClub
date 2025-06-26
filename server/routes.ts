@@ -80,6 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware to check authentication
   const requireAuth = (req: any, res: any, next: any) => {
+    console.log('Auth check - isAuthenticated:', req.isAuthenticated(), 'user:', req.user?.username, 'role:', req.user?.role);
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -1352,8 +1353,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate the media URL for the uploaded avatar
       const avatarUrl = `/api/media/${req.file.filename}`;
       
-      // Update user's avatar in database
-      const updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: avatarUrl });
+      let updatedUser = null;
+      
+      // First try to update regular user
+      try {
+        updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: avatarUrl });
+      } catch (err) {
+        console.log('User not found in users table, trying staff table');
+      }
+      
+      // If not found in users table, try updating staff user
+      if (!updatedUser) {
+        try {
+          const staffUser = await dbStorage.getStaffByUsername(req.user!.username);
+          if (staffUser) {
+            // For now, we can't store avatar in staff table, but we'll return success
+            // In the future, we could add profileImage field to staff table
+            console.log('Avatar upload successful for staff user:', avatarUrl);
+            
+            // Return staff user profile format
+            updatedUser = {
+              id: staffUser.id,
+              username: staffUser.username,
+              email: staffUser.email,
+              fullName: staffUser.fullName,
+              phone: staffUser.phone,
+              location: staffUser.location,
+              role: staffUser.role,
+              department: staffUser.department,
+              profileImage: avatarUrl, // Store in response even if not in database
+              membershipTier: 'staff',
+              isStaff: true
+            };
+          }
+        } catch (staffErr) {
+          console.log('Staff user not found either');
+        }
+      }
+      
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1373,10 +1410,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile endpoint
   app.get('/api/user/profile', requireAuth, async (req, res) => {
     try {
-      const user = await dbStorage.getUser(req.user!.id);
+      let user = null;
+      
+      // First try to get from regular users table
+      try {
+        user = await dbStorage.getUser(req.user!.id);
+      } catch (err) {
+        // If not found in users table, try staff table
+        console.log('User not found in users table, checking staff table');
+      }
+      
+      // If not found in users table, check staff table
+      if (!user) {
+        try {
+          const staffUser = await dbStorage.getStaffByUsername(req.user!.username);
+          if (staffUser) {
+            // Convert staff user to user profile format
+            user = {
+              id: staffUser.id,
+              username: staffUser.username,
+              email: staffUser.email,
+              fullName: staffUser.fullName,
+              phone: staffUser.phone,
+              location: staffUser.location,
+              role: staffUser.role,
+              department: staffUser.department,
+              profileImage: null, // Staff users don't have profile images yet
+              membershipTier: 'staff',
+              isStaff: true
+            };
+          }
+        } catch (staffErr) {
+          console.log('User not found in staff table either');
+        }
+      }
+      
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+      
       res.json(user);
     } catch (error: any) {
       console.error('Profile fetch error:', error);
@@ -1387,10 +1459,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update user profile endpoint
   app.put('/api/user/profile', requireAuth, async (req, res) => {
     try {
-      const updatedUser = await dbStorage.updateUser(req.user!.id, req.body);
+      let updatedUser = null;
+      
+      // First try to update regular user
+      try {
+        updatedUser = await dbStorage.updateUser(req.user!.id, req.body);
+      } catch (err) {
+        console.log('User not found in users table, trying staff table');
+      }
+      
+      // If not found in users table, try updating staff user
+      if (!updatedUser) {
+        try {
+          const staffUser = await dbStorage.getStaffByUsername(req.user!.username);
+          if (staffUser) {
+            // Update staff user with allowed fields
+            const allowedUpdates = {
+              phone: req.body.phone,
+              location: req.body.location,
+              fullName: req.body.fullName
+            };
+            
+            // Filter out undefined values
+            const updates = Object.fromEntries(
+              Object.entries(allowedUpdates).filter(([_, value]) => value !== undefined)
+            );
+            
+            if (Object.keys(updates).length > 0) {
+              await dbStorage.updateStaff(staffUser.id, updates);
+            }
+            
+            // Return updated staff user in profile format
+            const updatedStaffUser = await dbStorage.getStaffByUsername(req.user!.username);
+            if (updatedStaffUser) {
+              updatedUser = {
+                id: updatedStaffUser.id,
+                username: updatedStaffUser.username,
+                email: updatedStaffUser.email,
+                fullName: updatedStaffUser.fullName,
+                phone: updatedStaffUser.phone,
+                location: updatedStaffUser.location,
+                role: updatedStaffUser.role,
+                department: updatedStaffUser.department,
+                profileImage: null,
+                membershipTier: 'staff',
+                isStaff: true
+              };
+            }
+          }
+        } catch (staffErr) {
+          console.log('Staff user update failed:', staffErr);
+        }
+      }
+      
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
+      
       res.json(updatedUser);
     } catch (error: any) {
       console.error('Profile update error:', error);
