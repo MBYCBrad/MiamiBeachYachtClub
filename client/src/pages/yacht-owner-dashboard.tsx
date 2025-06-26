@@ -957,6 +957,857 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
+  const renderBookings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Bookings Management
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Monitor your yacht bookings and guest experiences
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedule Overview
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter Bookings
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Booking Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Bookings"
+          value={bookings?.length.toString() || '0'}
+          change={null}
+          icon={Anchor}
+          gradient="from-purple-500 to-indigo-500"
+          delay={0}
+        />
+        <StatCard
+          title="Active Bookings"
+          value={bookings?.filter((b: any) => b.status === 'confirmed')?.length.toString() || '0'}
+          change={null}
+          icon={Activity}
+          gradient="from-purple-500 to-indigo-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Pending Review"
+          value={bookings?.filter((b: any) => b.status === 'pending')?.length.toString() || '0'}
+          change={null}
+          icon={Clock}
+          gradient="from-orange-500 to-red-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Total Revenue"
+          value="$12,840"
+          change={18}
+          icon={DollarSign}
+          gradient="from-green-500 to-emerald-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Bookings List */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Recent Bookings</CardTitle>
+          <CardDescription>Latest yacht reservations and guest requests</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!bookings ? (
+            <div className="text-center py-8">
+              <div className="animate-pulse space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gray-700 rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+              <div className="text-gray-400 text-lg mb-4">No bookings yet</div>
+              <div className="text-gray-500 text-sm">Your yacht bookings will appear here once members make reservations</div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {bookings.map((booking: any, index: number) => (
+                <motion.div
+                  key={booking.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <User className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{booking.memberName || 'Guest'}</p>
+                      <p className="text-gray-400 text-sm">{booking.yachtName}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-medium">{new Date(booking.startTime).toLocaleDateString()}</p>
+                    <Badge className={
+                      booking.status === 'confirmed' ? 'bg-green-600' : 
+                      booking.status === 'pending' ? 'bg-yellow-600' : 'bg-gray-600'
+                    }>
+                      {booking.status}
+                    </Badge>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderRevenue = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Revenue Analytics
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Track your yacht rental income and performance metrics
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Generate Report
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Time Period
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Revenue Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Revenue"
+          value={`$${stats?.monthlyRevenue.toFixed(2) || '0.00'}`}
+          change={18}
+          icon={DollarSign}
+          gradient="from-green-500 to-emerald-500"
+          delay={0}
+        />
+        <StatCard
+          title="Monthly Income"
+          value={`$${(stats?.monthlyRevenue || 0).toFixed(2)}`}
+          change={12}
+          icon={TrendingUp}
+          gradient="from-purple-500 to-indigo-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Avg Booking Value"
+          value="$2,140"
+          change={8}
+          icon={Calculator}
+          gradient="from-blue-500 to-cyan-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Occupancy Rate"
+          value={`${stats?.occupancyRate || 0}%`}
+          change={stats?.occupancyRate ? stats.occupancyRate - 75 : 0}
+          icon={Activity}
+          gradient="from-purple-500 to-pink-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Revenue Chart */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Monthly Revenue Trends</CardTitle>
+          <CardDescription>Revenue performance over the last 12 months</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!revenueData ? (
+            <div className="h-64 flex items-center justify-center">
+              <div className="animate-pulse text-gray-400">Loading revenue data...</div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {revenueData.map((month: any, index: number) => {
+                const maxRevenue = Math.max(...revenueData.map((m: any) => m.revenue));
+                const percentage = maxRevenue > 0 ? (month.revenue / maxRevenue) * 100 : 0;
+                
+                return (
+                  <motion.div
+                    key={month.month}
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "100%" }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className="flex items-center space-x-4"
+                  >
+                    <span className="text-white font-medium w-16">{month.month}</span>
+                    <div className="flex-1 bg-gray-800 rounded-full h-4 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ delay: index * 0.1 + 0.2, duration: 0.8 }}
+                        className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                      />
+                    </div>
+                    <span className="text-gray-400 text-sm w-20">${month.revenue.toFixed(0)}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderMaintenance = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Fleet Maintenance
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Monitor yacht condition and maintenance schedules
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <Plus className="h-4 w-4 mr-2" />
+            Schedule Maintenance
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter Records
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Maintenance Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Pending Tasks"
+          value={stats?.pendingMaintenance.toString() || '0'}
+          change={null}
+          icon={Wrench}
+          gradient="from-orange-500 to-red-500"
+          delay={0}
+        />
+        <StatCard
+          title="Completed This Month"
+          value="8"
+          change={null}
+          icon={CheckCircle}
+          gradient="from-green-500 to-emerald-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Maintenance Cost"
+          value="$2,340"
+          change={-12}
+          icon={DollarSign}
+          gradient="from-purple-500 to-indigo-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Fleet Health"
+          value="94%"
+          change={3}
+          icon={Heart}
+          gradient="from-purple-500 to-pink-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Maintenance Overview */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Maintenance Schedule</CardTitle>
+          <CardDescription>Upcoming and recent maintenance activities</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[
+              { yacht: 'Azure Elegance', task: 'Engine Service', date: '2024-07-15', status: 'pending', priority: 'high' },
+              { yacht: 'Marina Breeze', task: 'Hull Cleaning', date: '2024-07-12', status: 'completed', priority: 'medium' },
+              { yacht: 'Ocean Spirit', task: 'Safety Inspection', date: '2024-07-18', status: 'scheduled', priority: 'high' }
+            ].map((maintenance, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    maintenance.status === 'completed' ? 'bg-green-600' :
+                    maintenance.status === 'pending' ? 'bg-orange-600' : 'bg-purple-600'
+                  }`}>
+                    {maintenance.status === 'completed' ? (
+                      <CheckCircle className="h-6 w-6 text-white" />
+                    ) : maintenance.status === 'pending' ? (
+                      <Clock className="h-6 w-6 text-white" />
+                    ) : (
+                      <Calendar className="h-6 w-6 text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{maintenance.task}</p>
+                    <p className="text-gray-400 text-sm">{maintenance.yacht}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-white font-medium">{maintenance.date}</p>
+                  <Badge className={
+                    maintenance.priority === 'high' ? 'bg-red-600' :
+                    maintenance.priority === 'medium' ? 'bg-yellow-600' : 'bg-gray-600'
+                  }>
+                    {maintenance.priority} priority
+                  </Badge>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
+  const renderAnalytics = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Analytics Dashboard
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Advanced insights into yacht performance and business metrics
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Generate Report
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Time Period
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Analytics Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Total Bookings"
+          value={stats?.totalBookings.toString() || '0'}
+          change={15}
+          icon={TrendingUp}
+          gradient="from-purple-500 to-indigo-500"
+          delay={0}
+        />
+        <StatCard
+          title="Revenue Growth"
+          value="24%"
+          change={18}
+          icon={DollarSign}
+          gradient="from-green-500 to-emerald-500"
+          delay={0.1}
+        />
+        <StatCard
+          title="Customer Rating"
+          value="4.8/5"
+          change={5}
+          icon={Star}
+          gradient="from-yellow-500 to-orange-500"
+          delay={0.2}
+        />
+        <StatCard
+          title="Fleet Utilization"
+          value={`${stats?.occupancyRate || 0}%`}
+          change={stats?.occupancyRate ? stats.occupancyRate - 75 : 0}
+          icon={Activity}
+          gradient="from-blue-500 to-cyan-500"
+          delay={0.3}
+        />
+      </div>
+
+      {/* Performance Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white">Yacht Performance</CardTitle>
+            <CardDescription>Individual yacht booking and revenue metrics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {yachts && yachts.length > 0 ? yachts.map((yacht: any, index: number) => (
+                <motion.div
+                  key={yacht.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50"
+                >
+                  <div>
+                    <p className="text-white font-medium">{yacht.name}</p>
+                    <p className="text-gray-400 text-sm">{yacht.size}ft yacht</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-purple-400 font-bold">85% utilized</p>
+                    <p className="text-gray-400 text-sm">12 bookings</p>
+                  </div>
+                </motion.div>
+              )) : (
+                <div className="text-center py-8 text-gray-400">
+                  No yacht data available
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white">Booking Trends</CardTitle>
+            <CardDescription>Monthly booking patterns and seasonality</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { month: 'Jan', bookings: 8 },
+                { month: 'Feb', bookings: 12 },
+                { month: 'Mar', bookings: 15 },
+                { month: 'Apr', bookings: 18 },
+                { month: 'May', bookings: 22 },
+                { month: 'Jun', bookings: 25 }
+              ].map((month, index) => {
+                const maxBookings = 25;
+                const percentage = (month.bookings / maxBookings) * 100;
+                
+                return (
+                  <motion.div
+                    key={month.month}
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "100%" }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                    className="flex items-center space-x-4"
+                  >
+                    <span className="text-white font-medium w-12">{month.month}</span>
+                    <div className="flex-1 bg-gray-800 rounded-full h-3 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ delay: index * 0.1 + 0.2, duration: 0.8 }}
+                        className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                      />
+                    </div>
+                    <span className="text-gray-400 text-sm w-8">{month.bookings}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </motion.div>
+  );
+
+  const renderGallery = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Yacht Gallery
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Showcase your yacht fleet with stunning photography
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <Plus className="h-4 w-4 mr-2" />
+            Upload Photos
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter Gallery
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Gallery Grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {yachts && yachts.length > 0 ? yachts.map((yacht: any, index: number) => (
+          <motion.div
+            key={yacht.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 + index * 0.1 }}
+            whileHover={{ scale: 1.05 }}
+            className="group relative overflow-hidden rounded-xl"
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl overflow-hidden">
+              <div className="h-64 relative">
+                <img 
+                  src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
+                  alt={yacht.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                
+                {/* Yacht Info Overlay */}
+                <div className="absolute bottom-4 left-4">
+                  <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
+                  <p className="text-white/80 text-sm">{yacht.size}ft • {yacht.location}</p>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex space-x-2">
+                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                      <Camera className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )) : (
+          <div className="col-span-full text-center py-12">
+            <Camera className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <div className="text-gray-400 text-lg mb-4">No photos in your gallery</div>
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+              <Plus className="h-4 w-4 mr-2" />
+              Upload Your First Photos
+            </Button>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderSettings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Account Settings
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage your account preferences and yacht owner settings
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <Save className="h-4 w-4 mr-2" />
+            Save Changes
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Settings Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <User className="h-5 w-5 mr-2 text-purple-500" />
+              Profile Settings
+            </CardTitle>
+            <CardDescription>Update your personal information and preferences</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-white font-medium">Display Name</label>
+              <Input 
+                defaultValue={user?.username || ''}
+                className="bg-gray-800/50 border-gray-600 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-white font-medium">Email Address</label>
+              <Input 
+                defaultValue={user?.email || ''}
+                className="bg-gray-800/50 border-gray-600 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-white font-medium">Phone Number</label>
+              <Input 
+                defaultValue=""
+                className="bg-gray-800/50 border-gray-600 text-white"
+                placeholder="Enter your phone number"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Bell className="h-5 w-5 mr-2 text-purple-500" />
+              Notification Settings
+            </CardTitle>
+            <CardDescription>Configure how you receive updates about your yachts</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[
+              { label: 'New Bookings', description: 'Get notified when guests book your yachts' },
+              { label: 'Maintenance Alerts', description: 'Receive maintenance reminders and updates' },
+              { label: 'Revenue Reports', description: 'Monthly and weekly revenue summaries' },
+              { label: 'Guest Reviews', description: 'Notifications when guests leave reviews' }
+            ].map((notification, index) => (
+              <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+                <div>
+                  <p className="text-white font-medium">{notification.label}</p>
+                  <p className="text-sm text-gray-400">{notification.description}</p>
+                </div>
+                <motion.div
+                  whileTap={{ scale: 0.95 }}
+                  className="w-12 h-6 bg-purple-500 rounded-full p-1 cursor-pointer"
+                >
+                  <div className="w-4 h-4 bg-white rounded-full ml-auto transition-all" />
+                </motion.div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-purple-500" />
+              Security Settings
+            </CardTitle>
+            <CardDescription>Protect your account and yacht management access</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-xl bg-gray-800/30">
+              <p className="text-white font-medium mb-2">Change Password</p>
+              <p className="text-sm text-gray-400 mb-3">Update your account password</p>
+              <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
+                Update Password
+              </Button>
+            </div>
+            <div className="p-4 rounded-xl bg-gray-800/30">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white font-medium">Two-Factor Authentication</p>
+                <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">Disabled</Badge>
+              </div>
+              <p className="text-sm text-gray-400 mb-3">Add an extra layer of security to your account</p>
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                Enable 2FA
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Anchor className="h-5 w-5 mr-2 text-purple-500" />
+              Yacht Management
+            </CardTitle>
+            <CardDescription>Configure default settings for your yacht listings</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-white font-medium">Default Booking Duration</label>
+              <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600">
+                <option>4 hours</option>
+                <option>8 hours</option>
+                <option>Full day</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-white font-medium">Auto-approval</label>
+              <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600">
+                <option>Manual approval</option>
+                <option>Auto-approve all</option>
+                <option>Auto-approve returning guests</option>
+              </select>
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+              <div>
+                <p className="text-white font-medium">Instant Booking</p>
+                <p className="text-sm text-gray-400">Allow guests to book without approval</p>
+              </div>
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className="w-12 h-6 bg-purple-500 rounded-full p-1 cursor-pointer"
+              >
+                <div className="w-4 h-4 bg-white rounded-full ml-auto transition-all" />
+              </motion.div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </motion.div>
+  );
+
   const renderCurrentSection = () => {
     switch (activeSection) {
       case 'overview':
