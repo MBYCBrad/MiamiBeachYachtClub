@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   BarChart3, 
   Anchor, 
-  CalendarDays, 
+  CalendarDays,
+  Calendar,
   DollarSign, 
   Settings, 
   Crown,
