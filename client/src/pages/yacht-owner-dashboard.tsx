@@ -2823,7 +2823,7 @@ export default function YachtOwnerDashboard() {
             opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-50 overflow-hidden"
+          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
         >
           {/* Animated background */}
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
@@ -2867,7 +2867,7 @@ export default function YachtOwnerDashboard() {
           </div>
 
           {/* Search */}
-          <div className="p-6">
+          <div className="p-6 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -2880,8 +2880,8 @@ export default function YachtOwnerDashboard() {
           </div>
 
           {/* Navigation */}
-          <nav className="px-6 pb-6 overflow-y-auto flex-1">
-            <div className="space-y-2 pb-6">
+          <nav className="flex-1 overflow-y-auto">
+            <div className="px-6 pb-6 space-y-2">
               {sidebarItems.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
