@@ -56,7 +56,8 @@ import {
   Hash,
   Briefcase,
   Plus,
-  Phone
+  Phone,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -239,6 +240,11 @@ export default function StaffPortal() {
   const [showEditBookingDialog, setShowEditBookingDialog] = useState(false);
   const [showViewPaymentDialog, setShowViewPaymentDialog] = useState(false);
   const [showEditPaymentDialog, setShowEditPaymentDialog] = useState(false);
+  
+  // Message dialog states
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
 
   // Selected items for dialogs
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -2200,11 +2206,8 @@ export default function StaffPortal() {
                     className="p-4 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
                     onClick={() => {
                       console.log('Opening conversation:', conversation);
-                      // Add message opening functionality here
-                      toast({
-                        title: "Opening Conversation",
-                        description: `Opening conversation with ${conversation.participant1_name || conversation.participant2_name || 'Unknown Member'}`,
-                      });
+                      setSelectedConversation(conversation);
+                      setShowMessageDialog(true);
                     }}
                   >
                     <div className="flex items-start justify-between">
@@ -6036,6 +6039,81 @@ export default function StaffPortal() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Message Dialog */}
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader className="border-b border-gray-700 pb-4">
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
+              </div>
+              Conversation with {selectedConversation?.participant1_name || selectedConversation?.participant2_name || 'Unknown Member'}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Real-time member support and staff communications
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col h-[500px]">
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 p-4 border border-gray-700 rounded-lg bg-gray-900/50 mb-4">
+              <div className="space-y-4">
+                {/* Sample message - you would fetch actual messages here */}
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-white">
+                        {selectedConversation?.participant1_name || 'Member'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {selectedConversation?.last_message_at ? 
+                          new Date(selectedConversation.last_message_at).toLocaleTimeString() : 
+                          'Now'
+                        }
+                      </span>
+                    </div>
+                    <div className="bg-gray-800 rounded-lg p-3 max-w-lg">
+                      <p className="text-gray-300 text-sm">
+                        {selectedConversation?.last_message || 'Sample message content'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+            
+            {/* Message Input */}
+            <div className="flex gap-2">
+              <Textarea
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 bg-gray-900 border-gray-700 text-white resize-none"
+                rows={3}
+              />
+              <Button 
+                onClick={() => {
+                  // Send message logic would go here
+                  console.log('Sending message:', messageContent);
+                  setMessageContent('');
+                  toast({
+                    title: "Message Sent",
+                    description: "Your message has been sent to the member.",
+                  });
+                }}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 self-end"
+                disabled={!messageContent.trim()}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
