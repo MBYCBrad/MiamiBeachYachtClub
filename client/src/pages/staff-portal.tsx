@@ -927,38 +927,261 @@ export default function StaffPortal() {
         </motion.div>
       </div>
 
+      {/* Revenue and Analytics Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2 text-green-400" />
+              Revenue Analytics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Total Revenue</span>
+              <span className="text-white font-bold">${(analytics.totalRevenue || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Today's Revenue</span>
+              <span className="text-green-400 font-bold">${(analytics.todayRevenue || 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Average Booking Value</span>
+              <span className="text-blue-400 font-bold">${(analytics.averageBookingValue || 0).toFixed(2)}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2 text-purple-400" />
+              Booking Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Confirmed Bookings</span>
+              <span className="text-green-400 font-bold">{analytics.bookingStatus?.confirmed || 0}</span>
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Pending Bookings</span>
+              <span className="text-yellow-400 font-bold">{analytics.bookingStatus?.pending || 0}</span>
+            </div>
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
+              <span className="text-gray-400">Today's Bookings</span>
+              <span className="text-blue-400 font-bold">{analytics.todayBookings || 0}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Membership Breakdown */}
-      {adminStats.membershipBreakdown && adminStats.membershipBreakdown.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold text-white">Membership Distribution</CardTitle>
-              <CardDescription className="text-gray-400">Current membership tier breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {adminStats.membershipBreakdown.map((tier: any, index: number) => (
-                  <motion.div
-                    key={tier.tier}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                    className="text-center p-4 rounded-lg bg-gray-800/50 border border-gray-700/50"
-                  >
-                    <div className="text-2xl font-bold text-white mb-1">{tier.count}</div>
-                    <div className="text-sm text-gray-400 mb-2">{tier.tier}</div>
-                    <div className="text-xs text-purple-400 font-medium">{tier.percentage}%</div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Crown className="h-5 w-5 mr-2 text-yellow-400" />
+              Membership Tiers Distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.7 }}
+                className="text-center p-4 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30"
+              >
+                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.bronze || 0}</div>
+                <div className="text-sm text-amber-400 mb-2">Bronze</div>
+                <div className="text-xs text-amber-300 font-medium">Entry Level</div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8 }}
+                className="text-center p-4 rounded-lg bg-gradient-to-br from-gray-400/20 to-gray-500/20 border border-gray-400/30"
+              >
+                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.silver || 0}</div>
+                <div className="text-sm text-gray-300 mb-2">Silver</div>
+                <div className="text-xs text-gray-400 font-medium">Premium</div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.9 }}
+                className="text-center p-4 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30"
+              >
+                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.gold || 0}</div>
+                <div className="text-sm text-yellow-400 mb-2">Gold</div>
+                <div className="text-xs text-yellow-300 font-medium">VIP</div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.0 }}
+                className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30"
+              >
+                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.platinum || 0}</div>
+                <div className="text-sm text-purple-400 mb-2">Platinum</div>
+                <div className="text-xs text-purple-300 font-medium">Elite</div>
+              </motion.div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Recent Activity Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-blue-400" />
+              Recent Bookings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {(bookings as any[])?.slice(0, 4).map((booking: any, index: number) => (
+                <motion.div
+                  key={booking.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + index * 0.1 }}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800/70 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-indigo-400"></div>
+                    <div>
+                      <p className="text-white font-medium text-sm">{booking.yachtName || 'Yacht Booking'}</p>
+                      <p className="text-gray-400 text-xs">{booking.memberName || 'Member'}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-green-400 font-bold text-sm">{booking.status || 'Confirmed'}</p>
+                    <p className="text-gray-500 text-xs">{new Date(booking.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <DollarSign className="h-5 w-5 mr-2 text-green-400" />
+              Recent Payments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {(payments as any[])?.slice(0, 4).map((payment: any, index: number) => (
+                <motion.div
+                  key={payment.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8 + index * 0.1 }}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800/70 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-400"></div>
+                    <div>
+                      <p className="text-white font-medium text-sm">{payment.serviceName || payment.serviceEvent}</p>
+                      <p className="text-gray-400 text-xs">{payment.customer || payment.fullName}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-green-400 font-bold text-sm">${payment.amount}</p>
+                    <p className="text-gray-500 text-xs">{payment.status}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Quick Actions Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Zap className="h-5 w-5 mr-2 text-yellow-400" />
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveSection('users')}
+                className="p-4 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 hover:border-blue-400/50 transition-colors group"
+              >
+                <Users className="h-8 w-8 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <p className="text-white font-medium text-sm">Manage Users</p>
+                <p className="text-gray-400 text-xs">{adminStats.totalUsers} total</p>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveSection('bookings')}
+                className="p-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 hover:border-purple-400/50 transition-colors group"
+              >
+                <Calendar className="h-8 w-8 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <p className="text-white font-medium text-sm">View Bookings</p>
+                <p className="text-gray-400 text-xs">{adminStats.totalBookings} active</p>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveSection('yachts')}
+                className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 hover:border-emerald-400/50 transition-colors group"
+              >
+                <Anchor className="h-8 w-8 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <p className="text-white font-medium text-sm">Fleet Status</p>
+                <p className="text-gray-400 text-xs">{(yachts as any[])?.length || 0} yachts</p>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveSection('services')}
+                className="p-4 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 hover:border-orange-400/50 transition-colors group"
+              >
+                <Settings className="h-8 w-8 text-orange-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <p className="text-white font-medium text-sm">Services</p>
+                <p className="text-gray-400 text-xs">{adminStats.activeServices} available</p>
+              </motion.button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
 
     </motion.div>
