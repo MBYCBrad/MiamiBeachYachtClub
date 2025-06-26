@@ -1506,7 +1506,7 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminNotifications() {
     try {
-      const result = await this.db
+      const result = await db
         .select()
         .from(notifications)
         .orderBy(desc(notifications.createdAt))

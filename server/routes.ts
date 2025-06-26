@@ -2772,8 +2772,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Staff access required" });
       }
 
-      // Get all notifications for staff members
-      const notifications = await dbStorage.getAdminNotifications();
+      // Get all notifications for staff members - query database directly
+      const notifications = await db
+        .select()
+        .from(dbSchema.notifications)
+        .orderBy(desc(dbSchema.notifications.createdAt))
+        .limit(50);
+      
       res.json(notifications);
     } catch (error: any) {
       console.error('Error fetching staff notifications:', error);
