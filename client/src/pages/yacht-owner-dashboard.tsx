@@ -554,6 +554,10 @@ export default function YachtOwnerDashboard() {
     sortBy: 'date'
   });
   
+  // Maintenance page state
+  const [selectedMaintenanceYacht, setSelectedMaintenanceYacht] = useState<number | null>(null);
+  const [activeMaintenanceTab, setActiveMaintenanceTab] = useState('overview');
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
 
@@ -1421,10 +1425,7 @@ export default function YachtOwnerDashboard() {
   );
 
   const renderMaintenance = () => {
-    const [selectedYacht, setSelectedYacht] = useState<number | null>(null);
-    const [activeMaintenanceTab, setActiveMaintenanceTab] = useState('overview');
-
-    if (selectedYacht) {
+    if (selectedMaintenanceYacht) {
       return (
         <motion.div
           initial={{ opacity: 0 }}
@@ -1438,7 +1439,7 @@ export default function YachtOwnerDashboard() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => setSelectedYacht(null)}
+                  onClick={() => setSelectedMaintenanceYacht(null)}
                   className="border-gray-600 hover:border-purple-500"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -1454,7 +1455,7 @@ export default function YachtOwnerDashboard() {
                 className="text-5xl font-bold text-white mb-2 tracking-tight"
                 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
               >
-                Yacht Maintenance System
+                {ownerYachts?.find(y => y.id === selectedMaintenanceYacht)?.name || 'Yacht'} Maintenance
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: -10 }}
@@ -1709,7 +1710,7 @@ export default function YachtOwnerDashboard() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              onClick={() => setSelectedYacht(yacht.id)}
+              onClick={() => setSelectedMaintenanceYacht(yacht.id)}
               className="cursor-pointer"
             >
               <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
