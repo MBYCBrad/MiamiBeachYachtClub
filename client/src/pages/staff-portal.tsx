@@ -3879,7 +3879,18 @@ export default function StaffPortal() {
               
               {/* Messages, Notifications, and Logout beside username */}
               <div className="flex items-center space-x-2">
-                <StaffMessagesDropdown />
+                {/* Messages Navigation Button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setActiveSection('messages')}
+                  className="relative p-2 rounded-lg bg-gray-800/50 hover:bg-purple-500/20 border border-gray-600/50 hover:border-purple-500/50 transition-all duration-300 group"
+                  title="Messages"
+                >
+                  <MessageSquare className="h-4 w-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                  {/* Message Badge */}
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full"></div>
+                </motion.button>
                 {/* Staff Notification Button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
