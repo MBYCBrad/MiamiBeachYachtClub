@@ -676,7 +676,7 @@ export default function YachtOwnerDashboard() {
             Add New Yacht
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
+        <DialogContent className="bg-gray-950 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
           <DialogHeader>
             <DialogTitle className="text-white">Add New Yacht</DialogTitle>
           </DialogHeader>
