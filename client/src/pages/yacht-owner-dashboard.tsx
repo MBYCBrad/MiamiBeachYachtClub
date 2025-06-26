@@ -1463,7 +1463,7 @@ export default function YachtOwnerDashboard() {
                 transition={{ delay: 0.1 }}
                 className="text-lg text-gray-400"
               >
-                {yachts?.find(y => y.id === selectedYacht)?.name} - Comprehensive maintenance tracking
+                {yachts?.find(y => y.id === selectedMaintenanceYacht)?.name} - Comprehensive maintenance tracking
               </motion.p>
             </div>
           </div>
