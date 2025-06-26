@@ -48,6 +48,7 @@ import {
   XCircle,
   ChevronDown,
   MessageSquare,
+  Archive,
   Ship,
   BellRing,
   Dot,
@@ -245,6 +246,10 @@ export default function StaffPortal() {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [messageContent, setMessageContent] = useState('');
+  
+  // Notification view dialog states
+  const [showViewNotificationDialog, setShowViewNotificationDialog] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<any>(null);
 
   // Selected items for dialogs
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -1988,7 +1993,11 @@ export default function StaffPortal() {
                           size="sm" 
                           variant="ghost" 
                           className="text-gray-400 hover:text-white"
-                          onClick={() => console.log('Viewing notification:', notification)}
+                          onClick={() => {
+                            console.log('Viewing notification:', notification);
+                            setSelectedNotification(notification);
+                            setShowViewNotificationDialog(true);
+                          }}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -6112,6 +6121,132 @@ export default function StaffPortal() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification View Dialog */}
+      <Dialog open={showViewNotificationDialog} onOpenChange={setShowViewNotificationDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl">
+          <DialogHeader className="border-b border-gray-700 pb-4">
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Bell className="w-5 h-5 text-white" />
+              </div>
+              Notification Details
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View notification information and take action
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedNotification && (
+            <div className="space-y-6 py-4">
+              {/* Notification Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    {selectedNotification.title}
+                  </h3>
+                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {new Date(selectedNotification.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                    <Badge 
+                      className={`
+                        ${selectedNotification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : ''}
+                        ${selectedNotification.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : ''}
+                        ${selectedNotification.priority === 'low' ? 'bg-green-500/20 text-green-400 border-green-500/30' : ''}
+                      `}
+                    >
+                      {selectedNotification.priority} priority
+                    </Badge>
+                    <Badge className={`
+                      ${selectedNotification.read ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}
+                    `}>
+                      {selectedNotification.read ? 'Read' : 'Unread'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notification Content */}
+              <div className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-4">
+                <p className="text-gray-300 leading-relaxed">
+                  {selectedNotification.message}
+                </p>
+              </div>
+
+              {/* Notification Type Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/30 rounded-lg p-3">
+                  <label className="text-sm font-medium text-gray-400">Type</label>
+                  <p className="text-white font-medium mt-1 capitalize">
+                    {selectedNotification.type}
+                  </p>
+                </div>
+                <div className="bg-gray-900/30 rounded-lg p-3">
+                  <label className="text-sm font-medium text-gray-400">User ID</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedNotification.user_id}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between pt-4 border-t border-gray-700">
+                <div className="flex gap-2">
+                  {!selectedNotification.read && (
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      onClick={() => {
+                        // Mark as read logic would go here
+                        console.log('Marking notification as read:', selectedNotification.id);
+                        toast({
+                          title: "Notification Marked as Read",
+                          description: "The notification has been marked as read.",
+                        });
+                      }}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Mark as Read
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="border-red-600 text-red-400 hover:bg-red-800/20"
+                    onClick={() => {
+                      // Archive notification logic would go here
+                      console.log('Archiving notification:', selectedNotification.id);
+                      setShowViewNotificationDialog(false);
+                      toast({
+                        title: "Notification Archived",
+                        description: "The notification has been archived.",
+                      });
+                    }}
+                  >
+                    <Archive className="w-4 h-4 mr-2" />
+                    Archive
+                  </Button>
+                </div>
+                <Button 
+                  onClick={() => setShowViewNotificationDialog(false)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
