@@ -2666,119 +2666,121 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  // Profile render function - 100% copy from admin dashboard with yacht owner styling
-  const renderProfile = () => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [profileData, setProfileData] = useState({
-      username: user?.username || '',
-      email: user?.email || '',
-      fullName: user?.fullName || '',
-      phone: user?.phone || '',
-      location: user?.location || '',
-      bio: user?.bio || '',
-      avatarUrl: user?.avatarUrl || ''
-    });
-    const [uploading, setUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    
-    // Real-time profile data fetching
-    const { data: profileDataReal, refetch: refetchProfile } = useQuery({
-      queryKey: ['/api/user/profile'],
-      staleTime: 0,
-      refetchOnMount: true
-    });
-    
-    // Update local state when real data loads
-    useEffect(() => {
-      if (profileDataReal) {
-        setProfileData({
-          username: profileDataReal.username || '',
-          email: profileDataReal.email || '',
-          fullName: profileDataReal.fullName || '',
-          phone: profileDataReal.phone || '',
-          location: profileDataReal.location || '',
-          bio: profileDataReal.bio || '',
-          avatarUrl: profileDataReal.avatarUrl || ''
-        });
-      }
-    }, [profileDataReal]);
-    
-    // Real-time profile update mutation
-    const updateProfileMutation = useMutation({
-      mutationFn: async (data: any) => {
-        const response = await fetch('/api/user/profile', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (!response.ok) throw new Error('Failed to update profile');
-        return response.json();
-      },
-      onSuccess: () => {
-        toast({ title: "Profile updated successfully" });
-        refetchProfile();
-        queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      },
-      onError: (error: any) => {
-        toast({ title: "Error updating profile", description: error.message, variant: "destructive" });
-      }
-    });
-    
-    // Avatar upload mutation
-    const uploadAvatarMutation = useMutation({
-      mutationFn: async (file: File) => {
-        setUploading(true);
-        const formData = new FormData();
-        formData.append('avatar', file);
-        
-        const response = await fetch('/api/upload/avatar', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!response.ok) throw new Error('Upload failed');
-        return response.json();
-      },
-      onSuccess: (data) => {
-        setProfileData(prev => ({ ...prev, avatarUrl: data.url }));
-        updateProfileMutation.mutate({ avatarUrl: data.url });
-        setUploading(false);
-      },
-      onError: (error: any) => {
-        toast({ title: "Avatar upload failed", description: error.message, variant: "destructive" });
-        setUploading(false);
-      }
-    });
-    
-    const handleInputChange = (field: string, value: string) => {
-      setProfileData(prev => ({ ...prev, [field]: value }));
+  // Profile state hooks - moved to top level to fix React Hook errors
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    fullName: user?.fullName || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    avatarUrl: user?.avatarUrl || ''
+  });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Real-time profile data fetching
+  const { data: profileDataReal, refetch: refetchProfile } = useQuery({
+    queryKey: ['/api/user/profile'],
+    staleTime: 0,
+    refetchOnMount: true
+  });
+  
+  // Update local state when real data loads
+  useEffect(() => {
+    if (profileDataReal) {
+      setProfileData({
+        username: profileDataReal.username || '',
+        email: profileDataReal.email || '',
+        fullName: profileDataReal.fullName || '',
+        phone: profileDataReal.phone || '',
+        location: profileDataReal.location || '',
+        bio: profileDataReal.bio || '',
+        avatarUrl: profileDataReal.avatarUrl || ''
+      });
+    }
+  }, [profileDataReal]);
+  
+  // Real-time profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to update profile');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Profile updated successfully" });
+      refetchProfile();
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error updating profile", description: error.message, variant: "destructive" });
+    }
+  });
+  
+  // Avatar upload mutation
+  const uploadAvatarMutation = useMutation({
+    mutationFn: async (file: File) => {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('avatar', file);
       
-      // Auto-save after 1 second of no changes
-      clearTimeout(window.profileSaveTimeout);
-      window.profileSaveTimeout = setTimeout(() => {
-        updateProfileMutation.mutate({ [field]: value });
-      }, 1000);
-    };
+      const response = await fetch('/api/upload/avatar', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setProfileData(prev => ({ ...prev, avatarUrl: data.url }));
+      updateProfileMutation.mutate({ avatarUrl: data.url });
+      setUploading(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Avatar upload failed", description: error.message, variant: "destructive" });
+      setUploading(false);
+    }
+  });
+  
+  const handleInputChange = (field: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
     
-    const handleSave = () => {
-      updateProfileMutation.mutate(profileData);
-      setIsEditing(false);
-    };
-    
-    const handleAvatarClick = () => {
-      if (isEditing && fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-    };
-    
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file && file.size <= 10 * 1024 * 1024) { // 10MB limit
-        uploadAvatarMutation.mutate(file);
-      } else {
-        toast({ title: "File too large", description: "Please select a file under 10MB", variant: "destructive" });
-      }
-    };
+    // Auto-save after 1 second of no changes
+    clearTimeout(window.profileSaveTimeout);
+    window.profileSaveTimeout = setTimeout(() => {
+      updateProfileMutation.mutate({ [field]: value });
+    }, 1000);
+  };
+  
+  const handleSave = () => {
+    updateProfileMutation.mutate(profileData);
+    setIsEditing(false);
+  };
+  
+  const handleAvatarClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.size <= 10 * 1024 * 1024) { // 10MB limit
+      uploadAvatarMutation.mutate(file);
+    } else {
+      toast({ title: "File too large", description: "Please select a file under 10MB", variant: "destructive" });
+    }
+  };
+
+  // Profile render function - now with hooks moved to top level
+  const renderProfile = () => {
     
     return (
       <motion.div
