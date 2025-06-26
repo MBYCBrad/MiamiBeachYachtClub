@@ -51,7 +51,8 @@ import {
   Inbox,
   Send,
   Timer,
-  TrendingDown
+  TrendingDown,
+  Target
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -606,30 +607,42 @@ export default function YachtOwnerDashboard() {
 
   const { data: stats } = useQuery<YachtOwnerStats>({
     queryKey: ['/api/yacht-owner/stats'],
+    select: (data) => data || {
+      totalYachts: 0,
+      totalBookings: 0,
+      monthlyRevenue: 0,
+      avgRating: 0,
+      occupancyRate: 0,
+      pendingMaintenance: 0
+    }
   });
 
   const { data: yachts = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/yachts'],
-    enabled: !!user && user.role === 'yacht_owner'
+    enabled: !!user && user.role === 'yacht_owner',
+    select: (data) => Array.isArray(data) ? data : []
   });
 
   // Maintenance records data fetching
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-maintenance', selectedMaintenanceYacht],
     enabled: !!selectedMaintenanceYacht,
+    select: (data) => Array.isArray(data) ? data : []
   });
 
   // Real-time profile data fetching
   const { data: profileDataReal, refetch: refetchProfile } = useQuery({
     queryKey: ['/api/user/profile'],
     staleTime: 0,
-    refetchOnMount: true
+    refetchOnMount: true,
+    select: (data) => data || {}
   });
 
   // Notifications data fetching - moved to top level to fix hooks issue
   const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
     queryKey: ['/api/yacht-owner/notifications'],
     refetchInterval: 30000, // Refresh every 30 seconds
+    select: (data) => Array.isArray(data) ? data : []
   });
 
   // Notification mutations - moved to top level
@@ -1132,10 +1145,76 @@ export default function YachtOwnerDashboard() {
           className="flex items-center space-x-4"
         >
           <AddYachtDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80 p-6 bg-gray-900 border-gray-700">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-white text-sm font-medium">Availability</Label>
+                  <Select 
+                    value={yachtFilters.availability} 
+                    onValueChange={(value) => setYachtFilters({...yachtFilters, availability: value})}
+                  >
+                    <SelectTrigger className="mt-1 bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Yachts</SelectItem>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="unavailable">In Maintenance</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white text-sm font-medium">Size Range</Label>
+                  <Select 
+                    value={yachtFilters.size} 
+                    onValueChange={(value) => setYachtFilters({...yachtFilters, size: value})}
+                  >
+                    <SelectTrigger className="mt-1 bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Sizes</SelectItem>
+                      <SelectItem value="small">Under 50ft</SelectItem>
+                      <SelectItem value="medium">50-80ft</SelectItem>
+                      <SelectItem value="large">Over 80ft</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white text-sm font-medium">Location</Label>
+                  <Select 
+                    value={yachtFilters.location} 
+                    onValueChange={(value) => setYachtFilters({...yachtFilters, location: value})}
+                  >
+                    <SelectTrigger className="mt-1 bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="miami">Miami Marina</SelectItem>
+                      <SelectItem value="fortlauderdale">Fort Lauderdale</SelectItem>
+                      <SelectItem value="keywest">Key West</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" size="sm" onClick={() => setYachtFilters({availability: "all", size: "all", location: "all", priceRange: "all"})}>
+                    Clear All
+                  </Button>
+                  <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+                    Apply Filters
+                  </Button>
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 
@@ -1459,13 +1538,45 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/yacht-owner/generate-report', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ 
+                    type: 'revenue',
+                    ownerId: user?.id 
+                  })
+                });
+                
+                if (response.ok) {
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `MBYC-Revenue-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                  toast({ title: "Report generated successfully", description: "PDF download started" });
+                } else {
+                  throw new Error('Failed to generate report');
+                }
+              } catch (error) {
+                toast({ title: "Error generating report", description: "Please try again later", variant: "destructive" });
+              }
+            }}
+          >
             <BarChart3 className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
-            Time Period
+            Filters
           </Button>
         </motion.div>
       </div>
@@ -2261,13 +2372,45 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/yacht-owner/generate-report', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ 
+                    type: 'analytics',
+                    ownerId: user?.id 
+                  })
+                });
+                
+                if (response.ok) {
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `MBYC-Analytics-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                  toast({ title: "Report generated successfully", description: "PDF download started" });
+                } else {
+                  throw new Error('Failed to generate report');
+                }
+              } catch (error) {
+                toast({ title: "Error generating report", description: "Please try again later", variant: "destructive" });
+              }
+            }}
+          >
             <BarChart3 className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
-            Time Period
+            Filters
           </Button>
         </motion.div>
       </div>

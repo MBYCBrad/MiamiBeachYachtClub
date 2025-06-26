@@ -2239,6 +2239,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // YACHT OWNER YACHTS ENDPOINT
+  app.get("/api/yacht-owner/yachts", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      
+      // Get yacht owner's yachts
+      const allYachts = await dbStorage.getYachts();
+      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
+      
+      res.json(ownerYachts);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner yachts:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // YACHT OWNER REPORT GENERATION
+  app.post("/api/yacht-owner/generate-report", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { type, ownerId } = req.body;
+      const ownerUserId = ownerId || req.user!.id;
+      
+      // Generate simple PDF-like data for demonstration
+      const reportData = {
+        title: `MBYC ${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
+        generated: new Date().toISOString(),
+        ownerId: ownerUserId,
+        type: type
+      };
+      
+      // Create a simple text-based report (in production, use proper PDF library)
+      const reportContent = `
+MIAMI BEACH YACHT CLUB
+${reportData.title}
+
+Generated: ${new Date().toLocaleDateString()}
+Owner ID: ${ownerUserId}
+Report Type: ${type}
+
+This is a sample report. In production, this would contain:
+- Detailed analytics and metrics
+- Charts and visualizations  
+- Performance data
+- Financial summaries
+- Maintenance records (if applicable)
+
+Report generated successfully.
+      `;
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="MBYC-${type}-Report-${new Date().toISOString().split('T')[0]}.pdf"`);
+      
+      // In production, generate actual PDF. For now, send text as binary
+      const buffer = Buffer.from(reportContent, 'utf8');
+      res.send(buffer);
+      
+    } catch (error: any) {
+      console.error('Error generating yacht owner report:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // YACHT OWNER-ADMIN MESSAGING ROUTES
   app.get("/api/yacht-owner/conversations", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
     try {
