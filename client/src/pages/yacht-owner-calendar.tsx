@@ -75,6 +75,8 @@ export default function YachtOwnerCalendar() {
   const [view, setView] = useState<CalendarView>('Month');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Fetch real-time data
   const { data: bookings = [] } = useQuery<any[]>({
@@ -476,7 +478,15 @@ export default function YachtOwnerCalendar() {
                         key={booking.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-all duration-200"
+                        className="p-4 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:border-purple-500/50 transition-all duration-200 cursor-pointer"
+                        onClick={() => {
+                          // Find the actual booking from the bookings array
+                          const fullBooking = bookings.find(b => b.id === booking.id?.replace('booking-', ''));
+                          if (fullBooking) {
+                            setSelectedBooking(fullBooking);
+                            setShowBookingModal(true);
+                          }
+                        }}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${EVENT_COLORS[booking.type]} mt-1`}></div>

@@ -319,6 +319,7 @@ export default function YachtMaintenance() {
               <TabsTrigger value="trips" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Trip Logs</TabsTrigger>
               <TabsTrigger value="maintenance" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Maintenance</TabsTrigger>
               <TabsTrigger value="assessments" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Assessments</TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Analytics</TabsTrigger>
               <TabsTrigger value="valuation" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">Valuation</TabsTrigger>
             </TabsList>
 
@@ -1186,6 +1187,259 @@ export default function YachtMaintenance() {
                   </Card>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Analytics Tab */}
+            <TabsContent value="analytics">
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-white">Maintenance Analytics</h3>
+                <p className="text-gray-400 mt-2">Cost analysis, performance metrics, and operational insights</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Cost Analysis */}
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <DollarSign className="h-5 w-5" />
+                      Cost Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">This Year</span>
+                        <span className="text-white font-bold text-xl">$4,750</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Last Year</span>
+                        <span className="text-white font-bold">$3,200</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Average Monthly</span>
+                        <span className="text-white font-bold">$396</span>
+                      </div>
+                      <div className="pt-4 border-t border-gray-700">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Preventive</span>
+                          <span className="text-green-400">65%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Corrective</span>
+                          <span className="text-yellow-400">25%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Emergency</span>
+                          <span className="text-red-400">10%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Performance Metrics */}
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Gauge className="h-5 w-5" />
+                      Performance Metrics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Uptime</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold">96.8%</span>
+                          <div className="w-12 h-2 bg-gray-700 rounded-full">
+                            <div className="w-11 h-2 bg-gradient-to-r from-green-500 to-green-400 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Efficiency</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold">92.3%</span>
+                          <div className="w-12 h-2 bg-gray-700 rounded-full">
+                            <div className="w-11 h-2 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Health Score</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold">94.0%</span>
+                          <div className="w-12 h-2 bg-gray-700 rounded-full">
+                            <div className="w-11 h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t border-gray-700">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Scheduled Compliance</span>
+                          <span className="text-green-400">98%</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-400">Emergency Response</span>
+                          <span className="text-blue-400">< 2hrs</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Maintenance Trends */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Work Orders
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white mb-2">24</div>
+                    <div className="text-sm text-gray-400 mb-4">This month</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Completed</span>
+                        <span className="text-green-400">18</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">In Progress</span>
+                        <span className="text-yellow-400">4</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Overdue</span>
+                        <span className="text-red-400">2</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Response Time
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white mb-2">1.2hrs</div>
+                    <div className="text-sm text-gray-400 mb-4">Average response</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Critical</span>
+                        <span className="text-red-400">< 30min</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">High</span>
+                        <span className="text-orange-400">< 2hrs</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Standard</span>
+                        <span className="text-green-400">< 24hrs</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Efficiency Score
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-white mb-2">8.7/10</div>
+                    <div className="text-sm text-gray-400 mb-4">Overall rating</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">First Fix Rate</span>
+                        <span className="text-green-400">89%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Schedule Adherence</span>
+                        <span className="text-blue-400">94%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Cost Variance</span>
+                        <span className="text-purple-400">-2.3%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Component Health Overview */}
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Component Health Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                      { component: 'Engine Systems', health: 92, status: 'excellent', color: 'from-green-500 to-green-400' },
+                      { component: 'Electrical', health: 87, status: 'good', color: 'from-blue-500 to-blue-400' },
+                      { component: 'Hull & Structure', health: 95, status: 'excellent', color: 'from-green-500 to-green-400' },
+                      { component: 'Navigation', health: 89, status: 'good', color: 'from-blue-500 to-blue-400' },
+                      { component: 'Safety Equipment', health: 98, status: 'excellent', color: 'from-green-500 to-green-400' },
+                      { component: 'Propulsion', health: 84, status: 'good', color: 'from-blue-500 to-blue-400' },
+                      { component: 'HVAC Systems', health: 76, status: 'fair', color: 'from-yellow-500 to-yellow-400' },
+                      { component: 'Hydraulics', health: 91, status: 'excellent', color: 'from-green-500 to-green-400' }
+                    ].map((item, index) => (
+                      <div key={index} className="text-center">
+                        <div className="relative w-20 h-20 mx-auto mb-3">
+                          <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 40 40">
+                            <circle
+                              cx="20"
+                              cy="20"
+                              r="16"
+                              stroke="#374151"
+                              strokeWidth="3"
+                              fill="none"
+                              strokeDasharray="100.53"
+                              strokeDashoffset="0"
+                            />
+                            <circle
+                              cx="20"
+                              cy="20"
+                              r="16"
+                              stroke="url(#gradient-${index})"
+                              strokeWidth="3"
+                              fill="none"
+                              strokeDasharray="100.53"
+                              strokeDashoffset={100.53 - (item.health / 100) * 100.53}
+                              strokeLinecap="round"
+                            />
+                            <defs>
+                              <linearGradient id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" className={`stop-color-gradient-start ${item.color.split(' ')[0].replace('from-', '')}`} />
+                                <stop offset="100%" className={`stop-color-gradient-end ${item.color.split(' ')[2].replace('to-', '')}`} />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">{item.health}%</span>
+                          </div>
+                        </div>
+                        <div className="text-white text-sm font-medium mb-1">{item.component}</div>
+                        <Badge 
+                          variant="outline" 
+                          className={`border-${item.color.split('-')[1]}-500 text-${item.color.split('-')[1]}-400 text-xs`}
+                        >
+                          {item.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>

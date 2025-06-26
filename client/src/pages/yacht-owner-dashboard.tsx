@@ -567,6 +567,10 @@ export default function YachtOwnerDashboard() {
   const [selectedMaintenanceYacht, setSelectedMaintenanceYacht] = useState<number | null>(null);
   const [activeMaintenanceTab, setActiveMaintenanceTab] = useState('overview');
   
+  // Booking detail modal state
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
@@ -1328,7 +1332,11 @@ export default function YachtOwnerDashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all cursor-pointer"
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    setShowBookingModal(true);
+                  }}
                 >
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
@@ -2768,6 +2776,153 @@ export default function YachtOwnerDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Booking Detail Modal */}
+      <AnimatePresence>
+        {showBookingModal && selectedBooking && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center"
+            onClick={() => setShowBookingModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white">Booking Details</h3>
+                  <p className="text-gray-400 text-sm">Booking #{selectedBooking.id}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowBookingModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Yacht Information */}
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                    <Anchor className="h-5 w-5 mr-2 text-purple-400" />
+                    Yacht Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-gray-400 text-sm">Yacht Name</p>
+                      <p className="text-white font-medium">{selectedBooking.yacht?.name || 'Unknown Yacht'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Size</p>
+                      <p className="text-white font-medium">{selectedBooking.yacht?.size || 'N/A'}ft</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Member Information */}
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                    <User className="h-5 w-5 mr-2 text-purple-400" />
+                    Member Information
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-gray-400 text-sm">Member Name</p>
+                      <p className="text-white font-medium">{selectedBooking.user?.username || selectedBooking.user?.fullName || 'Guest'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Guest Count</p>
+                      <p className="text-white font-medium">{selectedBooking.guestCount || 'N/A'} guests</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Booking Details */}
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                    <CalendarDays className="h-5 w-5 mr-2 text-purple-400" />
+                    Booking Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-gray-400 text-sm">Start Date & Time</p>
+                      <p className="text-white font-medium">
+                        {new Date(selectedBooking.startTime).toLocaleDateString()} at {new Date(selectedBooking.startTime).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">End Date & Time</p>
+                      <p className="text-white font-medium">
+                        {new Date(selectedBooking.endTime).toLocaleDateString()} at {new Date(selectedBooking.endTime).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Status</p>
+                      <Badge className={
+                        selectedBooking.status === 'confirmed' ? 'bg-green-600' : 
+                        selectedBooking.status === 'pending' ? 'bg-yellow-600' : 'bg-gray-600'
+                      }>
+                        {selectedBooking.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Total Price</p>
+                      <p className="text-white font-medium">{selectedBooking.totalPrice || 'Free for Members'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Special Requests */}
+                {selectedBooking.specialRequests && (
+                  <div className="bg-gray-800/50 rounded-lg p-4">
+                    <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
+                      <MessageSquare className="h-5 w-5 mr-2 text-purple-400" />
+                      Special Requests
+                    </h4>
+                    <p className="text-gray-300">{selectedBooking.specialRequests}</p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-4 border-t border-gray-700">
+                  <Button 
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    onClick={() => {
+                      // Contact member functionality
+                      toast({ title: "Contact feature coming soon" });
+                    }}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Contact Member
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="flex-1 border-gray-600 hover:bg-gray-800"
+                    onClick={() => {
+                      // Calendar integration
+                      toast({ title: "Calendar sync coming soon" });
+                    }}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Add to Calendar
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
