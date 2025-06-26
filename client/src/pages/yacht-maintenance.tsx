@@ -863,7 +863,7 @@ export default function YachtMaintenance() {
                   <DialogTrigger asChild>
                     <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      New Assessment
+                      Add Assessment
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30 max-w-2xl">
