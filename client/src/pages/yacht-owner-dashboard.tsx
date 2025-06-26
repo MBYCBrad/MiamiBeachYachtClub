@@ -2881,7 +2881,7 @@ export default function YachtOwnerDashboard() {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto">
-            <div className="px-6 pb-6 space-y-2">
+            <div className="px-6 pb-24 space-y-2">
               {sidebarItems.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
