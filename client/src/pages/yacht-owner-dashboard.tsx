@@ -102,22 +102,9 @@ const yachtFormSchema = z.object({
 
 type YachtFormData = z.infer<typeof yachtFormSchema>;
 
-// NotificationBadge component for unread count
-const NotificationBadge = () => {
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['/api/yacht-owner/notifications'],
-    refetchInterval: 30000, // Refresh every 30 seconds
-  });
-
-  const unreadCount = (notifications as any[]).filter(n => !n.read).length;
-
-  if (unreadCount === 0) return null;
-
-  return (
-    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-xs text-white font-semibold">
-      {unreadCount > 9 ? '9+' : unreadCount}
-    </div>
-  );
+// Helper function to calculate unread notification count
+const getUnreadNotificationCount = (notificationsData: any[]) => {
+  return notificationsData.filter(n => !n.read).length;
 };
 
 // StatCard component - copied exactly from admin dashboard
@@ -632,6 +619,42 @@ export default function YachtOwnerDashboard() {
     staleTime: 0,
     refetchOnMount: true
   });
+
+  // Notifications data fetching - moved to top level to fix hooks issue
+  const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
+    queryKey: ['/api/yacht-owner/notifications'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Notification mutations - moved to top level
+  const markAsReadMutation = useMutation({
+    mutationFn: async (notificationId: number) => {
+      const response = await fetch(`/api/yacht-owner/notifications/${notificationId}/read`, {
+        method: 'PATCH'
+      });
+      if (!response.ok) throw new Error('Failed to mark as read');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/notifications'] });
+    }
+  });
+
+  const deleteNotificationMutation = useMutation({
+    mutationFn: async (notificationId: number) => {
+      const response = await fetch(`/api/yacht-owner/notifications/${notificationId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete notification');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/notifications'] });
+    }
+  });
+
+  // Notifications filter state - moved to top level
+  const [notificationFilter, setNotificationFilter] = useState<'all' | 'unread' | 'urgent'>('all');
 
   // Add maintenance record form
   const addMaintenanceForm = useForm<z.infer<typeof maintenanceRecordSchema>>({
@@ -2523,11 +2546,31 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  // Exact copy from admin dashboard - renderNotifications function
+  // Helper functions for notifications
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'text-red-400 bg-red-500/10 border-red-500/20';
+      case 'high': return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
+      case 'medium': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+      default: return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    if (type.includes('booking')) return <Calendar className="h-4 w-4" />;
+    if (type.includes('yacht')) return <Anchor className="h-4 w-4" />;
+    if (type.includes('maintenance')) return <Wrench className="h-4 w-4" />;
+    if (type.includes('payment')) return <DollarSign className="h-4 w-4" />;
+    return <Bell className="h-4 w-4" />;
+  };
+
+  // Notifications render function - NO HOOKS - uses data from top level
   const renderNotifications = () => {
-    const { data: notifications = [] } = useQuery({
-      queryKey: ['/api/yacht-owner/notifications'],
-      refetchInterval: 30000, // Refresh every 30 seconds
+    // Filter notifications based on current filter
+    const filteredNotifications = (notifications as any[]).filter((notification: any) => {
+      if (notificationFilter === 'unread') return !notification.read;
+      if (notificationFilter === 'urgent') return notification.priority === 'urgent';
+      return true;
     });
 
     if (!notifications) {
@@ -2571,7 +2614,7 @@ export default function YachtOwnerDashboard() {
         </div>
 
         <div className="space-y-4">
-          {((notifications as any[]) || []).length === 0 ? (
+          {filteredNotifications.length === 0 ? (
             <Card className="bg-gray-900/50 border-gray-700/50">
               <CardContent className="p-12 text-center">
                 <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
@@ -2580,7 +2623,7 @@ export default function YachtOwnerDashboard() {
               </CardContent>
             </Card>
           ) : (
-            ((notifications as any[]) || []).map((notification: any, index: number) => (
+            filteredNotifications.map((notification: any, index: number) => (
               <motion.div
                 key={notification.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -3317,7 +3360,14 @@ export default function YachtOwnerDashboard() {
                   className="text-purple-400 hover:text-white relative"
                 >
                   <Bell className="h-4 w-4" />
-                  <NotificationBadge />
+                  {(() => {
+                    const unreadCount = getUnreadNotificationCount(notifications as any[]);
+                    return unreadCount > 0 ? (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-xs text-white font-semibold">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </div>
+                    ) : null;
+                  })()}
                 </Button>
                 
                 {/* Messages Icon */}
