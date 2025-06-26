@@ -350,13 +350,13 @@ export default function CalendarPage() {
     refetchInterval: 30000
   });
 
-  const { data: services = [] } = useQuery<any[]>({
+  const { data: serviceBookings = [] } = useQuery<any[]>({
     queryKey: ['/api/service-bookings'],
     staleTime: 30000,
     refetchInterval: 30000
   });
 
-  const { data: events = [] } = useQuery<any[]>({
+  const { data: eventRegistrations = [] } = useQuery<any[]>({
     queryKey: ['/api/event-registrations'],
     staleTime: 30000,
     refetchInterval: 30000
@@ -413,7 +413,7 @@ export default function CalendarPage() {
     });
 
     // Add service bookings
-    services.forEach((service: any) => {
+    serviceBookings.forEach((service: any) => {
       const serviceData = servicesData.find((s: any) => s.id === service.serviceId);
       const member = users.find((u: any) => u.id === service.userId);
       
@@ -439,15 +439,15 @@ export default function CalendarPage() {
     });
 
     // Add club events
-    events.forEach((event: any) => {
-      const eventData = eventsData.find((e: any) => e.id === event.eventId);
+    events.forEach((eventRegistration: any) => {
+      const eventData = eventsData.find((e: any) => e.id === eventRegistration.eventId);
       
       events.push({
-        id: `event-${event.id}`,
+        id: `event-${eventRegistration.id}`,
         title: eventData?.title || 'Club Event',
         type: 'event',
-        startTime: new Date(eventData?.startTime || event.registrationDate),
-        endTime: new Date(eventData?.endTime || new Date(event.registrationDate).getTime() + 3 * 60 * 60 * 1000),
+        startTime: new Date(eventData?.startTime || eventRegistration.registrationDate),
+        endTime: new Date(eventData?.endTime || new Date(eventRegistration.registrationDate).getTime() + 3 * 60 * 60 * 1000),
         description: eventData?.description,
         location: eventData?.location,
         capacity: eventData?.capacity,
@@ -461,7 +461,7 @@ export default function CalendarPage() {
     });
 
     return events;
-  }, [bookings, services, events, users, yachtsData, servicesData, eventsData]);
+  }, [bookings, serviceBookings, eventRegistrations, users, yachtsData, servicesData, eventsData]);
 
   // Filter events
   const filteredEvents = useMemo(() => {
