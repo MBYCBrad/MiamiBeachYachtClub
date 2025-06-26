@@ -1,32 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
+import CalendarPage from "@/pages/calendar-page";
+import MessengerDashboard from "@/pages/messenger-dashboard";
+import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import MessagesDropdown from "@/components/MessagesDropdown";
+
+import CrewManagementPage from "./crew-management";
+import StaffManagement from "./staff-management";
+import YachtMaintenancePage from "./yacht-maintenance";
+import MyProfile from "./my-profile";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 
 import { 
-  Menu, LogOut, BarChart3, Users, Anchor, Calendar, 
-  CalendarDays, DollarSign, TrendingUp, Sparkles, Crown, Plus, 
-  Edit, Filter
+  Menu, LogOut, Bell, MessageCircle, BarChart3, Users, Anchor, Calendar, 
+  CalendarDays, DollarSign, TrendingUp, Sparkles, Crown, Activity, Plus, 
+  Edit, Eye, Filter, Download, FileText, CreditCard, Package, Settings,
+  Search, ChevronDown, X, Ship, Wrench, UserCog, Phone, Shield, Star,
+  MapPin, Clock, AlertTriangle, CheckCircle, XCircle, Info
 } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-// Form schemas
+// EXACT COPY from admin dashboard - Form schemas
 const createUserSchema = z.object({
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email"),
@@ -45,25 +60,63 @@ const createYachtSchema = z.object({
   location: z.string().min(1, "Location is required"),
 });
 
+const createServiceSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().min(1, "Description is required"),
+  category: z.string().min(1, "Category is required"),
+  price: z.number().min(0, "Price must be non-negative"),
+  duration: z.number().min(1, "Duration must be greater than 0"),
+});
+
+const createEventSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  date: z.string().min(1, "Date is required"),
+  location: z.string().min(1, "Location is required"),
+  capacity: z.number().min(1, "Capacity must be greater than 0"),
+  price: z.number().min(0, "Price must be non-negative"),
+});
+
 type CreateUserData = z.infer<typeof createUserSchema>;
 type CreateYachtData = z.infer<typeof createYachtSchema>;
+type CreateServiceData = z.infer<typeof createServiceSchema>;
+type CreateEventData = z.infer<typeof createEventSchema>;
+
+interface AdminStats {
+  totalUsers: number;
+  totalBookings: number;
+  totalRevenue: number;
+  activeServices: number;
+  monthlyGrowth: number;
+  membershipBreakdown: Array<{
+    tier: string;
+    count: number;
+    percentage: number;
+  }>;
+}
 
 export default function StaffPortal() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // State management
+  // EXACT COPY from admin dashboard - State management
   const [activeView, setActiveView] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const [showEditUserDialog, setShowEditUserDialog] = useState(false);
   const [showAddYachtDialog, setShowAddYachtDialog] = useState(false);
   const [showEditYachtDialog, setShowEditYachtDialog] = useState(false);
+  const [showAddServiceDialog, setShowAddServiceDialog] = useState(false);
+  const [showEditServiceDialog, setShowEditServiceDialog] = useState(false);
+  const [showAddEventDialog, setShowAddEventDialog] = useState(false);
+  const [showEditEventDialog, setShowEditEventDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedYacht, setSelectedYacht] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
-  // Data fetching
+  // EXACT COPY from admin dashboard - Data fetching
   const { data: stats } = useQuery({
     queryKey: ['/api/staff/stats'],
     queryFn: () => apiRequest('/api/staff/stats'),
@@ -79,7 +132,27 @@ export default function StaffPortal() {
     queryFn: () => apiRequest('/api/yachts'),
   });
 
-  // Forms
+  const { data: services } = useQuery({
+    queryKey: ['/api/services'],
+    queryFn: () => apiRequest('/api/services'),
+  });
+
+  const { data: events } = useQuery({
+    queryKey: ['/api/events'],
+    queryFn: () => apiRequest('/api/events'),
+  });
+
+  const { data: bookings } = useQuery({
+    queryKey: ['/api/admin/bookings'],
+    queryFn: () => apiRequest('/api/admin/bookings'),
+  });
+
+  const { data: payments } = useQuery({
+    queryKey: ['/api/admin/payments'],
+    queryFn: () => apiRequest('/api/admin/payments'),
+  });
+
+  // EXACT COPY from admin dashboard - Forms
   const createUserForm = useForm<CreateUserData>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -104,15 +177,37 @@ export default function StaffPortal() {
     },
   });
 
-  // Mutations
+  const createServiceForm = useForm<CreateServiceData>({
+    resolver: zodResolver(createServiceSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      category: "",
+      price: 0,
+      duration: 0,
+    },
+  });
+
+  const createEventForm = useForm<CreateEventData>({
+    resolver: zodResolver(createEventSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      date: "",
+      location: "",
+      capacity: 0,
+      price: 0,
+    },
+  });
+
+  // EXACT COPY from admin dashboard - Mutations
   const createUserMutation = useMutation({
     mutationFn: async (data: CreateUserData) => {
-      const response = await fetch('/api/admin/users', {
+      return apiRequest('/api/admin/users', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
@@ -128,12 +223,11 @@ export default function StaffPortal() {
 
   const createYachtMutation = useMutation({
     mutationFn: async (data: CreateYachtData) => {
-      const response = await fetch('/api/admin/yachts', {
+      return apiRequest('/api/admin/yachts', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
@@ -146,7 +240,45 @@ export default function StaffPortal() {
     },
   });
 
-  // Event handlers
+  const createServiceMutation = useMutation({
+    mutationFn: async (data: CreateServiceData) => {
+      return apiRequest('/api/admin/services', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+      setShowAddServiceDialog(false);
+      createServiceForm.reset();
+      toast({ title: "Service created successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to create service", variant: "destructive" });
+    },
+  });
+
+  const createEventMutation = useMutation({
+    mutationFn: async (data: CreateEventData) => {
+      return apiRequest('/api/admin/events', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      setShowAddEventDialog(false);
+      createEventForm.reset();
+      toast({ title: "Event created successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to create event", variant: "destructive" });
+    },
+  });
+
+  // EXACT COPY from admin dashboard - Event handlers
   const onCreateUser = (data: CreateUserData) => {
     createUserMutation.mutate(data);
   };
@@ -155,11 +287,15 @@ export default function StaffPortal() {
     createYachtMutation.mutate(data);
   };
 
-  const logout = () => {
-    window.location.href = '/auth';
+  const onCreateService = (data: CreateServiceData) => {
+    createServiceMutation.mutate(data);
   };
 
-  // Render functions
+  const onCreateEvent = (data: CreateEventData) => {
+    createEventMutation.mutate(data);
+  };
+
+  // EXACT COPY from admin dashboard - renderOverview function
   const renderOverview = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -217,10 +353,10 @@ export default function StaffPortal() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-400 mb-1">Total Users</p>
-                  <p className="text-3xl font-bold text-white mb-2">{(stats as any)?.totalUsers || 0}</p>
+                  <p className="text-3xl font-bold text-white mb-2">{stats?.totalUsers || 0}</p>
                   <div className="flex items-center text-sm">
                     <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                    <span className="text-green-400 font-medium">+{(stats as any)?.monthlyGrowth || 0}%</span>
+                    <span className="text-green-400 font-medium">+{stats?.monthlyGrowth || 0}%</span>
                     <span className="text-gray-500 ml-1">this month</span>
                   </div>
                 </div>
@@ -244,7 +380,7 @@ export default function StaffPortal() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-400 mb-1">Total Bookings</p>
-                  <p className="text-3xl font-bold text-white mb-2">{(stats as any)?.totalBookings || 0}</p>
+                  <p className="text-3xl font-bold text-white mb-2">{stats?.totalBookings || 0}</p>
                   <div className="flex items-center text-sm">
                     <Calendar className="h-4 w-4 text-blue-400 mr-1" />
                     <span className="text-gray-400">Active reservations</span>
@@ -270,7 +406,7 @@ export default function StaffPortal() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-400 mb-1">Total Revenue</p>
-                  <p className="text-3xl font-bold text-white mb-2">${((stats as any)?.totalRevenue || 0).toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-white mb-2">${(stats?.totalRevenue || 0).toLocaleString()}</p>
                   <div className="flex items-center text-sm">
                     <DollarSign className="h-4 w-4 text-emerald-400 mr-1" />
                     <span className="text-emerald-400 font-medium">Revenue streams</span>
@@ -296,7 +432,7 @@ export default function StaffPortal() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-400 mb-1">Active Services</p>
-                  <p className="text-3xl font-bold text-white mb-2">{(stats as any)?.activeServices || 0}</p>
+                  <p className="text-3xl font-bold text-white mb-2">{stats?.activeServices || 0}</p>
                   <div className="flex items-center text-sm">
                     <Sparkles className="h-4 w-4 text-orange-400 mr-1" />
                     <span className="text-gray-400">Premium offerings</span>
@@ -312,7 +448,7 @@ export default function StaffPortal() {
       </div>
 
       {/* Membership Breakdown */}
-      {(stats as any)?.membershipBreakdown && (stats as any).membershipBreakdown.length > 0 && (
+      {stats?.membershipBreakdown && stats.membershipBreakdown.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -328,7 +464,7 @@ export default function StaffPortal() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {(stats as any).membershipBreakdown.map((tier: any, index: number) => (
+                {stats.membershipBreakdown.map((tier: any, index: number) => (
                   <motion.div
                     key={tier.tier}
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -349,6 +485,7 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+  // EXACT COPY from admin dashboard - renderUsers function
   const renderUsers = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -393,8 +530,8 @@ export default function StaffPortal() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(users as any) && (users as any).length > 0 ? (
-          (users as any).map((user: any, index: number) => (
+        {users && users.length > 0 ? (
+          users.map((user: any, index: number) => (
             <motion.div
               key={user.id}
               initial={{ opacity: 0, y: 20 }}
@@ -455,6 +592,13 @@ export default function StaffPortal() {
                         </span>
                       </div>
                     </div>
+                    
+                    {user.phone && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm">Phone</span>
+                        <span className="text-gray-300 text-sm">{user.phone}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -473,6 +617,7 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+  // EXACT COPY from admin dashboard - renderYachts function
   const renderYachts = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -517,8 +662,8 @@ export default function StaffPortal() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {(yachts as any) && (yachts as any).length > 0 ? (
-          (yachts as any).map((yacht: any, index: number) => (
+        {yachts && yachts.length > 0 ? (
+          yachts.map((yacht: any, index: number) => (
             <motion.div
               key={yacht.id}
               initial={{ opacity: 0, y: 20 }}
@@ -608,6 +753,7 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+  // EXACT COPY from admin dashboard - Main component structure
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
@@ -730,7 +876,7 @@ export default function StaffPortal() {
         </motion.div>
       </div>
 
-      {/* All Dialogs */}
+      {/* EXACT COPY from admin dashboard - All Dialogs */}
       {showAddUserDialog && (
         <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
           <DialogContent className="max-w-md bg-gray-950 border-gray-700">
