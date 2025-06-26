@@ -2198,6 +2198,14 @@ export default function StaffPortal() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1 }}
                     className="p-4 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                    onClick={() => {
+                      console.log('Opening conversation:', conversation);
+                      // Add message opening functionality here
+                      toast({
+                        title: "Opening Conversation",
+                        description: `Opening conversation with ${conversation.participant1_name || conversation.participant2_name || 'Unknown Member'}`,
+                      });
+                    }}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
