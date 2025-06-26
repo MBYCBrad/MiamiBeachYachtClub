@@ -2193,8 +2193,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const notifications = await dbStorage.getNotifications();
-      res.json(notifications);
+      // For demo purposes, show all recent notifications from the database
+      // In production, this would filter by staff permissions and relevant departments
+      console.log('Fetching staff notifications from database...');
+      const result = await pool.query(`
+        SELECT id, user_id, type, title, message, priority, "read", created_at 
+        FROM notifications 
+        ORDER BY created_at DESC 
+        LIMIT 20
+      `);
+      console.log('Staff notifications result:', result.rows.length, 'notifications found');
+      res.json(result.rows);
     } catch (error: any) {
       console.error('Error fetching staff notifications:', error);
       res.status(500).json({ message: error.message });
