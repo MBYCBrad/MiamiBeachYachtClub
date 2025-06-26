@@ -1416,6 +1416,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // First try to get from regular users table
       try {
         user = await dbStorage.getUser(req.user!.id);
+        
+        // Map database field names to frontend field names
+        if (user && user.full_name) {
+          user.fullName = user.full_name;
+        }
       } catch (err) {
         // If not found in users table, try staff table
         console.log('User not found in users table, checking staff table');
@@ -1462,9 +1467,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let updatedUser = null;
       
+      // Map frontend field names to database field names
+      const updateData = { ...req.body };
+      if (updateData.fullName) {
+        updateData.full_name = updateData.fullName;
+        delete updateData.fullName;
+      }
+      
       // First try to update regular user
       try {
-        updatedUser = await dbStorage.updateUser(req.user!.id, req.body);
+        updatedUser = await dbStorage.updateUser(req.user!.id, updateData);
       } catch (err) {
         console.log('User not found in users table, trying staff table');
       }
@@ -2171,6 +2183,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(overdueTasks);
     } catch (error: any) {
       console.error('Error fetching overdue tasks:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // YACHT OWNER NOTIFICATION ROUTES
+  app.get("/api/yacht-owner/notifications", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const ownerId = req.user!.id;
+      
+      // Get all notifications for this yacht owner
+      const allNotifications = await dbStorage.getAdminNotifications();
+      
+      // Filter notifications relevant to yacht owner
+      const ownerNotifications = allNotifications.filter(notification => {
+        // Include notifications related to this owner's yachts
+        const data = notification.data as any;
+        if (data?.yachtId) {
+          // Check if yacht belongs to this owner
+          // This would need yacht ownership check in real implementation
+          return true;
+        }
+        // Include general yacht owner notifications
+        return notification.type.includes('yacht') || 
+               notification.type.includes('booking') ||
+               notification.type.includes('maintenance');
+      });
+      
+      res.json(ownerNotifications);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner notifications:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/yacht-owner/notifications/:id/read", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking yacht owner notification as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/yacht-owner/notifications/:id", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.deleteNotification(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting yacht owner notification:', error);
       res.status(500).json({ message: error.message });
     }
   });

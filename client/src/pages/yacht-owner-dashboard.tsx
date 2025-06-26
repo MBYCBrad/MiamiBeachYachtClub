@@ -39,6 +39,7 @@ import {
   User,
   Calculator,
   CheckCircle,
+  Check,
   Heart,
   Save,
   RotateCcw,
@@ -100,6 +101,24 @@ const yachtFormSchema = z.object({
 });
 
 type YachtFormData = z.infer<typeof yachtFormSchema>;
+
+// NotificationBadge component for unread count
+const NotificationBadge = () => {
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['/api/yacht-owner/notifications'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const unreadCount = (notifications as any[]).filter(n => !n.read).length;
+
+  if (unreadCount === 0) return null;
+
+  return (
+    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-xs text-white font-semibold">
+      {unreadCount > 9 ? '9+' : unreadCount}
+    </div>
+  );
+};
 
 // StatCard component - copied exactly from admin dashboard
 const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
@@ -2483,6 +2502,131 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
+  // Exact copy from admin dashboard - renderNotifications function
+  const renderNotifications = () => {
+    const { data: notifications = [] } = useQuery({
+      queryKey: ['/api/yacht-owner/notifications'],
+      refetchInterval: 30000, // Refresh every 30 seconds
+    });
+
+    if (!notifications) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Loading notifications...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2"
+              style={{ fontFamily: "'SF Pro Display', -apple-system, system-ui, sans-serif" }}
+            >
+              Notification Center
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              System alerts and real-time notifications
+            </motion.p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {((notifications as any[]) || []).length === 0 ? (
+            <Card className="bg-gray-900/50 border-gray-700/50">
+              <CardContent className="p-12 text-center">
+                <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No notifications</p>
+                <p className="text-gray-500 text-sm">All caught up! New notifications will appear here.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            ((notifications as any[]) || []).map((notification: any, index: number) => (
+              <motion.div
+                key={notification.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-4">
+                        <div className={`p-2 rounded-lg ${
+                          notification.priority === 'urgent' ? 'bg-red-500/20' :
+                          notification.priority === 'high' ? 'bg-red-500/20' :
+                          notification.priority === 'medium' ? 'bg-yellow-500/20' :
+                          'bg-blue-500/20'
+                        }`}>
+                          <Bell className={`h-5 w-5 ${
+                            notification.priority === 'urgent' ? 'text-red-400' :
+                            notification.priority === 'high' ? 'text-red-400' :
+                            notification.priority === 'medium' ? 'text-yellow-400' :
+                            'text-blue-400'
+                          }`} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold mb-1">{notification.title}</h3>
+                          <p className="text-gray-400 text-sm mb-2">{notification.message}</p>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500">
+                            <span>{new Date(notification.createdAt || notification.created_at).toLocaleDateString()}</span>
+                            <span>{new Date(notification.createdAt || notification.created_at).toLocaleTimeString()}</span>
+                            <Badge className={`text-xs ${
+                              notification.priority === 'urgent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              notification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              notification.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            }`}>
+                              {notification.priority}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="text-gray-400 hover:text-white"
+                          onClick={() => {
+                            console.log('Viewing notification:', notification);
+                            // Add notification viewing logic here
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
   const renderSettings = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -2631,6 +2775,7 @@ export default function YachtOwnerDashboard() {
       </div>
     </motion.div>
   );
+
 
   // Profile state hooks - moved to top level to fix React Hook errors
   const [isEditing, setIsEditing] = useState(false);
@@ -3000,6 +3145,8 @@ export default function YachtOwnerDashboard() {
         return renderProfile();
       case 'settings':
         return renderSettings();
+      case 'notifications':
+        return renderNotifications();
       default:
         return renderOverview();
     }
@@ -3159,6 +3306,17 @@ export default function YachtOwnerDashboard() {
                 <p className="text-xs text-gray-400">Fleet Manager</p>
               </div>
               <div className="flex items-center space-x-2">
+                {/* Notifications Icon */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setActiveSection('notifications')}
+                  className="text-purple-400 hover:text-white relative"
+                >
+                  <Bell className="h-4 w-4" />
+                  <NotificationBadge />
+                </Button>
+                
                 {/* Messages Icon */}
                 <Button 
                   variant="ghost" 
