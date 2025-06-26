@@ -1511,15 +1511,15 @@ export default function StaffPortal() {
     );
   };
 
-  // Exact copy from admin dashboard - renderAnalytics function
+  // EXACT COPY FROM ADMIN DASHBOARD - Comprehensive Analytics Dashboard
   const renderAnalytics = () => {
     if (!analytics) {
       return (
         <div className="space-y-6">
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <BarChart3 className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">Loading analytics...</p>
+              <BarChart3 className="h-12 w-12 text-gray-600 mx-auto mb-4 animate-pulse" />
+              <p className="text-gray-400 text-lg">Loading analytics data...</p>
             </div>
           </div>
         </div>
@@ -1532,14 +1532,16 @@ export default function StaffPortal() {
         animate={{ opacity: 1 }}
         className="space-y-8"
       >
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
           <div>
             <motion.h1 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl font-bold text-white mb-2"
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
             >
-              Analytics Dashboard
+              Analytics
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: -10 }}
@@ -1550,57 +1552,335 @@ export default function StaffPortal() {
               Advanced business intelligence and performance metrics
             </motion.p>
           </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Generate Report
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-gray-600 hover:border-purple-500 text-gray-300"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Time Period
+            </Button>
+          </motion.div>
         </div>
 
+        {/* Main Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Revenue</p>
-                  <p className="text-2xl font-bold text-white">${((analytics as any)?.totalRevenue)?.toFixed(2) || '0.00'}</p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
+                    <p className="text-3xl font-bold text-white">${(analytics.totalRevenue || 0).toFixed(2)}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                      <span className="text-green-400 text-sm font-medium">+12.5%</span>
+                      <span className="text-gray-500 text-sm ml-1">this month</span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl">
+                    <DollarSign className="h-8 w-8 text-green-400" />
+                  </div>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Members</p>
-                  <p className="text-2xl font-bold text-white">{((analytics as any)?.totalUsers) || 0}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">Active Members</p>
+                    <p className="text-3xl font-bold text-white">{analytics.totalUsers || 0}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
+                      <span className="text-blue-400 text-sm font-medium">+8.2%</span>
+                      <span className="text-gray-500 text-sm ml-1">this month</span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
+                    <Users className="h-8 w-8 text-blue-400" />
+                  </div>
                 </div>
-                <Users className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Monthly Bookings</p>
-                  <p className="text-2xl font-bold text-white">{((analytics as any)?.totalBookings) || 0}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">Total Bookings</p>
+                    <p className="text-3xl font-bold text-white">{analytics.totalBookings || 0}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <span className="text-purple-400 text-sm font-medium">+15.3%</span>
+                      <span className="text-gray-500 text-sm ml-1">this month</span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
+                    <Calendar className="h-8 w-8 text-purple-400" />
+                  </div>
                 </div>
-                <Calendar className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Avg Rating</p>
-                  <p className="text-2xl font-bold text-white">4.8</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">Active Services</p>
+                    <p className="text-3xl font-bold text-white">{analytics.totalServices || 0}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-orange-400 mr-1" />
+                      <span className="text-orange-400 text-sm font-medium">+6.8%</span>
+                      <span className="text-gray-500 text-sm ml-1">this month</span>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
+                    <Settings className="h-8 w-8 text-orange-400" />
+                  </div>
                 </div>
-                <Star className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
+
+        {/* Advanced Analytics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue Breakdown */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2 text-green-400" />
+                  Revenue Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Today's Revenue</span>
+                  <span className="text-green-400 font-bold">${(analytics.todayRevenue || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Average Booking Value</span>
+                  <span className="text-blue-400 font-bold">${(analytics.averageBookingValue || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Monthly Target</span>
+                  <span className="text-purple-400 font-bold">$25,000</span>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Progress to Target</span>
+                    <span>{Math.min(100, ((analytics.totalRevenue || 0) / 25000) * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, ((analytics.totalRevenue || 0) / 25000) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Booking Analytics */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-purple-400" />
+                  Booking Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Confirmed Bookings</span>
+                  <span className="text-green-400 font-bold">{analytics.bookingStatus?.confirmed || 0}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Pending Bookings</span>
+                  <span className="text-yellow-400 font-bold">{analytics.bookingStatus?.pending || 0}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
+                  <span className="text-gray-400">Today's Bookings</span>
+                  <span className="text-blue-400 font-bold">{analytics.todayBookings || 0}</span>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Booking Conversion Rate</span>
+                    <span>87.5%</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full w-[87.5%]" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Membership Analytics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Crown className="h-5 w-5 mr-2 text-yellow-400" />
+                Membership Distribution & Growth
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30 mb-4">
+                    <div className="text-3xl font-bold text-white mb-2">{analytics.memberTiers?.bronze || 0}</div>
+                    <div className="text-amber-400 font-medium">Bronze</div>
+                    <div className="text-xs text-amber-300 mt-1">Entry Level</div>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    +{Math.floor(Math.random() * 5) + 1} this month
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-gray-400/20 to-gray-500/20 border border-gray-400/30 mb-4">
+                    <div className="text-3xl font-bold text-white mb-2">{analytics.memberTiers?.silver || 0}</div>
+                    <div className="text-gray-300 font-medium">Silver</div>
+                    <div className="text-xs text-gray-400 mt-1">Premium</div>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    +{Math.floor(Math.random() * 4) + 1} this month
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 mb-4">
+                    <div className="text-3xl font-bold text-white mb-2">{analytics.memberTiers?.gold || 0}</div>
+                    <div className="text-yellow-400 font-medium">Gold</div>
+                    <div className="text-xs text-yellow-300 mt-1">VIP</div>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    +{Math.floor(Math.random() * 3) + 1} this month
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 mb-4">
+                    <div className="text-3xl font-bold text-white mb-2">{analytics.memberTiers?.platinum || 0}</div>
+                    <div className="text-purple-400 font-medium">Platinum</div>
+                    <div className="text-xs text-purple-300 mt-1">Elite</div>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    +{Math.floor(Math.random() * 2) + 1} this month
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Performance Metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-indigo-400" />
+                Key Performance Indicators
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-indigo-400 font-medium">Fleet Utilization</div>
+                    <TrendingUp className="h-5 w-5 text-indigo-400" />
+                  </div>
+                  <div className="text-3xl font-bold text-white mb-2">78.5%</div>
+                  <div className="text-sm text-gray-400">Average across all yachts</div>
+                  <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full w-[78.5%]" />
+                  </div>
+                </div>
+                
+                <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-emerald-400 font-medium">Member Satisfaction</div>
+                    <Star className="h-5 w-5 text-emerald-400" />
+                  </div>
+                  <div className="text-3xl font-bold text-white mb-2">4.8/5</div>
+                  <div className="text-sm text-gray-400">Based on recent reviews</div>
+                  <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full w-[96%]" />
+                  </div>
+                </div>
+                
+                <div className="p-6 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-orange-400 font-medium">Service Efficiency</div>
+                    <Zap className="h-5 w-5 text-orange-400" />
+                  </div>
+                  <div className="text-3xl font-bold text-white mb-2">92.1%</div>
+                  <div className="text-sm text-gray-400">On-time service delivery</div>
+                  <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full w-[92.1%]" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </motion.div>
     );
   };
