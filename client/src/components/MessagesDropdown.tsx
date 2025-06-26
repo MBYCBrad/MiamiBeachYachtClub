@@ -88,7 +88,7 @@ export default function MessagesDropdown() {
   };
 
   const filteredConversations = (conversations as Conversation[]).filter((conv: Conversation) =>
-    conv.otherPartyName.toLowerCase().includes(searchTerm.toLowerCase())
+    conv.otherPartyName && conv.otherPartyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalUnreadCount = (conversations as Conversation[]).reduce((sum: number, conv: Conversation) => sum + conv.unreadCount, 0);

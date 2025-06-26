@@ -365,6 +365,14 @@ Changelog:
   - Real-time data integration shows authentic staff information: name, role, department, permissions, statistics
   - Permission system properly filters menu items based on actual database permissions (services, bookings, events, yachts, users, payments, analytics, notifications, customer_service, crew_management)
   - Staff portal fully operational with live PostgreSQL database connectivity and authentic user data display
+- June 26, 2025. Complete messages system migration to dropdown functionality with error resolution
+  - Successfully deleted all separate messages pages (member-messages.tsx, member-messages-simple.tsx, member-messages-new.tsx)
+  - Removed messages navigation from bottom navigation and sidebar menus
+  - Integrated MessagesDropdown component in staff portal header matching admin dashboard pattern
+  - Fixed critical TypeError in MessagesDropdown component where undefined otherPartyName was causing black screen
+  - Added proper null checks to prevent toLowerCase() errors on undefined values
+  - Messages functionality now works through real-time dropdown menu in header instead of separate pages
+  - Staff portal maintains exact admin dashboard design consistency with header-based messaging system
 - June 24, 2025. Complete crew assignment system with comprehensive database integration and auto-scheduling
   - Implemented full crew assignment dialog with all database staff members (8 total: 3 captains, 3 coordinators, 1 additional crew)
   - Added automatic pre-departure briefing scheduling 1 hour before booking start time with Miami Marina gate meeting location
