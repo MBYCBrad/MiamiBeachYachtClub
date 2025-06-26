@@ -16,6 +16,7 @@ import {
   Filter,
   MoreVertical,
   ChevronRight,
+  ChevronLeft,
   Zap,
   Star,
   Clock,
@@ -51,6 +52,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -617,6 +620,198 @@ export default function YachtOwnerDashboard() {
     }
   };
 
+  // Add Yacht Dialog - Exact copy from admin dashboard with yacht owner adaptations
+  function AddYachtDialog() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [formData, setFormData] = useState({
+      name: '',
+      location: '',
+      size: '',
+      capacity: '',
+      description: '',
+      imageUrl: '',
+      images: [] as string[],
+      pricePerHour: '',
+      isAvailable: true,
+      ownerId: '',
+      amenities: '',
+      yearMade: '',
+      totalCost: ''
+    });
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+
+    const createYachtMutation = useMutation({
+      mutationFn: async (data: any) => {
+        const yachtData = {
+          ...data,
+          size: parseInt(data.size),
+          capacity: parseInt(data.capacity),
+          ownerId: user?.id || parseInt(data.ownerId),
+          amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
+          images: data.images || [],
+          yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
+          totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
+        };
+        const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
+        return response.json();
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/stats"] });
+        toast({ title: "Success", description: "Yacht created successfully" });
+        setIsOpen(false);
+        setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: user?.id?.toString() || '', amenities: '', yearMade: '', totalCost: '' });
+      },
+      onError: (error: any) => {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      }
+    });
+
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Yacht
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
+          <DialogHeader>
+            <DialogTitle className="text-white">Add New Yacht</DialogTitle>
+          </DialogHeader>
+          <div className="dialog-form-spacing">
+            <div className="form-grid-2">
+              <div className="form-field-spacing">
+                <Label htmlFor="name" className="form-label text-gray-300">Yacht Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="Enter yacht name"
+                />
+              </div>
+              <div className="form-field-spacing">
+                <Label htmlFor="location" className="form-label text-gray-300">Location</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="Marina location"
+                />
+              </div>
+            </div>
+            
+            <div className="form-grid-2">
+              <div className="form-field-spacing">
+                <Label htmlFor="size" className="form-label text-gray-300">Size (ft)</Label>
+                <Input
+                  id="size"
+                  type="number"
+                  value={formData.size}
+                  onChange={(e) => setFormData({...formData, size: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="40"
+                />
+              </div>
+              <div className="form-field-spacing">
+                <Label htmlFor="capacity" className="form-label text-gray-300">Capacity</Label>
+                <Input
+                  id="capacity"
+                  type="number"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="12"
+                />
+              </div>
+            </div>
+            
+            <div className="form-grid-2">
+              <div className="form-field-spacing">
+                <Label htmlFor="pricePerHour" className="form-label text-gray-300">Price per Hour</Label>
+                <Input
+                  id="pricePerHour"
+                  value={formData.pricePerHour}
+                  onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="500"
+                />
+              </div>
+              <div className="form-field-spacing">
+                <Label htmlFor="yearMade" className="form-label text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+                <Input
+                  id="yearMade"
+                  type="number"
+                  value={formData.yearMade}
+                  onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                  className="form-input bg-gray-900 border-gray-700 text-white"
+                  placeholder="2020"
+                />
+              </div>
+            </div>
+            
+            <div className="form-field-spacing">
+              <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="form-textarea bg-gray-900 border-gray-700 text-white"
+                placeholder="Yacht description..."
+              />
+            </div>
+            
+            <div className="form-field-spacing">
+              <Label htmlFor="amenities" className="form-label text-gray-300">Amenities (comma separated)</Label>
+              <Input
+                id="amenities"
+                value={formData.amenities}
+                onChange={(e) => setFormData({...formData, amenities: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="WiFi, Air Conditioning, Sound System"
+              />
+            </div>
+            
+            <div className="form-field-spacing">
+              <Label htmlFor="totalCost" className="form-label text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="totalCost"
+                type="number"
+                step="0.01"
+                value={formData.totalCost}
+                onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="500000"
+              />
+            </div>
+            
+            <div className="form-field-spacing">
+              <MultiImageUpload
+                label="Yacht Gallery"
+                onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+                currentImages={formData.images || []}
+                maxImages={10}
+              />
+            </div>
+          </div>
+          
+          <div className="form-button-group">
+            <Button 
+              onClick={() => createYachtMutation.mutate(formData)}
+              disabled={createYachtMutation.isPending}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            >
+              {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   const renderOverview = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -649,10 +844,6 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Yacht
-          </Button>
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Bell className="h-4 w-4 mr-2" />
             Alerts
@@ -810,10 +1001,7 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Yacht
-          </Button>
+          <AddYachtDialog />
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
