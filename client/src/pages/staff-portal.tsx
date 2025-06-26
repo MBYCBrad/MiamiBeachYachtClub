@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
-import AdminNotificationCenter from "@/components/AdminNotificationCenter";
+import NotificationDropdown from "@/components/NotificationDropdown";
 import MessagesDropdown from "@/components/MessagesDropdown";
 import { 
   BarChart3, 
@@ -212,6 +212,13 @@ export default function StaffPortal() {
     dateRange: "all"
   });
   const [paymentSearchTerm, setPaymentSearchTerm] = useState('');
+
+  // Staff notifications query
+  const { data: staffNotifications = [], isLoading: notificationsLoading } = useQuery({
+    queryKey: ['/api/staff/notifications'],
+    enabled: !!user && user.role === 'staff',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
   // Dialog states
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
@@ -466,9 +473,7 @@ export default function StaffPortal() {
     queryKey: ['/api/staff/analytics'],
   });
 
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['/api/staff/notifications'],
-  });
+
 
   // Process stats data to match admin dashboard structure
   const adminStats = stats ? {
@@ -1373,7 +1378,7 @@ export default function StaffPortal() {
 
   // Exact copy from admin dashboard - renderNotifications function
   const renderNotifications = () => {
-    if (!notifications) {
+    if (!staffNotifications) {
       return (
         <div className="space-y-6">
           <div className="flex items-center justify-center py-12">
@@ -1413,7 +1418,7 @@ export default function StaffPortal() {
         </div>
 
         <div className="space-y-4">
-          {((notifications as any[]) || []).length === 0 ? (
+          {((staffNotifications as any[]) || []).length === 0 ? (
             <Card className="bg-gray-900/50 border-gray-700/50">
               <CardContent className="p-12 text-center">
                 <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
@@ -1422,7 +1427,7 @@ export default function StaffPortal() {
               </CardContent>
             </Card>
           ) : (
-            ((notifications as any[]) || []).map((notification: any, index: number) => (
+            ((staffNotifications as any[]) || []).map((notification: any, index: number) => (
               <motion.div
                 key={notification.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -3718,7 +3723,20 @@ export default function StaffPortal() {
               {/* Messages, Notifications, and Logout beside username */}
               <div className="flex items-center space-x-2">
                 <MessagesDropdown />
-                <AdminNotificationCenter />
+                {/* Staff Notification Button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setActiveSection('notifications')}
+                  className="relative p-2 rounded-lg bg-gray-800/50 hover:bg-purple-500/20 border border-gray-600/50 hover:border-purple-500/50 transition-all duration-300 group"
+                  title="Notifications"
+                >
+                  <Bell className="h-4 w-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                  {/* Notification Badge */}
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white font-bold">5</span>
+                  </div>
+                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}

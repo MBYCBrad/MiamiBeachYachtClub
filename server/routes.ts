@@ -22,8 +22,9 @@ import {
 } from "@shared/schema";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
-import { pool } from "./db";
-import { sql } from "drizzle-orm";
+import { pool, db } from "./db";
+import { sql, desc } from "drizzle-orm";
+import * as dbSchema from "@shared/schema";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -2183,6 +2184,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/notifications/status", requireAuth, (req, res) => {
     const stats = notificationService.getConnectionStats();
     res.json(stats);
+  });
+
+  // Staff notifications API endpoints
+  app.get("/api/staff/notifications", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const notifications = await dbStorage.getNotifications();
+      res.json(notifications);
+    } catch (error: any) {
+      console.error('Error fetching staff notifications:', error);
+      res.status(500).json({ message: error.message });
+    }
   });
 
   // Admin notifications API endpoints
