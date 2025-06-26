@@ -2532,40 +2532,6 @@ export default function YachtOwnerDashboard() {
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
-              <User className="h-5 w-5 mr-2 text-purple-500" />
-              Profile Settings
-            </CardTitle>
-            <CardDescription>Update your personal information and preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-white font-medium">Display Name</label>
-              <Input 
-                defaultValue={user?.username || ''}
-                className="bg-gray-800/50 border-gray-600 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-white font-medium">Email Address</label>
-              <Input 
-                defaultValue={user?.email || ''}
-                className="bg-gray-800/50 border-gray-600 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-white font-medium">Phone Number</label>
-              <Input 
-                defaultValue=""
-                className="bg-gray-800/50 border-gray-600 text-white"
-                placeholder="Enter your phone number"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
               <Bell className="h-5 w-5 mr-2 text-purple-500" />
               Notification Settings
             </CardTitle>
