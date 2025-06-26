@@ -2261,40 +2261,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { type, ownerId } = req.body;
       const ownerUserId = ownerId || req.user!.id;
       
-      // Generate simple PDF-like data for demonstration
-      const reportData = {
-        title: `MBYC ${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
-        generated: new Date().toISOString(),
-        ownerId: ownerUserId,
-        type: type
-      };
+      // Import PDF generator
+      const { PDFReportGenerator } = await import('./services/pdf-generator');
+      const pdfGenerator = new PDFReportGenerator(dbStorage);
       
-      // Create a simple text-based report (in production, use proper PDF library)
-      const reportContent = `
-MIAMI BEACH YACHT CLUB
-${reportData.title}
-
-Generated: ${new Date().toLocaleDateString()}
-Owner ID: ${ownerUserId}
-Report Type: ${type}
-
-This is a sample report. In production, this would contain:
-- Detailed analytics and metrics
-- Charts and visualizations  
-- Performance data
-- Financial summaries
-- Maintenance records (if applicable)
-
-Report generated successfully.
-      `;
+      let pdfBuffer: Buffer;
+      
+      // Generate the appropriate report based on type
+      if (type === 'revenue') {
+        pdfBuffer = await pdfGenerator.generateRevenueReport(ownerUserId);
+      } else if (type === 'analytics') {
+        pdfBuffer = await pdfGenerator.generateAnalyticsReport(ownerUserId);
+      } else {
+        throw new Error(`Invalid report type: ${type}`);
+      }
       
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="MBYC-${type}-Report-${new Date().toISOString().split('T')[0]}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="MBYC-${type.charAt(0).toUpperCase() + type.slice(1)}-Report-${new Date().toISOString().split('T')[0]}.pdf"`);
+      res.setHeader('Content-Length', pdfBuffer.length.toString());
       
-      // In production, generate actual PDF. For now, send text as binary
-      const buffer = Buffer.from(reportContent, 'utf8');
-      res.send(buffer);
+      // Send the PDF buffer
+      res.send(pdfBuffer);
       
     } catch (error: any) {
       console.error('Error generating yacht owner report:', error);

@@ -586,6 +586,11 @@ export default function YachtOwnerDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   
+  // Filter states
+  const [showBookingFilters, setShowBookingFilters] = useState(false);
+  const [showRevenueFilters, setShowRevenueFilters] = useState(false);
+  const [showAnalyticsFilters, setShowAnalyticsFilters] = useState(false);
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   
@@ -1394,9 +1399,14 @@ export default function YachtOwnerDashboard() {
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-600 hover:border-purple-500"
+            onClick={() => setShowBookingFilters(!showBookingFilters)}
+          >
             <Filter className="h-4 w-4 mr-2" />
-            Filter Bookings
+            Filters
           </Button>
         </motion.div>
       </div>
@@ -1574,7 +1584,12 @@ export default function YachtOwnerDashboard() {
             <BarChart3 className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-600 hover:border-purple-500"
+            onClick={() => setShowRevenueFilters(!showRevenueFilters)}
+          >
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
@@ -2408,7 +2423,12 @@ export default function YachtOwnerDashboard() {
             <BarChart3 className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gray-600 hover:border-purple-500"
+            onClick={() => setShowAnalyticsFilters(!showAnalyticsFilters)}
+          >
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
