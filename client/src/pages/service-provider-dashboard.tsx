@@ -62,6 +62,7 @@ import {
   MessageSquare
 } from "lucide-react";
 import { MultiImageUpload } from "@/components/multi-image-upload";
+import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
 
 // Service form schema
 const serviceFormSchema = z.object({
@@ -559,6 +560,17 @@ interface ServiceProviderStats {
   completionRate: number;
   activeClients: number;
 }
+
+// Category icons mapping
+const categoryIcons = {
+  'Beauty & Grooming': Palette,
+  'Culinary': ChefHat,
+  'Wellness & Spa': Dumbbell,
+  'Photography & Media': Camera,
+  'Entertainment': Music,
+  'Water Sports': Anchor,
+  'Concierge & Lifestyle': SparklesIcon
+};
 
 export default function ServiceProviderDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
