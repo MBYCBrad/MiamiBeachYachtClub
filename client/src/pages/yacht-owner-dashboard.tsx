@@ -957,6 +957,29 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
+  const renderCurrentSection = () => {
+    switch (activeSection) {
+      case 'overview':
+        return renderOverview();
+      case 'fleet':
+        return renderFleet();
+      case 'bookings':
+        return renderBookings();
+      case 'revenue':
+        return renderRevenue();
+      case 'maintenance':
+        return renderMaintenance();
+      case 'analytics':
+        return renderAnalytics();
+      case 'gallery':
+        return renderGallery();
+      case 'settings':
+        return renderSettings();
+      default:
+        return renderOverview();
+    }
+  };
+
   return (
     <motion.div 
       className="min-h-screen bg-black"
