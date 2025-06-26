@@ -32,7 +32,13 @@ import {
   Menu,
   X,
   LogOut,
-  Sparkles
+  Sparkles,
+  User,
+  Calculator,
+  CheckCircle,
+  Heart,
+  Save,
+  RotateCcw
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -77,6 +83,40 @@ const yachtFormSchema = z.object({
 });
 
 type YachtFormData = z.infer<typeof yachtFormSchema>;
+
+// StatCard component - copied exactly from admin dashboard
+const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="group relative overflow-hidden"
+  >
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/60 transition-all duration-500 hover:border-purple-500/30">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-400 text-sm font-medium">{title}</p>
+            <p className="text-3xl font-bold text-white mt-2">{value}</p>
+            {change !== null && (
+              <div className="flex items-center mt-2">
+                <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                <span className="text-green-400 text-sm">+{change}%</span>
+              </div>
+            )}
+          </div>
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </CardContent>
+      
+      {/* Animated background gradient */}
+      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+    </Card>
+  </motion.div>
+);
 
 // Edit Yacht Dialog Component
 function EditYachtDialog({ yacht }: { yacht: any }) {
@@ -403,49 +443,6 @@ const sidebarItems = [
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-purple-600 to-indigo-600' }
 ];
 
-const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20, scale: 0.9 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ delay, type: "spring", stiffness: 200, damping: 20 }}
-    whileHover={{ y: -5, scale: 1.02 }}
-    className="group relative overflow-hidden"
-  >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-400 group-hover:text-gray-300 transition-colors">
-              {title}
-            </p>
-            <p className="text-3xl font-bold text-white tracking-tight">
-              {value}
-            </p>
-            {change && (
-              <div className="flex items-center space-x-1">
-                <TrendingUp className="h-4 w-4 text-green-400" />
-                <span className="text-sm text-green-400 font-medium">
-                  +{change}% this month
-                </span>
-              </div>
-            )}
-          </div>
-          <div className={`p-3 rounded-2xl bg-gradient-to-br ${gradient} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-            <Icon className="h-8 w-8 text-white" />
-          </div>
-        </div>
-        
-        {/* Animated background gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-        
-        {/* Sparkle effect */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
-        </div>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
 
 const YachtCard = ({ yacht, index }: any) => (
   <motion.div
