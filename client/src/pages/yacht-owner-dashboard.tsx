@@ -47,7 +47,11 @@ import {
   ArrowRight,
   FileText,
   Upload,
-  ImageIcon
+  ImageIcon,
+  Inbox,
+  Send,
+  Timer,
+  TrendingDown
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -61,6 +65,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -463,6 +468,7 @@ const sidebarItems = [
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-purple-600 to-indigo-600' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-purple-600 to-indigo-600' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-600 to-indigo-600' },
+  { id: 'messages', label: 'Messages', icon: MessageSquare, color: 'from-purple-600 to-indigo-600' },
   { id: 'profile', label: 'My Profile', icon: User, color: 'from-purple-600 to-indigo-600' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-purple-600 to-indigo-600' }
 ];
@@ -2665,20 +2671,162 @@ export default function YachtOwnerDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="text-gray-400 hover:text-white"
-                          onClick={() => {
-                            console.log('Viewing notification:', notification);
-                            // Add notification viewing logic here
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
-                          <X className="h-4 w-4" />
-                        </Button>
+                        {/* View Actions Dropdown Form */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-gray-400 hover:text-white"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-80">
+                            <div className="space-y-4">
+                              <div className="border-b border-gray-700 pb-2">
+                                <h4 className="text-white font-medium">Notification Actions</h4>
+                                <p className="text-sm text-gray-400">Choose an action for this notification</p>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Quick Actions</label>
+                                  <select 
+                                    className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
+                                    onChange={(e) => {
+                                      const action = e.target.value;
+                                      if (action === 'mark_read') {
+                                        markAsReadMutation.mutate(notification.id);
+                                        toast({ title: "Notification marked as read" });
+                                      } else if (action === 'view_details') {
+                                        if (notification.data?.yachtId) {
+                                          setActiveSection('fleet');
+                                        } else if (notification.data?.serviceId) {
+                                          setActiveSection('bookings');
+                                        } else {
+                                          setActiveSection('overview');
+                                        }
+                                      } else if (action === 'copy_message') {
+                                        navigator.clipboard.writeText(notification.message);
+                                        toast({ title: "Notification copied to clipboard" });
+                                      }
+                                    }}
+                                  >
+                                    <option value="">Select Action...</option>
+                                    <option value="mark_read">Mark as Read</option>
+                                    <option value="view_details">View Details</option>
+                                    <option value="copy_message">Copy Message</option>
+                                  </select>
+                                </div>
+                                
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Add Note (Optional)</label>
+                                  <textarea 
+                                    className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
+                                    rows={2}
+                                    placeholder="Add a note about this notification..."
+                                  />
+                                </div>
+                                
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Priority Level</label>
+                                  <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                                    <option value="low">Low Priority</option>
+                                    <option value="medium" selected={notification.priority === 'medium'}>Medium Priority</option>
+                                    <option value="high">High Priority</option>
+                                    <option value="urgent">Urgent</option>
+                                  </select>
+                                </div>
+                                
+                                <div className="flex space-x-2 pt-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
+                                    onClick={() => {
+                                      markAsReadMutation.mutate(notification.id);
+                                      toast({ title: "Changes saved" });
+                                    }}
+                                  >
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* Delete Actions Dropdown Form */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-80">
+                            <div className="space-y-4">
+                              <div className="border-b border-gray-700 pb-2">
+                                <h4 className="text-white font-medium">Delete Notification</h4>
+                                <p className="text-sm text-gray-400">Choose how to handle this notification</p>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Delete Options</label>
+                                  <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                                    <option value="">Select Action...</option>
+                                    <option value="mark_read">Mark as Read Only</option>
+                                    <option value="archive">Archive Notification</option>
+                                    <option value="delete">Delete Permanently</option>
+                                  </select>
+                                </div>
+                                
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Reason (Optional)</label>
+                                  <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                                    <option value="">Select Reason...</option>
+                                    <option value="resolved">Issue Resolved</option>
+                                    <option value="duplicate">Duplicate Notification</option>
+                                    <option value="spam">Spam/Irrelevant</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                </div>
+                                
+                                <div className="flex flex-col space-y-2">
+                                  <label className="text-sm text-gray-300">Additional Notes</label>
+                                  <textarea 
+                                    className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
+                                    rows={2}
+                                    placeholder="Any additional notes about deletion..."
+                                  />
+                                </div>
+                                
+                                <div className="flex space-x-2 pt-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-purple-600 hover:bg-purple-700 text-white flex-1"
+                                    onClick={() => {
+                                      markAsReadMutation.mutate(notification.id);
+                                      toast({ title: "Notification marked as read" });
+                                    }}
+                                  >
+                                    Mark as Read
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                                    onClick={() => {
+                                      deleteNotificationMutation.mutate(notification.id);
+                                      toast({ title: "Notification deleted" });
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </CardContent>
@@ -2690,6 +2838,345 @@ export default function YachtOwnerDashboard() {
       </motion.div>
     );
   };
+
+  const renderMessages = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Messages & Communication
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage yacht communications, member messages, and support requests
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            New Message
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Messages Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Messages */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Inbox className="h-5 w-5 mr-2 text-purple-500" />
+              Recent Messages
+            </CardTitle>
+            <CardDescription>Latest communications and admin messages</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[
+              {
+                id: 1,
+                from: "MBYC Admin",
+                subject: "Fleet Maintenance Update",
+                message: "Your yacht Azure Elegance maintenance has been scheduled for next week.",
+                time: "2 hours ago",
+                priority: "high",
+                read: false
+              },
+              {
+                id: 2,
+                from: "Marina Manager",
+                subject: "Dock Assignment Change",
+                message: "Your yacht has been moved to dock 15 for better access during the event.",
+                time: "5 hours ago",
+                priority: "medium",
+                read: true
+              },
+              {
+                id: 3,
+                from: "Concierge Service",
+                subject: "Booking Confirmation",
+                message: "Your premium catering service for tomorrow's charter has been confirmed.",
+                time: "1 day ago",
+                priority: "low",
+                read: true
+              }
+            ].map((message, index) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`p-4 rounded-xl border transition-all duration-300 hover:border-purple-500/30 ${
+                  message.read ? 'bg-gray-800/30 border-gray-700' : 'bg-purple-900/20 border-purple-500/30'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-white font-medium">{message.from}</span>
+                      <Badge className={`text-xs ${
+                        message.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                        message.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        'bg-green-500/20 text-green-400 border-green-500/30'
+                      }`}>
+                        {message.priority}
+                      </Badge>
+                      {!message.read && (
+                        <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full" />
+                      )}
+                    </div>
+                    <p className="text-white font-medium mb-1">{message.subject}</p>
+                    <p className="text-gray-400 text-sm mb-2">{message.message}</p>
+                    <p className="text-xs text-gray-500">{message.time}</p>
+                  </div>
+                  
+                  {/* Message Action Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-80">
+                      <div className="space-y-4">
+                        <div className="border-b border-gray-700 pb-2">
+                          <h4 className="text-white font-medium">Message Actions</h4>
+                          <p className="text-sm text-gray-400">Manage this conversation</p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex flex-col space-y-2">
+                            <label className="text-sm text-gray-300">Quick Actions</label>
+                            <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                              <option value="">Select Action...</option>
+                              <option value="reply">Reply to Message</option>
+                              <option value="forward">Forward Message</option>
+                              <option value="archive">Archive Message</option>
+                              <option value="mark_important">Mark as Important</option>
+                            </select>
+                          </div>
+                          
+                          <div className="flex flex-col space-y-2">
+                            <label className="text-sm text-gray-300">Reply Message</label>
+                            <textarea 
+                              className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
+                              rows={3}
+                              placeholder="Type your reply here..."
+                            />
+                          </div>
+                          
+                          <div className="flex flex-col space-y-2">
+                            <label className="text-sm text-gray-300">Priority Level</label>
+                            <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                              <option value="low">Low Priority</option>
+                              <option value="medium">Medium Priority</option>
+                              <option value="high">High Priority</option>
+                              <option value="urgent">Urgent</option>
+                            </select>
+                          </div>
+                          
+                          <div className="flex space-x-2 pt-2">
+                            <Button 
+                              size="sm" 
+                              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
+                              onClick={() => toast({ title: "Reply sent successfully" })}
+                            >
+                              Send Reply
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-gray-600 text-gray-300 hover:border-purple-500"
+                            >
+                              Archive
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Compose New Message */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Send className="h-5 w-5 mr-2 text-purple-500" />
+              Compose Message
+            </CardTitle>
+            <CardDescription>Send messages to admin, staff, or support teams</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-4">
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Recipient</label>
+                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                  <option value="">Select Recipient...</option>
+                  <option value="admin">MBYC Admin</option>
+                  <option value="marina_manager">Marina Manager</option>
+                  <option value="concierge">Concierge Service</option>
+                  <option value="maintenance">Maintenance Team</option>
+                  <option value="customer_service">Customer Service</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Message Type</label>
+                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                  <option value="">Select Type...</option>
+                  <option value="general">General Inquiry</option>
+                  <option value="maintenance">Maintenance Request</option>
+                  <option value="booking">Booking Issue</option>
+                  <option value="complaint">Complaint</option>
+                  <option value="suggestion">Suggestion</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Subject</label>
+                <input 
+                  type="text"
+                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
+                  placeholder="Enter message subject..."
+                />
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Message</label>
+                <textarea 
+                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
+                  rows={5}
+                  placeholder="Type your message here..."
+                />
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Priority</label>
+                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                  <option value="low">Low Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="high">High Priority</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm text-gray-300">Attachments (Optional)</label>
+                <input 
+                  type="file"
+                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
+                  multiple
+                />
+              </div>
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
+                  onClick={() => toast({ title: "Message sent successfully" })}
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Send Message
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:border-purple-500"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Draft
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Communication Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Total Messages</p>
+                <p className="text-2xl font-bold text-white">47</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <MessageSquare className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+              <span className="text-green-400">+12%</span>
+              <span className="text-gray-400 ml-1">this month</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Unread Messages</p>
+                <p className="text-2xl font-bold text-white">3</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Bell className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <Clock className="h-4 w-4 text-yellow-400 mr-1" />
+              <span className="text-yellow-400">Requires attention</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm mb-1">Response Time</p>
+                <p className="text-2xl font-bold text-white">2.4h</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Timer className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <TrendingDown className="h-4 w-4 text-red-400 mr-1" />
+              <span className="text-red-400">-15%</span>
+              <span className="text-gray-400 ml-1">faster response</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </motion.div>
+  );
 
   const renderSettings = () => (
     <motion.div
@@ -3193,6 +3680,8 @@ export default function YachtOwnerDashboard() {
         return renderSettings();
       case 'notifications':
         return renderNotifications();
+      case 'messages':
+        return renderMessages();
       default:
         return renderOverview();
     }
@@ -3370,15 +3859,99 @@ export default function YachtOwnerDashboard() {
                   })()}
                 </Button>
                 
-                {/* Messages Icon */}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-purple-400 hover:text-white relative"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full" />
-                </Button>
+                {/* Messages Icon with Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-purple-400 hover:text-white relative"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-96">
+                    <div className="space-y-4">
+                      <div className="border-b border-gray-700 pb-2">
+                        <h4 className="text-white font-medium">Messages & Communication</h4>
+                        <p className="text-sm text-gray-400">Send messages and manage communications</p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex flex-col space-y-2">
+                          <label className="text-sm text-gray-300">Message Type</label>
+                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                            <option value="">Select Message Type...</option>
+                            <option value="admin">Message Admin</option>
+                            <option value="member">Message Member</option>
+                            <option value="staff">Message Staff</option>
+                            <option value="support">Contact Support</option>
+                          </select>
+                        </div>
+                        
+                        <div className="flex flex-col space-y-2">
+                          <label className="text-sm text-gray-300">Recipient</label>
+                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                            <option value="">Select Recipient...</option>
+                            <option value="admin">MBYC Admin</option>
+                            <option value="concierge">Concierge Service</option>
+                            <option value="maintenance">Maintenance Team</option>
+                            <option value="customer_service">Customer Service</option>
+                          </select>
+                        </div>
+                        
+                        <div className="flex flex-col space-y-2">
+                          <label className="text-sm text-gray-300">Subject</label>
+                          <input 
+                            type="text"
+                            className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
+                            placeholder="Enter message subject..."
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col space-y-2">
+                          <label className="text-sm text-gray-300">Message</label>
+                          <textarea 
+                            className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
+                            rows={4}
+                            placeholder="Type your message here..."
+                          />
+                        </div>
+                        
+                        <div className="flex flex-col space-y-2">
+                          <label className="text-sm text-gray-300">Priority Level</label>
+                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high">High Priority</option>
+                            <option value="urgent">Urgent</option>
+                          </select>
+                        </div>
+                        
+                        <div className="flex space-x-2 pt-2">
+                          <Button 
+                            size="sm" 
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
+                            onClick={() => {
+                              toast({ title: "Message sent successfully" });
+                            }}
+                          >
+                            Send Message
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="border-gray-600 text-gray-300 hover:border-purple-500"
+                            onClick={() => setActiveSection('messages')}
+                          >
+                            View All Messages
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 {/* Logout Button */}
                 <Button 
