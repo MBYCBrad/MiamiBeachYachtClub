@@ -48,12 +48,12 @@ import {
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -73,6 +73,13 @@ interface YachtOwnerStats {
   occupancyRate: number;
   pendingMaintenance: number;
 }
+
+const maintenanceRecordSchema = z.object({
+  taskDescription: z.string().min(1, "Task description is required"),
+  priority: z.string().default("medium"),
+  estimatedCost: z.string().optional(),
+  notes: z.string().optional()
+});
 
 const yachtFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -560,6 +567,8 @@ export default function YachtOwnerDashboard() {
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: stats } = useQuery<YachtOwnerStats>({
     queryKey: ['/api/yacht-owner/stats'],
@@ -569,6 +578,53 @@ export default function YachtOwnerDashboard() {
     queryKey: ['/api/yacht-owner/yachts'],
     enabled: !!user && user.role === 'yacht_owner'
   });
+
+  // Maintenance records data fetching
+  const { data: maintenanceRecords = [] } = useQuery<any[]>({
+    queryKey: ['/api/yacht-maintenance', selectedMaintenanceYacht],
+    enabled: !!selectedMaintenanceYacht,
+  });
+
+  // Add maintenance record form
+  const addMaintenanceForm = useForm<z.infer<typeof maintenanceRecordSchema>>({
+    resolver: zodResolver(maintenanceRecordSchema),
+    defaultValues: {
+      taskDescription: "",
+      priority: "medium",
+      estimatedCost: "",
+      notes: ""
+    }
+  });
+
+  // Add maintenance record mutation
+  const addMaintenanceRecordMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof maintenanceRecordSchema>) => {
+      const response = await apiRequest("POST", "/api/yacht-maintenance", {
+        ...data,
+        yachtId: selectedMaintenanceYacht
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/yacht-maintenance', selectedMaintenanceYacht] });
+      addMaintenanceForm.reset();
+      toast({
+        title: "Success",
+        description: "Maintenance record added successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add maintenance record",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAddMaintenanceRecord = (data: z.infer<typeof maintenanceRecordSchema>) => {
+    addMaintenanceRecordMutation.mutate(data);
+  };
 
   const { data: bookings } = useQuery({
     queryKey: ['/api/yacht-owner/bookings'],
@@ -1534,35 +1590,165 @@ export default function YachtOwnerDashboard() {
             
             {activeMaintenanceTab === 'records' && (
               <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-                <CardHeader>
-                  <CardTitle className="text-white">Maintenance History</CardTitle>
-                  <CardDescription>Complete maintenance record log</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-white">Maintenance History</CardTitle>
+                    <CardDescription>Complete maintenance record log</CardDescription>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Record
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">Add Maintenance Record</DialogTitle>
+                        <DialogDescription className="text-gray-400">
+                          Create a new maintenance record for {yachts?.find(y => y.id === selectedMaintenanceYacht)?.name}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...addMaintenanceForm}>
+                        <form onSubmit={addMaintenanceForm.handleSubmit(handleAddMaintenanceRecord)} className="space-y-4">
+                          <FormField
+                            control={addMaintenanceForm.control}
+                            name="taskDescription"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Task Description</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="e.g., Engine Oil Change, Hull Cleaning"
+                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={addMaintenanceForm.control}
+                              name="priority"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-white">Priority</FormLabel>
+                                  <FormControl>
+                                    <select 
+                                      {...field}
+                                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+                                    >
+                                      <option value="low">Low</option>
+                                      <option value="medium">Medium</option>
+                                      <option value="high">High</option>
+                                      <option value="urgent">Urgent</option>
+                                    </select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={addMaintenanceForm.control}
+                              name="estimatedCost"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-white">Estimated Cost</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="$0.00"
+                                      className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={addMaintenanceForm.control}
+                            name="notes"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-white">Notes</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    {...field} 
+                                    placeholder="Additional details about the maintenance task..."
+                                    className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 resize-none"
+                                    rows={3}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <DialogFooter>
+                            <DialogTrigger asChild>
+                              <Button type="button" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                                Cancel
+                              </Button>
+                            </DialogTrigger>
+                            <Button 
+                              type="submit" 
+                              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                              disabled={addMaintenanceRecordMutation.isPending}
+                            >
+                              {addMaintenanceRecordMutation.isPending ? 'Adding...' : 'Add Record'}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {[
-                      { task: 'Engine Oil Change', date: '2024-06-15', status: 'completed', cost: '$450' },
-                      { task: 'Hull Cleaning', date: '2024-06-01', status: 'completed', cost: '$800' },
-                      { task: 'Safety Inspection', date: '2024-05-20', status: 'completed', cost: '$300' }
-                    ].map((record, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-                            <CheckCircle className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-white font-medium">{record.task}</p>
-                            <p className="text-gray-400 text-sm">{record.date}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-white font-medium">{record.cost}</p>
-                          <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                            {record.status}
-                          </Badge>
-                        </div>
+                    {maintenanceRecords?.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Wrench className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                        <p className="text-gray-400">No maintenance records yet</p>
+                        <p className="text-gray-500 text-sm">Click "Add Record" to create the first maintenance entry</p>
                       </div>
-                    ))}
+                    ) : (
+                      maintenanceRecords?.map((record: any, index: number) => (
+                        <div key={record.id || index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                              <CheckCircle className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-white font-medium">{record.taskDescription}</p>
+                              <p className="text-gray-400 text-sm">
+                                {record.scheduledDate ? new Date(record.scheduledDate).toLocaleDateString() : 'No date set'}
+                              </p>
+                              {record.notes && (
+                                <p className="text-gray-500 text-xs mt-1">{record.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-white font-medium">
+                              {record.estimatedCost ? `$${record.estimatedCost}` : 'Cost TBD'}
+                            </p>
+                            <Badge 
+                              className={`${
+                                record.priority === 'urgent' 
+                                  ? 'bg-red-600' 
+                                  : record.priority === 'high'
+                                  ? 'bg-orange-600'
+                                  : 'bg-gradient-to-r from-purple-600 to-blue-600'
+                              } text-white`}
+                            >
+                              {record.priority || 'medium'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
