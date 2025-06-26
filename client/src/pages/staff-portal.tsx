@@ -135,11 +135,12 @@ const sidebarItems = [
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-cyan-500' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-indigo-500' },
+  { id: 'messages', label: 'Messages', icon: MessageSquare, color: 'from-indigo-500 to-purple-500' },
   { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-red-500 to-orange-500' },
   { id: 'crew-management', label: 'Crew Management', icon: Ship, color: 'from-blue-500 to-indigo-500' },
   { id: 'staff-management', label: 'Staff Management', icon: UserCheck, color: 'from-purple-500 to-indigo-500' },
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
-  { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
+  { id: 'customer-service', label: 'Customer Service', icon: Phone, color: 'from-emerald-500 to-cyan-500' },
 
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
@@ -1573,6 +1574,160 @@ export default function StaffPortal() {
       </div>
     </motion.div>
   );
+
+  // EXACT COPY FROM ADMIN DASHBOARD - renderMessages function with complete styling
+  const renderMessages = () => {
+    const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
+      queryKey: ['/api/staff/conversations'],
+      enabled: !!user && user.role === 'staff',
+      refetchInterval: 30000, // Refresh every 30 seconds
+    });
+
+    if (conversationsLoading) {
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <MessageSquare className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400 text-lg">Loading conversations...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Messages
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Staff communication and member support system
+            </motion.p>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Active Conversations</p>
+                  <p className="text-3xl font-bold text-white">{staffConversations.length}</p>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
+                  <MessageSquare className="h-8 w-8 text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-400 mb-1">24/7 Support</p>
+                  <p className="text-3xl font-bold text-white">Active</p>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
+                  <Clock className="h-8 w-8 text-emerald-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Response Time</p>
+                  <p className="text-3xl font-bold text-white">5min</p>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
+                  <TrendingUp className="h-8 w-8 text-blue-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Conversations List */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <MessageSquare className="h-5 w-5 mr-2 text-purple-500" />
+              Active Conversations
+            </CardTitle>
+            <CardDescription>Real-time member support and staff communications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {staffConversations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <MessageSquare className="h-12 w-12 text-gray-600 mb-4" />
+                <h3 className="text-lg font-medium text-gray-400 mb-2">No active conversations</h3>
+                <p className="text-gray-500 text-center">
+                  All member communications will appear here for staff response.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {staffConversations.map((conversation: any, index: number) => (
+                  <motion.div
+                    key={conversation.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-4 rounded-lg bg-gray-800/50 border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                          <User className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-medium">
+                            Member #{conversation.participant1_id}
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            Conversation #{conversation.id}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                          Active
+                        </Badge>
+                        <p className="text-gray-500 text-xs mt-1">
+                          {new Date(conversation.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
 
   // Basic placeholders for staff-specific sections
   const renderStaffManagement = () => (
@@ -3773,6 +3928,7 @@ export default function StaffPortal() {
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'payments' && renderPayments()}
             {activeSection === 'calendar' && <CalendarPage />}
+            {activeSection === 'messages' && renderMessages()}
             {activeSection === 'notifications' && renderNotifications()}
             {activeSection === 'crew-management' && <CrewManagementPage />}
             {activeSection === 'staff-management' && <StaffManagement />}
