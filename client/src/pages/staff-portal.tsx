@@ -1703,10 +1703,10 @@ export default function StaffPortal() {
                         </div>
                         <div>
                           <h3 className="text-white font-medium">
-                            Member #{conversation.participant1_id}
+                            {conversation.participant1_name || conversation.participant2_name || 'Unknown Member'}
                           </h3>
                           <p className="text-gray-400 text-sm">
-                            Conversation #{conversation.id}
+                            {conversation.last_message || 'No messages yet'}
                           </p>
                         </div>
                       </div>
@@ -1715,7 +1715,22 @@ export default function StaffPortal() {
                           Active
                         </Badge>
                         <p className="text-gray-500 text-xs mt-1">
-                          {new Date(conversation.createdAt).toLocaleDateString()}
+                          {conversation.last_message_at 
+                            ? new Date(conversation.last_message_at).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })
+                            : conversation.created_at 
+                              ? new Date(conversation.created_at).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                              : 'No date'
+                          }
                         </p>
                       </div>
                     </div>
