@@ -3704,7 +3704,7 @@ export default function YachtOwnerDashboard() {
             className="fixed top-6 left-6 z-[9999] p-3 bg-gradient-to-br from-purple-600 to-indigo-600 backdrop-blur-md rounded-xl border border-purple-500/50 text-white hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg"
           >
             <img 
-              src="/api/media/MBYC-LOGO-WHITE_1750976076917.png" 
+              src="/api/media/MBYC-LOGO-WHITE_1750978675231.png?v=2" 
               alt="MBYC"
               className="h-8 w-8 object-contain"
             />
@@ -3831,7 +3831,7 @@ export default function YachtOwnerDashboard() {
           </nav>
 
           {/* User Profile - moved to bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50">
+          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900">
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Avatar className="h-12 w-12 ring-2 ring-gradient-to-br ring-purple-500/30">
