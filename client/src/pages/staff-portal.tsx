@@ -481,14 +481,14 @@ export default function StaffPortal() {
 
 
 
-  // Process stats data to match admin dashboard structure
-  const adminStats = stats ? {
-    totalUsers: stats.totalUsers || 0,
-    totalBookings: stats.totalBookings || 0,
-    totalRevenue: stats.totalRevenue || 0,
-    activeServices: stats.activeServices || 0,
-    monthlyGrowth: stats.monthlyGrowth || 0,
-    membershipBreakdown: stats.membershipBreakdown || []
+  // Process analytics data to match admin dashboard structure
+  const adminStats = analytics ? {
+    totalUsers: analytics.totalUsers || 0,
+    totalBookings: analytics.totalBookings || 0,
+    totalRevenue: analytics.totalRevenue || 0,
+    activeServices: analytics.totalServices || 0,
+    monthlyGrowth: analytics.monthlyGrowth || 0,
+    membershipBreakdown: analytics.membershipBreakdown || []
   } : {
     totalUsers: 0,
     totalBookings: 0,
