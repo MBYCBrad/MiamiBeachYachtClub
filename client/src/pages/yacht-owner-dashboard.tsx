@@ -1602,7 +1602,7 @@ export default function YachtOwnerDashboard() {
                         Add Record
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+                    <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-md">
                       <DialogHeader>
                         <DialogTitle className="text-white">Add Maintenance Record</DialogTitle>
                         <DialogDescription className="text-gray-400">
