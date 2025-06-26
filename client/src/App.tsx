@@ -21,6 +21,7 @@ import EventsPage from "@/pages/events-page";
 import CheckoutPage from "@/pages/checkout";
 import AdminDashboard from "@/pages/admin-dashboard";
 import YachtOwnerDashboard from "@/pages/yacht-owner-dashboard";
+import YachtOwnerCalendar from "@/pages/yacht-owner-calendar";
 import ServiceProviderDashboard from "@/pages/service-provider-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffManagement from "@/pages/staff-management";
@@ -40,6 +41,7 @@ function Router() {
       <ProtectedRoute path="/staff" component={StaffPortal} />
       <ProtectedRoute path="/staff-portal" component={StaffPortal} />
       <ProtectedRoute path="/yacht-owner" component={YachtOwnerDashboard} />
+      <ProtectedRoute path="/yacht-owner-calendar" component={YachtOwnerCalendar} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
       <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />

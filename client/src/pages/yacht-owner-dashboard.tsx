@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
@@ -545,6 +546,7 @@ export default function YachtOwnerDashboard() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [, setLocation] = useLocation();
   
   // Filter states for different sections - exact copy from admin dashboard
   const [yachtFilters, setYachtFilters] = useState({
@@ -1243,7 +1245,7 @@ export default function YachtOwnerDashboard() {
           <Button 
             size="sm" 
             className="bg-gradient-to-r from-purple-600 to-indigo-600"
-            onClick={() => setActiveSection('calendar')}
+            onClick={() => setLocation('/yacht-owner-calendar')}
           >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
