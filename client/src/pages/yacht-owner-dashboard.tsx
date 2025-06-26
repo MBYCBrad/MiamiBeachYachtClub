@@ -1455,7 +1455,7 @@ export default function YachtOwnerDashboard() {
                 className="text-5xl font-bold text-white mb-2 tracking-tight"
                 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
               >
-                {ownerYachts?.find(y => y.id === selectedMaintenanceYacht)?.name || 'Yacht'} Maintenance
+                {yachts?.find(y => y.id === selectedMaintenanceYacht)?.name || 'Yacht'} Maintenance
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: -10 }}
