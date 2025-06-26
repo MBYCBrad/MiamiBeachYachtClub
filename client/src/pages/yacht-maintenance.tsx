@@ -95,7 +95,7 @@ export default function YachtMaintenance() {
     queryKey: ['/api/maintenance/trip-logs'],
   });
 
-  const { data: maintenanceRecords = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
+  const maintenanceRecords = useQuery({
     queryKey: [`/api/maintenance/records/${selectedYacht}`],
     enabled: !!selectedYacht,
     staleTime: 0,
@@ -104,7 +104,7 @@ export default function YachtMaintenance() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: conditionAssessments = [], isLoading: assessmentsLoading, refetch: refetchAssessments } = useQuery({
+  const conditionAssessments = useQuery({
     queryKey: [`/api/maintenance/assessments/${selectedYacht}`],
     enabled: !!selectedYacht,
     staleTime: 0,
@@ -173,9 +173,9 @@ export default function YachtMaintenance() {
       toast({ title: "Success", description: "Maintenance scheduled successfully" });
       // Force immediate refresh of maintenance data with cache bypass
       queryClient.removeQueries({ queryKey: [`/api/maintenance/records/${selectedYacht}`] });
-      queryClient.removeQueries({ queryKey: ['/api/maintenance/schedules'] });
-      refetchRecords();
-      refetchSchedules();
+      queryClient.removeQueries({ queryKey: [`/api/maintenance/schedules/${selectedYacht}`] });
+      maintenanceRecords.refetch();
+      queryClient.invalidateQueries({ queryKey: [`/api/maintenance/schedules/${selectedYacht}`] });
       scheduleMaintenanceForm.reset();
       setScheduleMaintenanceOpen(false);
     },
@@ -200,9 +200,9 @@ export default function YachtMaintenance() {
       toast({ title: "Success", description: "Assessment created successfully" });
       // Force immediate refresh of assessment data
       queryClient.removeQueries({ queryKey: [`/api/maintenance/assessments/${selectedYacht}`] });
-      refetchAssessments();
+      conditionAssessments.refetch();
       createAssessmentForm.reset();
-      // Don't automatically close the dialog - let user close it manually
+      setCreateAssessmentOpen(false);
     },
     onError: (error: any) => {
       toast({
@@ -333,8 +333,10 @@ export default function YachtMaintenance() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">14.0h</div>
-                    <p className="text-xs text-gray-500 mt-1">From 3 completed trips</p>
+                    <div className="text-2xl font-bold text-white">
+                      {maintenanceOverview.totalEngineHours || 0}h
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">From {maintenanceOverview.totalTrips || 0} completed trips</p>
                   </CardContent>
                 </Card>
 
@@ -342,12 +344,12 @@ export default function YachtMaintenance() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
                       <Sun className="h-4 w-4" />
-                      Sun Exposure
+                      Active Components
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-white">11.2h</div>
-                    <p className="text-xs text-gray-500 mt-1">UV exposure tracked</p>
+                    <div className="text-2xl font-bold text-white">{maintenanceOverview.activeComponents || 0}</div>
+                    <p className="text-xs text-gray-500 mt-1">Systems monitored</p>
                   </CardContent>
                 </Card>
 
@@ -372,8 +374,10 @@ export default function YachtMaintenance() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-green-400">8.5/10</div>
-                    <p className="text-xs text-gray-500 mt-1">From baseline assessments</p>
+                    <div className="text-2xl font-bold text-green-400">
+                      {maintenanceOverview.averageCondition ? `${maintenanceOverview.averageCondition}/10` : 'N/A'}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">From recent assessments</p>
                   </CardContent>
                 </Card>
               </div>
@@ -389,27 +393,28 @@ export default function YachtMaintenance() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {[
-                        { name: "Main Engine", status: "operational", condition: 92, lastCheck: "2025-06-20" },
-                        { name: "Navigation System", status: "operational", condition: 88, lastCheck: "2025-06-18" },
-                        { name: "Hull Integrity", status: "good", condition: 85, lastCheck: "2025-06-15" },
-                        { name: "Electrical System", status: "operational", condition: 90, lastCheck: "2025-06-19" }
-                      ].map((component, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white font-medium">{component.name}</p>
-                            <p className="text-xs text-gray-400">
-                              Status: {component.status} • Last: {component.lastCheck}
-                            </p>
+                      {yachtComponents.isLoading ? (
+                        <div className="text-gray-400">Loading components...</div>
+                      ) : yachtComponents.data && yachtComponents.data.length > 0 ? (
+                        yachtComponents.data.map((component: any) => (
+                          <div key={component.id} className="flex items-center justify-between">
+                            <div>
+                              <p className="text-white font-medium">{component.name}</p>
+                              <p className="text-xs text-gray-400">
+                                Status: {component.status} • Type: {component.componentType}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Progress value={component.conditionScore || 0} className="w-20" />
+                              <span className="text-sm text-white w-8">
+                                {component.conditionScore || 0}%
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={component.condition} className="w-20" />
-                            <span className="text-sm text-white w-8">
-                              {component.condition}%
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <div className="text-gray-400">No components found</div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -423,47 +428,28 @@ export default function YachtMaintenance() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {[
-                        {
-                          action: 'Trip completed',
-                          details: 'Miami Beach → Key Biscayne • 5.5h engine time',
-                          time: '6/23/2025, 10:00:00 AM',
-                          icon: MapPin,
-                          color: 'text-green-400'
-                        },
-                        {
-                          action: 'Trip completed', 
-                          details: 'Key Biscayne → Miami Beach • 4.0h engine time',
-                          time: '6/22/2025, 2:00:00 PM',
-                          icon: MapPin,
-                          color: 'text-green-400'
-                        },
-                        {
-                          action: 'Maintenance completed',
-                          details: 'Engine service • $450',
-                          time: '6/20/2025, 9:00:00 AM',
-                          icon: CheckCircle,
-                          color: 'text-green-400'
-                        },
-                        {
-                          action: 'Trip completed',
-                          details: 'Miami Beach → Fisher Island • 4.5h engine time', 
-                          time: '6/21/2025, 11:00:00 AM',
-                          icon: MapPin,
-                          color: 'text-green-400'
-                        }
-                      ].map((activity, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className="bg-purple-600/20 p-2 rounded-lg">
-                            <activity.icon className={`h-4 w-4 ${activity.color || 'text-purple-400'}`} />
+                      {tripLogs.isLoading ? (
+                        <div className="text-gray-400">Loading recent activity...</div>
+                      ) : tripLogs.data && tripLogs.data.length > 0 ? (
+                        tripLogs.data.slice(0, 4).map((trip: any) => (
+                          <div key={trip.id} className="flex items-start gap-3">
+                            <div className="bg-purple-600/20 p-2 rounded-lg">
+                              <MapPin className="h-4 w-4 text-green-400" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-white font-medium">Trip completed</p>
+                              <p className="text-xs text-gray-400">
+                                {trip.startLocation} → {trip.endLocation} • {trip.engineHours || 'N/A'}h engine time
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(trip.startTime).toLocaleString()}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-white font-medium">{activity.action}</p>
-                            <p className="text-xs text-gray-400">{activity.details}</p>
-                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <div className="text-gray-400">No recent trips found</div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -478,71 +464,10 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {[
-                  {
-                    id: 1,
-                    status: 'completed',
-                    startTime: '2025-06-23T10:00:00Z',
-                    endTime: '2025-06-23T18:00:00Z',
-                    startLocation: 'Miami Beach Marina',
-                    endLocation: 'Key Biscayne',
-                    engineHours: '5.5',
-                    crewSize: 4,
-                    weatherConditions: 'Clear',
-                    seaConditions: 'Calm',
-                    startFuelLevel: 100,
-                    endFuelLevel: 85,
-                    startBatteryLevel: 100,
-                    endBatteryLevel: 92,
-                    startWaterLevel: 100,
-                    endWaterLevel: 75,
-                    startWasteLevel: 0,
-                    endWasteLevel: 25,
-                    notes: 'Perfect day for cruising. Guests enjoyed swimming and snorkeling at Key Biscayne.'
-                  },
-                  {
-                    id: 2,
-                    status: 'completed',
-                    startTime: '2025-06-22T14:00:00Z',
-                    endTime: '2025-06-22T18:00:00Z',
-                    startLocation: 'Key Biscayne',
-                    endLocation: 'Miami Beach Marina',
-                    engineHours: '4.0',
-                    crewSize: 2,
-                    weatherConditions: 'Partly Cloudy',
-                    seaConditions: 'Moderate',
-                    startFuelLevel: 85,
-                    endFuelLevel: 70,
-                    startBatteryLevel: 92,
-                    endBatteryLevel: 88,
-                    startWaterLevel: 75,
-                    endWaterLevel: 60,
-                    startWasteLevel: 25,
-                    endWasteLevel: 40,
-                    notes: 'Return trip with excellent sunset views. Minor engine maintenance recommended.'
-                  },
-                  {
-                    id: 3,
-                    status: 'completed',
-                    startTime: '2025-06-21T11:00:00Z',
-                    endTime: '2025-06-21T15:30:00Z',
-                    startLocation: 'Miami Beach Marina',
-                    endLocation: 'Fisher Island',
-                    engineHours: '4.5',
-                    crewSize: 6,
-                    weatherConditions: 'Clear',
-                    seaConditions: 'Calm',
-                    startFuelLevel: 100,
-                    endFuelLevel: 82,
-                    startBatteryLevel: 100,
-                    endBatteryLevel: 94,
-                    startWaterLevel: 100,
-                    endWaterLevel: 70,
-                    startWasteLevel: 0,
-                    endWasteLevel: 30,
-                    notes: 'Corporate event charter. All systems performed excellently.'
-                  }
-                ].map((trip: any) => (
+                {tripLogs.isLoading ? (
+                  <div className="text-gray-400">Loading trip logs...</div>
+                ) : tripLogs.data && tripLogs.data.length > 0 ? (
+                  tripLogs.data.map((trip: any) => (
                   <Card key={trip.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -556,7 +481,7 @@ export default function YachtMaintenance() {
                         </div>
                         <div className="flex items-center gap-2 text-gray-400">
                           <Users className="h-4 w-4" />
-                          <span>{trip.crewSize} crew</span>
+                          <span>{trip.guestCount || 0} guests</span>
                         </div>
                       </div>
                       
@@ -565,28 +490,28 @@ export default function YachtMaintenance() {
                           <Fuel className="h-4 w-4 text-blue-400" />
                           <div>
                             <p className="text-xs text-gray-400">Fuel</p>
-                            <p className="text-white">{trip.startFuelLevel}% → {trip.endFuelLevel}%</p>
+                            <p className="text-white">{trip.fuelLevel || 'N/A'}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Zap className="h-4 w-4 text-yellow-400" />
                           <div>
                             <p className="text-xs text-gray-400">Battery</p>
-                            <p className="text-white">{trip.startBatteryLevel}% → {trip.endBatteryLevel}%</p>
+                            <p className="text-white">{trip.batteryLevel || 'N/A'}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Droplets className="h-4 w-4 text-cyan-400" />
                           <div>
                             <p className="text-xs text-gray-400">Water</p>
-                            <p className="text-white">{trip.startWaterLevel}% → {trip.endWaterLevel}%</p>
+                            <p className="text-white">{trip.waterLevel || 'N/A'}%</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Waves className="h-4 w-4 text-gray-400" />
                           <div>
                             <p className="text-xs text-gray-400">Waste</p>
-                            <p className="text-white">{trip.startWasteLevel}% → {trip.endWasteLevel}%</p>
+                            <p className="text-white">{trip.wasteLevel || 'N/A'}%</p>
                           </div>
                         </div>
                       </div>
@@ -594,25 +519,30 @@ export default function YachtMaintenance() {
                       <div className="bg-gray-800/50 rounded-lg p-4">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-gray-400">Route</span>
-                          <span className="text-white">{trip.startLocation} → {trip.endLocation}</span>
+                          <span className="text-white">{trip.startLocation} → {trip.endLocation || 'In Progress'}</span>
                         </div>
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-gray-400">Engine Hours</span>
-                          <span className="text-white font-semibold">{trip.engineHours}h</span>
+                          <span className="text-white font-semibold">{trip.engineHours || 'N/A'}h</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Conditions</span>
-                          <span className="text-white">{trip.weatherConditions} • {trip.seaConditions}</span>
+                          <span className="text-gray-400">Guest Count</span>
+                          <span className="text-white">{trip.guestCount || 'N/A'}</span>
                         </div>
                       </div>
 
-                      <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
-                        <p className="text-xs text-gray-500 mb-1">Notes</p>
-                        <p className="text-white text-sm">{trip.notes}</p>
-                      </div>
+                      {trip.notes && (
+                        <div className="mt-4 p-3 bg-gray-800/50 rounded-lg">
+                          <p className="text-xs text-gray-500 mb-1">Notes</p>
+                          <p className="text-white text-sm">{trip.notes}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-gray-400">No trip logs found</div>
+                )}
               </div>
             </TabsContent>
 
@@ -832,10 +762,10 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-
-
-
-                {maintenanceRecords && Array.isArray(maintenanceRecords) && maintenanceRecords.length > 0 ? maintenanceRecords.map((record: any) => (
+                {maintenanceRecords.isLoading ? (
+                  <div className="text-gray-400">Loading maintenance records...</div>
+                ) : maintenanceRecords.data && maintenanceRecords.data.length > 0 ? (
+                  maintenanceRecords.data.map((record: any) => (
                   <Card key={record.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -913,7 +843,8 @@ export default function YachtMaintenance() {
                       )}
                     </CardContent>
                   </Card>
-                )) : (
+                  ))
+                ) : (
                   <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                     <CardContent className="p-6 text-center text-gray-400">
                       No maintenance records found for this yacht
@@ -1070,7 +1001,10 @@ export default function YachtMaintenance() {
               </div>
 
               <div className="grid gap-6">
-                {conditionAssessments.length > 0 ? conditionAssessments.map((assessment: any) => (
+                {conditionAssessments.isLoading ? (
+                  <div className="text-gray-400">Loading condition assessments...</div>
+                ) : conditionAssessments.data && conditionAssessments.data.length > 0 ? (
+                  conditionAssessments.data.map((assessment: any) => (
                   <Card key={assessment.id} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-900/50/60 transition-all duration-500 hover:border-purple-500/30">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
@@ -1145,7 +1079,8 @@ export default function YachtMaintenance() {
                       </div>
                     </CardContent>
                   </Card>
-                )) : (
+                  ))
+                ) : (
                   <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                     <CardContent className="p-6 text-center text-gray-400">
                       No condition assessments found for this yacht

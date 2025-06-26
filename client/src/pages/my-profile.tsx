@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Mail, Phone, MapPin, Calendar, Settings, Shield, Bell, Lock, Edit, Save, Camera, Upload } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
@@ -25,6 +25,12 @@ export default function MyProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+
+  // Fetch user profile data
+  const { data: profileData, isLoading } = useQuery({
+    queryKey: ['/api/user/profile'],
+    enabled: !!user,
+  });
 
   const [formData, setFormData] = useState({
     username: '',
@@ -44,25 +50,24 @@ export default function MyProfile() {
     }
   });
 
-  // Update form data when user data changes
+  // Update form data when profile data loads
   useEffect(() => {
-    if (user) {
+    if (profileData) {
       setFormData(prev => ({
-        username: user.username || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        location: user.location || '',
-        bio: user.bio || '',
+        username: profileData.username || '',
+        email: profileData.email || '',
+        phone: profileData.phone || '',
+        location: profileData.location || '',
+        bio: profileData.bio || '',
         notifications: prev.notifications,
         privacy: prev.privacy
       }));
     }
-  }, [user]);
+  }, [profileData]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('PATCH', '/api/profile', data);
-      return response.json();
+      return apiRequest('PUT', '/api/user/profile', data);
     },
     onSuccess: () => {
       toast({
@@ -70,6 +75,7 @@ export default function MyProfile() {
         description: "Your profile has been successfully updated.",
       });
       setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
@@ -100,6 +106,7 @@ export default function MyProfile() {
         title: "Avatar Updated",
         description: "Your profile picture has been updated.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {

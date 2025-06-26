@@ -1243,7 +1243,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(eq(maintenanceSchedules.componentId, componentId));
     }
     
-    return await query.orderBy(asc(maintenanceSchedules.nextDueDate));
+    return await query.orderBy(asc(maintenanceSchedules.nextDue));
   }
 
   async getMaintenanceSchedule(id: number): Promise<MaintenanceSchedule | undefined> {

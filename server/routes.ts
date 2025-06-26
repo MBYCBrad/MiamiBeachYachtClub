@@ -1343,6 +1343,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Avatar upload endpoint
   app.post('/api/upload/avatar', requireAuth, upload.single('avatar'), async (req, res) => {
     try {
+      console.log('Avatar upload request:', req.user?.id, req.file ? 'File received' : 'No file');
+      
       if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
       }
@@ -1356,6 +1358,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
+      console.log('Avatar upload successful:', avatarUrl);
+
       res.json({ 
         url: avatarUrl,
         user: updatedUser
@@ -1363,6 +1367,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Avatar upload error:', error);
       res.status(500).json({ message: 'Avatar upload failed: ' + error.message });
+    }
+  });
+
+  // User profile endpoint
+  app.get('/api/user/profile', requireAuth, async (req, res) => {
+    try {
+      const user = await dbStorage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error: any) {
+      console.error('Profile fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch profile: ' + error.message });
+    }
+  });
+
+  // Update user profile endpoint
+  app.put('/api/user/profile', requireAuth, async (req, res) => {
+    try {
+      const updatedUser = await dbStorage.updateUser(req.user!.id, req.body);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error('Profile update error:', error);
+      res.status(500).json({ message: 'Failed to update profile: ' + error.message });
     }
   });
 
