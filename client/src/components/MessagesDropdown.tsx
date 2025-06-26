@@ -149,7 +149,7 @@ export default function MessagesDropdown() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 bottom-full mb-2 w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50 backdrop-blur-sm"
+            className="absolute right-0 bottom-full mb-2 w-80 sm:w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50 backdrop-blur-sm max-w-[90vw]"
           >
           {/* Header */}
           <div className="p-4 border-b border-gray-700/50">
