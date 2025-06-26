@@ -1281,7 +1281,7 @@ export default function YachtMaintenance() {
                         </div>
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-gray-400">Emergency Response</span>
-                          <span className="text-blue-400">< 2hrs</span>
+                          <span className="text-blue-400">&lt; 2hrs</span>
                         </div>
                       </div>
                     </div>
@@ -1331,15 +1331,15 @@ export default function YachtMaintenance() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Critical</span>
-                        <span className="text-red-400">< 30min</span>
+                        <span className="text-red-400">&lt; 30min</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">High</span>
-                        <span className="text-orange-400">< 2hrs</span>
+                        <span className="text-orange-400">&lt; 2hrs</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Standard</span>
-                        <span className="text-green-400">< 24hrs</span>
+                        <span className="text-green-400">&lt; 24hrs</span>
                       </div>
                     </div>
                   </CardContent>
