@@ -1,6 +1,11 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { DatabaseStorage } from '../storage';
+
+// Import jsPDF directly
+import jsPDFLib from 'jspdf';
+import 'jspdf-autotable';
+
+// Get the jsPDF constructor from the library
+const jsPDF = (jsPDFLib as any).jsPDF || jsPDFLib;
 
 interface AutoTable {
   autoTable: (options: any) => void;
