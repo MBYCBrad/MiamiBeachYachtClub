@@ -440,6 +440,7 @@ const sidebarItems = [
   { id: 'revenue', label: 'Revenue', icon: DollarSign, color: 'from-purple-600 to-indigo-600' },
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-purple-600 to-indigo-600' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-purple-600 to-indigo-600' },
+  { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-600 to-indigo-600' },
   { id: 'gallery', label: 'Gallery', icon: Camera, color: 'from-purple-600 to-indigo-600' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-purple-600 to-indigo-600' }
 ];
@@ -988,7 +989,11 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+            onClick={() => setActiveSection('calendar')}
+          >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
@@ -1623,6 +1628,159 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
+  const renderCalendar = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Calendar
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            View and manage your yacht booking schedule
+          </motion.p>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Event
+          </Button>
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </motion.div>
+      </div>
+
+      {/* Calendar Content */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="text-white">Booking Schedule</CardTitle>
+          <CardDescription>Your yacht reservations and maintenance schedule</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* Calendar Navigation */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <h3 className="text-white font-semibold text-lg">June 2025</h3>
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">Month</Button>
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">Week</Button>
+                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">Day</Button>
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {/* Calendar Headers */}
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="p-3 text-center text-gray-400 font-medium">
+                  {day}
+                </div>
+              ))}
+              
+              {/* Calendar Days */}
+              {Array.from({ length: 35 }, (_, index) => {
+                const day = index - 5; // Start calendar from previous month
+                const isCurrentMonth = day > 0 && day <= 30;
+                const isToday = day === 26; // Today is June 26
+                const hasBooking = [12, 15, 23, 28].includes(day);
+                
+                return (
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.05 }}
+                    className={`p-3 h-20 border border-gray-800 rounded-lg cursor-pointer transition-all relative ${
+                      isCurrentMonth 
+                        ? isToday 
+                          ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white' 
+                          : 'bg-gray-800/30 hover:bg-gray-700/50 text-white'
+                        : 'bg-gray-900/20 text-gray-600'
+                    }`}
+                  >
+                    <div className="text-sm font-medium">
+                      {isCurrentMonth ? day : day <= 0 ? 30 + day : day - 30}
+                    </div>
+                    {hasBooking && isCurrentMonth && (
+                      <div className="absolute bottom-1 left-1 right-1">
+                        <div className="w-full h-1 bg-purple-400 rounded-full"></div>
+                        <div className="text-xs text-purple-400 mt-1">Booking</div>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Upcoming Events */}
+            <div className="space-y-4">
+              <h4 className="text-white font-semibold">Upcoming Bookings</h4>
+              <div className="space-y-3">
+                {bookings && bookings.length > 0 ? bookings.slice(0, 3).map((booking: any, index: number) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                        <Anchor className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">{booking.yachtName}</p>
+                        <p className="text-gray-400 text-sm">{booking.memberName || 'Guest Booking'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-medium">{new Date(booking.startTime).toLocaleDateString()}</p>
+                      <p className="text-gray-400 text-sm">{new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                  </motion.div>
+                )) : (
+                  <div className="text-center py-8">
+                    <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                    <div className="text-gray-400 text-lg mb-2">No upcoming bookings</div>
+                    <div className="text-gray-500 text-sm">Your yacht booking schedule will appear here</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+
   const renderSettings = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1820,6 +1978,8 @@ export default function YachtOwnerDashboard() {
         return renderMaintenance();
       case 'analytics':
         return renderAnalytics();
+      case 'calendar':
+        return renderCalendar();
       case 'gallery':
         return renderGallery();
       case 'settings':
