@@ -2765,6 +2765,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // STAFF API ENDPOINTS - Real-time staff data for staff portal
   
+  // Staff notification endpoints
+  app.get("/api/staff/notifications", requireAuth, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+
+      // Get all notifications for staff members
+      const notifications = await dbStorage.getNotifications();
+      res.json(notifications);
+    } catch (error: any) {
+      console.error('Error fetching staff notifications:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/staff/notifications/:id/read", requireAuth, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.markNotificationAsRead(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/staff/notifications/:id", requireAuth, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+
+      const notificationId = parseInt(req.params.id);
+      await dbStorage.deleteNotification(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/staff/notifications/mark-all-read", requireAuth, async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'staff') {
+        return res.status(403).json({ message: "Staff access required" });
+      }
+
+      await dbStorage.markAllNotificationsAsRead();
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking all notifications as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Get current staff member profile
   app.get("/api/staff/profile", requireAuth, async (req, res) => {
     try {

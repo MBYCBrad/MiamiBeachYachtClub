@@ -9,7 +9,6 @@ import MemberTrips from '@/pages/member-trips';
 import MemberMessages from '@/pages/member-messages';
 import MemberFavorites from '@/pages/member-favorites-new';
 import MemberProfile from '@/pages/member-profile';
-import MemberNotifications from '@/pages/member-notifications';
 import SearchResults from '@/pages/search-results';
 import EventsPage from '@/pages/events-page';
 
@@ -65,8 +64,6 @@ export default function HomePage() {
         return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'profile':
         return <MemberProfile currentView={currentView} setCurrentView={setCurrentView} />;
-      case 'notifications':
-        return <MemberNotifications currentView={currentView} setCurrentView={setCurrentView} />;
       case 'search-results':
         return <SearchResults currentView={currentView} setCurrentView={setCurrentView} />;
       default:

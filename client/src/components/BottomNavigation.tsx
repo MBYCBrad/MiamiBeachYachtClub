@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Bell, LogOut, Calendar, HeadphonesIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import CustomerServiceModal from '@/components/CustomerServiceModal';
+import NotificationDropdown from '@/components/NotificationDropdown';
 import { 
   Explore3DIcon, 
   Trips3DIcon, 
@@ -20,7 +23,18 @@ interface BottomNavigationProps {
 export default function BottomNavigation({ currentView, setCurrentView }: BottomNavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCustomerServiceOpen, setIsCustomerServiceOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const { user, logoutMutation } = useAuth();
+
+  // Get unread notification count for badge
+  const { data: notifications = [] } = useQuery({
+    queryKey: user?.role === 'staff' ? ['/api/staff/notifications'] : ['/api/notifications'],
+    enabled: !!user,
+    staleTime: 30000,
+    refetchInterval: 60000,
+  });
+
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n: any) => !n.read).length : 0;
   
   // Swipe gesture states
   const [startX, setStartX] = useState(0);
@@ -76,7 +90,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
-    { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: unreadCount, action: () => setIsNotificationOpen(true) },
     { id: 'support', icon: HeadphonesIcon, label: 'Customer Service', badge: null, action: () => setIsCustomerServiceOpen(true) },
   ];
 
@@ -257,6 +271,12 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
       <CustomerServiceModal 
         isOpen={isCustomerServiceOpen} 
         onClose={() => setIsCustomerServiceOpen(false)} 
+      />
+
+      {/* Notification Dropdown */}
+      <NotificationDropdown 
+        isOpen={isNotificationOpen} 
+        onClose={() => setIsNotificationOpen(false)} 
       />
     </>
   );
