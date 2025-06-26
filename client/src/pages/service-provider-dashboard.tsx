@@ -276,7 +276,7 @@ function AddServiceDialog() {
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending} className="bg-purple-600 hover:bg-purple-700">
+              <Button type="submit" disabled={createMutation.isPending} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
                 {createMutation.isPending ? "Creating..." : "Create Service"}
               </Button>
             </DialogFooter>
@@ -576,6 +576,105 @@ export default function ServiceProviderDashboard() {
     queryKey: ['/api/service-provider/bookings'],
   });
 
+  const renderOverview = () => {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-5xl font-bold text-white mb-2" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', letterSpacing: '-0.025em' }}>
+            Overview
+          </h1>
+          <p className="text-lg text-gray-400">Welcome back, {user?.username}</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { title: "Total Services", value: stats?.totalServices || 0, icon: Package, color: "text-purple-400" },
+            { title: "Active Bookings", value: stats?.totalBookings || 0, icon: Calendar, color: "text-blue-400" },
+            { title: "Monthly Revenue", value: `$${stats?.monthlyRevenue?.toFixed(2) || "0.00"}`, icon: DollarSign, color: "text-green-400" },
+            { title: "Average Rating", value: stats?.avgRating?.toFixed(1) || "0.0", icon: Star, color: "text-yellow-400" },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                    <div className={`text-2xl font-bold text-white`}>{stat.value}</div>
+                  </div>
+                  <p className="text-gray-400 text-sm">{stat.title}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Service Categories */}
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-6">Service Categories</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {['Beauty & Grooming', 'Culinary', 'Wellness & Spa', 'Photography & Media', 'Entertainment', 'Water Sports', 'Concierge & Lifestyle'].map((category, index) => {
+              const categoryServices = services?.filter(s => s.category === category) || [];
+              const Icon = categoryIcons[category as keyof typeof categoryIcons];
+              
+              return (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300 cursor-pointer" onClick={() => setActiveSection('services')}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold">{category}</h3>
+                          <p className="text-gray-400 text-sm">{categoryServices.length} services</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: "Add Service", icon: Plus, action: () => { setActiveSection('services'); } },
+              { label: "View Bookings", icon: Calendar, action: () => setActiveSection('bookings') },
+              { label: "Messages", icon: MessageSquare, action: () => setActiveSection('messages') },
+              { label: "Settings", icon: Settings, action: () => setActiveSection('settings') },
+            ].map((action, index) => (
+              <motion.button
+                key={action.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={action.action}
+                className="bg-gray-950 border border-gray-800 rounded-lg p-4 hover:bg-gray-900 transition-all duration-300 flex items-center space-x-3"
+              >
+                <action.icon className="h-5 w-5 text-purple-400" />
+                <span className="text-white">{action.label}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderServices = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -626,7 +725,7 @@ export default function ServiceProviderDashboard() {
         {!services ? (
           // Loading state
           Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index} className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl animate-pulse">
+            <Card key={index} className="bg-gray-950 border-gray-800 animate-pulse">
               <div className="h-48 bg-gray-800 rounded-t-lg" />
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-800 rounded mb-2" />
@@ -645,7 +744,7 @@ export default function ServiceProviderDashboard() {
               whileHover={{ y: -8, scale: 1.03 }}
               className="group relative overflow-hidden"
             >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
+              <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-500 hover:border-purple-500/30">
                 <div className="h-48 relative overflow-hidden">
                   <img 
                     src={service.imageUrl ? 
@@ -733,13 +832,13 @@ export default function ServiceProviderDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+    <div className="min-h-screen bg-black">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/50 min-h-screen">
+        <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen">
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
                 <User className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -753,7 +852,6 @@ export default function ServiceProviderDashboard() {
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
                 { id: 'services', label: 'Services', icon: Package },
                 { id: 'bookings', label: 'Bookings', icon: Calendar },
-                { id: 'clients', label: 'Clients', icon: Users },
                 { id: 'messages', label: 'Messages', icon: MessageSquare },
                 { id: 'settings', label: 'Settings', icon: Settings },
               ].map((item) => {
@@ -764,7 +862,7 @@ export default function ServiceProviderDashboard() {
                     onClick={() => setActiveSection(item.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                       activeSection === item.id
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                         : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                   >
@@ -792,12 +890,7 @@ export default function ServiceProviderDashboard() {
         {/* Main Content */}
         <div className="flex-1 p-8">
           {activeSection === 'services' && renderServices()}
-          {activeSection === 'overview' && (
-            <div className="text-center py-20">
-              <h1 className="text-4xl font-bold text-white mb-4">Service Provider Dashboard</h1>
-              <p className="text-gray-400">Select a section from the sidebar to get started</p>
-            </div>
-          )}
+          {activeSection === 'overview' && renderOverview()}
           {activeSection !== 'services' && activeSection !== 'overview' && (
             <div className="text-center py-20">
               <h1 className="text-4xl font-bold text-white mb-4">Coming Soon</h1>
