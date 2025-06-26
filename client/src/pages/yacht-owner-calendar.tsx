@@ -100,8 +100,6 @@ export default function YachtOwnerCalendar() {
 
     // Add yacht bookings
     bookings.forEach((booking: any) => {
-      const yacht = yachts.find((y: any) => y.id === booking.yachtId);
-      
       events.push({
         id: `booking-${booking.id}`,
         title: 'Booking',
@@ -110,8 +108,8 @@ export default function YachtOwnerCalendar() {
         endTime: new Date(booking.endTime),
         description: booking.specialRequests || undefined,
         status: booking.status,
-        yachtName: yacht?.name || 'Unknown Yacht',
-        memberName: booking.memberName || 'Member'
+        yachtName: booking.yacht?.name || 'Unknown Yacht',
+        memberName: booking.user?.username || booking.user?.fullName || 'Member'
       });
     });
 

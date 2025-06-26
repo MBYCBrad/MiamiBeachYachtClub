@@ -1335,8 +1335,8 @@ export default function YachtOwnerDashboard() {
                       <User className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <p className="text-white font-medium">{booking.memberName || 'Guest'}</p>
-                      <p className="text-gray-400 text-sm">{booking.yachtName}</p>
+                      <p className="text-white font-medium">{booking.user?.username || booking.user?.fullName || 'Guest'}</p>
+                      <p className="text-gray-400 text-sm">{booking.yacht?.name || 'Unknown Yacht'}</p>
                     </div>
                   </div>
                   <div className="text-right">
