@@ -3701,12 +3701,12 @@ export default function YachtOwnerDashboard() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
             onClick={toggleSidebar}
-            className="fixed top-6 left-6 z-[9999] p-3 bg-gray-900/80 backdrop-blur-md rounded-xl border border-gray-700/50 text-white hover:bg-gray-800/80 transition-all shadow-lg"
+            className="fixed top-6 left-6 z-[9999] p-3 bg-gradient-to-br from-purple-600 to-indigo-600 backdrop-blur-md rounded-xl border border-purple-500/50 text-white hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg"
           >
             <img 
               src="/api/media/MBYC-LOGO-WHITE_1750976076917.png" 
               alt="MBYC"
-              className="h-5 w-5 object-contain"
+              className="h-8 w-8 object-contain"
             />
           </motion.button>
         )}
