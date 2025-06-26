@@ -473,6 +473,12 @@ export default function StaffPortal() {
     queryKey: ['/api/staff/analytics'],
   });
 
+  const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
+    queryKey: ['/api/staff/conversations'],
+    enabled: !!user && user.role === 'staff',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
 
 
   // Process stats data to match admin dashboard structure
@@ -1577,12 +1583,6 @@ export default function StaffPortal() {
 
   // EXACT COPY FROM ADMIN DASHBOARD - renderMessages function with complete styling
   const renderMessages = () => {
-    const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
-      queryKey: ['/api/staff/conversations'],
-      enabled: !!user && user.role === 'staff',
-      refetchInterval: 30000, // Refresh every 30 seconds
-    });
-
     if (conversationsLoading) {
       return (
         <div className="space-y-6">
