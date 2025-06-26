@@ -2201,6 +2201,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff conversations API endpoints
+  app.get("/api/staff/conversations", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const conversations = await dbStorage.getConversations();
+      res.json(conversations);
+    } catch (error: any) {
+      console.error('Error fetching staff conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff messages API endpoints
+  app.get("/api/staff/messages/:conversationId", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const conversationId = parseInt(req.params.conversationId);
+      const messages = await dbStorage.getMessages(conversationId);
+      res.json(messages);
+    } catch (error: any) {
+      console.error('Error fetching staff messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Send staff message
+  app.post("/api/staff/messages", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const { conversationId, content } = req.body;
+      const message = await dbStorage.createMessage({
+        conversationId,
+        senderId: req.user.id,
+        content,
+        timestamp: new Date(),
+        isRead: false
+      });
+      res.status(201).json(message);
+    } catch (error: any) {
+      console.error('Error sending staff message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Mark conversation as read
+  app.post("/api/staff/conversations/:conversationId/read", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const conversationId = parseInt(req.params.conversationId);
+      await dbStorage.markConversationAsRead(conversationId, req.user.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error marking conversation as read:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Admin notifications API endpoints
   app.get("/api/admin/notifications", async (req, res) => {
     if (!req.isAuthenticated() || req.user.role !== 'admin') {

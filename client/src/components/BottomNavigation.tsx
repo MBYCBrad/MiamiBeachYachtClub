@@ -45,7 +45,6 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
     { id: 'explore', icon: Explore3DIcon, label: 'Explore' },
     { id: 'trips', icon: Trips3DIcon, label: 'Trips' },
     { id: 'favorites', icon: Favorites3DIcon, label: 'Favorites' },
-    { id: 'messages', icon: Messages3DIcon, label: 'Messages' },
     { id: 'menu', icon: Menu3DIcon, label: '' }
   ];
 

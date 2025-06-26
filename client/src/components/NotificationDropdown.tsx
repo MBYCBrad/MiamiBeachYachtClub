@@ -22,12 +22,8 @@ interface Notification {
   metadata?: any;
 }
 
-interface NotificationDropdownProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
+export default function NotificationDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread' | 'important'>('all');
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,7 +40,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
   // Mark notification as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}/read`, { method: 'POST' }),
+      apiRequest(`/api/staff/notifications/${notificationId}/read`, 'POST'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
     },
@@ -53,7 +49,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}`, { method: 'DELETE' }),
+      apiRequest(`/api/staff/notifications/${notificationId}`, 'DELETE'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
       toast({ title: "Notification deleted" });
@@ -62,7 +58,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => apiRequest('/api/staff/notifications/mark-all-read', { method: 'POST' }),
+    mutationFn: () => apiRequest('/api/staff/notifications/mark-all-read', 'POST'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
       toast({ title: "All notifications marked as read" });
@@ -146,7 +142,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
             <Button
               variant="ghost"
               size="icon"
-              onClick={onClose}
+              onClick={() => setIsOpen(false)}
               className="h-8 w-8 text-gray-400 hover:text-white"
             >
               <X className="h-4 w-4" />
