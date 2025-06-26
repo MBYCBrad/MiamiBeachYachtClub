@@ -2239,57 +2239,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // YACHT OWNER YACHTS ENDPOINT
-  app.get("/api/yacht-owner/yachts", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
-    try {
-      const ownerId = req.user!.id;
-      
-      // Get yacht owner's yachts
-      const allYachts = await dbStorage.getYachts();
-      const ownerYachts = allYachts.filter(y => y.ownerId === ownerId);
-      
-      res.json(ownerYachts);
-    } catch (error: any) {
-      console.error('Error fetching yacht owner yachts:', error);
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // YACHT OWNER REPORT GENERATION
-  app.post("/api/yacht-owner/generate-report", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
-    try {
-      const { type, ownerId } = req.body;
-      const ownerUserId = ownerId || req.user!.id;
-      
-      // Import PDF generator
-      const { PDFReportGenerator } = await import('./services/pdf-generator');
-      const pdfGenerator = new PDFReportGenerator(dbStorage);
-      
-      let pdfBuffer: Buffer;
-      
-      // Generate the appropriate report based on type
-      if (type === 'revenue') {
-        pdfBuffer = await pdfGenerator.generateRevenueReport(ownerUserId);
-      } else if (type === 'analytics') {
-        pdfBuffer = await pdfGenerator.generateAnalyticsReport(ownerUserId);
-      } else {
-        throw new Error(`Invalid report type: ${type}`);
-      }
-      
-      // Set headers for PDF download
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="MBYC-${type.charAt(0).toUpperCase() + type.slice(1)}-Report-${new Date().toISOString().split('T')[0]}.pdf"`);
-      res.setHeader('Content-Length', pdfBuffer.length.toString());
-      
-      // Send the PDF buffer
-      res.send(pdfBuffer);
-      
-    } catch (error: any) {
-      console.error('Error generating yacht owner report:', error);
-      res.status(500).json({ message: error.message });
-    }
-  });
-
   // YACHT OWNER-ADMIN MESSAGING ROUTES
   app.get("/api/yacht-owner/conversations", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
     try {

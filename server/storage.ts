@@ -19,7 +19,7 @@ import {
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { db, pool } from "./db";
-import { eq, and, desc, asc, inArray, sql, gte, isNotNull } from "drizzle-orm";
+import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -336,121 +336,6 @@ export class DatabaseStorage implements IStorage {
 
   async getYachtsByOwner(ownerId: number): Promise<Yacht[]> {
     return await db.select().from(yachts).where(eq(yachts.ownerId, ownerId));
-  }
-
-  async getYachtOwnerStats(ownerId: number): Promise<any> {
-    // Get yachts
-    const ownerYachts = await this.getYachtsByOwner(ownerId);
-    const yachtIds = ownerYachts.map(y => y.id);
-    
-    // Get bookings for owner's yachts
-    const bookingData = yachtIds.length > 0 ? 
-      await db.select().from(bookings).where(inArray(bookings.yachtId, yachtIds)) : [];
-    
-    // Calculate stats
-    const confirmedBookings = bookingData.filter(b => b.status === 'confirmed');
-    const monthlyRevenue = confirmedBookings.reduce((sum, b) => sum + (parseFloat(b.totalPrice || '0')), 0);
-    
-    // Get reviews for owner's yachts - temporarily skip due to SQL issue
-    const yachtReviews: any[] = [];
-    
-    const avgRating = 4.5; // Default rating for now
-    
-    // Calculate occupancy (assuming 30 days availability)
-    const occupancyRate = ownerYachts.length > 0 ?
-      Math.round((confirmedBookings.length / (ownerYachts.length * 30)) * 100) : 0;
-    
-    // Count pending maintenance
-    const pendingMaintenance = ownerYachts.filter(y => y.maintenanceStatus === 'pending').length;
-    
-    return {
-      totalYachts: ownerYachts.length,
-      totalBookings: confirmedBookings.length,
-      monthlyRevenue,
-      avgRating,
-      occupancyRate,
-      pendingMaintenance
-    };
-  }
-
-  async getYachtOwnerBookings(ownerId: number): Promise<any[]> {
-    const ownerYachts = await this.getYachtsByOwner(ownerId);
-    const yachtIds = ownerYachts.map(y => y.id);
-    
-    if (yachtIds.length === 0) return [];
-    
-    const bookingData = await db
-      .select({
-        booking: bookings,
-        yacht: yachts,
-        user: users
-      })
-      .from(bookings)
-      .leftJoin(yachts, eq(bookings.yachtId, yachts.id))
-      .leftJoin(users, eq(bookings.userId, users.id))
-      .where(inArray(bookings.yachtId, yachtIds))
-      .orderBy(desc(bookings.startTime));
-    
-    console.log('bookingData type:', typeof bookingData, 'isArray:', Array.isArray(bookingData));
-    console.log('bookingData:', bookingData);
-    
-    if (!Array.isArray(bookingData)) {
-      console.error('bookingData is not an array:', bookingData);
-      return [];
-    }
-    
-    return bookingData.map(({ booking, yacht, user }) => ({
-      ...booking,
-      yacht,
-      user
-    }));
-  }
-
-  async getYachtOwnerRevenue(ownerId: number): Promise<any[]> {
-    const ownerYachts = await this.getYachtsByOwner(ownerId);
-    const yachtIds = ownerYachts.map(y => y.id);
-    
-    if (yachtIds.length === 0) return [];
-    
-    // Get last 6 months of revenue data
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    
-    const bookingResults = await db
-      .select()
-      .from(bookings)
-      .where(and(
-        inArray(bookings.yachtId, yachtIds),
-        eq(bookings.status, 'confirmed'),
-        gte(bookings.startTime, sixMonthsAgo)
-      ));
-    
-    // Group by month
-    const revenueByMonth = new Map<string, { revenue: number, bookings: number }>();
-    
-    bookingResults.forEach(booking => {
-      const month = new Date(booking.startTime).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      const current = revenueByMonth.get(month) || { revenue: 0, bookings: 0 };
-      current.revenue += parseFloat(booking.totalPrice || '0');
-      current.bookings += 1;
-      revenueByMonth.set(month, current);
-    });
-    
-    // Convert to array and ensure we have all 6 months
-    const months = [];
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      const data = revenueByMonth.get(monthKey) || { revenue: 0, bookings: 0 };
-      months.push({
-        month: monthKey,
-        revenue: data.revenue,
-        bookings: data.bookings
-      });
-    }
-    
-    return months;
   }
 
   async createYacht(insertYacht: InsertYacht): Promise<Yacht> {
