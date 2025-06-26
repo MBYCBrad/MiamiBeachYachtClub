@@ -389,9 +389,9 @@ function DeleteYachtDialog({ yacht }: { yacht: any }) {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-blue-500 to-cyan-500' },
-  { id: 'fleet', label: 'My Fleet', icon: Anchor, color: 'from-emerald-500 to-teal-500' },
+  { id: 'fleet', label: 'My Fleet', icon: Anchor, color: 'from-purple-600 to-indigo-600' },
   { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-purple-500 to-pink-500' },
-  { id: 'revenue', label: 'Revenue', icon: DollarSign, color: 'from-green-500 to-emerald-500' },
+  { id: 'revenue', label: 'Revenue', icon: DollarSign, color: 'from-purple-600 to-indigo-600' },
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-violet-500 to-indigo-500' },
   { id: 'gallery', label: 'Gallery', icon: Camera, color: 'from-pink-500 to-rose-500' },
@@ -406,7 +406,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
     whileHover={{ y: -5, scale: 1.02 }}
     className="group relative overflow-hidden"
   >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
@@ -435,7 +435,7 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
         
         {/* Sparkle effect */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Sparkles className="h-4 w-4 text-emerald-400 animate-pulse" />
+          <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
         </div>
       </CardContent>
     </Card>
@@ -450,8 +450,8 @@ const YachtCard = ({ yacht, index }: any) => (
     whileHover={{ y: -8, scale: 1.03 }}
     className="group relative overflow-hidden"
   >
-    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
-      <div className="aspect-video bg-gradient-to-br from-emerald-500/20 to-teal-500/20 relative overflow-hidden">
+    <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
+      <div className="aspect-video bg-gradient-to-br from-purple-500/20 to-indigo-500/20 relative overflow-hidden">
         {yacht.imageUrl && (
           <img 
             src={`/api/media/${yacht.imageUrl}`} 
@@ -477,7 +477,7 @@ const YachtCard = ({ yacht, index }: any) => (
         {/* Yacht Info */}
         <div className="absolute bottom-4 left-4">
           <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
-          <div className="flex items-center space-x-4 text-emerald-300 text-sm">
+          <div className="flex items-center space-x-4 text-purple-300 text-sm">
             <span>{yacht.size}ft</span>
             <span>•</span>
             <span>{yacht.capacity} guests</span>
@@ -496,16 +496,16 @@ const YachtCard = ({ yacht, index }: any) => (
             </div>
             <div>
               <span className="text-gray-400 text-sm">Bookings</span>
-              <p className="text-emerald-400 font-bold text-lg">{12 + index * 3}</p>
+              <p className="text-purple-400 font-bold text-lg">{12 + index * 3}</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button size="sm" variant="outline" className="flex-1 border-gray-600 hover:border-emerald-500">
+            <Button size="sm" variant="outline" className="flex-1 border-gray-600 hover:border-purple-500">
               <Eye className="h-4 w-4 mr-2" />
               View Details
             </Button>
-            <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
               <Edit className="h-4 w-4" />
             </Button>
             <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500">
@@ -516,7 +516,7 @@ const YachtCard = ({ yacht, index }: any) => (
       </CardContent>
       
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
     </Card>
   </motion.div>
 );
@@ -575,11 +575,11 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-lg hover:shadow-emerald-600/30">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
             <Plus className="h-4 w-4 mr-2" />
             Add Yacht
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Bell className="h-4 w-4 mr-2" />
             Alerts
           </Button>
@@ -593,7 +593,7 @@ export default function YachtOwnerDashboard() {
           value={stats?.totalYachts || '3'}
           change={null}
           icon={Anchor}
-          gradient="from-emerald-500 to-teal-500"
+          gradient="from-purple-500 to-indigo-500"
           delay={0}
         />
         <StatCard
@@ -601,7 +601,7 @@ export default function YachtOwnerDashboard() {
           value={`$${(stats?.monthlyRevenue || 45000).toLocaleString()}`}
           change={18}
           icon={DollarSign}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-500 to-indigo-500"
           delay={0.1}
         />
         <StatCard
@@ -632,7 +632,7 @@ export default function YachtOwnerDashboard() {
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2 text-emerald-500" />
+              <TrendingUp className="h-5 w-5 mr-2 text-purple-500" />
               Fleet Performance
             </CardTitle>
             <CardDescription>Revenue and occupancy trends</CardDescription>
@@ -642,7 +642,7 @@ export default function YachtOwnerDashboard() {
               {["Marina Breeze", "Ocean Dreams", "Sunset Voyager"].map((yacht, index) => (
                 <div key={yacht} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300">
                   <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
                       <Anchor className="h-5 w-5 text-white" />
                     </div>
                     <div>
@@ -679,7 +679,7 @@ export default function YachtOwnerDashboard() {
                   className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300"
                 >
                   <div className="flex items-center space-x-4">
-                    <Avatar className="h-10 w-10 ring-2 ring-emerald-500/20">
+                    <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
                       <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
                         M{booking}
                       </AvatarFallback>
@@ -736,11 +736,11 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-lg hover:shadow-emerald-600/30">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
             <Plus className="h-4 w-4 mr-2" />
             Add New Yacht
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
@@ -754,7 +754,7 @@ export default function YachtOwnerDashboard() {
           value="3"
           change={null}
           icon={Anchor}
-          gradient="from-emerald-500 to-teal-500"
+          gradient="from-purple-500 to-indigo-500"
           delay={0}
         />
         <StatCard
@@ -762,7 +762,7 @@ export default function YachtOwnerDashboard() {
           value="2"
           change={null}
           icon={Activity}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-500 to-indigo-500"
           delay={0.1}
         />
         <StatCard
@@ -812,7 +812,7 @@ export default function YachtOwnerDashboard() {
               whileHover={{ y: -8, scale: 1.03 }}
               className="group relative overflow-hidden"
             >
-              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-emerald-500/30">
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 hover:border-purple-500/30">
                 <div className="h-48 relative overflow-hidden">
                   <img 
                     src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
@@ -858,7 +858,7 @@ export default function YachtOwnerDashboard() {
                     
                     {yacht.pricePerHour && (
                       <div className="text-center pt-2 border-t border-gray-700">
-                        <div className="text-emerald-400 font-bold text-lg">{yacht.pricePerHour}/hour</div>
+                        <div className="text-purple-400 font-bold text-lg">{yacht.pricePerHour}/hour</div>
                         <div className="text-gray-400 text-sm">Rental Rate</div>
                       </div>
                     )}
@@ -872,7 +872,7 @@ export default function YachtOwnerDashboard() {
           <div className="col-span-full text-center py-12">
             <Anchor className="h-16 w-16 text-gray-600 mx-auto mb-4" />
             <div className="text-gray-400 text-lg mb-4">No yachts in your fleet</div>
-            <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Yacht
             </Button>
@@ -883,17 +883,17 @@ export default function YachtOwnerDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+    <div className="min-h-screen bg-black">
       <div className="flex">
         {/* Sidebar */}
         <motion.div
           initial={{ x: -300 }}
           animate={{ x: 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
-          className="w-80 bg-gray-900/80 backdrop-blur-xl border-r border-gray-700/50 min-h-screen relative overflow-hidden"
+          className="w-80 bg-gray-900/50 border-r border-gray-700/50 min-h-screen relative overflow-hidden"
         >
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 via-transparent to-teal-900/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
           
           {/* Logo */}
           <div className="p-8 border-b border-gray-700/50">
@@ -903,7 +903,7 @@ export default function YachtOwnerDashboard() {
               transition={{ delay: 0.2 }}
               className="flex items-center space-x-3"
             >
-              <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 shadow-lg">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg">
                 <Crown className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -921,7 +921,7 @@ export default function YachtOwnerDashboard() {
                 placeholder="Search fleet features..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-emerald-500"
+                className="pl-10 bg-gray-900/50 border-gray-700/50 text-white placeholder-gray-400 focus:border-purple-500"
               />
             </div>
           </div>
@@ -942,7 +942,7 @@ export default function YachtOwnerDashboard() {
                     onClick={() => setActiveSection(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
                       isActive 
-                        ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/30 text-white shadow-lg' 
+                        ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                     }`}
                     whileHover={{ scale: 1.02 }}
@@ -957,7 +957,7 @@ export default function YachtOwnerDashboard() {
                       />
                     )}
                     
-                    <div className={`p-2 rounded-lg ${isActive ? `bg-gradient-to-br ${item.color}` : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
+                    <div className={`p-2 rounded-lg ${isActive ? 'bg-gradient-to-br from-purple-600 to-indigo-600' : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     
@@ -969,7 +969,7 @@ export default function YachtOwnerDashboard() {
                         animate={{ scale: 1 }}
                         className="ml-auto"
                       >
-                        <Zap className="h-4 w-4 text-emerald-400" />
+                        <Zap className="h-4 w-4 text-purple-400" />
                       </motion.div>
                     )}
                   </motion.button>
@@ -981,8 +981,8 @@ export default function YachtOwnerDashboard() {
           {/* User Profile */}
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-12 w-12 ring-2 ring-emerald-500/30">
-                <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white font-semibold">
+              <Avatar className="h-12 w-12 ring-2 ring-purple-500/30">
+                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-semibold">
                   YO
                 </AvatarFallback>
               </Avatar>
@@ -1003,7 +1003,10 @@ export default function YachtOwnerDashboard() {
         </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 bg-gray-900/50 relative overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-indigo-900/10" />
+          <div className="relative">
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'fleet' && renderFleet()}
@@ -1039,11 +1042,11 @@ export default function YachtOwnerDashboard() {
                     transition={{ delay: 0.2 }}
                     className="flex items-center space-x-4"
                   >
-                    <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
+                    <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
                       <CalendarDays className="h-4 w-4 mr-2" />
                       Calendar View
                     </Button>
-                    <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+                    <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
                       <Filter className="h-4 w-4 mr-2" />
                       Filter Bookings
                     </Button>
@@ -1057,7 +1060,7 @@ export default function YachtOwnerDashboard() {
                     value={(bookings as any[])?.length || "0"}
                     change={null}
                     icon={CalendarDays}
-                    gradient="from-emerald-500 to-teal-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0}
                   />
                   <StatCard
@@ -1073,7 +1076,7 @@ export default function YachtOwnerDashboard() {
                     value="73%"
                     change={12}
                     icon={Activity}
-                    gradient="from-green-500 to-emerald-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0.2}
                   />
                   <StatCard
@@ -1090,7 +1093,7 @@ export default function YachtOwnerDashboard() {
                 <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
-                      <CalendarDays className="h-5 w-5 mr-2 text-emerald-500" />
+                      <CalendarDays className="h-5 w-5 mr-2 text-purple-500" />
                       Upcoming Bookings
                     </CardTitle>
                     <CardDescription>Scheduled yacht reservations and guest details</CardDescription>
@@ -1106,7 +1109,7 @@ export default function YachtOwnerDashboard() {
                           className="flex items-center justify-between p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group"
                         >
                           <div className="flex items-center space-x-6">
-                            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500">
                               <Anchor className="h-6 w-6 text-white" />
                             </div>
                             <div>
@@ -1146,7 +1149,7 @@ export default function YachtOwnerDashboard() {
                             className="flex items-center justify-between p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group"
                           >
                             <div className="flex items-center space-x-6">
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500">
+                              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500">
                                 <Anchor className="h-6 w-6 text-white" />
                               </div>
                               <div>
@@ -1207,7 +1210,7 @@ export default function YachtOwnerDashboard() {
                     transition={{ delay: 0.2 }}
                     className="flex items-center space-x-4"
                   >
-                    <Button size="sm" className="bg-gradient-to-r from-green-600 to-emerald-600">
+                    <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
                       <DollarSign className="h-4 w-4 mr-2" />
                       Export Report
                     </Button>
@@ -1225,7 +1228,7 @@ export default function YachtOwnerDashboard() {
                     value={`$${(revenueData as any[])?.reduce((sum, month) => sum + month.revenue, 0).toLocaleString() || '48,290'}`}
                     change={22}
                     icon={DollarSign}
-                    gradient="from-green-500 to-emerald-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0}
                   />
                   <StatCard
@@ -1249,7 +1252,7 @@ export default function YachtOwnerDashboard() {
                     value="+28%"
                     change={null}
                     icon={TrendingUp}
-                    gradient="from-emerald-500 to-teal-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0.3}
                   />
                 </div>
@@ -1284,7 +1287,7 @@ export default function YachtOwnerDashboard() {
                                   initial={{ width: 0 }}
                                   animate={{ width: `${width}%` }}
                                   transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
-                                  className="h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                  className="h-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
                                 />
                               </div>
                             </div>
@@ -1315,7 +1318,7 @@ export default function YachtOwnerDashboard() {
                                     initial={{ width: 0 }}
                                     animate={{ width: `${width}%` }}
                                     transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
-                                    className="h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                    className="h-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
                                   />
                                 </div>
                               </div>
@@ -1350,7 +1353,7 @@ export default function YachtOwnerDashboard() {
                             >
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center space-x-3">
-                                  <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                                  <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
                                     <Anchor className="h-4 w-4 text-white" />
                                   </div>
                                   <div>
@@ -1368,7 +1371,7 @@ export default function YachtOwnerDashboard() {
                                   initial={{ width: 0 }}
                                   animate={{ width: `${occupancy}%` }}
                                   transition={{ delay: 1 + index * 0.1, duration: 0.6 }}
-                                  className="h-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                  className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
                                 />
                               </div>
                             </motion.div>
@@ -1388,7 +1391,7 @@ export default function YachtOwnerDashboard() {
                             >
                               <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center space-x-3">
-                                  <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+                                  <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
                                     <Anchor className="h-4 w-4 text-white" />
                                   </div>
                                   <div>
@@ -1406,7 +1409,7 @@ export default function YachtOwnerDashboard() {
                                   initial={{ width: 0 }}
                                   animate={{ width: `${yacht.occupancy}%` }}
                                   transition={{ delay: 1 + index * 0.1, duration: 0.6 }}
-                                  className="h-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                                  className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
                                 />
                               </div>
                             </motion.div>
@@ -1450,7 +1453,7 @@ export default function YachtOwnerDashboard() {
                           metrics: [
                             { label: 'Gross Revenue', value: '$48,290', color: 'text-green-400' },
                             { label: 'Operating Costs', value: '$10,950', color: 'text-red-400' },
-                            { label: 'Net Profit', value: '$37,340', color: 'text-emerald-400' }
+                            { label: 'Net Profit', value: '$37,340', color: 'text-purple-400' }
                           ]
                         }
                       ].map((section, index) => (
@@ -1522,11 +1525,11 @@ export default function YachtOwnerDashboard() {
                     transition={{ delay: 0.2 }}
                     className="flex items-center space-x-4"
                   >
-                    <Button size="sm" className="bg-gradient-to-r from-emerald-600 to-teal-600">
+                    <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
                       <TrendingUp className="h-4 w-4 mr-2" />
                       Generate Report
                     </Button>
-                    <Button variant="outline" size="sm" className="border-gray-600 hover:border-emerald-500">
+                    <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
                       <Filter className="h-4 w-4 mr-2" />
                       Analytics Period
                     </Button>
@@ -1540,7 +1543,7 @@ export default function YachtOwnerDashboard() {
                     value="78%"
                     change={12}
                     icon={Activity}
-                    gradient="from-emerald-500 to-teal-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0}
                   />
                   <StatCard
@@ -1548,7 +1551,7 @@ export default function YachtOwnerDashboard() {
                     value="$9,430"
                     change={18}
                     icon={DollarSign}
-                    gradient="from-green-500 to-emerald-500"
+                    gradient="from-purple-500 to-indigo-500"
                     delay={0.1}
                   />
                   <StatCard
@@ -1574,7 +1577,7 @@ export default function YachtOwnerDashboard() {
                   <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center">
-                        <BarChart3 className="h-5 w-5 mr-2 text-emerald-500" />
+                        <BarChart3 className="h-5 w-5 mr-2 text-purple-500" />
                         Fleet Performance Trends
                       </CardTitle>
                       <CardDescription>Monthly performance metrics across your fleet</CardDescription>
@@ -1582,8 +1585,8 @@ export default function YachtOwnerDashboard() {
                     <CardContent>
                       <div className="space-y-6">
                         {[
-                          { metric: 'Utilization Rate', data: [72, 75, 78, 81, 85, 78], color: 'from-emerald-500 to-teal-500' },
-                          { metric: 'Revenue Growth', data: [15, 22, 18, 28, 32, 25], color: 'from-green-500 to-emerald-500' },
+                          { metric: 'Utilization Rate', data: [72, 75, 78, 81, 85, 78], color: 'from-purple-500 to-indigo-500' },
+                          { metric: 'Revenue Growth', data: [15, 22, 18, 28, 32, 25], color: 'from-purple-500 to-indigo-500' },
                           { metric: 'Booking Conversion', data: [68, 72, 75, 80, 85, 82], color: 'from-blue-500 to-cyan-500' },
                           { metric: 'Customer Retention', data: [85, 87, 89, 92, 94, 91], color: 'from-purple-500 to-pink-500' }
                         ].map((trend, index) => {
@@ -1619,7 +1622,7 @@ export default function YachtOwnerDashboard() {
                   <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                     <CardHeader>
                       <CardTitle className="text-white flex items-center">
-                        <Users className="h-5 w-5 mr-2 text-emerald-500" />
+                        <Users className="h-5 w-5 mr-2 text-purple-500" />
                         Guest Analytics
                       </CardTitle>
                       <CardDescription>Guest behavior and booking patterns</CardDescription>
@@ -1655,7 +1658,7 @@ export default function YachtOwnerDashboard() {
                                   initial={{ width: 0 }}
                                   animate={{ width: `${period.percentage}%` }}
                                   transition={{ delay: 1 + index * 0.1, duration: 0.6 }}
-                                  className="h-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                                  className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
                                 />
                               </div>
                             </div>
@@ -1670,7 +1673,7 @@ export default function YachtOwnerDashboard() {
                 <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
-                      <Zap className="h-5 w-5 mr-2 text-emerald-500" />
+                      <Zap className="h-5 w-5 mr-2 text-purple-500" />
                       Optimization Opportunities
                     </CardTitle>
                     <CardDescription>AI-powered insights to maximize your fleet performance</CardDescription>
@@ -1713,7 +1716,7 @@ export default function YachtOwnerDashboard() {
                           <h4 className="text-white font-semibold text-lg">{section.title}</h4>
                           <div className="space-y-3">
                             {section.insights.map((insight, insightIndex) => (
-                              <div key={insightIndex} className="p-3 rounded-lg bg-gray-800/30 border-l-4 border-emerald-500">
+                              <div key={insightIndex} className="p-3 rounded-lg bg-gray-800/30 border-l-4 border-purple-500">
                                 <p className="text-white text-sm mb-1">{insight.text}</p>
                                 <div className="flex items-center justify-between">
                                   <span className="text-xs text-gray-400">Impact:</span>
@@ -1756,6 +1759,7 @@ export default function YachtOwnerDashboard() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>
