@@ -978,17 +978,7 @@ export default function YachtOwnerDashboard() {
           </motion.p>
         </div>
         
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Bell className="h-4 w-4 mr-2" />
-            Alerts
-          </Button>
-        </motion.div>
+
       </div>
 
       {/* Key Performance Stats */}
