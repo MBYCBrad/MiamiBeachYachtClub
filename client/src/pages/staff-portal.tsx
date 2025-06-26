@@ -6057,7 +6057,7 @@ export default function StaffPortal() {
           
           <div className="flex flex-col h-[500px]">
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4 border border-gray-700 rounded-lg bg-gray-900/50 mb-4">
+            <div className="flex-1 p-4 border border-gray-700 rounded-lg bg-gray-900/50 mb-4 overflow-y-auto">
               <div className="space-y-4">
                 {/* Sample message - you would fetch actual messages here */}
                 <div className="flex items-start gap-3">
@@ -6084,7 +6084,7 @@ export default function StaffPortal() {
                   </div>
                 </div>
               </div>
-            </ScrollArea>
+            </div>
             
             {/* Message Input */}
             <div className="flex gap-2">
