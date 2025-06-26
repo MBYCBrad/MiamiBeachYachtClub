@@ -118,7 +118,9 @@ export default function StaffMessagesDropdown() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors"
+        className="relative p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors z-[100] cursor-pointer"
+        style={{ pointerEvents: 'auto' }}
+        title="Staff Messages"
       >
         <MessageSquare className="h-5 w-5 text-purple-400" />
         {staffConversations && staffConversations.length > 0 && (
@@ -132,7 +134,8 @@ export default function StaffMessagesDropdown() {
             initial={{ opacity: 0, scale: 0.8, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
-            className="absolute top-full right-0 mt-2 w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50"
+            className="absolute top-full right-0 mt-2 w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-[9999]"
+            style={{ pointerEvents: 'auto' }}
           >
             <div className="p-4 border-b border-gray-700/50">
               <div className="flex items-center justify-between mb-3">

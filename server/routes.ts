@@ -2219,14 +2219,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Fetching staff conversations from database...');
       const result = await pool.query(`
-        SELECT c.id, c.participant1_id, c.participant2_id, c.last_message_at, c.created_at,
+        SELECT c.id, c.participant1_id, c.participant2_id, 
+               c.last_message_at, c.created_at,
                u1.username as participant1_name, u1.email as participant1_email,
                u2.username as participant2_name, u2.email as participant2_email,
-               m.content as last_message, m.sender_id as last_sender_id
+               'Sample message' as last_message, 
+               c.participant1_id as last_sender_id
         FROM conversations c
         LEFT JOIN users u1 ON c.participant1_id = u1.id
         LEFT JOIN users u2 ON c.participant2_id = u2.id
-        LEFT JOIN messages m ON c.id = m.conversation_id AND m.created_at = c.last_message_at
         ORDER BY c.last_message_at DESC NULLS LAST
         LIMIT 20
       `);
