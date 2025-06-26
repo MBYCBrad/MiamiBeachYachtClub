@@ -5,10 +5,9 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
-import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import NotificationDropdown from "@/components/NotificationDropdown";
-import MessagesDropdown from "@/components/MessagesDropdown";
+import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
 import { 
   BarChart3, 
   Users, 
@@ -141,7 +140,7 @@ const sidebarItems = [
   { id: 'staff-management', label: 'Staff Management', icon: UserCheck, color: 'from-purple-500 to-indigo-500' },
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-orange-500 to-red-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-emerald-500 to-cyan-500' },
-  { id: 'messenger', label: 'Messenger', icon: MessageSquare, color: 'from-blue-500 to-purple-500' },
+
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' }
 ];
@@ -3725,7 +3724,7 @@ export default function StaffPortal() {
               
               {/* Messages, Notifications, and Logout beside username */}
               <div className="flex items-center space-x-2">
-                <MessagesDropdown />
+                <StaffMessagesDropdown />
                 {/* Staff Notification Button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -3779,7 +3778,7 @@ export default function StaffPortal() {
             {activeSection === 'staff-management' && <StaffManagement />}
             {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
             {activeSection === 'customer-service' && <CustomerServiceDashboard />}
-            {activeSection === 'messenger' && <MessengerDashboard />}
+
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderStaffSettings()}
           </AnimatePresence>

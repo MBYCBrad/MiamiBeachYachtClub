@@ -52,10 +52,10 @@ export default function MessagesDropdown() {
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch conversations
+  // Fetch conversations - only for admin users, staff uses StaffMessagesDropdown
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
     queryKey: ['/api/conversations'],
-    enabled: !!user && (user.role === 'admin' || user.role?.startsWith('staff')),
+    enabled: !!user && user.role === 'admin',
     refetchInterval: 5000, // Real-time updates every 5 seconds
   });
 

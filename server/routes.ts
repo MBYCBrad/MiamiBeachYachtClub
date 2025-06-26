@@ -2210,6 +2210,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff messages API endpoints
+  app.get("/api/staff/conversations", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      console.log('Fetching staff conversations from database...');
+      const result = await pool.query(`
+        SELECT c.id, c.participant1_id, c.participant2_id, c.last_message_at, c.created_at,
+               u1.username as participant1_name, u1.email as participant1_email,
+               u2.username as participant2_name, u2.email as participant2_email,
+               m.content as last_message, m.sender_id as last_sender_id
+        FROM conversations c
+        LEFT JOIN users u1 ON c.participant1_id = u1.id
+        LEFT JOIN users u2 ON c.participant2_id = u2.id
+        LEFT JOIN messages m ON c.id = m.conversation_id AND m.created_at = c.last_message_at
+        ORDER BY c.last_message_at DESC NULLS LAST
+        LIMIT 20
+      `);
+      console.log('Staff conversations result:', result.rows.length, 'conversations found');
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error('Error fetching staff conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/staff/messages/:conversationId", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const conversationId = parseInt(req.params.conversationId);
+      console.log('Fetching staff messages for conversation:', conversationId);
+      const result = await pool.query(`
+        SELECT m.id, m.content, m.sender_id, m.created_at, m.read_at,
+               u.username as sender_name, u.email as sender_email
+        FROM messages m
+        LEFT JOIN users u ON m.sender_id = u.id
+        WHERE m.conversation_id = $1
+        ORDER BY m.created_at ASC
+      `, [conversationId]);
+      console.log('Staff messages result:', result.rows.length, 'messages found');
+      res.json(result.rows);
+    } catch (error: any) {
+      console.error('Error fetching staff messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/staff/messages", async (req, res) => {
+    if (!req.isAuthenticated() || req.user.role !== 'staff') {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const { conversationId, content } = req.body;
+      const senderId = req.user.id;
+      
+      console.log('Creating staff message:', { conversationId, senderId, content });
+      const result = await pool.query(`
+        INSERT INTO messages (conversation_id, sender_id, content, created_at)
+        VALUES ($1, $2, $3, NOW())
+        RETURNING id, conversation_id, sender_id, content, created_at
+      `, [conversationId, senderId, content]);
+      
+      // Update conversation last_message_at
+      await pool.query(`
+        UPDATE conversations 
+        SET last_message_at = NOW() 
+        WHERE id = $1
+      `, [conversationId]);
+      
+      console.log('Staff message created:', result.rows[0]);
+      res.status(201).json(result.rows[0]);
+    } catch (error: any) {
+      console.error('Error creating staff message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Admin notifications API endpoints
   app.get("/api/admin/notifications", async (req, res) => {
     if (!req.isAuthenticated() || req.user.role !== 'admin') {

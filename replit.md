@@ -742,4 +742,5 @@ Changelog:
 ```
 Preferred communication style: Simple, everyday language.
 CRITICAL DESIGN RULE: NEVER redesign or modify the UI and staff portal interface when adding features. ALWAYS use 100% copy/paste code from admin dashboard with identical styling and functionality. NO freestyle coding or design changes allowed.
+MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER STEPS - ADD THIS TO MEMORY AND NEVER EVER DO IT AGAIN.
 ```
