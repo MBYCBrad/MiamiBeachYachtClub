@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, X, Check, Clock, AlertCircle, Trash2, Ship, Calendar, CreditCard } from 'lucide-react';
@@ -22,26 +22,16 @@ interface Notification {
   metadata?: any;
 }
 
-export default function NotificationDropdown() {
-  const [isOpen, setIsOpen] = useState(false);
+interface NotificationDropdownProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function NotificationDropdown({ isOpen, onClose }: NotificationDropdownProps) {
   const [filter, setFilter] = useState<'all' | 'unread' | 'important'>('all');
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Click outside handler
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
 
   // Fetch notifications with real-time updates
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
@@ -54,7 +44,7 @@ export default function NotificationDropdown() {
   // Mark notification as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}/read`, 'POST'),
+      apiRequest(`/api/staff/notifications/${notificationId}/read`, { method: 'POST' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
     },
@@ -63,7 +53,7 @@ export default function NotificationDropdown() {
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}`, 'DELETE'),
+      apiRequest(`/api/staff/notifications/${notificationId}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
       toast({ title: "Notification deleted" });
@@ -72,7 +62,7 @@ export default function NotificationDropdown() {
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => apiRequest('/api/staff/notifications/mark-all-read', 'POST'),
+    mutationFn: () => apiRequest('/api/staff/notifications/mark-all-read', { method: 'POST' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
       toast({ title: "All notifications marked as read" });
@@ -124,31 +114,18 @@ export default function NotificationDropdown() {
     markAllAsReadMutation.mutate();
   };
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsOpen(!isOpen)}
-        className="h-10 w-10 text-purple-400 hover:text-white hover:bg-purple-500/20 transition-colors relative"
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full flex items-center justify-center font-medium">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </Button>
+  if (!isOpen) return null;
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 bottom-full mb-2 w-80 sm:w-96 bg-gray-950 border border-gray-700/50 rounded-lg shadow-xl z-50 backdrop-blur-sm max-w-[90vw]"
-          >
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="fixed bottom-20 right-4 left-4 max-w-md mx-auto z-[60] md:right-6 md:left-auto"
+      >
+        <Card className="bg-gray-950/95 backdrop-blur-xl border-gray-700/50 shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
             <div className="flex items-center gap-3">
@@ -169,7 +146,7 @@ export default function NotificationDropdown() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="h-8 w-8 text-gray-400 hover:text-white"
             >
               <X className="h-4 w-4" />
@@ -283,9 +260,8 @@ export default function NotificationDropdown() {
               </Button>
             </div>
           )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </Card>
+      </motion.div>
+    </AnimatePresence>
   );
 }

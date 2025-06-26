@@ -184,8 +184,7 @@ export default function StaffManagement() {
         role: "",
         permissions: [],
         phone: "",
-        location: "",
-        department: ""
+        location: ""
       });
       toast({ title: "Staff added", description: "New staff member has been created successfully" });
     },
