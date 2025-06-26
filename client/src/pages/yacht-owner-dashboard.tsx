@@ -457,6 +457,7 @@ const sidebarItems = [
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-purple-600 to-indigo-600' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-purple-600 to-indigo-600' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-600 to-indigo-600' },
+  { id: 'profile', label: 'My Profile', icon: User, color: 'from-purple-600 to-indigo-600' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-purple-600 to-indigo-600' }
 ];
 
@@ -2665,6 +2666,352 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
+  // Profile render function - 100% copy from admin dashboard with yacht owner styling
+  const renderProfile = () => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [profileData, setProfileData] = useState({
+      username: user?.username || '',
+      email: user?.email || '',
+      fullName: user?.fullName || '',
+      phone: user?.phone || '',
+      location: user?.location || '',
+      bio: user?.bio || '',
+      avatarUrl: user?.avatarUrl || ''
+    });
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    // Real-time profile data fetching
+    const { data: profileDataReal, refetch: refetchProfile } = useQuery({
+      queryKey: ['/api/user/profile'],
+      staleTime: 0,
+      refetchOnMount: true
+    });
+    
+    // Update local state when real data loads
+    useEffect(() => {
+      if (profileDataReal) {
+        setProfileData({
+          username: profileDataReal.username || '',
+          email: profileDataReal.email || '',
+          fullName: profileDataReal.fullName || '',
+          phone: profileDataReal.phone || '',
+          location: profileDataReal.location || '',
+          bio: profileDataReal.bio || '',
+          avatarUrl: profileDataReal.avatarUrl || ''
+        });
+      }
+    }, [profileDataReal]);
+    
+    // Real-time profile update mutation
+    const updateProfileMutation = useMutation({
+      mutationFn: async (data: any) => {
+        const response = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error('Failed to update profile');
+        return response.json();
+      },
+      onSuccess: () => {
+        toast({ title: "Profile updated successfully" });
+        refetchProfile();
+        queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      },
+      onError: (error: any) => {
+        toast({ title: "Error updating profile", description: error.message, variant: "destructive" });
+      }
+    });
+    
+    // Avatar upload mutation
+    const uploadAvatarMutation = useMutation({
+      mutationFn: async (file: File) => {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        const response = await fetch('/api/upload/avatar', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) throw new Error('Upload failed');
+        return response.json();
+      },
+      onSuccess: (data) => {
+        setProfileData(prev => ({ ...prev, avatarUrl: data.url }));
+        updateProfileMutation.mutate({ avatarUrl: data.url });
+        setUploading(false);
+      },
+      onError: (error: any) => {
+        toast({ title: "Avatar upload failed", description: error.message, variant: "destructive" });
+        setUploading(false);
+      }
+    });
+    
+    const handleInputChange = (field: string, value: string) => {
+      setProfileData(prev => ({ ...prev, [field]: value }));
+      
+      // Auto-save after 1 second of no changes
+      clearTimeout(window.profileSaveTimeout);
+      window.profileSaveTimeout = setTimeout(() => {
+        updateProfileMutation.mutate({ [field]: value });
+      }, 1000);
+    };
+    
+    const handleSave = () => {
+      updateProfileMutation.mutate(profileData);
+      setIsEditing(false);
+    };
+    
+    const handleAvatarClick = () => {
+      if (isEditing && fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    };
+    
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file && file.size <= 10 * 1024 * 1024) { // 10MB limit
+        uploadAvatarMutation.mutate(file);
+      } else {
+        toast({ title: "File too large", description: "Please select a file under 10MB", variant: "destructive" });
+      }
+    };
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>My Profile</h1>
+            <p className="text-lg text-gray-400">Manage your yacht owner account and preferences</p>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {isEditing ? (
+              <>
+                <Button
+                  onClick={() => setIsEditing(false)}
+                  variant="outline"
+                  className="border-gray-600 hover:border-gray-500 text-gray-300"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={updateProfileMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {/* Profile Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Avatar and Basic Info */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-8 text-center">
+              {/* Avatar Section */}
+              <div className="relative mb-6">
+                <motion.div
+                  whileHover={isEditing ? { scale: 1.05 } : {}}
+                  className={`relative inline-block ${isEditing ? 'cursor-pointer' : ''}`}
+                  onClick={handleAvatarClick}
+                >
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold ring-4 ring-purple-500/30">
+                    {profileData.avatarUrl ? (
+                      <img 
+                        src={profileData.avatarUrl} 
+                        alt="Profile" 
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      profileData.username.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  
+                  {isEditing && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute -bottom-2 -right-2 bg-purple-600 rounded-full p-2 shadow-lg"
+                    >
+                      <Camera className="h-4 w-4 text-white" />
+                    </motion.div>
+                  )}
+                  
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    </div>
+                  )}
+                </motion.div>
+                
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+              
+              {/* Basic Info */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+                  {isEditing ? (
+                    <Input
+                      value={profileData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      className="bg-gray-800 border-gray-700 text-white text-center"
+                      placeholder="Enter your full name"
+                    />
+                  ) : (
+                    <p className="text-xl font-semibold text-white">{profileData.fullName || 'Not set'}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Username</label>
+                  <p className="text-purple-400 font-medium">@{profileData.username}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Role</label>
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                    Yacht Owner
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Contact Information */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <User className="h-5 w-5 mr-2 text-purple-500" />
+                Contact Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+                {isEditing ? (
+                  <Input
+                    value={profileData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    placeholder="Enter your email"
+                    type="email"
+                  />
+                ) : (
+                  <p className="text-white">{profileData.email || 'Not set'}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
+                {isEditing ? (
+                  <Input
+                    value={profileData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    placeholder="Enter your phone number"
+                  />
+                ) : (
+                  <p className="text-white">{profileData.phone || 'Not set'}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Location</label>
+                {isEditing ? (
+                  <Input
+                    value={profileData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white"
+                    placeholder="Enter your location"
+                  />
+                ) : (
+                  <p className="text-white">{profileData.location || 'Not set'}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Bio and Additional Info */}
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-purple-500" />
+                About
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Bio</label>
+                {isEditing ? (
+                  <Textarea
+                    value={profileData.bio}
+                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white min-h-[120px]"
+                    placeholder="Tell us about yourself..."
+                  />
+                ) : (
+                  <p className="text-white">{profileData.bio || 'No bio set'}</p>
+                )}
+              </div>
+              
+              {/* Account Stats */}
+              <div className="space-y-4 pt-4 border-t border-gray-700">
+                <h4 className="text-white font-medium">Account Information</h4>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Member Since</span>
+                    <span className="text-white">
+                      {profileDataReal?.createdAt ? new Date(profileDataReal.createdAt).toLocaleDateString() : 'Unknown'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Account Type</span>
+                    <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                      Yacht Owner
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Fleet Size</span>
+                    <span className="text-white">{stats?.totalYachts || 0} Yachts</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </motion.div>
+    );
+  };
+
   const renderCurrentSection = () => {
     switch (activeSection) {
       case 'overview':
@@ -2681,6 +3028,8 @@ export default function YachtOwnerDashboard() {
         return renderAnalytics();
       case 'calendar':
         return renderCalendar();
+      case 'profile':
+        return renderProfile();
       case 'settings':
         return renderSettings();
       default:

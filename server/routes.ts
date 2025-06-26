@@ -2175,6 +2175,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // YACHT OWNER-ADMIN MESSAGING ROUTES
+  app.get("/api/yacht-owner/conversations", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      // Get or create conversation between yacht owner and admin
+      const conversationId = `owner-admin-${userId}`;
+      
+      // Check if conversation exists, if not create it
+      let conversation = await dbStorage.getConversationById(conversationId);
+      if (!conversation) {
+        conversation = await dbStorage.createConversation({
+          id: conversationId,
+          participants: [userId, 60], // yacht owner + admin (user id 60)
+          title: `Yacht Owner Support - ${req.user!.username}`,
+          type: 'yacht_owner_admin',
+          metadata: {
+            ownerId: userId,
+            adminId: 60,
+            priority: 'normal'
+          }
+        });
+      }
+      
+      res.json([conversation]);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/yacht-owner/messages/:conversationId", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify this yacht owner has access to this conversation
+      if (!conversationId.includes(`owner-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const messages = await dbStorage.getMessagesByConversation(conversationId);
+      res.json(messages);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/yacht-owner/messages", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { conversationId, content, messageType = 'text' } = req.body;
+      
+      // Verify this yacht owner has access to this conversation
+      if (!conversationId.includes(`owner-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const message = await dbStorage.createMessage({
+        senderId: userId,
+        recipientId: 60, // admin
+        conversationId,
+        content,
+        messageType,
+        status: 'sent',
+        metadata: {
+          senderRole: 'yacht_owner',
+          recipientRole: 'admin'
+        }
+      });
+      
+      // Notify admin of new message from yacht owner
+      await dbStorage.createNotification({
+        userId: 60, // admin
+        type: 'yacht_owner_message',
+        title: 'New Message from Yacht Owner',
+        message: `${req.user!.username} sent you a message`,
+        priority: 'medium',
+        data: {
+          messageId: message.id,
+          senderName: req.user!.username,
+          conversationId
+        },
+        actionUrl: `/admin/messages?conversation=${conversationId}`
+      });
+      
+      res.status(201).json(message);
+    } catch (error: any) {
+      console.error('Error creating yacht owner message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ADMIN MESSAGING ROUTES (for responding to yacht owners)
+  app.get("/api/admin/yacht-owner-conversations", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      // Get all yacht owner conversations
+      const conversations = await dbStorage.getConversationsByType('yacht_owner_admin');
+      res.json(conversations);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner conversations for admin:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/yacht-owner-messages", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { conversationId, content, recipientId } = req.body;
+      
+      const message = await dbStorage.createMessage({
+        senderId: req.user!.id,
+        recipientId,
+        conversationId,
+        content,
+        messageType: 'text',
+        status: 'sent',
+        metadata: {
+          senderRole: 'admin',
+          recipientRole: 'yacht_owner'
+        }
+      });
+      
+      // Notify yacht owner of admin response
+      await dbStorage.createNotification({
+        userId: recipientId,
+        type: 'admin_response',
+        title: 'Admin Response',
+        message: 'You have a new message from MBYC Admin',
+        priority: 'high',
+        data: {
+          messageId: message.id,
+          senderName: 'MBYC Admin',
+          conversationId
+        },
+        actionUrl: `/yacht-owner/messages`
+      });
+      
+      res.status(201).json(message);
+    } catch (error: any) {
+      console.error('Error creating admin message to yacht owner:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Initialize notification service with WebSocket support
