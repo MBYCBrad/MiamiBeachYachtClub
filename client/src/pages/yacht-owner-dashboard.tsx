@@ -40,7 +40,10 @@ import {
   CheckCircle,
   Heart,
   Save,
-  RotateCcw
+  RotateCcw,
+  ArrowLeft,
+  ArrowRight,
+  FileText
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -1417,140 +1420,342 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  const renderMaintenance = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mt-16">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            Fleet Maintenance
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Monitor yacht condition and maintenance schedules
-          </motion.p>
-        </div>
-        
+  const renderMaintenance = () => {
+    const [selectedYacht, setSelectedYacht] = useState<number | null>(null);
+    const [activeMaintenanceTab, setActiveMaintenanceTab] = useState('overview');
+
+    if (selectedYacht) {
+      return (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-8"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-            <Plus className="h-4 w-4 mr-2" />
-            Schedule Maintenance
-          </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter Records
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Maintenance Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard
-          title="Pending Tasks"
-          value={stats?.pendingMaintenance.toString() || '0'}
-          change={null}
-          icon={Wrench}
-          gradient="from-orange-500 to-red-500"
-          delay={0}
-        />
-        <StatCard
-          title="Completed This Month"
-          value="8"
-          change={null}
-          icon={CheckCircle}
-          gradient="from-green-500 to-emerald-500"
-          delay={0.1}
-        />
-        <StatCard
-          title="Maintenance Cost"
-          value="$2,340"
-          change={-12}
-          icon={DollarSign}
-          gradient="from-purple-500 to-indigo-500"
-          delay={0.2}
-        />
-        <StatCard
-          title="Fleet Health"
-          value="94%"
-          change={3}
-          icon={Heart}
-          gradient="from-purple-500 to-pink-500"
-          delay={0.3}
-        />
-      </div>
-
-      {/* Maintenance Overview */}
-      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-white">Maintenance Schedule</CardTitle>
-          <CardDescription>Upcoming and recent maintenance activities</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[
-              { yacht: 'Azure Elegance', task: 'Engine Service', date: '2024-07-15', status: 'pending', priority: 'high' },
-              { yacht: 'Marina Breeze', task: 'Hull Cleaning', date: '2024-07-12', status: 'completed', priority: 'medium' },
-              { yacht: 'Ocean Spirit', task: 'Safety Inspection', date: '2024-07-18', status: 'scheduled', priority: 'high' }
-            ].map((maintenance, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
+          {/* Header with Back Navigation */}
+          <div className="flex items-center justify-between mt-16">
+            <div>
+              <div className="flex items-center gap-4 mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setSelectedYacht(null)}
+                  className="border-gray-600 hover:border-purple-500"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Fleet
+                </Button>
+                <div className="text-sm text-gray-400">
+                  Fleet Management → Yacht Maintenance
+                </div>
+              </div>
+              <motion.h1 
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                className="text-5xl font-bold text-white mb-2 tracking-tight"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
               >
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    maintenance.status === 'completed' ? 'bg-green-600' :
-                    maintenance.status === 'pending' ? 'bg-orange-600' : 'bg-purple-600'
-                  }`}>
-                    {maintenance.status === 'completed' ? (
-                      <CheckCircle className="h-6 w-6 text-white" />
-                    ) : maintenance.status === 'pending' ? (
-                      <Clock className="h-6 w-6 text-white" />
-                    ) : (
-                      <Calendar className="h-6 w-6 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">{maintenance.task}</p>
-                    <p className="text-gray-400 text-sm">{maintenance.yacht}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-white font-medium">{maintenance.date}</p>
-                  <Badge className={
-                    maintenance.priority === 'high' ? 'bg-red-600' :
-                    maintenance.priority === 'medium' ? 'bg-yellow-600' : 'bg-gray-600'
-                  }>
-                    {maintenance.priority} priority
-                  </Badge>
-                </div>
-              </motion.div>
-            ))}
+                Yacht Maintenance System
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-lg text-gray-400"
+              >
+                {yachts?.find(y => y.id === selectedYacht)?.name} - Comprehensive maintenance tracking
+              </motion.p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+
+          {/* 4-Tab Navigation */}
+          <div className="border-b border-gray-700">
+            <nav className="flex space-x-8">
+              {[
+                { id: 'overview', label: 'Overview', icon: BarChart3 },
+                { id: 'records', label: 'Maintenance Records', icon: FileText },
+                { id: 'schedule', label: 'Schedule', icon: Calendar },
+                { id: 'analytics', label: 'Analytics', icon: TrendingUp }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveMaintenanceTab(tab.id)}
+                  className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeMaintenanceTab === tab.id
+                      ? 'border-purple-500 text-purple-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+                  }`}
+                >
+                  <tab.icon className="h-5 w-5 mr-2" />
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className="py-6">
+            {activeMaintenanceTab === 'overview' && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <StatCard
+                  title="Engine Hours"
+                  value="2,450"
+                  change={null}
+                  icon={Wrench}
+                  gradient="from-purple-600 to-indigo-600"
+                  delay={0}
+                />
+                <StatCard
+                  title="Last Service"
+                  value="15 days ago"
+                  change={null}
+                  icon={CheckCircle}
+                  gradient="from-purple-600 to-blue-600"
+                  delay={0.1}
+                />
+                <StatCard
+                  title="Next Service"
+                  value="In 45 days"
+                  change={null}
+                  icon={Calendar}
+                  gradient="from-purple-500 to-indigo-500"
+                  delay={0.2}
+                />
+                <StatCard
+                  title="Health Score"
+                  value="94%"
+                  change={3}
+                  icon={Heart}
+                  gradient="from-purple-500 to-blue-500"
+                  delay={0.3}
+                />
+              </div>
+            )}
+            
+            {activeMaintenanceTab === 'records' && (
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-white">Maintenance History</CardTitle>
+                  <CardDescription>Complete maintenance record log</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[
+                      { task: 'Engine Oil Change', date: '2024-06-15', status: 'completed', cost: '$450' },
+                      { task: 'Hull Cleaning', date: '2024-06-01', status: 'completed', cost: '$800' },
+                      { task: 'Safety Inspection', date: '2024-05-20', status: 'completed', cost: '$300' }
+                    ].map((record, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                            <CheckCircle className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{record.task}</p>
+                            <p className="text-gray-400 text-sm">{record.date}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-medium">{record.cost}</p>
+                          <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                            {record.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {activeMaintenanceTab === 'schedule' && (
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                <CardHeader>
+                  <CardTitle className="text-white">Upcoming Maintenance</CardTitle>
+                  <CardDescription>Scheduled maintenance tasks</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[
+                      { task: 'Annual Inspection', date: '2024-08-15', priority: 'high', estimated: '$1,200' },
+                      { task: 'Engine Service', date: '2024-07-30', priority: 'medium', estimated: '$800' },
+                      { task: 'Electronics Check', date: '2024-09-01', priority: 'low', estimated: '$400' }
+                    ].map((task, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                            <Calendar className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{task.task}</p>
+                            <p className="text-gray-400 text-sm">{task.date}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-medium">{task.estimated}</p>
+                          <Badge className={`${
+                            task.priority === 'high' ? 'bg-gradient-to-r from-red-600 to-red-700' :
+                            task.priority === 'medium' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+                            'bg-gradient-to-r from-purple-600 to-blue-600'
+                          } text-white`}>
+                            {task.priority} priority
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {activeMaintenanceTab === 'analytics' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white">Cost Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">This Year</span>
+                        <span className="text-white font-bold">$4,750</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Last Year</span>
+                        <span className="text-white font-bold">$3,200</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Average Monthly</span>
+                        <span className="text-white font-bold">$396</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+                  <CardHeader>
+                    <CardTitle className="text-white">Performance Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Uptime</span>
+                        <span className="text-white font-bold">96.8%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Efficiency</span>
+                        <span className="text-white font-bold">92.3%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Health Score</span>
+                        <span className="text-white font-bold">94.0%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      );
+    }
+
+    // Fleet Selection View (copied from admin)
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Fleet Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage yacht fleet, maintenance, and specifications
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+              <Filter className="h-4 w-4 mr-2" />
+              Filter Fleet
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Yachts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {yachts?.map((yacht: any, index: number) => (
+            <motion.div
+              key={yacht.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
+              onClick={() => setSelectedYacht(yacht.id)}
+              className="cursor-pointer"
+            >
+              <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
+                <div className="relative">
+                  <img 
+                    src={yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg'}
+                    alt={yacht.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-4 right-4">
+                    <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                      {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                    </Badge>
+                  </div>
+                  <div className="absolute bottom-4 right-4">
+                    <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-full p-2">
+                      <Wrench className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-white mb-2">{yacht.name}</h3>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-gray-400">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      <span className="text-sm">{yacht.location}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-gray-400">
+                      <span className="text-sm">Size: {yacht.size}ft</span>
+                      <span className="text-sm">Capacity: {yacht.capacity}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-semibold">Click for Maintenance</span>
+                    <div className="text-purple-400">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
 
   const renderAnalytics = () => (
     <motion.div
