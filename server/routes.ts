@@ -2773,7 +2773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get all notifications for staff members
-      const notifications = await dbStorage.getNotifications();
+      const notifications = await dbStorage.getAdminNotifications();
       res.json(notifications);
     } catch (error: any) {
       console.error('Error fetching staff notifications:', error);

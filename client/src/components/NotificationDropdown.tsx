@@ -130,7 +130,13 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
           <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
             <div className="flex items-center gap-3">
               <Bell className="h-5 w-5 text-purple-400" />
-              <h3 className="font-semibold text-white">Notifications</h3>
+              <div>
+                <h3 className="font-semibold text-white">Staff Notifications</h3>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  Connected
+                </div>
+              </div>
               {unreadCount > 0 && (
                 <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                   {unreadCount}
