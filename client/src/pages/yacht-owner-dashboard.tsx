@@ -44,7 +44,9 @@ import {
   RotateCcw,
   ArrowLeft,
   ArrowRight,
-  FileText
+  FileText,
+  Upload,
+  ImageIcon
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -455,7 +457,6 @@ const sidebarItems = [
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, color: 'from-purple-600 to-indigo-600' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-purple-600 to-indigo-600' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-600 to-indigo-600' },
-  { id: 'gallery', label: 'Gallery', icon: Camera, color: 'from-purple-600 to-indigo-600' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-purple-600 to-indigo-600' }
 ];
 
@@ -2328,109 +2329,6 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  const renderGallery = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mt-16">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            Yacht Gallery
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Showcase your yacht fleet with stunning photography
-          </motion.p>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-            <Plus className="h-4 w-4 mr-2" />
-            Upload Photos
-          </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter Gallery
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Gallery Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {yachts && yachts.length > 0 ? yachts.map((yacht: any, index: number) => (
-          <motion.div
-            key={yacht.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 + index * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-            className="group relative overflow-hidden rounded-xl"
-          >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl overflow-hidden">
-              <div className="h-64 relative">
-                <img 
-                  src={yacht.imageUrl || '/yacht-placeholder.jpg'} 
-                  alt={yacht.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                
-                {/* Yacht Info Overlay */}
-                <div className="absolute bottom-4 left-4">
-                  <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
-                  <p className="text-white/80 text-sm">{yacht.size}ft • {yacht.location}</p>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex space-x-2">
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                      <Camera className="h-4 w-4" />
-                    </Button>
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )) : (
-          <div className="col-span-full text-center py-12">
-            <Camera className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <div className="text-gray-400 text-lg mb-4">No photos in your gallery</div>
-            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-              <Plus className="h-4 w-4 mr-2" />
-              Upload Your First Photos
-            </Button>
-          </div>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-
   const renderCalendar = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -2783,8 +2681,6 @@ export default function YachtOwnerDashboard() {
         return renderAnalytics();
       case 'calendar':
         return renderCalendar();
-      case 'gallery':
-        return renderGallery();
       case 'settings':
         return renderSettings();
       default:
