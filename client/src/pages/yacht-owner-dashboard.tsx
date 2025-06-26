@@ -594,6 +594,20 @@ export default function YachtOwnerDashboard() {
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
+  
+  // Profile state hooks - moved to top level to fix React Hook errors
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    fullName: user?.fullName || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    avatarUrl: user?.avatarUrl || ''
+  });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -610,6 +624,13 @@ export default function YachtOwnerDashboard() {
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-maintenance', selectedMaintenanceYacht],
     enabled: !!selectedMaintenanceYacht,
+  });
+
+  // Real-time profile data fetching
+  const { data: profileDataReal, refetch: refetchProfile } = useQuery({
+    queryKey: ['/api/user/profile'],
+    staleTime: 0,
+    refetchOnMount: true
   });
 
   // Add maintenance record form
@@ -2777,26 +2798,8 @@ export default function YachtOwnerDashboard() {
   );
 
 
-  // Profile state hooks - moved to top level to fix React Hook errors
-  const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
-    fullName: user?.fullName || '',
-    phone: user?.phone || '',
-    location: user?.location || '',
-    bio: user?.bio || '',
-    avatarUrl: user?.avatarUrl || ''
-  });
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
   
-  // Real-time profile data fetching
-  const { data: profileDataReal, refetch: refetchProfile } = useQuery({
-    queryKey: ['/api/user/profile'],
-    staleTime: 0,
-    refetchOnMount: true
-  });
   
   // Update local state when real data loads
   useEffect(() => {
