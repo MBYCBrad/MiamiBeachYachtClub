@@ -4,6 +4,7 @@ import { ChevronDown, Anchor, Sparkles, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/navigation";
+import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 
 // Hero Section with Video Background
 function HeroSection() {
@@ -29,28 +30,19 @@ function HeroSection() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/70" />
       
-      {/* Animated Particles */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full"
-            initial={{ 
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight 
-            }}
-            animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            transition={{
-              duration: 20 + Math.random() * 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        ))}
-      </div>
+      {/* Silver Stars Background Pattern */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${starPattern})`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: 'auto',
+          backgroundPosition: '0 0',
+          imageRendering: 'crisp-edges',
+          opacity: 0.7,
+          filter: 'brightness(1.2)',
+        }}
+      />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
