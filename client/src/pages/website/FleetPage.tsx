@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
 import { ChevronLeft, ChevronRight, Anchor, Users, Bed, Waves } from 'lucide-react';
-import Yacht3DCustom from '@/components/website/Yacht3DCustom';
 
 
 
@@ -108,16 +107,18 @@ export default function FleetPage() {
         <section className="relative py-20">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              {/* 3D Model */}
+              {/* Yacht Image Gallery */}
               <div className="relative order-2 lg:order-1">
-                <Yacht3DCustom 
-                  yachtName={currentYacht?.name || 'Luxury Yacht'}
-                  yachtSpecs={{
-                    length: currentYacht?.size || '100ft',
-                    cabins: currentYacht?.cabins || 5,
-                    baths: currentYacht?.baths || 4
-                  }}
-                />
+                <div className="relative h-[500px] bg-gray-900 rounded-2xl overflow-hidden">
+                  {currentYacht?.images && currentYacht.images[0] && (
+                    <img 
+                      src={currentYacht.images[0]} 
+                      alt={currentYacht.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                </div>
                 
                 {/* Navigation Arrows */}
                 <button
