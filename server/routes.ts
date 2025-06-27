@@ -14,7 +14,7 @@ import path from "path";
 import fs from "fs";
 import { cacheMiddleware } from "./cache-middleware";
 import { memoryCache } from "./memory-cache";
-import { ultraFastMiddleware } from "./ultra-fast-middleware";
+// Removed ultra-fast middleware - was causing performance issues
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
@@ -259,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get active hero video
-  app.get("/api/media/hero/active", ultraFastMiddleware('hero-video'), async (req, res) => {
+  app.get("/api/media/hero/active", async (req, res) => {
     try {
       const heroVideo = await mediaStorageService.getActiveHeroVideo();
       if (!heroVideo) {
@@ -306,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // YACHT ROUTES
-  app.get("/api/yachts", ultraFastMiddleware('yachts'), async (req, res) => {
+  app.get("/api/yachts", async (req, res) => {
     try {
       // Add aggressive caching headers for yacht data
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60'); // 5 minutes with stale cache
@@ -456,7 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SERVICE ROUTES
-  app.get("/api/services", ultraFastMiddleware('services'), async (req, res) => {
+  app.get("/api/services", async (req, res) => {
     try {
       // Add caching headers for services
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
@@ -541,7 +541,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // EVENT ROUTES
-  app.get("/api/events", ultraFastMiddleware('events'), async (req, res) => {
+  app.get("/api/events", async (req, res) => {
     try {
       // Add caching headers for events
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
@@ -2507,7 +2507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin notifications API endpoints
-  app.get("/api/admin/notifications", ultraFastMiddleware('admin-notifications'), async (req, res) => {
+  app.get("/api/admin/notifications", async (req, res) => {
     if (!req.isAuthenticated() || req.user.role !== 'admin') {
       return res.sendStatus(401);
     }
@@ -2872,7 +2872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all bookings for admin (with yacht and member details)
-  app.get("/api/admin/bookings", requireAuth, requireRole([UserRole.ADMIN]), ultraFastMiddleware('admin-bookings'), async (req, res) => {
+  app.get("/api/admin/bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const bookings = await dbStorage.getBookings();
       const users = await dbStorage.getAllUsers();
@@ -3227,7 +3227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Advanced Analytics API endpoint
-  app.get("/api/admin/analytics", requireAuth, requireRole([UserRole.ADMIN]), ultraFastMiddleware('admin-analytics'), async (req, res) => {
+  app.get("/api/admin/analytics", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const [
         bookings,
@@ -4581,7 +4581,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all conversations - Ultra-fast memory cache
-  app.get("/api/conversations", ultraFastMiddleware('conversations'), async (req, res) => {
+  app.get("/api/conversations", async (req, res) => {
     try {
       // Use optimized single query method from storage
       const conversations = await dbStorage.getConversations();
