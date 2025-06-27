@@ -170,37 +170,6 @@ function FeaturesSection() {
               Download The MBYC Mobile App
             </span>
           </h2>
-          
-          {/* App Store Buttons */}
-          <div className="flex gap-4 justify-center mt-8">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
-            >
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-              </svg>
-              <div className="text-left">
-                <div className="text-xs text-gray-400">Download on the</div>
-                <div className="text-sm font-semibold text-white">App Store</div>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
-            >
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
-                <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-              </svg>
-              <div className="text-left">
-                <div className="text-xs text-gray-400">Get it on</div>
-                <div className="text-sm font-semibold text-white">Google Play</div>
-              </div>
-            </motion.div>
-          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-center">
@@ -246,11 +215,11 @@ function FeaturesSection() {
               <div 
                 className="absolute"
                 style={{
-                  top: '68px',
-                  left: '22px',
-                  right: '22px',
-                  bottom: '68px',
-                  borderRadius: '38px',
+                  top: '9.8%',
+                  left: '5.8%',
+                  right: '5.8%',
+                  bottom: '9.8%',
+                  borderRadius: '36px',
                   overflow: 'hidden',
                   background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
                   boxShadow: `
@@ -399,6 +368,7 @@ function FeaturesSection() {
                 src="/api/media/f56cbae9-e83b-4b83-9a95-71a78334ee66-cover_1751028275659.png" 
                 alt="Download on App Store and Google Play" 
                 className="h-14 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </motion.div>
           </motion.div>
