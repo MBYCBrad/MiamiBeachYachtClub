@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 import { useState } from "react";
-import VideoFooter from "@/components/video-footer";
+import { VideoFooter } from "@/components/video-footer";
 
 // Hero Section with Video Background
 function HeroSection() {
