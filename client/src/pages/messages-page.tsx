@@ -335,7 +335,14 @@ export default function MessagesPage() {
                                     </Badge>
                                   )}
                                   <span className="text-xs text-gray-400">
-                                    {formatDistanceToNow(new Date(conversation.lastActivity), { addSuffix: true })}
+                                    {(() => {
+                                      try {
+                                        const date = new Date(conversation.lastMessageAt || conversation.lastActivity || conversation.lastMessageTime || Date.now());
+                                        return isNaN(date.getTime()) ? 'Just now' : formatDistanceToNow(date, { addSuffix: true });
+                                      } catch (error) {
+                                        return 'Just now';
+                                      }
+                                    })()}
                                   </span>
                                 </div>
                               </div>
