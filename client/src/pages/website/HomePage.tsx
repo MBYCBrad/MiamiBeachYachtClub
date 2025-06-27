@@ -164,14 +164,41 @@ export default function HomePage() {
       </section>
 
       {/* 3D Yacht Section - Revolutionary scroll-based rotation */}
-      <Yacht3DCustom 
-        yachtName="95ft Sunseeker 'Pura Vida'"
-        yachtSpecs={{
-          length: "95′",
-          cabins: 4,
-          baths: 5
-        }}
-      />
+      <section className="relative py-32 bg-black overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-thin text-white mb-8">
+              Experience Luxury in 3D
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+              Explore our flagship yacht in stunning detail with over 5000 meticulously crafted layers
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5 }}
+            viewport={{ once: true }}
+            className="relative h-[600px] md:h-[700px] lg:h-[800px] rounded-3xl overflow-hidden bg-gradient-to-b from-gray-900/50 to-black"
+          >
+            <Yacht3DCustom 
+              yachtName="95ft Sunseeker 'Pura Vida'"
+              yachtSpecs={{
+                length: "95′",
+                cabins: 4,
+                baths: 5
+              }}
+            />
+          </motion.div>
+        </div>
+      </section>
 
       {/* Features Grid - Apple-style with micro-animations */}
       <section className="py-32 px-4 bg-gray-950">
