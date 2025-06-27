@@ -69,7 +69,10 @@ import {
   History,
   CreditCard,
   Bell,
-  X
+  X,
+  Target,
+  ArrowUpRight,
+  ArrowDownRight
 } from "lucide-react";
 import MessagesPage from './messages-page';
 import NotificationsPage from './notifications-page';
