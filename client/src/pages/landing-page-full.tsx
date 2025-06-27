@@ -1301,8 +1301,8 @@ function PartnersSection() {
   );
 }
 
-// CTA Section
-function CTASection() {
+// Secondary CTA Section
+function SecondaryCTASection() {
   return (
     <section className="py-32 relative overflow-hidden">
       <div className="absolute inset-0">
