@@ -197,7 +197,7 @@ export default function ServicesPage() {
                     </div>
                     
                     <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full z-10">
-                      <span className="text-white text-sm font-semibold">${service.pricePerSession}/session</span>
+                      <span className="text-white text-sm font-semibold">${service.pricePerHour}/hr</span>
                     </div>
                   </div>
 

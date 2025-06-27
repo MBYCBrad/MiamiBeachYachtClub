@@ -47,9 +47,7 @@ export function Navigation() {
     { label: "Book a Private Tour", href: "/book-tour" },
     { label: "FAQ", href: "/faq" },
     { label: "Invest", href: "/invest" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Settings", href: "/settings", authRequired: true },
-    { label: "Logout", href: "/logout", authRequired: true, isLogout: true }
+    { label: "Contact Us", href: "/contact" }
   ];
 
   return (
@@ -69,34 +67,16 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
-            {navItems.map((item) => {
-              // Hide auth-required items if not authenticated
-              if (item.authRequired && !isAuthenticated) return null;
-              
-              if (item.isLogout) {
-                return (
-                  <motion.span
-                    key={item.label}
-                    whileHover={{ scale: 1.05 }}
-                    onClick={handleLogout}
-                    className="text-white/80 hover:text-white transition-colors cursor-pointer inline-block"
-                  >
-                    {item.label}
-                  </motion.span>
-                );
-              }
-              
-              return (
-                <Link key={item.label} href={item.href}>
-                  <motion.span
-                    whileHover={{ scale: 1.05 }}
-                    className="text-white/80 hover:text-white transition-colors cursor-pointer inline-block"
-                  >
-                    {item.label}
-                  </motion.span>
-                </Link>
-              );
-            })}
+            {navItems.map((item) => (
+              <Link key={item.label} href={item.href}>
+                <motion.span
+                  whileHover={{ scale: 1.05 }}
+                  className="text-white/80 hover:text-white transition-colors cursor-pointer inline-block"
+                >
+                  {item.label}
+                </motion.span>
+              </Link>
+            ))}
           </div>
 
           {/* Authentication Button */}
@@ -165,36 +145,16 @@ export function Navigation() {
             <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
             
             <div className="px-6 py-4 space-y-3">
-              {navItems.map((item) => {
-                // Hide auth-required items if not authenticated
-                if (item.authRequired && !isAuthenticated) return null;
-                
-                if (item.isLogout) {
-                  return (
-                    <div
-                      key={item.label}
-                      className="block text-white/80 hover:text-white py-2 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setIsOpen(false);
-                        handleLogout();
-                      }}
-                    >
-                      {item.label}
-                    </div>
-                  );
-                }
-                
-                return (
-                  <Link key={item.label} href={item.href}>
-                    <div
-                      className="block text-white/80 hover:text-white py-2 transition-colors cursor-pointer"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.label}
-                    </div>
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link key={item.label} href={item.href}>
+                  <div
+                    className="block text-white/80 hover:text-white py-2 transition-colors cursor-pointer"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </div>
+                </Link>
+              ))}
               {isLoading ? (
                 <div className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white mt-4 px-6 py-2.5 rounded-lg font-medium text-center flex items-center justify-center space-x-2">
                   <User className="w-4 h-4 animate-spin" />
