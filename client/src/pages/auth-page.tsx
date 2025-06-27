@@ -120,11 +120,8 @@ const PremiumAuthPage: React.FC = () => {
             setLocation('/yacht-owner');
           } else if (user.role === UserRole.SERVICE_PROVIDER) {
             setLocation('/service-provider');
-          } else if (user.role === "staff") {
-            setLocation('/staff-portal');
           } else {
-            // For members, go to member dashboard
-            setLocation('/member');
+            setLocation('/');
           }
         }, 100);
       }
@@ -371,30 +368,39 @@ const PremiumAuthPage: React.FC = () => {
                             )}
                           />
 
-                          <Button 
-                            type="submit" 
-                            className="w-full h-14 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg hover:scale-[1.02] active:scale-[0.98]"
-                            disabled={loginMutation.isPending}
+                          <motion.div
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                           >
-                            <div className="flex items-center justify-center">
-                              {loginMutation.isPending ? (
-                                <>
-                                  <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
-                                  />
-                                  Signing In...
-                                </>
-                              ) : (
-                                <>
-                                  <Shield className="w-5 h-5 mr-2" />
-                                  Access Your Account
-                                  <ArrowRight className="w-5 h-5 ml-2" />
-                                </>
-                              )}
-                            </div>
-                          </Button>
+                            <Button 
+                              type="submit" 
+                              className="w-full h-14 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg"
+                              disabled={loginMutation.isPending}
+                            >
+                              <motion.div
+                                initial={{ x: 0 }}
+                                animate={{ x: loginMutation.isPending ? 0 : 0 }}
+                                className="flex items-center justify-center"
+                              >
+                                {loginMutation.isPending ? (
+                                  <>
+                                    <motion.div
+                                      animate={{ rotate: 360 }}
+                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
+                                    />
+                                    Signing In...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Shield className="w-5 h-5 mr-2" />
+                                    Access Your Account
+                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                  </>
+                                )}
+                              </motion.div>
+                            </Button>
+                          </motion.div>
                         </form>
                       </Form>
                     </motion.div>

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [, setLocation] = useLocation();
 
   const navItems = [
     { label: "How It Works", href: "/how-it-works" },
@@ -21,7 +20,10 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[9999] bg-black/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
+      {/* White edge at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+      
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -50,13 +52,12 @@ export function Navigation() {
           </div>
 
           {/* Login Button */}
-          <div className="hidden lg:block relative z-[9999]">
-            <Button 
-              onClick={() => setLocation('/auth')}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-            >
-              LOGIN
-            </Button>
+          <div className="hidden lg:block">
+            <Link href="/auth">
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+                LOGIN
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -76,8 +77,11 @@ export function Navigation() {
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md"
+            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md relative"
           >
+            {/* White edge at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+            
             <div className="px-6 py-4 space-y-3">
               {navItems.map((item) => (
                 <Link key={item.label} href={item.href}>
@@ -89,15 +93,11 @@ export function Navigation() {
                   </div>
                 </Link>
               ))}
-              <Button 
-                onClick={() => {
-                  setLocation('/auth');
-                  setIsOpen(false);
-                }}
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4"
-              >
-                LOGIN
-              </Button>
+              <Link href="/auth">
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4">
+                  LOGIN
+                </Button>
+              </Link>
             </div>
           </motion.div>
         )}

@@ -670,14 +670,6 @@ Changelog:
   - Created missing /api/trips endpoint that was causing frontend errors and slow performance
   - Fixed video streaming performance by implementing larger buffer sizes (1MB chunks) for smooth playback
   - Video response times improved from 6096ms to 329ms with optimized streaming implementation
-- June 27, 2025. Fixed member authentication redirect issue and thumbnail problems
-  - Resolved conflicting redirect logic between authentication hook and protected routes that was causing infinite redirect loops
-  - Members now redirect directly to /member dashboard after login instead of conflicting root path routing
-  - Simplified role-based access control to prevent unauthorized dashboard access without redirect conflicts
-  - Added authentic human profile images for member testimonials (Michael Chen, Sarah Williams, David Rodriguez)
-  - Updated fleet preview section with real yacht data from PostgreSQL database (Marina Breeze, Coastal Star, Azure Elegance)
-  - Fixed thumbnail display issues by ensuring proper image storage in attached_assets directory
-  - All profile and yacht images now load correctly with proper caching headers and authentication flow
 
 ## Member Experience Feature Status
 
