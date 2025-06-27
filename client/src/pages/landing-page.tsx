@@ -247,8 +247,8 @@ function FeaturesSection() {
               />
               
               {/* Screen Content - positioned to fit within the phone screen area */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-[270px] h-[585px] rounded-[45px] overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
+                <div className="relative w-[278px] h-[626px] rounded-[48px] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
