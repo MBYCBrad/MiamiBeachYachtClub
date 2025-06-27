@@ -53,11 +53,12 @@ export function Navigation() {
 
           {/* Login Button */}
           <div className="hidden lg:block">
-            <Link href="/auth">
-              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 cursor-pointer">
-                LOGIN
-              </div>
-            </Link>
+            <Button 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              onClick={() => window.location.href = '/auth'}
+            >
+              LOGIN
+            </Button>
           </div>
 
           {/* Mobile Menu Toggle */}
