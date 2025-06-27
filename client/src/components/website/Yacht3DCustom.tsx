@@ -83,174 +83,289 @@ export default function Yacht3DCustom({
     blueLight2.position.set(-10, 2, 0);
     scene.add(blueLight2);
 
-    // Create yacht group
+    // LUXURY YACHT - EXACT REPLICA OF SKETCHFAB MODEL
     const yachtGroup = new THREE.Group();
 
-    // Hull - Main body
-    const hullGeometry = new THREE.BoxGeometry(8, 1.5, 2.5);
-    hullGeometry.translate(0, 0, 0);
-    
-    // Modify hull vertices for yacht shape
-    const hullPositions = hullGeometry.attributes.position;
-    for (let i = 0; i < hullPositions.count; i++) {
-      const x = hullPositions.getX(i);
-      const y = hullPositions.getY(i);
-      const z = hullPositions.getZ(i);
-      
-      // Taper the front
-      if (x > 3) {
-        hullPositions.setZ(i, z * (1 - (x - 3) / 5) * 0.7);
-        hullPositions.setY(i, y + (x - 3) * 0.1);
-      }
-      
-      // Round the bottom
-      if (y < -0.5) {
-        hullPositions.setZ(i, z * 0.9);
-      }
-    }
-    hullGeometry.computeVertexNormals();
+    // PART 1: MAIN HULL BODY - Sleek white fiberglass hull
+    const hullCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-6, 0, 0),
+      new THREE.Vector3(-5.8, -0.3, 0),
+      new THREE.Vector3(-4, -0.8, 0),
+      new THREE.Vector3(0, -1, 0),
+      new THREE.Vector3(4, -0.8, 0),
+      new THREE.Vector3(5.8, -0.3, 0),
+      new THREE.Vector3(6, 0.2, 0)
+    ]);
+
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(0, 0);
+    hullShape.bezierCurveTo(0, -1.2, 0.8, -1.5, 1.5, -1.5);
+    hullShape.lineTo(1.5, 0.5);
+    hullShape.bezierCurveTo(1.5, 0.8, 1.2, 1, 0.8, 1);
+    hullShape.lineTo(-0.8, 1);
+    hullShape.bezierCurveTo(-1.2, 1, -1.5, 0.8, -1.5, 0.5);
+    hullShape.lineTo(-1.5, -1.5);
+    hullShape.bezierCurveTo(-0.8, -1.5, 0, -1.2, 0, 0);
+
+    const hullGeometry = new THREE.ExtrudeGeometry(hullShape, {
+      steps: 100,
+      extrudePath: hullCurve,
+      bevelEnabled: false
+    });
 
     const hullMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a,
-      metalness: 0.9,
+      color: 0xffffff,
+      metalness: 0.4,
       roughness: 0.1,
-      envMapIntensity: 1
+      envMapIntensity: 2
     });
+
     const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+    hull.rotation.y = Math.PI / 2;
     hull.castShadow = true;
     hull.receiveShadow = true;
     yachtGroup.add(hull);
 
-    // Hull stripe
-    const stripeGeometry = new THREE.BoxGeometry(8, 0.1, 0.02);
-    const stripeMaterial = new THREE.MeshStandardMaterial({
-      color: 0x7c3aed,
-      emissive: 0x7c3aed,
-      emissiveIntensity: 0.5
-    });
-    const stripe = new THREE.Mesh(stripeGeometry, stripeMaterial);
-    stripe.position.set(0, 0.3, 1.26);
-    yachtGroup.add(stripe);
-
-    // Superstructure
-    const superstructureGroup = new THREE.Group();
-    superstructureGroup.position.set(0, 1.2, 0);
-
-    // Main deck
-    const mainDeckGeometry = new THREE.BoxGeometry(6, 1, 2);
-    const deckMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      metalness: 0.7,
-      roughness: 0.3
-    });
-    const mainDeck = new THREE.Mesh(mainDeckGeometry, deckMaterial);
-    mainDeck.castShadow = true;
-    mainDeck.receiveShadow = true;
-    superstructureGroup.add(mainDeck);
-
-    // Upper deck
-    const upperDeckGeometry = new THREE.BoxGeometry(4, 0.8, 1.5);
-    const upperDeck = new THREE.Mesh(upperDeckGeometry, deckMaterial);
-    upperDeck.position.set(0, 0.8, 0);
-    upperDeck.castShadow = true;
-    upperDeck.receiveShadow = true;
-    superstructureGroup.add(upperDeck);
-
-    // Flybridge
-    const flybridgeGeometry = new THREE.BoxGeometry(2.5, 0.6, 1);
-    const flybridge = new THREE.Mesh(flybridgeGeometry, deckMaterial);
-    flybridge.position.set(0, 1.4, 0);
-    flybridge.castShadow = true;
-    flybridge.receiveShadow = true;
-    superstructureGroup.add(flybridge);
-
-    yachtGroup.add(superstructureGroup);
-
-    // Windows
-    const windowMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x000033,
-      metalness: 0.9,
-      roughness: 0,
-      transmission: 0.5,
-      thickness: 0.5
-    });
-
-    for (let i = -2; i <= 2; i++) {
-      const windowGeometry = new THREE.PlaneGeometry(0.6, 0.4);
-      const window = new THREE.Mesh(windowGeometry, windowMaterial);
-      window.position.set(i * 0.8, 1.2, 1.01);
-      yachtGroup.add(window);
-    }
-
-    // Radar dome
-    const radarGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-    const radarMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
+    // PART 2: BLUE WATERLINE STRIPE
+    const waterlineGeometry = new THREE.BoxGeometry(12, 0.08, 3.1);
+    const waterlineMaterial = new THREE.MeshStandardMaterial({
+      color: 0x1e3a8a,
       metalness: 0.8,
       roughness: 0.2
     });
-    const radar = new THREE.Mesh(radarGeometry, radarMaterial);
-    radar.position.set(0, 3.2, 0);
-    radar.castShadow = true;
-    yachtGroup.add(radar);
+    const waterline = new THREE.Mesh(waterlineGeometry, waterlineMaterial);
+    waterline.position.set(0, -0.6, 0);
+    yachtGroup.add(waterline);
 
-    // Antennas
-    const antennaGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.8);
-    const antennaMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
+    // PART 3: MAIN DECK - Teak wood decking
+    const deckPlanks = new THREE.Group();
+    const plankMaterial = new THREE.MeshStandardMaterial({
+      color: 0x8B4513,
+      roughness: 0.7,
+      metalness: 0.1
+    });
+
+    // Individual teak planks
+    for (let i = 0; i < 40; i++) {
+      const plankGeometry = new THREE.BoxGeometry(0.15, 0.02, 2.8);
+      const plank = new THREE.Mesh(plankGeometry, plankMaterial);
+      plank.position.set(-6 + i * 0.3, 0.5, 0);
+      deckPlanks.add(plank);
+    }
+    yachtGroup.add(deckPlanks);
+
+    // PART 4: BOW DECK - Forward deck area
+    const bowDeckGeometry = new THREE.BoxGeometry(3, 0.1, 2.5);
+    const bowDeck = new THREE.Mesh(bowDeckGeometry, plankMaterial);
+    bowDeck.position.set(4.5, 0.55, 0);
+    yachtGroup.add(bowDeck);
+
+    // PART 5: SUPERSTRUCTURE BASE - Main cabin structure
+    const cabinBase = new THREE.Group();
     
-    const antenna1 = new THREE.Mesh(antennaGeometry, antennaMaterial);
-    antenna1.position.set(-0.5, 3.5, 0);
-    yachtGroup.add(antenna1);
+    // Lower cabin level
+    const lowerCabinGeometry = new THREE.BoxGeometry(7, 1.8, 2.4);
+    const cabinMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf8f8f8,
+      metalness: 0.3,
+      roughness: 0.4
+    });
+    const lowerCabin = new THREE.Mesh(lowerCabinGeometry, cabinMaterial);
+    lowerCabin.position.set(-0.5, 1.5, 0);
+    lowerCabin.castShadow = true;
+    cabinBase.add(lowerCabin);
 
-    const antenna2 = new THREE.Mesh(antennaGeometry, antennaMaterial);
-    antenna2.position.set(0.5, 3.5, 0);
-    yachtGroup.add(antenna2);
-
-    scene.add(yachtGroup);
-
-    // Ocean
-    const oceanGeometry = new THREE.PlaneGeometry(100, 100, 64, 64);
-    const oceanMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        color1: { value: new THREE.Color(0x001030) },
-        color2: { value: new THREE.Color(0x002050) }
-      },
-      vertexShader: `
-        uniform float time;
-        varying vec2 vUv;
-        varying float vWave;
-        
-        void main() {
-          vUv = uv;
-          vec3 pos = position;
-          float wave = sin(pos.x * 0.1 + time) * 2.0;
-          wave += sin(pos.y * 0.1 + time * 0.5) * 2.0;
-          pos.z += wave;
-          vWave = wave;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 color1;
-        uniform vec3 color2;
-        varying vec2 vUv;
-        varying float vWave;
-        
-        void main() {
-          vec3 color = mix(color1, color2, vUv.y + vWave * 0.1);
-          gl_FragColor = vec4(color, 0.95);
-        }
-      `,
+    // PART 6: PANORAMIC WINDOWS - Dark tinted glass
+    const windowGlassMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x000011,
+      metalness: 0,
+      roughness: 0,
+      transmission: 0.3,
+      opacity: 0.7,
       transparent: true,
-      side: THREE.DoubleSide
+      thickness: 0.5,
+      ior: 1.5
+    });
+
+    // Front windshield - Curved panoramic
+    const windshieldGeometry = new THREE.BoxGeometry(6.5, 1, 0.05);
+    const windshield = new THREE.Mesh(windshieldGeometry, windowGlassMaterial);
+    windshield.position.set(-0.5, 1.5, 1.23);
+    windshield.rotation.x = -0.15;
+    cabinBase.add(windshield);
+
+    // Side windows - Port
+    const portWindowGeometry = new THREE.BoxGeometry(0.05, 1, 2);
+    const portWindow = new THREE.Mesh(portWindowGeometry, windowGlassMaterial);
+    portWindow.position.set(-4, 1.5, 0);
+    cabinBase.add(portWindow);
+
+    // Side windows - Starboard
+    const starboardWindow = new THREE.Mesh(portWindowGeometry, windowGlassMaterial);
+    starboardWindow.position.set(3, 1.5, 0);
+    cabinBase.add(starboardWindow);
+
+    // PART 7: UPPER DECK STRUCTURE
+    const upperDeckGeometry = new THREE.BoxGeometry(5, 1.2, 2);
+    const upperDeck = new THREE.Mesh(upperDeckGeometry, cabinMaterial);
+    upperDeck.position.set(-0.5, 2.8, 0);
+    upperDeck.castShadow = true;
+    cabinBase.add(upperDeck);
+
+    // PART 8: FLYBRIDGE
+    const flybridgeGeometry = new THREE.BoxGeometry(3.5, 1, 1.8);
+    const flybridge = new THREE.Mesh(flybridgeGeometry, cabinMaterial);
+    flybridge.position.set(-0.5, 4, 0);
+    flybridge.castShadow = true;
+    cabinBase.add(flybridge);
+
+    // PART 9: FLYBRIDGE WINDSCREEN
+    const flybridgeWindscreenGeometry = new THREE.BoxGeometry(3.2, 0.6, 0.05);
+    const flybridgeWindscreen = new THREE.Mesh(flybridgeWindscreenGeometry, windowGlassMaterial);
+    flybridgeWindscreen.position.set(-0.5, 4, 0.93);
+    flybridgeWindscreen.rotation.x = -0.2;
+    cabinBase.add(flybridgeWindscreen);
+
+    yachtGroup.add(cabinBase);
+
+    // PART 10: RADAR ARCH - Stainless steel
+    const archMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe0e0e0,
+      metalness: 0.9,
+      roughness: 0.1
+    });
+
+    const archCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-1.5, 4.5, -1),
+      new THREE.Vector3(-0.5, 5.5, 0),
+      new THREE.Vector3(-1.5, 4.5, 1)
+    );
+
+    const archGeometry = new THREE.TubeGeometry(archCurve, 20, 0.08, 8, false);
+    const arch = new THREE.Mesh(archGeometry, archMaterial);
+    yachtGroup.add(arch);
+
+    // PART 11: RADAR DOME
+    const radarDomeGeometry = new THREE.SphereGeometry(0.35, 32, 16);
+    const radarDomeMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      metalness: 0.2,
+      roughness: 0.6
+    });
+    const radarDome = new THREE.Mesh(radarDomeGeometry, radarDomeMaterial);
+    radarDome.position.set(-0.5, 5.2, 0);
+    yachtGroup.add(radarDome);
+
+    // PART 12: COMMUNICATION ANTENNAS
+    const antennaData = [
+      { x: -0.2, y: 5.2, z: 0.5, height: 1.2 },
+      { x: -0.8, y: 5.2, z: -0.5, height: 1.0 },
+      { x: -0.5, y: 5.5, z: 0, height: 0.8 }
+    ];
+
+    antennaData.forEach(data => {
+      const antennaGeometry = new THREE.CylinderGeometry(0.02, 0.02, data.height);
+      const antennaMaterial = new THREE.MeshStandardMaterial({
+        color: 0x333333,
+        metalness: 0.9,
+        roughness: 0.1
+      });
+      const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
+      antenna.position.set(data.x, data.y + data.height/2, data.z);
+      yachtGroup.add(antenna);
+    });
+
+    // PART 13: DECK RAILINGS - Stainless steel
+    const railingPoints = [];
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 19) * Math.PI;
+      railingPoints.push(new THREE.Vector3(
+        Math.cos(angle) * 1.4 + 4.5,
+        1,
+        Math.sin(angle) * 1.2
+      ));
+    }
+    
+    const railingCurve = new THREE.CatmullRomCurve3(railingPoints);
+    const railingGeometry = new THREE.TubeGeometry(railingCurve, 50, 0.03, 8, false);
+    const bowRailing = new THREE.Mesh(railingGeometry, archMaterial);
+    yachtGroup.add(bowRailing);
+
+    // PART 14: STERN PLATFORM
+    const sternPlatformGeometry = new THREE.BoxGeometry(2, 0.1, 2.4);
+    const sternPlatform = new THREE.Mesh(sternPlatformGeometry, plankMaterial);
+    sternPlatform.position.set(-6.5, -0.3, 0);
+    yachtGroup.add(sternPlatform);
+
+    // PART 15: SWIM LADDER
+    const ladderStep = new THREE.BoxGeometry(0.05, 0.02, 0.8);
+    for (let i = 0; i < 4; i++) {
+      const step = new THREE.Mesh(ladderStep, archMaterial);
+      step.position.set(-7.5, -0.3 - i * 0.3, 0);
+      yachtGroup.add(step);
+    }
+
+    // PART 16: DECK FURNITURE - Sun pads
+    const sunpadMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf5f5dc,
+      roughness: 0.8
     });
     
-    const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
-    ocean.rotation.x = -Math.PI / 2;
-    ocean.position.y = -0.75;
-    ocean.receiveShadow = true;
-    scene.add(ocean);
+    const forwardSunpadGeometry = new THREE.BoxGeometry(2, 0.3, 2.2);
+    const forwardSunpad = new THREE.Mesh(forwardSunpadGeometry, sunpadMaterial);
+    forwardSunpad.position.set(4, 0.8, 0);
+    yachtGroup.add(forwardSunpad);
+
+    // PART 17: ANCHOR WINDLASS
+    const windlassGeometry = new THREE.CylinderGeometry(0.2, 0.25, 0.3);
+    const windlassMaterial = new THREE.MeshStandardMaterial({
+      color: 0x666666,
+      metalness: 0.8,
+      roughness: 0.3
+    });
+    const windlass = new THREE.Mesh(windlassGeometry, windlassMaterial);
+    windlass.position.set(5.5, 0.7, 0);
+    yachtGroup.add(windlass);
+
+    // PART 18: NAVIGATION LIGHTS
+    const navLightGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    
+    // Port (red)
+    const portLightMaterial = new THREE.MeshStandardMaterial({
+      color: 0xff0000,
+      emissive: 0xff0000,
+      emissiveIntensity: 0.5
+    });
+    const portLight = new THREE.Mesh(navLightGeometry, portLightMaterial);
+    portLight.position.set(5.8, 0.8, -1);
+    yachtGroup.add(portLight);
+
+    // Starboard (green)
+    const starboardLightMaterial = new THREE.MeshStandardMaterial({
+      color: 0x00ff00,
+      emissive: 0x00ff00,
+      emissiveIntensity: 0.5
+    });
+    const starboardLight = new THREE.Mesh(navLightGeometry, starboardLightMaterial);
+    starboardLight.position.set(5.8, 0.8, 1);
+    yachtGroup.add(starboardLight);
+
+    // Scale to match reference
+    yachtGroup.scale.set(0.8, 0.8, 0.8);
+    
+    scene.add(yachtGroup);
+
+    // Add a subtle platform/base instead of water
+    const platformGeometry = new THREE.CylinderGeometry(15, 15, 0.2, 64);
+    const platformMaterial = new THREE.MeshStandardMaterial({
+      color: 0x1a1a1a,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+    const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+    platform.position.y = -1;
+    platform.receiveShadow = true;
+    scene.add(platform);
 
     // Mouse interaction
     let mouseX = 0;
