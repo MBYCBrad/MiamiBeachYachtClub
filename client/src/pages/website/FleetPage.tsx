@@ -1,13 +1,10 @@
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Environment, Float } from '@react-three/drei';
-import * as THREE from 'three';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
 import { ChevronLeft, ChevronRight, Anchor, Users, Bed, Waves } from 'lucide-react';
-import { LuxuryYacht3D } from '@/components/website/Yacht3DModel';
+import Yacht3DModel from '@/components/website/Yacht3DModel';
 
 
 
@@ -112,50 +109,8 @@ export default function FleetPage() {
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               {/* 3D Model */}
-              <div className="relative h-[600px] order-2 lg:order-1">
-                <Suspense fallback={
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-white/50">Loading 3D Model...</div>
-                  </div>
-                }>
-                  <Canvas
-                    camera={{ position: [0, 3, 10], fov: 45 }}
-                    gl={{ antialias: true, alpha: true }}
-                    onCreated={({ gl }) => {
-                      gl.setClearColor(0x000000, 0);
-                    }}
-                  >
-                    <PerspectiveCamera makeDefault position={[0, 3, 10]} fov={45} />
-                    
-                    {/* Lighting */}
-                    <ambientLight intensity={0.4} />
-                    <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-                    <spotLight position={[-10, 10, -5]} intensity={0.5} angle={0.3} penumbra={1} />
-                    <pointLight position={[0, -5, 0]} intensity={0.3} color="#4c1d95" />
-                    
-                    {/* Environment for reflections */}
-                    <Environment preset="sunset" />
-                    
-                    {/* 3D Yacht Model */}
-                    <Suspense fallback={null}>
-                      <LuxuryYacht3D 
-                        scale={1.5} 
-                        rotation={[0, Math.PI / 4, 0]} 
-                        position={[0, -1, 0]} 
-                      />
-                    </Suspense>
-                    
-                    {/* Controls */}
-                    <OrbitControls 
-                      enableZoom={false} 
-                      enablePan={false}
-                      autoRotate
-                      autoRotateSpeed={0.5}
-                      minPolarAngle={Math.PI / 3}
-                      maxPolarAngle={Math.PI / 2}
-                    />
-                  </Canvas>
-                </Suspense>
+              <div className="relative order-2 lg:order-1">
+                <Yacht3DModel />
                 
                 {/* Navigation Arrows */}
                 <button

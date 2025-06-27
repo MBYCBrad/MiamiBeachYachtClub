@@ -192,32 +192,33 @@ function IPhoneModel({ scale = 1 }: { scale?: number }) {
   );
 }
 
-export default function Phone3DMockup() {
+// Canvas Wrapper Component
+function PhoneCanvasWrapper() {
   return (
-    <div className="h-[600px] w-full relative">
-      <Canvas
-        shadows
-        camera={{ position: [0, 0, 3], fov: 45 }}
-        className="bg-transparent"
-      >
-        <Suspense fallback={null}>
-          {/* Lighting */}
-          <ambientLight intensity={0.5} />
-          <directionalLight
-            position={[5, 5, 5]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-          />
-          <directionalLight position={[-5, 3, -5]} intensity={0.5} />
-          <spotLight position={[0, 10, 0]} intensity={0.3} angle={0.3} penumbra={1} />
-          
-          {/* iPhone Model */}
-          <IPhoneModel scale={1.5} />
-          
-          {/* Controls */}
-          <OrbitControls
-            enablePan={false}
+    <Canvas
+      shadows
+      camera={{ position: [0, 0, 3], fov: 45 }}
+      className="bg-transparent"
+      gl={{ antialias: true, alpha: true }}
+    >
+      <Suspense fallback={null}>
+        {/* Lighting */}
+        <ambientLight intensity={0.5} />
+        <directionalLight
+          position={[5, 5, 5]}
+          intensity={1}
+          castShadow
+          shadow-mapSize={[2048, 2048]}
+        />
+        <directionalLight position={[-5, 3, -5]} intensity={0.5} />
+        <spotLight position={[0, 10, 0]} intensity={0.3} angle={0.3} penumbra={1} />
+        
+        {/* iPhone Model */}
+        <IPhoneModel scale={1.5} />
+        
+        {/* Controls */}
+        <OrbitControls
+          enablePan={false}
             enableZoom={false}
             minPolarAngle={Math.PI / 3}
             maxPolarAngle={Math.PI / 1.5}
@@ -226,6 +227,13 @@ export default function Phone3DMockup() {
           />
         </Suspense>
       </Canvas>
+  );
+}
+
+export default function Phone3DMockup() {
+  return (
+    <div className="h-[600px] w-full relative">
+      <PhoneCanvasWrapper />
       
       {/* Gradient Background */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20" />

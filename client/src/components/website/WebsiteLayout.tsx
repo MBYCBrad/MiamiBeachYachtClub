@@ -42,33 +42,33 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/">
-              <a className="flex items-center space-x-3">
-                <img 
-                  src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
-                  alt="MBYC" 
-                  className="h-10 w-10 filter brightness-0 invert"
-                />
-                <span className="text-white text-sm font-light tracking-wider hidden sm:block">
-                  MIAMI BEACH YACHT CLUB
-                </span>
-              </a>
+            <Link href="/" className="flex items-center space-x-3">
+              <img 
+                src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
+                alt="MBYC" 
+                className="h-10 w-10 filter brightness-0 invert"
+              />
+              <span className="text-white text-sm font-light tracking-wider hidden sm:block">
+                MIAMI BEACH YACHT CLUB
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               {menuItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <a className={`text-sm font-light transition-all duration-300 relative group ${
+                <Link 
+                  key={item.path} 
+                  href={item.path}
+                  className={`text-sm font-light transition-all duration-300 relative group ${
                     location === item.path 
                       ? 'text-white' 
                       : 'text-gray-400 hover:text-white'
-                  }`}>
-                    {item.label}
-                    <span className={`absolute -bottom-1 left-0 h-px bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-300 ${
-                      location === item.path ? 'w-full' : 'w-0 group-hover:w-full'
-                    }`} />
-                  </a>
+                  }`}
+                >
+                  {item.label}
+                  <span className={`absolute -bottom-1 left-0 h-px bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-300 ${
+                    location === item.path ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`} />
                 </Link>
               ))}
               
@@ -81,15 +81,17 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
                 >
                   <Phone className="w-5 h-5" />
                 </a>
-                <Link href="/auth">
-                  <a className="text-sm font-light text-gray-400 hover:text-white transition-colors">
-                    Login
-                  </a>
+                <Link 
+                  href="/auth"
+                  className="text-sm font-light text-gray-400 hover:text-white transition-colors"
+                >
+                  Login
                 </Link>
-                <Link href="/website/plans">
-                  <a className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-full hover:from-purple-700 hover:to-blue-700 transition-all">
-                    Apply Now
-                  </a>
+                <Link 
+                  href="/plans"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-full hover:from-purple-700 hover:to-blue-700 transition-all"
+                >
+                  Apply Now
                 </Link>
               </div>
             </div>

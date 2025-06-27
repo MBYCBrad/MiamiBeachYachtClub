@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
 import Yacht3DShowcase from '@/components/website/Yacht3DShowcase';
-import Phone3DMockup from '@/components/website/Phone3DMockup';
+import Phone3DSimple from '@/components/website/Phone3DSimple';
 
 export default function HomePage() {
   const [videoLoaded, setVideoLoaded] = useState(false);

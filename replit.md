@@ -467,6 +467,12 @@ Changelog:
   - Implemented ContactPage with contact form and information cards
   - All pages follow Simon Librati styling with black background, dark grey secondary (bg-gray-950), and purple-to-blue indigo gradients
   - Complete website routing configured at /website with all sub-pages accessible
+- June 27, 2025. Website routing updated to display at root path "/"
+  - Updated App.tsx routing to load website pages at root instead of "/website" prefix
+  - Fixed WebsiteLayout navigation links to use root-based paths
+  - Simplified 3D components (Yacht3DModel, Phone3DSimple) to address WebGL rendering issues
+  - Updated FleetPage and HomePage to use simplified 3D components
+  - Maintained all revolutionary design elements while resolving Canvas component errors
   - Created comprehensive staff management page with role-based permissions and granular access control
   - Established clear separation: regular users (members, yacht owners, service providers) access their own layers vs MBYC staff users only access admin layer
   - Implemented specific staff positions: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor, Member Relations Specialist, Concierge Manager, Concierge Agent, Guest Services Representative, VIP Coordinator, Operations Manager, Booking Coordinator, Service Coordinator, Event Coordinator, Safety Officer, Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator
