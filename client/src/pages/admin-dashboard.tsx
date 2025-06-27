@@ -5623,6 +5623,17 @@ export default function AdminDashboard() {
               <div className="flex items-center space-x-2">
                 <MessagesDropdown />
                 <AdminNotificationCenter />
+                
+                {/* Logout Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/api/logout'}
+                  className="p-2 rounded-lg bg-gray-800/50 hover:bg-red-500/20 border border-gray-600/50 hover:border-red-500/50 transition-all duration-300 group"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4 text-gray-400 group-hover:text-red-400 transition-colors" />
+                </motion.button>
               </div>
             </div>
           </div>
