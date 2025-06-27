@@ -41,9 +41,9 @@ export function Navigation() {
   const navItems = [
     { label: "How It Works", href: "/how-it-works" },
     { label: "Plans & Pricing", href: "/pricing" },
+    { label: "Fleet", href: "/fleet" },
     { label: "Events", href: "/events" },
     { label: "Services", href: "/services" },
-    { label: "Fleet", href: "/fleet" },
     { label: "Book a Private Tour", href: "/book-tour" },
     { label: "FAQ", href: "/faq" },
     { label: "Invest", href: "/invest" },
