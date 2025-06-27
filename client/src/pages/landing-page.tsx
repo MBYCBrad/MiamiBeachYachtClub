@@ -340,6 +340,75 @@ function FeaturesSection() {
 
 
 
+// Stats Section Component
+function StatsSection() {
+  const stats = [
+    { value: "50+", label: "Luxury Yachts", icon: <Anchor className="w-8 h-8 text-white" /> },
+    { value: "24/7", label: "Concierge Service", icon: <Phone className="w-8 h-8 text-white" /> },
+    { value: "95%", label: "Member Satisfaction", icon: <Star className="w-8 h-8 text-white" /> },
+    { value: "15+", label: "Years Experience", icon: <Award className="w-8 h-8 text-white" /> }
+  ];
+
+  return (
+    <section className="py-20 relative overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            Why Choose
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> MBYC</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Join Miami's most exclusive yacht club and experience luxury like never before
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8 h-full"
+              >
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                  {stat.icon}
+                </div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+                  viewport={{ once: true }}
+                  className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2"
+                >
+                  {stat.value}
+                </motion.div>
+                <p className="text-gray-400 text-lg">{stat.label}</p>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Main Landing Page Component
 export default function LandingPage() {
   return (
@@ -347,6 +416,7 @@ export default function LandingPage() {
       <Navigation />
       <HeroSection />
       <FeaturesSection />
+      <StatsSection />
       {/* More sections will be added here */}
     </div>
   );
