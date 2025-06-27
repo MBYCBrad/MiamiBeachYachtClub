@@ -1331,17 +1331,7 @@ export default function ServiceProviderDashboard() {
             </nav>
           </div>
           
-          <div className="absolute bottom-6 left-6 right-6">
-            <Button
-              onClick={() => logoutMutation.mutate()}
-              variant="outline"
-              size="sm"
-              className="w-full border-gray-600 text-gray-400 hover:text-white hover:border-red-500"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+
         </div>
 
         {/* Main Content */}
