@@ -29,20 +29,6 @@ function HeroSection() {
       
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/70" />
-      
-      {/* Silver Stars Background Pattern */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `url(${starPattern})`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: 'auto',
-          backgroundPosition: '0 0',
-          imageRendering: 'crisp-edges',
-          opacity: 0.7,
-          filter: 'brightness(1.2)',
-        }}
-      />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
@@ -153,7 +139,20 @@ function FeaturesSection() {
 
   return (
     <section className="py-32 bg-black relative overflow-hidden">
-      {/* Background gradient */}
+      {/* Silver Stars Background Pattern */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${starPattern})`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: 'auto',
+          backgroundPosition: '0 0',
+          imageRendering: 'crisp-edges',
+          opacity: 0.5,
+        }}
+      />
+      
+      {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-indigo-900/10" />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
