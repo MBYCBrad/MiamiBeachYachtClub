@@ -2,6 +2,9 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/navigation";
+import { VideoHeader } from "@/components/video-header";
+import { VideoCTA } from "@/components/video-cta";
+import { Footer } from "@/components/footer";
 import { Check, Crown, Sparkles, Anchor, Star } from "lucide-react";
 
 const membershipTiers = [
@@ -82,6 +85,12 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-black">
       <Navigation />
+      
+      {/* Video Header */}
+      <VideoHeader 
+        title="Plans & Pricing"
+        subtitle="Choose the perfect membership tier for your yachting lifestyle"
+      />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">

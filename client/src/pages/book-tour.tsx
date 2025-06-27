@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
+import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
 import { Calendar, Clock, Users, MapPin, Phone, Mail } from "lucide-react";
