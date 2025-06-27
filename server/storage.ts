@@ -1610,13 +1610,15 @@ export class DatabaseStorage implements IStorage {
 
   async getSystemSettings(): Promise<SystemSetting[]> {
     try {
+      console.log('Attempting to fetch system settings from database...');
       const result = await db
         .select()
         .from(systemSettings)
         .orderBy(asc(systemSettings.settingKey));
+      console.log('Database query result:', result);
       return result;
     } catch (error) {
-      console.error('Error fetching system settings:', error);
+      console.error('Error fetching system settings from database:', error);
       return [];
     }
   }

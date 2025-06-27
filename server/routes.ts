@@ -6066,7 +6066,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Settings API endpoints
   app.get("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
+      console.log('Fetching system settings...');
       const settings = await dbStorage.getSystemSettings();
+      console.log('Database settings:', settings);
+      
+      console.log('Environment variables:');
+      console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'present' : 'missing');
+      console.log('VITE_STRIPE_PUBLIC_KEY:', process.env.VITE_STRIPE_PUBLIC_KEY ? 'present' : 'missing');
+      console.log('TWILIO_ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID ? 'present' : 'missing');
+      console.log('TWILIO_AUTH_TOKEN:', process.env.TWILIO_AUTH_TOKEN ? 'present' : 'missing');
+      console.log('TWILIO_PHONE_NUMBER:', process.env.TWILIO_PHONE_NUMBER ? 'present' : 'missing');
       
       // Add environment secrets as virtual settings for frontend display
       const environmentSettings = [
@@ -6131,6 +6140,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Combine database settings with environment settings
       const allSettings = [...settings, ...environmentSettings];
+      console.log('All settings being returned:', allSettings.length, 'items');
+      console.log('Environment settings:', environmentSettings.length, 'items');
       res.json(allSettings);
     } catch (error: any) {
       console.error('Error fetching system settings:', error);
