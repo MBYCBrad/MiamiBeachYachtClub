@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
-import Yacht3DShowcase from '@/components/website/Yacht3DShowcase';
+import Yacht3DCustom from '@/components/website/Yacht3DCustom';
 import Phone3DSimple from '@/components/website/Phone3DSimple';
 
 export default function HomePage() {
@@ -164,7 +164,7 @@ export default function HomePage() {
       </section>
 
       {/* 3D Yacht Section - Revolutionary scroll-based rotation */}
-      <Yacht3DShowcase 
+      <Yacht3DCustom 
         yachtName="95ft Sunseeker 'Pura Vida'"
         yachtSpecs={{
           length: "95′",
