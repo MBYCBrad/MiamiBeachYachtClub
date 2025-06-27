@@ -703,6 +703,13 @@ Changelog:
   - All Apply buttons now consistently redirect to /apply route for membership application form
   - Enhanced button styling with purple-to-blue gradients, hover scale animations, and shadow effects
   - Complete user journey standardization directing prospects to membership application system
+- June 27, 2025. Fixed critical routing issues for authenticated dashboard users
+  - Implemented DashboardRedirect component to properly handle "/" route for authenticated users
+  - "/" now redirects authenticated users to their role-based dashboards instead of landing page
+  - Service providers accessing "/" are now correctly redirected to "/service-provider" dashboard
+  - Removed redundant role-based routing logic from ProtectedRoute to prevent conflicts
+  - Authentication flow now seamless: unauthenticated users see landing page, authenticated users go to dashboards
+  - Fixed persistent routing bug where service providers were incorrectly sent to marketing website
 
 ## Member Experience Feature Status
 
