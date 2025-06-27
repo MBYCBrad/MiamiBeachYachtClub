@@ -218,9 +218,9 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    <Link href={`/book-tour?service=${service.id}`}>
+                    <Link href="/apply">
                       <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
-                        Book Now
+                        Apply for Membership
                       </Button>
                     </Link>
                   </div>

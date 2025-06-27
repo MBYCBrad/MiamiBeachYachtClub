@@ -291,13 +291,13 @@ export default function BookTourPage() {
           >
             <h3 className="text-2xl font-bold text-white mb-6">Prefer to Schedule by Phone?</h3>
             <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-              <a href="tel:+13055550692" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
+              <a href="tel:+17869813875" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
                 <Phone className="w-5 h-5" />
-                <span className="text-lg">+1 (305) 555-MBYC</span>
+                <span className="text-lg">786-981-3875</span>
               </a>
-              <a href="mailto:tours@mbyc.com" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
+              <a href="mailto:membership@mbyc.miami" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
                 <Mail className="w-5 h-5" />
-                <span className="text-lg">tours@mbyc.com</span>
+                <span className="text-lg">membership@mbyc.miami</span>
               </a>
             </div>
           </motion.div>

@@ -694,6 +694,15 @@ Changelog:
   - Added global CSS transition disabling to prevent any visual delays during page changes
   - Forced black background on document.body and document.documentElement via JavaScript for immediate rendering
   - Authentication flow now achieves true instant black transitions between website → /auth → user dashboards
+- June 27, 2025. Complete Apply button standardization across all marketing pages
+  - Updated How It Works page Apply button with enhanced hover animations and consistent styling
+  - Added comprehensive CTA section to Fleet page with Apply for Membership and Book a Private Tour buttons
+  - Enhanced Events page with dual-button layout: Apply for Membership + Plan Your Event buttons
+  - Updated Services page "Book Now" buttons to "Apply for Membership" since services require membership
+  - Fixed Book a Private Tour page contact information to use real company details (786-981-3875, membership@mbyc.miami)
+  - All Apply buttons now consistently redirect to /apply route for membership application form
+  - Enhanced button styling with purple-to-blue gradients, hover scale animations, and shadow effects
+  - Complete user journey standardization directing prospects to membership application system
 
 ## Member Experience Feature Status
 

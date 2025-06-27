@@ -122,14 +122,25 @@ export default function EventsPage() {
               <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
                 From intimate gatherings to grand celebrations, we'll help you design an unforgettable experience on the water.
               </p>
-              <Link href="/contact">
-                <Button 
-                  size="lg"
-                  className="bg-white text-black hover:bg-gray-100 transition-colors"
-                >
-                  Plan Your Event
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/apply">
+                  <Button 
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+                  >
+                    Apply for Membership
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
+                  >
+                    Plan Your Event
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
