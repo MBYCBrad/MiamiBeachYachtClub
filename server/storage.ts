@@ -2,6 +2,7 @@ import {
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
   conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
+  systemSettings,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
@@ -14,7 +15,7 @@ import {
   type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
-  type YachtValuation, type InsertYachtValuation,
+  type YachtValuation, type InsertYachtValuation, type SystemSetting, type InsertSystemSetting,
   UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
@@ -193,6 +194,13 @@ export interface IStorage {
   getApplication(id: number): Promise<Application | undefined>;
   createApplication(application: InsertApplication): Promise<Application>;
   updateApplicationStatus(id: number, status: string): Promise<Application | undefined>;
+
+  // System Settings methods
+  getSystemSetting(key: string): Promise<SystemSetting | undefined>;
+  getSystemSettings(): Promise<SystemSetting[]>;
+  createSystemSetting(setting: InsertSystemSetting): Promise<SystemSetting>;
+  updateSystemSetting(key: string, value: string, updatedBy: number): Promise<SystemSetting | undefined>;
+  deleteSystemSetting(key: string): Promise<boolean>;
 
   sessionStore: session.SessionStore;
 }
@@ -1583,6 +1591,75 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error updating application status:', error);
       return undefined;
+    }
+  }
+
+  // System Settings methods
+  async getSystemSetting(key: string): Promise<SystemSetting | undefined> {
+    try {
+      const [result] = await db
+        .select()
+        .from(systemSettings)
+        .where(eq(systemSettings.settingKey, key));
+      return result;
+    } catch (error) {
+      console.error('Error fetching system setting:', error);
+      return undefined;
+    }
+  }
+
+  async getSystemSettings(): Promise<SystemSetting[]> {
+    try {
+      const result = await db
+        .select()
+        .from(systemSettings)
+        .orderBy(asc(systemSettings.settingKey));
+      return result;
+    } catch (error) {
+      console.error('Error fetching system settings:', error);
+      return [];
+    }
+  }
+
+  async createSystemSetting(setting: InsertSystemSetting): Promise<SystemSetting> {
+    const [result] = await db
+      .insert(systemSettings)
+      .values({
+        ...setting,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return result;
+  }
+
+  async updateSystemSetting(key: string, value: string, updatedBy: number): Promise<SystemSetting | undefined> {
+    try {
+      const [result] = await db
+        .update(systemSettings)
+        .set({ 
+          settingValue: value, 
+          updatedBy, 
+          updatedAt: new Date() 
+        })
+        .where(eq(systemSettings.settingKey, key))
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error updating system setting:', error);
+      return undefined;
+    }
+  }
+
+  async deleteSystemSetting(key: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(systemSettings)
+        .where(eq(systemSettings.settingKey, key));
+      return true;
+    } catch (error) {
+      console.error('Error deleting system setting:', error);
+      return false;
     }
   }
 }

@@ -827,3 +827,23 @@ export type InsertYachtValuation = z.infer<typeof insertYachtValuationSchema>;
 // Staff types - separate from user types
 export type Staff = typeof staff.$inferSelect;
 export type InsertStaff = z.infer<typeof insertStaffSchema>;
+
+// System Settings table for admin configuration
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
+  settingKey: text("setting_key").unique().notNull(),
+  settingValue: text("setting_value"),
+  isEncrypted: boolean("is_encrypted").default(false),
+  updatedBy: integer("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;

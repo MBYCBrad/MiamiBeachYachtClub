@@ -5915,5 +5915,266 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // System Settings API endpoints
+  app.get("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const settings = await dbStorage.getSystemSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Error fetching system settings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/settings/:key", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { key } = req.params;
+      const setting = await dbStorage.getSystemSetting(key);
+      
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+
+      res.json(setting);
+    } catch (error: any) {
+      console.error('Error fetching system setting:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { settingKey, settingValue, isEncrypted = false } = req.body;
+      const user = req.user as any;
+      
+      // Check if setting already exists
+      const existingSetting = await dbStorage.getSystemSetting(settingKey);
+      
+      if (existingSetting) {
+        // Update existing setting
+        const updatedSetting = await dbStorage.updateSystemSetting(settingKey, settingValue, user.id);
+        res.json(updatedSetting);
+      } else {
+        // Create new setting
+        const newSetting = await dbStorage.createSystemSetting({
+          settingKey,
+          settingValue,
+          isEncrypted,
+          updatedBy: user.id
+        });
+        res.json(newSetting);
+      }
+    } catch (error: any) {
+      console.error('Error creating/updating system setting:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/settings/:key", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { key } = req.params;
+      const { settingValue } = req.body;
+      const user = req.user as any;
+      
+      const updatedSetting = await dbStorage.updateSystemSetting(key, settingValue, user.id);
+      
+      if (!updatedSetting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+
+      res.json(updatedSetting);
+    } catch (error: any) {
+      console.error('Error updating system setting:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/settings/:key", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { key } = req.params;
+      const success = await dbStorage.deleteSystemSetting(key);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+
+      res.json({ message: "Setting deleted successfully" });
+    } catch (error: any) {
+      console.error('Error deleting system setting:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Stripe Connect API endpoints for real-time integration
+  app.post("/api/admin/stripe/test-connection", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { apiKey } = req.body;
+      
+      // Test Stripe connection with provided API key
+      const testStripe = new Stripe(apiKey, {
+        apiVersion: "2025-05-28.basil",
+      });
+      
+      const account = await testStripe.accounts.retrieve();
+      
+      res.json({
+        success: true,
+        account: {
+          id: account.id,
+          email: account.email,
+          country: account.country,
+          business_type: account.business_type
+        }
+      });
+    } catch (error: any) {
+      console.error('Error testing Stripe connection:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error.message || "Invalid Stripe API key" 
+      });
+    }
+  });
+
+  // Twilio API endpoints for real-time integration
+  app.post("/api/admin/twilio/test-connection", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { accountSid, authToken } = req.body;
+      
+      // Test Twilio connection with provided credentials
+      const testTwilio = twilio(accountSid, authToken);
+      
+      const account = await testTwilio.api.accounts(accountSid).fetch();
+      
+      res.json({
+        success: true,
+        account: {
+          sid: account.sid,
+          friendlyName: account.friendlyName,
+          status: account.status,
+          type: account.type
+        }
+      });
+    } catch (error: any) {
+      console.error('Error testing Twilio connection:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error.message || "Invalid Twilio credentials" 
+      });
+    }
+  });
+
+  // Admin Settings API endpoints
+  app.get("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const settings = await dbStorage.getSystemSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Error fetching system settings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { settingKey, settingValue, isEncrypted = true } = req.body;
+      const userId = req.user?.id;
+
+      if (!settingKey || !settingValue) {
+        return res.status(400).json({ message: "Setting key and value are required" });
+      }
+
+      // Check if setting already exists
+      const existingSetting = await dbStorage.getSystemSetting(settingKey);
+      
+      if (existingSetting) {
+        // Update existing setting
+        const updatedSetting = await dbStorage.updateSystemSetting(settingKey, settingValue, userId!);
+        res.json(updatedSetting);
+      } else {
+        // Create new setting
+        const newSetting = await dbStorage.createSystemSetting({
+          settingKey,
+          settingValue,
+          isEncrypted,
+          updatedBy: userId
+        });
+        res.json(newSetting);
+      }
+    } catch (error: any) {
+      console.error('Error saving system setting:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Test Stripe connection endpoint
+  app.post("/api/admin/stripe/test-connection", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { apiKey } = req.body;
+      
+      if (!apiKey) {
+        return res.status(400).json({ message: "API key is required" });
+      }
+
+      // Create a temporary Stripe instance with the provided key
+      const testStripe = new Stripe(apiKey, {
+        apiVersion: "2025-05-28.basil",
+      });
+
+      // Test the connection by fetching account info
+      const account = await testStripe.accounts.retrieve();
+      
+      res.json({
+        success: true,
+        account: {
+          id: account.id,
+          email: account.email,
+          country: account.country,
+          business_type: account.business_type,
+          charges_enabled: account.charges_enabled,
+          payouts_enabled: account.payouts_enabled
+        }
+      });
+    } catch (error: any) {
+      console.error('Error testing Stripe connection:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error.message || "Invalid Stripe API key" 
+      });
+    }
+  });
+
+  // Test Twilio connection endpoint
+  app.post("/api/admin/twilio/test-connection", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { accountSid, authToken } = req.body;
+      
+      if (!accountSid || !authToken) {
+        return res.status(400).json({ message: "Account SID and Auth Token are required" });
+      }
+
+      // Create a temporary Twilio client with the provided credentials
+      const testTwilio = twilio(accountSid, authToken);
+
+      // Test the connection by fetching account info
+      const account = await testTwilio.api.accounts(accountSid).fetch();
+      
+      res.json({
+        success: true,
+        account: {
+          sid: account.sid,
+          friendlyName: account.friendlyName,
+          status: account.status,
+          type: account.type
+        }
+      });
+    } catch (error: any) {
+      console.error('Error testing Twilio connection:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error.message || "Invalid Twilio credentials" 
+      });
+    }
+  });
+
   return httpServer;
 }
