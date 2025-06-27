@@ -245,11 +245,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.setHeader('Content-Range', `bytes ${start}-${end}/${stats.size}`);
         res.setHeader('Content-Length', chunksize);
 
-        const stream = fs.createReadStream(filePath, { start, end });
+        // Use larger buffer size for better performance
+        const stream = fs.createReadStream(filePath, { 
+          start, 
+          end,
+          highWaterMark: 1024 * 1024 // 1MB chunks
+        });
         stream.pipe(res);
       } else {
         res.setHeader('Content-Length', stats.size);
-        const stream = fs.createReadStream(filePath);
+        const stream = fs.createReadStream(filePath, {
+          highWaterMark: 1024 * 1024 // 1MB chunks
+        });
         stream.pipe(res);
       }
     } catch (error) {
@@ -311,6 +318,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add aggressive caching headers for yacht data
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60'); // 5 minutes with stale cache
       res.setHeader('ETag', `"yachts-${Date.now()}"`);
+      
+      // Simple in-memory cache for frequently accessed data
+      const cacheKey = `yachts:${JSON.stringify(req.query)}`;
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
       
       const { available, maxSize, location, startDate, endDate } = req.query;
       const filters: any = {};
@@ -381,9 +395,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { yearMade, totalCost, ...memberYacht } = yacht;
           return memberYacht;
         });
+        // Cache the result for 60 seconds
+        memoryCache.set(cacheKey, memberYachts, 60);
         return res.json(memberYachts);
       }
       
+      // Cache the result for 60 seconds
+      memoryCache.set(cacheKey, yachts, 60);
       res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -462,6 +480,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
       res.setHeader('ETag', `"services-${Date.now()}"`);
       
+      // Simple in-memory cache for frequently accessed data
+      const cacheKey = `services:${JSON.stringify(req.query)}`;
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const { category, available } = req.query;
       const filters: any = {};
       
@@ -469,6 +494,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (available !== undefined) filters.available = available === 'true';
 
       const services = await dbStorage.getServices(filters);
+      // Cache the result for 60 seconds
+      memoryCache.set(cacheKey, services, 60);
       res.json(services);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -547,6 +574,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
       res.setHeader('ETag', `"events-${Date.now()}"`);
       
+      // Simple in-memory cache for frequently accessed data
+      const cacheKey = `events:${JSON.stringify(req.query)}`;
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const { active, upcoming } = req.query;
       const filters: any = {};
       
@@ -554,6 +588,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (upcoming !== undefined) filters.upcoming = upcoming === 'true';
 
       const events = await dbStorage.getEvents(filters);
+      // Cache the result for 60 seconds
+      memoryCache.set(cacheKey, events, 60);
       res.json(events);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -846,6 +882,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bookings = await dbStorage.getBookings(filters);
       res.json(bookings);
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // TRIPS ROUTE - Alias for bookings with caching
+  app.get("/api/trips", requireAuth, async (req, res) => {
+    try {
+      // Add caching headers
+      res.setHeader('Cache-Control', 'private, max-age=60, stale-while-revalidate=30');
+      
+      // Simple in-memory cache for frequently accessed data
+      const cacheKey = `trips:${req.user!.id}`;
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
+      const bookings = await dbStorage.getBookings({ userId: req.user!.id });
+      
+      // Cache the result for 30 seconds (shorter for user-specific data)
+      memoryCache.set(cacheKey, bookings, 30);
+      res.json(bookings);
+    } catch (error: any) {
+      console.error('Error fetching trips:', error);
       res.status(500).json({ message: error.message });
     }
   });

@@ -79,6 +79,13 @@ const PremiumAuthPage: React.FC = () => {
     }
   }, [user, setLocation]);
 
+  // Preload video on component mount
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, []);
+
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {

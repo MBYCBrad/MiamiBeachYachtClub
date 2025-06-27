@@ -1,13 +1,14 @@
 // Ultra-fast in-memory cache for millisecond response times
 class MemoryCache {
-  private cache = new Map<string, { data: any; timestamp: number }>();
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
   private readonly DEFAULT_TTL = 300000; // 5 minutes
 
   get(key: string): any {
     const item = this.cache.get(key);
     if (!item) return null;
     
-    if (Date.now() - item.timestamp > this.DEFAULT_TTL) {
+    const ttl = item.ttl || this.DEFAULT_TTL;
+    if (Date.now() - item.timestamp > ttl) {
       this.cache.delete(key);
       return null;
     }
@@ -15,10 +16,11 @@ class MemoryCache {
     return item.data;
   }
 
-  set(key: string, data: any): void {
+  set(key: string, data: any, ttlSeconds?: number): void {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      ttl: ttlSeconds ? ttlSeconds * 1000 : this.DEFAULT_TTL
     });
   }
 

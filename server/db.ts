@@ -16,12 +16,14 @@ if (!process.env.DATABASE_URL) {
 // Optimized connection pool for millisecond response times
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-  query_timeout: 5000,
-  statement_timeout: 5000,
-  application_name: 'mbyc-app'
+  max: 50, // Increased pool size
+  idleTimeoutMillis: 60000, // Keep connections alive longer
+  connectionTimeoutMillis: 5000, // Increased timeout
+  query_timeout: 10000,
+  statement_timeout: 10000,
+  application_name: 'mbyc-app',
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 0
 });
 
 export const db = drizzle({ 
