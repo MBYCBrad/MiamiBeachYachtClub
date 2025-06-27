@@ -238,43 +238,45 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[300px] h-[600px] mx-auto">
-              {/* Phone Frame */}
-              <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900 rounded-[3rem] shadow-2xl">
-                {/* Notch */}
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl" />
-                
-                {/* Screen */}
-                <div className="absolute inset-[3px] bg-black rounded-[2.8rem] overflow-hidden">
+            <div className="relative w-[300px] h-[650px] mx-auto">
+              {/* iPhone Frame Image */}
+              <img 
+                src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751028888126.png"
+                alt="iPhone Frame"
+                className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+              />
+              
+              {/* Screen Content - positioned to fit within the phone screen area */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative w-[270px] h-[585px] rounded-[45px] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
                       loop
                       muted
                       playsInline
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
                     >
                       <source src={heroVideo.url} type={heroVideo.mimetype} />
                     </video>
                   )}
                   
                   {/* App UI Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50">
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <img src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" alt="MBYC" className="w-16 h-16 mx-auto mb-4" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60">
+                    <div className="absolute bottom-0 left-0 right-0 p-8">
+                      <img 
+                        src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
+                        alt="MBYC" 
+                        className="w-20 h-20 mx-auto mb-4 drop-shadow-2xl" 
+                      />
                       <div className="text-white text-center">
-                        <h4 className="text-lg font-bold">Miami Beach Yacht Club</h4>
-                        <p className="text-sm text-gray-300">Premium Member Experience</p>
+                        <h4 className="text-xl font-bold drop-shadow-lg">Miami Beach Yacht Club</h4>
+                        <p className="text-base text-gray-200 drop-shadow-lg mt-1">Premium Member Experience</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Side Buttons */}
-              <div className="absolute -right-1 top-24 w-1 h-12 bg-gray-700 rounded-r" />
-              <div className="absolute -right-1 top-40 w-1 h-20 bg-gray-700 rounded-r" />
-              <div className="absolute -left-1 top-32 w-1 h-16 bg-gray-700 rounded-l" />
             </div>
           </motion.div>
 
