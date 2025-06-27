@@ -164,10 +164,10 @@ function FeaturesSection() {
           <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
             style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
-            Become A Member &
+            Become A Member Today &
             <br />
             <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Download The MBYC Mobile App Today
+              Download The MBYC Mobile App
             </span>
           </h2>
           
