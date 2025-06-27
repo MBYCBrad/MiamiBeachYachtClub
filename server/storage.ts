@@ -1395,6 +1395,15 @@ export class DatabaseStorage implements IStorage {
     return conversation || undefined;
   }
 
+  async getConversationsByUserId(userId: number): Promise<Conversation[]> {
+    return await db.select().from(conversations).where(eq(conversations.memberId, userId));
+  }
+
+  async getConversationById(conversationId: string): Promise<Conversation | undefined> {
+    const [conversation] = await db.select().from(conversations).where(eq(conversations.id, conversationId));
+    return conversation || undefined;
+  }
+
   async createConversation(conversation: InsertConversation): Promise<Conversation> {
     const [created] = await db.insert(conversations).values(conversation).returning();
     return created;

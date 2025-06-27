@@ -82,6 +82,7 @@ export default function MessagesPage() {
   const queryClient = useQueryClient();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Only allow service providers and admins access
   if (!user || (user.role !== 'service_provider' && user.role !== 'admin')) {
