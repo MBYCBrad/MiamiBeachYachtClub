@@ -70,6 +70,7 @@ import {
   CreditCard,
   X
 } from "lucide-react";
+import MessagesPage from './messages-page';
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1501,12 +1502,7 @@ export default function ServiceProviderDashboard() {
           {activeSection === 'bookings' && renderBookings()}
           {activeSection === 'revenue' && renderRevenue()}
           {activeSection === 'settings' && renderSettings()}
-          {activeSection === 'messages' && (
-            <div className="text-center py-20">
-              <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
-              <p className="text-gray-400">Messaging feature coming soon</p>
-            </div>
-          )}
+          {activeSection === 'messages' && <MessagesPage />}
         </div>
       </div>
     </div>
