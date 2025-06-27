@@ -37,6 +37,9 @@ class UltraFastCache {
   }
 
   async updateAll() {
+    // DISABLED FOR PERFORMANCE - causing severe latency
+    return;
+    
     if (this.isUpdating) return;
     this.isUpdating = true;
 

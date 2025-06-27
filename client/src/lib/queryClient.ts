@@ -77,20 +77,49 @@ export const getQueryFn: <T>(options: {
     return await res.json();
   };
 
+// Cache for request deduplication
+const pendingRequests = new Map<string, Promise<any>>();
+
+// Enhanced query function with deduplication
+const enhancedQueryFn: QueryFunction = async (context) => {
+  const key = JSON.stringify(context.queryKey);
+  
+  // If request is already pending, return the same promise
+  if (pendingRequests.has(key)) {
+    return pendingRequests.get(key);
+  }
+  
+  // Create the request promise
+  const requestPromise = (async () => {
+    try {
+      const result = await getQueryFn({ on401: "returnNull" })(context);
+      return result;
+    } finally {
+      // Clean up after request completes
+      pendingRequests.delete(key);
+    }
+  })();
+  
+  // Store the promise for deduplication
+  pendingRequests.set(key, requestPromise);
+  
+  return requestPromise;
+};
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "returnNull" }),
+      queryFn: enhancedQueryFn,
       refetchInterval: false,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      staleTime: 30 * 60 * 1000, // 30 minutes stale time for ultra caching
-      gcTime: 2 * 60 * 60 * 1000, // 2 hours memory retention
-      retry: 1, // Reduce retries for speed
-      retryDelay: 500, // Faster retry
+      staleTime: 60 * 60 * 1000, // 1 hour stale time - VERY aggressive
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours memory retention - keep data for a full day
+      retry: 0, // No retries for maximum speed
       structuralSharing: false, // Disable for performance
-      networkMode: 'online'
+      networkMode: 'online',
+      placeholderData: (previousData: any) => previousData, // Keep showing old data while fetching
     },
     mutations: {
       retry: false,
