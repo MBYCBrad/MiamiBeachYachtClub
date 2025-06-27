@@ -1,248 +1,402 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState, useRef } from 'react';
+import { Link } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import WebsiteLayout from '@/components/website/WebsiteLayout';
+import Yacht3DShowcaseFallback from '@/components/website/Yacht3DShowcaseFallback';
+import Phone3DMockupFallback from '@/components/website/Phone3DMockupFallback';
 
 export default function HomePage() {
-  const [scrollY, setScrollY] = useState(0);
-
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+  
+  // Parallax transforms
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  
   // Fetch hero video
   const { data: heroVideo } = useQuery({
-    queryKey: ["/api/media/hero/active"],
+    queryKey: ['/api/media/hero/active'],
   });
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Fetch MBYC logo
+  const { data: logo } = useQuery({
+    queryKey: ['/api/media/MBYC-LOGO-WHITE_1750978675231.png'],
+    queryFn: () => ({ url: '/api/media/MBYC-LOGO-WHITE_1750978675231.png' }),
+  });
 
   return (
-    <main className="bg-gray-950 min-h-screen text-white">
-      {/* Hero Section with Video Background */}
-      <section className="relative h-screen overflow-hidden">
-        {/* Video Background */}
+    <WebsiteLayout>
+      <div className="min-h-screen bg-black">
+      {/* Hero Section with Full Video Background - Apple-style with Rolls-Royce luxury */}
+      <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background with Preload Optimization */}
         {heroVideo && (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source src={heroVideo.url} type="video/mp4" />
-          </video>
+          <div className="absolute inset-0 w-full h-full">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              poster="/api/media/Screenshot 2025-06-26 at 2.20.59 PM_1750972860790.png"
+              onLoadedData={() => setVideoLoaded(true)}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-2000 ${
+                videoLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ filter: 'brightness(0.7)' }}
+            >
+              <source src={`/api/media/video/${heroVideo.filename}`} type="video/mp4" />
+              <source src={`/api/media/video/${heroVideo.filename.replace('.mp4', '.webm')}`} type="video/webm" />
+            </video>
+            
+            {/* Gradient Overlay for Text Legibility */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+            
+            {/* Animated Gradient Accent */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.3 }}
+              transition={{ duration: 3 }}
+              className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-transparent to-blue-600/20"
+            />
+          </div>
         )}
 
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
-
-        {/* Navigation */}
-        <nav className="absolute top-0 left-0 right-0 z-50 p-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+        {/* Hero Content with Motion */}
+        <motion.div 
+          style={{ y, opacity }}
+          className="relative z-10 text-center px-4 max-w-7xl mx-auto"
+        >
+          {/* Animated Logo */}
+          {logo && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="mb-12"
+            >
               <img 
-                src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
-                alt="MBYC" 
-                className="h-12 w-auto"
+                src={logo.url} 
+                alt="Miami Beach Yacht Club" 
+                className="h-24 md:h-32 mx-auto filter brightness-0 invert"
               />
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/website" className="text-white hover:text-purple-400 transition">Home</Link>
-              <Link href="/website/how-it-works" className="text-white hover:text-purple-400 transition">How It Works</Link>
-              <Link href="/website/plans" className="text-white hover:text-purple-400 transition">Plans & Pricing</Link>
-              <Link href="/website/events" className="text-white hover:text-purple-400 transition">Events</Link>
-              <Link href="/website/fleet" className="text-white hover:text-purple-400 transition">Fleet</Link>
-              <Link href="/website/faq" className="text-white hover:text-purple-400 transition">FAQ</Link>
-              <Link href="/website/contact" className="text-white hover:text-purple-400 transition">Contact</Link>
-              <Link href="/auth" className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-white font-semibold hover:from-purple-700 hover:to-blue-600 transition">
-                Login
-              </Link>
-            </div>
-          </div>
-        </nav>
+            </motion.div>
+          )}
 
-        {/* Hero Content */}
-        <div className="relative h-full flex items-center justify-center text-center px-6">
-          <div className="max-w-4xl animate-fade-in">
-            <h2 className="text-2xl md:text-3xl mb-4 text-gray-300">Welcome to THE</h2>
-            <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Miami Beach Yacht Club
-            </h1>
-            <p className="text-xl md:text-2xl mb-12 text-gray-300">
-              Unlimited Luxury. One Club.
+          {/* Main Headline with Stagger Animation */}
+          <motion.h1
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-thin text-white mb-6 tracking-wide"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif' }}
+          >
+            Unlimited Luxury.
+            <span className="block font-extralight bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              One Club.
+            </span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            className="text-xl md:text-2xl lg:text-3xl text-gray-200 mb-8 font-light max-w-4xl mx-auto"
+          >
+            The Miami Beach Yacht Club: Seamless, Stress-Free Yachting
+          </motion.p>
+
+          {/* Description */}
+          <motion.p
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 1 }}
+            className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed"
+          >
+            Experience the epitome of maritime luxury with exclusive access to our world-class fleet, 
+            personalized concierge service, and unforgettable moments on the water.
+          </motion.p>
+
+          {/* CTA Buttons with Hover Effects */}
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 1.2 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center"
+          >
+            <Link href="/website/plans">
+              <a className="group relative inline-block px-12 py-5 overflow-hidden rounded-full">
+                <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 transition-transform duration-300 group-hover:scale-110" />
+                <span className="relative text-white text-lg font-medium">Apply Now</span>
+              </a>
+            </Link>
+            
+            <Link href="/website/fleet">
+              <a className="group relative inline-block px-12 py-5 rounded-full border-2 border-white/30 backdrop-blur-sm hover:border-white/60 transition-all duration-300">
+                <span className="text-white text-lg font-medium">Book a Tour</span>
+              </a>
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Animated Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+          >
+            <motion.div 
+              animate={{ y: [0, 16, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="w-1 h-3 bg-white/60 rounded-full mt-2"
+            />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* 3D Yacht Section - Revolutionary scroll-based rotation */}
+      <Yacht3DShowcaseFallback 
+        yachtName="95ft Sunseeker 'Pura Vida'"
+        yachtSpecs={{
+          length: "95′",
+          cabins: 4,
+          baths: 5
+        }}
+      />
+
+      {/* Features Grid - Apple-style with micro-animations */}
+      <section className="py-32 px-4 bg-gray-950">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-thin text-white mb-8">
+              Redefining Yacht Ownership
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+              All the privileges. None of the hassles.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ),
+                title: "Instant Booking",
+                description: "Reserve any yacht in our fleet up to 12 months in advance through our seamless portal"
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                ),
+                title: "Personal Concierge",
+                description: "Dedicated support available 24/7 for all your yachting needs and special requests"
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                ),
+                title: "Zero Maintenance",
+                description: "We handle all maintenance, cleaning, and logistics so you can focus on enjoying"
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ),
+                title: "Flexible Plans",
+                description: "Multiple membership tiers to match your lifestyle and yachting preferences"
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                ),
+                title: "Global Access",
+                description: "Take your membership worldwide with partner clubs in premium destinations"
+              },
+              {
+                icon: (
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                  </svg>
+                ),
+                title: "Exclusive Events",
+                description: "Access member-only events from sunset cruises to Art Basel celebrations"
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group relative bg-gray-900/50 backdrop-blur-sm rounded-3xl p-8 hover:bg-gray-900/80 transition-all duration-300"
+              >
+                <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-medium text-white mb-4">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Membership Preview - Rolls-Royce inspired luxury cards */}
+      <section className="py-32 px-4 bg-black">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-thin text-white mb-8">
+              Choose Your Experience
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+              Four tiers of membership. Unlimited possibilities.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { name: 'Silver', price: '$3,000', initiation: '$10,000', yachts: 'Up to 50ft', gradient: 'from-gray-600 to-gray-400' },
+              { name: 'Gold', price: '$5,000', initiation: '$25,000', yachts: 'Up to 65ft', gradient: 'from-yellow-600 to-yellow-400' },
+              { name: 'Platinum', price: '$7,500', initiation: '$50,000', yachts: 'Up to 80ft', gradient: 'from-purple-600 to-purple-400' },
+              { name: 'Diamond', price: '$10,000', initiation: '$100,000', yachts: 'All Yachts', gradient: 'from-blue-600 to-cyan-400' }
+            ].map((tier, index) => (
+              <motion.div
+                key={tier.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="group relative"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-xl"
+                     style={{ background: `linear-gradient(to bottom right, ${tier.gradient.split(' ')[1]}, ${tier.gradient.split(' ')[3]})` }} />
+                
+                <div className="relative bg-gray-950 border border-gray-800 rounded-3xl p-8 hover:border-gray-600 transition-all duration-300">
+                  <div className={`inline-flex px-4 py-2 rounded-full bg-gradient-to-r ${tier.gradient} text-white text-sm font-medium mb-6`}>
+                    {tier.name} Membership
+                  </div>
+                  
+                  <div className="mb-6">
+                    <p className="text-5xl font-thin text-white mb-2">{tier.price}</p>
+                    <p className="text-gray-400">per month</p>
+                  </div>
+                  
+                  <div className="space-y-4 mb-8">
+                    <div>
+                      <p className="text-sm text-gray-500">One-time initiation</p>
+                      <p className="text-xl text-white">{tier.initiation}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Yacht access</p>
+                      <p className="text-xl text-white">{tier.yachts}</p>
+                    </div>
+                  </div>
+                  
+                  <Link href="/website/plans">
+                    <a className="block text-center py-3 rounded-full border border-gray-700 text-white hover:bg-white hover:text-black transition-all duration-300">
+                      Learn More
+                    </a>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial - Minimalist Apple style */}
+      <section className="py-32 px-4 bg-gray-950">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <svg className="w-20 h-20 mx-auto text-purple-600/50 mb-12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+            
+            <blockquote className="text-3xl md:text-4xl lg:text-5xl font-thin text-white mb-8 leading-relaxed">
+              The Miami Beach Yacht Club has transformed how I experience yachting. 
+              The convenience and luxury are unmatched.
+            </blockquote>
+            
+            <cite className="text-gray-400 text-xl">
+              — Ben Crump, Civil Rights Attorney
+            </cite>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA - Premium feel */}
+      <section className="py-32 px-4 bg-gradient-to-b from-gray-950 to-black">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-thin text-white mb-8">
+              Your Journey Begins Here
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto">
+              Join an exclusive community of yachting enthusiasts who demand the very best.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href="/website/plans">
-                <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition transform hover:scale-105">
-                  APPLY NOW
-                </button>
+                <a className="group relative inline-block px-16 py-6 overflow-hidden rounded-full">
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+                  <span className="relative text-white text-xl font-medium">Apply for Membership</span>
+                </a>
               </Link>
-              <Link href="/website/tour">
-                <button className="px-8 py-4 border-2 border-white rounded-full text-lg font-semibold hover:bg-white hover:text-gray-900 transition transform hover:scale-105">
-                  BOOK A PRIVATE TOUR
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-8 h-12 border-2 border-white rounded-full flex items-start justify-center p-2">
-            <div className="w-1 h-3 bg-white rounded-full animate-scroll" />
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold mb-6">About our club</h2>
-              <p className="text-lg text-gray-300 mb-6">
-                The Miami Beach Yacht Club (MBYC) is a premier membership program that grants you unlimited access to a fleet of luxury yachts, paired with exclusive networking events for our community of high-end professionals. For a simple monthly fee, members enjoy hassle-free yachting and curated experiences both on and off the water.
-              </p>
-              <p className="text-lg text-gray-300 mb-8">
-                At MBYC, we believe in making the yachting lifestyle seamless and stress-free. Whether you're spending quality time with family or hosting important clients, our dedicated and professional crew ensures every trip is exceptional. From fueling and maintenance to providing a captain and crew, every detail is handled—just step aboard and enjoy the ride.
-              </p>
-              <Link href="/website/about">
-                <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full font-semibold hover:from-purple-700 hover:to-blue-600 transition">
-                  LEARN MORE
-                </button>
+              
+              <Link href="/website/contact">
+                <a className="group relative inline-block px-16 py-6 rounded-full border-2 border-white/30 backdrop-blur-sm hover:border-white transition-all duration-300">
+                  <span className="text-white text-xl font-medium">Schedule a Tour</span>
+                </a>
               </Link>
             </div>
-            <div className="relative h-96 rounded-2xl overflow-hidden">
-              <img 
-                src="/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg" 
-                alt="Luxury Yacht" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent" />
-            </div>
-          </div>
+          </motion.div>
         </div>
       </section>
-
-      {/* Membership Plans Preview */}
-      <section className="py-20 px-6 bg-gray-900/50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-4">Plans and pricing</h2>
-          <p className="text-xl text-center text-gray-300 mb-12">Choose the membership that fits your lifestyle</p>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            {/* Silver */}
-            <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700 hover:border-purple-500 transition">
-              <h3 className="text-2xl font-bold mb-2">Silver</h3>
-              <p className="text-gray-400 mb-4">Membership</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">$3,000</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <p className="text-sm text-purple-400 mb-4">+$10,000 One Time Fee</p>
-              <p className="text-gray-300">Access Yachts Up To 50ft</p>
-            </div>
-
-            {/* Gold */}
-            <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700 hover:border-purple-500 transition">
-              <h3 className="text-2xl font-bold mb-2">Gold</h3>
-              <p className="text-gray-400 mb-4">Membership</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">$5,000</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <p className="text-sm text-purple-400 mb-4">+$25,000 One Time Fee</p>
-              <p className="text-gray-300">Access Yachts Up To 70ft</p>
-            </div>
-
-            {/* Platinum */}
-            <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700 hover:border-purple-500 transition relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-sm">
-                Most Popular
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Platinum</h3>
-              <p className="text-gray-400 mb-4">Membership</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">$7,500</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <p className="text-sm text-purple-400 mb-4">+$50,000 One Time Fee</p>
-              <p className="text-gray-300">Access Yachts Up To 80ft</p>
-            </div>
-
-            {/* Diamond */}
-            <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700 hover:border-purple-500 transition">
-              <h3 className="text-2xl font-bold mb-2">Diamond</h3>
-              <p className="text-gray-400 mb-4">Membership</p>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">$10,000</span>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <p className="text-sm text-purple-400 mb-4">+$100,000 One Time Fee</p>
-              <p className="text-gray-300">Access Yachts Up To 100ft</p>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/website/plans">
-              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition transform hover:scale-105">
-                VIEW ALL PLANS
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <img 
-                src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
-                alt="MBYC" 
-                className="h-12 w-auto mb-4"
-              />
-              <p className="text-gray-400">The premier luxury yacht club experience in Miami Beach.</p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/website/about" className="hover:text-white transition">About Us</Link></li>
-                <li><Link href="/website/fleet" className="hover:text-white transition">Fleet</Link></li>
-                <li><Link href="/website/events" className="hover:text-white transition">Events</Link></li>
-                <li><Link href="/website/invest" className="hover:text-white transition">Invest</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>786-981-3875</li>
-                <li>membership@mbyc.miami</li>
-                <li>300 Alton Road, Suite 305b</li>
-                <li>Miami Beach, FL 33139</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Opening Hours</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Mon - Fri: 9am - 6pm</li>
-                <li>Sat: 10am - 6pm</li>
-                <li>Sun: 10am - 6pm</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>©2025 Miami Beach Yacht Club. All Rights Reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </main>
+    </div>
+    </WebsiteLayout>
   );
 }

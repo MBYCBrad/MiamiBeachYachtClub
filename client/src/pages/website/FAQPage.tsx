@@ -1,407 +1,269 @@
-import React, { useState } from "react";
-import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, Search, Anchor, DollarSign, Calendar, Shield, Users, HelpCircle } from "lucide-react";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import WebsiteLayout from '@/components/website/WebsiteLayout';
+import { ChevronDown, HelpCircle } from 'lucide-react';
 
 const faqCategories = [
   {
-    name: "Membership",
-    icon: Users,
+    category: 'Membership',
     questions: [
       {
-        question: "How does MBYC membership work?",
-        answer: "MBYC uses a token-based system where members receive monthly tokens based on their membership tier. Tokens are used to book yacht trips, with standard 4-hour trips requiring 1 token and 8-hour trips requiring 2 tokens."
+        q: 'What are the different membership tiers?',
+        a: 'We offer four membership tiers: Bronze (up to 40ft yachts, 4 days/month), Silver (up to 55ft, 8 days/month), Gold (up to 70ft, 15 days/month), and Platinum (unlimited access to all yachts).'
       },
       {
-        question: "What are the membership tiers?",
-        answer: "We offer four tiers: Silver ($3,000/month) for yachts up to 64ft, Gold ($5,000/month) for yachts up to 70ft, Platinum ($7,500/month) for yachts up to 80ft, and Diamond ($10,000/month) for access to our entire fleet including 100ft+ yachts."
+        q: 'Can I upgrade my membership anytime?',
+        a: 'Yes, you can upgrade your membership tier at any time. The price difference will be prorated for the remaining period. Downgrades take effect at the next billing cycle.'
       },
       {
-        question: "Is there a one-time initiation fee?",
-        answer: "Yes, each tier has a one-time initiation fee: Silver ($10,000), Gold ($25,000), Platinum ($50,000), and Diamond ($100,000). This fee helps maintain our fleet and exclusive member services."
+        q: 'What\'s included in my membership?',
+        a: 'All memberships include yacht access based on your tier, concierge services, member events, discounts on additional services, and access to our mobile app for bookings.'
       },
       {
-        question: "Can I upgrade or downgrade my membership?",
-        answer: "Yes, you can change your membership tier with 30 days notice. Upgrades take effect immediately, while downgrades become active at the start of your next billing cycle."
+        q: 'Are there any additional fees?',
+        a: 'Your membership covers yacht access and listed benefits. Additional services like special catering, premium events, or extended trips may have separate fees.'
       }
     ]
   },
   {
-    name: "Booking & Scheduling",
-    icon: Calendar,
+    category: 'Booking & Usage',
     questions: [
       {
-        question: "How far in advance can I book?",
-        answer: "Members can book up to 30 days in advance. Platinum and Diamond members enjoy priority booking privileges, allowing them to reserve prime dates before other tiers."
+        q: 'How do I book a yacht?',
+        a: 'You can book yachts through our mobile app or website. Simply select your desired yacht, choose available dates, and confirm your booking. Our concierge team is also available to assist.'
       },
       {
-        question: "How many reservations can I have at once?",
-        answer: "Silver and Gold members can have 4 active reservations (2 weekday, 2 weekend). Platinum and Diamond members can have 6 active reservations (3 weekday, 3 weekend)."
+        q: 'How far in advance can I book?',
+        a: 'Members can book up to 60 days in advance. Platinum members have priority access and can book up to 90 days ahead.'
       },
       {
-        question: "What's the cancellation policy?",
-        answer: "Cancellations made 48+ hours in advance receive full token refunds. Cancellations within 24-48 hours receive 50% token refund. Less than 24 hours notice results in forfeited tokens."
+        q: 'What happens to unused days?',
+        a: 'Monthly yacht days do not roll over to the next month. We encourage members to make the most of their monthly allocation.'
       },
       {
-        question: "Can I book back-to-back trips?",
-        answer: "Yes, you can book consecutive 4-hour slots to create longer trips. This requires using multiple tokens accordingly."
+        q: 'Can I cancel or modify bookings?',
+        a: 'Bookings can be modified or cancelled up to 48 hours before the scheduled time without penalty. Late cancellations may count against your monthly allocation.'
       }
     ]
   },
   {
-    name: "Yacht Experience",
-    icon: Anchor,
+    category: 'Yachts & Services',
     questions: [
       {
-        question: "What's included in each trip?",
-        answer: "Every trip includes a professional captain, crew, fuel, standard water toys, basic refreshments, and yacht insurance. Premium catering and special services can be arranged separately."
+        q: 'What types of yachts are available?',
+        a: 'Our fleet includes luxury motor yachts, sailing yachts, and catamarans ranging from 30ft to over 100ft, all maintained to the highest standards.'
       },
       {
-        question: "Can I bring guests?",
-        answer: "Yes! The number of guests depends on the yacht's capacity. All guests must sign waivers and follow MBYC safety guidelines."
+        q: 'Are crew members included?',
+        a: 'All yacht bookings include a professional captain. Gold and Platinum members receive complimentary crew service. Additional crew can be arranged for other tiers.'
       },
       {
-        question: "Are pets allowed on board?",
-        answer: "Small, well-behaved pets are allowed on most yachts with prior approval. A pet cleaning fee may apply."
+        q: 'What additional services are available?',
+        a: 'We offer catering, water sports equipment, photography, spa services, private chefs, and custom itinerary planning through our concierge team.'
       },
       {
-        question: "What happens in bad weather?",
-        answer: "Safety is our priority. If weather conditions are unsafe, trips are cancelled with full token refunds. Our captains make the final decision based on marine forecasts."
+        q: 'Where can I sail?',
+        a: 'Our yachts primarily operate in Miami and South Florida waters, including trips to the Keys, Bahamas (with advance notice), and along the Florida coast.'
       }
     ]
   },
   {
-    name: "Pricing & Payment",
-    icon: DollarSign,
+    category: 'Policies & Safety',
     questions: [
       {
-        question: "Are there any hidden fees?",
-        answer: "Your membership covers yacht usage, captain, crew, and fuel. Additional costs may include premium catering, special event services, or damages beyond normal wear."
+        q: 'What are the safety protocols?',
+        a: 'All yachts are equipped with required safety equipment and undergo regular inspections. Our captains are licensed professionals with extensive experience.'
       },
       {
-        question: "How does billing work?",
-        answer: "Memberships are billed monthly in advance. We accept all major credit cards and ACH transfers. Annual prepayment receives a 10% discount."
+        q: 'Is there an age requirement?',
+        a: 'Primary members must be 21 or older. Children are welcome on board with adult supervision. Some events may have age restrictions.'
       },
       {
-        question: "What payment methods do you accept?",
-        answer: "We accept Visa, Mastercard, American Express, ACH transfers, and wire transfers for annual payments."
+        q: 'What about weather cancellations?',
+        a: 'If weather conditions make sailing unsafe, we\'ll work with you to reschedule without using your monthly days. Safety is our top priority.'
       },
       {
-        question: "Is there a referral program?",
-        answer: "Yes! Refer a friend who joins and you both receive bonus tokens. Diamond members receive additional VIP referral benefits."
-      }
-    ]
-  },
-  {
-    name: "Safety & Insurance",
-    icon: Shield,
-    questions: [
-      {
-        question: "Are the yachts insured?",
-        answer: "Yes, all yachts carry comprehensive insurance including liability coverage. Members are covered under our policy during normal use."
-      },
-      {
-        question: "What safety equipment is on board?",
-        answer: "All yachts exceed USCG safety requirements with life jackets, emergency beacons, first aid kits, fire suppression systems, and emergency rafts."
-      },
-      {
-        question: "Are the captains licensed?",
-        answer: "All MBYC captains hold valid USCG licenses appropriate for the vessel size and are thoroughly vetted with extensive local knowledge."
-      },
-      {
-        question: "What's the damage policy?",
-        answer: "Members are responsible for damages beyond normal wear. We recommend reviewing our damage policy during onboarding. Optional damage waiver insurance is available."
-      }
-    ]
-  },
-  {
-    name: "Getting Started",
-    icon: HelpCircle,
-    questions: [
-      {
-        question: "How do I join MBYC?",
-        answer: "Start by selecting your membership tier and completing our online application. Once approved, pay your initiation fee and first month's dues to activate your account."
-      },
-      {
-        question: "Is there an application process?",
-        answer: "Yes, we have a brief application to ensure the best fit for our community. Most applications are approved within 24-48 hours."
-      },
-      {
-        question: "Do you offer tours?",
-        answer: "Absolutely! Schedule a complimentary tour of our fleet and facilities. Tours include meeting our team and experiencing a sample yacht."
-      },
-      {
-        question: "What if I've never been on a yacht?",
-        answer: "No experience necessary! Our crew provides orientation on your first trip and ensures you're comfortable. We also offer optional boating safety courses."
+        q: 'Are pets allowed?',
+        a: 'Pet policies vary by yacht. Please check with our concierge team when booking. Service animals are always welcome.'
       }
     ]
   }
 ];
 
 export default function FAQPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [openQuestions, setOpenQuestions] = useState<Record<string, boolean>>({});
 
-  const toggleQuestion = (question: string) => {
-    const newExpanded = new Set(expandedQuestions);
-    if (newExpanded.has(question)) {
-      newExpanded.delete(question);
-    } else {
-      newExpanded.add(question);
-    }
-    setExpandedQuestions(newExpanded);
+  const toggleQuestion = (id: string) => {
+    setOpenQuestions(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filteredCategories = selectedCategory === "All Categories"
-    ? faqCategories
-    : faqCategories.filter(cat => cat.name === selectedCategory);
-
-  const searchFilteredCategories = searchQuery
-    ? filteredCategories.map(cat => ({
-        ...cat,
-        questions: cat.questions.filter(
-          q => q.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               q.answer.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      })).filter(cat => cat.questions.length > 0)
-    : filteredCategories;
-
   return (
-    <main className="bg-gray-950 min-h-screen text-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-lg border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <img 
-                src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
-                alt="MBYC" 
-                className="h-10 w-auto"
-              />
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/website" className="text-gray-300 hover:text-white transition">Home</Link>
-              <Link href="/website/how-it-works" className="text-gray-300 hover:text-white transition">How It Works</Link>
-              <Link href="/website/plans" className="text-gray-300 hover:text-white transition">Plans & Pricing</Link>
-              <Link href="/website/events" className="text-gray-300 hover:text-white transition">Events</Link>
-              <Link href="/website/fleet" className="text-gray-300 hover:text-white transition">Fleet</Link>
-              <Link href="/website/faq" className="text-white font-semibold">FAQ</Link>
-              <Link href="/website/contact" className="text-gray-300 hover:text-white transition">Contact</Link>
-              <Link href="/auth" className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-white font-semibold hover:from-purple-700 hover:to-blue-600 transition">
-                Login
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="pt-24 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
+    <WebsiteLayout>
+      <div className="min-h-screen bg-black">
+        {/* Hero Section */}
+        <section className="relative py-24 px-4 overflow-hidden">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.8 }}
+            className="max-w-7xl mx-auto text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-thin text-white mb-6">
               Frequently Asked Questions
             </h1>
-            <p className="text-xl text-gray-300">
-              Everything you need to know about Miami Beach Yacht Club
+            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
+              Everything you need to know about Miami Beach Yacht Club membership
             </p>
           </motion.div>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search questions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-gray-900/50 border border-gray-700 rounded-full text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition"
-              />
-            </div>
+          {/* Animated Background */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-black to-black" />
+            <motion.div
+              animate={{ 
+                backgroundPosition: ['0% 0%', '100% 100%'],
+              }}
+              transition={{ 
+                duration: 30, 
+                repeat: Infinity, 
+                repeatType: 'reverse' 
+              }}
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 20% 50%, #7c3aed 0%, transparent 50%), radial-gradient(circle at 80% 80%, #2563eb 0%, transparent 50%)',
+                backgroundSize: '200% 200%',
+              }}
+            />
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Category Filter */}
-      <section className="px-6 pb-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-center gap-4">
-            <button
-              onClick={() => setSelectedCategory("All Categories")}
-              className={`px-6 py-3 rounded-full transition ${
-                selectedCategory === "All Categories"
-                  ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              All Categories
-            </button>
-            {faqCategories.map((category) => {
-              const Icon = category.icon;
-              return (
-                <button
-                  key={category.name}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-full transition ${
-                    selectedCategory === category.name
-                      ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span>{category.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Content */}
-      <section className="px-6 pb-20">
-        <div className="max-w-4xl mx-auto">
-          {searchFilteredCategories.map((category, categoryIndex) => {
-            const Icon = category.icon;
-            return (
-              <motion.div
-                key={category.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: categoryIndex * 0.1 }}
-                className="mb-12"
-              >
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-500 rounded-lg">
-                    <Icon size={24} className="text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold">{category.name}</h2>
-                </div>
-
-                <div className="space-y-4">
-                  {category.questions.map((item, questionIndex) => (
-                    <motion.div
-                      key={item.question}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, delay: questionIndex * 0.05 }}
-                      className="bg-gray-900/50 rounded-lg border border-gray-700 overflow-hidden"
-                    >
+        {/* FAQ Content */}
+        <section className="py-20 px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              {/* Category Navigation */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24">
+                  <h2 className="text-2xl font-medium text-white mb-6">Categories</h2>
+                  <nav className="space-y-2">
+                    {faqCategories.map((cat, index) => (
                       <button
-                        onClick={() => toggleQuestion(item.question)}
-                        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/50 transition"
+                        key={index}
+                        onClick={() => setActiveCategory(index)}
+                        className={`w-full text-left px-6 py-4 rounded-xl transition-all duration-300 ${
+                          activeCategory === index
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
+                            : 'text-gray-400 hover:text-white hover:bg-gray-900'
+                        }`}
                       >
-                        <span className="text-left font-semibold">{item.question}</span>
-                        {expandedQuestions.has(item.question) ? (
-                          <ChevronUp className="text-purple-400 flex-shrink-0" size={20} />
-                        ) : (
-                          <ChevronDown className="text-gray-400 flex-shrink-0" size={20} />
-                        )}
+                        {cat.category}
                       </button>
-                      
-                      {expandedQuestions.has(item.question) && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="px-6 pb-4"
-                        >
-                          <p className="text-gray-300">{item.answer}</p>
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  ))}
+                    ))}
+                  </nav>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+              </div>
 
-      {/* Still Have Questions CTA */}
-      <section className="py-20 px-6 bg-gradient-to-r from-purple-900/20 to-blue-900/20">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Still Have Questions?</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Our membership team is here to help you get started on your yachting journey
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/website/contact">
-              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full text-lg font-semibold hover:from-purple-700 hover:to-blue-600 transition transform hover:scale-105">
-                Contact Us
-              </button>
-            </Link>
-            <Link href="/website/tour">
-              <button className="px-8 py-4 border-2 border-white rounded-full text-lg font-semibold hover:bg-white hover:text-gray-900 transition">
-                Schedule a Tour
-              </button>
-            </Link>
+              {/* Questions & Answers */}
+              <div className="lg:col-span-2">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeCategory}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h2 className="text-3xl font-medium text-white mb-8">
+                      {faqCategories[activeCategory].category}
+                    </h2>
+                    
+                    <div className="space-y-4">
+                      {faqCategories[activeCategory].questions.map((item, index) => {
+                        const questionId = `${activeCategory}-${index}`;
+                        const isOpen = openQuestions[questionId];
+                        
+                        return (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                            className="border border-gray-800 rounded-xl overflow-hidden hover:border-gray-600 transition-colors"
+                          >
+                            <button
+                              onClick={() => toggleQuestion(questionId)}
+                              className="w-full px-6 py-6 flex items-center justify-between text-left hover:bg-gray-950/50 transition-colors"
+                            >
+                              <span className="text-lg font-medium text-white pr-4">
+                                {item.q}
+                              </span>
+                              <ChevronDown
+                                className={`w-5 h-5 text-purple-400 transition-transform flex-shrink-0 ${
+                                  isOpen ? 'rotate-180' : ''
+                                }`}
+                              />
+                            </button>
+                            
+                            <AnimatePresence>
+                              {isOpen && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="px-6 pb-6 text-gray-400 leading-relaxed">
+                                    {item.a}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="mt-8 text-gray-300">
-            <p>Call us directly at <span className="text-purple-400 font-semibold">786-981-3875</span></p>
-            <p>Monday - Sunday, 9:00 AM - 6:00 PM EST</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 py-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <img 
-                src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 
-                alt="MBYC" 
-                className="h-12 w-auto mb-4"
-              />
-              <p className="text-gray-400">The premier luxury yacht club experience in Miami Beach.</p>
+        {/* Contact Section */}
+        <section className="py-20 px-4 bg-gradient-to-t from-gray-950 to-black">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <HelpCircle className="w-16 h-16 text-purple-400 mx-auto mb-6" />
+            <h2 className="text-4xl md:text-5xl font-thin text-white mb-6">
+              Still Have Questions?
+            </h2>
+            <p className="text-xl text-gray-400 mb-12">
+              Our team is here to help you with any questions about membership
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <a
+                href="tel:+13055551234"
+                className="px-12 py-5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg rounded-full hover:from-purple-700 hover:to-blue-700 transition-all"
+              >
+                Call Us: (305) 555-1234
+              </a>
+              <a
+                href="mailto:info@miamibeachyachtclub.com"
+                className="px-12 py-5 border-2 border-white/30 text-white text-lg rounded-full hover:bg-white/10 transition-all"
+              >
+                Email Support
+              </a>
             </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/website/about" className="hover:text-white transition">About Us</Link></li>
-                <li><Link href="/website/fleet" className="hover:text-white transition">Fleet</Link></li>
-                <li><Link href="/website/events" className="hover:text-white transition">Events</Link></li>
-                <li><Link href="/website/invest" className="hover:text-white transition">Invest</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>786-981-3875</li>
-                <li>membership@mbyc.miami</li>
-                <li>300 Alton Road, Suite 305b</li>
-                <li>Miami Beach, FL 33139</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Opening Hours</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>Mon - Fri: 9am - 6pm</li>
-                <li>Sat: 10am - 6pm</li>
-                <li>Sun: 10am - 6pm</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>©2025 Miami Beach Yacht Club. All Rights Reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </main>
+          </motion.div>
+        </section>
+      </div>
+    </WebsiteLayout>
   );
 }
