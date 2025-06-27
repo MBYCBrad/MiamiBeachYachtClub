@@ -21,7 +21,7 @@ import {
   insertReviewSchema, insertMessageSchema, insertNotificationSchema, 
   insertTripLogSchema, insertMaintenanceRecordSchema, insertConditionAssessmentSchema,
   insertMaintenanceScheduleSchema, insertYachtValuationSchema, insertUsageMetricSchema,
-  UserRole, MembershipTier
+  insertApplicationSchema, UserRole, MembershipTier
 } from "@shared/schema";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
@@ -5861,6 +5861,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching crew assignments:', error);
       res.status(500).json({ message: 'Failed to fetch crew assignments' });
+    }
+  });
+
+  // MEMBERSHIP APPLICATION ROUTES
+  app.post("/api/applications", async (req, res) => {
+    try {
+      const validatedData = insertApplicationSchema.parse(req.body);
+      const application = await dbStorage.createApplication(validatedData);
+      
+      // Create notification for admin
+      await dbStorage.createNotification({
+        userId: 1, // Admin user ID
+        type: "application_submitted",
+        title: "New Membership Application",
+        message: `${validatedData.firstName} ${validatedData.lastName} has submitted a ${validatedData.membershipTier} membership application`,
+        priority: "high",
+        actionUrl: "/admin/applications"
+      });
+
+      res.status(201).json(application);
+    } catch (error: any) {
+      console.error('Error creating application:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/applications", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const applications = await dbStorage.getApplications();
+      res.json(applications);
+    } catch (error: any) {
+      console.error('Error fetching applications:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/admin/applications/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedApplication = await dbStorage.updateApplicationStatus(parseInt(id), status);
+      
+      if (!updatedApplication) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      res.json(updatedApplication);
+    } catch (error: any) {
+      console.error('Error updating application:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 

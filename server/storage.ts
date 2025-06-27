@@ -1,6 +1,6 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
-  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff,
+  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
@@ -10,6 +10,7 @@ import {
   type Conversation, type InsertConversation, type PhoneCall, type InsertPhoneCall,
   type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
   type CrewAssignment, type InsertCrewAssignment, type Staff, type InsertStaff,
+  type Application, type InsertApplication,
   type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
@@ -186,6 +187,12 @@ export interface IStorage {
   createYachtValuation(valuation: InsertYachtValuation): Promise<YachtValuation>;
   updateYachtValuation(id: number, valuation: Partial<InsertYachtValuation>): Promise<YachtValuation | undefined>;
   calculateYachtValuation(yachtId: number): Promise<YachtValuation>;
+
+  // Application methods
+  getApplications(): Promise<Application[]>;
+  getApplication(id: number): Promise<Application | undefined>;
+  createApplication(application: InsertApplication): Promise<Application>;
+  updateApplicationStatus(id: number, status: string): Promise<Application | undefined>;
 
   sessionStore: session.SessionStore;
 }
@@ -1527,6 +1534,55 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error fetching admin notifications:', error);
       return [];
+    }
+  }
+
+  // Application methods
+  async getApplications(): Promise<Application[]> {
+    try {
+      const result = await db
+        .select()
+        .from(applications)
+        .orderBy(desc(applications.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      return [];
+    }
+  }
+
+  async getApplication(id: number): Promise<Application | undefined> {
+    try {
+      const [result] = await db
+        .select()
+        .from(applications)
+        .where(eq(applications.id, id));
+      return result;
+    } catch (error) {
+      console.error('Error fetching application:', error);
+      return undefined;
+    }
+  }
+
+  async createApplication(application: InsertApplication): Promise<Application> {
+    const [result] = await db
+      .insert(applications)
+      .values(application)
+      .returning();
+    return result;
+  }
+
+  async updateApplicationStatus(id: number, status: string): Promise<Application | undefined> {
+    try {
+      const [result] = await db
+        .update(applications)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(applications.id, id))
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      return undefined;
     }
   }
 }

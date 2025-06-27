@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
+import AdminApplications from "@/pages/admin-applications";
 import AdminNotificationCenter from "@/components/AdminNotificationCenter";
 import MessagesDropdown from "@/components/MessagesDropdown";
 import { 
@@ -48,6 +49,7 @@ import {
   AlertCircle,
   XCircle,
   ChevronDown,
+  FileText,
   MessageSquare,
   Ship,
   BellRing,
@@ -96,6 +98,7 @@ interface AdminStats {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
+  { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
@@ -5391,6 +5394,7 @@ export default function AdminDashboard() {
         >
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
+            {activeSection === 'applications' && <AdminApplications />}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}

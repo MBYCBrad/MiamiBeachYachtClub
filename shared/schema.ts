@@ -543,6 +543,63 @@ export const messageAnalytics = pgTable("message_analytics", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const applications = pgTable("applications", {
+  id: serial("id").primaryKey(),
+  // Step 1: Personal Information
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  dateOfBirth: text("date_of_birth").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  country: text("country").notNull(),
+  occupation: text("occupation").notNull(),
+  employer: text("employer"),
+  
+  // Step 2: Membership Package Selection
+  membershipTier: text("membership_tier").notNull(), // bronze, silver, gold, platinum
+  preferredLocation: text("preferred_location").notNull(),
+  expectedUsageFrequency: text("expected_usage_frequency").notNull(),
+  primaryUseCase: text("primary_use_case").notNull(),
+  groupSize: text("group_size").notNull(),
+  
+  // Step 3: Financial Information
+  annualIncome: text("annual_income").notNull(),
+  netWorth: text("net_worth").notNull(),
+  liquidAssets: text("liquid_assets").notNull(),
+  creditScore: text("credit_score").notNull(),
+  bankName: text("bank_name").notNull(),
+  hasBoatingExperience: boolean("has_boating_experience").notNull(),
+  boatingExperienceYears: integer("boating_experience_years"),
+  boatingLicenseNumber: text("boating_license_number"),
+  
+  // Step 4: References and Final Details
+  referenceSource: text("reference_source").notNull(),
+  referralName: text("referral_name"),
+  preferredStartDate: text("preferred_start_date").notNull(),
+  specialRequests: text("special_requests"),
+  emergencyContactName: text("emergency_contact_name").notNull(),
+  emergencyContactPhone: text("emergency_contact_phone").notNull(),
+  emergencyContactRelation: text("emergency_contact_relation").notNull(),
+  agreeToTerms: boolean("agree_to_terms").notNull(),
+  agreeToBackground: boolean("agree_to_background").notNull(),
+  marketingOptIn: boolean("marketing_opt_in").default(false),
+  
+  // System fields
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, under_review
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: integer("reviewed_by").references(() => users.id),
+  reviewNotes: text("review_notes"),
+  approvalScore: integer("approval_score"), // 1-100 internal scoring
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas and types
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -644,6 +701,12 @@ export const insertMessageAnalyticsSchema = createInsertSchema(messageAnalytics)
   createdAt: true,
 });
 
+export const insertApplicationSchema = createInsertSchema(applications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Yacht maintenance insert schemas
 export const insertYachtComponentSchema = createInsertSchema(yachtComponents).omit({
   id: true,
@@ -742,6 +805,8 @@ export type PhoneCall = typeof phoneCalls.$inferSelect;
 export type InsertPhoneCall = z.infer<typeof insertPhoneCallSchema>;
 export type MessageAnalytics = typeof messageAnalytics.$inferSelect;
 export type InsertMessageAnalytics = z.infer<typeof insertMessageAnalyticsSchema>;
+export type Application = typeof applications.$inferSelect;
+export type InsertApplication = z.infer<typeof insertApplicationSchema>;
 
 // Yacht maintenance types
 export type YachtComponent = typeof yachtComponents.$inferSelect;
