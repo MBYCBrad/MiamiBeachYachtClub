@@ -1084,11 +1084,8 @@ export default function HomePage() {
                       </motion.div>
                     </div>
                     
-                    <Link href={`/fleet/${yacht.id}`}>
-                      <motion.a 
-                        className="relative flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-bold text-lg overflow-hidden group/btn"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                    <motion.div>
+                      <Link href={`/fleet/${yacht.id}`} className="relative flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-bold text-lg overflow-hidden group/btn"
                       >
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600"
@@ -1111,8 +1108,8 @@ export default function HomePage() {
                         >
                           <ArrowRight className="w-5 h-5 text-white" />
                         </motion.div>
-                      </motion.a>
-                    </Link>
+                      </Link>
+                    </motion.div>
                   </div>
 
                   {/* Hover Glow */}
@@ -2131,13 +2128,8 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <motion.div
             className="absolute inset-0"
-            animate={{
-              backgroundImage: [
-                "radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)",
-                "radial-gradient(circle at 80% 50%, rgba(79, 70, 229, 0.2) 0%, transparent 50%)",
-                "radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
-                "radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)"
-              ]
+            style={{
+              background: "radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)"
             }}
             transition={{ duration: 10, repeat: Infinity }}
           />

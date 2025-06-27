@@ -120,34 +120,32 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
           >
             <div className="flex flex-col items-center justify-center h-full space-y-8">
               {menuItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <a
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`text-2xl font-light transition-colors ${
-                      location === item.path 
-                        ? 'text-white' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                  </a>
+                <Link 
+                  key={item.path} 
+                  href={item.path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`text-2xl font-light transition-colors ${
+                    location === item.path 
+                      ? 'text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {item.label}
                 </Link>
               ))}
-              <Link href="/auth">
-                <a
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-2xl font-light text-gray-400 hover:text-white transition-colors"
-                >
-                  Login
-                </a>
+              <Link 
+                href="/auth"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-2xl font-light text-gray-400 hover:text-white transition-colors"
+              >
+                Login
               </Link>
-              <Link href="/website/plans">
-                <a
-                  onClick={() => setIsMenuOpen(false)}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xl font-medium rounded-full"
-                >
-                  Apply Now
-                </a>
+              <Link 
+                href="/website/plans"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xl font-medium rounded-full"
+              >
+                Apply Now
               </Link>
             </div>
           </motion.div>
@@ -179,10 +177,11 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
               <ul className="space-y-2">
                 {menuItems.map((item) => (
                   <li key={item.path}>
-                    <Link href={item.path}>
-                      <a className="text-gray-400 hover:text-white text-sm transition-colors">
-                        {item.label}
-                      </a>
+                    <Link 
+                      href={item.path}
+                      className="text-gray-400 hover:text-white text-sm transition-colors"
+                    >
+                      {item.label}
                     </Link>
                   </li>
                 ))}
