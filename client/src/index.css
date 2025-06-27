@@ -599,6 +599,23 @@ html, body {
     @apply hover:shadow-2xl hover:shadow-purple-600/20 transform hover:scale-105;
   }
 
+  /* Gradient animations */
+  @keyframes gradient-x {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient-x {
+    animation: gradient-x 5s ease infinite;
+  }
+
   /* Glass morphism effect */
   .glass-morphism {
     backdrop-filter: blur(16px) saturate(180%);

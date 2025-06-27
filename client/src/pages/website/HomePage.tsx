@@ -20,7 +20,7 @@ export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress, scrollY } = useScroll();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
@@ -32,20 +32,36 @@ export default function HomePage() {
   const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.1]);
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -200]);
 
+  // Revolutionary new animations
+  const scrollRotate = useTransform(scrollY, [0, 1000], [0, 360]);
+  const scrollWave = useTransform(scrollY, [0, 1000], [0, Math.PI * 2]);
+  const scrollPulse = useTransform(scrollYProgress, 
+    [0, 0.2, 0.4, 0.6, 0.8, 1],
+    [1, 1.2, 0.9, 1.1, 0.95, 1]
+  );
+
   const { data: heroVideo } = useQuery({ 
-    queryKey: ['/api/media/hero/active']
+    queryKey: ['/api/media/hero/active'],
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24
   });
 
   const { data: yachts = [] } = useQuery({ 
-    queryKey: ['/api/yachts'] 
+    queryKey: ['/api/yachts'],
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24
   });
 
   const { data: services = [] } = useQuery({ 
-    queryKey: ['/api/services'] 
+    queryKey: ['/api/services'],
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24
   });
 
   const { data: events = [] } = useQuery({ 
-    queryKey: ['/api/events'] 
+    queryKey: ['/api/events'],
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24
   });
 
   useEffect(() => {
@@ -289,6 +305,89 @@ export default function HomePage() {
 
   return (
     <WebsiteLayout>
+      {/* Revolutionary Infinite Particles System */}
+      <div className="fixed inset-0 pointer-events-none z-[5]">
+        {[...Array(100)].map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-1 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              scale: Math.random() * 0.5 + 0.5,
+              opacity: Math.random() * 0.5 + 0.3
+            }}
+            animate={{
+              x: [
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerWidth
+              ],
+              y: [
+                Math.random() * window.innerHeight,
+                Math.random() * window.innerHeight - 100,
+                Math.random() * window.innerHeight
+              ],
+              scale: [
+                Math.random() * 0.5 + 0.5,
+                Math.random() * 1 + 0.5,
+                Math.random() * 0.5 + 0.5
+              ],
+              opacity: [0.3, 0.8, 0.3]
+            }}
+            transition={{
+              duration: Math.random() * 20 + 20,
+              repeat: Infinity,
+              ease: "linear",
+              delay: Math.random() * 20
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Revolutionary Gradient Orbs */}
+      <div className="fixed inset-0 pointer-events-none z-[4]">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={`orb-${i}`}
+            className="absolute rounded-full blur-3xl"
+            style={{
+              width: `${300 + Math.random() * 200}px`,
+              height: `${300 + Math.random() * 200}px`,
+              background: `radial-gradient(circle, ${
+                i % 2 === 0 
+                  ? 'rgba(139, 92, 246, 0.3)' 
+                  : 'rgba(236, 72, 153, 0.3)'
+              } 0%, transparent 70%)`
+            }}
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight
+            }}
+            animate={{
+              x: [
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerWidth,
+                Math.random() * window.innerWidth
+              ],
+              y: [
+                Math.random() * window.innerHeight,
+                Math.random() * window.innerHeight,
+                Math.random() * window.innerHeight
+              ],
+              scale: [1, 1.5, 1],
+              opacity: [0.3, 0.6, 0.3]
+            }}
+            transition={{
+              duration: Math.random() * 30 + 30,
+              repeat: Infinity,
+              ease: "linear",
+              delay: Math.random() * 10
+            }}
+          />
+        ))}
+      </div>
+
       {/* Custom Cursor */}
       <motion.div
         className="fixed w-8 h-8 pointer-events-none z-[9999] mix-blend-difference"
@@ -314,8 +413,90 @@ export default function HomePage() {
           transformOrigin: "0%"
         }}
       />
+
+      {/* Revolutionary Floating Side Navigation */}
+      <motion.div 
+        className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-6"
+        initial={{ opacity: 0, x: 100 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 1, duration: 0.8 }}
+      >
+        {['hero', 'features', 'ai-matcher', 'ar-preview', 'gallery', 'tracker', 'testimonials', 'cta'].map((section, index) => (
+          <motion.button
+            key={section}
+            onClick={() => {
+              const element = document.getElementById(section);
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="relative group"
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <motion.div
+              className="w-3 h-3 rounded-full border border-white/30 relative overflow-hidden"
+              animate={{
+                backgroundColor: scrollProgress >= index * 0.125 && scrollProgress < (index + 1) * 0.125 
+                  ? 'transparent' 
+                  : 'rgba(255, 255, 255, 0.1)'
+              }}
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500"
+                initial={{ scale: 0 }}
+                animate={{
+                  scale: scrollProgress >= index * 0.125 && scrollProgress < (index + 1) * 0.125 ? 1 : 0
+                }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.div>
+            
+            {/* Tooltip */}
+            <span className="absolute right-full mr-4 text-xs text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity capitalize">
+              {section.replace('-', ' ')}
+            </span>
+          </motion.button>
+        ))}
+        
+        {/* Vertical Progress Line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 -translate-x-1/2 -z-10 overflow-hidden">
+          <motion.div 
+            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-purple-500 to-blue-500 w-full"
+            style={{
+              height: `${scrollProgress * 100}%`
+            }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Revolutionary 3D Text Effect */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-[6]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+      >
+        <motion.h1
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[300px] font-black text-transparent opacity-5"
+          style={{
+            WebkitTextStroke: '2px rgba(139, 92, 246, 0.1)',
+            textShadow: '0 0 100px rgba(139, 92, 246, 0.2)'
+          }}
+          animate={{
+            rotateY: [0, 360],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          MBYC
+        </motion.h1>
+      </motion.div>
+
       {/* Hero Section with Cinematic Video */}
-      <section className="relative h-screen overflow-hidden">
+      <section id="hero" className="relative h-screen overflow-hidden">
         <motion.div 
           style={{ 
             opacity: heroOpacity, 
@@ -433,26 +614,27 @@ export default function HomePage() {
               className="text-6xl sm:text-7xl lg:text-9xl font-bold text-white mb-8 tracking-tight"
             >
               <motion.span
-                animate={{ 
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                }}
-                transition={{ 
-                  duration: 10,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                className="block text-transparent bg-clip-text"
+                className="block text-transparent bg-clip-text cursor-pointer animate-gradient-x"
                 style={{
                   backgroundImage: "linear-gradient(90deg, #fff, #a78bfa, #fff, #818cf8, #fff)",
                   backgroundSize: "200% 100%"
                 }}
+                whileHover={{
+                  scale: 1.05,
+                  textShadow: "0 0 60px rgba(167, 139, 250, 0.8)"
+                }}
+                transition={{ type: "spring", stiffness: 300 }}
               >
                 Miami Beach
               </motion.span>
               <motion.span 
-                className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400 relative"
+                className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400 relative cursor-pointer"
                 animate={{ 
                   filter: ["hue-rotate(0deg)", "hue-rotate(360deg)"]
+                }}
+                whileHover={{
+                  scale: 1.05,
+                  filter: "drop-shadow(0 0 60px rgba(236, 72, 153, 0.8))"
                 }}
                 transition={{ 
                   duration: 10,
@@ -674,7 +856,7 @@ export default function HomePage() {
       </section>
 
       {/* Revolutionary Features Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+      <section id="features" className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
         {/* Dynamic Background Pattern */}
         <div className="absolute inset-0">
           <div 
@@ -799,7 +981,7 @@ export default function HomePage() {
       </section>
 
       {/* Cinematic Yacht Showcase */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
+      <section id="yachts" className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -970,7 +1152,7 @@ export default function HomePage() {
       </section>
 
       {/* Interactive Membership Tiers */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+      <section id="membership" className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0">
           <motion.div
@@ -1219,7 +1401,7 @@ export default function HomePage() {
       </section>
 
       {/* Cinematic Experience Showcase */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+      <section id="experiences" className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -1903,9 +2085,9 @@ export default function HomePage() {
                   <motion.img
                     key={activeGalleryImage === index ? "active" : "inactive"}
                     src={
-                      index % 3 === 0 ? yachts[0]?.images?.[0] : 
-                      index % 3 === 1 ? services[0]?.images?.[0] : 
-                      events[0]?.images?.[0] || "/api/placeholder/400/400"
+                      index % 3 === 0 ? (yachts[index % yachts.length]?.images?.[0] || yachts[0]?.images?.[0]) : 
+                      index % 3 === 1 ? (services[index % services.length]?.images?.[0] || services[0]?.images?.[0]) : 
+                      (events[index % events.length]?.images?.[0] || events[0]?.images?.[0])
                     }
                     alt={`Gallery ${index + 1}`}
                     className="w-full h-full object-cover"
@@ -1945,7 +2127,7 @@ export default function HomePage() {
       </section>
 
       {/* AI-Powered Yacht Matcher */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+      <section id="ai-matcher" className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
         <div className="absolute inset-0">
           <motion.div
             className="absolute inset-0"
@@ -2059,7 +2241,7 @@ export default function HomePage() {
                 >
                   <div className="aspect-w-16 aspect-h-12 rounded-2xl overflow-hidden">
                     <img 
-                      src={yachts[0]?.images?.[0] || "/api/placeholder/600/400"} 
+                      src={yachts[0]?.images?.[0] || yachts[1]?.images?.[0] || yachts[2]?.images?.[0]} 
                       alt="AI Recommended Yacht"
                       className="w-full h-full object-cover"
                     />
@@ -2166,7 +2348,7 @@ export default function HomePage() {
             >
               <div className="aspect-w-16 aspect-h-9 relative">
                 <img 
-                  src="/api/placeholder/1200/675" 
+                  src={yachts[3]?.images?.[0] || yachts[0]?.images?.[0]} 
                   alt="AR Preview"
                   className="w-full h-full object-cover"
                 />
