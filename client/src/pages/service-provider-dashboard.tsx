@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import {
   Popover,
   PopoverContent,
@@ -67,7 +68,8 @@ import {
   MessageSquare,
   Clock,
   History,
-  CreditCard
+  CreditCard,
+  X
 } from "lucide-react";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
