@@ -34,8 +34,8 @@ function HeroSection() {
       
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Top Edge - Deeper for mobile */}
-        <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
+        {/* Top Edge - Enhanced blur to blend into black background */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black via-black/80 to-transparent" />
         
         {/* Bottom Edge - Deeper for mobile */}
         <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
@@ -892,8 +892,8 @@ function FinalCTASection() {
       
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Top Edge - Deeper for mobile */}
-        <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
+        {/* Top Edge - Enhanced blur to blend into black background */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black via-black/80 to-transparent" />
         
         {/* Bottom Edge - Deeper for mobile */}
         <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />

@@ -23,8 +23,11 @@ export function VideoFooter() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/70" />
       
-      {/* Gradient blur from black at top */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent" />
+      {/* Enhanced gradient blur from black at top - stronger blend */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/50 to-transparent" />
+      
+      {/* Additional top blur for seamless blend */}
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black via-black/80 to-transparent" />
       
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
