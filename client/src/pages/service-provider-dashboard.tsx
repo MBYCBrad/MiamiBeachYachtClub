@@ -1347,10 +1347,8 @@ export default function ServiceProviderDashboard() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-gray-400 hover:text-white p-2"
-                onClick={() => {
-                  window.location.href = '/api/logout';
-                }}
+                className="text-gray-400 hover:text-white"
+                onClick={() => logoutMutation.mutate()}
               >
                 <LogOut className="h-4 w-4" />
               </Button>
