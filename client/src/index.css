@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Instant black background - prevent white screen flashes */
+html, body, #root {
+  background-color: #000000 !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Force black background on all page transitions */
+* {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
 @keyframes subtle-glow {
   0%, 100% {
     filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));

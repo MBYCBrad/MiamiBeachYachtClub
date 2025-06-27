@@ -10,6 +10,7 @@ import { usePrefetchData } from "@/hooks/use-prefetch";
 import { usePerformanceMonitor, preloadCriticalResources } from "@/hooks/use-performance-monitor";
 import { useInstantCache } from "@/hooks/use-instant-cache";
 import { Loader2 } from "lucide-react";
+import { LoadingScreen } from "@/components/loading-screen";
 
 import HomePage from "@/pages/home-page-new";
 import AuthPage from "@/pages/auth-page";
@@ -39,25 +40,7 @@ import FAQPage from "@/pages/faq";
 import InvestPage from "@/pages/invest";
 import ContactPage from "@/pages/contact";
 
-// Loading component to prevent white screens
-function LoadingScreen() {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <div className="relative">
-          <Loader2 className="h-12 w-12 text-purple-500 animate-spin mx-auto" />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full opacity-20 animate-pulse" />
-        </div>
-        <div className="text-white text-lg font-medium">
-          Miami Beach Yacht Club
-        </div>
-        <div className="text-gray-400 text-sm">
-          Loading your experience...
-        </div>
-      </div>
-    </div>
-  );
-}
+// Basic fallback - sophisticated 3D loading screen is in components/loading-screen.tsx
 
 function Router() {
   return (
@@ -102,11 +85,13 @@ function AppContent() {
   usePrefetchData();
   useInstantCache();
   
-  // Preload critical resources immediately and force dark mode
+  // Preload critical resources immediately and force dark mode with black background
   useEffect(() => {
     preloadCriticalResources();
-    // Force dark mode for MBYC application
+    // Force dark mode and black background for MBYC application
     document.documentElement.classList.add('dark');
+    document.body.style.backgroundColor = '#000000';
+    document.documentElement.style.backgroundColor = '#000000';
   }, []);
   
   return <Router />;

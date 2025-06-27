@@ -31,9 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | undefined, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    retry: 2,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 0, // No retries for instant response
+    staleTime: 1, // 1ms for instant refresh
+    gcTime: 1000, // 1 second cache
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const loginMutation = useMutation({
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Welcome back, ${user.username}!`,
       });
       
-      // Trigger role-based routing after successful login
+      // Trigger role-based routing after successful login - instant transition
       setTimeout(() => {
         if (user.role === "admin") {
           window.location.href = "/admin";
@@ -58,10 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           window.location.href = "/service-provider";
         } else if (user.role === "staff") {
           window.location.href = "/staff-portal";
+        } else if (user.role === "member") {
+          window.location.href = "/member";
         } else {
           window.location.href = "/";
         }
-      }, 100);
+      }, 1);
     },
     onError: (error: Error) => {
       toast({
@@ -113,12 +117,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const isLoadingAuth = isLoading || loginMutation.isPending || logoutMutation.isPending || registerMutation.isPending;
+
   return (
     <AuthContext.Provider
       value={{
         user: user ?? null,
         isAuthenticated: !!user,
-        isLoading,
+        isLoading: isLoadingAuth,
         error,
         loginMutation,
         logoutMutation,
