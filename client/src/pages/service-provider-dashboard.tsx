@@ -1150,28 +1150,31 @@ export default function ServiceProviderDashboard() {
                     >
                       <td className="py-4 px-4">
                         <div>
-                          <p className="text-white font-medium">{booking.memberName}</p>
-                          <p className="text-gray-400 text-sm">{booking.memberEmail}</p>
+                          <p className="text-white font-medium">{booking.user?.username || booking.user?.fullName || 'Unknown Member'}</p>
+                          <p className="text-gray-400 text-sm">{booking.user?.email || 'No email'}</p>
+                          <p className="text-gray-500 text-xs">{booking.user?.membershipTier || 'Standard'} Member</p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div>
-                          <p className="text-white font-medium">{booking.serviceName}</p>
-                          <p className="text-gray-400 text-sm">{booking.serviceCategory}</p>
+                          <p className="text-white font-medium">{booking.service?.name || 'Unknown Service'}</p>
+                          <p className="text-gray-400 text-sm">{booking.service?.category || 'Service'}</p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div>
                           <p className="text-white font-medium">
-                            {new Date(booking.bookingDate).toLocaleDateString()}
+                            {new Date(booking.createdAt || booking.bookingDate).toLocaleDateString()}
                           </p>
-                          <p className="text-gray-400 text-sm">{booking.bookingTime}</p>
+                          <p className="text-gray-400 text-sm">
+                            {booking.bookingTime || new Date(booking.createdAt || booking.bookingDate).toLocaleTimeString()}
+                          </p>
                         </div>
                       </td>
                       <td className="py-4 px-4">
                         <div className="text-center">
                           <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm">
-                            ${booking.totalPrice}
+                            ${booking.amount || booking.totalAmount || booking.price || '0'}
                           </div>
                         </div>
                       </td>
