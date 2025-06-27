@@ -83,6 +83,7 @@ export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'pending' | 'resolved'>('all');
   
   // Only allow service providers and admins access
   if (!user || (user.role !== 'service_provider' && user.role !== 'admin')) {
