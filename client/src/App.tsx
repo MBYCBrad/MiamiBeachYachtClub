@@ -28,11 +28,16 @@ import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
 import NotFound from "@/pages/not-found";
+import LandingPage from "@/pages/landing-page";
+import HowItWorks from "@/pages/how-it-works";
 
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
+      <Route path="/" component={LandingPage} />
+      <Route path="/home" component={LandingPage} />
+      <Route path="/how-it-works" component={HowItWorks} />
+      <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
