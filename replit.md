@@ -670,6 +670,14 @@ Changelog:
   - Created missing /api/trips endpoint that was causing frontend errors and slow performance
   - Fixed video streaming performance by implementing larger buffer sizes (1MB chunks) for smooth playback
   - Video response times improved from 6096ms to 329ms with optimized streaming implementation
+- June 27, 2025. Authentication flow completely fixed - eliminated redirect issues and white screens
+  - Fixed critical bug where member accounts redirected to marketing website instead of member dashboard
+  - Updated login redirect logic to send members to /member route instead of / (marketing site)
+  - Added comprehensive loading screen component with purple gradient spinner to prevent white screen flashes
+  - Enhanced authentication page with proper loading spinners during login process
+  - Implemented smooth loading states throughout authentication flow using useAuth hook in router
+  - All user roles now redirect properly: admin→/admin, yacht_owner→/yacht-owner, service_provider→/service-provider, staff→/staff, member→/member
+  - Authentication experience now seamless with no visual glitches or incorrect redirects
 
 ## Member Experience Feature Status
 

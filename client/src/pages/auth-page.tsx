@@ -19,7 +19,8 @@ import {
   Waves,
   ArrowRight,
   CheckCircle,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -120,8 +121,11 @@ const PremiumAuthPage: React.FC = () => {
             setLocation('/yacht-owner');
           } else if (user.role === UserRole.SERVICE_PROVIDER) {
             setLocation('/service-provider');
+          } else if (user.role === 'staff') {
+            setLocation('/staff');
           } else {
-            setLocation('/');
+            // Members go to their dashboard, not the marketing website
+            setLocation('/member');
           }
         }, 100);
       }

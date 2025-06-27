@@ -4,11 +4,12 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 import { usePrefetchData } from "@/hooks/use-prefetch";
 import { usePerformanceMonitor, preloadCriticalResources } from "@/hooks/use-performance-monitor";
 import { useInstantCache } from "@/hooks/use-instant-cache";
+import { Loader2 } from "lucide-react";
 
 import HomePage from "@/pages/home-page-new";
 import AuthPage from "@/pages/auth-page";
@@ -38,7 +39,34 @@ import FAQPage from "@/pages/faq";
 import InvestPage from "@/pages/invest";
 import ContactPage from "@/pages/contact";
 
+// Loading component to prevent white screens
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <div className="relative">
+          <Loader2 className="h-12 w-12 text-purple-500 animate-spin mx-auto" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full opacity-20 animate-pulse" />
+        </div>
+        <div className="text-white text-lg font-medium">
+          Miami Beach Yacht Club
+        </div>
+        <div className="text-gray-400 text-sm">
+          Loading your experience...
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Router() {
+  const { user, isLoading } = useAuth();
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
