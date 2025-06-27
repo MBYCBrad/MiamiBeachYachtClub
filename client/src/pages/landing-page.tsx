@@ -34,17 +34,17 @@ function HeroSection() {
       
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Top Edge */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
+        {/* Top Edge - Deeper for mobile */}
+        <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
         
-        {/* Bottom Edge */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Bottom Edge - Deeper for mobile */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
         
-        {/* Left Edge */}
-        <div className="absolute top-0 left-0 bottom-0 w-16 bg-gradient-to-r from-black/60 to-transparent" />
+        {/* Left Edge - Narrower */}
+        <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
         
-        {/* Right Edge */}
-        <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-black/60 to-transparent" />
+        {/* Right Edge - Narrower */}
+        <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
       </div>
 
       {/* Content */}
@@ -892,17 +892,17 @@ function FinalCTASection() {
       
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Top Edge */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
+        {/* Top Edge - Deeper for mobile */}
+        <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
         
-        {/* Bottom Edge */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Bottom Edge - Deeper for mobile */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
         
-        {/* Left Edge */}
-        <div className="absolute top-0 left-0 bottom-0 w-16 bg-gradient-to-r from-black/60 to-transparent" />
+        {/* Left Edge - Narrower */}
+        <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
         
-        {/* Right Edge */}
-        <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-black/60 to-transparent" />
+        {/* Right Edge - Narrower */}
+        <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
       </div>
       
       {/* Content */}
