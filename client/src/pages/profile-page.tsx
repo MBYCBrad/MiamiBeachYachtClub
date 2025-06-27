@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   User, 
@@ -24,7 +24,8 @@ import {
   Camera,
   Edit,
   Save,
-  X
+  X,
+  Upload
 } from "lucide-react";
 import {
   Select,
@@ -71,14 +72,22 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<ServiceProvider>>({});
+  const [profileImage, setProfileImage] = useState<string>('');
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch provider profile data
   const { data: profile, isLoading } = useQuery<ServiceProvider>({
     queryKey: ['/api/service-provider/profile'],
-    onSuccess: (data) => {
-      setFormData(data);
-    }
   });
+
+  // Initialize form data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFormData(profile);
+      setProfileImage(profile.profileImage || '');
+    }
+  }, [profile]);
 
   // Update profile mutation
   const updateProfileMutation = useMutation({

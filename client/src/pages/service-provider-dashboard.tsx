@@ -669,39 +669,7 @@ export default function ServiceProviderDashboard() {
           ))}
         </div>
 
-        {/* Service Categories */}
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-6">Service Categories</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {['Beauty & Grooming', 'Culinary', 'Wellness & Spa', 'Photography & Media', 'Entertainment', 'Water Sports', 'Concierge & Lifestyle'].map((category, index) => {
-              const categoryServices = services?.filter(s => s.category === category) || [];
-              const Icon = categoryIcons[category as keyof typeof categoryIcons];
-              
-              return (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300 cursor-pointer" onClick={() => setActiveSection('services')}>
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-white font-semibold">{category}</h3>
-                          <p className="text-gray-400 text-sm">{categoryServices.length} services</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
+
 
         {/* Quick Actions */}
         <div>
