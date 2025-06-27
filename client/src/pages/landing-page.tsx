@@ -262,12 +262,12 @@ function FeaturesSection() {
                   )}
                   
                   {/* App UI Overlay - Login Form */}
-                  <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center px-6">
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center px-6">
                     {/* Logo */}
                     <img 
                       src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
                       alt="Miami Beach Yacht Club" 
-                      className="w-24 h-24 object-contain mb-6" 
+                      className="w-40 h-40 object-contain mb-6" 
                     />
                     
                     {/* Login Form */}
