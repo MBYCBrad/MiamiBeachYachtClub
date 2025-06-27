@@ -546,6 +546,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/services/:id", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      const service = await dbStorage.getService(serviceId);
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      // Check ownership for service providers
+      if (req.user!.role === UserRole.SERVICE_PROVIDER && service.providerId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const deleted = await dbStorage.deleteService(serviceId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('service_deleted', { id: serviceId }, req.user!.id);
+
+      await auditService.logAction(req, 'delete', 'service', serviceId);
+      res.status(200).json({ message: "Service deleted successfully" });
+    } catch (error: any) {
+      await auditService.logAction(req, 'delete', 'service', parseInt(req.params.id), undefined, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/services/provider", requireAuth, async (req, res) => {
     try {
       if (req.user!.role !== UserRole.SERVICE_PROVIDER && req.user!.role !== UserRole.ADMIN) {
