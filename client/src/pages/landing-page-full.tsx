@@ -1,8 +1,9 @@
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Calendar, DollarSign, Compass, Ship, Gem, Crown, BadgeCheck, Menu, X } from "lucide-react";
+import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Calendar, DollarSign, Compass, Ship, Gem, Crown, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 import { useState, useEffect, useRef } from "react";
 
@@ -35,104 +36,6 @@ function CustomCursor() {
         <div className="absolute inset-0 bg-white/20 rounded-full scale-150 animate-ping" />
       </div>
     </div>
-  );
-}
-
-// Navigation Component
-function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'How It Works', href: '/how-it-works' },
-    { label: 'Plans & Pricing', href: '/pricing' },
-    { label: 'Events', href: '/events' },
-    { label: 'Fleet', href: '/fleet' },
-    { label: 'Book a Tour', href: '/book-tour' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Invest', href: '/invest' },
-    { label: 'Contact', href: '/contact' },
-  ];
-  
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/">
-            <div className="flex items-center space-x-3 cursor-pointer">
-              <div className="relative w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 p-[2px]">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                  <img 
-                    src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
-                    alt="MBYC" 
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
-              </div>
-              <span className="text-xl font-bold text-white hidden md:block">Miami Beach Yacht Club</span>
-            </div>
-          </Link>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <a className="text-gray-300 hover:text-white transition-colors duration-200 font-medium">
-                  {item.label}
-                </a>
-              </Link>
-            ))}
-            <Link href="/auth">
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-          
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-white p-2"
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-      
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-black/95 backdrop-blur-lg border-t border-white/10"
-          >
-            <div className="px-6 py-4 space-y-4">
-              {navItems.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <a 
-                    className="block text-gray-300 hover:text-white transition-colors duration-200 font-medium py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </a>
-                </Link>
-              ))}
-              <Link href="/auth">
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
   );
 }
 
@@ -895,8 +798,8 @@ function HowItWorksSection() {
   );
 }
 
-// Membership Tiers Section
-function MembershipTiersSection() {
+// Membership Section
+function MembershipSection() {
   const tiers = [
     {
       name: "Bronze",
@@ -1398,8 +1301,8 @@ function PartnersSection() {
   );
 }
 
-// Video CTA Section
-function VideoCTASection() {
+// CTA Section
+function CTASection() {
   return (
     <section className="py-32 relative overflow-hidden">
       <div className="absolute inset-0">
@@ -1462,96 +1365,6 @@ function VideoCTASection() {
               </Button>
             </Link>
           </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// Fleet Section
-function FleetSection() {
-  return (
-    <section className="py-32 bg-gradient-to-b from-black to-purple-900/10">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
-            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-          >
-            Our Premium Fleet
-          </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Explore our carefully curated collection of luxury yachts
-          </p>
-        </motion.div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              name: "Azure Dream",
-              size: "65ft",
-              capacity: "12 guests",
-              image: "/api/media/pexels-diego-f-parra-33199-843633%20(1)_1750537277228.jpg"
-            },
-            {
-              name: "Marina Breeze",
-              size: "40ft",
-              capacity: "8 guests",
-              image: "/api/media/pexels-mali-42092_1750537277229.jpg"
-            },
-            {
-              name: "Ocean Majesty",
-              size: "85ft",
-              capacity: "20 guests",
-              image: "/api/media/pexels-pixabay-163236_1750537277230.jpg"
-            }
-          ].map((yacht, index) => (
-            <Link key={yacht.name} href="/fleet">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group cursor-pointer"
-              >
-                <div className="relative h-80 rounded-2xl overflow-hidden">
-                  <img 
-                    src={yacht.image} 
-                    alt={yacht.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">{yacht.name}</h3>
-                    <p className="text-gray-300">{yacht.size} | {yacht.capacity}</p>
-                  </div>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
-          <Link href="/fleet">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg"
-            >
-              View Full Fleet
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
         </motion.div>
       </div>
     </section>
