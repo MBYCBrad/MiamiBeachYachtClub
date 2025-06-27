@@ -30,7 +30,40 @@ export function ProtectedRoute({
     );
   }
 
-
+  // Role-based routing: redirect users to their appropriate dashboards
+  if (path === "/" && user.role) {
+    if (user.role === "admin") {
+      return (
+        <Route path={path}>
+          <Redirect to="/admin" />
+        </Route>
+      );
+    } else if (user.role === "staff") {
+      return (
+        <Route path={path}>
+          <Redirect to="/staff-portal" />
+        </Route>
+      );
+    } else if (user.role === "yacht_owner") {
+      return (
+        <Route path={path}>
+          <Redirect to="/yacht-owner" />
+        </Route>
+      );
+    } else if (user.role === "service_provider") {
+      return (
+        <Route path={path}>
+          <Redirect to="/service-provider" />
+        </Route>
+      );
+    } else if (user.role === "member") {
+      return (
+        <Route path={path}>
+          <Redirect to="/member" />
+        </Route>
+      );
+    }
+  }
 
   return (
     <Route path={path}>

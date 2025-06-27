@@ -46,7 +46,7 @@ import ContactPage from "@/pages/contact";
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={DashboardRedirect} />
+      <Route path="/" component={LandingPage} />
       <Route path="/home" component={LandingPage} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/pricing" component={PricingPage} />
@@ -79,32 +79,6 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
-}
-
-// Component that redirects authenticated users to their dashboard
-function DashboardRedirect() {
-  const { user } = useAuth();
-  
-  if (!user) {
-    return <LandingPage />;
-  }
-  
-  // Redirect to appropriate dashboard based on role
-  if (user.role === "admin") {
-    window.location.href = "/admin";
-  } else if (user.role === "yacht_owner") {
-    window.location.href = "/yacht-owner";
-  } else if (user.role === "service_provider") {
-    window.location.href = "/service-provider";
-  } else if (user.role === "staff") {
-    window.location.href = "/staff-portal";
-  } else if (user.role === "member") {
-    window.location.href = "/member";
-  } else {
-    return <LandingPage />;
-  }
-  
-  return <LoadingScreen />;
 }
 
 function AppContent() {
