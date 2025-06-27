@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes pulse-glow {
+@keyframes subtle-glow {
   0%, 100% {
-    filter: brightness(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.9));
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
   }
   50% {
-    filter: brightness(1.2) drop-shadow(0 0 30px rgba(255, 255, 255, 1));
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
   }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+.animate-subtle-glow {
+  animation: subtle-glow 3s ease-in-out infinite;
 }
 
 /* Global Admin Dropdown and Interactive Element Styling */

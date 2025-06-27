@@ -29,7 +29,7 @@ export function Navigation() {
               <img 
                 src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
                 alt="MBYC" 
-                className="w-12 h-12 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.9)] animate-pulse-glow" 
+                className="w-12 h-12 object-contain animate-subtle-glow" 
               />
             </div>
           </Link>
