@@ -512,8 +512,7 @@ function EditServiceDialog({ service }: { service: any }) {
 }
 
 // Delete Service Dialog Component
-function DeleteServiceDialog({ service }: { service: any }) {
-  const [open, setOpen] = useState(false);
+function DeleteServiceButton({ service }: { service: any }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -528,7 +527,6 @@ function DeleteServiceDialog({ service }: { service: any }) {
         title: "Success",
         description: "Service deleted successfully",
       });
-      setOpen(false);
     },
     onError: (error: Error) => {
       toast({
@@ -540,29 +538,136 @@ function DeleteServiceDialog({ service }: { service: any }) {
   });
 
   return (
+    <Button 
+      size="sm" 
+      variant="outline" 
+      className="bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600/30"
+      onClick={() => deleteMutation.mutate()}
+      disabled={deleteMutation.isPending}
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  );
+}
+
+// View Service Dialog Component
+function ViewServiceDialog({ service }: { service: any }) {
+  const [open, setOpen] = useState(false);
+
+  return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600/30">
-          <Trash2 className="h-4 w-4" />
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-blue-500 text-gray-300 hover:text-blue-400">
+          <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-900 border-gray-700">
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-white">Delete Service</DialogTitle>
+          <DialogTitle className="text-white flex items-center">
+            <Eye className="h-5 w-5 mr-2 text-blue-400" />
+            View Service Details
+          </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Are you sure you want to delete "{service.name}"? This action cannot be undone.
+            Complete information about {service.name}
           </DialogDescription>
         </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Service Image */}
+          {service.imageUrl && (
+            <div className="rounded-lg overflow-hidden">
+              <img 
+                src={service.imageUrl}
+                alt={service.name}
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+          
+          {/* Basic Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Service Name</Label>
+              <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-white">{service.name}</p>
+              </div>
+            </div>
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Category</Label>
+              <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                  {service.category}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          
+          {/* Description */}
+          <div>
+            <Label className="text-gray-300 text-sm font-medium">Description</Label>
+            <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+              <p className="text-white leading-relaxed">{service.description}</p>
+            </div>
+          </div>
+          
+          {/* Pricing & Duration */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Price per Session</Label>
+              <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-white font-bold text-lg">${service.pricePerSession}</p>
+              </div>
+            </div>
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Duration</Label>
+              <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-white">{service.duration} minutes</p>
+              </div>
+            </div>
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Availability</Label>
+              <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
+                <Badge className={service.isAvailable ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}>
+                  {service.isAvailable ? 'Available' : 'Unavailable'}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          
+          {/* Additional Images Gallery */}
+          {service.images && service.images.length > 1 && (
+            <div>
+              <Label className="text-gray-300 text-sm font-medium">Service Gallery</Label>
+              <div className="mt-2 grid grid-cols-4 gap-2">
+                {service.images.map((img: string, idx: number) => (
+                  <div key={idx} className="rounded-lg overflow-hidden">
+                    <img 
+                      src={img}
+                      alt={`${service.name} ${idx + 1}`}
+                      className="w-full h-20 object-cover hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Service Stats */}
+          <div className="grid grid-cols-2 gap-4 p-4 bg-gray-800/30 rounded-lg">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">Total Bookings</p>
+              <p className="text-white text-xl font-bold">{service.bookingCount || 0}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">Average Rating</p>
+              <p className="text-white text-xl font-bold">{service.rating || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+        
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={() => deleteMutation.mutate()} 
-            disabled={deleteMutation.isPending}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            {deleteMutation.isPending ? "Deleting..." : "Delete Service"}
+          <Button variant="outline" onClick={() => setOpen(false)} className="border-gray-600 hover:border-gray-500">
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -599,7 +704,8 @@ export default function ServiceProviderDashboard() {
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
-  const [deletingService, setDeletingService] = useState<any>(null);
+
+  const [viewingService, setViewingService] = useState<any>(null);
   const [serviceFilters, setServiceFilters] = useState({
     category: "all",
     availability: "all",
@@ -903,19 +1009,7 @@ export default function ServiceProviderDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // View service details functionality
-                        console.log('Viewing service:', service.name);
-                        // Could open a detailed view modal or navigate to details page
-                      }}
-                      className="border-gray-600 hover:border-blue-500 text-gray-300 hover:text-blue-400"
-                      title="View Details"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <ViewServiceDialog service={service} />
                     <Button
                       size="sm"
                       variant="outline"
@@ -928,15 +1022,7 @@ export default function ServiceProviderDashboard() {
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setDeletingService(service)}
-                      className="border-gray-600 hover:border-red-500 text-gray-300 hover:text-red-400"
-                      title="Delete Service"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <DeleteServiceButton service={service} />
                   </div>
                 </div>
               </CardContent>
