@@ -557,7 +557,21 @@ export class DatabaseStorage implements IStorage {
 
   // Media Asset methods
   async getMediaAssets(filters?: { type?: string, category?: string, isActive?: boolean }): Promise<MediaAsset[]> {
-    return await db.select().from(mediaAssets);
+    let conditions = [];
+    
+    if (filters) {
+      if (filters.type) conditions.push(eq(mediaAssets.type, filters.type));
+      if (filters.category) conditions.push(eq(mediaAssets.category, filters.category));
+      if (filters.isActive !== undefined) conditions.push(eq(mediaAssets.isActive, filters.isActive));
+    }
+    
+    if (conditions.length === 0) {
+      return await db.select().from(mediaAssets);
+    } else if (conditions.length === 1) {
+      return await db.select().from(mediaAssets).where(conditions[0]);
+    } else {
+      return await db.select().from(mediaAssets).where(and(...conditions));
+    }
   }
 
   async getMediaAsset(id: number): Promise<MediaAsset | undefined> {
@@ -570,7 +584,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(mediaAssets)
       .where(and(
-        eq(mediaAssets.category, 'hero'),
+        eq(mediaAssets.category, 'hero_video'),
         eq(mediaAssets.type, 'video'),
         eq(mediaAssets.isActive, true)
       ));

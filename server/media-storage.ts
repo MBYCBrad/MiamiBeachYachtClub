@@ -14,13 +14,7 @@ export class MediaStorageService {
   }
 
   async getActiveHeroVideo(): Promise<MediaAsset | null> {
-    const heroVideos = await storage.getMediaAssets({
-      category: 'hero_video',
-      type: 'video',
-      isActive: true
-    });
-    
-    return heroVideos.length > 0 ? heroVideos[0] : null;
+    return await storage.getActiveHeroVideo();
   }
 
   async getAllMediaAssets(filters?: {

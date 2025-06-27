@@ -174,7 +174,7 @@ const PremiumAuthPage: React.FC = () => {
             perspective: 1000
           }}
         >
-          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+          <source src="/api/media/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
         </video>
         
         {/* Fallback gradient background when video is loading */}
