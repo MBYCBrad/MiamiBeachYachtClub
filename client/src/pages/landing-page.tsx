@@ -282,7 +282,19 @@ function FeaturesSection() {
             </div>
             
             {/* App Store Badges Below Phone */}
-            <div className="flex gap-4 justify-center mt-8">
+            <div className="flex gap-4 justify-center mt-16">
+              <motion.a
+                href="#"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="inline-block"
+              >
+                <img 
+                  src="/api/media/app-store-badge_1751029750830.png" 
+                  alt="Download on the App Store" 
+                  className="h-16 object-contain"
+                />
+              </motion.a>
               <motion.a
                 href="#"
                 whileHover={{ scale: 1.05 }}
