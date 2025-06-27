@@ -831,6 +831,42 @@ export default function Yacht3DCustom({
       roughness: 0.9
     });
     
+    // Define materials needed for later phases
+    const woodMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x8b7355,
+      roughness: 0.5,
+      metalness: 0
+    });
+    
+    const tvMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x000000,
+      metalness: 0.5,
+      roughness: 0.1
+    });
+    
+    const weldMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x606060,
+      metalness: 0.9,
+      roughness: 0.3
+    });
+    
+    const seatMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.2
+    });
+    
+    const goldMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xffd700,
+      metalness: 0.9,
+      roughness: 0.1
+    });
+    
+    const engineMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x404040,
+      metalness: 0.8,
+      roughness: 0.4
+    });
+    
     for (let i = 0; i < 10; i++) {
       const ropeCoilCurve = new THREE.CatmullRomCurve3([
         new THREE.Vector3(0, 0, 0),
@@ -1332,11 +1368,7 @@ export default function Yacht3DCustom({
     const hyperDetailGroup = new THREE.Group();
     
     // Layer 5001-6000: Individual hull rivets and welds
-    const weldMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x606060,
-      metalness: 0.9,
-      roughness: 0.3
-    });
+    // weldMaterial already defined earlier
     
     for (let i = 0; i < 1000; i++) {
       const weldGeometry = new THREE.CylinderGeometry(0.003, 0.002, 0.01);
@@ -2070,9 +2102,13 @@ export default function Yacht3DCustom({
           );
           
           // Bar stools
+          const stoolSeatMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x2c3e50,
+            roughness: 0.6
+          });
           for (let stool = 0; stool < 4; stool++) {
             const stoolGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.05);
-            const stoolSeat = new THREE.Mesh(stoolGeometry, seatMaterial);
+            const stoolSeat = new THREE.Mesh(stoolGeometry, stoolSeatMaterial);
             stoolSeat.position.set(
               3 - 1.2 + stool * 0.8,
               7.2,
@@ -2254,11 +2290,6 @@ export default function Yacht3DCustom({
           
           // Gold fixtures
           const fixtureGeometry = new THREE.TorusGeometry(0.15, 0.02, 8, 16);
-          const goldMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffd700,
-            metalness: 0.9,
-            roughness: 0.1
-          });
           const fixture = new THREE.Mesh(fixtureGeometry, goldMaterial);
           fixture.position.copy(item.position);
           fixture.position.y += 0.3;
@@ -2592,11 +2623,6 @@ export default function Yacht3DCustom({
       switch(itemType) {
         case 0: // Main engines
           const engineGeometry = new THREE.BoxGeometry(1.5, 1, 0.8);
-          const engineMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x2c2c2c,
-            metalness: 0.6,
-            roughness: 0.4
-          });
           item = new THREE.Mesh(engineGeometry, engineMaterial);
           item.position.set(
             -2 + Math.floor(i / 10) * 4,
