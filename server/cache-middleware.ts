@@ -52,8 +52,10 @@ setInterval(() => {
   const now = Date.now();
   const oneHour = 3600000;
   
-  for (const [key, value] of responseCache.entries()) {
-    if (now - value.timestamp > oneHour) {
+  const keys = Array.from(responseCache.keys());
+  for (const key of keys) {
+    const value = responseCache.get(key);
+    if (value && now - value.timestamp > oneHour) {
       responseCache.delete(key);
     }
   }

@@ -114,7 +114,7 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      staleTime: 60 * 60 * 1000, // 1 hour stale time - VERY aggressive
+      staleTime: 30 * 60 * 1000, // 30 minutes - ultra aggressive caching
       gcTime: 24 * 60 * 60 * 1000, // 24 hours memory retention - keep data for a full day
       retry: 0, // No retries for maximum speed
       structuralSharing: false, // Disable for performance
@@ -127,3 +127,37 @@ export const queryClient = new QueryClient({
     }
   },
 });
+
+// Prefetch critical data immediately on app load
+if (typeof window !== 'undefined') {
+  // Only prefetch if user is authenticated
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/user', { credentials: 'include' });
+      if (response.ok) {
+        // User is authenticated, prefetch critical data
+        const criticalEndpoints = [
+          '/api/yachts',
+          '/api/services', 
+          '/api/events',
+          '/api/conversations',
+          '/api/admin/notifications',
+          '/api/admin/bookings',
+          '/api/admin/analytics'
+        ];
+        
+        criticalEndpoints.forEach(endpoint => {
+          queryClient.prefetchQuery({
+            queryKey: [endpoint],
+            staleTime: 30 * 60 * 1000
+          });
+        });
+      }
+    } catch (error) {
+      // Silently fail prefetching
+    }
+  };
+  
+  // Run prefetch after a short delay to not block initial render
+  setTimeout(checkAuth, 100);
+}

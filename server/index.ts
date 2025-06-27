@@ -3,6 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 import compression from "compression";
+import { memoryCache } from "./memory-cache.js";
+import { DatabaseStorage } from "./storage.js";
 
 const app = express();
 
@@ -63,9 +65,9 @@ app.use((req, res, next) => {
   // Seed the database with demo data
   await seedDatabase();
   
-  // Initialize ultra-fast cache for instant responses
-  const { ultraFastCache } = await import("./ultra-fast-cache");
-  await ultraFastCache.initialize();
+  // Initialize memory cache for millisecond responses
+  const dbStorage = new DatabaseStorage();
+  await memoryCache.preloadCriticalData(dbStorage);
   
   const server = await registerRoutes(app);
 
