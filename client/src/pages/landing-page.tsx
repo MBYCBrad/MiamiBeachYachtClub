@@ -47,24 +47,7 @@ function HeroSection() {
           />
         </motion.div>
         
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="text-4xl md:text-6xl font-bold text-white mb-6"
-          style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-        >
-          Exclusive Yacht Membership in Miami Beach
-        </motion.h1>
-        
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto"
-        >
-          Say goodbye to yacht ownership hassles. Enjoy unlimited access to our luxury fleet with concierge service, professional crews, and exclusive member events.
-        </motion.p>
+
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -868,11 +851,32 @@ function FAQSection() {
   );
 }
 
-// Final CTA Section
+// Final CTA Section with Video Background
 function FinalCTASection() {
+  const { data: heroVideo } = useQuery({
+    queryKey: ['/api/media/hero/active'],
+  });
+
   return (
-    <section className="py-20 relative bg-gradient-to-b from-black via-purple-900/10 to-black">
-      <div className="max-w-4xl mx-auto px-6 text-center">
+    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+      {/* Video Background */}
+      {heroVideo && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src={(heroVideo as any).url} type={(heroVideo as any).mimetype} />
+        </video>
+      )}
+      
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/70" />
+      
+      {/* Content */}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -890,7 +894,7 @@ function FinalCTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
           viewport={{ once: true }}
-          className="text-xl text-gray-400 mb-10"
+          className="text-xl text-gray-300 mb-10"
         >
           Start your luxury yachting journey today. Limited memberships available.
         </motion.p>
@@ -914,7 +918,7 @@ function FinalCTASection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/contact'}
-            className="px-10 py-5 bg-transparent border-2 border-purple-500 text-purple-400 font-bold text-lg rounded-full hover:bg-purple-900/20 transition-all"
+            className="px-10 py-5 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all"
           >
             Contact Us
           </motion.button>
@@ -1041,7 +1045,6 @@ export default function LandingPage() {
       <FleetPreviewSection />
       <FAQSection />
       <FinalCTASection />
-      <VideoFooter />
       <Footer />
     </div>
   );
