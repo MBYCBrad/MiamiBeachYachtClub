@@ -930,10 +930,24 @@ export default function ServiceProviderDashboard() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
+                        // View service details functionality
+                        console.log('Viewing service:', service.name);
+                        // Could open a detailed view modal or navigate to details page
+                      }}
+                      className="border-gray-600 hover:border-blue-500 text-gray-300 hover:text-blue-400"
+                      title="View Details"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
                         setEditingService(service);
                         setOpen(true);
                       }}
                       className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
+                      title="Edit Service"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -942,6 +956,7 @@ export default function ServiceProviderDashboard() {
                       variant="outline"
                       onClick={() => setDeletingService(service)}
                       className="border-gray-600 hover:border-red-500 text-gray-300 hover:text-red-400"
+                      title="Delete Service"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -993,7 +1008,32 @@ export default function ServiceProviderDashboard() {
         >
           <Button 
             size="sm" 
+            onClick={() => {
+              // Export bookings functionality
+              const csvData = bookings?.map(booking => ({
+                member: booking.user?.username || booking.user?.fullName || 'Unknown',
+                service: booking.service?.name || 'Unknown Service',
+                date: new Date(booking.createdAt || booking.bookingDate).toLocaleDateString(),
+                price: booking.amount || booking.totalAmount || booking.price || '0',
+                status: booking.status
+              })) || [];
+              
+              const csvContent = "data:text/csv;charset=utf-8," 
+                + "Member,Service,Date,Price,Status\n"
+                + csvData.map(row => `${row.member},${row.service},${row.date},$${row.price},${row.status}`).join("\n");
+              
+              const encodedUri = encodeURI(csvContent);
+              const link = document.createElement("a");
+              link.setAttribute("href", encodedUri);
+              link.setAttribute("download", `service-bookings-${new Date().toISOString().split('T')[0]}.csv`);
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              
+              console.log('Exported', csvData.length, 'bookings to CSV');
+            }}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
+            title="Export bookings as CSV file"
           >
             <Calendar className="h-4 w-4 mr-2" />
             Export Bookings
@@ -1165,21 +1205,44 @@ export default function ServiceProviderDashboard() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => {
+                              // Message client functionality
+                              console.log('Opening message to client:', booking.user?.username || booking.user?.fullName);
+                              setActiveSection('messages');
+                            }}
                             className="text-purple-400 hover:text-white"
+                            title="Message Client"
                           >
                             <MessageSquare className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => {
+                              // View booking details functionality
+                              console.log('Viewing booking details:', {
+                                id: booking.id,
+                                service: booking.service?.name,
+                                client: booking.user?.username || booking.user?.fullName,
+                                status: booking.status,
+                                amount: booking.amount || booking.totalAmount || booking.price
+                              });
+                            }}
                             className="text-gray-400 hover:text-white"
+                            title="View Booking Details"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => {
+                              // Add notes or update booking functionality
+                              console.log('Adding notes/updating booking:', booking.id);
+                              // Could open a modal to add notes or update service details
+                            }}
                             className="text-gray-400 hover:text-green-400"
+                            title="Add Notes/Update"
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
