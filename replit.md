@@ -491,6 +491,12 @@ Changelog:
   - Updated HomePage to use simplified 3D yacht for better performance
   - Reduced 3D yacht height and added max-width constraints for better layout integration
   - Maintained visual appeal while ensuring stable rendering across all devices
+- June 27, 2025. Advanced 3D yacht with complete interior attempted
+  - User provided FBX/OBJ 3D model files (Yacht_With_Interior) in RAR format
+  - Created Yacht3DDetailed component with full interior: multiple floors, individual rooms (bedrooms, bathrooms, living areas, kitchen)
+  - Implemented interior details with furniture and proper room divisions across 3 deck levels
+  - Component caused React hooks error due to Three.js OrbitControls import issues
+  - Reverted to Yacht3DSimple for stability while preserving detailed component for future optimization
   - Created comprehensive staff management page with role-based permissions and granular access control
   - Established clear separation: regular users (members, yacht owners, service providers) access their own layers vs MBYC staff users only access admin layer
   - Implemented specific staff positions: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor, Member Relations Specialist, Concierge Manager, Concierge Agent, Guest Services Representative, VIP Coordinator, Operations Manager, Booking Coordinator, Service Coordinator, Event Coordinator, Safety Officer, Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator
