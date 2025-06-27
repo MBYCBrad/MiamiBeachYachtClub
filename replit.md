@@ -238,6 +238,14 @@ Changelog:
   - Added HTTP/2 resource prefetching for critical API endpoints
   - Optimized database queries with extended cache headers (5 minutes with stale-while-revalidate)
   - Member experience now responds in milliseconds instead of 2+ second delays
+- June 27, 2025. Invest page completely rewritten to match actual website content
+  - Transformed from fundraising page to yacht fleet partnership opportunity page
+  - New subtitle: "Say Goodbye to Yacht Costs. Say Hello to Revenue and Unlimited Access."
+  - Added comprehensive benefits section for yacht owners: Earn Passive Income, Unlock Elite Membership, No Hassle Ownership, Be Part of the Expansion
+  - Implemented 5-step process: Apply, Evaluation, Onboarding, Revenue Activation, Scale & Earn
+  - Added custom VideoCTA with yacht submission messaging
+  - All buttons now direct to yacht submission rather than investment opportunities
+  - Page accurately reflects that it's for yacht providers wanting to lease their vessels to MBYC's growing fleet
 - June 22, 2025. Enhanced yacht booking system with improved time slots and experience types
   - Added actual time ranges display for all 4-hour time slots (9:00 AM - 1:00 PM, 1:00 PM - 5:00 PM, etc.)
   - Replaced generic experience types with specific yacht activity categories

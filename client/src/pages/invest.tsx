@@ -206,7 +206,6 @@ export default function InvestPage() {
               </Link>
             </div>
           </motion.div>
-          </div>
         </div>
       </section>
 
