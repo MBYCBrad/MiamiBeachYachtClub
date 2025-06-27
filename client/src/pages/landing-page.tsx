@@ -55,7 +55,7 @@ function HeroSection() {
               ease: "easeInOut"
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 blur-[100px] opacity-50" />
+            <div className="absolute inset-0 bg-white blur-[100px] opacity-50" />
           </motion.div>
           
           {/* Main Logo with 3D Pulse Effect */}
@@ -66,9 +66,9 @@ function HeroSection() {
             animate={{
               scale: [1, 1.05, 1],
               filter: [
-                "drop-shadow(0 0 30px rgba(147, 51, 234, 0.5))",
-                "drop-shadow(0 0 60px rgba(147, 51, 234, 0.8))",
-                "drop-shadow(0 0 30px rgba(147, 51, 234, 0.5))"
+                "drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))",
+                "drop-shadow(0 0 60px rgba(255, 255, 255, 0.8))",
+                "drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))"
               ],
             }}
             transition={{
