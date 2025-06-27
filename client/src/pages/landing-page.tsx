@@ -36,13 +36,17 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="mb-12"
+          className="mb-8"
         >
-          {/* Static Logo */}
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            WELCOME TO THE
+          </h2>
           <img 
             src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
             alt="Miami Beach Yacht Club" 
-            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px]"
+            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px] mb-8"
           />
         </motion.div>
         
@@ -164,12 +168,43 @@ function FeaturesSection() {
           <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
             style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
-            Become A Member Today &
+            Become A Member &
             <br />
             <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Download The MBYC Mobile App
+              Download The MBYC Mobile App Today
             </span>
           </h2>
+          
+          {/* App Store Buttons */}
+          <div className="flex gap-4 justify-center mt-8">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
+            >
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-xs text-gray-400">Download on the</div>
+                <div className="text-sm font-semibold text-white">App Store</div>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
+            >
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
+                <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-xs text-gray-400">Get it on</div>
+                <div className="text-sm font-semibold text-white">Google Play</div>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-center">
@@ -203,7 +238,7 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[320px] h-[680px] mx-auto">
+            <div className="relative w-[390px] h-[844px] mx-auto">
               {/* iPhone Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751027471917.png" 
@@ -211,27 +246,9 @@ function FeaturesSection() {
                 className="absolute inset-0 w-full h-full object-contain z-10"
               />
               
-              {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
-              <div 
-                className="absolute"
-                style={{
-                  top: '9.8%',
-                  left: '5.8%',
-                  right: '5.8%',
-                  bottom: '9.8%',
-                  borderRadius: '36px',
-                  overflow: 'hidden',
-                  background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
-                  boxShadow: `
-                    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
-                    0 0 20px rgba(147, 51, 234, 0.3)
-                  `,
-                  transform: 'perspective(1000px) rotateX(2deg)',
-                  transformStyle: 'preserve-3d'
-                }}
-              >
-                {/* Video Background WITHOUT dark overlay */}
+              {/* Screen Content - Auth Page */}
+              <div className="absolute top-[80px] left-[30px] right-[30px] bottom-[80px] bg-black rounded-[40px] overflow-hidden">
+                {/* Video Background with Overlay */}
                 <div className="absolute inset-0">
                   {heroVideo && (
                     <video
@@ -239,56 +256,36 @@ function FeaturesSection() {
                       loop
                       muted
                       playsInline
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover opacity-40"
                     >
                       <source src={heroVideo.url} type={heroVideo.mimetype} />
                     </video>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
                 </div>
-                
-                {/* 3D Edge Effect */}
-                <div className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: `
-                      linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 3%),
-                      linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 3%),
-                      linear-gradient(to right, rgba(255,255,255,0.05) 0%, transparent 2%),
-                      linear-gradient(to left, rgba(0,0,0,0.2) 0%, transparent 2%)
-                    `,
-                  }}
-                />
                 
                 {/* Auth UI Content */}
                 <div className="relative z-20 h-full flex flex-col justify-center px-8 py-12">
-                  {/* Logo with Single Radiate Animation */}
+                  {/* Logo */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8 }}
-                    className="mx-auto mb-8 relative"
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                    }}
+                    className="mx-auto mb-8"
                   >
-                    {/* One-time Radiating Glow */}
-                    <motion.div
-                      className="absolute inset-0 -z-10"
-                      initial={{ scale: 1, opacity: 0 }}
-                      animate={{
-                        scale: [1, 1.5, 1.5],
-                        opacity: [0, 0.6, 0],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        ease: "easeOut"
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-white blur-[60px]" />
-                    </motion.div>
-                    
-                    {/* Static Logo */}
-                    <img 
-                      src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
-                      alt="MBYC" 
-                      className="relative w-24 h-auto mx-auto object-contain"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-xl opacity-50" />
+                      <img 
+                        src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
+                        alt="MBYC" 
+                        className="relative w-20 h-20 mx-auto"
+                      />
+                    </div>
                   </motion.div>
                   
                   {/* Title */}
@@ -355,22 +352,6 @@ function FeaturesSection() {
                 </div>
               </div>
             </div>
-            
-            {/* App Store Download Buttons Below Phone */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="mt-8 flex justify-center"
-            >
-              <img 
-                src="/api/media/f56cbae9-e83b-4b83-9a95-71a78334ee66-cover_1751028275659.png" 
-                alt="Download on App Store and Google Play" 
-                className="h-14 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </motion.div>
           </motion.div>
 
           {/* Right Features */}
