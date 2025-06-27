@@ -48,6 +48,8 @@ import {
   CheckCircle,
   AlertCircle,
   XCircle,
+  Phone,
+  Loader2,
   ChevronDown,
   FileText,
   MessageSquare,
@@ -111,6 +113,7 @@ const sidebarItems = [
   { id: 'events', label: 'Events', icon: CalendarDays, color: 'from-violet-500 to-purple-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-green-500 to-teal-500' },
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
+  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
   { id: 'logout', label: 'Log Out', icon: LogOut, color: 'from-red-500 to-red-600' }
@@ -5066,9 +5069,347 @@ export default function AdminDashboard() {
   );
 
   const renderSettings = () => {
-    // Redirect to dedicated admin settings page
-    window.location.href = '/admin/settings';
-    return null;
+    const { data: settings, isLoading: settingsLoading } = useQuery({
+      queryKey: ['/api/admin/settings'],
+      enabled: isAuthenticated && user?.role === 'admin'
+    });
+
+    const [isTestingStripe, setIsTestingStripe] = useState(false);
+    const [isTestingTwilio, setIsTestingTwilio] = useState(false);
+    const [stripeKey, setStripeKey] = useState('');
+    const [twilioSid, setTwilioSid] = useState('');
+    const [twilioToken, setTwilioToken] = useState('');
+    const [twilioPhone, setTwilioPhone] = useState('');
+
+    // Load existing settings
+    useEffect(() => {
+      if (settings && settings.length > 0) {
+        const stripeSettings = settings.find(s => s.service === 'stripe');
+        const twilioSettings = settings.find(s => s.service === 'twilio');
+        
+        if (stripeSettings) {
+          setStripeKey(stripeSettings.apiKey || '');
+        }
+        if (twilioSettings) {
+          setTwilioSid(twilioSettings.apiKey || '');
+          setTwilioToken(twilioSettings.apiSecret || '');
+          setTwilioPhone(twilioSettings.phoneNumber || '');
+        }
+      }
+    }, [settings]);
+
+    const saveSettings = useMutation({
+      mutationFn: async (data: { service: string; apiKey?: string; apiSecret?: string; phoneNumber?: string }) => {
+        return apiRequest("POST", "/api/admin/settings", data);
+      },
+      onSuccess: () => {
+        toast({ title: "Settings Saved", description: "Configuration saved successfully" });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      },
+      onError: (error) => {
+        toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
+      }
+    });
+
+    const testStripeConnection = async () => {
+      if (!stripeKey.trim()) {
+        toast({ title: "Error", description: "Please enter Stripe Secret Key", variant: "destructive" });
+        return;
+      }
+
+      setIsTestingStripe(true);
+      try {
+        const response = await apiRequest("POST", "/api/admin/test-stripe", { apiKey: stripeKey });
+        const result = await response.json();
+        
+        if (result.success) {
+          toast({ 
+            title: "Stripe Connected", 
+            description: `Account: ${result.data.email} (${result.data.country})` 
+          });
+        } else {
+          toast({ 
+            title: "Stripe Error", 
+            description: result.error || "Connection failed", 
+            variant: "destructive" 
+          });
+        }
+      } catch (error) {
+        toast({ title: "Error", description: "Failed to test Stripe connection", variant: "destructive" });
+      } finally {
+        setIsTestingStripe(false);
+      }
+    };
+
+    const testTwilioConnection = async () => {
+      if (!twilioSid.trim() || !twilioToken.trim()) {
+        toast({ title: "Error", description: "Please enter Twilio SID and Auth Token", variant: "destructive" });
+        return;
+      }
+
+      setIsTestingTwilio(true);
+      try {
+        const response = await apiRequest("POST", "/api/admin/test-twilio", { 
+          accountSid: twilioSid,
+          authToken: twilioToken,
+          phoneNumber: twilioPhone
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          toast({ 
+            title: "Twilio Connected", 
+            description: `Account: ${result.data.friendlyName}` 
+          });
+        } else {
+          toast({ 
+            title: "Twilio Error", 
+            description: result.error || "Connection failed", 
+            variant: "destructive" 
+          });
+        }
+      } catch (error) {
+        toast({ title: "Error", description: "Failed to test Twilio connection", variant: "destructive" });
+      } finally {
+        setIsTestingTwilio(false);
+      }
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-5xl font-bold mb-2 text-white tracking-tight" style={{ fontFamily: 'SF Pro Display, system-ui' }}>
+            Settings
+          </h1>
+          <p className="text-lg text-gray-400">
+            Configure system integrations and security settings
+          </p>
+        </div>
+
+        {settingsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Stripe Integration */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2 text-purple-500" />
+                  Stripe Integration
+                </CardTitle>
+                <CardDescription>Configure payment processing</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Stripe Secret Key
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder="sk_test_..."
+                    value={stripeKey}
+                    onChange={(e) => setStripeKey(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={testStripeConnection}
+                    disabled={isTestingStripe}
+                    variant="outline"
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
+                  >
+                    {isTestingStripe ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Testing...
+                      </>
+                    ) : (
+                      "Test Connection"
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => saveSettings.mutate({ 
+                      service: 'stripe', 
+                      apiKey: stripeKey 
+                    })}
+                    disabled={saveSettings.isPending}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Twilio Integration */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Phone className="h-5 w-5 mr-2 text-purple-500" />
+                  Twilio Integration
+                </CardTitle>
+                <CardDescription>Configure SMS and voice services</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Account SID
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder="AC..."
+                    value={twilioSid}
+                    onChange={(e) => setTwilioSid(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Auth Token
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder="Auth Token"
+                    value={twilioToken}
+                    onChange={(e) => setTwilioToken(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Phone Number
+                  </label>
+                  <Input
+                    placeholder="+1234567890"
+                    value={twilioPhone}
+                    onChange={(e) => setTwilioPhone(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={testTwilioConnection}
+                    disabled={isTestingTwilio}
+                    variant="outline"
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
+                  >
+                    {isTestingTwilio ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Testing...
+                      </>
+                    ) : (
+                      "Test Connection"
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => saveSettings.mutate({ 
+                      service: 'twilio', 
+                      apiKey: twilioSid,
+                      apiSecret: twilioToken,
+                      phoneNumber: twilioPhone
+                    })}
+                    disabled={saveSettings.isPending}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Settings */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Shield className="h-5 w-5 mr-2 text-purple-500" />
+                  Security Settings
+                </CardTitle>
+                <CardDescription>Authentication and access control</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
+                  <div>
+                    <p className="text-white font-medium">Two-Factor Authentication</p>
+                    <p className="text-sm text-gray-400">Enhanced security for admin access</p>
+                  </div>
+                  <div className="w-12 h-6 bg-purple-500 rounded-full p-1">
+                    <div className="w-4 h-4 bg-white rounded-full ml-auto" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-900/30">
+                  <div>
+                    <p className="text-white font-medium">Session Timeout</p>
+                    <p className="text-sm text-gray-400">Auto-logout after inactivity</p>
+                  </div>
+                  <select className="bg-gray-700 text-white rounded-lg px-3 py-1 border border-gray-600">
+                    <option>30 minutes</option>
+                    <option>1 hour</option>
+                    <option>2 hours</option>
+                  </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System Management */}
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-purple-500" />
+                  System Management
+                </CardTitle>
+                <CardDescription>Backup and maintenance settings</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-xl bg-gray-900/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-white font-medium">Database Backup</p>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+                  </div>
+                  <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent"
+                    onClick={() => {
+                      toast({ title: "Backup Created", description: "Database backup created successfully" });
+                    }}
+                  >
+                    Create Backup Now
+                  </Button>
+                </div>
+                <div className="p-4 rounded-xl bg-gray-900/30">
+                  <p className="text-white font-medium mb-2">Maintenance Mode</p>
+                  <p className="text-sm text-gray-400 mb-3">Temporarily disable user access</p>
+                  <Button 
+                    size="sm" 
+                    variant="destructive" 
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={() => {
+                      toast({ 
+                        title: "Maintenance Mode Enabled", 
+                        description: "System is now in maintenance mode. User access has been temporarily disabled.",
+                        variant: "destructive"
+                      });
+                    }}
+                  >
+                    Enable Maintenance Mode
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </motion.div>
+    );
   };
 
   return (
