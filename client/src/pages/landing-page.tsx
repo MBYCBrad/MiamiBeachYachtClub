@@ -240,13 +240,13 @@ function FeaturesSection() {
                     <div className="w-full max-w-[240px] space-y-4">
                       <h3 className="text-white text-xl font-bold text-center mb-2">Member Login</h3>
                       
-                      {/* Email Input */}
+                      {/* Username Input */}
                       <div className="relative">
                         <input 
-                          type="email" 
-                          placeholder="Email" 
+                          type="text" 
+                          placeholder="Username" 
                           className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 text-sm focus:outline-none focus:border-purple-400"
-                          defaultValue="member@mbyc.com"
+                          defaultValue="Simon"
                         />
                       </div>
                       
