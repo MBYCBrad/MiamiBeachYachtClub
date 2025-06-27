@@ -668,33 +668,6 @@ export default function ServiceProviderDashboard() {
             </motion.div>
           ))}
         </div>
-
-
-
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Add Service", icon: Plus, action: () => { setActiveSection('services'); } },
-              { label: "View Bookings", icon: Calendar, action: () => setActiveSection('bookings') },
-              { label: "Messages", icon: MessageSquare, action: () => setActiveSection('messages') },
-              { label: "Settings", icon: Settings, action: () => setActiveSection('settings') },
-            ].map((action, index) => (
-              <motion.button
-                key={action.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={action.action}
-                className="bg-gray-950 border border-gray-800 rounded-lg p-4 hover:bg-gray-900 transition-all duration-300 flex items-center space-x-3"
-              >
-                <action.icon className="h-5 w-5 text-purple-400" />
-                <span className="text-white">{action.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
       </div>
     );
   };
