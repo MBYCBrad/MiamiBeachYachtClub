@@ -727,17 +727,38 @@ export default function ServiceProviderDashboard() {
   };
 
   const renderServices = () => (
-    <div className="space-y-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>
-            Service Management
-          </h1>
-          <p className="text-lg text-gray-400">Manage your yacht concierge services</p>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            My Services
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage your yacht concierge services and availability
+          </motion.p>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4"
+        >
           <Button onClick={() => {
             setEditingService(null);
             setOpen(true);
@@ -775,8 +796,6 @@ export default function ServiceProviderDashboard() {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                <Separator className="bg-gray-700" />
                 
                 <div className="space-y-3">
                   <div>
@@ -832,7 +851,7 @@ export default function ServiceProviderDashboard() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-sm text-gray-400">
-                    {filteredServices?.length || 0} of {services?.length || 0} services
+                    {filteredServices.length} of {services?.length || 0} services
                   </span>
                   <Button
                     size="sm"
@@ -842,7 +861,7 @@ export default function ServiceProviderDashboard() {
                       priceRange: "all"
                     })}
                     variant="outline"
-                    className="border-gray-600 hover:border-purple-500"
+                    className="border-gray-600 hover:border-orange-500"
                   >
                     Clear All
                   </Button>
@@ -850,20 +869,20 @@ export default function ServiceProviderDashboard() {
               </div>
             </PopoverContent>
           </Popover>
-        </div>
+        </motion.div>
       </div>
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredServices?.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
-            <Package className="h-12 w-12 text-gray-600 mb-4" />
+            <Settings className="h-12 w-12 text-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-gray-400 mb-2">No services found</h3>
             <p className="text-gray-500 text-center">
               No services match your current filter criteria.{" "}
               <Button 
                 variant="link" 
-                className="text-purple-400 hover:text-purple-300 p-0"
+                className="text-orange-400 hover:text-orange-300 p-0"
                 onClick={() => setServiceFilters({
                   category: "all",
                   availability: "all",
@@ -877,7 +896,14 @@ export default function ServiceProviderDashboard() {
           </div>
         ) : (
           filteredServices?.map((service: any, index: number) => (
-            <Card key={service.id} className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
+            <motion.div
+            key={service.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
               <div className="relative">
                 {service.images && service.images.length > 1 ? (
                   <div className="relative h-48 bg-gray-900">
@@ -915,6 +941,11 @@ export default function ServiceProviderDashboard() {
                     {service.category}
                   </Badge>
                 </div>
+                <div className="absolute top-4 left-4">
+                  <Badge className={`${service.isAvailable ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                    {service.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
               </div>
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
@@ -922,29 +953,22 @@ export default function ServiceProviderDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-purple-400 hover:text-white"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-gray-400 hover:text-white"
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => {
                         setEditingService(service);
                         setOpen(true);
                       }}
+                      className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="text-gray-400 hover:text-red-400"
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => setDeletingService(service)}
+                      className="border-gray-600 hover:border-red-500 text-gray-300 hover:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -952,14 +976,11 @@ export default function ServiceProviderDashboard() {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           ))
         )}
       </div>
-
-      <AddServiceDialog />
-      <EditServiceDialog service={editingService} />
-      <DeleteServiceDialog service={deletingService} />
-    </div>
+    </motion.div>
   );
 
 
