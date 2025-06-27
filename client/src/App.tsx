@@ -28,22 +28,11 @@ import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
 import NotFound from "@/pages/not-found";
-import WebsiteHomePage from "@/pages/website/HomePage";
-import FleetPage from "@/pages/website/FleetPage";
-import PlansPage from "@/pages/website/PlansPage";
-import WebsiteEventsPage from "@/pages/website/EventsPage";
-import FAQPage from "@/pages/website/FAQPage";
-import ContactPage from "@/pages/website/ContactPage";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={WebsiteHomePage} />
-      <Route path="/fleet" component={FleetPage} />
-      <Route path="/plans" component={PlansPage} />
-      <Route path="/events" component={WebsiteEventsPage} />
-      <Route path="/faq" component={FAQPage} />
-      <Route path="/contact" component={ContactPage} />
+      <ProtectedRoute path="/" component={HomePage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
@@ -55,11 +44,11 @@ function Router() {
       <ProtectedRoute path="/yacht-owner-calendar" component={YachtOwnerCalendar} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
-      <ProtectedRoute path="/member-events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
+      <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/yachts/:id/book" component={YachtBooking} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
-      <ProtectedRoute path="/member-events/:id" component={EventDetail} />
+      <ProtectedRoute path="/events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
