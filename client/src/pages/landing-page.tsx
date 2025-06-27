@@ -32,39 +32,77 @@ function HeroSection() {
       {/* Light Overlay */}
       <div className="absolute inset-0 bg-black/30" />
       
-      {/* Glass 3D Frame Effect */}
-      <div className="absolute inset-8 md:inset-16 lg:inset-20 pointer-events-none">
-        {/* Glass Border with 3D Effect */}
+      {/* 3D Anamorphic Edges */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top Edge */}
         <div 
-          className="absolute inset-0 rounded-3xl"
+          className="absolute top-0 left-0 right-0 h-1"
           style={{
-            background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: `
-              inset 0 0 20px rgba(147, 51, 234, 0.2),
-              inset 0 0 40px rgba(99, 102, 241, 0.1),
-              0 0 40px rgba(147, 51, 234, 0.2),
-              0 20px 40px rgba(0, 0, 0, 0.5)
-            `,
-            transform: 'perspective(1000px) rotateX(2deg)',
+            background: 'linear-gradient(to right, transparent 10%, rgba(147, 51, 234, 0.8) 50%, transparent 90%)',
+            boxShadow: '0 2px 20px rgba(147, 51, 234, 0.5)',
+            transform: 'perspective(1000px) rotateX(-45deg)',
+            transformOrigin: 'top center'
           }}
         />
         
-        {/* Inner Glass Highlight */}
+        {/* Bottom Edge */}
         <div 
-          className="absolute inset-1 rounded-3xl"
+          className="absolute bottom-0 left-0 right-0 h-1"
           style={{
-            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
-            pointerEvents: 'none'
+            background: 'linear-gradient(to right, transparent 10%, rgba(99, 102, 241, 0.8) 50%, transparent 90%)',
+            boxShadow: '0 -2px 20px rgba(99, 102, 241, 0.5)',
+            transform: 'perspective(1000px) rotateX(45deg)',
+            transformOrigin: 'bottom center'
           }}
         />
         
-        {/* Edge Reflections */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400/50 to-transparent" />
-        <div className="absolute top-0 left-0 bottom-0 w-px bg-gradient-to-b from-transparent via-purple-400/50 to-transparent" />
-        <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-indigo-400/50 to-transparent" />
+        {/* Left Edge */}
+        <div 
+          className="absolute top-0 left-0 bottom-0 w-1"
+          style={{
+            background: 'linear-gradient(to bottom, transparent 10%, rgba(147, 51, 234, 0.8) 50%, transparent 90%)',
+            boxShadow: '2px 0 20px rgba(147, 51, 234, 0.5)',
+            transform: 'perspective(1000px) rotateY(45deg)',
+            transformOrigin: 'left center'
+          }}
+        />
+        
+        {/* Right Edge */}
+        <div 
+          className="absolute top-0 right-0 bottom-0 w-1"
+          style={{
+            background: 'linear-gradient(to bottom, transparent 10%, rgba(99, 102, 241, 0.8) 50%, transparent 90%)',
+            boxShadow: '-2px 0 20px rgba(99, 102, 241, 0.5)',
+            transform: 'perspective(1000px) rotateY(-45deg)',
+            transformOrigin: 'right center'
+          }}
+        />
+        
+        {/* Corner Highlights for 3D Effect */}
+        <div 
+          className="absolute top-0 left-0 w-20 h-20"
+          style={{
+            background: 'radial-gradient(circle at 0% 0%, rgba(147, 51, 234, 0.4) 0%, transparent 70%)',
+          }}
+        />
+        <div 
+          className="absolute top-0 right-0 w-20 h-20"
+          style={{
+            background: 'radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.4) 0%, transparent 70%)',
+          }}
+        />
+        <div 
+          className="absolute bottom-0 left-0 w-20 h-20"
+          style={{
+            background: 'radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.4) 0%, transparent 70%)',
+          }}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-20 h-20"
+          style={{
+            background: 'radial-gradient(circle at 100% 100%, rgba(147, 51, 234, 0.4) 0%, transparent 70%)',
+          }}
+        />
       </div>
 
       {/* Content */}
