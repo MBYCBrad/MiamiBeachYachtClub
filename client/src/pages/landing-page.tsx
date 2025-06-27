@@ -562,19 +562,19 @@ function TestimonialsSection() {
     {
       name: "Michael Chen",
       role: "Platinum Member",
-      image: "/api/media/pexels-cottonbro-4065880_1750547001525.jpg",
+      image: "/api/media/michael_chen_profile.jpg",
       quote: "MBYC has transformed my weekends. The concierge service is exceptional, and the yacht selection is unmatched in Miami."
     },
     {
       name: "Sarah Williams",
       role: "Gold Member",
-      image: "/api/media/pexels-anastasia-shuraeva-7662328_1750561361972.jpg",
+      image: "/api/media/sarah_williams_profile.jpg",
       quote: "From booking to boarding, everything is seamless. The crew is professional and the experiences are unforgettable."
     },
     {
       name: "David Rodriguez",
       role: "Diamond Member",
-      image: "/api/media/pexels-italo-melo-2379004_1750537290661.jpg",
+      image: "/api/media/david_rodriguez_profile.jpg",
       quote: "Being a Diamond member has opened doors to incredible networking opportunities. It's more than a yacht club - it's a lifestyle."
     }
   ];
@@ -658,22 +658,22 @@ function TestimonialsSection() {
 function FleetPreviewSection() {
   const yachts = [
     {
-      name: "Azure Dream",
-      size: "65ft",
-      capacity: "12 guests",
-      image: "/api/media/pexels-albin-berlin-32056-919073_1750536883658.jpg"
-    },
-    {
       name: "Marina Breeze",
-      size: "75ft",
-      capacity: "15 guests",
-      image: "/api/media/pexels-pixabay-163236_1750536883656.jpg"
+      size: "40ft",
+      capacity: "8 guests",
+      image: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg"
     },
     {
-      name: "Ocean Pearl",
-      size: "85ft",
-      capacity: "20 guests",
-      image: "/api/media/pexels-nikola-johnny-mirkovic-660282-11887305_1750536883660.jpg"
+      name: "Coastal Star",
+      size: "45ft",
+      capacity: "10 guests",
+      image: "/api/media/pexels-mali-42092_1750537277229.jpg"
+    },
+    {
+      name: "Azure Elegance",
+      size: "75ft",
+      capacity: "12 guests",
+      image: "/api/media/pexels-mali-42091_1750537294323.jpg"
     }
   ];
 
