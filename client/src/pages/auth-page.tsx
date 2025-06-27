@@ -164,7 +164,15 @@ const PremiumAuthPage: React.FC = () => {
           onLoadedData={() => setIsVideoLoaded(true)}
           onError={(e) => console.error('Video error:', e)}
           className="w-full h-full object-cover"
-          style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.5s ease-in-out' }}
+          style={{ 
+            opacity: isVideoLoaded ? 1 : 0, 
+            transition: 'opacity 0.5s ease-in-out',
+            // Force hardware acceleration
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+            perspective: 1000
+          }}
         >
           <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
         </video>
