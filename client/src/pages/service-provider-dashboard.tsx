@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -67,11 +67,13 @@ import {
   MessageSquare,
   Clock,
   History,
-  CreditCard
+  CreditCard,
+  X
 } from "lucide-react";
 import { MultiImageUpload } from "@/components/multi-image-upload";
-import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
+import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor, Bell, HeadphonesIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Menu, Zap } from "lucide-react";
 
 // Service form schema
 const serviceFormSchema = z.object({
@@ -1290,62 +1292,80 @@ export default function ServiceProviderDashboard() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen">
-          <div className="p-6">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <User className="h-6 w-6 text-white" />
+      {/* Main Content */}
+      <main className="pb-20 md:pb-8">
+        {/* Desktop Sidebar */}
+        <div className="hidden md:flex">
+          <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen">
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-8">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold">Service Provider</h2>
+                  <p className="text-gray-400 text-sm">{user?.username}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-white font-bold">Service Provider</h2>
-                <p className="text-gray-400 text-sm">{user?.username}</p>
-              </div>
+              
+              <nav className="space-y-2">
+                {[
+                  { id: 'overview', label: 'Overview', icon: BarChart3 },
+                  { id: 'services', label: 'Services', icon: Package },
+                  { id: 'bookings', label: 'Bookings', icon: Calendar },
+                  { id: 'messages', label: 'Messages', icon: MessageSquare },
+                  { id: 'settings', label: 'Settings', icon: Settings },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id)}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                        activeSection === item.id
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
             
-            <nav className="space-y-2">
-              {[
-                { id: 'overview', label: 'Overview', icon: BarChart3 },
-                { id: 'services', label: 'Services', icon: Package },
-                { id: 'bookings', label: 'Bookings', icon: Calendar },
-                { id: 'messages', label: 'Messages', icon: MessageSquare },
-                { id: 'settings', label: 'Settings', icon: Settings },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
-                      activeSection === item.id
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
+            <div className="absolute bottom-6 left-6 right-6">
+              <Button
+                onClick={() => logoutMutation.mutate()}
+                variant="outline"
+                size="sm"
+                className="w-full border-gray-600 text-gray-400 hover:text-white hover:border-red-500"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
-          
-          <div className="absolute bottom-6 left-6 right-6">
-            <Button
-              onClick={() => logoutMutation.mutate()}
-              variant="outline"
-              size="sm"
-              className="w-full border-gray-600 text-gray-400 hover:text-white hover:border-red-500"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+
+          {/* Desktop Main Content */}
+          <div className="flex-1 p-8">
+            {activeSection === 'overview' && renderOverview()}
+            {activeSection === 'services' && renderServices()}
+            {activeSection === 'bookings' && renderBookings()}
+            {activeSection === 'revenue' && renderRevenue()}
+            {activeSection === 'settings' && renderSettings()}
+            {activeSection === 'messages' && (
+              <div className="text-center py-20">
+                <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
+                <p className="text-gray-400">Messaging feature coming soon</p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-8">
+        {/* Mobile Content */}
+        <div className="md:hidden p-4">
           {activeSection === 'overview' && renderOverview()}
           {activeSection === 'services' && renderServices()}
           {activeSection === 'bookings' && renderBookings()}
@@ -1358,7 +1378,203 @@ export default function ServiceProviderDashboard() {
             </div>
           )}
         </div>
-      </div>
+      </main>
+
+      {/* Bottom Navigation for Mobile */}
+      <ServiceProviderBottomNav 
+        activeSection={activeSection} 
+        setActiveSection={setActiveSection}
+        user={user}
+        logoutMutation={logoutMutation}
+      />
     </div>
+  );
+}
+
+// Service Provider Bottom Navigation Component
+interface ServiceProviderBottomNavProps {
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+  user: any;
+  logoutMutation: any;
+}
+
+function ServiceProviderBottomNav({ activeSection, setActiveSection, user, logoutMutation }: ServiceProviderBottomNavProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  // Get unread notification count for badge
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['/api/service-provider/notifications'],
+    enabled: !!user,
+    staleTime: 30000,
+    refetchInterval: 60000,
+  });
+
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n: any) => !n.read).length : 0;
+
+  const navItems = [
+    { id: 'overview', icon: BarChart3, label: 'Overview' },
+    { id: 'services', icon: Package, label: 'Services' },
+    { id: 'bookings', icon: Calendar, label: 'Bookings' },
+    { id: 'messages', icon: MessageSquare, label: 'Messages' },
+    { id: 'menu', icon: User, label: '' }
+  ];
+
+  const menuItems = [
+    { id: 'settings', icon: Settings, label: 'Settings', badge: null },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: unreadCount, action: () => setIsNotificationOpen(true) },
+    { id: 'support', icon: HeadphonesIcon, label: 'Customer Service', badge: null },
+  ];
+
+  const handleNavClick = (itemId: string) => {
+    if (itemId === 'menu') {
+      setIsMenuOpen(!isMenuOpen);
+    } else {
+      setActiveSection(itemId);
+      setIsMenuOpen(false);
+    }
+  };
+
+  const handleMenuItemClick = (itemId: string, action?: () => void) => {
+    if (action) {
+      action();
+    } else {
+      setActiveSection(itemId);
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+    setIsMenuOpen(false);
+  };
+
+  return (
+    <>
+      {/* Bottom Navigation - Mobile Only */}
+      <motion.div 
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-gray-800 rounded-t-2xl"
+      >
+        <div className="flex justify-around items-center w-full px-4 py-2 pb-safe">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.id === 'menu' ? isMenuOpen : activeSection === item.id;
+            
+            return (
+              <motion.button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`flex flex-col items-center justify-center p-2 transition-all duration-300 ${
+                  isActive 
+                    ? 'text-purple-400' 
+                    : 'text-white hover:text-purple-300'
+                }`}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="mb-1">
+                  <Icon size={24} className="transition-all duration-300" />
+                </div>
+                <span className="text-xs font-medium">{item.label}</span>
+                
+                {isActive && item.id !== 'menu' && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute -bottom-1 w-6 h-0.5 bg-purple-400 rounded-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Hamburger Menu Panel */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* Menu Panel */}
+            <motion.div
+              initial={{ opacity: 0, x: 300 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 300 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="md:hidden fixed top-0 right-0 h-full w-80 bg-black/90 backdrop-blur-2xl border-l border-gray-800 z-50"
+            >
+              {/* Menu Header */}
+              <div className="p-6 border-b border-gray-800">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <User size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">{user?.username}</h3>
+                    <p className="text-gray-400 text-sm">Service Provider</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Menu Items */}
+              <div className="py-4">
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  
+                  return (
+                    <motion.button
+                      key={item.id}
+                      onClick={() => handleMenuItemClick(item.id, item.action)}
+                      className={`w-full flex items-center justify-between px-6 py-4 text-left transition-colors ${
+                        isActive 
+                          ? 'bg-purple-600/20 text-purple-400' 
+                          : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'
+                      }`}
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Icon size={20} />
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                      {item.badge && item.badge > 0 && (
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                          {item.badge}
+                        </div>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Logout Button */}
+              <div className="p-6 border-t border-gray-800">
+                <Button
+                  onClick={handleLogout}
+                  disabled={logoutMutation.isPending}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium border-none rounded-xl py-3 shadow-lg"
+                >
+                  <LogOut size={18} className="mr-2" />
+                  {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
