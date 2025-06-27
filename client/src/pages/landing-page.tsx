@@ -33,53 +33,16 @@ function HeroSection() {
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.8 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0, 
-            scale: 1,
-          }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="mb-12 relative"
+          className="mb-12"
         >
-          {/* 3D Glow Effect Behind Logo */}
-          <motion.div
-            className="absolute inset-0 -z-10"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <div className="absolute inset-0 bg-white blur-[100px] opacity-50" />
-          </motion.div>
-          
-          {/* Main Logo with 3D Pulse Effect */}
-          <motion.img 
+          {/* Static Logo */}
+          <img 
             src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
             alt="Miami Beach Yacht Club" 
-            className="relative mx-auto w-[400px] md:w-[600px] lg:w-[700px]"
-            animate={{
-              scale: [1, 1.05, 1],
-              filter: [
-                "drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))",
-                "drop-shadow(0 0 60px rgba(255, 255, 255, 0.8))",
-                "drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))"
-              ],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            style={{
-              transform: "perspective(1000px) rotateX(5deg)",
-              transformStyle: "preserve-3d",
-            }}
+            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px]"
           />
         </motion.div>
         
@@ -271,7 +234,7 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[390px] h-[844px] mx-auto">
+            <div className="relative w-[280px] h-[600px] mx-auto">
               {/* iPhone Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751027471917.png" 
@@ -281,7 +244,7 @@ function FeaturesSection() {
               
               {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
               <div 
-                className="absolute top-[80px] left-[30px] right-[30px] bottom-[80px] rounded-[40px] overflow-hidden"
+                className="absolute top-[58px] left-[22px] right-[22px] bottom-[58px] rounded-[30px] overflow-hidden"
                 style={{
                   background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
                   boxShadow: `
@@ -349,7 +312,7 @@ function FeaturesSection() {
                     <img 
                       src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
                       alt="MBYC" 
-                      className="relative w-28 h-28 mx-auto"
+                      className="relative w-24 h-auto mx-auto object-contain"
                     />
                   </motion.div>
                   
