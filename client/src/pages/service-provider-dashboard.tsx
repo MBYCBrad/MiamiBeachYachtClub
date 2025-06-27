@@ -1292,8 +1292,9 @@ export default function ServiceProviderDashboard() {
     <div className="min-h-screen bg-black">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen">
-          <div className="p-6">
+        <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen relative flex flex-col">
+          {/* Top section with navigation */}
+          <div className="flex-1 p-6">
             <div className="flex items-center space-x-3 mb-8">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
                 <User className="h-6 w-6 text-white" />
@@ -1332,15 +1333,13 @@ export default function ServiceProviderDashboard() {
           </div>
           
           {/* User Profile - Bottom Section */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900">
+          <div className="p-4 border-t border-gray-700/50 bg-gray-900/50">
             <div className="flex items-center space-x-3">
-              <div className="relative">
-                <Avatar className="h-12 w-12 ring-2 ring-gradient-to-br ring-purple-500/30">
-                  <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-semibold text-2xl">
-                    {user?.username?.charAt(0).toUpperCase() || 'S'}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+              <Avatar className="h-10 w-10">
+                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-semibold">
+                  {user?.username?.charAt(0).toUpperCase() || 'S'}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user?.username || 'Service Provider'}</p>
                 <p className="text-xs text-gray-400">Concierge Specialist</p>
@@ -1348,8 +1347,16 @@ export default function ServiceProviderDashboard() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-gray-400 hover:text-white"
-                onClick={() => window.location.href = '/api/logout'}
+                className="text-gray-400 hover:text-white p-2"
+                onClick={async () => {
+                  try {
+                    await apiRequest('/api/logout', { method: 'POST' });
+                    window.location.href = '/auth';
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                    window.location.href = '/auth';
+                  }
+                }}
               >
                 <LogOut className="h-4 w-4" />
               </Button>
