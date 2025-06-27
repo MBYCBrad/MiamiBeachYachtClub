@@ -177,7 +177,7 @@ export default function HomePage() {
               Experience Luxury in 3D
             </h2>
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto">
-              Explore our flagship yacht in stunning detail with over 5000 meticulously crafted layers
+              Explore our flagship yacht in stunning detail with over 100,000 meticulously crafted layers - every floor, every detail
             </p>
           </motion.div>
 
