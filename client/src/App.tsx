@@ -31,7 +31,7 @@ import NotFound from "@/pages/not-found";
 import WebsiteHomePage from "@/pages/website/HomePage";
 import FleetPage from "@/pages/website/FleetPage";
 import PlansPage from "@/pages/website/PlansPage";
-import EventsPage from "@/pages/website/EventsPage";
+import WebsiteEventsPage from "@/pages/website/EventsPage";
 import FAQPage from "@/pages/website/FAQPage";
 import ContactPage from "@/pages/website/ContactPage";
 
@@ -60,7 +60,7 @@ function Router() {
       <Route path="/website" component={WebsiteHomePage} />
       <Route path="/website/fleet" component={FleetPage} />
       <Route path="/website/plans" component={PlansPage} />
-      <Route path="/website/events" component={EventsPage} />
+      <Route path="/website/events" component={WebsiteEventsPage} />
       <Route path="/website/faq" component={FAQPage} />
       <Route path="/website/contact" component={ContactPage} />
       <Route component={NotFound} />
