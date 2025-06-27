@@ -584,7 +584,7 @@ const categoryIcons = {
 };
 
 export default function ServiceProviderDashboard() {
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState('menu');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
@@ -1328,8 +1328,13 @@ interface ServiceProviderBottomNavProps {
 }
 
 function ServiceProviderBottomNav({ activeSection, setActiveSection, user, logoutMutation }: ServiceProviderBottomNavProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(activeSection === 'menu');
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  // Sync menu state when activeSection changes
+  useEffect(() => {
+    setIsMenuOpen(activeSection === 'menu');
+  }, [activeSection]);
 
   // Get unread notification count for badge
   const { data: notifications = [] } = useQuery({
