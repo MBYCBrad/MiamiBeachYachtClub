@@ -20,7 +20,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-[9999] bg-black/90 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -49,9 +49,9 @@ export function Navigation() {
           </div>
 
           {/* Login Button */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:block relative z-10">
             <Link href="/auth">
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white relative z-10 pointer-events-auto">
                 LOGIN
               </Button>
             </Link>
@@ -88,7 +88,7 @@ export function Navigation() {
                 </Link>
               ))}
               <Link href="/auth">
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4">
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4 relative z-10 pointer-events-auto">
                   LOGIN
                 </Button>
               </Link>
