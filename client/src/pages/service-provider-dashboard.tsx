@@ -1292,92 +1292,20 @@ export default function ServiceProviderDashboard() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Main Content */}
-      <main className="pb-20 md:pb-8">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:flex">
-          <div className="w-64 bg-gray-950 border-r border-gray-800 min-h-screen">
-            <div className="p-6">
-              <div className="flex items-center space-x-3 mb-8">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <User className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-white font-bold">Service Provider</h2>
-                  <p className="text-gray-400 text-sm">{user?.username}</p>
-                </div>
-              </div>
-              
-              <nav className="space-y-2">
-                {[
-                  { id: 'overview', label: 'Overview', icon: BarChart3 },
-                  { id: 'services', label: 'Services', icon: Package },
-                  { id: 'bookings', label: 'Bookings', icon: Calendar },
-                  { id: 'messages', label: 'Messages', icon: MessageSquare },
-                  { id: 'settings', label: 'Settings', icon: Settings },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveSection(item.id)}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
-                        activeSection === item.id
-                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
-                          : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-            
-            <div className="absolute bottom-6 left-6 right-6">
-              <Button
-                onClick={() => logoutMutation.mutate()}
-                variant="outline"
-                size="sm"
-                className="w-full border-gray-600 text-gray-400 hover:text-white hover:border-red-500"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+      {/* Main Content - Full Width */}
+      <main className="pb-24 p-4 md:p-8">
+        {/* Unified Content Area */}
+        {activeSection === 'overview' && renderOverview()}
+        {activeSection === 'services' && renderServices()}
+        {activeSection === 'bookings' && renderBookings()}
+        {activeSection === 'revenue' && renderRevenue()}
+        {activeSection === 'settings' && renderSettings()}
+        {activeSection === 'messages' && (
+          <div className="text-center py-20">
+            <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
+            <p className="text-gray-400">Messaging feature coming soon</p>
           </div>
-
-          {/* Desktop Main Content */}
-          <div className="flex-1 p-8">
-            {activeSection === 'overview' && renderOverview()}
-            {activeSection === 'services' && renderServices()}
-            {activeSection === 'bookings' && renderBookings()}
-            {activeSection === 'revenue' && renderRevenue()}
-            {activeSection === 'settings' && renderSettings()}
-            {activeSection === 'messages' && (
-              <div className="text-center py-20">
-                <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
-                <p className="text-gray-400">Messaging feature coming soon</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Content */}
-        <div className="md:hidden p-4">
-          {activeSection === 'overview' && renderOverview()}
-          {activeSection === 'services' && renderServices()}
-          {activeSection === 'bookings' && renderBookings()}
-          {activeSection === 'revenue' && renderRevenue()}
-          {activeSection === 'settings' && renderSettings()}
-          {activeSection === 'messages' && (
-            <div className="text-center py-20">
-              <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
-              <p className="text-gray-400">Messaging feature coming soon</p>
-            </div>
-          )}
-        </div>
+        )}
       </main>
 
       {/* Bottom Navigation for Mobile */}
