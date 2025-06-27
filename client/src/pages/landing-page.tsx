@@ -36,33 +36,15 @@ function HeroSection() {
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Edge */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black via-black/80 to-transparent" />
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-purple-600 to-transparent opacity-80" />
         
         {/* Bottom Edge */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-indigo-600 to-transparent opacity-80" />
         
-        {/* Left Edge with 3D Perspective */}
+        {/* Left Edge */}
         <div className="absolute top-0 left-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent" />
-        <div 
-          className="absolute top-20 left-0 bottom-20 w-1 opacity-60"
-          style={{
-            background: 'linear-gradient(to bottom, transparent, #9333ea, #6366f1, transparent)',
-            transform: 'perspective(1000px) rotateY(45deg)',
-            transformOrigin: 'left center'
-          }}
-        />
         
-        {/* Right Edge with 3D Perspective */}
+        {/* Right Edge */}
         <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent" />
-        <div 
-          className="absolute top-20 right-0 bottom-20 w-1 opacity-60"
-          style={{
-            background: 'linear-gradient(to bottom, transparent, #6366f1, #9333ea, transparent)',
-            transform: 'perspective(1000px) rotateY(-45deg)',
-            transformOrigin: 'right center'
-          }}
-        />
       </div>
 
       {/* Content */}
