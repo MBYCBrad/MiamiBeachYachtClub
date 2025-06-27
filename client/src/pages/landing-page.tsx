@@ -238,43 +238,119 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[300px] h-[600px] mx-auto">
-              {/* Phone Frame */}
-              <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900 rounded-[3rem] shadow-2xl">
-                {/* Notch */}
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl" />
-                
-                {/* Screen */}
-                <div className="absolute inset-[3px] bg-black rounded-[2.8rem] overflow-hidden">
+            <div className="relative w-[390px] h-[844px] mx-auto">
+              {/* iPhone Image */}
+              <img 
+                src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751027471917.png" 
+                alt="iPhone" 
+                className="absolute inset-0 w-full h-full object-contain z-10"
+              />
+              
+              {/* Screen Content - Auth Page */}
+              <div className="absolute top-[80px] left-[30px] right-[30px] bottom-[80px] bg-black rounded-[40px] overflow-hidden">
+                {/* Video Background with Overlay */}
+                <div className="absolute inset-0">
                   {heroVideo && (
                     <video
                       autoPlay
                       loop
                       muted
                       playsInline
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover opacity-40"
                     >
                       <source src={heroVideo.url} type={heroVideo.mimetype} />
                     </video>
                   )}
-                  
-                  {/* App UI Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50">
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <img src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" alt="MBYC" className="w-16 h-16 mx-auto mb-4" />
-                      <div className="text-white text-center">
-                        <h4 className="text-lg font-bold">Miami Beach Yacht Club</h4>
-                        <p className="text-sm text-gray-300">Premium Member Experience</p>
-                      </div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+                </div>
+                
+                {/* Auth UI Content */}
+                <div className="relative z-20 h-full flex flex-col justify-center px-8 py-12">
+                  {/* Logo */}
+                  <motion.div
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                      scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                    }}
+                    className="mx-auto mb-8"
+                  >
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-xl opacity-50" />
+                      <img 
+                        src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
+                        alt="MBYC" 
+                        className="relative w-20 h-20 mx-auto"
+                      />
                     </div>
+                  </motion.div>
+                  
+                  {/* Title */}
+                  <h2 className="text-2xl font-bold text-white text-center mb-2">Welcome Back</h2>
+                  <p className="text-gray-400 text-center text-sm mb-8">Sign in to your member account</p>
+                  
+                  {/* Form Fields */}
+                  <div className="space-y-4 mb-6">
+                    <div className="relative">
+                      <input 
+                        type="email"
+                        placeholder="Email"
+                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm"
+                        defaultValue="member@mbyc.com"
+                      />
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="password"
+                        placeholder="Password"
+                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm"
+                        defaultValue="••••••••"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Sign In Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg mb-4 text-sm"
+                  >
+                    Sign In
+                  </motion.button>
+                  
+                  {/* Divider */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex-1 h-px bg-white/20" />
+                    <span className="text-gray-400 text-xs">OR</span>
+                    <div className="flex-1 h-px bg-white/20" />
+                  </div>
+                  
+                  {/* Face ID Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl flex items-center justify-center gap-2 text-sm"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                      <path d="M7 3C5.9 3 5 3.9 5 5V8H7V5H10V3H7ZM17 3C18.1 3 19 3.9 19 5V8H21V5C21 2.79 19.21 1 17 1H14V3H17ZM7 21C5.9 21 5 20.1 5 19V16H3V19C3 21.21 4.79 23 7 23H10V21H7ZM17 21C18.1 21 19 20.1 19 19V16H21V19C21 21.21 19.21 23 17 23H14V21H17Z" 
+                        fill="currentColor"
+                      />
+                    </svg>
+                    Sign in with Face ID
+                  </motion.button>
+                  
+                  {/* Footer Links */}
+                  <div className="mt-6 text-center">
+                    <p className="text-gray-400 text-xs">
+                      Not a member? 
+                      <span className="text-purple-400 ml-1">Apply Now</span>
+                    </p>
                   </div>
                 </div>
               </div>
-              
-              {/* Side Buttons */}
-              <div className="absolute -right-1 top-24 w-1 h-12 bg-gray-700 rounded-r" />
-              <div className="absolute -right-1 top-40 w-1 h-20 bg-gray-700 rounded-r" />
-              <div className="absolute -left-1 top-32 w-1 h-16 bg-gray-700 rounded-l" />
             </div>
           </motion.div>
 
