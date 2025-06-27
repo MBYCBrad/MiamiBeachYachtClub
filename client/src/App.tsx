@@ -60,13 +60,6 @@ function LoadingScreen() {
 }
 
 function Router() {
-  const { user, isLoading } = useAuth();
-
-  // Show loading screen while checking authentication
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
     <Switch>
       <Route path="/" component={LandingPage} />

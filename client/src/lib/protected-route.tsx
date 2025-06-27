@@ -44,18 +44,22 @@ export function ProtectedRoute({
           <Redirect to="/staff-portal" />
         </Route>
       );
-    }
-    if (user.role === "yacht_owner") {
+    } else if (user.role === "yacht_owner") {
       return (
         <Route path={path}>
           <Redirect to="/yacht-owner" />
         </Route>
       );
-    }
-    if (user.role === "service_provider") {
+    } else if (user.role === "service_provider") {
       return (
         <Route path={path}>
           <Redirect to="/service-provider" />
+        </Route>
+      );
+    } else if (user.role === "member") {
+      return (
+        <Route path={path}>
+          <Redirect to="/member" />
         </Route>
       );
     }
