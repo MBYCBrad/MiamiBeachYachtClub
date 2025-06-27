@@ -2,6 +2,34 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
+// Helper function to create wood texture
+function createWoodTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const context = canvas.getContext('2d')!;
+  
+  // Create wood grain pattern
+  const gradient = context.createLinearGradient(0, 0, 512, 0);
+  gradient.addColorStop(0, '#8B4513');
+  gradient.addColorStop(0.5, '#A0522D');
+  gradient.addColorStop(1, '#8B4513');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 512, 512);
+  
+  // Add wood grain lines
+  context.strokeStyle = '#654321';
+  context.lineWidth = 1;
+  for (let i = 0; i < 512; i += 8) {
+    context.beginPath();
+    context.moveTo(0, i);
+    context.lineTo(512, i);
+    context.stroke();
+  }
+  
+  return canvas;
+}
+
 export default function Yacht3DCustom({ 
   yachtName, 
   yachtSpecs 
@@ -137,12 +165,13 @@ export default function Yacht3DCustom({
     waterline.position.set(0, -0.6, 0);
     yachtGroup.add(waterline);
 
-    // PART 3: MAIN DECK - Teak wood decking
+    // PART 3: MAIN DECK - Teak wood decking with realistic texture
     const deckPlanks = new THREE.Group();
+    const woodTexture = new THREE.CanvasTexture(createWoodTexture());
     const plankMaterial = new THREE.MeshStandardMaterial({
-      color: 0x8B4513,
+      map: woodTexture,
       roughness: 0.7,
-      metalness: 0.1
+      metalness: 0.05
     });
 
     // Individual teak planks
@@ -350,6 +379,70 @@ export default function Yacht3DCustom({
     starboardLight.position.set(5.8, 0.8, 1);
     yachtGroup.add(starboardLight);
 
+    // PART 19: LUXURY DECK FURNITURE
+    const furnitureGroup = new THREE.Group();
+    
+    // Sun loungers on foredeck
+    const loungerGeometry = new THREE.BoxGeometry(0.6, 0.1, 1.5);
+    const loungerMaterial = new THREE.MeshStandardMaterial({
+      color: 0xf0f0f0,
+      roughness: 0.3
+    });
+    
+    for (let i = 0; i < 2; i++) {
+      const lounger = new THREE.Mesh(loungerGeometry, loungerMaterial);
+      lounger.position.set(4, 0.7, -0.8 + i * 1.6);
+      furnitureGroup.add(lounger);
+      
+      // Cushions
+      const cushionGeometry = new THREE.BoxGeometry(0.55, 0.05, 1.4);
+      const cushionMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a237e,
+        roughness: 0.8
+      });
+      const cushion = new THREE.Mesh(cushionGeometry, cushionMaterial);
+      cushion.position.set(4, 0.78, -0.8 + i * 1.6);
+      furnitureGroup.add(cushion);
+    }
+    
+    yachtGroup.add(furnitureGroup);
+    
+    // PART 20: SWIMMING PLATFORM
+    const swimPlatformGeometry = new THREE.BoxGeometry(2, 0.05, 1.5);
+    const swimPlatformMaterial = new THREE.MeshStandardMaterial({
+      map: woodTexture,
+      roughness: 0.8,
+      metalness: 0.1
+    });
+    const swimPlatform = new THREE.Mesh(swimPlatformGeometry, swimPlatformMaterial);
+    swimPlatform.position.set(-6.5, -0.5, 0);
+    yachtGroup.add(swimPlatform);
+    
+    // PART 21: STAINLESS STEEL DETAILS
+    const stainlessMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe8e8e8,
+      metalness: 0.9,
+      roughness: 0.1
+    });
+    
+    // Cleats
+    for (let i = 0; i < 4; i++) {
+      const cleatGeometry = new THREE.CylinderGeometry(0.03, 0.05, 0.15, 8);
+      const cleat = new THREE.Mesh(cleatGeometry, stainlessMaterial);
+      cleat.position.set(-4 + i * 3, 0.6, i % 2 === 0 ? 1.3 : -1.3);
+      yachtGroup.add(cleat);
+    }
+    
+    // Bow pulpit
+    const pulpitCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(5.5, 1, -1),
+      new THREE.Vector3(6, 1, 0),
+      new THREE.Vector3(5.5, 1, 1)
+    ]);
+    const pulpitGeometry = new THREE.TubeGeometry(pulpitCurve, 20, 0.03, 8, false);
+    const pulpit = new THREE.Mesh(pulpitGeometry, stainlessMaterial);
+    yachtGroup.add(pulpit);
+
     // Scale to match reference
     yachtGroup.scale.set(0.8, 0.8, 0.8);
     
@@ -387,19 +480,18 @@ export default function Yacht3DCustom({
       const elapsedTime = clock.getElapsedTime();
       
       // Yacht floating animation
-      yachtGroup.position.y = Math.sin(elapsedTime * 0.5) * 0.1;
-      yachtGroup.rotation.z = Math.sin(elapsedTime * 0.3) * 0.02;
-      
-      // Auto rotation with mouse influence
-      yachtGroup.rotation.y = elapsedTime * 0.1 + mouseX * 0.5;
-      
-      // Update ocean
-      if (oceanMaterial.uniforms) {
-        oceanMaterial.uniforms.time.value = elapsedTime;
+      if (yachtGroup) {
+        yachtGroup.position.y = Math.sin(elapsedTime * 0.5) * 0.1;
+        yachtGroup.rotation.z = Math.sin(elapsedTime * 0.3) * 0.02;
+        
+        // Auto rotation with mouse influence
+        yachtGroup.rotation.y = elapsedTime * 0.1 + mouseX * 0.5;
       }
       
       // Update lights
-      purpleLight.intensity = 2 + Math.sin(elapsedTime * 2) * 0.5;
+      if (purpleLight) {
+        purpleLight.intensity = 2 + Math.sin(elapsedTime * 2) * 0.5;
+      }
       
       // Camera orbit
       camera.position.x = Math.cos(elapsedTime * 0.1 + mouseX) * 25;
