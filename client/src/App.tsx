@@ -31,6 +31,7 @@ import LandingPage from "@/pages/landing-page";
 import HowItWorks from "@/pages/how-it-works";
 import PricingPage from "@/pages/pricing";
 import EventsPage from "@/pages/events";
+import ServicesPage from "@/pages/services";
 import FleetPage from "@/pages/fleet";
 import BookTourPage from "@/pages/book-tour";
 import FAQPage from "@/pages/faq";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/events" component={EventsPage} />
+      <Route path="/services" component={ServicesPage} />
       <Route path="/fleet" component={FleetPage} />
       <Route path="/book-tour" component={BookTourPage} />
       <Route path="/faq" component={FAQPage} />

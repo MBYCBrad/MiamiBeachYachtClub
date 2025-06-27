@@ -11,6 +11,7 @@ export function Navigation() {
     { label: "How It Works", href: "/how-it-works" },
     { label: "Plans & Pricing", href: "/pricing" },
     { label: "Events", href: "/events" },
+    { label: "Services", href: "/services" },
     { label: "Fleet", href: "/fleet" },
     { label: "Book a Private Tour", href: "/book-tour" },
     { label: "FAQ", href: "/faq" },
@@ -25,7 +26,11 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer">
-              <img src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" alt="MBYC" className="w-12 h-12 object-contain" />
+              <img 
+                src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
+                alt="MBYC" 
+                className="w-12 h-12 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.9)] animate-pulse-glow" 
+              />
             </div>
           </Link>
 
