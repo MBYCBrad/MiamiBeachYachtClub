@@ -21,12 +21,12 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
   }, []);
 
   const menuItems = [
-    { path: '/website', label: 'Home' },
-    { path: '/website/fleet', label: 'Fleet' },
-    { path: '/website/plans', label: 'Plans & Pricing' },
-    { path: '/website/events', label: 'Events' },
-    { path: '/website/faq', label: 'FAQ' },
-    { path: '/website/contact', label: 'Contact' }
+    { path: '/', label: 'Home' },
+    { path: '/fleet', label: 'Fleet' },
+    { path: '/plans', label: 'Plans & Pricing' },
+    { path: '/events', label: 'Events' },
+    { path: '/faq', label: 'FAQ' },
+    { path: '/contact', label: 'Contact' }
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function WebsiteLayout({ children }: WebsiteLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/website">
+            <Link href="/">
               <a className="flex items-center space-x-3">
                 <img 
                   src="/api/media/MBYC-LOGO-WHITE_1750978675231.png" 

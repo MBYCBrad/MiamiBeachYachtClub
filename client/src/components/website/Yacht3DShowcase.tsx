@@ -1,54 +1,329 @@
-import React, { useRef, useEffect, useState, Suspense } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
+import React, { useRef, Suspense, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Environment, Box, Sphere, Cylinder, MeshReflectorMaterial, Float, useTexture } from '@react-three/drei';
+import { useScroll, useTransform } from 'framer-motion';
 import * as THREE from 'three';
 
-// Fallback 3D Yacht Model Component
+// World-class Luxury Yacht 3D Model
 function YachtModel({ scrollProgress }: { scrollProgress: any }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useEffect(() => {
-    if (meshRef.current) {
-      // Rotate based on scroll
-      const unsubscribe = scrollProgress.onChange((latest: number) => {
-        if (meshRef.current) {
-          meshRef.current.rotation.y = -Math.PI * 2 * latest;
-        }
-      });
-      return unsubscribe;
+  const groupRef = useRef<THREE.Group>(null);
+  const propellerRef1 = useRef<THREE.Mesh>(null);
+  const propellerRef2 = useRef<THREE.Mesh>(null);
+  
+  // Animate yacht rotation and floating
+  useFrame((state) => {
+    if (groupRef.current) {
+      // Smooth rotation based on scroll
+      if (scrollProgress) {
+        const progress = scrollProgress.get();
+        groupRef.current.rotation.y = progress * Math.PI * 0.5;
+      }
+      // Gentle floating motion
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
+      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.2) * 0.01;
     }
-  }, [scrollProgress]);
+    
+    // Animate propellers
+    if (propellerRef1.current) {
+      propellerRef1.current.rotation.z += 0.1;
+    }
+    if (propellerRef2.current) {
+      propellerRef2.current.rotation.z -= 0.1;
+    }
+  });
 
-  // Create a simple yacht-like geometry as fallback
+  // Create hull geometry
+  const hullGeometry = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.lineTo(1.5, 0);
+    shape.quadraticCurveTo(1.8, 0.3, 1.5, 0.6);
+    shape.lineTo(0, 0.6);
+    shape.quadraticCurveTo(-0.3, 0.3, 0, 0);
+    
+    const extrudeSettings = {
+      steps: 2,
+      depth: 12,
+      bevelEnabled: true,
+      bevelThickness: 0.1,
+      bevelSize: 0.1,
+      bevelOffset: 0,
+      bevelSegments: 5
+    };
+    
+    return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  }, []);
+
   return (
-    <mesh ref={meshRef} position={[0, -0.5, 0]}>
-      <group>
-        {/* Hull */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[2, 0.5, 5]} />
-          <meshStandardMaterial color="#e0e0e0" metalness={0.8} roughness={0.2} />
-        </mesh>
+    <group ref={groupRef} scale={0.8}>
+      {/* Primary Hull - Sleek modern design */}
+      <mesh position={[0, -0.5, 0]} geometry={hullGeometry} castShadow receiveShadow>
+        <meshStandardMaterial 
+          color="#f8f9fa" 
+          metalness={0.95} 
+          roughness={0.05}
+          envMapIntensity={2}
+        />
+      </mesh>
+      
+      {/* Hull Bottom - Dark anti-fouling paint */}
+      <Box args={[3.6, 0.2, 12]} position={[0, -0.7, 0]} castShadow>
+        <meshStandardMaterial color="#1a1a1a" metalness={0.3} roughness={0.8} />
+      </Box>
+      
+      {/* Main Deck - Teak wood finish */}
+      <Box args={[3.4, 0.1, 11.5]} position={[0, 0.4, 0]} receiveShadow>
+        <meshStandardMaterial 
+          color="#8B6F47" 
+          metalness={0.1} 
+          roughness={0.9}
+          map={null}
+        />
+      </Box>
+      
+      {/* Superstructure - Main Cabin */}
+      <group position={[0, 1.2, -1.5]}>
+        {/* Lower Salon */}
+        <Box args={[3, 1.6, 5.5]} position={[0, 0, 0]} castShadow receiveShadow>
+          <meshStandardMaterial color="#ffffff" metalness={0.9} roughness={0.1} />
+        </Box>
         
-        {/* Cabin */}
-        <mesh position={[0, 0.5, -0.5]}>
-          <boxGeometry args={[1.5, 0.8, 2]} />
-          <meshStandardMaterial color="#ffffff" metalness={0.6} roughness={0.3} />
-        </mesh>
+        {/* Upper Bridge */}
+        <Box args={[2.6, 1.2, 4]} position={[0, 1.4, 0.5]} castShadow receiveShadow>
+          <meshStandardMaterial color="#ffffff" metalness={0.9} roughness={0.1} />
+        </Box>
         
-        {/* Upper Deck */}
-        <mesh position={[0, 1, -0.5]}>
-          <boxGeometry args={[1.2, 0.3, 1.5]} />
-          <meshStandardMaterial color="#f0f0f0" metalness={0.7} roughness={0.2} />
-        </mesh>
+        {/* Flybridge */}
+        <Box args={[2.2, 0.8, 3]} position={[0, 2.4, 0.5]} castShadow>
+          <meshStandardMaterial color="#f8f9fa" metalness={0.85} roughness={0.15} />
+        </Box>
+      </group>
+      
+      {/* Windows - Panoramic wraparound */}
+      {/* Main Deck Windows */}
+      {[...Array(8)].map((_, i) => (
+        <group key={`window-${i}`}>
+          <Box 
+            args={[0.05, 0.8, 0.6]} 
+            position={[1.51, 1.2, -3.5 + i * 0.8]} 
+            castShadow
+          >
+            <meshStandardMaterial 
+              color="#000000" 
+              metalness={0.98} 
+              roughness={0.02} 
+              transparent 
+              opacity={0.6}
+              envMapIntensity={3}
+            />
+          </Box>
+          <Box 
+            args={[0.05, 0.8, 0.6]} 
+            position={[-1.51, 1.2, -3.5 + i * 0.8]} 
+            castShadow
+          >
+            <meshStandardMaterial 
+              color="#000000" 
+              metalness={0.98} 
+              roughness={0.02} 
+              transparent 
+              opacity={0.6}
+              envMapIntensity={3}
+            />
+          </Box>
+        </group>
+      ))}
+      
+      {/* Bridge Windows - Wraparound */}
+      <Box args={[2.5, 0.6, 0.05]} position={[0, 2.8, 0.5]} castShadow>
+        <meshStandardMaterial 
+          color="#000000" 
+          metalness={0.98} 
+          roughness={0.02} 
+          transparent 
+          opacity={0.7}
+        />
+      </Box>
+      
+      {/* Radar & Communication Array */}
+      <group position={[0, 4.5, -1]}>
+        {/* Main Mast */}
+        <Cylinder args={[0.1, 0.15, 2.5]} position={[0, 0, 0]} castShadow>
+          <meshStandardMaterial color="#e0e0e0" metalness={0.9} roughness={0.1} />
+        </Cylinder>
         
-        {/* Mast */}
-        <mesh position={[0, 2, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 3]} />
+        {/* Radar Dome */}
+        <Sphere args={[0.4, 32, 32]} position={[0, 1.5, 0]} castShadow>
+          <meshStandardMaterial color="#ffffff" metalness={0.8} roughness={0.2} />
+        </Sphere>
+        
+        {/* Satellite Domes */}
+        <Sphere args={[0.25, 32, 32]} position={[0.6, 1, 0]} castShadow>
+          <meshStandardMaterial color="#f8f9fa" metalness={0.8} roughness={0.2} />
+        </Sphere>
+        <Sphere args={[0.25, 32, 32]} position={[-0.6, 1, 0]} castShadow>
+          <meshStandardMaterial color="#f8f9fa" metalness={0.8} roughness={0.2} />
+        </Sphere>
+        
+        {/* GPS/VHF Antennas */}
+        <Cylinder args={[0.02, 0.02, 1]} position={[0.3, 2, 0]} castShadow>
           <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.1} />
+        </Cylinder>
+        <Cylinder args={[0.02, 0.02, 0.8]} position={[-0.3, 2, 0]} castShadow>
+          <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.1} />
+        </Cylinder>
+      </group>
+      
+      {/* Luxury Features */}
+      {/* Jacuzzi on Foredeck */}
+      <Cylinder args={[0.8, 0.8, 0.3, 32]} position={[0, 0.6, 3.5]} castShadow>
+        <meshStandardMaterial 
+          color="#4169E1" 
+          metalness={0.9} 
+          roughness={0.1} 
+          transparent 
+          opacity={0.8}
+        />
+      </Cylinder>
+      
+      {/* Sun Pads */}
+      {[...Array(4)].map((_, i) => (
+        <Box 
+          key={`sunpad-${i}`} 
+          args={[0.8, 0.1, 1.8]} 
+          position={[-1.2 + i * 0.8, 0.5, 2]} 
+          castShadow
+        >
+          <meshStandardMaterial color="#F5F5DC" metalness={0.1} roughness={0.9} />
+        </Box>
+      ))}
+      
+      {/* Swim Platform with Teak */}
+      <Box args={[3.2, 0.15, 2]} position={[0, -0.3, -6]} castShadow receiveShadow>
+        <meshStandardMaterial color="#8B6F47" metalness={0.1} roughness={0.9} />
+      </Box>
+      
+      {/* Tender Garage Door */}
+      <Box args={[2.5, 1, 0.1]} position={[0, 0.2, -5.9]} castShadow>
+        <meshStandardMaterial 
+          color="#333333" 
+          metalness={0.95} 
+          roughness={0.05}
+        />
+      </Box>
+      
+      {/* Stainless Steel Railings */}
+      {/* Port Side */}
+      <group>
+        {[...Array(20)].map((_, i) => (
+          <Cylinder 
+            key={`port-rail-${i}`}
+            args={[0.02, 0.02, 0.8]} 
+            position={[1.7, 0.9, -5 + i * 0.5]} 
+            castShadow
+          >
+            <meshStandardMaterial 
+              color="#e0e0e0" 
+              metalness={0.95} 
+              roughness={0.05}
+            />
+          </Cylinder>
+        ))}
+        <Cylinder args={[0.03, 0.03, 10]} position={[1.7, 1.3, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <meshStandardMaterial color="#e0e0e0" metalness={0.95} roughness={0.05} />
+        </Cylinder>
+      </group>
+      
+      {/* Starboard Side */}
+      <group>
+        {[...Array(20)].map((_, i) => (
+          <Cylinder 
+            key={`starboard-rail-${i}`}
+            args={[0.02, 0.02, 0.8]} 
+            position={[-1.7, 0.9, -5 + i * 0.5]} 
+            castShadow
+          >
+            <meshStandardMaterial 
+              color="#e0e0e0" 
+              metalness={0.95} 
+              roughness={0.05}
+            />
+          </Cylinder>
+        ))}
+        <Cylinder args={[0.03, 0.03, 10]} position={[-1.7, 1.3, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <meshStandardMaterial color="#e0e0e0" metalness={0.95} roughness={0.05} />
+        </Cylinder>
+      </group>
+      
+      {/* Navigation Lights */}
+      <Sphere args={[0.06]} position={[1.8, 1, 5.5]}>
+        <meshStandardMaterial 
+          color="#00ff00" 
+          emissive="#00ff00" 
+          emissiveIntensity={2}
+        />
+      </Sphere>
+      <Sphere args={[0.06]} position={[-1.8, 1, 5.5]}>
+        <meshStandardMaterial 
+          color="#ff0000" 
+          emissive="#ff0000" 
+          emissiveIntensity={2}
+        />
+      </Sphere>
+      <Sphere args={[0.06]} position={[0, 6.5, -1]}>
+        <meshStandardMaterial 
+          color="#ffffff" 
+          emissive="#ffffff" 
+          emissiveIntensity={2}
+        />
+      </Sphere>
+      
+      {/* Anchor System */}
+      <group position={[0, -0.2, 6]}>
+        <Box args={[0.3, 0.3, 0.1]} castShadow>
+          <meshStandardMaterial color="#666666" metalness={0.9} roughness={0.1} />
+        </Box>
+        <Cylinder args={[0.02, 0.02, 0.5]} position={[0, -0.25, 0]} castShadow>
+          <meshStandardMaterial color="#333333" metalness={0.9} roughness={0.1} />
+        </Cylinder>
+      </group>
+      
+      {/* Propulsion System */}
+      <group position={[0.8, -0.8, -6]}>
+        <Cylinder args={[0.15, 0.15, 0.3]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <meshStandardMaterial color="#FFD700" metalness={0.95} roughness={0.05} />
+        </Cylinder>
+        <mesh ref={propellerRef1} position={[0, 0, -0.2]}>
+          <boxGeometry args={[0.8, 0.05, 0.2]} />
+          <meshStandardMaterial color="#FFD700" metalness={0.98} roughness={0.02} />
         </mesh>
       </group>
-    </mesh>
+      <group position={[-0.8, -0.8, -6]}>
+        <Cylinder args={[0.15, 0.15, 0.3]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <meshStandardMaterial color="#FFD700" metalness={0.95} roughness={0.05} />
+        </Cylinder>
+        <mesh ref={propellerRef2} position={[0, 0, -0.2]}>
+          <boxGeometry args={[0.8, 0.05, 0.2]} />
+          <meshStandardMaterial color="#FFD700" metalness={0.98} roughness={0.02} />
+        </mesh>
+      </group>
+      
+      {/* Deck Furniture */}
+      {/* Flybridge Seating */}
+      <Box args={[1.8, 0.3, 0.8]} position={[0, 3.3, -0.5]} castShadow>
+        <meshStandardMaterial color="#F5F5DC" metalness={0.1} roughness={0.9} />
+      </Box>
+      
+      {/* Aft Deck Dining Table */}
+      <Cylinder args={[0.8, 0.8, 0.05]} position={[0, 0.5, -3.5]} castShadow>
+        <meshStandardMaterial 
+          color="#8B6F47" 
+          metalness={0.3} 
+          roughness={0.7}
+        />
+      </Cylinder>
+    </group>
   );
 }
 
@@ -62,84 +337,60 @@ interface Yacht3DShowcaseProps {
 }
 
 export default function Yacht3DShowcase({ yachtName = "95ft Sunseeker", yachtSpecs }: Yacht3DShowcaseProps) {
+  const { scrollYProgress } = useScroll();
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1, 1, 0.8]);
 
   return (
-    <motion.div
+    <motion.div 
       ref={containerRef}
-      style={{ opacity, scale }}
-      className="relative h-screen w-full bg-gradient-to-b from-black via-gray-950 to-black overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="relative h-screen overflow-hidden bg-black"
     >
-      {/* Animated Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20" />
-        <motion.div
-          animate={{ 
-            backgroundPosition: ['0% 0%', '100% 100%'],
-          }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            repeatType: 'reverse' 
-          }}
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 20% 50%, #7c3aed 0%, transparent 50%), radial-gradient(circle at 80% 80%, #2563eb 0%, transparent 50%)',
-            backgroundSize: '150% 150%',
-          }}
-        />
-      </div>
-
       {/* 3D Canvas */}
-      <div className="absolute inset-0 z-10">
-        <Suspense fallback={
-          <div className="flex items-center justify-center h-full">
-            <div className="text-white/50">Loading 3D Model...</div>
-          </div>
-        }>
-          <Canvas
-            camera={{ position: [0, 2, 8], fov: 50 }}
-            gl={{ antialias: true, alpha: true }}
-            onCreated={({ gl }) => {
-              gl.setClearColor(0x000000, 0);
-            }}
-          >
-            <PerspectiveCamera makeDefault position={[0, 2, 8]} fov={50} />
-            
+      <div className="absolute inset-0">
+        <Canvas
+          shadows
+          camera={{ position: [10, 5, 10], fov: 45 }}
+          style={{ background: 'transparent' }}
+        >
+          <Suspense fallback={null}>
             {/* Lighting */}
             <ambientLight intensity={0.5} />
-            <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-            <spotLight position={[-10, 10, -5]} intensity={0.5} angle={0.3} penumbra={1} />
+            <directionalLight
+              position={[10, 10, 5]}
+              intensity={1}
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+            />
+            <directionalLight position={[-10, -10, -5]} intensity={0.3} />
+            <spotLight position={[0, 20, 0]} intensity={0.5} angle={0.3} penumbra={1} />
             
-            {/* Environment for reflections */}
-            <Environment preset="sunset" />
+            {/* Environment */}
+            <Environment preset="sunset" background={false} />
             
-            {/* 3D Yacht Model */}
-            <Suspense fallback={null}>
-              <YachtModel scrollProgress={scrollYProgress} />
-            </Suspense>
+            {/* Yacht Model */}
+            <YachtModel scrollProgress={scrollYProgress} />
             
             {/* Controls */}
-            <OrbitControls 
-              enableZoom={false} 
+            <OrbitControls
               enablePan={false}
-              autoRotate={false}
-              minPolarAngle={Math.PI / 3}
-              maxPolarAngle={Math.PI / 2}
+              enableZoom={false}
+              minPolarAngle={Math.PI / 4}
+              maxPolarAngle={Math.PI / 2.5}
+              autoRotate
+              autoRotateSpeed={0.5}
             />
-          </Canvas>
-        </Suspense>
+          </Suspense>
+        </Canvas>
       </div>
 
-      {/* Overlay Content */}
-      <div className="relative z-20 h-full flex items-end pb-20">
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 pointer-events-none" />
+
+      {/* Content Overlay */}
+      <div className="relative z-10 h-full flex items-end pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
@@ -168,20 +419,20 @@ export default function Yacht3DShowcase({ yachtName = "95ft Sunseeker", yachtSpe
             )}
             <p className="mt-6 text-gray-400 leading-relaxed">
               Experience the pinnacle of maritime luxury with our flagship yacht. 
-              Scroll to explore every angle of this magnificent vessel.
+              Scroll to explore every detail of this magnificent vessel.
             </p>
           </motion.div>
         </div>
       </div>
 
-      {/* Scroll Instruction */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 text-sm"
       >
-        Scroll to rotate
+        Scroll to explore
       </motion.div>
     </motion.div>
   );

@@ -38,7 +38,12 @@ import ContactPage from "@/pages/website/ContactPage";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={() => { window.location.href = '/website'; return null; }} />
+      <Route path="/" component={WebsiteHomePage} />
+      <Route path="/fleet" component={FleetPage} />
+      <Route path="/plans" component={PlansPage} />
+      <Route path="/events" component={WebsiteEventsPage} />
+      <Route path="/faq" component={FAQPage} />
+      <Route path="/contact" component={ContactPage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
@@ -50,19 +55,13 @@ function Router() {
       <ProtectedRoute path="/yacht-owner-calendar" component={YachtOwnerCalendar} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
-      <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
+      <ProtectedRoute path="/member-events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/yachts/:id/book" component={YachtBooking} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
-      <ProtectedRoute path="/events/:id" component={EventDetail} />
+      <ProtectedRoute path="/member-events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
       <Route path="/auth" component={AuthPage} />
-      <Route path="/website" component={WebsiteHomePage} />
-      <Route path="/website/fleet" component={FleetPage} />
-      <Route path="/website/plans" component={PlansPage} />
-      <Route path="/website/events" component={WebsiteEventsPage} />
-      <Route path="/website/faq" component={FAQPage} />
-      <Route path="/website/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
   );

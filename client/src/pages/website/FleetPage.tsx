@@ -7,93 +7,9 @@ import { OrbitControls, PerspectiveCamera, Environment, Float } from '@react-thr
 import * as THREE from 'three';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
 import { ChevronLeft, ChevronRight, Anchor, Users, Bed, Waves } from 'lucide-react';
+import { LuxuryYacht3D } from '@/components/website/Yacht3DModel';
 
-// 3D Yacht Model Component
-function Yacht3DModel({ selected }: { selected: boolean }) {
-  const meshRef = useRef<THREE.Mesh>(null);
 
-  return (
-    <Float
-      speed={selected ? 2 : 4}
-      rotationIntensity={selected ? 0.5 : 0.3}
-      floatIntensity={selected ? 0.8 : 0.5}
-    >
-      <group scale={selected ? 1.2 : 1}>
-        {/* Hull */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[2.5, 0.6, 6]} />
-          <meshStandardMaterial 
-            color={selected ? "#ffffff" : "#e0e0e0"} 
-            metalness={0.9} 
-            roughness={0.1} 
-          />
-        </mesh>
-        
-        {/* Cabin */}
-        <mesh position={[0, 0.6, -0.5]}>
-          <boxGeometry args={[2, 1, 3]} />
-          <meshStandardMaterial 
-            color={selected ? "#f8f8f8" : "#f0f0f0"} 
-            metalness={0.7} 
-            roughness={0.2} 
-          />
-        </mesh>
-        
-        {/* Windows */}
-        <mesh position={[1.05, 0.6, -0.5]}>
-          <boxGeometry args={[0.05, 0.5, 2]} />
-          <meshStandardMaterial 
-            color="#1a1a1a" 
-            metalness={0.9} 
-            roughness={0.1}
-            transparent
-            opacity={0.8}
-          />
-        </mesh>
-        <mesh position={[-1.05, 0.6, -0.5]}>
-          <boxGeometry args={[0.05, 0.5, 2]} />
-          <meshStandardMaterial 
-            color="#1a1a1a" 
-            metalness={0.9} 
-            roughness={0.1}
-            transparent
-            opacity={0.8}
-          />
-        </mesh>
-        
-        {/* Upper Deck */}
-        <mesh position={[0, 1.2, -0.5]}>
-          <boxGeometry args={[1.5, 0.3, 2]} />
-          <meshStandardMaterial 
-            color="#ffffff" 
-            metalness={0.8} 
-            roughness={0.15} 
-          />
-        </mesh>
-        
-        {/* Mast */}
-        <mesh position={[0, 2.5, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 3]} />
-          <meshStandardMaterial 
-            color="#2a2a2a" 
-            metalness={0.95} 
-            roughness={0.05} 
-          />
-        </mesh>
-        
-        {/* Bow Details */}
-        <mesh position={[0, 0, 3.2]}>
-          <coneGeometry args={[1.2, 1, 4]} rotation={[Math.PI / 2, 0, 0]} />
-          <meshStandardMaterial 
-            color={selected ? "#ffffff" : "#e0e0e0"} 
-            metalness={0.9} 
-            roughness={0.1} 
-          />
-        </mesh>
-      </group>
-    </Float>
-  );
-}
 
 export default function FleetPage() {
   const [selectedYacht, setSelectedYacht] = useState(0);
@@ -222,7 +138,11 @@ export default function FleetPage() {
                     
                     {/* 3D Yacht Model */}
                     <Suspense fallback={null}>
-                      <Yacht3DModel selected={true} />
+                      <LuxuryYacht3D 
+                        scale={1.5} 
+                        rotation={[0, Math.PI / 4, 0]} 
+                        position={[0, -1, 0]} 
+                      />
                     </Suspense>
                     
                     {/* Controls */}

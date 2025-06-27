@@ -3,8 +3,8 @@ import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
-import Yacht3DShowcaseFallback from '@/components/website/Yacht3DShowcaseFallback';
-import Phone3DMockupFallback from '@/components/website/Phone3DMockupFallback';
+import Yacht3DShowcase from '@/components/website/Yacht3DShowcase';
+import Phone3DMockup from '@/components/website/Phone3DMockup';
 
 export default function HomePage() {
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -164,7 +164,7 @@ export default function HomePage() {
       </section>
 
       {/* 3D Yacht Section - Revolutionary scroll-based rotation */}
-      <Yacht3DShowcaseFallback 
+      <Yacht3DShowcase 
         yachtName="95ft Sunseeker 'Pura Vida'"
         yachtSpecs={{
           length: "95′",
