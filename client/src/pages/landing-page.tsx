@@ -47,13 +47,23 @@ function HeroSection() {
           />
         </motion.div>
         
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="text-4xl md:text-6xl font-bold text-white mb-6"
+          style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+        >
+          Exclusive Yacht Membership in Miami Beach
+        </motion.h1>
+        
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
           className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto"
         >
-          Experience luxury yachting like never before. Unlimited access to our premium fleet with world-class service.
+          Say goodbye to yacht ownership hassles. Enjoy unlimited access to our luxury fleet with concierge service, professional crews, and exclusive member events.
         </motion.p>
 
         <motion.div
@@ -858,6 +868,166 @@ function FAQSection() {
   );
 }
 
+// Final CTA Section
+function FinalCTASection() {
+  return (
+    <section className="py-20 relative bg-gradient-to-b from-black via-purple-900/10 to-black">
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-6xl font-bold text-white mb-6"
+          style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+        >
+          Ready to Join Miami's Most Exclusive
+          <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Yacht Club?</span>
+        </motion.h2>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          viewport={{ once: true }}
+          className="text-xl text-gray-400 mb-10"
+        >
+          Start your luxury yachting journey today. Limited memberships available.
+        </motion.p>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/book-tour'}
+            className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
+          >
+            Book Your Private Tour
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/contact'}
+            className="px-10 py-5 bg-transparent border-2 border-purple-500 text-purple-400 font-bold text-lg rounded-full hover:bg-purple-900/20 transition-all"
+          >
+            Contact Us
+          </motion.button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// Footer Component
+function Footer() {
+  return (
+    <footer className="bg-black border-t border-gray-800 py-16">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid md:grid-cols-4 gap-8">
+          {/* Logo and Description */}
+          <div className="md:col-span-1">
+            <img 
+              src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
+              alt="Miami Beach Yacht Club" 
+              className="w-48 mb-4"
+            />
+            <p className="text-gray-400 text-sm">
+              Miami's premier yacht club offering exclusive access to luxury vessels and world-class maritime experiences.
+            </p>
+          </div>
+          
+          {/* Main Menu */}
+          <div>
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Main Menu</h3>
+            <ul className="space-y-2">
+              <li><Link href="/" className="text-gray-400 hover:text-purple-400 transition-colors">Home</Link></li>
+              <li><Link href="/how-it-works" className="text-gray-400 hover:text-purple-400 transition-colors">How It Works</Link></li>
+              <li><Link href="/pricing" className="text-gray-400 hover:text-purple-400 transition-colors">Plans & Pricing</Link></li>
+              <li><Link href="/events" className="text-gray-400 hover:text-purple-400 transition-colors">Events</Link></li>
+              <li><Link href="/fleet" className="text-gray-400 hover:text-purple-400 transition-colors">Fleet</Link></li>
+              <li><Link href="/book-tour" className="text-gray-400 hover:text-purple-400 transition-colors">Book a Private Tour</Link></li>
+              <li><Link href="/faq" className="text-gray-400 hover:text-purple-400 transition-colors">FAQ</Link></li>
+              <li><Link href="/invest" className="text-gray-400 hover:text-purple-400 transition-colors">Invest</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-purple-400 transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+          
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Contact</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-purple-400 mt-0.5" />
+                <div>
+                  <a href="tel:786-981-3875" className="text-gray-400 hover:text-purple-400 transition-colors">
+                    786-981-3875
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-purple-400 mt-0.5" />
+                <a href="mailto:membership@mbyc.miami" className="text-gray-400 hover:text-purple-400 transition-colors">
+                  membership@mbyc.miami
+                </a>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-purple-400 mt-0.5" />
+                <div className="text-gray-400">
+                  300 Alton Road, Suite 305b<br />
+                  Miami Beach, Florida 33139<br />
+                  United States
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Opening Hours */}
+          <div>
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Opening Hours</h3>
+            <div className="space-y-2 text-gray-400">
+              <div className="flex justify-between">
+                <span>Mon - Fri:</span>
+                <span>9am - 6pm</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Sat:</span>
+                <span>10am - 6pm</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Sun:</span>
+                <span>10am - 5pm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-sm">
+              ©2025 Miami Beach Yacht Club. All Rights Reserved.
+            </p>
+            <div className="flex gap-6">
+              <Link href="/privacy" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Terms & Conditions
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 // Main Landing Page Component
 export default function LandingPage() {
   return (
@@ -870,7 +1040,9 @@ export default function LandingPage() {
       <TestimonialsSection />
       <FleetPreviewSection />
       <FAQSection />
+      <FinalCTASection />
       <VideoFooter />
+      <Footer />
     </div>
   );
 }
