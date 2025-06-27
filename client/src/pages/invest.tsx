@@ -3,7 +3,7 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
-import { Anchor, DollarSign, Shield, Users, Settings, TrendingUp } from "lucide-react";
+import { Anchor, DollarSign, Shield, Users, Settings, TrendingUp, Ship } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
