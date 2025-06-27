@@ -35,72 +35,32 @@ function HeroSection() {
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Edge */}
-        <div 
-          className="absolute top-0 left-0 right-0 h-1"
-          style={{
-            background: 'linear-gradient(to right, transparent 10%, rgba(147, 51, 234, 0.8) 50%, transparent 90%)',
-            boxShadow: '0 2px 20px rgba(147, 51, 234, 0.5)',
-            transform: 'perspective(1000px) rotateX(-45deg)',
-            transformOrigin: 'top center'
-          }}
-        />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black via-black/80 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-purple-600 to-transparent opacity-80" />
         
         {/* Bottom Edge */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-1"
-          style={{
-            background: 'linear-gradient(to right, transparent 10%, rgba(99, 102, 241, 0.8) 50%, transparent 90%)',
-            boxShadow: '0 -2px 20px rgba(99, 102, 241, 0.5)',
-            transform: 'perspective(1000px) rotateX(45deg)',
-            transformOrigin: 'bottom center'
-          }}
-        />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-indigo-600 to-transparent opacity-80" />
         
-        {/* Left Edge */}
+        {/* Left Edge with 3D Perspective */}
+        <div className="absolute top-0 left-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent" />
         <div 
-          className="absolute top-0 left-0 bottom-0 w-1"
+          className="absolute top-20 left-0 bottom-20 w-1 opacity-60"
           style={{
-            background: 'linear-gradient(to bottom, transparent 10%, rgba(147, 51, 234, 0.8) 50%, transparent 90%)',
-            boxShadow: '2px 0 20px rgba(147, 51, 234, 0.5)',
+            background: 'linear-gradient(to bottom, transparent, #9333ea, #6366f1, transparent)',
             transform: 'perspective(1000px) rotateY(45deg)',
             transformOrigin: 'left center'
           }}
         />
         
-        {/* Right Edge */}
+        {/* Right Edge with 3D Perspective */}
+        <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent" />
         <div 
-          className="absolute top-0 right-0 bottom-0 w-1"
+          className="absolute top-20 right-0 bottom-20 w-1 opacity-60"
           style={{
-            background: 'linear-gradient(to bottom, transparent 10%, rgba(99, 102, 241, 0.8) 50%, transparent 90%)',
-            boxShadow: '-2px 0 20px rgba(99, 102, 241, 0.5)',
+            background: 'linear-gradient(to bottom, transparent, #6366f1, #9333ea, transparent)',
             transform: 'perspective(1000px) rotateY(-45deg)',
             transformOrigin: 'right center'
-          }}
-        />
-        
-        {/* Corner Highlights for 3D Effect */}
-        <div 
-          className="absolute top-0 left-0 w-20 h-20"
-          style={{
-            background: 'radial-gradient(circle at 0% 0%, rgba(147, 51, 234, 0.4) 0%, transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute top-0 right-0 w-20 h-20"
-          style={{
-            background: 'radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.4) 0%, transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute bottom-0 left-0 w-20 h-20"
-          style={{
-            background: 'radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.4) 0%, transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute bottom-0 right-0 w-20 h-20"
-          style={{
-            background: 'radial-gradient(circle at 100% 100%, rgba(147, 51, 234, 0.4) 0%, transparent 70%)',
           }}
         />
       </div>
