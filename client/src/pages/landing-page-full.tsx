@@ -798,8 +798,8 @@ function HowItWorksSection() {
   );
 }
 
-// Membership Section
-function MembershipSection() {
+// Fleet Section
+function FleetSection() {
   const tiers = [
     {
       name: "Bronze",
