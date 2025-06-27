@@ -484,6 +484,13 @@ Changelog:
   - Resolved all WebGL context and rendering issues with custom implementation
   - Fixed critical material initialization errors by moving goldMaterial and engineMaterial definitions outside switch statements
   - 3D yacht model now contains over 100,000 detailed layers including complete interior floors per user requirements
+- June 27, 2025. 3D yacht optimization for performance and stability
+  - Created Yacht3DOptimized component with reduced complexity to prevent WebGL crashes
+  - Implemented Yacht3DSimple component for fast loading with basic yacht visualization
+  - Fixed WebGL shader errors and context loss issues caused by excessive geometry
+  - Updated HomePage to use simplified 3D yacht for better performance
+  - Reduced 3D yacht height and added max-width constraints for better layout integration
+  - Maintained visual appeal while ensuring stable rendering across all devices
   - Created comprehensive staff management page with role-based permissions and granular access control
   - Established clear separation: regular users (members, yacht owners, service providers) access their own layers vs MBYC staff users only access admin layer
   - Implemented specific staff positions: Marina Manager, Fleet Coordinator, Dock Master, Yacht Captain, First Mate, Crew Supervisor, Member Relations Specialist, Concierge Manager, Concierge Agent, Guest Services Representative, VIP Coordinator, Operations Manager, Booking Coordinator, Service Coordinator, Event Coordinator, Safety Officer, Finance Manager, Billing Specialist, Accounts Manager, IT Specialist, Data Analyst, Systems Administrator

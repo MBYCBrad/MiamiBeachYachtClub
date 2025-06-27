@@ -186,7 +186,8 @@ export default function HomePage() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.5 }}
             viewport={{ once: true }}
-            className="relative h-[600px] md:h-[700px] lg:h-[800px] rounded-3xl overflow-hidden bg-gradient-to-b from-gray-900/50 to-black"
+            className="relative h-[400px] md:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-b from-gray-900/50 to-black mx-auto"
+            style={{ maxWidth: '1200px' }}
           >
             <Yacht3DSimple 
               yachtName="95ft Sunseeker 'Pura Vida'"
