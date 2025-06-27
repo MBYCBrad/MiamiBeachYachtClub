@@ -326,14 +326,24 @@ function DeleteServiceButton({ service }: { service: any }) {
     mutationFn: async () => {
       await apiRequest("DELETE", `/api/services/${service.id}`);
     },
-    onSuccess: () => {
-      // Immediate optimistic update - remove service from cache
+    onMutate: async () => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["/api/service-provider/services"] });
+      
+      // Snapshot the previous value
+      const previousServices = queryClient.getQueryData(["/api/service-provider/services"]);
+      
+      // Optimistically update to remove the service
       queryClient.setQueryData(["/api/service-provider/services"], (old: any) => {
         if (!old) return old;
         return old.filter((s: any) => s.id !== service.id);
       });
       
-      // Also invalidate to fetch fresh data
+      // Return a context object with the snapshotted value
+      return { previousServices };
+    },
+    onSuccess: () => {
+      // Invalidate queries to ensure we have fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/stats"] });
@@ -343,12 +353,23 @@ function DeleteServiceButton({ service }: { service: any }) {
         description: "Service deleted successfully",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousServices) {
+        queryClient.setQueryData(["/api/service-provider/services"], context.previousServices);
+      }
+      
       toast({
-        title: "Error",
+        title: "Error", 
         description: error.message,
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/stats"] });
     }
   });
 
