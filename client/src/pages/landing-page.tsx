@@ -1451,7 +1451,7 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
   });
 
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden">
       {/* Video Background */}
       {heroVideo && (
         <video
@@ -1603,16 +1603,16 @@ function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Opening Hours</h3>
             <div className="space-y-2 text-gray-400">
-              <div className="flex justify-between">
-                <span>Mon - Fri:</span>
+              <div className="flex gap-4">
+                <span className="w-20">Mon - Fri:</span>
                 <span>9am - 6pm</span>
               </div>
-              <div className="flex justify-between">
-                <span>Sat:</span>
+              <div className="flex gap-4">
+                <span className="w-20">Sat:</span>
                 <span>10am - 6pm</span>
               </div>
-              <div className="flex justify-between">
-                <span>Sun:</span>
+              <div className="flex gap-4">
+                <span className="w-20">Sun:</span>
                 <span>10am - 5pm</span>
               </div>
             </div>
