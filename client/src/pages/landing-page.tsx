@@ -23,7 +23,7 @@ function HeroSection() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src={heroVideo.url} type={heroVideo.mimetype} />
+          <source src={(heroVideo as any).url} type={(heroVideo as any).mimetype} />
         </video>
       )}
       

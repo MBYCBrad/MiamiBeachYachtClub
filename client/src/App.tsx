@@ -17,7 +17,6 @@ import YachtDetail from "@/pages/yacht-detail";
 import YachtBooking from "@/pages/yacht-booking";
 import ServiceDetail from "@/pages/service-detail";
 import EventDetail from "@/pages/event-detail";
-import EventsPage from "@/pages/events-page";
 import CheckoutPage from "@/pages/checkout";
 import AdminDashboard from "@/pages/admin-dashboard";
 import YachtOwnerDashboard from "@/pages/yacht-owner-dashboard";
@@ -30,6 +29,13 @@ import StaffPortal from "@/pages/staff-portal";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing-page";
 import HowItWorks from "@/pages/how-it-works";
+import PricingPage from "@/pages/pricing";
+import EventsPage from "@/pages/events";
+import FleetPage from "@/pages/fleet";
+import BookTourPage from "@/pages/book-tour";
+import FAQPage from "@/pages/faq";
+import InvestPage from "@/pages/invest";
+import ContactPage from "@/pages/contact";
 
 function Router() {
   return (
@@ -37,6 +43,13 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/home" component={LandingPage} />
       <Route path="/how-it-works" component={HowItWorks} />
+      <Route path="/pricing" component={PricingPage} />
+      <Route path="/events" component={EventsPage} />
+      <Route path="/fleet" component={FleetPage} />
+      <Route path="/book-tour" component={BookTourPage} />
+      <Route path="/faq" component={FAQPage} />
+      <Route path="/invest" component={InvestPage} />
+      <Route path="/contact" component={ContactPage} />
       <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
@@ -49,7 +62,6 @@ function Router() {
       <ProtectedRoute path="/yacht-owner-calendar" component={YachtOwnerCalendar} />
       <ProtectedRoute path="/service-provider" component={ServiceProviderDashboard} />
       <ProtectedRoute path="/customer-service" component={CustomerServiceDashboard} />
-      <ProtectedRoute path="/events" component={() => <EventsPage currentView="events" setCurrentView={() => {}} />} />
       <ProtectedRoute path="/yachts/:id" component={YachtDetail} />
       <ProtectedRoute path="/yachts/:id/book" component={YachtBooking} />
       <ProtectedRoute path="/services/:id" component={ServiceDetail} />
