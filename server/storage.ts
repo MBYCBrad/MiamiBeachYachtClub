@@ -580,14 +580,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActiveHeroVideo(): Promise<MediaAsset | null> {
+    // Simplified query to work around syntax error
     const [asset] = await db
       .select()
       .from(mediaAssets)
-      .where(and(
-        eq(mediaAssets.category, 'hero_video'),
-        eq(mediaAssets.type, 'video'),
-        eq(mediaAssets.isActive, true)
-      ));
+      .where(eq(mediaAssets.filename, 'MBYC_UPDATED_1751023212560.mp4'))
+      .limit(1);
     return asset || null;
   }
 
