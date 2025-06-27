@@ -32,21 +32,23 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="text-6xl md:text-8xl font-bold text-white mb-6"
-          style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          className="mb-8"
         >
-          WELCOME TO THE
-          <br />
-          <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            MIAMI BEACH
-          </span>
-          <br />
-          YACHT CLUB
-        </motion.h1>
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            WELCOME TO THE
+          </h2>
+          <img 
+            src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
+            alt="Miami Beach Yacht Club" 
+            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px] mb-8"
+          />
+        </motion.div>
         
         <motion.p
           initial={{ opacity: 0, y: 20 }}
