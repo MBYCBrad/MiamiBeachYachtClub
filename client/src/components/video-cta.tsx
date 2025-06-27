@@ -3,7 +3,23 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 
-export function VideoCTA() {
+interface VideoCTAProps {
+  title?: string;
+  description?: string;
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+}
+
+export function VideoCTA({
+  title = "Ready to Start Your Journey?",
+  description = "Join Miami Beach Yacht Club today and experience luxury yachting like never before.",
+  primaryButtonText = "Apply for Membership",
+  primaryButtonLink = "/apply",
+  secondaryButtonText,
+  secondaryButtonLink
+}: VideoCTAProps = {}) {
   const { data: heroVideo } = useQuery({
     queryKey: ['/api/media/hero/active'],
   });
@@ -29,6 +45,21 @@ export function VideoCTA() {
       {/* Gradient Overlay - blur on top, sharp edge on bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black" />
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
+      
+      {/* 3D Anamorphic Edges */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top Edge - Deeper for mobile */}
+        <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
+        
+        {/* Bottom Edge - Deeper for mobile */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
+        
+        {/* Left Edge - Narrower */}
+        <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
+        
+        {/* Right Edge - Narrower */}
+        <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -36,19 +67,32 @@ export function VideoCTA() {
           className="text-4xl md:text-6xl font-bold text-white mb-8"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
         >
-          Ready to Start Your Journey?
+          {title}
         </h2>
         <p className="text-xl text-gray-300 mb-12">
-          Join Miami Beach Yacht Club today and experience luxury yachting like never before.
+          {description}
         </p>
-        <Link href="/apply">
-          <Button 
-            size="lg"
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-          >
-            Apply for Membership
-          </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href={primaryButtonLink}>
+            <Button 
+              size="lg"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+            >
+              {primaryButtonText}
+            </Button>
+          </Link>
+          {secondaryButtonText && secondaryButtonLink && (
+            <Link href={secondaryButtonLink}>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-black px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
+              >
+                {secondaryButtonText}
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </section>
   );
