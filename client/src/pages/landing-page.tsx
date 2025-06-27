@@ -33,15 +33,53 @@ function HeroSection() {
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30, scale: 0.8 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+          }}
           transition={{ duration: 1 }}
-          className="mb-12"
+          className="mb-12 relative"
         >
-          <img 
+          {/* 3D Glow Effect Behind Logo */}
+          <motion.div
+            className="absolute inset-0 -z-10"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 blur-[100px] opacity-50" />
+          </motion.div>
+          
+          {/* Main Logo with 3D Pulse Effect */}
+          <motion.img 
             src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
             alt="Miami Beach Yacht Club" 
-            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px]"
+            className="relative mx-auto w-[400px] md:w-[600px] lg:w-[700px]"
+            animate={{
+              scale: [1, 1.05, 1],
+              filter: [
+                "drop-shadow(0 0 30px rgba(147, 51, 234, 0.5))",
+                "drop-shadow(0 0 60px rgba(147, 51, 234, 0.8))",
+                "drop-shadow(0 0 30px rgba(147, 51, 234, 0.5))"
+              ],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{
+              transform: "perspective(1000px) rotateX(5deg)",
+              transformStyle: "preserve-3d",
+            }}
           />
         </motion.div>
         
