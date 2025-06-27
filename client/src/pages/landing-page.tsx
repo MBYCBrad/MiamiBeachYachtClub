@@ -890,6 +890,21 @@ function FinalCTASection() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/70" />
       
+      {/* 3D Anamorphic Edges */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top Edge */}
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
+        
+        {/* Bottom Edge */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
+        
+        {/* Left Edge */}
+        <div className="absolute top-0 left-0 bottom-0 w-16 bg-gradient-to-r from-black/60 to-transparent" />
+        
+        {/* Right Edge */}
+        <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-black/60 to-transparent" />
+      </div>
+      
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
         <motion.h2
