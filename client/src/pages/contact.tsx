@@ -31,26 +31,26 @@ const contactInfo = [
   {
     icon: Phone,
     title: 'Phone',
-    content: '+1 (305) 555-MBYC',
+    content: '786-981-3875',
     subtext: '24/7 Concierge Service',
   },
   {
     icon: Mail,
     title: 'Email',
-    content: 'hello@mbyc.com',
+    content: 'membership@mbyc.miami',
     subtext: 'Response within 2 hours',
   },
   {
     icon: MapPin,
-    title: 'Marina',
-    content: 'Miami Beach Marina',
-    subtext: '300 Alton Rd, Miami Beach, FL',
+    title: 'Address',
+    content: '300 Alton Road, Suite 305b',
+    subtext: 'Miami Beach, Florida 33139',
   },
   {
     icon: Clock,
     title: 'Hours',
-    content: 'Daily 8AM - 8PM',
-    subtext: 'Marina access 24/7 for members',
+    content: 'Mon-Fri: 9am-6pm',
+    subtext: 'Sat: 10am-6pm, Sun: 10am-5pm',
   },
 ];
 

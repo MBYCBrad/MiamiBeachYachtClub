@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="py-20 bg-black border-t border-white/10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
+        <div className="grid md:grid-cols-5 gap-8 mb-12">
           {/* Logo and Description */}
           <div className="md:col-span-1">
             <img 
@@ -46,17 +46,40 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-gray-400">
                 <Phone className="w-4 h-4" />
-                <span>+1 (305) 555-MBYC</span>
+                <a href="tel:786-981-3875" className="hover:text-purple-400 transition-colors">786-981-3875</a>
               </li>
               <li className="flex items-center gap-3 text-gray-400">
                 <Mail className="w-4 h-4" />
-                <span>hello@mbyc.com</span>
+                <a href="mailto:membership@mbyc.miami" className="hover:text-purple-400 transition-colors">membership@mbyc.miami</a>
               </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <MapPin className="w-4 h-4" />
-                <span>Miami Beach Marina</span>
+              <li className="flex items-start gap-3 text-gray-400">
+                <MapPin className="w-4 h-4 mt-0.5" />
+                <div>
+                  300 Alton Road, Suite 305b<br />
+                  Miami Beach, Florida 33139<br />
+                  United States
+                </div>
               </li>
             </ul>
+          </div>
+          
+          {/* Opening Hours */}
+          <div>
+            <h4 className="text-white font-semibold mb-4">Opening Hours</h4>
+            <div className="space-y-2 text-gray-400">
+              <div className="flex gap-4">
+                <span className="w-20">Mon - Fri:</span>
+                <span>9am - 6pm</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="w-20">Sat:</span>
+                <span>10am - 6pm</span>
+              </div>
+              <div className="flex gap-4">
+                <span className="w-20">Sun:</span>
+                <span>10am - 5pm</span>
+              </div>
+            </div>
           </div>
         </div>
         
