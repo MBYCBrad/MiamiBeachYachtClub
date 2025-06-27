@@ -164,8 +164,8 @@ function FeaturesSection() {
               top: `${Math.random() * 100}%`,
             }}
             animate={{
-              opacity: [0.4, 1, 0.4],
-              scale: [1, 1.2, 1],
+              opacity: [0.3, 1, 0.3],
+              scale: [0.8, 1.3, 0.8],
             }}
             transition={{
               duration: 2 + Math.random() * 3,
@@ -175,20 +175,22 @@ function FeaturesSection() {
             }}
           >
             <div className="relative">
-              {/* Star glow effect */}
-              <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-60" 
+              {/* Silver star glow effect */}
+              <div className="absolute inset-0" 
                 style={{ 
-                  width: '20px', 
-                  height: '20px',
+                  width: '24px', 
+                  height: '24px',
                   transform: 'translate(-50%, -50%)',
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(192,192,192,0.4) 50%, transparent 100%)'
+                  background: 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(220,220,220,0.8) 20%, rgba(192,192,192,0.5) 40%, transparent 70%)',
+                  filter: 'blur(8px)'
                 }} 
               />
-              {/* Star core */}
+              {/* Bright silver core */}
               <div 
-                className="relative w-1 h-1 bg-white rounded-full"
+                className="relative w-2 h-2 rounded-full"
                 style={{
-                  boxShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(192,192,192,0.6)',
+                  background: 'radial-gradient(circle, #ffffff 0%, #e0e0e0 50%, #c0c0c0 100%)',
+                  boxShadow: '0 0 15px rgba(255,255,255,1), 0 0 30px rgba(220,220,220,0.8), 0 0 45px rgba(192,192,192,0.6)',
                 }}
               />
             </div>
