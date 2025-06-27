@@ -261,19 +261,55 @@ function FeaturesSection() {
                     </video>
                   )}
                   
-                  {/* App UI Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60">
-                    <div className="absolute bottom-0 left-0 right-0 p-8">
-                      <img 
-                        src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
-                        alt="MBYC" 
-                        className="w-20 h-20 mx-auto mb-4 drop-shadow-2xl" 
-                      />
-                      <div className="text-white text-center">
-                        <h4 className="text-xl font-bold drop-shadow-lg">Miami Beach Yacht Club</h4>
-                        <p className="text-base text-gray-200 drop-shadow-lg mt-1">Premium Member Experience</p>
+                  {/* App UI Overlay - Login Form */}
+                  <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center px-6">
+                    {/* Logo */}
+                    <img 
+                      src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
+                      alt="Miami Beach Yacht Club" 
+                      className="w-24 h-24 object-contain mb-6" 
+                    />
+                    
+                    {/* Login Form */}
+                    <div className="w-full max-w-[240px] space-y-4">
+                      <h3 className="text-white text-xl font-bold text-center mb-2">Member Login</h3>
+                      
+                      {/* Email Input */}
+                      <div className="relative">
+                        <input 
+                          type="email" 
+                          placeholder="Email" 
+                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 text-sm focus:outline-none focus:border-purple-400"
+                          defaultValue="member@mbyc.com"
+                        />
+                      </div>
+                      
+                      {/* Password Input */}
+                      <div className="relative">
+                        <input 
+                          type="password" 
+                          placeholder="Password" 
+                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 text-sm focus:outline-none focus:border-purple-400"
+                          defaultValue="••••••••"
+                        />
+                      </div>
+                      
+                      {/* Login Button */}
+                      <button className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg text-sm hover:from-purple-700 hover:to-indigo-700 transition-all">
+                        Sign In
+                      </button>
+                      
+                      {/* Footer Links */}
+                      <div className="flex justify-between text-xs text-white/60 mt-4">
+                        <a href="#" className="hover:text-white">Forgot Password?</a>
+                        <a href="#" className="hover:text-white">Join MBYC</a>
                       </div>
                     </div>
+                    
+                    {/* Bottom Text */}
+                    <p className="text-white/40 text-xs mt-8 text-center">
+                      Exclusive access for MBYC members
+                    </p>
                   </div>
                 </div>
               </div>
