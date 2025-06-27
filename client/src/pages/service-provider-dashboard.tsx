@@ -128,9 +128,18 @@ function AddServiceDialog() {
       const response = await apiRequest("POST", "/api/services", serviceData);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (newService) => {
+      // Immediate optimistic update - add service to cache
+      queryClient.setQueryData(["/api/service-provider/services"], (old: any) => {
+        if (!old) return [newService];
+        return [...old, newService];
+      });
+      
+      // Also invalidate to fetch fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/stats"] });
+      
       toast({
         title: "Success",
         description: "Service created successfully",
@@ -306,210 +315,7 @@ function AddServiceDialog() {
   );
 }
 
-// Edit Service Dialog Component
-function EditServiceDialog({ service }: { service: any }) {
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const form = useForm<ServiceFormData>({
-    resolver: zodResolver(serviceFormSchema),
-    defaultValues: {
-      name: service.name || "",
-      category: service.category || "",
-      description: service.description || "",
-      imageUrl: service.imageUrl || "",
-      pricePerSession: service.pricePerSession || "",
-      duration: service.duration || 60,
-      isAvailable: service.isAvailable ?? true
-    }
-  });
-
-  const editMutation = useMutation({
-    mutationFn: async (data: ServiceFormData) => {
-      const response = await apiRequest("PUT", `/api/services/${service.id}`, data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
-      toast({
-        title: "Success",
-        description: "Service updated successfully",
-      });
-      setOpen(false);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  });
-
-  const onSubmit = (data: ServiceFormData) => {
-    editMutation.mutate(data);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="bg-blue-600/20 border-blue-500/30 text-blue-400 hover:bg-blue-600/30">
-          <Edit className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-white">Edit Service</DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Update service information and settings
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Service Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
-                        <SelectItem value="Culinary">Culinary</SelectItem>
-                        <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
-                        <SelectItem value="Photography & Media">Photography & Media</SelectItem>
-                        <SelectItem value="Entertainment">Entertainment</SelectItem>
-                        <SelectItem value="Water Sports">Water Sports</SelectItem>
-                        <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white">Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} className="bg-gray-800 border-gray-700 text-white" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pricePerSession"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Price Per Session</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Duration (minutes)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        type="number"
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 60)}
-                        className="bg-gray-800 border-gray-700 text-white" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <MultiImageUpload
-                label="Service Gallery"
-                onImagesUploaded={(images) => {
-                  console.log('Service images uploaded:', images);
-                  form.setValue('imageUrl', images[0] || '');
-                }}
-                currentImages={service.imageUrl ? [service.imageUrl] : []}
-                maxImages={5}
-              />
-              {/* Debug info */}
-              <div className="text-xs text-gray-500">
-                Debug: Service imageUrl = {service.imageUrl || 'none'}, 
-                currentImages = {JSON.stringify(service.imageUrl ? [service.imageUrl] : [])}
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="isAvailable"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base text-white">Available for Booking</FormLabel>
-                    <div className="text-sm text-gray-400">
-                      Allow members to book this service
-                    </div>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={editMutation.isPending} className="bg-purple-600 hover:bg-purple-700">
-                {editMutation.isPending ? "Updating..." : "Update Service"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 // Delete Service Dialog Component
 function DeleteServiceButton({ service }: { service: any }) {
@@ -521,8 +327,17 @@ function DeleteServiceButton({ service }: { service: any }) {
       await apiRequest("DELETE", `/api/services/${service.id}`);
     },
     onSuccess: () => {
+      // Immediate optimistic update - remove service from cache
+      queryClient.setQueryData(["/api/service-provider/services"], (old: any) => {
+        if (!old) return old;
+        return old.filter((s: any) => s.id !== service.id);
+      });
+      
+      // Also invalidate to fetch fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/stats"] });
+      
       toast({
         title: "Success",
         description: "Service deleted successfully",
@@ -545,7 +360,7 @@ function DeleteServiceButton({ service }: { service: any }) {
       onClick={() => deleteMutation.mutate()}
       disabled={deleteMutation.isPending}
     >
-      <Trash2 className="h-4 w-4" />
+      {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
     </Button>
   );
 }
@@ -675,6 +490,248 @@ function ViewServiceDialog({ service }: { service: any }) {
   );
 }
 
+// Edit Service Dialog Component
+function EditServiceDialog({ service }: { service: any }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  const form = useForm<ServiceFormData>({
+    resolver: zodResolver(serviceFormSchema),
+    defaultValues: {
+      name: service?.name || "",
+      category: service?.category || "",
+      description: service?.description || "",
+      imageUrl: service?.imageUrl || "",
+      images: service?.images || [],
+      pricePerSession: service?.pricePerSession || "",
+      duration: service?.duration || 60,
+      isAvailable: service?.isAvailable ?? true
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: ServiceFormData) => {
+      const serviceData = {
+        ...data,
+        duration: data.duration || 60,
+        pricePerSession: data.pricePerSession || "0"
+      };
+      const response = await apiRequest("PUT", `/api/services/${service.id}`, serviceData);
+      return response.json();
+    },
+    onSuccess: (updatedService) => {
+      // Immediate optimistic update - update service in cache
+      queryClient.setQueryData(["/api/service-provider/services"], (old: any) => {
+        if (!old) return old;
+        return old.map((s: any) => s.id === service.id ? { ...s, ...updatedService } : s);
+      });
+      
+      // Also invalidate to fetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/service-provider/stats"] });
+      
+      toast({
+        title: "Success",
+        description: "Service updated successfully",
+      });
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const onSubmit = (data: ServiceFormData) => {
+    updateMutation.mutate(data);
+  };
+
+  // Reset form when service changes
+  React.useEffect(() => {
+    if (service && open) {
+      form.reset({
+        name: service.name || "",
+        category: service.category || "",
+        description: service.description || "",
+        imageUrl: service.imageUrl || "",
+        images: service.images || [],
+        pricePerSession: service.pricePerSession || "",
+        duration: service.duration || 60,
+        isAvailable: service.isAvailable ?? true
+      });
+    }
+  }, [service, open, form]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-purple-400">
+          <Edit className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-white">Edit Service</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            Update your yacht concierge service details
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Service Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        <SelectItem value="Beauty & Grooming">Beauty & Grooming</SelectItem>
+                        <SelectItem value="Culinary">Culinary</SelectItem>
+                        <SelectItem value="Wellness & Spa">Wellness & Spa</SelectItem>
+                        <SelectItem value="Photography & Media">Photography & Media</SelectItem>
+                        <SelectItem value="Entertainment">Entertainment</SelectItem>
+                        <SelectItem value="Water Sports">Water Sports</SelectItem>
+                        <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="bg-gray-800 border-gray-700 text-white" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="pricePerSession"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Price Per Session</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="bg-gray-800 border-gray-700 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Duration (minutes)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 60)}
+                        className="bg-gray-800 border-gray-700 text-white" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <MultiImageUpload
+                label="Service Gallery"
+                onImagesUploaded={(images) => {
+                  form.setValue('imageUrl', images[0] || '');
+                }}
+                currentImages={form.getValues('imageUrl') ? [form.getValues('imageUrl')] : []}
+                maxImages={5}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="isAvailable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base text-white">Available for Booking</FormLabel>
+                    <div className="text-sm text-gray-400">
+                      Allow members to book this service
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={updateMutation.isPending}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+              >
+                {updateMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Service"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 interface ServiceProviderStats {
   totalServices: number;
   totalBookings: number;
@@ -702,9 +759,6 @@ export default function ServiceProviderDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
-  const [editingService, setEditingService] = useState<any>(null);
-
   const [viewingService, setViewingService] = useState<any>(null);
   const [serviceFilters, setServiceFilters] = useState({
     category: "all",
@@ -815,13 +869,7 @@ export default function ServiceProviderDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button onClick={() => {
-            setEditingService(null);
-            setOpen(true);
-          }} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Service
-          </Button>
+          <AddServiceDialog />
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 border-none">
@@ -1010,18 +1058,7 @@ export default function ServiceProviderDashboard() {
                   <span className="text-white font-semibold">${service.pricePerSession}</span>
                   <div className="flex items-center space-x-2">
                     <ViewServiceDialog service={service} />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setEditingService(service);
-                        setOpen(true);
-                      }}
-                      className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
-                      title="Edit Service"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditServiceDialog service={service} />
                     <DeleteServiceButton service={service} />
                   </div>
                 </div>
