@@ -1348,14 +1348,8 @@ export default function ServiceProviderDashboard() {
                 variant="ghost" 
                 size="sm" 
                 className="text-gray-400 hover:text-white p-2"
-                onClick={async () => {
-                  try {
-                    await apiRequest('/api/logout', { method: 'POST' });
-                    window.location.href = '/auth';
-                  } catch (error) {
-                    console.error('Logout failed:', error);
-                    window.location.href = '/auth';
-                  }
+                onClick={() => {
+                  window.location.href = '/api/logout';
                 }}
               >
                 <LogOut className="h-4 w-4" />
