@@ -27,7 +27,7 @@ import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
 import NotFound from "@/pages/not-found";
-import LandingPage from "@/pages/landing-page";
+import LandingPage from "@/pages/landing-page-full";
 import HowItWorks from "@/pages/how-it-works";
 import PricingPage from "@/pages/pricing";
 import EventsPage from "@/pages/events";
