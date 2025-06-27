@@ -234,7 +234,7 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[280px] h-[600px] mx-auto">
+            <div className="relative w-[300px] h-[640px] mx-auto">
               {/* iPhone Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751027471917.png" 
@@ -244,14 +244,8 @@ function FeaturesSection() {
               
               {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
               <div 
-                className="absolute"
+                className="absolute top-[62px] left-[20px] right-[20px] bottom-[62px] rounded-[35px] overflow-hidden"
                 style={{
-                  top: '9.5%',
-                  left: '6%',
-                  right: '6%',
-                  bottom: '9.5%',
-                  borderRadius: '28px',
-                  overflow: 'hidden',
                   background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
                   boxShadow: `
                     inset 0 2px 4px rgba(255, 255, 255, 0.1),
