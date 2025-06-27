@@ -2,7 +2,7 @@ import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
-import { Anchor, Users, Gauge, Check } from "lucide-react";
+import { Anchor, Users, Gauge, Check, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -87,13 +87,19 @@ export default function FleetPage() {
                 className="group"
               >
                 <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all">
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden group">
                     <img 
                       src={yacht.images?.[0] || '/api/media/pexels-mali-42091_1750537294323.jpg'}
                       alt={yacht.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    
+                    {/* Lock Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                      <Lock className="w-16 h-16 text-white" />
+                    </div>
+                    
                     <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                       {yacht.type}
                     </div>

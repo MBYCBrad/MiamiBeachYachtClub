@@ -210,9 +210,6 @@ export default function HowItWorks() {
 
       {/* Video CTA */}
       <VideoCTA />
-
-      {/* Video Footer */}
-      <VideoFooter />
       
       {/* Footer */}
       <Footer />

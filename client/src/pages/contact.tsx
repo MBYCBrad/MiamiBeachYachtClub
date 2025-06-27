@@ -291,9 +291,6 @@ export default function ContactPage() {
 
       {/* Video CTA */}
       <VideoCTA />
-
-      {/* Video Footer */}
-      <VideoFooter />
       
       {/* Footer */}
       <Footer />
