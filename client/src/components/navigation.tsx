@@ -20,10 +20,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
-      {/* White edge at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
-      
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -77,11 +74,8 @@ export function Navigation() {
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md relative"
+            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md"
           >
-            {/* White edge at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
-            
             <div className="px-6 py-4 space-y-3">
               {navItems.map((item) => (
                 <Link key={item.label} href={item.href}>
