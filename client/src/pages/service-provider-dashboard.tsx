@@ -72,7 +72,8 @@ import {
   X,
   Target,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Loader2
 } from "lucide-react";
 import MessagesPage from './messages-page';
 import NotificationsPage from './notifications-page';
@@ -1725,67 +1726,186 @@ export default function ServiceProviderDashboard() {
     );
   };
 
+  const [stripeSecretKey, setStripeSecretKey] = useState('');
+  const [stripePublishableKey, setStripePublishableKey] = useState('');
+  const [isTestingStripe, setIsTestingStripe] = useState(false);
+  const [stripeConnectStatus, setStripeConnectStatus] = useState('not_connected');
+
+  const testStripeConnection = async () => {
+    if (!stripeSecretKey.trim()) {
+      toast({ title: "Error", description: "Please enter Stripe Secret Key", variant: "destructive" });
+      return;
+    }
+
+    setIsTestingStripe(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/test-stripe", { apiKey: stripeSecretKey });
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({ 
+          title: "Stripe Connected", 
+          description: `Account: ${result.data.email} (${result.data.country})` 
+        });
+      } else {
+        toast({ 
+          title: "Stripe Error", 
+          description: result.error || "Connection failed", 
+          variant: "destructive" 
+        });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to test Stripe connection", variant: "destructive" });
+    } finally {
+      setIsTestingStripe(false);
+    }
+  };
+
+  const createConnectAccount = async () => {
+    try {
+      const response = await apiRequest("POST", "/api/payments/create-connect-account");
+      const result = await response.json();
+      
+      if (result.accountId) {
+        toast({ 
+          title: "Connect Account Created", 
+          description: "Your Stripe Connect account has been created successfully" 
+        });
+        setStripeConnectStatus('pending');
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to create Connect account", variant: "destructive" });
+    }
+  };
+
   const renderSettings = () => (
     <div className="space-y-8">
       <div>
         <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
           Settings
         </h1>
-        <p className="text-lg text-gray-400">Manage your account and preferences</p>
+        <p className="text-lg text-gray-400">Manage your payment and account settings</p>
       </div>
 
-      {/* Profile Settings */}
-      <Card className="bg-gray-900/50 border-gray-700/50">
+      {/* Stripe Connect Integration */}
+      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
         <CardHeader>
-          <CardTitle className="text-white">Profile Settings</CardTitle>
+          <CardTitle className="text-white flex items-center">
+            <CreditCard className="h-5 w-5 mr-2 text-purple-500" />
+            Stripe Connect Integration
+          </CardTitle>
+          <CardDescription>Configure payment processing for your services</CardDescription>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
-              <Label className="text-gray-300">Business Name</Label>
-              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="Your business name" />
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Stripe Secret Key
+              </label>
+              <Input
+                type="password"
+                placeholder="sk_test_..."
+                value={stripeSecretKey}
+                onChange={(e) => setStripeSecretKey(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white"
+              />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Contact Email</Label>
-              <Input className="bg-gray-800 border-gray-700 text-white" type="email" placeholder="contact@example.com" />
+              <label className="text-sm font-medium text-gray-300 mb-2 block">
+                Stripe Publishable Key
+              </label>
+              <Input
+                type="text"
+                placeholder="pk_test_..."
+                value={stripePublishableKey}
+                onChange={(e) => setStripePublishableKey(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white"
+              />
             </div>
-            <div className="space-y-2">
-              <Label className="text-gray-300">Phone Number</Label>
-              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="+1 (555) 123-4567" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-gray-300">Service Location</Label>
-              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="Miami Beach, FL" />
+            <div className="flex gap-3">
+              <Button 
+                onClick={testStripeConnection}
+                disabled={isTestingStripe}
+                variant="outline"
+                className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
+              >
+                {isTestingStripe ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Testing...
+                  </>
+                ) : (
+                  "Test Connection"
+                )}
+              </Button>
+              <Button 
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex-1"
+              >
+                Save Configuration
+              </Button>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-gray-300">Business Description</Label>
-            <textarea className="w-full h-32 bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Describe your services..." />
-          </div>
-          <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-            Save Changes
-          </Button>
-        </CardContent>
-      </Card>
 
-      {/* Payment Settings */}
-      <Card className="bg-gray-900/50 border-gray-700/50">
-        <CardHeader>
-          <CardTitle className="text-white">Payment Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
+          {/* Connect Account Status */}
+          <div className="border-t border-gray-700 pt-6">
+            <h3 className="text-white font-medium mb-4">Connect Account Status</h3>
             <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
               <div className="flex items-center space-x-3">
-                <CreditCard className="h-5 w-5 text-purple-400" />
+                <div className={`w-3 h-3 rounded-full ${stripeConnectStatus === 'connected' ? 'bg-green-500' : stripeConnectStatus === 'pending' ? 'bg-yellow-500' : 'bg-red-500'}`} />
                 <div>
-                  <p className="text-white font-medium">Stripe Connect</p>
-                  <p className="text-gray-400 text-sm">Receive payments directly to your account</p>
+                  <p className="text-white font-medium">
+                    {stripeConnectStatus === 'connected' ? 'Connected' : stripeConnectStatus === 'pending' ? 'Pending Setup' : 'Not Connected'}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    {stripeConnectStatus === 'connected' 
+                      ? 'Your account is ready to receive payments' 
+                      : stripeConnectStatus === 'pending' 
+                      ? 'Complete your account setup to receive payments'
+                      : 'Create a Connect account to receive payments directly'
+                    }
+                  </p>
                 </div>
               </div>
-              <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-600/20">
-                Connect
-              </Button>
+              {stripeConnectStatus === 'not_connected' && (
+                <Button 
+                  onClick={createConnectAccount}
+                  variant="outline" 
+                  className="border-purple-500 text-purple-400 hover:bg-purple-600/20"
+                >
+                  Create Account
+                </Button>
+              )}
+              {stripeConnectStatus === 'pending' && (
+                <Button 
+                  variant="outline" 
+                  className="border-yellow-500 text-yellow-400 hover:bg-yellow-600/20"
+                >
+                  Complete Setup
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Payout Information */}
+          <div className="border-t border-gray-700 pt-6">
+            <h3 className="text-white font-medium mb-4">Payout Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-400 mb-1">Platform Fee</p>
+                <p className="text-white font-medium">15% per transaction</p>
+              </div>
+              <div className="p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-400 mb-1">Payout Schedule</p>
+                <p className="text-white font-medium">Daily (2-day rolling)</p>
+              </div>
+              <div className="p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-400 mb-1">Minimum Payout</p>
+                <p className="text-white font-medium">$1.00</p>
+              </div>
+              <div className="p-3 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-400 mb-1">Payment Methods</p>
+                <p className="text-white font-medium">Bank Transfer, Debit Card</p>
+              </div>
             </div>
           </div>
         </CardContent>
