@@ -1819,6 +1819,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service Provider Profile endpoints
+  app.get("/api/service-provider/profile", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const user = await dbStorage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(user);
+    } catch (error: any) {
+      console.error('Error fetching service provider profile:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/service-provider/profile", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const updatedUser = await dbStorage.updateUser(req.user!.id, req.body);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error('Error updating service provider profile:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // YACHT MAINTENANCE SYSTEM API ROUTES
   // ===========================================
 

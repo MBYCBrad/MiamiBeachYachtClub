@@ -73,6 +73,7 @@ import {
 } from "lucide-react";
 import MessagesPage from './messages-page';
 import NotificationsPage from './notifications-page';
+import ProfilePage from './profile-page';
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1452,6 +1453,7 @@ export default function ServiceProviderDashboard() {
                 { id: 'bookings', label: 'Bookings', icon: Calendar },
                 { id: 'messages', label: 'Messages', icon: MessageSquare },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
+                { id: 'profile', label: 'My Profile', icon: User },
                 { id: 'settings', label: 'Settings', icon: Settings },
               ].map((item) => {
                 const Icon = item.icon;
@@ -1507,6 +1509,7 @@ export default function ServiceProviderDashboard() {
           {activeSection === 'settings' && renderSettings()}
           {activeSection === 'messages' && <MessagesPage />}
           {activeSection === 'notifications' && <NotificationsPage />}
+          {activeSection === 'profile' && <ProfilePage />}
         </div>
       </div>
     </div>
