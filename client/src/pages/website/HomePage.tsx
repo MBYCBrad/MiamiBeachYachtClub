@@ -14,6 +14,9 @@ export default function HomePage() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [selectedTier, setSelectedTier] = useState(1);
   const [activeService, setActiveService] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeGalleryImage, setActiveGalleryImage] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -67,9 +70,27 @@ export default function HomePage() {
       const { innerWidth, innerHeight } = window;
       mouseX.set((clientX - innerWidth / 2) / innerWidth);
       mouseY.set((clientY - innerHeight / 2) / innerHeight);
+      setMousePosition({ x: clientX, y: clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = window.scrollY / totalHeight;
+      setScrollProgress(progress);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveGalleryImage((prev) => (prev + 1) % 8);
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const toggleVideo = () => {
@@ -268,6 +289,31 @@ export default function HomePage() {
 
   return (
     <WebsiteLayout>
+      {/* Custom Cursor */}
+      <motion.div
+        className="fixed w-8 h-8 pointer-events-none z-[9999] mix-blend-difference"
+        style={{
+          x: mousePosition.x - 16,
+          y: mousePosition.y - 16
+        }}
+      >
+        <motion.div
+          className="w-full h-full bg-white rounded-full"
+          animate={{
+            scale: hoveredFeature !== null ? 2 : 1,
+            opacity: hoveredFeature !== null ? 0.5 : 0.8
+          }}
+        />
+      </motion.div>
+
+      {/* Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-indigo-600 z-[9998]"
+        style={{
+          scaleX: scrollProgress,
+          transformOrigin: "0%"
+        }}
+      />
       {/* Hero Section with Cinematic Video */}
       <section className="relative h-screen overflow-hidden">
         <motion.div 
@@ -1536,8 +1582,234 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Interactive Map Section */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+        <div className="absolute inset-0">
+          <motion.div
+            animate={{ 
+              scale: [1, 1.5, 1],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 30,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]"
+          >
+            <div className="w-full h-full bg-gradient-to-r from-purple-600/10 via-transparent to-indigo-600/10 rounded-full blur-3xl" />
+          </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8">
+              Sail
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400"> Worldwide</span>
+            </h2>
+            <p className="text-2xl text-gray-400 max-w-4xl mx-auto">
+              From Miami to Monaco, Caribbean to Mediterranean - your perfect voyage awaits
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {[
+              {
+                destination: "Miami & Florida Keys",
+                description: "Crystal waters, vibrant nightlife, and year-round sunshine",
+                highlights: ["South Beach", "Key West", "Biscayne Bay"],
+                image: yachts[0]?.images?.[0] || "/api/placeholder/600/400"
+              },
+              {
+                destination: "Caribbean Islands",
+                description: "Pristine beaches, hidden coves, and tropical paradise",
+                highlights: ["Bahamas", "Virgin Islands", "St. Barts"],
+                image: events[0]?.images?.[0] || "/api/placeholder/600/400"
+              },
+              {
+                destination: "Mediterranean",
+                description: "Historic ports, azure waters, and coastal glamour",
+                highlights: ["French Riviera", "Italian Coast", "Greek Islands"],
+                image: services[0]?.images?.[0] || "/api/placeholder/600/400"
+              }
+            ].map((location, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2, type: "spring" }}
+                className="group relative"
+              >
+                <motion.div
+                  whileHover={{ y: -10 }}
+                  className="relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl border border-gray-700/50 hover:border-purple-500/50 transition-all"
+                >
+                  <div className="relative h-64 overflow-hidden">
+                    <motion.img
+                      src={location.image}
+                      alt={location.destination}
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.2 }}
+                      transition={{ duration: 0.8 }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                    
+                    <motion.div
+                      initial={{ y: 100, opacity: 0 }}
+                      whileInView={{ y: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.2 + 0.3 }}
+                      className="absolute bottom-6 left-6 right-6"
+                    >
+                      <MapPin className="w-8 h-8 text-purple-400 mb-2" />
+                      <h3 className="text-3xl font-bold text-white">{location.destination}</h3>
+                    </motion.div>
+                  </div>
+
+                  <div className="p-8">
+                    <p className="text-gray-300 text-lg mb-6">{location.description}</p>
+                    
+                    <div className="space-y-2 mb-6">
+                      {location.highlights.map((highlight, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.2 + i * 0.1 }}
+                          className="flex items-center gap-3"
+                        >
+                          <Compass className="w-5 h-5 text-purple-400" />
+                          <span className="text-gray-300">{highlight}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all"
+                    >
+                      Explore Destination
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Live Yacht Tracker */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600/20 backdrop-blur rounded-full mb-8"
+            >
+              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+              <span className="text-red-400 font-medium">LIVE FLEET STATUS</span>
+            </motion.div>
+            
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8">
+              Real-Time
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400"> Fleet Tracker</span>
+            </h2>
+            <p className="text-2xl text-gray-400 max-w-4xl mx-auto">
+              Track our yachts in real-time and see availability at a glance
+            </p>
+          </motion.div>
+
+          <div className="bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl rounded-3xl p-8 border border-gray-700/50">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Map Visualization */}
+              <div className="relative h-96 bg-gray-800/50 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                    className="relative"
+                  >
+                    <Globe className="w-32 h-32 text-purple-400/20" />
+                    {[...Array(5)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-4 h-4 bg-purple-400 rounded-full"
+                        style={{
+                          top: `${20 + Math.random() * 60}%`,
+                          left: `${20 + Math.random() * 60}%`
+                        }}
+                        animate={{
+                          scale: [0, 1, 0],
+                          opacity: [0, 1, 0]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.4
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping" />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Live Status */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-white mb-6">Fleet Status</h3>
+                {featuredYachts.map((yacht, index) => (
+                  <motion.div
+                    key={yacht.id}
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full ${
+                        index === 0 ? 'bg-green-500' : index === 1 ? 'bg-yellow-500' : 'bg-red-500'
+                      } animate-pulse`} />
+                      <div>
+                        <p className="text-white font-semibold">{yacht.name}</p>
+                        <p className="text-sm text-gray-400">{yacht.length}ft • {yacht.type}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-sm font-medium ${
+                        index === 0 ? 'text-green-400' : index === 1 ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {index === 0 ? 'Available' : index === 1 ? 'Returning Soon' : 'On Charter'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {index === 0 ? 'Miami Marina' : index === 1 ? 'ETA 2 hours' : 'Key West'}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ with Animations */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black">
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-4xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
@@ -1594,6 +1866,378 @@ export default function HomePage() {
                 </motion.div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Instagram-style Gallery */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8">
+              Life at
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400"> MBYC</span>
+            </h2>
+            <p className="text-2xl text-gray-400 max-w-4xl mx-auto">
+              Follow our members' incredible journeys and experiences
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.05, zIndex: 10 }}
+                className="relative aspect-square overflow-hidden rounded-2xl cursor-pointer group"
+              >
+                <AnimatePresence>
+                  <motion.img
+                    key={activeGalleryImage === index ? "active" : "inactive"}
+                    src={
+                      index % 3 === 0 ? yachts[0]?.images?.[0] : 
+                      index % 3 === 1 ? services[0]?.images?.[0] : 
+                      events[0]?.images?.[0] || "/api/placeholder/400/400"
+                    }
+                    alt={`Gallery ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </AnimatePresence>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-white font-semibold mb-1">@mbyc_member</p>
+                    <p className="text-gray-300 text-sm">Living the yacht life ⚓️</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <motion.div whileHover={{ scale: 1.2 }} className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-white fill-white" />
+                        <span className="text-white text-sm">1,234</span>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.2 }} className="flex items-center gap-1">
+                        <Ship className="w-4 h-4 text-white" />
+                        <span className="text-white text-sm">432</span>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Instagram-style hover effect */}
+                <motion.div
+                  className="absolute inset-0 bg-white"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 0.1 }}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AI-Powered Yacht Matcher */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
+        <div className="absolute inset-0">
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              backgroundImage: [
+                "radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)",
+                "radial-gradient(circle at 80% 50%, rgba(79, 70, 229, 0.2) 0%, transparent 50%)",
+                "radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)",
+                "radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.2) 0%, transparent 50%)"
+              ]
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <motion.div
+              animate={{ 
+                rotate: [0, 5, -5, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 backdrop-blur rounded-full mb-8"
+            >
+              <Zap className="w-5 h-5 text-purple-400" />
+              <span className="text-purple-400 font-medium">AI-POWERED EXPERIENCE</span>
+            </motion.div>
+            
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8">
+              Find Your Perfect
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400"> Yacht Match</span>
+            </h2>
+            <p className="text-2xl text-gray-400 max-w-4xl mx-auto mb-12">
+              Our AI analyzes your preferences to recommend the ideal yacht for your next adventure
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl rounded-3xl p-12 border border-gray-700/50"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h3 className="text-3xl font-bold text-white mb-8">Tell us about your dream voyage</h3>
+                
+                <div className="space-y-6">
+                  {[
+                    { label: "Destination", value: "Caribbean Islands" },
+                    { label: "Group Size", value: "8-12 guests" },
+                    { label: "Experience Type", value: "Luxury & Relaxation" },
+                    { label: "Duration", value: "One week" }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group"
+                    >
+                      <label className="text-gray-400 text-sm mb-2 block">{item.label}</label>
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="relative"
+                      >
+                        <input
+                          type="text"
+                          value={item.value}
+                          readOnly
+                          className="w-full px-6 py-4 bg-gray-800/50 rounded-2xl text-white border border-gray-700 focus:border-purple-500 transition-all cursor-pointer group-hover:border-purple-500/50"
+                        />
+                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full mt-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-3"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Get AI Recommendations
+                </motion.button>
+              </div>
+
+              <div className="relative">
+                <motion.div
+                  animate={{ 
+                    y: [0, -10, 0],
+                    rotateY: [0, 5, 0]
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="relative"
+                >
+                  <div className="aspect-w-16 aspect-h-12 rounded-2xl overflow-hidden">
+                    <img 
+                      src={yachts[0]?.images?.[0] || "/api/placeholder/600/400"} 
+                      alt="AI Recommended Yacht"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    {/* AI Analysis Overlay */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-24 h-24 border-2 border-purple-400 rounded-lg"
+                          style={{
+                            top: `${20 + i * 25}%`,
+                            left: `${15 + i * 20}%`
+                          }}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ 
+                            opacity: [0, 1, 1, 0],
+                            scale: [0.8, 1, 1, 0.8]
+                          }}
+                          transition={{
+                            duration: 3,
+                            delay: i * 0.5,
+                            repeat: Infinity
+                          }}
+                        >
+                          <motion.div
+                            className="absolute -top-8 left-0 bg-purple-600 px-3 py-1 rounded-full text-white text-xs"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
+                            transition={{
+                              duration: 3,
+                              delay: i * 0.5 + 0.5,
+                              repeat: Infinity
+                            }}
+                          >
+                            {i === 0 ? "Perfect Size" : i === 1 ? "Ideal Amenities" : "Best Route"}
+                          </motion.div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur rounded-2xl p-4"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-white font-bold">AI Match Score</h4>
+                      <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">98%</span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-purple-600 to-indigo-600"
+                        initial={{ width: 0 }}
+                        whileInView={{ width: "98%" }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                      />
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Augmented Reality Preview */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black via-gray-950 to-black relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur rounded-full mb-8"
+            >
+              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
+              <span className="text-purple-400 font-medium">NEW TECHNOLOGY</span>
+            </motion.div>
+            
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8">
+              View in
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400"> Augmented Reality</span>
+            </h2>
+            <p className="text-2xl text-gray-400 max-w-4xl mx-auto">
+              Experience our yachts in your space with cutting-edge AR technology
+            </p>
+          </motion.div>
+
+          <div className="relative">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/50 backdrop-blur-xl rounded-3xl overflow-hidden"
+            >
+              <div className="aspect-w-16 aspect-h-9 relative">
+                <img 
+                  src="/api/placeholder/1200/675" 
+                  alt="AR Preview"
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* AR Interface Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40">
+                  {/* AR Grid */}
+                  <svg className="absolute inset-0 w-full h-full opacity-20">
+                    <defs>
+                      <pattern id="ar-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#ar-grid)" />
+                  </svg>
+
+                  {/* AR Tracking Points */}
+                  {[...Array(5)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-4 h-4"
+                      style={{
+                        top: `${20 + Math.random() * 60}%`,
+                        left: `${10 + Math.random() * 80}%`
+                      }}
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 2,
+                        delay: i * 0.2,
+                        repeat: Infinity
+                      }}
+                    >
+                      <div className="w-full h-full bg-purple-400 rounded-full" />
+                      <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping" />
+                    </motion.div>
+                  ))}
+
+                  {/* AR Controls */}
+                  <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="px-8 py-4 bg-white/10 backdrop-blur rounded-2xl text-white font-semibold flex items-center gap-3 hover:bg-white/20 transition-all"
+                    >
+                      <Phone className="w-5 h-5" />
+                      View in AR
+                    </motion.button>
+
+                    <div className="flex gap-4">
+                      {["1:1", "Interior", "360°"].map((mode, index) => (
+                        <motion.button
+                          key={mode}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                            index === 0 
+                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' 
+                              : 'bg-white/10 text-white hover:bg-white/20'
+                          }`}
+                        >
+                          {mode}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
