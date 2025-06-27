@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   const navItems = [
     { label: "How It Works", href: "/how-it-works" },
@@ -49,12 +50,13 @@ export function Navigation() {
           </div>
 
           {/* Login Button */}
-          <div className="hidden lg:block relative z-10">
-            <Link href="/auth">
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white relative z-10 pointer-events-auto">
-                LOGIN
-              </Button>
-            </Link>
+          <div className="hidden lg:block relative z-[9999]">
+            <Button 
+              onClick={() => setLocation('/auth')}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            >
+              LOGIN
+            </Button>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -87,11 +89,15 @@ export function Navigation() {
                   </div>
                 </Link>
               ))}
-              <Link href="/auth">
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4 relative z-10 pointer-events-auto">
-                  LOGIN
-                </Button>
-              </Link>
+              <Button 
+                onClick={() => {
+                  setLocation('/auth');
+                  setIsOpen(false);
+                }}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4"
+              >
+                LOGIN
+              </Button>
             </div>
           </motion.div>
         )}
