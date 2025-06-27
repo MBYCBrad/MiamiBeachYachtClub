@@ -1,11 +1,42 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  const handleAuthClick = () => {
+    if (isAuthenticated && user) {
+      // Route to appropriate dashboard based on role
+      if (user.role === "admin") {
+        window.location.href = '/admin';
+      } else if (user.role === "staff") {
+        window.location.href = '/staff-portal';
+      } else if (user.role === "yacht_owner") {
+        window.location.href = '/yacht-owner';
+      } else if (user.role === "service_provider") {
+        window.location.href = '/service-provider';
+      } else if (user.role === "member") {
+        window.location.href = '/member';
+      }
+    } else {
+      window.location.href = '/auth';
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
+    }
+  };
 
   const navItems = [
     { label: "How It Works", href: "/how-it-works" },
@@ -51,14 +82,47 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* Login Button */}
+          {/* Authentication Button */}
           <div className="hidden lg:block">
-            <Button 
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-              onClick={() => window.location.href = '/auth'}
-            >
-              LOGIN
-            </Button>
+            {isLoading ? (
+              <Button 
+                disabled
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+              >
+                <User className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
+              </Button>
+            ) : isAuthenticated && user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-lg px-3 py-2">
+                  <User className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm text-white font-medium">{user.username}</span>
+                  <span className="text-xs text-purple-300 uppercase px-2 py-1 bg-purple-500/20 rounded-full">
+                    {user.role}
+                  </span>
+                </div>
+                <Button
+                  onClick={handleAuthClick}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-white"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                onClick={handleAuthClick}
+              >
+                LOGIN
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -94,11 +158,45 @@ export function Navigation() {
                   </div>
                 </Link>
               ))}
-              <Link href="/auth">
-                <div className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4 px-6 py-2.5 rounded-lg font-medium transition-all duration-200 cursor-pointer text-center">
-                  LOGIN
+              {isLoading ? (
+                <div className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white mt-4 px-6 py-2.5 rounded-lg font-medium text-center flex items-center justify-center space-x-2">
+                  <User className="w-4 h-4 animate-spin" />
+                  <span>Loading...</span>
                 </div>
-              </Link>
+              ) : isAuthenticated && user ? (
+                <div className="mt-4 space-y-3">
+                  <div className="bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-lg px-4 py-3">
+                    <div className="flex items-center space-x-2 text-white">
+                      <User className="w-4 h-4 text-purple-400" />
+                      <span className="font-medium">{user.username}</span>
+                      <span className="text-xs text-purple-300 uppercase px-2 py-1 bg-purple-500/20 rounded-full">
+                        {user.role}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleAuthClick}
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 text-center"
+                    >
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-2.5 border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-white rounded-lg transition-all duration-200"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleAuthClick}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mt-4 px-6 py-2.5 rounded-lg font-medium transition-all duration-200 cursor-pointer text-center"
+                >
+                  LOGIN
+                </button>
+              )}
             </div>
           </motion.div>
         )}

@@ -65,7 +65,7 @@ const FloatingParticle = ({ delay = 0 }) => (
 );
 
 const PremiumAuthPage: React.FC = () => {
-  const { user, loginMutation, registerMutation } = useAuth();
+  const { user, isAuthenticated, isLoading, loginMutation, registerMutation } = useAuth();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -73,12 +73,25 @@ const PremiumAuthPage: React.FC = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Redirect if already logged in
+  // Redirect authenticated users to their dashboard
   useEffect(() => {
-    if (user) {
-      setLocation('/');
+    if (!isLoading && isAuthenticated && user) {
+      console.log('Auth page - user already authenticated, redirecting to dashboard', user.role);
+      if (user.role === "admin") {
+        window.location.href = '/admin';
+      } else if (user.role === "staff") {
+        window.location.href = '/staff-portal';
+      } else if (user.role === "yacht_owner") {
+        window.location.href = '/yacht-owner';
+      } else if (user.role === "service_provider") {
+        window.location.href = '/service-provider';
+      } else if (user.role === "member") {
+        window.location.href = '/member';
+      } else {
+        window.location.href = '/';
+      }
     }
-  }, [user, setLocation]);
+  }, [isAuthenticated, isLoading, user]);
 
   // Preload video on component mount
   useEffect(() => {
