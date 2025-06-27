@@ -27,8 +27,8 @@ function HeroSection() {
         </video>
       )}
       
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/70" />
+      {/* Light Overlay */}
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
