@@ -35,16 +35,16 @@ function HeroSection() {
       {/* 3D Anamorphic Edges */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Edge */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black via-black/80 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/60 to-transparent" />
         
         {/* Bottom Edge */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/60 to-transparent" />
         
         {/* Left Edge */}
-        <div className="absolute top-0 left-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div className="absolute top-0 left-0 bottom-0 w-16 bg-gradient-to-r from-black/60 to-transparent" />
         
         {/* Right Edge */}
-        <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent" />
+        <div className="absolute top-0 right-0 bottom-0 w-16 bg-gradient-to-l from-black/60 to-transparent" />
       </div>
 
       {/* Content */}
