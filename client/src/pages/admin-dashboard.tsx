@@ -115,7 +115,6 @@ const sidebarItems = [
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
   { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
   { id: 'my-profile', label: 'My Profile', icon: User, color: 'from-purple-500 to-indigo-500' },
-  { id: 'settings', label: 'Settings', icon: Settings, color: 'from-gray-500 to-slate-500' },
   { id: 'logout', label: 'Log Out', icon: LogOut, color: 'from-red-500 to-red-600' }
 ];
 
@@ -5071,7 +5070,7 @@ export default function AdminDashboard() {
   const renderSettings = () => {
     const { data: settings, isLoading: settingsLoading } = useQuery({
       queryKey: ['/api/admin/settings'],
-      enabled: isAuthenticated && user?.role === 'admin'
+      enabled: !!user && user?.role === 'admin'
     });
 
     const [isTestingStripe, setIsTestingStripe] = useState(false);
