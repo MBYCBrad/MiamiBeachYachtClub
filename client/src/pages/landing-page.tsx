@@ -31,6 +31,104 @@ function HeroSection() {
       
       {/* Light Overlay */}
       <div className="absolute inset-0 bg-black/30" />
+      
+      {/* Anamorphic 3D Edge Design */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Top Edge */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black via-black/80 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-purple-600 to-transparent opacity-80" />
+        
+        {/* Bottom Edge */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-indigo-600 to-transparent opacity-80" />
+        
+        {/* Left Edge with 3D Perspective */}
+        <div className="absolute top-0 left-0 bottom-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent" />
+        <div 
+          className="absolute top-20 left-0 bottom-20 w-1 opacity-60"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, #9333ea, #6366f1, transparent)',
+            transform: 'perspective(1000px) rotateY(45deg)',
+            transformOrigin: 'left center'
+          }}
+        />
+        
+        {/* Right Edge with 3D Perspective */}
+        <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent" />
+        <div 
+          className="absolute top-20 right-0 bottom-20 w-1 opacity-60"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, #6366f1, #9333ea, transparent)',
+            transform: 'perspective(1000px) rotateY(-45deg)',
+            transformOrigin: 'right center'
+          }}
+        />
+        
+        {/* Corner Accents for 3D Effect */}
+        {/* Top Left */}
+        <div 
+          className="absolute top-8 left-8 w-24 h-24"
+          style={{
+            background: 'conic-gradient(from 180deg at 0% 0%, transparent 270deg, rgba(147, 51, 234, 0.3) 360deg)',
+            clipPath: 'polygon(0 0, 100% 0, 0 100%)'
+          }}
+        />
+        
+        {/* Top Right */}
+        <div 
+          className="absolute top-8 right-8 w-24 h-24"
+          style={{
+            background: 'conic-gradient(from 270deg at 100% 0%, transparent 270deg, rgba(99, 102, 241, 0.3) 360deg)',
+            clipPath: 'polygon(0 0, 100% 0, 100% 100%)'
+          }}
+        />
+        
+        {/* Bottom Left */}
+        <div 
+          className="absolute bottom-8 left-8 w-24 h-24"
+          style={{
+            background: 'conic-gradient(from 90deg at 0% 100%, transparent 270deg, rgba(99, 102, 241, 0.3) 360deg)',
+            clipPath: 'polygon(0 0, 0 100%, 100% 100%)'
+          }}
+        />
+        
+        {/* Bottom Right */}
+        <div 
+          className="absolute bottom-8 right-8 w-24 h-24"
+          style={{
+            background: 'conic-gradient(from 0deg at 100% 100%, transparent 270deg, rgba(147, 51, 234, 0.3) 360deg)',
+            clipPath: 'polygon(100% 0, 0 100%, 100% 100%)'
+          }}
+        />
+        
+        {/* Animated Glow Lines */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+          animate={{
+            opacity: [0.3, 0.8, 0.3],
+            scaleX: [0.8, 1, 0.8]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"
+          animate={{
+            opacity: [0.3, 0.8, 0.3],
+            scaleX: [0.8, 1, 0.8]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1.5
+          }}
+        />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
