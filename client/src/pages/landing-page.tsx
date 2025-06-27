@@ -1,10 +1,11 @@
 import { Link } from "wouter";
-import { motion } from "framer-motion";
-import { ChevronDown, Anchor, Sparkles, Waves } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
+import { useState } from "react";
 
 // Hero Section with Video Background
 function HeroSection() {

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navigation } from '@/components/navigation';
+import { VideoHeader } from '@/components/video-header';
+import { VideoCTA } from '@/components/video-cta';
+import { VideoFooter } from '@/components/video-footer';
+import { Footer } from '@/components/footer';
 import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Anchor } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -84,50 +88,11 @@ export default function ContactPage() {
     <div className="min-h-screen bg-black">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-indigo-900/20" />
-          {/* Animated waves */}
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute inset-x-0 bottom-0 h-64 opacity-20"
-              style={{
-                background: `linear-gradient(to top, transparent, ${i === 0 ? 'rgba(147, 51, 234, 0.1)' : i === 1 ? 'rgba(99, 102, 241, 0.1)' : 'rgba(139, 92, 246, 0.1)'})`,
-              }}
-              animate={{
-                y: [0, -20, 0],
-              }}
-              transition={{
-                duration: 8 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <Anchor className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              Get in Touch
-            </h1>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Have questions about membership or want to schedule a visit? 
-              Our team is here to help you discover the MBYC experience.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      {/* Video Header */}
+      <VideoHeader 
+        title="Get in Touch"
+        subtitle="Have questions about membership or want to schedule a visit? Our team is here to help you discover the MBYC experience."
+      />
 
       {/* Contact Info Cards */}
       <section className="py-20">
@@ -323,6 +288,15 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* Video CTA */}
+      <VideoCTA />
+
+      {/* Video Footer */}
+      <VideoFooter />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

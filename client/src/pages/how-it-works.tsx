@@ -2,7 +2,12 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/navigation";
+import { VideoHeader } from "@/components/video-header";
+import { VideoCTA } from "@/components/video-cta";
+import { VideoFooter } from "@/components/video-footer";
+import { Footer } from "@/components/footer";
 import { CheckCircle, Users, Calendar, Ship, Phone, Star } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const steps = [
   {
@@ -40,29 +45,11 @@ export default function HowItWorks() {
     <div className="min-h-screen bg-black">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              How It
-              <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Works</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
-              Your journey to exclusive yacht experiences begins with four simple steps
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      {/* Video Header */}
+      <VideoHeader 
+        title="How It Works"
+        subtitle="Your journey to exclusive yacht experiences begins with four simple steps"
+      />
 
       {/* Steps Section */}
       <section className="py-20 relative">
@@ -221,45 +208,14 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-6xl font-bold text-white mb-8"
-            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-          >
-            Ready to Start Your Journey?
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-xl text-gray-300 mb-12"
-          >
-            Join Miami Beach Yacht Club today and experience luxury yachting like never before.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            viewport={{ once: true }}
-          >
-            <Link href="/apply">
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-              >
-                Apply for Membership
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      {/* Video CTA */}
+      <VideoCTA />
+
+      {/* Video Footer */}
+      <VideoFooter />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
