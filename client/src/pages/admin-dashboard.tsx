@@ -2328,6 +2328,51 @@ export default function AdminDashboard() {
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Settings hooks - must be at top level to avoid React Hooks Rules violation
+  const { data: settings, isLoading: settingsLoading } = useQuery({
+    queryKey: ['/api/admin/settings'],
+    enabled: !!user && user?.role === 'admin'
+  });
+
+  const [isTestingStripe, setIsTestingStripe] = useState(false);
+  const [isTestingTwilio, setIsTestingTwilio] = useState(false);
+  const [stripeKey, setStripeKey] = useState('');
+  const [twilioSid, setTwilioSid] = useState('');
+  const [twilioToken, setTwilioToken] = useState('');
+  const [twilioPhone, setTwilioPhone] = useState('');
+
+  // Load existing settings - moved to top level to fix React Hooks Rules
+  useEffect(() => {
+    if (settings && settings.length > 0) {
+      const stripeSettings = settings.find(s => s.service === 'stripe');
+      const twilioSettings = settings.find(s => s.service === 'twilio');
+      
+      if (stripeSettings) {
+        setStripeKey(stripeSettings.apiKey || '');
+      }
+      if (twilioSettings) {
+        setTwilioSid(twilioSettings.apiKey || '');
+        setTwilioToken(twilioSettings.apiSecret || '');
+        setTwilioPhone(twilioSettings.phoneNumber || '');
+      }
+    }
+  }, [settings]);
+
+  const saveSettings = useMutation({
+    mutationFn: async (data: { service: string; apiKey?: string; apiSecret?: string; phoneNumber?: string }) => {
+      return apiRequest("POST", "/api/admin/settings", data);
+    },
+    onSuccess: () => {
+      toast({ title: "Settings Saved", description: "Configuration saved successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
+    }
+  });
 
   // Handle window resize
   useEffect(() => {
@@ -5068,47 +5113,6 @@ export default function AdminDashboard() {
   );
 
   const renderSettings = () => {
-    const { data: settings, isLoading: settingsLoading } = useQuery({
-      queryKey: ['/api/admin/settings'],
-      enabled: !!user && user?.role === 'admin'
-    });
-
-    const [isTestingStripe, setIsTestingStripe] = useState(false);
-    const [isTestingTwilio, setIsTestingTwilio] = useState(false);
-    const [stripeKey, setStripeKey] = useState('');
-    const [twilioSid, setTwilioSid] = useState('');
-    const [twilioToken, setTwilioToken] = useState('');
-    const [twilioPhone, setTwilioPhone] = useState('');
-
-    // Load existing settings
-    useEffect(() => {
-      if (settings && settings.length > 0) {
-        const stripeSettings = settings.find(s => s.service === 'stripe');
-        const twilioSettings = settings.find(s => s.service === 'twilio');
-        
-        if (stripeSettings) {
-          setStripeKey(stripeSettings.apiKey || '');
-        }
-        if (twilioSettings) {
-          setTwilioSid(twilioSettings.apiKey || '');
-          setTwilioToken(twilioSettings.apiSecret || '');
-          setTwilioPhone(twilioSettings.phoneNumber || '');
-        }
-      }
-    }, [settings]);
-
-    const saveSettings = useMutation({
-      mutationFn: async (data: { service: string; apiKey?: string; apiSecret?: string; phoneNumber?: string }) => {
-        return apiRequest("POST", "/api/admin/settings", data);
-      },
-      onSuccess: () => {
-        toast({ title: "Settings Saved", description: "Configuration saved successfully" });
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
-      },
-      onError: (error) => {
-        toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
-      }
-    });
 
     const testStripeConnection = async () => {
       if (!stripeKey.trim()) {
