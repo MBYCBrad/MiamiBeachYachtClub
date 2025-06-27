@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
 import { ChevronLeft, ChevronRight, Anchor, Users, Bed, Waves } from 'lucide-react';
-import Yacht3DModel from '@/components/website/Yacht3DModel';
+import Yacht3DCustom from '@/components/website/Yacht3DCustom';
 
 
 
@@ -110,7 +110,14 @@ export default function FleetPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               {/* 3D Model */}
               <div className="relative order-2 lg:order-1">
-                <Yacht3DModel />
+                <Yacht3DCustom 
+                  yachtName={currentYacht?.name || 'Luxury Yacht'}
+                  yachtSpecs={{
+                    length: currentYacht?.size || '100ft',
+                    cabins: currentYacht?.cabins || 5,
+                    baths: currentYacht?.baths || 4
+                  }}
+                />
                 
                 {/* Navigation Arrows */}
                 <button
