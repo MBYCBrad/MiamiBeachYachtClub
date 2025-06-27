@@ -47,21 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Welcome back, ${user.username}!`,
       });
       
-      // Trigger role-based routing after successful login
-      setTimeout(() => {
-        if (user.role === "admin") {
-          window.location.href = "/admin";
-        } else if (user.role === "yacht_owner") {
-          window.location.href = "/yacht-owner";
-        } else if (user.role === "service_provider") {
-          window.location.href = "/service-provider";
-        } else if (user.role === "staff") {
-          window.location.href = "/staff-portal";
-        } else {
-          // For members, go to member dashboard
-          window.location.href = "/member";
-        }
-      }, 100);
+      // Note: Role-based routing will be handled by the auth page component
+      // No automatic redirection here to prevent page refresh
     },
     onError: (error: Error) => {
       toast({

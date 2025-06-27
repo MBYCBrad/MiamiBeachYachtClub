@@ -120,8 +120,11 @@ const PremiumAuthPage: React.FC = () => {
             setLocation('/yacht-owner');
           } else if (user.role === UserRole.SERVICE_PROVIDER) {
             setLocation('/service-provider');
+          } else if (user.role === "staff") {
+            setLocation('/staff-portal');
           } else {
-            setLocation('/');
+            // For members, go to member dashboard
+            setLocation('/member');
           }
         }, 100);
       }
