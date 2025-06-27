@@ -100,13 +100,6 @@ export function Navigation() {
                 >
                   Dashboard
                 </Button>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-white"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
               </div>
             ) : (
               <Button 
@@ -167,20 +160,12 @@ export function Navigation() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleAuthClick}
-                      className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 text-center"
-                    >
-                      Dashboard
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="px-4 py-2.5 border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-white rounded-lg transition-all duration-200"
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleAuthClick}
+                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 text-center"
+                  >
+                    Dashboard
+                  </button>
                 </div>
               ) : (
                 <button
