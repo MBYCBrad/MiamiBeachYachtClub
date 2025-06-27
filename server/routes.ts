@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage as dbStorage } from "./storage";
 import { setupAuth } from "./auth";
@@ -213,56 +213,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Video specific route for better video streaming
-  app.get("/api/media/video/:filename", async (req, res) => {
-    try {
-      const { filename } = req.params;
-      const filePath = mediaStorageService.getAssetPath(filename);
-      
-      if (!mediaStorageService.fileExists(filename)) {
-        return res.status(404).json({ message: "Video not found" });
+  // Video specific route with optimized streaming and preload support
+  app.get("/api/media/video/:filename", (req, res) => {
+    const { filename } = req.params;
+    
+    // Use sendFile for optimal performance with built-in range support
+    const options = {
+      root: path.join(process.cwd(), 'attached_assets'),
+      headers: {
+        'Content-Type': 'video/mp4',
+        'Accept-Ranges': 'bytes',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        // Add preload hint
+        'X-Content-Type-Options': 'nosniff',
+        // Enable compression for better performance
+        'Vary': 'Accept-Encoding'
+      },
+      // Enable dotfiles serving (false = allow)
+      dotfiles: 'deny',
+      // Set max age to 1 year
+      maxAge: '365d'
+    };
+    
+    res.sendFile(filename, options, (err) => {
+      if (err) {
+        console.error('Error serving video:', err);
+        res.status(404).json({ message: "Video not found" });
       }
-
-      const stats = mediaStorageService.getFileStats(filename);
-      if (!stats) {
-        return res.status(404).json({ message: "Video not accessible" });
-      }
-
-      // Set video-specific headers
-      res.setHeader('Content-Type', 'video/mp4');
-      res.setHeader('Accept-Ranges', 'bytes');
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-
-      // Handle range requests for video streaming
-      const range = req.headers.range;
-      if (range) {
-        const parts = range.replace(/bytes=/, "").split("-");
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
-        const chunksize = (end - start) + 1;
-
-        res.status(206);
-        res.setHeader('Content-Range', `bytes ${start}-${end}/${stats.size}`);
-        res.setHeader('Content-Length', chunksize);
-
-        // Use larger buffer size for better performance
-        const stream = fs.createReadStream(filePath, { 
-          start, 
-          end,
-          highWaterMark: 1024 * 1024 // 1MB chunks
-        });
-        stream.pipe(res);
-      } else {
-        res.setHeader('Content-Length', stats.size);
-        const stream = fs.createReadStream(filePath, {
-          highWaterMark: 1024 * 1024 // 1MB chunks
-        });
-        stream.pipe(res);
-      }
-    } catch (error) {
-      console.error('Error serving video:', error);
-      res.status(500).json({ message: "Error serving video" });
-    }
+    });
   });
 
   // Get active hero video

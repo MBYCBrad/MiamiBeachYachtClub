@@ -166,7 +166,7 @@ const PremiumAuthPage: React.FC = () => {
           className="w-full h-full object-cover"
           style={{ opacity: isVideoLoaded ? 1 : 0, transition: 'opacity 0.5s ease-in-out' }}
         >
-          <source src="/api/media/video/15768404-uhd_4096_2160_24fps_1750523880240.mp4" type="video/mp4" />
+          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
         </video>
         
         {/* Fallback gradient background when video is loading */}
