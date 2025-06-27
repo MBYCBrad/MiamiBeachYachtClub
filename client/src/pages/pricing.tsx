@@ -15,7 +15,7 @@ const membershipTiers = [
     bookings: "2-4 concurrent bookings",
     weekdayBookings: "1-2 weekdays",
     weekendBookings: "1-2 weekends",
-    color: "from-gray-600 to-gray-700",
+    color: "from-purple-600 to-indigo-600",
     features: [
       "Access to entry-level luxury yachts",
       "Professional captain & crew",
@@ -31,7 +31,7 @@ const membershipTiers = [
     bookings: "4 concurrent bookings",
     weekdayBookings: "2 weekdays",
     weekendBookings: "2 weekends",
-    color: "from-yellow-600 to-yellow-700",
+    color: "from-purple-600 to-indigo-600",
     popular: true,
     features: [
       "Access to mid-tier luxury yachts",
@@ -67,7 +67,7 @@ const membershipTiers = [
     bookings: "6-12 concurrent bookings",
     weekdayBookings: "3 weekdays",
     weekendBookings: "3-6 weekends",
-    color: "from-blue-600 to-purple-600",
+    color: "from-purple-600 to-indigo-600",
     features: [
       "Full fleet access including flagship",
       "2 trips on 95ft flagship yacht",
@@ -92,29 +92,7 @@ export default function PricingPage() {
         subtitle="Choose the perfect membership tier for your yachting lifestyle"
       />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-transparent" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-6xl md:text-8xl font-bold text-white mb-6"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              Plans &
-              <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Pricing</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
-              Choose the perfect membership tier for your yachting lifestyle
-            </p>
-          </motion.div>
-        </div>
-      </section>
+
 
       {/* Premium Membership Callout */}
       <section className="py-12 relative">

@@ -26,8 +26,9 @@ export function VideoCTA() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/70" />
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+      {/* Gradient Overlay - blur on top, sharp edge on bottom */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">

@@ -168,44 +168,81 @@ export default function InvestPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Join the Fleet. Live the Club.
-            </h2>
-            <p className="text-xl text-gray-300 mb-8">
-              This is more than a yacht program—it's a partnership. As we scale MBYC into new harbors and luxury destinations, we're offering a chance to grow with us, benefit from our brand, and enjoy the ultimate lifestyle access.
-            </p>
-            <p className="text-lg text-purple-400 font-semibold mb-12">
-              Limited fleet partner spots available.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/book-tour">
-                <Button 
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 px-8"
-                >
-                  Submit Your Yacht
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="border-purple-500 text-purple-400 hover:bg-purple-500/10 transition-all duration-300 px-8"
-                >
-                  Contact Us to Learn More
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
+      {/* CTA Section with Yacht Image */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="text-center lg:text-left"
+            >
+              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Join the Fleet. Live the Club.
+              </h2>
+              <p className="text-xl text-gray-300 mb-8">
+                This is more than a yacht program—it's a partnership. As we scale MBYC into new harbors and luxury destinations, we're offering a chance to grow with us, benefit from our brand, and enjoy the ultimate lifestyle access.
+              </p>
+              <p className="text-lg text-purple-400 font-semibold mb-12">
+                Limited fleet partner spots available.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link href="/book-tour">
+                  <Button 
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 px-8"
+                  >
+                    Submit Your Yacht
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    className="border-purple-500 text-purple-400 hover:bg-purple-500/10 transition-all duration-300 px-8"
+                  >
+                    Contact Us to Learn More
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Yacht Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="relative rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-indigo-600/20 z-10" />
+                <img 
+                  src="/api/media/PF0007919-big_1751025963434.jpg"
+                  alt="Luxury Yacht for Fleet Partnership"
+                  className="w-full h-[500px] object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent p-8 z-20">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <Ship className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-lg">Premium Fleet Partner</p>
+                      <p className="text-purple-400">Join our exclusive yacht network</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative Elements */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
