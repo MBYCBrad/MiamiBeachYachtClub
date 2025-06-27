@@ -33,20 +33,86 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
+        {/* 3D Animated Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0, rotateY: -180 }}
+          animate={{ 
+            opacity: 1, 
+            scale: 1, 
+            rotateY: 360,
+          }}
+          transition={{ 
+            duration: 2,
+            ease: "easeOut",
+            rotateY: {
+              duration: 3,
+              ease: "easeInOut"
+            }
+          }}
+          className="mb-8 relative inline-block"
+          style={{ perspective: "1000px" }}
+        >
+          <motion.div
+            animate={{ 
+              rotateY: [0, 360],
+              rotateZ: [0, 5, -5, 0]
+            }}
+            transition={{ 
+              rotateY: {
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear"
+              },
+              rotateZ: {
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
+            className="relative"
+            style={{ 
+              transformStyle: "preserve-3d",
+              transform: "rotateX(15deg)"
+            }}
+          >
+            {/* 3D Logo Shadow */}
+            <div className="absolute inset-0 blur-3xl opacity-50">
+              <div className="w-48 h-48 md:w-64 md:h-64 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full" />
+            </div>
+            
+            {/* Logo Image with 3D Effect */}
+            <img 
+              src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
+              alt="MBYC Logo" 
+              className="w-48 h-48 md:w-64 md:h-64 relative z-10"
+              style={{
+                filter: "drop-shadow(0 0 40px rgba(147, 51, 234, 0.8))",
+                transform: "translateZ(50px)"
+              }}
+            />
+            
+            {/* Rotating Ring */}
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ transform: "translateZ(-50px)" }}
+            >
+              <div className="w-56 h-56 md:w-72 md:h-72 border-2 border-purple-600/30 rounded-full" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-6xl md:text-8xl font-bold text-white mb-6"
+          transition={{ duration: 1, delay: 0.5 }}
+          className="text-8xl md:text-9xl font-bold text-white mb-6"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
         >
-          WELCOME TO THE
-          <br />
           <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            MIAMI BEACH
+            MBYC
           </span>
-          <br />
-          YACHT CLUB
         </motion.h1>
         
         <motion.p
