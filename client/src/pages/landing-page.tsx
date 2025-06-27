@@ -279,9 +279,21 @@ function FeaturesSection() {
                 className="absolute inset-0 w-full h-full object-contain z-10"
               />
               
-              {/* Screen Content - Auth Page */}
-              <div className="absolute top-[80px] left-[30px] right-[30px] bottom-[80px] bg-black rounded-[40px] overflow-hidden">
-                {/* Video Background with Overlay */}
+              {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
+              <div 
+                className="absolute top-[80px] left-[30px] right-[30px] bottom-[80px] rounded-[40px] overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
+                  boxShadow: `
+                    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+                    0 0 20px rgba(147, 51, 234, 0.3)
+                  `,
+                  transform: 'perspective(1000px) rotateX(2deg)',
+                  transformStyle: 'preserve-3d'
+                }}
+              >
+                {/* Video Background WITHOUT dark overlay */}
                 <div className="absolute inset-0">
                   {heroVideo && (
                     <video
@@ -289,36 +301,56 @@ function FeaturesSection() {
                       loop
                       muted
                       playsInline
-                      className="w-full h-full object-cover opacity-40"
+                      className="w-full h-full object-cover"
                     >
                       <source src={heroVideo.url} type={heroVideo.mimetype} />
                     </video>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
                 </div>
+                
+                {/* 3D Edge Effect */}
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `
+                      linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 3%),
+                      linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 3%),
+                      linear-gradient(to right, rgba(255,255,255,0.05) 0%, transparent 2%),
+                      linear-gradient(to left, rgba(0,0,0,0.2) 0%, transparent 2%)
+                    `,
+                  }}
+                />
                 
                 {/* Auth UI Content */}
                 <div className="relative z-20 h-full flex flex-col justify-center px-8 py-12">
-                  {/* Logo */}
+                  {/* Logo with Single Radiate Animation */}
                   <motion.div
-                    animate={{ 
-                      rotate: [0, 360],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{ 
-                      rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                      scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                    }}
-                    className="mx-auto mb-8"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="mx-auto mb-8 relative"
                   >
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-xl opacity-50" />
-                      <img 
-                        src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
-                        alt="MBYC" 
-                        className="relative w-20 h-20 mx-auto"
-                      />
-                    </div>
+                    {/* One-time Radiating Glow */}
+                    <motion.div
+                      className="absolute inset-0 -z-10"
+                      initial={{ scale: 1, opacity: 0 }}
+                      animate={{
+                        scale: [1, 1.5, 1.5],
+                        opacity: [0, 0.6, 0],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        ease: "easeOut"
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-white blur-[60px]" />
+                    </motion.div>
+                    
+                    {/* Static Logo */}
+                    <img 
+                      src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
+                      alt="MBYC" 
+                      className="relative w-28 h-28 mx-auto"
+                    />
                   </motion.div>
                   
                   {/* Title */}
