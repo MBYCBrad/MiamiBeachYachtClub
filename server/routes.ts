@@ -6104,6 +6104,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: new Date(),
           updatedAt: new Date(),
           updatedBy: null
+        },
+        {
+          id: 999996,
+          service: 'twilio-token',
+          apiKey: process.env.TWILIO_AUTH_TOKEN || '',
+          settingKey: 'twilio_auth_token',
+          settingValue: process.env.TWILIO_AUTH_TOKEN || '',
+          isEncrypted: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 999995,
+          service: 'twilio-phone',
+          phoneNumber: process.env.TWILIO_PHONE_NUMBER || '',
+          settingKey: 'twilio_phone_number',
+          settingValue: process.env.TWILIO_PHONE_NUMBER || '',
+          isEncrypted: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: null
         }
       ];
       

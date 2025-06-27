@@ -2350,18 +2350,24 @@ export default function AdminDashboard() {
     if (settings && settings.length > 0) {
       const stripeSecretSettings = settings.find(s => s.service === 'stripe-secret');
       const stripePublishableSettings = settings.find(s => s.service === 'stripe-publishable');
-      const twilioSettings = settings.find(s => s.service === 'twilio');
+      const twilioSidSettings = settings.find(s => s.service === 'twilio');
+      const twilioTokenSettings = settings.find(s => s.service === 'twilio-token');
+      const twilioPhoneSettings = settings.find(s => s.service === 'twilio-phone');
       
       if (stripeSecretSettings) {
-        setStripeSecretKey(stripeSecretSettings.apiKey || '');
+        setStripeSecretKey(stripeSecretSettings.apiKey || stripeSecretSettings.settingValue || '');
       }
       if (stripePublishableSettings) {
-        setStripePublishableKey(stripePublishableSettings.apiKey || '');
+        setStripePublishableKey(stripePublishableSettings.apiKey || stripePublishableSettings.settingValue || '');
       }
-      if (twilioSettings) {
-        setTwilioSid(twilioSettings.apiKey || '');
-        setTwilioToken(twilioSettings.apiSecret || '');
-        setTwilioPhone(twilioSettings.phoneNumber || '');
+      if (twilioSidSettings) {
+        setTwilioSid(twilioSidSettings.apiKey || twilioSidSettings.settingValue || '');
+      }
+      if (twilioTokenSettings) {
+        setTwilioToken(twilioTokenSettings.apiKey || twilioTokenSettings.settingValue || '');
+      }
+      if (twilioPhoneSettings) {
+        setTwilioPhone(twilioPhoneSettings.phoneNumber || twilioPhoneSettings.settingValue || '');
       }
     }
   }, [settings]);
