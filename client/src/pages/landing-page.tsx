@@ -175,7 +175,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-gray-900 border border-gray-700 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-gray-950 border border-gray-700 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -196,9 +196,16 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="relative flex items-center justify-between mb-4">
+            {/* Continuous connecting line */}
+            <div className="absolute top-1/2 left-4 right-4 h-1 bg-gray-700 -translate-y-1/2 z-0" />
+            <div className={`absolute top-1/2 left-4 h-1 -translate-y-1/2 z-0 transition-all duration-300 rounded ${
+              currentStep >= 2 ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-700'
+            }`} style={{ width: currentStep > 1 ? `calc(${((currentStep - 1) / 3) * 100}% - 1rem)` : '0%' }} />
+            
+            {/* Step indicators */}
             {[1, 2, 3, 4].map((step) => (
-              <div key={step} className="flex items-center gap-2">
+              <div key={step} className="relative z-10">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                   step <= currentStep 
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' 
@@ -206,11 +213,6 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 }`}>
                   {step}
                 </div>
-                {step < 4 && (
-                  <div className={`h-1 w-16 rounded ${
-                    step < currentStep ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-700'
-                  }`} />
-                )}
               </div>
             ))}
           </div>
