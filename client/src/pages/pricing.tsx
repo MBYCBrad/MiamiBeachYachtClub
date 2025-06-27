@@ -408,6 +408,12 @@ export default function PricingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Video CTA */}
+      <VideoCTA />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
