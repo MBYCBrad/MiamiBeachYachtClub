@@ -38,7 +38,7 @@ import ContactPage from "@/pages/website/ContactPage";
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
+      <Route path="/" component={() => { window.location.href = '/website'; return null; }} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
