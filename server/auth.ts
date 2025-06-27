@@ -187,13 +187,35 @@ export function setupAuth(app: Express) {
   });
 
   app.get("/api/logout", (req, res, next) => {
+    console.log('Logout request received for user:', req.user?.username);
+    
     req.logout((err) => {
-      if (err) return next(err);
+      if (err) {
+        console.error('Logout error:', err);
+        return next(err);
+      }
+      
       req.session.destroy((sessionErr) => {
         if (sessionErr) {
           console.error('Session destroy error:', sessionErr);
         }
-        res.clearCookie('connect.sid');
+        
+        // Clear all possible session cookies
+        res.clearCookie('connect.sid', { 
+          path: '/', 
+          httpOnly: true, 
+          secure: false, // Set to true in production with HTTPS
+          sameSite: 'lax' 
+        });
+        res.clearCookie('session', { path: '/' });
+        res.clearCookie('sessionid', { path: '/' });
+        
+        // Add headers to prevent caching
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        
+        console.log('Session destroyed and cookies cleared, redirecting to /');
         res.redirect('/');
       });
     });

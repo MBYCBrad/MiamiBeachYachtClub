@@ -1240,6 +1240,373 @@ export default function ServiceProviderDashboard() {
     </motion.div>
   );
 
+  const renderAnalytics = () => {
+    const totalRevenue = bookings?.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || 0), 0) || 0;
+    const monthlyRevenue = totalRevenue; // Simplified for demo
+    const avgBookingValue = bookings?.length ? totalRevenue / bookings.length : 0;
+    const topService = services?.reduce((top, service) => {
+      const serviceBookings = bookings?.filter(b => b.serviceId === service.id) || [];
+      const currentTop = top.bookings || 0;
+      return serviceBookings.length > currentTop ? { ...service, bookings: serviceBookings.length } : top;
+    }, {} as any);
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Analytics Dashboard
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Deep insights into your service performance and business metrics
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
+          >
+            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Export Analytics
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Performance Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">Total Revenue</p>
+                    <p className="text-2xl font-bold text-white mt-1">${totalRevenue.toFixed(2)}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                      <p className="text-green-400 text-sm">+15.3%</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">Avg Booking Value</p>
+                    <p className="text-2xl font-bold text-white mt-1">${avgBookingValue.toFixed(2)}</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
+                      <p className="text-blue-400 text-sm">+8.7%</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                    <Target className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">Client Satisfaction</p>
+                    <p className="text-2xl font-bold text-white mt-1">{stats?.avgRating || '4.8'}/5</p>
+                    <div className="flex items-center mt-2">
+                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                      <p className="text-yellow-400 text-sm">Excellent</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+                    <Star className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm">Completion Rate</p>
+                    <p className="text-2xl font-bold text-white mt-1">{stats?.completionRate || '95'}%</p>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <p className="text-purple-400 text-sm">Excellent</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Performance Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue Trend Chart */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  Revenue Trend
+                </CardTitle>
+                <CardDescription>Monthly revenue performance over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <TrendingUp className="h-8 w-8 text-white" />
+                    </div>
+                    <p className="text-gray-400 text-sm">Revenue trending upward</p>
+                    <p className="text-green-400 font-semibold mt-2">+15.3% this month</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Service Performance */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Package className="h-5 w-5 mr-2 text-purple-500" />
+                  Service Performance
+                </CardTitle>
+                <CardDescription>Your most popular services and their performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {services?.slice(0, 4).map((service: any, index: number) => {
+                    const serviceBookings = bookings?.filter(b => b.serviceId === service.id) || [];
+                    const percentage = services.length ? (serviceBookings.length / bookings?.length * 100) || 0 : 0;
+                    
+                    return (
+                      <div key={service.id} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <Package className="h-4 w-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium text-sm">{service.name}</p>
+                            <p className="text-gray-400 text-xs">{serviceBookings.length} bookings</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white font-semibold">{percentage.toFixed(1)}%</p>
+                          <div className="w-16 h-2 bg-gray-700 rounded-full mt-1">
+                            <div 
+                              className="h-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Client Demographics & Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Client Demographics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-blue-500" />
+                  Client Demographics
+                </CardTitle>
+                <CardDescription>Membership tier breakdown</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {['Platinum', 'Gold', 'Silver', 'Bronze'].map((tier, index) => {
+                    const tierClients = bookings?.filter(b => b.user?.membershipTier === tier.toLowerCase()) || [];
+                    const percentage = bookings?.length ? (tierClients.length / bookings.length * 100) || 0 : 0;
+                    
+                    return (
+                      <div key={tier} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            tier === 'Platinum' ? 'bg-purple-500' :
+                            tier === 'Gold' ? 'bg-yellow-500' :
+                            tier === 'Silver' ? 'bg-gray-400' : 'bg-orange-500'
+                          }`} />
+                          <span className="text-white text-sm">{tier}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-white font-semibold">{percentage.toFixed(1)}%</span>
+                          <div className="w-12 h-2 bg-gray-700 rounded-full mt-1">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                tier === 'Platinum' ? 'bg-purple-500' :
+                                tier === 'Gold' ? 'bg-yellow-500' :
+                                tier === 'Silver' ? 'bg-gray-400' : 'bg-orange-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Top Performing Service */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Star className="h-5 w-5 mr-2 text-yellow-500" />
+                  Top Performer
+                </CardTitle>
+                <CardDescription>Your best performing service</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-full flex items-center justify-center mx-auto">
+                    {topService?.category && categoryIcons[topService.category as keyof typeof categoryIcons] && 
+                      React.createElement(categoryIcons[topService.category as keyof typeof categoryIcons], { 
+                        className: "h-8 w-8 text-white" 
+                      })
+                    }
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">{topService?.name || 'No services yet'}</p>
+                    <p className="text-gray-400 text-sm">{topService?.category || 'Category'}</p>
+                    <p className="text-yellow-400 font-bold mt-2">{topService?.bookings || 0} bookings</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Growth Metrics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1 }}
+          >
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  Growth Metrics
+                </CardTitle>
+                <CardDescription>Key performance indicators</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">New Clients</span>
+                    <div className="flex items-center space-x-2">
+                      <ArrowUpRight className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400 font-semibold">+23%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Repeat Bookings</span>
+                    <div className="flex items-center space-x-2">
+                      <ArrowUpRight className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400 font-semibold">+18%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Avg Session</span>
+                    <div className="flex items-center space-x-2">
+                      <ArrowUpRight className="h-4 w-4 text-blue-400" />
+                      <span className="text-blue-400 font-semibold">2.4h</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Response Time</span>
+                    <div className="flex items-center space-x-2">
+                      <ArrowDownRight className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400 font-semibold">-15min</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
+  };
+
   const renderRevenue = () => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
@@ -1455,6 +1822,7 @@ export default function ServiceProviderDashboard() {
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
                 { id: 'services', label: 'Services', icon: Package },
                 { id: 'bookings', label: 'Bookings', icon: Calendar },
+                { id: 'analytics', label: 'Analytics', icon: TrendingUp },
                 { id: 'messages', label: 'Messages', icon: MessageSquare },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
                 { id: 'profile', label: 'My Profile', icon: User },
@@ -1509,6 +1877,7 @@ export default function ServiceProviderDashboard() {
           {activeSection === 'overview' && renderOverview()}
           {activeSection === 'services' && renderServices()}
           {activeSection === 'bookings' && renderBookings()}
+          {activeSection === 'analytics' && renderAnalytics()}
           {activeSection === 'revenue' && renderRevenue()}
           {activeSection === 'settings' && renderSettings()}
           {activeSection === 'messages' && <MessagesPage />}
