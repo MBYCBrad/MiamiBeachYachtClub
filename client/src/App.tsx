@@ -28,6 +28,12 @@ import StaffManagement from "@/pages/staff-management";
 import YachtMaintenance from "@/pages/yacht-maintenance";
 import StaffPortal from "@/pages/staff-portal";
 import NotFound from "@/pages/not-found";
+import WebsiteHomePage from "@/pages/website/HomePage";
+import FleetPage from "@/pages/website/FleetPage";
+import PlansPage from "@/pages/website/PlansPage";
+import EventsPage from "@/pages/website/EventsPage";
+import FAQPage from "@/pages/website/FAQPage";
+import ContactPage from "@/pages/website/ContactPage";
 
 function Router() {
   return (
@@ -51,6 +57,12 @@ function Router() {
       <ProtectedRoute path="/events/:id" component={EventDetail} />
       <ProtectedRoute path="/checkout" component={CheckoutPage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/website" component={WebsiteHomePage} />
+      <Route path="/website/fleet" component={FleetPage} />
+      <Route path="/website/plans" component={PlansPage} />
+      <Route path="/website/events" component={EventsPage} />
+      <Route path="/website/faq" component={FAQPage} />
+      <Route path="/website/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
   );
