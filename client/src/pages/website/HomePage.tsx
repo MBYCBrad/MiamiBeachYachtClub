@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import WebsiteLayout from '@/components/website/WebsiteLayout';
-import Yacht3DOptimized from '@/components/website/Yacht3DOptimized';
+import Yacht3DSimple from '@/components/website/Yacht3DSimple';
 import Phone3DSimple from '@/components/website/Phone3DSimple';
 
 export default function HomePage() {
@@ -188,7 +188,7 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="relative h-[600px] md:h-[700px] lg:h-[800px] rounded-3xl overflow-hidden bg-gradient-to-b from-gray-900/50 to-black"
           >
-            <Yacht3DOptimized 
+            <Yacht3DSimple 
               yachtName="95ft Sunseeker 'Pura Vida'"
               yachtSpecs={{
                 length: "95′",
