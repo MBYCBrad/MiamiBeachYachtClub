@@ -70,10 +70,19 @@ function HeroSection() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="flex flex-col sm:flex-row gap-6 justify-center"
         >
-          <Link href="/apply">
+          <Link href="/auth">
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+            >
+              MEMBER LOGIN
+            </Button>
+          </Link>
+          <Link href="/apply">
+            <Button 
+              variant="outline"
+              size="lg" 
+              className="border-2 border-white/30 text-white hover:bg-white/10 px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
             >
               APPLY NOW
             </Button>
