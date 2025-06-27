@@ -2339,7 +2339,8 @@ export default function AdminDashboard() {
 
   const [isTestingStripe, setIsTestingStripe] = useState(false);
   const [isTestingTwilio, setIsTestingTwilio] = useState(false);
-  const [stripeKey, setStripeKey] = useState('');
+  const [stripeSecretKey, setStripeSecretKey] = useState('');
+  const [stripePublishableKey, setStripePublishableKey] = useState('');
   const [twilioSid, setTwilioSid] = useState('');
   const [twilioToken, setTwilioToken] = useState('');
   const [twilioPhone, setTwilioPhone] = useState('');
@@ -2347,11 +2348,15 @@ export default function AdminDashboard() {
   // Load existing settings - moved to top level to fix React Hooks Rules
   useEffect(() => {
     if (settings && settings.length > 0) {
-      const stripeSettings = settings.find(s => s.service === 'stripe');
+      const stripeSecretSettings = settings.find(s => s.service === 'stripe-secret');
+      const stripePublishableSettings = settings.find(s => s.service === 'stripe-publishable');
       const twilioSettings = settings.find(s => s.service === 'twilio');
       
-      if (stripeSettings) {
-        setStripeKey(stripeSettings.apiKey || '');
+      if (stripeSecretSettings) {
+        setStripeSecretKey(stripeSecretSettings.apiKey || '');
+      }
+      if (stripePublishableSettings) {
+        setStripePublishableKey(stripePublishableSettings.apiKey || '');
       }
       if (twilioSettings) {
         setTwilioSid(twilioSettings.apiKey || '');
@@ -5115,14 +5120,14 @@ export default function AdminDashboard() {
   const renderSettings = () => {
 
     const testStripeConnection = async () => {
-      if (!stripeKey.trim()) {
+      if (!stripeSecretKey.trim()) {
         toast({ title: "Error", description: "Please enter Stripe Secret Key", variant: "destructive" });
         return;
       }
 
       setIsTestingStripe(true);
       try {
-        const response = await apiRequest("POST", "/api/admin/test-stripe", { apiKey: stripeKey });
+        const response = await apiRequest("POST", "/api/admin/test-stripe", { apiKey: stripeSecretKey });
         const result = await response.json();
         
         if (result.success) {
@@ -5217,8 +5222,20 @@ export default function AdminDashboard() {
                   <Input
                     type="password"
                     placeholder="sk_test_..."
-                    value={stripeKey}
-                    onChange={(e) => setStripeKey(e.target.value)}
+                    value={stripeSecretKey}
+                    onChange={(e) => setStripeSecretKey(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Stripe Publishable Key
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="pk_test_..."
+                    value={stripePublishableKey}
+                    onChange={(e) => setStripePublishableKey(e.target.value)}
                     className="bg-gray-800 border-gray-600 text-white"
                   />
                 </div>
@@ -5239,10 +5256,21 @@ export default function AdminDashboard() {
                     )}
                   </Button>
                   <Button 
-                    onClick={() => saveSettings.mutate({ 
-                      service: 'stripe', 
-                      apiKey: stripeKey 
-                    })}
+                    onClick={async () => {
+                      // Save both Stripe keys
+                      if (stripeSecretKey.trim()) {
+                        await saveSettings.mutate({ 
+                          service: 'stripe-secret', 
+                          apiKey: stripeSecretKey 
+                        });
+                      }
+                      if (stripePublishableKey.trim()) {
+                        await saveSettings.mutate({ 
+                          service: 'stripe-publishable', 
+                          apiKey: stripePublishableKey 
+                        });
+                      }
+                    }}
                     disabled={saveSettings.isPending}
                     className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                   >
