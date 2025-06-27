@@ -58,7 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else if (user.role === "staff") {
           window.location.href = "/staff-portal";
         } else {
-          window.location.href = "/";
+          // For members, go to member dashboard
+          window.location.href = "/member";
         }
       }, 100);
     },

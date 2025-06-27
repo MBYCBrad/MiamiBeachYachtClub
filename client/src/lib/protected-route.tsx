@@ -30,35 +30,37 @@ export function ProtectedRoute({
     );
   }
 
-  // Role-based routing: redirect users to their appropriate dashboards
-  if (path === "/" && user.role) {
-    if (user.role === "admin") {
-      return (
-        <Route path={path}>
-          <Redirect to="/admin" />
-        </Route>
-      );
-    } else if (user.role === "staff") {
-      return (
-        <Route path={path}>
-          <Redirect to="/staff-portal" />
-        </Route>
-      );
-    }
-    if (user.role === "yacht_owner") {
-      return (
-        <Route path={path}>
-          <Redirect to="/yacht-owner" />
-        </Route>
-      );
-    }
-    if (user.role === "service_provider") {
-      return (
-        <Route path={path}>
-          <Redirect to="/service-provider" />
-        </Route>
-      );
-    }
+  // Role-based access control - only restrict access to wrong dashboards
+  if (path === "/admin" && user.role !== "admin") {
+    return (
+      <Route path={path}>
+        <Redirect to="/auth" />
+      </Route>
+    );
+  }
+  
+  if (path === "/staff-portal" && user.role !== "staff") {
+    return (
+      <Route path={path}>
+        <Redirect to="/auth" />
+      </Route>
+    );
+  }
+  
+  if (path === "/yacht-owner" && user.role !== "yacht_owner") {
+    return (
+      <Route path={path}>
+        <Redirect to="/auth" />
+      </Route>
+    );
+  }
+  
+  if (path === "/service-provider" && user.role !== "service_provider") {
+    return (
+      <Route path={path}>
+        <Redirect to="/auth" />
+      </Route>
+    );
   }
 
   return (
