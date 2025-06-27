@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
-import realisticIphone from "@assets/apple-intelligence_hw__b7r46krxys9y_large_1751026886721.png";
 
 // Hero Section with Video Background
 function HeroSection() {
@@ -33,86 +32,20 @@ function HeroSection() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
-        {/* 3D Animated Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0, rotateY: -180 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1, 
-            rotateY: 360,
-          }}
-          transition={{ 
-            duration: 2,
-            ease: "easeOut",
-            rotateY: {
-              duration: 3,
-              ease: "easeInOut"
-            }
-          }}
-          className="mb-8 relative inline-block"
-          style={{ perspective: "1000px" }}
-        >
-          <motion.div
-            animate={{ 
-              rotateY: [0, 360],
-              rotateZ: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              rotateY: {
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              },
-              rotateZ: {
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            }}
-            className="relative"
-            style={{ 
-              transformStyle: "preserve-3d",
-              transform: "rotateX(15deg)"
-            }}
-          >
-            {/* 3D Logo Shadow */}
-            <div className="absolute inset-0 blur-3xl opacity-50">
-              <div className="w-48 h-48 md:w-64 md:h-64 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full" />
-            </div>
-            
-            {/* Logo Image with 3D Effect */}
-            <img 
-              src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
-              alt="MBYC Logo" 
-              className="w-48 h-48 md:w-64 md:h-64 relative z-10"
-              style={{
-                filter: "drop-shadow(0 0 40px rgba(147, 51, 234, 0.8))",
-                transform: "translateZ(50px)"
-              }}
-            />
-            
-            {/* Rotating Ring */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ transform: "translateZ(-50px)" }}
-            >
-              <div className="w-56 h-56 md:w-72 md:h-72 border-2 border-purple-600/30 rounded-full" />
-            </motion.div>
-          </motion.div>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="text-8xl md:text-9xl font-bold text-white mb-6"
+          transition={{ duration: 1 }}
+          className="text-6xl md:text-8xl font-bold text-white mb-6"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
         >
+          WELCOME TO THE
+          <br />
           <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-            MBYC
+            MIAMI BEACH
           </span>
+          <br />
+          YACHT CLUB
         </motion.h1>
         
         <motion.p
@@ -240,7 +173,36 @@ function FeaturesSection() {
             </span>
           </h2>
           
-
+          {/* App Store Buttons */}
+          <div className="flex gap-4 justify-center mt-8">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
+            >
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-xs text-gray-400">Download on the</div>
+                <div className="text-sm font-semibold text-white">App Store</div>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/10 backdrop-blur-sm rounded-xl px-6 py-3 flex items-center gap-3 cursor-pointer border border-white/20"
+            >
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
+                <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+              </svg>
+              <div className="text-left">
+                <div className="text-xs text-gray-400">Get it on</div>
+                <div className="text-sm font-semibold text-white">Google Play</div>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-center">
@@ -266,7 +228,7 @@ function FeaturesSection() {
             ))}
           </div>
 
-          {/* Hyper-realistic iPhone Mockup */}
+          {/* Phone Mockup */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -274,17 +236,14 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[350px] h-[700px] mx-auto">
-              {/* Realistic iPhone Image */}
-              <img 
-                src={realisticIphone} 
-                alt="iPhone" 
-                className="absolute inset-0 w-full h-full object-contain z-10"
-              />
-              
-              {/* Screen Content - Positioned to fit the phone screen */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-[310px] h-[670px] rounded-[2.5rem] overflow-hidden">
+            <div className="relative w-[300px] h-[600px] mx-auto">
+              {/* Phone Frame */}
+              <div className="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900 rounded-[3rem] shadow-2xl">
+                {/* Notch */}
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-3xl" />
+                
+                {/* Screen */}
+                <div className="absolute inset-[3px] bg-black rounded-[2.8rem] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
@@ -297,180 +256,23 @@ function FeaturesSection() {
                     </video>
                   )}
                   
-                  {/* App Demo - Scrolling Member Experience */}
-                  <div className="absolute inset-0 bg-black overflow-hidden">
-                    {/* Status Bar */}
-                    <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-6 py-1 text-white text-xs">
-                      <span>9:41 AM</span>
-                      <div className="flex gap-1">
-                        <div className="w-4 h-3 bg-white rounded-sm"></div>
-                        <div className="w-4 h-3 bg-white rounded-sm"></div>
-                        <div className="w-4 h-3 bg-white rounded-sm"></div>
-                      </div>
-                    </div>
-                    
-                    {/* Scrolling App Content */}
-                    <motion.div
-                      className="absolute inset-0 pt-8"
-                      animate={{
-                        y: [0, -1200, -2400, -3600, 0]
-                      }}
-                      transition={{
-                        duration: 20,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        times: [0, 0.25, 0.5, 0.75, 1]
-                      }}
-                    >
-                      {/* Screen 1: Dashboard */}
-                      <div className="h-full bg-gradient-to-b from-gray-900 to-black p-6">
-                        <div className="flex items-center justify-between mb-8">
-                          <div>
-                            <h3 className="text-white text-2xl font-bold">Welcome, Sarah</h3>
-                            <p className="text-gray-400 text-sm">Platinum Member</p>
-                          </div>
-                          <img src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" alt="MBYC" className="w-12 h-12" />
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-6">
-                            <h4 className="text-white font-semibold mb-2">Next Booking</h4>
-                            <p className="text-white/90">Azure Dream - Tomorrow 2PM</p>
-                            <p className="text-white/70 text-sm">4 hours • 6 guests</p>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                              <div className="text-purple-400 text-3xl font-bold">12</div>
-                              <div className="text-gray-400 text-sm">Trips This Month</div>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                              <div className="text-purple-400 text-3xl font-bold">148</div>
-                              <div className="text-gray-400 text-sm">Hours on Water</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Screen 2: Yacht Selection */}
-                      <div className="h-full bg-gradient-to-b from-gray-900 to-black p-6">
-                        <h3 className="text-white text-2xl font-bold mb-6">Select Your Yacht</h3>
-                        <div className="space-y-4">
-                          <div className="bg-white/10 backdrop-blur rounded-xl overflow-hidden">
-                            <div className="h-32 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-                            <div className="p-4">
-                              <h4 className="text-white font-semibold">Ocean Paradise</h4>
-                              <p className="text-gray-400 text-sm">92ft • 12 guests • Miami Beach</p>
-                              <button className="mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm">
-                                Book Now
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-white/10 backdrop-blur rounded-xl overflow-hidden">
-                            <div className="h-32 bg-gradient-to-r from-purple-600 to-pink-600"></div>
-                            <div className="p-4">
-                              <h4 className="text-white font-semibold">Sunset Majesty</h4>
-                              <p className="text-gray-400 text-sm">85ft • 10 guests • Key Biscayne</p>
-                              <button className="mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm">
-                                Book Now
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Screen 3: Services */}
-                      <div className="h-full bg-gradient-to-b from-gray-900 to-black p-6">
-                        <h3 className="text-white text-2xl font-bold mb-6">Concierge Services</h3>
-                        <div className="space-y-3">
-                          <div className="bg-white/10 backdrop-blur rounded-xl p-4 flex items-center justify-between">
-                            <div>
-                              <h4 className="text-white font-semibold">Private Chef</h4>
-                              <p className="text-gray-400 text-sm">5-star dining experience</p>
-                            </div>
-                            <span className="text-purple-400">$1,200</span>
-                          </div>
-                          
-                          <div className="bg-white/10 backdrop-blur rounded-xl p-4 flex items-center justify-between">
-                            <div>
-                              <h4 className="text-white font-semibold">Spa & Wellness</h4>
-                              <p className="text-gray-400 text-sm">Onboard massage therapy</p>
-                            </div>
-                            <span className="text-purple-400">$450</span>
-                          </div>
-                          
-                          <div className="bg-white/10 backdrop-blur rounded-xl p-4 flex items-center justify-between">
-                            <div>
-                              <h4 className="text-white font-semibold">Water Sports</h4>
-                              <p className="text-gray-400 text-sm">Jet ski & equipment</p>
-                            </div>
-                            <span className="text-purple-400">$800</span>
-                          </div>
-                          
-                          <div className="bg-white/10 backdrop-blur rounded-xl p-4 flex items-center justify-between">
-                            <div>
-                              <h4 className="text-white font-semibold">Photography</h4>
-                              <p className="text-gray-400 text-sm">Professional photographer</p>
-                            </div>
-                            <span className="text-purple-400">$600</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Screen 4: Profile */}
-                      <div className="h-full bg-gradient-to-b from-gray-900 to-black p-6">
-                        <div className="text-center mb-8">
-                          <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-3xl font-bold">SP</span>
-                          </div>
-                          <h3 className="text-white text-2xl font-bold">Sarah Peterson</h3>
-                          <p className="text-purple-400">Platinum Member Since 2023</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                            <div className="flex justify-between items-center mb-3">
-                              <span className="text-gray-400">Membership Status</span>
-                              <span className="text-purple-400 font-semibold">Active</span>
-                            </div>
-                            <div className="flex justify-between items-center mb-3">
-                              <span className="text-gray-400">Yacht Access</span>
-                              <span className="text-white">Up to 100ft</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-400">Member Benefits</span>
-                              <span className="text-white">Premium</span>
-                            </div>
-                          </div>
-                          
-                          <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-semibold">
-                            Upgrade Membership
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                    
-                    {/* Bottom Navigation */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10">
-                      <div className="flex justify-around py-2">
-                        <div className="p-2">
-                          <div className="w-6 h-6 bg-purple-600 rounded"></div>
-                        </div>
-                        <div className="p-2">
-                          <div className="w-6 h-6 bg-gray-600 rounded"></div>
-                        </div>
-                        <div className="p-2">
-                          <div className="w-6 h-6 bg-gray-600 rounded"></div>
-                        </div>
-                        <div className="p-2">
-                          <div className="w-6 h-6 bg-gray-600 rounded"></div>
-                        </div>
+                  {/* App UI Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50">
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <img src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" alt="MBYC" className="w-16 h-16 mx-auto mb-4" />
+                      <div className="text-white text-center">
+                        <h4 className="text-lg font-bold">Miami Beach Yacht Club</h4>
+                        <p className="text-sm text-gray-300">Premium Member Experience</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              
+              {/* Side Buttons */}
+              <div className="absolute -right-1 top-24 w-1 h-12 bg-gray-700 rounded-r" />
+              <div className="absolute -right-1 top-40 w-1 h-20 bg-gray-700 rounded-r" />
+              <div className="absolute -left-1 top-32 w-1 h-16 bg-gray-700 rounded-l" />
             </div>
           </motion.div>
 
@@ -496,56 +298,6 @@ function FeaturesSection() {
             ))}
           </div>
         </div>
-        
-        {/* App Store Buttons - Below Phone */}
-        <motion.div 
-          className="flex gap-4 justify-center mt-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <motion.a
-            href="https://apps.apple.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block"
-          >
-            <div className="bg-black rounded-lg px-6 py-3 flex items-center gap-3 border border-gray-800">
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="white">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-              </svg>
-              <div className="text-left">
-                <div className="text-xs text-gray-400">Download on the</div>
-                <div className="text-lg font-semibold text-white">App Store</div>
-              </div>
-            </div>
-          </motion.a>
-          
-          <motion.a
-            href="https://play.google.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block"
-          >
-            <div className="bg-black rounded-lg px-6 py-3 flex items-center gap-3 border border-gray-800">
-              <svg className="w-8 h-8" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5Z"/>
-                <path fill="#34A853" d="M20.16,10.81L17.89,9.5L15.39,12L17.89,14.5L20.16,13.19C20.5,12.92 20.75,12.5 20.75,12C20.75,11.5 20.5,11.08 20.16,10.81Z"/>
-                <path fill="#FBBC05" d="M13.69,12L3.84,2.15C4.28,1.87 4.85,1.92 5.24,2.31L16.81,8.88L13.69,12Z"/>
-                <path fill="#EA4335" d="M13.69,12L16.81,15.12L5.24,21.69C4.85,22.08 4.28,22.13 3.84,21.85L13.69,12Z"/>
-              </svg>
-              <div className="text-left">
-                <div className="text-xs text-gray-400">GET IT ON</div>
-                <div className="text-lg font-semibold text-white">Google Play</div>
-              </div>
-            </div>
-          </motion.a>
-        </motion.div>
       </div>
     </section>
   );
