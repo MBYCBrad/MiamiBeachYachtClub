@@ -59,10 +59,14 @@ import {
   BarChart3,
   Settings,
   Image as ImageIcon,
-  MessageSquare
+  MessageSquare,
+  Clock,
+  History,
+  CreditCard
 } from "lucide-react";
 import { MultiImageUpload } from "@/components/multi-image-upload";
 import { Sparkles as SparklesIcon, Palette, ChefHat, Dumbbell, Camera, Music, Anchor } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Service form schema
 const serviceFormSchema = z.object({
@@ -574,7 +578,19 @@ const categoryIcons = {
 
 export default function ServiceProviderDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, logoutMutation } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
+  const [deletingService, setDeletingService] = useState<any>(null);
+  const [serviceFilters, setServiceFilters] = useState({
+    category: "all",
+    availability: "all",
+    priceRange: "all"
+  });
 
   const { data: stats } = useQuery<ServiceProviderStats>({
     queryKey: ['/api/service-provider/stats'],
@@ -586,6 +602,24 @@ export default function ServiceProviderDashboard() {
 
   const { data: bookings } = useQuery({
     queryKey: ['/api/service-provider/bookings'],
+  });
+
+  const serviceCategories = ["Beauty & Grooming", "Culinary", "Wellness & Spa", "Photography & Media", "Entertainment", "Water Sports", "Concierge & Lifestyle"];
+
+  const filteredServices = services?.filter((service: any) => {
+    if (serviceFilters.category !== "all" && service.category !== serviceFilters.category) return false;
+    if (serviceFilters.availability !== "all") {
+      const isAvailable = service.isAvailable;
+      if (serviceFilters.availability === "available" && !isAvailable) return false;
+      if (serviceFilters.availability === "unavailable" && isAvailable) return false;
+    }
+    if (serviceFilters.priceRange !== "all") {
+      const price = parseFloat(service.pricePerSession);
+      if (serviceFilters.priceRange === "low" && price > 99) return false;
+      if (serviceFilters.priceRange === "medium" && (price < 100 || price > 500)) return false;
+      if (serviceFilters.priceRange === "high" && price < 500) return false;
+    }
+    return true;
   });
 
   const renderOverview = () => {
@@ -688,159 +722,565 @@ export default function ServiceProviderDashboard() {
   };
 
   const renderServices = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold text-white mb-2"
-          >
-            Service Portfolio
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage your yacht concierge service offerings across all categories
-          </motion.p>
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}>
+            Service Management
+          </h1>
+          <p className="text-lg text-gray-400">Manage your yacht concierge services</p>
         </div>
         
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <AddServiceDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
+        <div className="flex items-center space-x-4">
+          <Button onClick={() => {
+            setEditingService(null);
+            setOpen(true);
+          }} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Service
           </Button>
-        </motion.div>
-      </div>
-
-      {/* Services Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        {!services ? (
-          // Loading state
-          Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index} className="bg-gray-950 border-gray-800 animate-pulse">
-              <div className="h-48 bg-gray-800 rounded-t-lg" />
-              <CardContent className="p-6">
-                <div className="h-4 bg-gray-800 rounded mb-2" />
-                <div className="h-3 bg-gray-800 rounded w-3/4" />
-              </CardContent>
-            </Card>
-          ))
-        ) : services && Array.isArray(services) && services.length > 0 ? (
-          // Real services from database
-          services.map((service: any, index: number) => (
-            <motion.div
-              key={service.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.1 + index * 0.1, type: "spring", stiffness: 200, damping: 20 }}
-              whileHover={{ y: -8, scale: 1.03 }}
-              className="group relative overflow-hidden"
-            >
-              <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-500 hover:border-purple-500/30">
-                <div className="h-48 relative overflow-hidden">
-                  <img 
-                    src={service.imageUrl ? 
-                      (service.imageUrl.startsWith('/api/media/') ? service.imageUrl : `/api/media/${service.imageUrl}`) 
-                      : '/service-placeholder.jpg'
-                    } 
-                    alt={service.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/service-placeholder.jpg';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Service Status */}
-                  <Badge className={`absolute top-4 left-4 ${
-                    service.isAvailable 
-                      ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                      : 'bg-red-500/20 text-red-400 border-red-500/30'
-                  }`}>
-                    {service.isAvailable ? 'Available' : 'Unavailable'}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 border-none">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Services
+                {(serviceFilters.category !== "all" || serviceFilters.availability !== "all" || 
+                  serviceFilters.priceRange !== "all") && (
+                  <Badge className="ml-2 bg-orange-500 text-white text-xs">
+                    {Object.values(serviceFilters).filter(v => v !== "all").length}
                   </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 bg-gray-950 border-gray-700" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-white">Filter Services</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setServiceFilters({
+                      category: "all",
+                      availability: "all",
+                      priceRange: "all"
+                    })}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Separator className="bg-gray-700" />
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-gray-300 text-sm">Category</Label>
+                    <Select value={serviceFilters.category} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, category: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {serviceCategories.map((category) => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   
-                  {/* Service Actions */}
-                  <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <EditServiceDialog service={service} />
-                    <DeleteServiceDialog service={service} />
+                  <div>
+                    <Label className="text-gray-300 text-sm">Availability</Label>
+                    <Select value={serviceFilters.availability} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, availability: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Services</SelectItem>
+                        <SelectItem value="available">Available Only</SelectItem>
+                        <SelectItem value="unavailable">Unavailable Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-gray-300 text-sm">Price Range</Label>
+                    <Select value={serviceFilters.priceRange} onValueChange={(value) => 
+                      setServiceFilters(prev => ({ ...prev, priceRange: value }))
+                    }>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Prices</SelectItem>
+                        <SelectItem value="low">Low ($1-$99)</SelectItem>
+                        <SelectItem value="medium">Medium ($100-$500)</SelectItem>
+                        <SelectItem value="high">High ($500+)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
-                        {service.name}
-                      </h3>
-                      <p className="text-sm text-purple-400 font-medium">
-                        {service.category}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-white">
-                        ${service.pricePerSession}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {service.duration}min
-                      </p>
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm text-gray-400">
+                    {filteredServices?.length || 0} of {services?.length || 0} services
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => setServiceFilters({
+                      category: "all",
+                      availability: "all",
+                      priceRange: "all"
+                    })}
+                    variant="outline"
+                    className="border-gray-600 hover:border-purple-500"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      {/* Services Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredServices?.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <Package className="h-12 w-12 text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-400 mb-2">No services found</h3>
+            <p className="text-gray-500 text-center">
+              No services match your current filter criteria.{" "}
+              <Button 
+                variant="link" 
+                className="text-purple-400 hover:text-purple-300 p-0"
+                onClick={() => setServiceFilters({
+                  category: "all",
+                  availability: "all",
+                  priceRange: "all"
+                })}
+              >
+                Clear filters
+              </Button>{" "}
+              to see all services.
+            </p>
+          </div>
+        ) : (
+          filteredServices?.map((service: any, index: number) => (
+            <Card key={service.id} className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
+              <div className="relative">
+                {service.images && service.images.length > 1 ? (
+                  <div className="relative h-48 bg-gray-900">
+                    <img 
+                      src={service.images[0] || service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                      alt={service.name}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute bottom-2 right-2 flex space-x-1">
+                      {service.images.slice(0, 4).map((img: string, idx: number) => (
+                        <div key={idx} className="relative">
+                          <img 
+                            src={img}
+                            alt={`${service.name} ${idx + 1}`}
+                            className="w-8 h-8 object-cover rounded border border-white/20"
+                          />
+                          {idx === 3 && service.images.length > 4 && (
+                            <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-medium">+{service.images.length - 4}</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  
-                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                    {service.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-                    <div className="flex items-center space-x-2">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-300">
-                        {service.rating || '4.8'} ({service.reviews || '12'} reviews)
-                      </span>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300 hover:bg-purple-600/20">
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
+                ) : (
+                  <img 
+                    src={service.imageUrl || (service.images && service.images[0]) || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                    alt={service.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                )}
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
+                    {service.category}
+                  </Badge>
+                </div>
+              </div>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-semibold">${service.pricePerSession}</span>
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-purple-400 hover:text-white"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-white"
+                      onClick={() => {
+                        setEditingService(service);
+                        setOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-gray-400 hover:text-red-400"
+                      onClick={() => setDeletingService(service)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      <AddServiceDialog />
+      <EditServiceDialog service={editingService} />
+      <DeleteServiceDialog service={deletingService} />
+    </div>
+  );
+
+
+
+  const renderBookings = () => {
+    const upcomingBookings = bookings?.filter((b: any) => b.status === 'confirmed' && new Date(b.bookingDate) >= new Date()) || [];
+    const pastBookings = bookings?.filter((b: any) => b.status === 'completed' || new Date(b.bookingDate) < new Date()) || [];
+    
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
+              Bookings Management
+            </h1>
+            <p className="text-lg text-gray-400">View and manage your service bookings</p>
+          </div>
+        </div>
+
+        {/* Booking Tabs */}
+        <Tabs defaultValue="upcoming" className="w-full">
+          <TabsList className="bg-gray-900/50 border-gray-700/50">
+            <TabsTrigger value="upcoming" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
+              Upcoming ({upcomingBookings.length})
+            </TabsTrigger>
+            <TabsTrigger value="past" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
+              Past ({pastBookings.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="upcoming" className="space-y-4 mt-6">
+            {upcomingBookings.length > 0 ? (
+              upcomingBookings.map((booking: any) => (
+                <Card key={booking.id} className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-white">{booking.serviceName}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {new Date(booking.bookingDate).toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {booking.bookingTime}
+                          </div>
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 mr-1" />
+                            {booking.memberName}
+                          </div>
+                        </div>
+                        {booking.notes && (
+                          <p className="text-gray-400 text-sm mt-2">{booking.notes}</p>
+                        )}
+                      </div>
+                      <div className="text-right space-y-2">
+                        <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                          ${booking.totalPrice}
+                        </Badge>
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline" className="border-gray-700 hover:border-purple-500">
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                            Mark Complete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Upcoming Bookings</h3>
+                  <p className="text-gray-500">Your upcoming bookings will appear here</p>
                 </CardContent>
               </Card>
-            </motion.div>
-          ))
-        ) : (
-          // No services state
-          <div className="col-span-full flex flex-col items-center justify-center py-12">
-            <Package className="h-16 w-16 text-gray-600 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">No Services Yet</h3>
-            <p className="text-gray-500 mb-6 text-center max-w-md">
-              Start building your service portfolio by creating your first yacht concierge service
-            </p>
-            <AddServiceDialog />
+            )}
+          </TabsContent>
+
+          <TabsContent value="past" className="space-y-4 mt-6">
+            {pastBookings.length > 0 ? (
+              pastBookings.map((booking: any) => (
+                <Card key={booking.id} className="bg-gray-900/50 border-gray-700/50">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-white">{booking.serviceName}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-gray-400">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {new Date(booking.bookingDate).toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 mr-1" />
+                            {booking.memberName}
+                          </div>
+                          <Badge className={booking.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}>
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-bold text-white">${booking.totalPrice}</span>
+                        {booking.rating && (
+                          <div className="flex items-center mt-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < booking.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="bg-gray-900/50 border-gray-700/50">
+                <CardContent className="p-12 text-center">
+                  <History className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Past Bookings</h3>
+                  <p className="text-gray-500">Your completed bookings will appear here</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
+  const renderRevenue = () => {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
+            Revenue Analytics
+          </h1>
+          <p className="text-lg text-gray-400">Track your earnings and financial performance</p>
+        </div>
+
+        {/* Revenue Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Monthly Revenue</p>
+                  <p className="text-2xl font-bold text-white mt-1">${stats?.monthlyRevenue || '0'}</p>
+                  <p className="text-green-400 text-sm mt-2">+12% from last month</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Bookings</p>
+                  <p className="text-2xl font-bold text-white mt-1">{stats?.totalBookings || '0'}</p>
+                  <p className="text-purple-400 text-sm mt-2">This month</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Average Rating</p>
+                  <p className="text-2xl font-bold text-white mt-1">{stats?.avgRating || '4.8'}</p>
+                  <div className="flex items-center mt-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Star className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Clients</p>
+                  <p className="text-2xl font-bold text-white mt-1">{stats?.activeClients || '0'}</p>
+                  <p className="text-blue-400 text-sm mt-2">Unique members</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Revenue Chart */}
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Revenue Trend</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-64 flex items-center justify-center">
+              <p className="text-gray-500">Revenue chart visualization coming soon...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  const renderSettings = () => (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
+          Settings
+        </h1>
+        <p className="text-lg text-gray-400">Manage your account and preferences</p>
+      </div>
+
+      {/* Profile Settings */}
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardHeader>
+          <CardTitle className="text-white">Profile Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-gray-300">Business Name</Label>
+              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="Your business name" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Contact Email</Label>
+              <Input className="bg-gray-800 border-gray-700 text-white" type="email" placeholder="contact@example.com" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Phone Number</Label>
+              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="+1 (555) 123-4567" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Service Location</Label>
+              <Input className="bg-gray-800 border-gray-700 text-white" placeholder="Miami Beach, FL" />
+            </div>
           </div>
-        )}
-      </motion.div>
-    </motion.div>
+          <div className="space-y-2">
+            <Label className="text-gray-300">Business Description</Label>
+            <textarea className="w-full h-32 bg-gray-800 border border-gray-700 text-white rounded-lg p-3" placeholder="Describe your services..." />
+          </div>
+          <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+            Save Changes
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Payment Settings */}
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardHeader>
+          <CardTitle className="text-white">Payment Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <CreditCard className="h-5 w-5 text-purple-400" />
+                <div>
+                  <p className="text-white font-medium">Stripe Connect</p>
+                  <p className="text-gray-400 text-sm">Receive payments directly to your account</p>
+                </div>
+              </div>
+              <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-600/20">
+                Connect
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Notification Settings */}
+      <Card className="bg-gray-900/50 border-gray-700/50">
+        <CardHeader>
+          <CardTitle className="text-white">Notification Preferences</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-medium">New Booking Alerts</p>
+              <p className="text-gray-400 text-sm">Get notified when you receive new bookings</p>
+            </div>
+            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-medium">Booking Reminders</p>
+              <p className="text-gray-400 text-sm">Receive reminders before upcoming services</p>
+            </div>
+            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-medium">Payment Updates</p>
+              <p className="text-gray-400 text-sm">Get notified about payment status</p>
+            </div>
+            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   return (
@@ -901,12 +1341,15 @@ export default function ServiceProviderDashboard() {
 
         {/* Main Content */}
         <div className="flex-1 p-8">
-          {activeSection === 'services' && renderServices()}
           {activeSection === 'overview' && renderOverview()}
-          {activeSection !== 'services' && activeSection !== 'overview' && (
+          {activeSection === 'services' && renderServices()}
+          {activeSection === 'bookings' && renderBookings()}
+          {activeSection === 'revenue' && renderRevenue()}
+          {activeSection === 'settings' && renderSettings()}
+          {activeSection === 'messages' && (
             <div className="text-center py-20">
-              <h1 className="text-4xl font-bold text-white mb-4">Coming Soon</h1>
-              <p className="text-gray-400">This section is under development</p>
+              <h1 className="text-4xl font-bold text-white mb-4">Messages</h1>
+              <p className="text-gray-400">Messaging feature coming soon</p>
             </div>
           )}
         </div>
