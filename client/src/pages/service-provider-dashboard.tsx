@@ -1018,7 +1018,7 @@ export default function ServiceProviderDashboard() {
       </div>
 
       {/* Dynamic Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1093,6 +1093,26 @@ export default function ServiceProviderDashboard() {
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Average Rating</p>
+                  <p className="text-2xl font-bold text-white mt-1">4.9/5</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-amber-600 rounded-lg flex items-center justify-center">
+                  <Star className="h-6 w-6 text-white" />
                 </div>
               </div>
             </CardContent>
