@@ -91,12 +91,8 @@ export function Navigation() {
               </Button>
             ) : isAuthenticated && user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 bg-black/20 backdrop-blur-sm border border-purple-500/30 rounded-lg px-3 py-2">
-                  <User className="w-4 h-4 text-purple-400" />
+                <div className="flex items-center space-x-2 px-3 py-2">
                   <span className="text-sm text-white font-medium">{user.username}</span>
-                  <span className="text-xs text-purple-300 uppercase px-2 py-1 bg-purple-500/20 rounded-full">
-                    {user.role}
-                  </span>
                 </div>
                 <Button
                   onClick={handleAuthClick}
