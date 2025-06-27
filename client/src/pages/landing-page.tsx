@@ -234,7 +234,7 @@ function FeaturesSection() {
             viewport={{ once: true }}
             className="relative mx-auto"
           >
-            <div className="relative w-[300px] h-[640px] mx-auto">
+            <div className="relative w-[320px] h-[680px] mx-auto">
               {/* iPhone Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751027471917.png" 
@@ -244,8 +244,14 @@ function FeaturesSection() {
               
               {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
               <div 
-                className="absolute top-[62px] left-[20px] right-[20px] bottom-[62px] rounded-[35px] overflow-hidden"
+                className="absolute"
                 style={{
+                  top: '68px',
+                  left: '22px',
+                  right: '22px',
+                  bottom: '68px',
+                  borderRadius: '38px',
+                  overflow: 'hidden',
                   background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
                   boxShadow: `
                     inset 0 2px 4px rgba(255, 255, 255, 0.1),
@@ -380,6 +386,21 @@ function FeaturesSection() {
                 </div>
               </div>
             </div>
+            
+            {/* App Store Download Buttons Below Phone */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="mt-8 flex justify-center"
+            >
+              <img 
+                src="/api/media/f56cbae9-e83b-4b83-9a95-71a78334ee66-cover_1751028275659.png" 
+                alt="Download on App Store and Google Play" 
+                className="h-14 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </motion.div>
           </motion.div>
 
           {/* Right Features */}
