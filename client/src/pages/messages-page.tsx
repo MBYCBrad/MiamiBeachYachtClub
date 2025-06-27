@@ -173,30 +173,17 @@ export default function MessagesPage() {
   const selectedConversationData = conversations.find(c => c.id === selectedConversation);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Video Header Background */}
-      <div className="relative h-96 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/20 to-black/50 z-10" />
-        <video
-          autoPlay
-          muted
-          loop
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'brightness(0.7)' }}
-        >
-          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
-        </video>
-        
-        {/* Header Content */}
-        <div className="relative z-20 h-full flex flex-col justify-center px-6 lg:px-12">
+    <div className="min-h-screen bg-black text-white">
+      {/* Header Section */}
+      <div className="bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-black border-b border-gray-800">
+        <div className="container mx-auto px-6 py-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-4xl"
           >
             <motion.h1 
-              className="text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
+              className="text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
@@ -204,43 +191,43 @@ export default function MessagesPage() {
               Messages
             </motion.h1>
             <motion.p 
-              className="text-xl lg:text-2xl text-gray-300 mb-8 leading-relaxed"
+              className="text-lg lg:text-xl text-gray-300 mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
               {user?.role === 'admin' ? 'Manage service provider communications and support requests' : 'Contact Miami Beach Yacht Club administration for support and coordination'}
             </motion.p>
-          </motion.div>
 
-          {/* Stats Overlay Cards */}
-          <motion.div 
-            className="flex flex-wrap gap-4 mt-8"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl px-6 py-3">
-              <MessageCircle className="h-8 w-8 text-purple-400" />
-              <div>
-                <p className="text-sm text-gray-400">Active Conversations</p>
-                <p className="text-2xl font-bold text-white">{stats?.totalConversations || conversations.length}</p>
+            {/* Stats Cards */}
+            <motion.div 
+              className="flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+            >
+              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl px-6 py-3">
+                <MessageCircle className="h-6 w-6 text-purple-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Active Conversations</p>
+                  <p className="text-xl font-bold text-white">{stats?.totalConversations || conversations.length}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-6 py-3">
-              <Headphones className="h-8 w-8 text-blue-400" />
-              <div>
-                <p className="text-sm text-gray-400">24/7 Support</p>
-                <p className="text-lg font-semibold text-white">Available</p>
+              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-6 py-3">
+                <Headphones className="h-6 w-6 text-blue-400" />
+                <div>
+                  <p className="text-sm text-gray-400">24/7 Support</p>
+                  <p className="text-base font-semibold text-white">Available</p>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
 
       {/* Messages Interface */}
-      <div className="container mx-auto px-6 py-12 -mt-32 relative z-30">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[800px]">
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[700px]">
           
           {/* Conversations List */}
           <div className="lg:col-span-1">
