@@ -41,6 +41,7 @@ import BookTourPage from "@/pages/book-tour";
 import FAQPage from "@/pages/faq";
 import InvestPage from "@/pages/invest";
 import ContactPage from "@/pages/contact";
+import MessagesPage from "@/pages/messages-page";
 
 // Basic fallback - sophisticated 3D loading screen is in components/loading-screen.tsx
 
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/invest" component={InvestPage} />
       <Route path="/contact" component={ContactPage} />
       <ProtectedRoute path="/member" component={HomePage} />
+      <ProtectedRoute path="/messages" component={MessagesPage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />

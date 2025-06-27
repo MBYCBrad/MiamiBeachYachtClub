@@ -4583,8 +4583,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // COMMUNICATION HUB - MESSAGING AND PHONE CALL SYSTEM
   
-  // Get all conversations for customer service dashboard
-  app.get("/api/conversations", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  // Get conversations for authenticated users (member, yacht owner, service provider, admin)
+  app.get("/api/conversations", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const userRole = req.user!.role;
+      
+      // Get conversations based on user role
+      let conversations;
+      if (userRole === UserRole.ADMIN) {
+        // Admin sees all conversations
+        conversations = await dbStorage.getConversations();
+      } else {
+        // Members see their own conversations
+        conversations = await dbStorage.getConversationsByUserId(userId);
+        
+        // If no conversations exist, create one with admin
+        if (conversations.length === 0) {
+          const conversationId = `user_${userId}_admin`;
+          const newConversation = await dbStorage.createConversation({
+            id: conversationId,
+            participants: [userId, 60], // user + admin
+            title: `Member Support - ${req.user!.username}`,
+            type: 'member_admin',
+            metadata: {
+              memberId: userId,
+              adminId: 60,
+              priority: 'normal'
+            }
+          });
+          conversations = [newConversation];
+        }
+      }
+      
+      res.json(conversations);
+    } catch (error: any) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get all conversations for admin dashboard only
+  app.get("/api/admin/conversations", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const conversations = await dbStorage.getConversations();
       res.json(conversations);
@@ -4593,13 +4633,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get messages for a specific conversation
-  app.get("/api/messages/:conversationId", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  // Get messages for a specific conversation (accessible to conversation participants)
+  app.get("/api/messages/:conversationId", requireAuth, async (req, res) => {
     try {
       const { conversationId } = req.params;
-      const messages = await dbStorage.getMessagesByConversation(conversationId);
-      res.json(messages);
+      const userId = req.user!.id;
+      const userRole = req.user!.role;
+      
+      // Admin can access all conversations
+      if (userRole === UserRole.ADMIN) {
+        const messages = await dbStorage.getMessagesByConversation(conversationId);
+        return res.json(messages);
+      }
+      
+      // Other users can only access their own conversations
+      if (conversationId.includes(`user_${userId}_`) || conversationId.includes(`_${userId}_`)) {
+        const messages = await dbStorage.getMessagesByConversation(conversationId);
+        return res.json(messages);
+      }
+      
+      // For other conversation ID patterns, check if user is a participant
+      const conversation = await dbStorage.getConversationById(conversationId);
+      if (conversation && conversation.participants && conversation.participants.includes(userId)) {
+        const messages = await dbStorage.getMessagesByConversation(conversationId);
+        return res.json(messages);
+      }
+      
+      return res.status(403).json({ message: "Access denied to this conversation" });
     } catch (error: any) {
+      console.error('Error fetching messages:', error);
       res.status(500).json({ message: error.message });
     }
   });

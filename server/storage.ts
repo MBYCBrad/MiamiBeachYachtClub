@@ -117,6 +117,8 @@ export interface IStorage {
 
   // Conversation methods
   getConversationByMember(memberId: number): Promise<Conversation | undefined>;
+  getConversationsByUserId(userId: number): Promise<Conversation[]>;
+  getConversationById(conversationId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, conversation: Partial<InsertConversation>): Promise<Conversation | undefined>;
 
