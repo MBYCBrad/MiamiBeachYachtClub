@@ -986,7 +986,7 @@ export default function Yacht3DCustom({
     layerCount += 200;
 
     // Layer 2701-2900: Cabin door handles and locks
-    const handleMaterial = new THREE.MeshPhysicalMaterial({
+    const doorHandleMaterial = new THREE.MeshPhysicalMaterial({
       color: 0xe0e0e0,
       metalness: 0.9,
       roughness: 0.1
@@ -995,7 +995,7 @@ export default function Yacht3DCustom({
     for (let i = 0; i < 20; i++) {
       // Door handle base
       const handleBase = new THREE.CylinderGeometry(0.08, 0.08, 0.03);
-      const base = new THREE.Mesh(handleBase, handleMaterial);
+      const base = new THREE.Mesh(handleBase, doorHandleMaterial);
       base.position.set(
         -8 + (i % 5) * 4,
         8.5,
@@ -1006,7 +1006,7 @@ export default function Yacht3DCustom({
       
       // Handle lever
       const leverGeometry = new THREE.BoxGeometry(0.15, 0.03, 0.02);
-      const lever = new THREE.Mesh(leverGeometry, handleMaterial);
+      const lever = new THREE.Mesh(leverGeometry, doorHandleMaterial);
       lever.position.set(
         -8 + (i % 5) * 4 + 0.075,
         8.5,
