@@ -1,11 +1,12 @@
 import { Link } from "wouter";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Crown, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 import { useState } from "react";
+import VideoFooter from "@/components/video-footer";
 
 // Hero Section with Video Background
 function HeroSection() {
@@ -409,6 +410,454 @@ function StatsSection() {
   );
 }
 
+// Packages Section Component
+function PackagesSection() {
+  const packages = [
+    {
+      name: "Silver",
+      icon: <Anchor className="w-8 h-8 text-white" />,
+      price: "Contact Us",
+      features: [
+        "Access to 40-64ft yachts",
+        "2-4 concurrent bookings",
+        "Professional captain & crew",
+        "Basic concierge services",
+        "Member events access"
+      ],
+      popular: false
+    },
+    {
+      name: "Gold",
+      icon: <Crown className="w-8 h-8 text-white" />,
+      price: "Contact Us",
+      features: [
+        "Access to 65-74ft yachts",
+        "4 concurrent bookings",
+        "Priority booking",
+        "Premium concierge services",
+        "VIP event invitations",
+        "Guest passes included"
+      ],
+      popular: true
+    },
+    {
+      name: "Platinum",
+      icon: <Sparkles className="w-8 h-8 text-white" />,
+      price: "Contact Us",
+      features: [
+        "Access to 75-84ft yachts",
+        "6-8 concurrent bookings",
+        "24/7 dedicated concierge",
+        "Luxury car transfers",
+        "Private chef services",
+        "Custom itinerary planning"
+      ],
+      popular: false
+    }
+  ];
+
+  return (
+    <section className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            Choose Your
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Membership</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+            Select the perfect tier for your yachting lifestyle
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/pricing'}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
+          >
+            View All Membership Tiers
+          </motion.button>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {packages.map((pkg, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              {pkg.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                  <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    Most Popular
+                  </span>
+                </div>
+              )}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -5 }}
+                className={`h-full rounded-2xl p-8 ${
+                  pkg.popular 
+                    ? 'bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50' 
+                    : 'bg-gradient-to-br from-purple-900/10 to-indigo-900/10 border border-purple-500/20'
+                } backdrop-blur-sm`}
+              >
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    {pkg.icon}
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-2">{pkg.name}</h3>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    {pkg.price}
+                  </p>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  {pkg.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-300">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/book-tour'}
+                  className={`w-full py-3 rounded-full font-semibold transition-all ${
+                    pkg.popular
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
+                      : 'bg-purple-900/20 text-purple-400 border border-purple-500/50 hover:bg-purple-900/30'
+                  }`}
+                >
+                  Apply Now
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Testimonials Section Component
+function TestimonialsSection() {
+  const testimonials = [
+    {
+      name: "Michael Chen",
+      role: "Platinum Member",
+      image: "/api/media/pexels-cottonbro-4065880_1750547001525.jpg",
+      quote: "MBYC has transformed my weekends. The concierge service is exceptional, and the yacht selection is unmatched in Miami."
+    },
+    {
+      name: "Sarah Williams",
+      role: "Gold Member",
+      image: "/api/media/pexels-anastasia-shuraeva-7662328_1750561361972.jpg",
+      quote: "From booking to boarding, everything is seamless. The crew is professional and the experiences are unforgettable."
+    },
+    {
+      name: "David Rodriguez",
+      role: "Diamond Member",
+      image: "/api/media/pexels-italo-melo-2379004_1750537290661.jpg",
+      quote: "Being a Diamond member has opened doors to incredible networking opportunities. It's more than a yacht club - it's a lifestyle."
+    }
+  ];
+
+  return (
+    <section className="py-20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            Member
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Stories</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Hear from our members about their MBYC experience
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="h-full bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-purple-500/50"
+                  />
+                  <div>
+                    <h4 className="text-white font-semibold">{testimonial.name}</h4>
+                    <p className="text-purple-400 text-sm">{testimonial.role}</p>
+                  </div>
+                </div>
+                <Quote className="w-8 h-8 text-purple-500/30 mb-4" />
+                <p className="text-gray-300 italic">{testimonial.quote}</p>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center mt-12"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/book-tour'}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
+          >
+            Join Our Community
+          </motion.button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// Fleet Preview Section
+function FleetPreviewSection() {
+  const yachts = [
+    {
+      name: "Azure Dream",
+      size: "65ft",
+      capacity: "12 guests",
+      image: "/api/media/pexels-albin-berlin-32056-919073_1750536883658.jpg"
+    },
+    {
+      name: "Marina Breeze",
+      size: "75ft",
+      capacity: "15 guests",
+      image: "/api/media/pexels-pixabay-163236_1750536883656.jpg"
+    },
+    {
+      name: "Ocean Pearl",
+      size: "85ft",
+      capacity: "20 guests",
+      image: "/api/media/pexels-nikola-johnny-mirkovic-660282-11887305_1750536883660.jpg"
+    }
+  ];
+
+  return (
+    <section className="py-20 relative">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            Our Luxury
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Fleet</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            Experience Miami's finest collection of luxury yachts
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {yachts.map((yacht, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                whileHover={{ y: -10 }}
+                className="group cursor-pointer"
+                onClick={() => window.location.href = '/fleet'}
+              >
+                <div className="relative overflow-hidden rounded-2xl mb-4">
+                  <img 
+                    src={yacht.image} 
+                    alt={yacht.name}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-2xl font-bold text-white mb-2">{yacht.name}</h3>
+                    <div className="flex items-center gap-4 text-gray-300">
+                      <span className="flex items-center gap-1">
+                        <Anchor className="w-4 h-4" />
+                        {yacht.size}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        {yacht.capacity}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/fleet'}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
+          >
+            Explore Full Fleet
+          </motion.button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// FAQ Section
+function FAQSection() {
+  const faqs = [
+    {
+      question: "How does MBYC membership work?",
+      answer: "MBYC offers tiered memberships that provide access to our luxury yacht fleet. Each tier includes a specific number of concurrent bookings, yacht size access, and exclusive benefits."
+    },
+    {
+      question: "What's included in my membership?",
+      answer: "All memberships include professional captain and crew, fuel, maintenance, insurance, and basic refreshments. Higher tiers add premium services like gourmet catering and private chefs."
+    },
+    {
+      question: "How far in advance can I book?",
+      answer: "Members can book yachts up to 90 days in advance. Platinum and Diamond members receive priority booking windows for peak times and special events."
+    },
+    {
+      question: "Can I bring guests?",
+      answer: "Yes! All memberships allow guests. The number depends on yacht capacity and your membership tier. Gold members and above receive complimentary guest passes each month."
+    }
+  ];
+
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  return (
+    <section className="py-20 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/5 to-black" />
+      
+      <div className="relative z-10 max-w-4xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+          >
+            Frequently Asked
+            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Questions</span>
+          </h2>
+        </motion.div>
+
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  className="w-full px-8 py-6 flex items-center justify-between text-left hover:bg-purple-900/10 transition-colors"
+                >
+                  <h3 className="text-xl font-semibold text-white pr-4">{faq.question}</h3>
+                  <ChevronDown 
+                    className={`w-6 h-6 text-purple-400 transition-transform ${
+                      openIndex === index ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="px-8 pb-6">
+                        <p className="text-gray-400">{faq.answer}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-center mt-12"
+        >
+          <p className="text-gray-400 mb-4">Have more questions?</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.href = '/contact'}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
+          >
+            Contact Our Team
+          </motion.button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 // Main Landing Page Component
 export default function LandingPage() {
   return (
@@ -417,7 +866,11 @@ export default function LandingPage() {
       <HeroSection />
       <FeaturesSection />
       <StatsSection />
-      {/* More sections will be added here */}
+      <PackagesSection />
+      <TestimonialsSection />
+      <FleetPreviewSection />
+      <FAQSection />
+      <VideoFooter />
     </div>
   );
 }
