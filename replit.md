@@ -647,6 +647,13 @@ Changelog:
   - Systematic fix ensures all admin page titles display properly underneath hamburger icon with consistent spacing
   - Maintained professional Apple-like typography (text-5xl font-bold) across all admin interface sections
   - Complete visual consistency achieved with proper header positioning throughout admin dashboard experience
+- June 27, 2025. Emergency performance optimization - added caching middleware to critical endpoints
+  - Platform experiencing severe latency issues (2+ seconds per API call) making it unusable
+  - Implemented server-side caching middleware with 5-minute cache for frequently accessed data
+  - Added caching to /api/yachts, /api/services, /api/events, /api/conversations endpoints
+  - Cache-Control headers added for browser caching with stale-while-revalidate strategy
+  - Performance monitoring logs identify API calls exceeding 100ms latency threshold
+  - Urgent need for server capacity increase to handle Miami Beach Yacht Club production load
 
 ## Member Experience Feature Status
 

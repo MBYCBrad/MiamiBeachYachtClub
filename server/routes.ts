@@ -12,6 +12,7 @@ import twilio from "twilio";
 import { WebSocketServer, WebSocket } from "ws";
 import path from "path";
 import fs from "fs";
+import { cacheMiddleware } from "./cache-middleware";
 import { 
   insertYachtSchema, insertServiceSchema, insertEventSchema, 
   insertBookingSchema, insertServiceBookingSchema, insertEventRegistrationSchema,
@@ -303,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // YACHT ROUTES
-  app.get("/api/yachts", async (req, res) => {
+  app.get("/api/yachts", cacheMiddleware(300000), async (req, res) => {
     try {
       // Add aggressive caching headers for yacht data
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60'); // 5 minutes with stale cache
@@ -453,7 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SERVICE ROUTES
-  app.get("/api/services", async (req, res) => {
+  app.get("/api/services", cacheMiddleware(300000), async (req, res) => {
     try {
       // Add caching headers for services
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
@@ -538,7 +539,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // EVENT ROUTES
-  app.get("/api/events", async (req, res) => {
+  app.get("/api/events", cacheMiddleware(300000), async (req, res) => {
     try {
       // Add caching headers for events
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
@@ -2696,7 +2697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ADMIN API ROUTES - Complete dashboard functionality
-  app.get("/api/admin/stats", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+  app.get("/api/admin/stats", requireAuth, requireRole([UserRole.ADMIN]), cacheMiddleware(60000), async (req, res) => {
     try {
       const users = await dbStorage.getAllUsers();
       const yachts = await dbStorage.getYachts();
@@ -4578,7 +4579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all conversations - Optimized database query
-  app.get("/api/conversations", async (req, res) => {
+  app.get("/api/conversations", cacheMiddleware(60000), async (req, res) => {
     try {
       // Use optimized single query method from storage
       const conversations = await dbStorage.getConversations();
