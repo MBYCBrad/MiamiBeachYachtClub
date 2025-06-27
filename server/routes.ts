@@ -6067,7 +6067,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/settings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const settings = await dbStorage.getSystemSettings();
-      res.json(settings);
+      
+      // Add environment secrets as virtual settings for frontend display
+      const environmentSettings = [
+        {
+          id: 999999,
+          service: 'stripe-secret',
+          apiKey: process.env.STRIPE_SECRET_KEY || '',
+          settingKey: 'stripe_secret_key',
+          settingValue: process.env.STRIPE_SECRET_KEY || '',
+          isEncrypted: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 999998,
+          service: 'stripe-publishable',
+          apiKey: process.env.VITE_STRIPE_PUBLIC_KEY || '',
+          settingKey: 'stripe_publishable_key',
+          settingValue: process.env.VITE_STRIPE_PUBLIC_KEY || '',
+          isEncrypted: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 999997,
+          service: 'twilio',
+          apiKey: process.env.TWILIO_ACCOUNT_SID || '',
+          apiSecret: process.env.TWILIO_AUTH_TOKEN || '',
+          phoneNumber: process.env.TWILIO_PHONE_NUMBER || '',
+          settingKey: 'twilio_account_sid',
+          settingValue: process.env.TWILIO_ACCOUNT_SID || '',
+          isEncrypted: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          updatedBy: null
+        }
+      ];
+      
+      // Combine database settings with environment settings
+      const allSettings = [...settings, ...environmentSettings];
+      res.json(allSettings);
     } catch (error: any) {
       console.error('Error fetching system settings:', error);
       res.status(500).json({ message: error.message });
