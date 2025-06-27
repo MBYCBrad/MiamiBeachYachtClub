@@ -25,7 +25,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer">
-              <img src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" alt="MBYC" className="w-12 h-12" />
+              <img src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" alt="MBYC" className="w-12 h-12 object-contain" />
             </div>
           </Link>
 

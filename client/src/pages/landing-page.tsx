@@ -38,11 +38,6 @@ function HeroSection() {
           transition={{ duration: 1 }}
           className="mb-8"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-8"
-            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-          >
-            WELCOME TO THE
-          </h2>
           <img 
             src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
             alt="Miami Beach Yacht Club" 
