@@ -986,136 +986,248 @@ export default function ServiceProviderDashboard() {
 
 
 
-  const renderBookings = () => {
-    const upcomingBookings = bookings?.filter((b: any) => b.status === 'confirmed' && new Date(b.bookingDate) >= new Date()) || [];
-    const pastBookings = bookings?.filter((b: any) => b.status === 'completed' || new Date(b.bookingDate) < new Date()) || [];
-    
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
-              Bookings Management
-            </h1>
-            <p className="text-lg text-gray-400">View and manage your service bookings</p>
-          </div>
+  const renderBookings = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Service Bookings
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage your yacht concierge service bookings and client experiences
+          </motion.p>
         </div>
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center space-x-4 relative z-10"
+        >
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Export Bookings
+          </Button>
+        </motion.div>
+      </div>
 
-        {/* Booking Tabs */}
-        <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="bg-gray-900/50 border-gray-700/50">
-            <TabsTrigger value="upcoming" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
-              Upcoming ({upcomingBookings.length})
-            </TabsTrigger>
-            <TabsTrigger value="past" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600">
-              Past ({pastBookings.length})
-            </TabsTrigger>
-          </TabsList>
+      {/* Dynamic Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Bookings</p>
+                  <p className="text-2xl font-bold text-white mt-1">{bookings?.length || 0}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Active Services</p>
+                  <p className="text-2xl font-bold text-white mt-1">{bookings?.filter(b => b.status === 'confirmed')?.length || 0}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                  <Package className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Pending Review</p>
+                  <p className="text-2xl font-bold text-white mt-1">{bookings?.filter(b => b.status === 'pending')?.length || 0}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Revenue</p>
+                  <p className="text-2xl font-bold text-white mt-1">${bookings?.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || 0), 0) || 0}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
-          <TabsContent value="upcoming" className="space-y-4 mt-6">
-            {upcomingBookings.length > 0 ? (
-              upcomingBookings.map((booking: any) => (
-                <Card key={booking.id} className="bg-gray-900/50 border-gray-700/50 hover:border-purple-500/50 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-white">{booking.serviceName}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
+      {/* Bookings Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Package className="h-5 w-5 mr-2 text-purple-500" />
+              Service Booking Management
+            </CardTitle>
+            <CardDescription>Manage your yacht concierge service bookings and client interactions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Member</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Service</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Date & Time</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Price</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings?.map((booking: any, index: number) => (
+                    <motion.tr
+                      key={booking.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors group"
+                    >
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">{booking.memberName}</p>
+                          <p className="text-gray-400 text-sm">{booking.memberEmail}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">{booking.serviceName}</p>
+                          <p className="text-gray-400 text-sm">{booking.serviceCategory}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="text-white font-medium">
                             {new Date(booking.bookingDate).toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {booking.bookingTime}
-                          </div>
-                          <div className="flex items-center">
-                            <User className="h-4 w-4 mr-1" />
-                            {booking.memberName}
+                          </p>
+                          <p className="text-gray-400 text-sm">{booking.bookingTime}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-center">
+                          <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm">
+                            ${booking.totalPrice}
                           </div>
                         </div>
-                        {booking.notes && (
-                          <p className="text-gray-400 text-sm mt-2">{booking.notes}</p>
-                        )}
-                      </div>
-                      <div className="text-right space-y-2">
-                        <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                          ${booking.totalPrice}
+                      </td>
+                      <td className="py-4 px-4">
+                        <Badge className={`${
+                          booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          booking.status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                          booking.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                          'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}>
+                          {booking.status}
                         </Badge>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" className="border-gray-700 hover:border-purple-500">
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-purple-400 hover:text-white"
+                          >
                             <MessageSquare className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                            Mark Complete
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-gray-400 hover:text-white"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-gray-400 hover:text-green-400"
+                          >
+                            <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="bg-gray-900/50 border-gray-700/50">
-                <CardContent className="p-12 text-center">
-                  <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Upcoming Bookings</h3>
-                  <p className="text-gray-500">Your upcoming bookings will appear here</p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="past" className="space-y-4 mt-6">
-            {pastBookings.length > 0 ? (
-              pastBookings.map((booking: any) => (
-                <Card key={booking.id} className="bg-gray-900/50 border-gray-700/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-white">{booking.serviceName}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-400">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {new Date(booking.bookingDate).toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center">
-                            <User className="h-4 w-4 mr-1" />
-                            {booking.memberName}
-                          </div>
-                          <Badge className={booking.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}>
-                            {booking.status}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-bold text-white">${booking.totalPrice}</span>
-                        {booking.rating && (
-                          <div className="flex items-center mt-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < booking.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="bg-gray-900/50 border-gray-700/50">
-                <CardContent className="p-12 text-center">
-                  <History className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-400 mb-2">No Past Bookings</h3>
-                  <p className="text-gray-500">Your completed bookings will appear here</p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    );
-  };
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {(!bookings || bookings.length === 0) && (
+                <div className="text-center py-12">
+                  <Package className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No service bookings found</p>
+                  <p className="text-gray-500 text-sm">Client bookings for your services will appear here</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
 
   const renderRevenue = () => {
     const currentMonth = new Date().getMonth();
