@@ -139,7 +139,7 @@ function FeaturesSection() {
 
   return (
     <section className="py-32 bg-black relative overflow-hidden">
-      {/* Silver Stars Background Pattern */}
+      {/* Silver Stars Background Pattern - Base Layer */}
       <div 
         className="absolute inset-0"
         style={{
@@ -148,7 +148,68 @@ function FeaturesSection() {
           backgroundSize: 'auto',
           backgroundPosition: '0 0',
           imageRendering: 'crisp-edges',
-          opacity: 0.5,
+          filter: 'brightness(1.5) contrast(1.2)',
+          opacity: 0.8,
+        }}
+      />
+      
+      {/* Illuminated Silver Stars with Twinkling Animation */}
+      <div className="absolute inset-0">
+        {[...Array(50)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.4, 1, 0.4],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 3,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+              ease: "easeInOut"
+            }}
+          >
+            <div className="relative">
+              {/* Star glow effect */}
+              <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-60" 
+                style={{ 
+                  width: '20px', 
+                  height: '20px',
+                  transform: 'translate(-50%, -50%)',
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(192,192,192,0.4) 50%, transparent 100%)'
+                }} 
+              />
+              {/* Star core */}
+              <div 
+                className="relative w-1 h-1 bg-white rounded-full"
+                style={{
+                  boxShadow: '0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(192,192,192,0.6)',
+                }}
+              />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      
+      {/* Shimmer effect overlay */}
+      <motion.div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)',
+          backgroundSize: '200% 200%',
+        }}
+        animate={{
+          backgroundPosition: ['0% 0%', '200% 200%'],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "linear"
         }}
       />
       
