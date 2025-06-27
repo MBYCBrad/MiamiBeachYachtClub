@@ -244,8 +244,14 @@ function FeaturesSection() {
               
               {/* Screen Content - Auth Page with 3D Anamorphic Effect */}
               <div 
-                className="absolute top-[58px] left-[22px] right-[22px] bottom-[58px] rounded-[30px] overflow-hidden"
+                className="absolute"
                 style={{
+                  top: '9.5%',
+                  left: '6%',
+                  right: '6%',
+                  bottom: '9.5%',
+                  borderRadius: '28px',
+                  overflow: 'hidden',
                   background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
                   boxShadow: `
                     inset 0 2px 4px rgba(255, 255, 255, 0.1),
