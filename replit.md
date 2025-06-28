@@ -711,6 +711,14 @@ Changelog:
   - Authentication API calls show services being fetched correctly: 18 yacht concierge services loaded
   - Real-time synchronization achieved with millisecond response times matching yachts page performance
   - Complete database integration operational showing live service data instead of placeholder content
+- June 28, 2025. Complete service categorization system implemented with proper yacht club business structure
+  - Systematically recategorized all 19 services into proper business model: 9 yacht add-on services and 10 location-based services
+  - **Yacht Add-On Services** (services provided ON the yacht during charter): Personal Concierge Service, Executive Chef Service, Gourmet Prepared Meals, Premium Catering Service, Private DJ & Music Services, Cinematic Videography Services, Professional Yacht Photography, Water Sports Equipment & Instruction, Therapeutic Massage Therapy
+  - **Location-Based Services** (services provided at marina/facility): Luxury Nail Services, Professional Makeup Artist, Sarah's Hair Styling & Cuts, Yacht Provisioning Service, Premium Catering Service, Brads Flair Bartending, Celebrity Chef, Diving & Snorkeling Excursions, Luxury Spa Treatments, Personal Training & Fitness
+  - Service payment structure: Yacht bookings remain FREE for members, only yacht add-on services require Stripe payments
+  - Multi-tenant payment routing: Service provider services use 80/20 split, admin-only services route 100% to admin account
+  - Database service_type field properly updated to reflect 'yacht' vs 'location' categorization for accurate business operations
+  - Real-time synchronization ensured across member booking system, service provider dashboards, and admin management interface
 
 ## Member Experience Feature Status
 
