@@ -4539,6 +4539,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Broadcast real-time data update to all connected users
       await notificationService.notifyDataUpdate('service_added', newService, req.user!.id);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'service_added',
+              data: newService,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
       
       await auditService.logAction(req, 'create', 'service', newService.id, req.body);
       res.status(201).json(newService);
@@ -4557,6 +4570,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Service not found" });
       }
       await auditService.logAction(req, 'update', 'service', serviceId, req.body);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'service_updated',
+              data: updatedService,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
       res.json(updatedService);
     } catch (error: any) {
       await auditService.logAction(req, 'update', 'service', parseInt(req.params.id), req.body, false, error.message);
@@ -4573,6 +4600,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Service not found" });
       }
       await auditService.logAction(req, 'delete', 'service', serviceId);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'service_deleted',
+              data: { id: serviceId },
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
       res.status(204).send();
     } catch (error: any) {
       await auditService.logAction(req, 'delete', 'service', parseInt(req.params.id), undefined, false, error.message);

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { useServicesWebSocket } from "@/hooks/use-services-websocket";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -777,6 +778,9 @@ export default function ServiceProviderDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user, logoutMutation } = useAuth();
+  
+  // Initialize services WebSocket for real-time service updates
+  useServicesWebSocket();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filterCategory, setFilterCategory] = useState<string | null>(null);

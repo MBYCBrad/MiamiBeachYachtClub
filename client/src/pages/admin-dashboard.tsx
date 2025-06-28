@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
+import { useServicesWebSocket } from "@/hooks/use-services-websocket";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -2469,6 +2470,9 @@ export default function AdminDashboard() {
 
   // Initialize yacht WebSocket for real-time yacht updates
   useYachtWebSocket();
+  
+  // Initialize services WebSocket for real-time service updates
+  useServicesWebSocket();
 
   // Filter overview data dynamically based on active filters
   const filteredOverviewData = useMemo(() => {

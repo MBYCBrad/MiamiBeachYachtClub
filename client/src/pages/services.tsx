@@ -6,6 +6,7 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { useQuery } from "@tanstack/react-query";
+import { useServicesWebSocket } from "@/hooks/use-services-websocket";
 import { Calendar, Users, Wine, Camera, Music, Waves, Sparkles, Clock, Star, ChevronRight, Lock } from "lucide-react";
 
 const serviceCategories = [
@@ -54,6 +55,9 @@ const serviceCategories = [
 ];
 
 export default function ServicesPage() {
+  // Initialize services WebSocket for real-time service updates
+  useServicesWebSocket();
+  
   const { data: services } = useQuery({
     queryKey: ['/api/services'],
   });
