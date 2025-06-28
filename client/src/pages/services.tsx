@@ -5,9 +5,7 @@ import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServicesWebSocket } from "@/hooks/use-services-websocket";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { Service } from "@shared/schema";
 import { Calendar, Users, Wine, Camera, Music, Waves, Sparkles, Clock, Star, ChevronRight, Lock } from "lucide-react";
 
