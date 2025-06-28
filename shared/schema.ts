@@ -168,13 +168,22 @@ export const reviews = pgTable("reviews", {
 
 export const mediaAssets = pgTable("media_assets", {
   id: serial("id").primaryKey(),
-  filename: text("filename").notNull(),
-  originalName: text("original_name").notNull(),
-  mimetype: text("mimetype").notNull(),
-  size: integer("size").notNull(),
-  path: text("path").notNull(),
+  name: text("name").notNull(),
+  type: text("type").notNull(),
+  category: text("category").notNull(),
   url: text("url").notNull(),
+  filename: text("filename").notNull(),
+  fileSize: integer("file_size"),
+  mimeType: text("mime_type"),
+  duration: integer("duration"),
+  dimensions: jsonb("dimensions").$type<{width: number, height: number}>(),
+  isActive: boolean("is_active").default(true),
+  uploadedBy: integer("uploaded_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
+  originalName: text("original_name"),
+  mimetype: text("mimetype"),
+  size: integer("size"),
+  path: text("path"),
 });
 
 // Support system tables

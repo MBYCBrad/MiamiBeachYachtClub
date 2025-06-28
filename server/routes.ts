@@ -128,15 +128,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const uploadedImages = [];
       
       for (const file of req.files) {
-        // Store the uploaded file information in media_assets table
+        // Store the uploaded file information in media_assets table with all required fields
         const mediaAsset = await dbStorage.createMediaAsset({
           name: file.originalname || file.filename || 'Yacht Image',
           type: 'image',
           category: 'yacht',
-          url: `/api/media/${file.filename}`,
           filename: file.filename,
+          originalName: file.originalname || file.filename,
+          mimetype: file.mimetype || 'image/jpeg',
+          size: file.size || 0,
+          path: `/uploads/${file.filename}`,
+          url: `/api/media/${file.filename}`,
+          mimeType: file.mimetype || 'image/jpeg',
           fileSize: file.size || 0,
-          mimeType: file.mimetype || 'image/jpeg'
+          isActive: true
         });
 
         uploadedImages.push(`/api/media/${file.filename}`);
