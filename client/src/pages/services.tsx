@@ -91,13 +91,13 @@ export default function Services() {
 
   const filteredServices = selectedDeliveryType === 'all' 
     ? services 
-    : services.filter(service => service.deliveryType === selectedDeliveryType);
+    : services.filter(service => service.serviceType === selectedDeliveryType);
 
   const servicesByDeliveryType = {
-    yacht: services.filter(s => s.deliveryType === 'yacht'),
-    marina: services.filter(s => s.deliveryType === 'marina'),
-    location: services.filter(s => s.deliveryType === 'location'),
-    external_location: services.filter(s => s.deliveryType === 'external_location')
+    yacht: services.filter(s => s.serviceType === 'yacht'),
+    marina: services.filter(s => s.serviceType === 'marina'),
+    location: services.filter(s => s.serviceType === 'location'),
+    external_location: services.filter(s => s.serviceType === 'external_location')
   };
 
   return (
@@ -194,7 +194,7 @@ export default function Services() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         >
           {filteredServices.map((service, index) => {
-            const deliveryConfig = deliveryTypeConfig[service.deliveryType as keyof typeof deliveryTypeConfig];
+            const deliveryConfig = deliveryTypeConfig[service.serviceType as keyof typeof deliveryTypeConfig];
             const DeliveryIcon = deliveryConfig?.icon || Ship;
             
             return (
@@ -266,25 +266,25 @@ export default function Services() {
                         
                         {/* Delivery Information */}
                         <div className="mt-2 space-y-1">
-                          {service.deliveryType === 'marina' && service.marinaLocation && (
+                          {service.serviceType === 'marina' && service.marinaLocation && (
                             <p className="text-green-400 text-xs flex items-center">
                               <MapPin className="h-3 w-3 mr-1" />
                               Marina: {service.marinaLocation}
                             </p>
                           )}
-                          {service.deliveryType === 'external_location' && service.businessAddress && (
+                          {service.serviceType === 'external_location' && service.businessAddress && (
                             <p className="text-red-400 text-xs flex items-center">
                               <Building2 className="h-3 w-3 mr-1" />
                               Visit: {service.businessAddress}
                             </p>
                           )}
-                          {service.deliveryType === 'location' && (
+                          {service.serviceType === 'location' && (
                             <p className="text-orange-400 text-xs flex items-center">
                               <Car className="h-3 w-3 mr-1" />
                               We come to your location
                             </p>
                           )}
-                          {service.deliveryType === 'yacht' && (
+                          {service.serviceType === 'yacht' && (
                             <p className="text-blue-400 text-xs flex items-center">
                               <Ship className="h-3 w-3 mr-1" />
                               Available during your yacht charter

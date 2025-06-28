@@ -224,6 +224,30 @@ function AddServiceDialog() {
 
             <FormField
               control={form.control}
+              name="serviceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Service Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                        <SelectValue placeholder="Select service type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectItem value="yacht">Yacht Add-on Service (on yacht during charter)</SelectItem>
+                      <SelectItem value="marina">Marina Service (at marina before boarding)</SelectItem>
+                      <SelectItem value="location">Location Service (provider comes to member address)</SelectItem>
+                      <SelectItem value="external_location">External Location (member visits business address)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -665,8 +689,10 @@ function EditServiceDialog({ service }: { service: any }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-gray-800 border-gray-700">
-                      <SelectItem value="yacht">Yacht Add-on Service (requires yacht booking)</SelectItem>
-                      <SelectItem value="location">Location Service (at marina/facility)</SelectItem>
+                      <SelectItem value="yacht">Yacht Add-on Service (on yacht during charter)</SelectItem>
+                      <SelectItem value="marina">Marina Service (at marina before boarding)</SelectItem>
+                      <SelectItem value="location">Location Service (provider comes to member address)</SelectItem>
+                      <SelectItem value="external_location">External Location (member visits business address)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
