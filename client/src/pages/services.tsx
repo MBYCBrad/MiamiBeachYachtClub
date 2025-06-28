@@ -55,21 +55,8 @@ const serviceCategories = [
 ];
 
 export default function ServicesPage() {
-  const queryClient = useQueryClient();
-  
-  // Force immediate cache invalidation on component mount
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['/api/services'] });
-    console.log('🔄 Force invalidating services cache for fresh data');
-  }, [queryClient]);
-  
-  // Initialize services WebSocket for real-time service updates
-  useServicesWebSocket();
-  
   const { data: services = [] } = useQuery<Service[]>({
-    queryKey: ['/api/services'],
-    staleTime: 0, // Force immediate refetch
-    gcTime: 0, // Disable caching (replaces cacheTime in v5)
+    queryKey: ['/api/services', { available: true }]
   });
 
   return (
