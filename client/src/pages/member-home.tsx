@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 import { TabNavigation } from '@/components/AnimatedTabIcons';
+import ServiceBookingModal from '@/components/service-booking-modal';
 import { 
   Search, 
   Heart, 
@@ -45,6 +46,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [showFilters, setShowFilters] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -292,6 +294,10 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                             <Button 
                               size="sm" 
                               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedService(service);
+                              }}
                             >
                               Book Service
                             </Button>
@@ -453,6 +459,13 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Service Booking Modal */}
+      <ServiceBookingModal
+        isOpen={!!selectedService}
+        onClose={() => setSelectedService(null)}
+        service={selectedService!}
+      />
     </div>
   );
 }

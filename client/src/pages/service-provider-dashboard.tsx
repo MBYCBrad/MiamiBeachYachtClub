@@ -87,6 +87,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const serviceFormSchema = z.object({
   name: z.string().min(1, "Service name is required"),
   category: z.string().min(1, "Category is required"),
+  serviceType: z.string().min(1, "Service type is required"),
   description: z.string().min(1, "Description is required"),
   imageUrl: z.string().optional(),
   images: z.array(z.string()).optional(),
@@ -109,6 +110,7 @@ function AddServiceDialog() {
     defaultValues: {
       name: "",
       category: "",
+      serviceType: "yacht",
       description: "",
       imageUrl: "",
       images: [],
@@ -524,6 +526,7 @@ function EditServiceDialog({ service }: { service: any }) {
     defaultValues: {
       name: service?.name || "",
       category: service?.category || "",
+      serviceType: service?.serviceType || "yacht",
       description: service?.description || "",
       imageUrl: service?.imageUrl || "",
       images: service?.images || [],
@@ -580,6 +583,7 @@ function EditServiceDialog({ service }: { service: any }) {
       form.reset({
         name: service.name || "",
         category: service.category || "",
+        serviceType: service.serviceType || "yacht",
         description: service.description || "",
         imageUrl: service.imageUrl || "",
         images: service.images || [],
@@ -647,6 +651,28 @@ function EditServiceDialog({ service }: { service: any }) {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="serviceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Service Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                        <SelectValue placeholder="Select service type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectItem value="yacht">Yacht Add-on Service (requires yacht booking)</SelectItem>
+                      <SelectItem value="location">Location Service (at marina/facility)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

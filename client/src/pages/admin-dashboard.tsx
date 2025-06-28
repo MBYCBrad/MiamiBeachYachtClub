@@ -1539,6 +1539,7 @@ function AddServiceDialog() {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
+    serviceType: 'yacht',
     description: '',
     pricePerSession: '',
     duration: '',
@@ -1569,7 +1570,7 @@ function AddServiceDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider"] });
       toast({ title: "Success", description: "Service created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', category: '', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], isAvailable: true });
+      setFormData({ name: '', category: '', serviceType: 'yacht', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], isAvailable: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1617,6 +1618,19 @@ function AddServiceDialog() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="form-field-spacing">
+            <Label htmlFor="serviceType" className="form-label text-gray-300">Service Type</Label>
+            <Select value={formData.serviceType || 'yacht'} onValueChange={(value) => setFormData({...formData, serviceType: value})}>
+              <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                <SelectValue placeholder="Select service type" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="yacht">Yacht Add-on Service (requires yacht booking)</SelectItem>
+                <SelectItem value="location">Location Service (at marina/facility)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="form-grid-2">
@@ -1704,6 +1718,7 @@ function EditServiceDialog({ service }: { service: any }) {
   const [formData, setFormData] = useState({
     name: service.name || '',
     category: service.category || '',
+    serviceType: service.serviceType || 'yacht',
     description: service.description || '',
     pricePerSession: service.pricePerSession || '',
     duration: service.duration || 0,
@@ -1771,6 +1786,18 @@ function EditServiceDialog({ service }: { service: any }) {
                 <SelectItem value="Entertainment">Entertainment</SelectItem>
                 <SelectItem value="Water Sports">Water Sports</SelectItem>
                 <SelectItem value="Concierge & Lifestyle">Concierge & Lifestyle</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="serviceType" className="text-gray-300">Service Type</Label>
+            <Select value={formData.serviceType} onValueChange={(value) => setFormData({...formData, serviceType: value})}>
+              <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="yacht">Yacht Add-on Service (requires yacht booking)</SelectItem>
+                <SelectItem value="location">Location Service (at marina/facility)</SelectItem>
               </SelectContent>
             </Select>
           </div>

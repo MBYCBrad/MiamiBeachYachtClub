@@ -161,8 +161,6 @@ const ServiceBookingModal: React.FC<ServiceBookingModalProps> = ({ service, isOp
     }
   });
 
-  const maxSteps = service.serviceType === 'yacht' ? 5 : 4;
-
   const handleNext = () => {
     if (currentStep < maxSteps) {
       setCurrentStep(currentStep + 1);

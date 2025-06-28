@@ -62,10 +62,11 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [timeSlotAvailability, setTimeSlotAvailability] = useState<Record<string, {available: boolean, bookedBy?: string}>>({});
 
-  // Fetch available concierge services
+  // Fetch only yacht add-on services (not location services)
   const { data: services = [] } = useQuery<any[]>({
     queryKey: ['/api/services'],
     enabled: currentStep === 3,
+    select: (data) => data.filter(service => service.serviceType === 'yacht'), // Only yacht add-on services
   });
 
   const serviceCategories: Record<string, string> = {
@@ -152,7 +153,10 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
             await apiRequest('POST', '/api/service-bookings', {
               userId: user!.id,
               serviceId: service.serviceId,
-              bookingDate: bookingData.startDate,
+              yachtBookingId: newBooking.id, // Link to yacht booking
+              bookingDate: new Date(bookingData.startDate).toISOString(),
+              location: `${yacht.name} - Yacht Add-on Service`,
+              guestCount: bookingData.guestCount,
               status: 'confirmed',
               totalPrice: service.price.toString(),
               specialRequests: `Associated with yacht booking #${newBooking.id} for ${yacht.name}. Payment ID: ${paymentIntentId}`
@@ -163,10 +167,14 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         }
       }
 
-      // Invalidate queries to refresh data
+      // Invalidate queries to refresh data across all systems
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['/api/trips'] });
       queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/analytics'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
 
       toast({
         title: "Booking Confirmed!",
