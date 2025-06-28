@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Search, Filter, Star, MapPin } from 'lucide-react';
+import { Search, Filter, Star, MapPin, Settings, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Service } from '@shared/schema';
@@ -19,7 +19,9 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
   const { latestNotification } = useNotifications();
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
-    queryKey: ['/api/services', { available: true }]
+    queryKey: ['/api/services', { available: true }],
+    staleTime: 0, // Force immediate refetch
+    gcTime: 0, // Disable caching
   });
 
   // Real-time service updates - listen for new services and refresh data
@@ -36,6 +38,12 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     service.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleBookService = (service: Service) => {
+    // Navigate to service booking or contact page
+    console.log('Booking service:', service.name);
+    // For now, just log - you can implement navigation logic here
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">

@@ -5,8 +5,10 @@ import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServicesWebSocket } from "@/hooks/use-services-websocket";
+import { useEffect } from "react";
+import type { Service } from "@shared/schema";
 import { Calendar, Users, Wine, Camera, Music, Waves, Sparkles, Clock, Star, ChevronRight, Lock } from "lucide-react";
 
 const serviceCategories = [
@@ -55,11 +57,21 @@ const serviceCategories = [
 ];
 
 export default function ServicesPage() {
+  const queryClient = useQueryClient();
+  
+  // Force immediate cache invalidation on component mount
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+    console.log('🔄 Force invalidating services cache for fresh data');
+  }, [queryClient]);
+  
   // Initialize services WebSocket for real-time service updates
   useServicesWebSocket();
   
-  const { data: services } = useQuery({
+  const { data: services = [] } = useQuery<Service[]>({
     queryKey: ['/api/services'],
+    staleTime: 0, // Force immediate refetch
+    gcTime: 0, // Disable caching (replaces cacheTime in v5)
   });
 
   return (
@@ -201,7 +213,7 @@ export default function ServicesPage() {
                     </div>
                     
                     <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full z-10">
-                      <span className="text-white text-sm font-semibold">${service.pricePerHour}/hr</span>
+                      <span className="text-white text-sm font-semibold">${service.pricePerSession}/session</span>
                     </div>
                   </div>
 
