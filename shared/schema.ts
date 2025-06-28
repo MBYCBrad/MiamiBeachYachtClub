@@ -95,6 +95,7 @@ export const services = pgTable("services", {
   imageUrl: text("image_url"),
   pricePerSession: decimal("price_per_session", { precision: 10, scale: 2 }).notNull(),
   duration: integer("duration"), // in minutes
+  serviceType: text("service_type").notNull().default("location"), // "yacht" or "location"
   isAvailable: boolean("is_available").default(true),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   reviewCount: integer("review_count").default(0),
@@ -135,7 +136,11 @@ export const serviceBookings = pgTable("service_bookings", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   serviceId: integer("service_id").references(() => services.id).notNull(),
+  yachtBookingId: integer("yacht_booking_id").references(() => bookings.id), // for yacht-specific services
   bookingDate: timestamp("booking_date").notNull(),
+  location: text("location"), // for location-based services
+  specialRequests: text("special_requests"),
+  guestCount: integer("guest_count").default(1),
   status: text("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),

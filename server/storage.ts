@@ -536,6 +536,23 @@ export class DatabaseStorage implements IStorage {
     return booking;
   }
 
+  async getUserServiceBookings(userId: number): Promise<ServiceBooking[]> {
+    return await db
+      .select()
+      .from(serviceBookings)
+      .where(eq(serviceBookings.userId, userId))
+      .orderBy(desc(serviceBookings.createdAt));
+  }
+
+  async updateServiceBookingStatus(bookingId: number, status: string): Promise<ServiceBooking> {
+    const [updatedBooking] = await db
+      .update(serviceBookings)
+      .set({ status })
+      .where(eq(serviceBookings.id, bookingId))
+      .returning();
+    return updatedBooking;
+  }
+
   async updateServiceBooking(id: number, bookingUpdate: Partial<InsertServiceBooking>): Promise<ServiceBooking | undefined> {
     const [updatedBooking] = await db
       .update(serviceBookings)

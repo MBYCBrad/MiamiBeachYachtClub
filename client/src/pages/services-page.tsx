@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Service } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
+import ServiceBookingModal from '@/components/service-booking-modal';
 
 interface ServicesPageProps {
   currentView: string;
@@ -14,6 +15,8 @@ interface ServicesPageProps {
 
 export default function ServicesPage({ currentView, setCurrentView }: ServicesPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services', { available: true }]
@@ -25,9 +28,8 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
   );
 
   const handleBookService = (service: Service) => {
-    // Navigate to service booking or contact page
-    console.log('Booking service:', service.name);
-    // For now, just log - you can implement navigation logic here
+    setSelectedService(service);
+    setIsBookingModalOpen(true);
   };
 
   return (
