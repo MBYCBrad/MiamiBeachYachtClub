@@ -1,329 +1,341 @@
-import { motion } from "framer-motion";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Navigation } from "@/components/navigation";
-import { VideoHeader } from "@/components/video-header";
-import { VideoCTA } from "@/components/video-cta";
-import { Footer } from "@/components/footer";
-import { useQuery } from "@tanstack/react-query";
-import type { Service } from "@shared/schema";
-import { Calendar, Users, Wine, Camera, Music, Waves, Sparkles, Clock, Star, ChevronRight, Lock } from "lucide-react";
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import ServiceBookingModal from '@/components/service-booking-modal';
+import { 
+  Heart, 
+  Star, 
+  MapPin, 
+  Ship,
+  MapPinIcon,
+  Car,
+  Building2
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import type { Service } from '@shared/schema';
 
-const serviceCategories = [
-  {
-    icon: Sparkles,
-    title: "Beauty & Grooming",
-    description: "Onboard hair styling, makeup, and spa treatments",
-    services: ["Professional Hair Styling", "Makeup Artists", "Massage Therapy"],
-    gradient: "from-pink-600 to-purple-600"
+const deliveryTypeConfig = {
+  yacht: {
+    icon: Ship,
+    label: 'Yacht Add-On',
+    description: 'Available during your yacht charter',
+    color: 'bg-blue-600/80',
+    textColor: 'text-blue-400'
   },
-  {
-    icon: Wine,
-    title: "Culinary Excellence",
-    description: "Private chefs and gourmet catering services",
-    services: ["Private Chef Services", "Wine Pairing", "Cocktail Mixology"],
-    gradient: "from-orange-600 to-red-600"
+  marina: {
+    icon: MapPinIcon,
+    label: 'Marina Service',
+    description: 'Meet at the marina before boarding',
+    color: 'bg-green-600/80',
+    textColor: 'text-green-400'
   },
-  {
-    icon: Sparkles,
-    title: "Wellness & Spa",
-    description: "Rejuvenating treatments and wellness experiences",
-    services: ["Yoga Sessions", "Meditation", "Wellness Coaching"],
-    gradient: "from-green-600 to-teal-600"
+  location: {
+    icon: Car,
+    label: 'To Your Location',
+    description: 'We come to your specified address',
+    color: 'bg-orange-600/80',
+    textColor: 'text-orange-400'
   },
-  {
-    icon: Camera,
-    title: "Photography & Media",
-    description: "Capture your perfect yacht moments",
-    services: ["Professional Photography", "Drone Videography", "Social Media Content"],
-    gradient: "from-blue-600 to-indigo-600"
-  },
-  {
-    icon: Music,
-    title: "Entertainment",
-    description: "Live music and exclusive performances",
-    services: ["Live Musicians", "DJ Services", "Private Performances"],
-    gradient: "from-purple-600 to-pink-600"
-  },
-  {
-    icon: Waves,
-    title: "Water Sports",
-    description: "Expert instruction and equipment",
-    services: ["Jet Ski Training", "Scuba Diving", "Water Skiing"],
-    gradient: "from-cyan-600 to-blue-600"
+  external_location: {
+    icon: Building2,
+    label: 'External Location',
+    description: 'Visit our business location',
+    color: 'bg-red-600/80',
+    textColor: 'text-red-400'
   }
-];
+};
 
-export default function ServicesPage() {
-  const { data: services = [] } = useQuery<Service[]>({
-    queryKey: ['/api/services', { available: true }]
-  });
+export default function Services() {
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState<string>('all');
+
+  const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
+
+  const handleServiceBooking = async (bookingData: any) => {
+    try {
+      const response = await fetch('/api/service-bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (response.ok) {
+        setSelectedService(null);
+        // Show success message
+      } else {
+        const error = await response.json();
+        console.error('Booking failed:', error.message);
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+    }
+  };
+
+  const toggleLike = (id: number) => {
+    setLikedItems(prev => {
+      const newLiked = new Set(prev);
+      if (newLiked.has(id)) {
+        newLiked.delete(id);
+      } else {
+        newLiked.add(id);
+      }
+      return newLiked;
+    });
+  };
+
+  const filteredServices = selectedDeliveryType === 'all' 
+    ? services 
+    : services.filter(service => service.deliveryType === selectedDeliveryType);
+
+  const servicesByDeliveryType = {
+    yacht: services.filter(s => s.deliveryType === 'yacht'),
+    marina: services.filter(s => s.deliveryType === 'marina'),
+    location: services.filter(s => s.deliveryType === 'location'),
+    external_location: services.filter(s => s.deliveryType === 'external_location')
+  };
 
   return (
-    <div className="min-h-screen bg-black">
-      <Navigation />
-      
-      <VideoHeader 
-        title="Concierge Services"
-        subtitle="Elevate Your Yacht Experience with Premium Services"
-      >
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-          <Link href="/book-tour">
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-            >
-              Book a Service
-            </Button>
-          </Link>
-          <Link href="/contact">
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-black px-8 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
-            >
-              Contact Concierge
-            </Button>
-          </Link>
-        </div>
-      </VideoHeader>
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            Premium Concierge Services
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Enhance your yacht experience with our four-tier service delivery system
+          </p>
+        </motion.div>
 
-      {/* Service Categories */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+        {/* Delivery Type Filter */}
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
+          <Button
+            variant={selectedDeliveryType === 'all' ? 'default' : 'outline'}
+            onClick={() => setSelectedDeliveryType('all')}
+            className={cn(
+              selectedDeliveryType === 'all' 
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600' 
+                : 'bg-gray-800 border-gray-600 hover:bg-gray-700'
+            )}
           >
-            <h2 
-              className="text-4xl md:text-5xl font-bold text-white mb-4"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              Premium Yacht Services
-            </h2>
-            <p className="text-xl text-gray-400">
-              Curated experiences designed to perfect your time on the water
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {serviceCategories.map((category, index) => (
-              <motion.div
-                key={category.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 hover:scale-105 transition-all duration-300 overflow-hidden"
+            All Services ({services.length})
+          </Button>
+          {Object.entries(deliveryTypeConfig).map(([type, config]) => {
+            const Icon = config.icon;
+            const count = servicesByDeliveryType[type as keyof typeof servicesByDeliveryType].length;
+            return (
+              <Button
+                key={type}
+                variant={selectedDeliveryType === type ? 'default' : 'outline'}
+                onClick={() => setSelectedDeliveryType(type)}
+                className={cn(
+                  'flex items-center gap-2',
+                  selectedDeliveryType === type 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600' 
+                    : 'bg-gray-800 border-gray-600 hover:bg-gray-700'
+                )}
               >
-                {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                
-                {/* Icon */}
-                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${category.gradient} mb-6`}>
-                  <category.icon className="w-8 h-8 text-white" />
-                </div>
-
-                <h3 className="text-2xl font-bold text-white mb-3">
-                  {category.title}
-                </h3>
-                <p className="text-gray-400 mb-6">
-                  {category.description}
-                </p>
-
-                {/* Service List */}
-                <ul className="space-y-2 mb-6">
-                  {category.services.map((service) => (
-                    <li key={service} className="flex items-center text-gray-300">
-                      <ChevronRight className="w-4 h-4 mr-2 text-purple-400" />
-                      {service}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button 
-                  className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-                >
-                  Explore Services
-                </Button>
-              </motion.div>
-            ))}
-          </div>
+                <Icon className="h-4 w-4" />
+                {config.label} ({count})
+              </Button>
+            );
+          })}
         </div>
-      </section>
 
-      {/* Featured Services */}
-      <section className="py-20 px-6 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 
-              className="text-4xl md:text-5xl font-bold text-white mb-4"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              Most Popular Services
-            </h2>
-            <p className="text-xl text-gray-400">
-              Trusted by our members for exceptional experiences
-            </p>
-          </motion.div>
-
-          {services && services.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {(services as any[]).slice(0, 6).map((service, index) => (
+        {/* Service Categories Overview */}
+        {selectedDeliveryType === 'all' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {Object.entries(deliveryTypeConfig).map(([type, config]) => {
+              const Icon = config.icon;
+              const count = servicesByDeliveryType[type as keyof typeof servicesByDeliveryType].length;
+              return (
                 <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-gray-900 rounded-3xl overflow-hidden hover:scale-105 transition-transform duration-300 group"
+                  key={type}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedDeliveryType(type)}
                 >
-                  {/* Service Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={service.imageUrl} 
-                      alt={service.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    
-                    {/* Hover Overlay with Lock */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/90 to-indigo-600/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <Lock className="w-12 h-12 text-white" />
-                    </div>
-                    
-                    <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full z-10">
-                      <span className="text-white text-sm font-semibold">${service.pricePerSession}/session</span>
-                    </div>
-                  </div>
-
-                  {/* Service Details */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <Star className="w-5 h-5 text-yellow-400 mr-1" />
-                        <span className="text-white">4.9</span>
-                        <span className="text-gray-400 ml-2">(127)</span>
+                  <Card className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-800/50 transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4", config.color)}>
+                        <Icon className="h-8 w-8 text-white" />
                       </div>
-                      <div className="flex items-center text-gray-400">
-                        <Clock className="w-4 h-4 mr-1" />
-                        <span className="text-sm">4 hours min</span>
-                      </div>
-                    </div>
-
-                    <Link href="/apply">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
-                        Apply for Membership
-                      </Button>
-                    </Link>
-                  </div>
+                      <h3 className="text-xl font-bold text-white mb-2">{config.label}</h3>
+                      <p className="text-gray-400 text-sm mb-3">{config.description}</p>
+                      <Badge className="bg-purple-600/20 text-purple-300">
+                        {count} Services
+                      </Badge>
+                    </CardContent>
+                  </Card>
                 </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 
-              className="text-4xl md:text-5xl font-bold text-white mb-4"
-              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-            >
-              How It Works
-            </h2>
-            <p className="text-xl text-gray-400">
-              Booking premium services is simple and seamless
-            </p>
-          </motion.div>
-
-          <div className="space-y-8">
-            {[
-              {
-                step: "01",
-                title: "Choose Your Service",
-                description: "Browse our curated selection of premium yacht services"
-              },
-              {
-                step: "02",
-                title: "Select Date & Time",
-                description: "Pick a convenient time that works with your yacht booking"
-              },
-              {
-                step: "03",
-                title: "Confirm Booking",
-                description: "Review details and complete your service reservation"
-              },
-              {
-                step: "04",
-                title: "Enjoy Your Experience",
-                description: "Our professionals arrive on time to deliver exceptional service"
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={item.step}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex items-center space-x-6"
-              >
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">{item.step}</span>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-400">{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* Stats Section */}
-      <section className="py-20 px-6 bg-gradient-to-b from-gray-900 to-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { value: "500+", label: "Service Providers" },
-              { value: "98%", label: "Satisfaction Rate" },
-              { value: "24/7", label: "Concierge Support" },
-              { value: "50+", label: "Service Categories" }
-            ].map((stat, index) => (
+        {/* Services Grid */}
+        <motion.div
+          key={selectedDeliveryType}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {filteredServices.map((service, index) => {
+            const deliveryConfig = deliveryTypeConfig[service.deliveryType as keyof typeof deliveryTypeConfig];
+            const DeliveryIcon = deliveryConfig?.icon || Ship;
+            
+            return (
               <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center"
+                key={service.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
+                className="group cursor-pointer"
               >
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-400">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
+                  <div className="relative overflow-hidden">
+                    <motion.img
+                      src={service.imageUrl || '/api/media/default-service.jpg'}
+                      alt={service.name}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                      whileHover={{ scale: 1.1 }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(service.id);
+                      }}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        className={cn(
+                          "h-5 w-5 transition-colors duration-200",
+                          likedItems.has(service.id) ? "fill-red-500 text-red-500" : "text-white"
+                        )}
+                      />
+                    </motion.button>
 
-      <VideoCTA />
-      <Footer />
+                    <div className="absolute top-3 left-3 space-y-1">
+                      <Badge className="bg-purple-600/80 text-white backdrop-blur-sm">
+                        {service.category}
+                      </Badge>
+                      {deliveryConfig && (
+                        <Badge className={cn("backdrop-blur-sm text-xs", deliveryConfig.color, "text-white")}>
+                          <DeliveryIcon className="h-3 w-3 mr-1" />
+                          {deliveryConfig.label}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <div className="flex items-center text-white text-sm">
+                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                        {service.rating || '4.8'}
+                        <span className="text-gray-300 ml-2">({service.reviewCount || 24} reviews)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-bold text-lg text-white group-hover:text-blue-300 transition-colors duration-300">
+                          {service.name}
+                        </h3>
+                        <p className="text-gray-400 text-sm line-clamp-2">
+                          {service.description}
+                        </p>
+                        
+                        {/* Delivery Information */}
+                        <div className="mt-2 space-y-1">
+                          {service.deliveryType === 'marina' && service.marinaLocation && (
+                            <p className="text-green-400 text-xs flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              Marina: {service.marinaLocation}
+                            </p>
+                          )}
+                          {service.deliveryType === 'external_location' && service.businessAddress && (
+                            <p className="text-red-400 text-xs flex items-center">
+                              <Building2 className="h-3 w-3 mr-1" />
+                              Visit: {service.businessAddress}
+                            </p>
+                          )}
+                          {service.deliveryType === 'location' && (
+                            <p className="text-orange-400 text-xs flex items-center">
+                              <Car className="h-3 w-3 mr-1" />
+                              We come to your location
+                            </p>
+                          )}
+                          {service.deliveryType === 'yacht' && (
+                            <p className="text-blue-400 text-xs flex items-center">
+                              <Ship className="h-3 w-3 mr-1" />
+                              Available during your yacht charter
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="text-white">
+                          <span className="text-xl font-bold">${service.pricePerSession}</span>
+                          <span className="text-gray-400 text-sm ml-1">/session</span>
+                        </div>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button 
+                            size="sm" 
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedService(service);
+                            }}
+                          >
+                            Book Service
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {filteredServices.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg">No services found for the selected delivery type.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Service Booking Modal */}
+      <ServiceBookingModal
+        isOpen={!!selectedService}
+        onClose={() => setSelectedService(null)}
+        service={selectedService!}
+        onConfirm={handleServiceBooking}
+      />
     </div>
   );
 }

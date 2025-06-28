@@ -70,6 +70,28 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     });
   };
 
+  const handleServiceBooking = async (bookingData: any) => {
+    try {
+      const response = await fetch('/api/service-bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (response.ok) {
+        setSelectedService(null);
+        // Show success message or redirect
+      } else {
+        const error = await response.json();
+        console.error('Booking failed:', error.message);
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+    }
+  };
+
 
 
   // Removed getServiceImage function - now using real-time database images
@@ -266,9 +288,25 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                         />
                       </motion.button>
 
-                      <Badge className="absolute top-3 left-3 bg-purple-600/80 text-white backdrop-blur-sm">
-                        {service.category}
-                      </Badge>
+                      <div className="absolute top-3 left-3 space-y-1">
+                        <Badge className="bg-purple-600/80 text-white backdrop-blur-sm">
+                          {service.category}
+                        </Badge>
+                        <Badge 
+                          className={cn(
+                            "backdrop-blur-sm text-xs",
+                            service.deliveryType === 'yacht' ? 'bg-blue-600/80 text-white' :
+                            service.deliveryType === 'marina' ? 'bg-green-600/80 text-white' :
+                            service.deliveryType === 'location' ? 'bg-orange-600/80 text-white' :
+                            'bg-red-600/80 text-white'
+                          )}
+                        >
+                          {service.deliveryType === 'yacht' ? 'Yacht Add-On' :
+                           service.deliveryType === 'marina' ? 'Marina Service' :
+                           service.deliveryType === 'location' ? 'To Your Location' :
+                           'External Location'}
+                        </Badge>
+                      </div>
                     </div>
 
                     <CardContent className="p-4">
@@ -280,6 +318,28 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           <p className="text-gray-400 text-sm line-clamp-2">
                             {service.description}
                           </p>
+                          <div className="mt-2 space-y-1">
+                            {service.deliveryType === 'marina' && service.marinaLocation && (
+                              <p className="text-green-400 text-xs">
+                                📍 Marina: {service.marinaLocation}
+                              </p>
+                            )}
+                            {service.deliveryType === 'external_location' && service.businessAddress && (
+                              <p className="text-red-400 text-xs">
+                                📍 Visit: {service.businessAddress}
+                              </p>
+                            )}
+                            {service.deliveryType === 'location' && (
+                              <p className="text-orange-400 text-xs">
+                                🚗 We come to your location
+                              </p>
+                            )}
+                            {service.deliveryType === 'yacht' && (
+                              <p className="text-blue-400 text-xs">
+                                🛥️ Available during your yacht charter
+                              </p>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between">
@@ -465,6 +525,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         isOpen={!!selectedService}
         onClose={() => setSelectedService(null)}
         service={selectedService!}
+        onConfirm={handleServiceBooking}
       />
     </div>
   );

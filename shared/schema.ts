@@ -96,6 +96,11 @@ export const services = pgTable("services", {
   pricePerSession: decimal("price_per_session", { precision: 10, scale: 2 }).notNull(),
   duration: integer("duration"), // in minutes
   serviceType: text("service_type").notNull().default("location"), // "yacht" or "location"
+  deliveryType: text("delivery_type").notNull().default("location"), // "location", "marina", "yacht", "external_location"
+  serviceAreas: jsonb("service_areas").$type<string[]>().default([]), // Available cities/areas for location services
+  requiresAddress: boolean("requires_address").default(true), // Whether member needs to provide address
+  marinaLocation: text("marina_location"), // Specific marina location for marina services
+  businessAddress: text("business_address"), // Business address for external_location services
   isAvailable: boolean("is_available").default(true),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   reviewCount: integer("review_count").default(0),
@@ -139,6 +144,8 @@ export const serviceBookings = pgTable("service_bookings", {
   yachtBookingId: integer("yacht_booking_id").references(() => bookings.id), // for yacht-specific services
   bookingDate: timestamp("booking_date").notNull(),
   location: text("location"), // for location-based services
+  serviceAddress: text("service_address"), // Member's chosen address for location services
+  deliveryNotes: text("delivery_notes"), // Special delivery instructions
   specialRequests: text("special_requests"),
   guestCount: integer("guest_count").default(1),
   status: text("status").notNull().default("pending"),

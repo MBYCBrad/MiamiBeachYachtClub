@@ -1176,21 +1176,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/service-bookings", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
     try {
-      const validatedData = insertServiceBookingSchema.parse(req.body);
-      
-      if (req.user!.role === UserRole.MEMBER) {
-        validatedData.userId = req.user!.id;
-      }
+      const {
+        serviceId,
+        bookingDate,
+        bookingTime,
+        guestCount,
+        serviceAddress,
+        deliveryNotes,
+        specialRequests,
+        yachtBookingId
+      } = req.body;
 
-      const service = await dbStorage.getService(validatedData.serviceId!);
+      const service = await dbStorage.getService(serviceId);
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
       }
 
-      const booking = await dbStorage.createServiceBooking({
-        ...validatedData,
-        totalPrice: service.pricePerSession
-      });
+      // Combine date and time for the booking
+      const combinedDateTime = new Date(bookingDate);
+      const [hours, minutes] = bookingTime.split(':').map(Number);
+      combinedDateTime.setHours(hours, minutes, 0, 0);
+
+      const bookingData = {
+        userId: req.user!.id,
+        serviceId,
+        bookingDate: combinedDateTime,
+        location: service.deliveryType === 'marina' ? service.marinaLocation : 
+                 service.deliveryType === 'external_location' ? service.businessAddress : null,
+        serviceAddress: service.requiresAddress ? serviceAddress : null,
+        deliveryNotes,
+        specialRequests,
+        guestCount: guestCount || 1,
+        yachtBookingId,
+        totalPrice: service.pricePerSession,
+        status: 'pending'
+      };
+
+      const booking = await dbStorage.createServiceBooking(bookingData);
 
       // Create real-time admin notification for service booking
       const adminUsers = await dbStorage.getAllUsers();
@@ -1216,10 +1238,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Real-time cross-role notifications - notify service provider
       if (service.providerId) {
-        await notificationService.notifyServiceProvider(validatedData.serviceId!, {
+        await notificationService.notifyServiceProvider(serviceId, {
           bookingId: booking.id,
           memberName: req.user!.username,
-          bookingDate: validatedData.bookingDate,
+          bookingDate: combinedDateTime,
           totalPrice: service.pricePerSession
         });
       }
@@ -1227,7 +1249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Broadcast real-time data update to all connected users
       await notificationService.notifyDataUpdate('service_booking_created', {
         booking,
-        serviceId: validatedData.serviceId
+        serviceId
       }, req.user!.id);
 
       res.status(201).json(booking);
