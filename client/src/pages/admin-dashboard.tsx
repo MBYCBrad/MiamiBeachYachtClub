@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -2465,6 +2466,9 @@ export default function AdminDashboard() {
     staleTime: 30000, // Refresh every 30 seconds for real-time data
     refetchInterval: 30000
   });
+
+  // Initialize yacht WebSocket for real-time yacht updates
+  useYachtWebSocket();
 
   // Filter overview data dynamically based on active filters
   const filteredOverviewData = useMemo(() => {

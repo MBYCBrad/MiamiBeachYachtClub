@@ -4414,15 +4414,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sanitize and convert form data types
       const yachtData = {
         ...req.body,
-        size: req.body.size ? parseInt(req.body.size) : undefined,
-        capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
-        ownerId: req.body.ownerId ? parseInt(req.body.ownerId) : undefined,
-        yearMade: req.body.yearMade ? parseInt(req.body.yearMade) : undefined,
-        totalCost: req.body.totalCost ? parseFloat(req.body.totalCost) : undefined
+        size: req.body.size && req.body.size !== '' ? parseInt(req.body.size) : undefined,
+        capacity: req.body.capacity && req.body.capacity !== '' ? parseInt(req.body.capacity) : undefined,
+        ownerId: req.body.ownerId && req.body.ownerId !== '' ? parseInt(req.body.ownerId) : undefined,
+        yearMade: req.body.yearMade && req.body.yearMade !== '' ? parseInt(req.body.yearMade) : undefined,
+        totalCost: req.body.totalCost && req.body.totalCost !== '' ? parseFloat(req.body.totalCost) : undefined
       };
 
       const newYacht = await dbStorage.createYacht(yachtData);
       await auditService.logAction(req, 'create', 'yacht', newYacht.id, yachtData);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'yacht_created',
+              yacht: newYacht,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
       res.status(201).json(newYacht);
     } catch (error: any) {
       console.error('Error creating yacht:', error);
@@ -4439,11 +4453,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sanitize and convert form data types
       const updateData = {
         ...req.body,
-        size: req.body.size ? parseInt(req.body.size) : req.body.size,
-        capacity: req.body.capacity ? parseInt(req.body.capacity) : req.body.capacity,
-        ownerId: req.body.ownerId ? parseInt(req.body.ownerId) : req.body.ownerId,
-        yearMade: req.body.yearMade ? parseInt(req.body.yearMade) : req.body.yearMade,
-        totalCost: req.body.totalCost ? parseFloat(req.body.totalCost) : req.body.totalCost
+        size: req.body.size && req.body.size !== '' ? parseInt(req.body.size) : undefined,
+        capacity: req.body.capacity && req.body.capacity !== '' ? parseInt(req.body.capacity) : undefined,
+        ownerId: req.body.ownerId && req.body.ownerId !== '' ? parseInt(req.body.ownerId) : undefined,
+        yearMade: req.body.yearMade && req.body.yearMade !== '' ? parseInt(req.body.yearMade) : undefined,
+        totalCost: req.body.totalCost && req.body.totalCost !== '' ? parseFloat(req.body.totalCost) : undefined
       };
 
       const updatedYacht = await dbStorage.updateYacht(yachtId, updateData);
@@ -4451,6 +4465,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Yacht not found" });
       }
       await auditService.logAction(req, 'update', 'yacht', yachtId, updateData);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'yacht_updated',
+              yacht: updatedYacht,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
       res.json(updatedYacht);
     } catch (error: any) {
       console.error('Error updating yacht:', error);
@@ -4468,6 +4496,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Yacht not found" });
       }
       await auditService.logAction(req, 'delete', 'yacht', yachtId);
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'yacht_deleted',
+              yachtId: yachtId,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
       res.status(204).send();
     } catch (error: any) {
       await auditService.logAction(req, 'delete', 'yacht', parseInt(req.params.id), undefined, false, error.message);
