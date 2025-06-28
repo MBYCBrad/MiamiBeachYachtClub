@@ -30,12 +30,7 @@ import type { Yacht, Service, Event as EventType } from '@shared/schema';
 
 
 
-const SERVICE_IMAGES = [
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1567327286077-e5de925ca8b7?w=800&h=600&fit=crop"
-];
+// Removed static SERVICE_IMAGES - now using real-time database images
 
 interface MemberHomeProps {
   currentView: string;
@@ -75,9 +70,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
 
 
-  const getServiceImage = (index: number) => {
-    return SERVICE_IMAGES[index % SERVICE_IMAGES.length];
-  };
+  // Removed getServiceImage function - now using real-time database images
 
   const filteredYachts = yachts.filter(yacht => 
     yacht.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -247,7 +240,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
                     <div className="relative overflow-hidden">
                       <motion.img
-                        src={getServiceImage(index)}
+                        src={service.imageUrl || 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop'}
                         alt={service.name}
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                         whileHover={{ scale: 1.1 }}
