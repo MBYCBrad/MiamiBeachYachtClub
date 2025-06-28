@@ -33,12 +33,7 @@ const YACHT_IMAGES = [
   "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&h=600&fit=crop"
 ];
 
-const SERVICE_IMAGES = [
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1567327286077-e5de925ca8b7?w=800&h=600&fit=crop"
-];
+// Removed static SERVICE_IMAGES - now using real-time database images
 
 interface MemberFavoritesProps {
   currentView: string;
@@ -191,7 +186,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
       <Card className="bg-gray-900/50 border-gray-800 hover-lift overflow-hidden">
         <div className="relative h-40">
           <img
-            src={SERVICE_IMAGES[index % SERVICE_IMAGES.length]}
+            src={service.imageUrl || 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop'}
             alt={service.name}
             className="w-full h-full object-cover"
           />
