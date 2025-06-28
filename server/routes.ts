@@ -130,13 +130,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const file of req.files) {
         // Store the uploaded file information in media_assets table
         const mediaAsset = await dbStorage.createMediaAsset({
-          name: file.originalname || file.filename || 'Untitled',
+          name: file.originalname || file.filename || 'Yacht Image',
           type: 'image',
-          filename: file.filename,
-          mimeType: file.mimetype,
-          fileSize: file.size,
           category: 'yacht',
-          url: `/api/media/${file.filename}`
+          url: `/api/media/${file.filename}`,
+          filename: file.filename,
+          fileSize: file.size || 0,
+          mimeType: file.mimetype || 'image/jpeg'
         });
 
         uploadedImages.push(`/api/media/${file.filename}`);
@@ -4156,21 +4156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin yacht management endpoints
-  app.put("/api/admin/yachts/:id", async (req, res) => {
-    if (!req.isAuthenticated() || req.user?.role !== 'admin') {
-      return res.sendStatus(401);
-    }
 
-    try {
-      const yachtId = parseInt(req.params.id);
-      const updateData = req.body;
-      const yacht = await dbStorage.updateYacht(yachtId, updateData);
-      res.json(yacht);
-    } catch (error: any) {
-      console.error('Error updating yacht:', error);
-      res.status(500).json({ message: 'Error updating yacht: ' + error.message });
-    }
-  });
 
   // Admin service management endpoints
   app.put("/api/admin/services/:id", async (req, res) => {
@@ -4425,10 +4411,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create Yacht
   app.post("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newYacht = await dbStorage.createYacht(req.body);
-      await auditService.logAction(req, 'create', 'yacht', newYacht.id, req.body);
+      // Sanitize and convert form data types
+      const yachtData = {
+        ...req.body,
+        size: req.body.size ? parseInt(req.body.size) : undefined,
+        capacity: req.body.capacity ? parseInt(req.body.capacity) : undefined,
+        ownerId: req.body.ownerId ? parseInt(req.body.ownerId) : undefined,
+        yearMade: req.body.yearMade ? parseInt(req.body.yearMade) : undefined,
+        totalCost: req.body.totalCost ? parseFloat(req.body.totalCost) : undefined
+      };
+
+      const newYacht = await dbStorage.createYacht(yachtData);
+      await auditService.logAction(req, 'create', 'yacht', newYacht.id, yachtData);
       res.status(201).json(newYacht);
     } catch (error: any) {
+      console.error('Error creating yacht:', error);
       await auditService.logAction(req, 'create', 'yacht', undefined, req.body, false, error.message);
       res.status(500).json({ message: error.message });
     }
@@ -4438,13 +4435,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/yachts/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const yachtId = parseInt(req.params.id);
-      const updatedYacht = await dbStorage.updateYacht(yachtId, req.body);
+      
+      // Sanitize and convert form data types
+      const updateData = {
+        ...req.body,
+        size: req.body.size ? parseInt(req.body.size) : req.body.size,
+        capacity: req.body.capacity ? parseInt(req.body.capacity) : req.body.capacity,
+        ownerId: req.body.ownerId ? parseInt(req.body.ownerId) : req.body.ownerId,
+        yearMade: req.body.yearMade ? parseInt(req.body.yearMade) : req.body.yearMade,
+        totalCost: req.body.totalCost ? parseFloat(req.body.totalCost) : req.body.totalCost
+      };
+
+      const updatedYacht = await dbStorage.updateYacht(yachtId, updateData);
       if (!updatedYacht) {
         return res.status(404).json({ message: "Yacht not found" });
       }
-      await auditService.logAction(req, 'update', 'yacht', yachtId, req.body);
+      await auditService.logAction(req, 'update', 'yacht', yachtId, updateData);
       res.json(updatedYacht);
     } catch (error: any) {
+      console.error('Error updating yacht:', error);
       await auditService.logAction(req, 'update', 'yacht', parseInt(req.params.id), req.body, false, error.message);
       res.status(500).json({ message: error.message });
     }
