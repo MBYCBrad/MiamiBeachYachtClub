@@ -932,7 +932,7 @@ function FeaturesSection() {
 // Stats Section Component
 function StatsSection() {
   const stats = [
-    { value: "50+", label: "Luxury Yachts", icon: <Anchor className="w-8 h-8 text-white" /> },
+    { value: "6+", label: "Luxury Yachts", icon: <Anchor className="w-8 h-8 text-white" /> },
     { value: "24/7", label: "Concierge Service", icon: <Phone className="w-8 h-8 text-white" /> },
     { value: "95%", label: "Member Satisfaction", icon: <Star className="w-8 h-8 text-white" /> },
     { value: "15+", label: "Years Experience", icon: <Award className="w-8 h-8 text-white" /> }
