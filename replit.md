@@ -720,6 +720,14 @@ Changelog:
   - Database service_type field properly updated to reflect 'yacht' vs 'location' categorization for accurate business operations
   - Real-time synchronization ensured across member booking system, service provider dashboards, and admin management interface
 - June 28, 2025. Complete four-tier service delivery system implemented with comprehensive member interface integration
+- June 30, 2025. Mariner's Membership à la carte system implemented with complete database integration
+  - Added comprehensive Mariner's Membership section to landing page with exact content from MBYC website
+  - New membership types: Mariner's Gold ($10,000/month), Mariner's Platinum ($15,000/month), Mariner's Diamond ($20,000/month)
+  - $10,000 one-time Member Ownership Fee for ultimate flexible month-to-month yachting experience
+  - Database schema updated with new membership tiers: diamond, mariner_gold, mariner_platinum, mariner_diamond
+  - Admin and staff dashboards updated to support Mariner's membership types when creating users
+  - Complete à la carte system allowing tier switching and month-to-month flexibility starting on 1st or 15th
+  - Authentic content implementation matching themiamibeachyachtclub.com website specifications
   - Built four distinct service delivery models: yacht (on yacht during charter), marina (at marina before boarding), location (provider comes to member address), external_location (member visits business address)
   - Enhanced member home page services display with delivery type badges showing color-coded delivery methods (blue=yacht, green=marina, orange=location, red=external)
   - Added detailed delivery information with icons and location data for each service type (marina location, business address, mobile delivery, yacht add-on)

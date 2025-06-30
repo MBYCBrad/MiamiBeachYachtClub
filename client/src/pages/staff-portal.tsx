@@ -4640,6 +4640,10 @@ export default function StaffPortal() {
                           <SelectItem value="Silver">Silver</SelectItem>
                           <SelectItem value="Gold">Gold</SelectItem>
                           <SelectItem value="Platinum">Platinum</SelectItem>
+                          <SelectItem value="Diamond">Diamond</SelectItem>
+                          <SelectItem value="Mariner Gold">Mariner's Gold</SelectItem>
+                          <SelectItem value="Mariner Platinum">Mariner's Platinum</SelectItem>
+                          <SelectItem value="Mariner Diamond">Mariner's Diamond</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

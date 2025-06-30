@@ -923,6 +923,10 @@ function AddUserDialog() {
                     <SelectItem value="silver">Silver</SelectItem>
                     <SelectItem value="gold">Gold</SelectItem>
                     <SelectItem value="platinum">Platinum</SelectItem>
+                    <SelectItem value="diamond">Diamond</SelectItem>
+                    <SelectItem value="mariner_gold">Mariner's Gold</SelectItem>
+                    <SelectItem value="mariner_platinum">Mariner's Platinum</SelectItem>
+                    <SelectItem value="mariner_diamond">Mariner's Diamond</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -1163,6 +1163,180 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
   );
 }
 
+// Mariner's Membership Section Component
+function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
+  return (
+    <section className="py-20 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/20 to-black"></div>
+      <div className="container mx-auto px-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl font-bold text-white mb-4">
+            MARINER'S MEMBERSHIP
+          </h2>
+          <p className="text-xl text-blue-400 font-semibold tracking-wider">
+            THE ULTIMATE FLEXIBLE YACHTING EXPERIENCE
+          </p>
+          <div className="max-w-4xl mx-auto mt-8">
+            <p className="text-gray-300 leading-relaxed">
+              The <span className="text-blue-400 font-semibold">Mariner's Membership</span> is designed for those who seek <span className="text-blue-400 font-semibold">ultimate flexibility</span> in their yachting experience. This <span className="text-blue-400 font-semibold">à la carte</span> membership allows you to tailor your access to the club on a <span className="text-blue-400 font-semibold">month-to-month basis</span>, choosing your membership tier based on your plans and needs.
+            </p>
+          </div>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* How It Works */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8"
+          >
+            <h3 className="text-2xl font-bold text-white mb-6">HOW IT WORKS:</h3>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="text-blue-400 font-bold text-lg">1.</span>
+                <p className="text-gray-300">Membership can <span className="text-blue-400 font-semibold">begin on the 1st or 15th</span> of any month.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-blue-400 font-bold text-lg">2.</span>
+                <p className="text-gray-300">Members can <span className="text-blue-400 font-semibold">change tiers each month</span> depending on their schedule.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-blue-400 font-bold text-lg">3.</span>
+                <p className="text-gray-300"><span className="text-blue-400 font-semibold">Example:</span> Be a Gold Member from <span className="text-blue-400">Feb 15 - March 15</span>, switch to Diamond from <span className="text-blue-400">March 15 - April 15</span>, and take a break until returning in September, without paying for unused months.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-blue-400 font-bold text-lg">4.</span>
+                <p className="text-gray-300"><span className="text-blue-400 font-semibold">No long-term commitments</span>, only pay for the months you choose to be active.</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Pricing */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-yellow-900/30 to-amber-900/30 backdrop-blur-sm border border-yellow-500/30 rounded-2xl p-8"
+          >
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-white mb-2">PRICING</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-yellow-900/20 rounded-lg p-4 border border-yellow-500/20">
+                <p className="text-yellow-400 font-semibold mb-2">One-Time Member Ownership Fee:</p>
+                <p className="text-3xl font-bold text-white">$10,000</p>
+              </div>
+              <div className="bg-yellow-900/20 rounded-lg p-4 border border-yellow-500/20">
+                <p className="text-yellow-400 font-semibold mb-3">Monthly Fee: 2X the standard membership rate</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-300">Gold:</span>
+                    <span className="text-white font-bold">$10,000/month</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-300">Platinum:</span>
+                    <span className="text-white font-bold">$15,000/month</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-300">Diamond:</span>
+                    <span className="text-white font-bold">$20,000/month</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Benefits & Outing Access */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8"
+          >
+            <h3 className="text-2xl font-bold text-white mb-6">BENEFITS & OUTING ACCESS</h3>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <Crown className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-blue-400 font-semibold">Gold Membership:</p>
+                  <p className="text-gray-300">4 four-hour outings per month</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-blue-400 font-semibold">Platinum Membership:</p>
+                  <p className="text-gray-300">6 four-hour outings per month</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Award className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-blue-400 font-semibold">Diamond Membership:</p>
+                  <p className="text-gray-300">6 four-hour outings per month</p>
+                  <p className="text-sm text-blue-300 mt-1">Diamond members get 2 outings on the 95' yacht, and the remaining 4 outings must be on other yachts in the fleet.</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Flexibility Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="mt-12 max-w-6xl mx-auto"
+        >
+          <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8">
+            <h3 className="text-2xl font-bold text-white mb-6 text-center">FLEXIBILITY:</h3>
+            <p className="text-gray-300 leading-relaxed mb-6 text-center">
+              This membership is perfect for those who <span className="text-purple-400 font-semibold">split their time between locations</span>, have <span className="text-purple-400 font-semibold">changing schedules</span>, or want the <span className="text-purple-400 font-semibold">flexibility to experience different levels of membership</span> throughout the year without any long-term obligations.
+            </p>
+            <div className="bg-purple-900/20 rounded-lg p-6 border border-purple-500/20">
+              <p className="text-gray-300 leading-relaxed">
+                <span className="text-purple-400 font-semibold">Mariner's Members</span> can switch to a yearly membership plan at any time, and their initial <span className="text-purple-400 font-semibold">$10,000 Member Ownership fee</span> will be credited towards their yearly membership. And by switching to full time membership your <span className="text-purple-400 font-semibold">monthly fees will be cut in half</span>.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Apply Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="text-center mt-12"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onApplyClick || (() => window.location.href = '/apply')}
+            className="px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-full text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+          >
+            APPLY NOW
+          </motion.button>
+          <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+            Ready to get started? Contact us today to learn more and secure your Mariner's Membership at The Miami Beach Yacht Club!
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 // Testimonials Section Component
 function TestimonialsSection() {
   const testimonials = [
@@ -1680,6 +1854,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <StatsSection />
       <PackagesSection onApplyClick={() => setIsApplicationModalOpen(true)} />
+      <MarinersSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <TestimonialsSection />
       <FleetPreviewSection />
       <FAQSection />

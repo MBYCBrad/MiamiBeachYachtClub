@@ -40,7 +40,11 @@ export const MembershipTier = {
   BRONZE: "bronze",
   SILVER: "silver", 
   GOLD: "gold",
-  PLATINUM: "platinum"
+  PLATINUM: "platinum",
+  DIAMOND: "diamond",
+  MARINER_GOLD: "mariner_gold",
+  MARINER_PLATINUM: "mariner_platinum", 
+  MARINER_DIAMOND: "mariner_diamond"
 } as const;
 
 // Core tables
