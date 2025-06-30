@@ -1344,19 +1344,19 @@ function TestimonialsSection() {
     {
       name: "Michael Chen",
       role: "Platinum Member",
-      image: "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg",
+      image: "/api/media/2018_10_01_13_06_40_1880672045400179171_458353437_1750933334676_176907645.jpg",
       quote: "MBYC has transformed my weekends. The concierge service is exceptional, and the yacht selection is unmatched in Miami."
     },
     {
       name: "Sarah Williams",
       role: "Gold Member",
-      image: "/api/media/pexels-goumbik-296278_1750537277229.jpg",
+      image: "/api/media/QK_5314_credit_Quin_BISSET_665x443_1751116152867_804854212.jpg",
       quote: "From booking to boarding, everything is seamless. The crew is professional and the experiences are unforgettable."
     },
     {
       name: "David Rodriguez",
       role: "Diamond Member",
-      image: "/api/media/pexels-mali-42091_1750537294323.jpg",
+      image: "/api/media/IMG_0243_2_1751116578225_891415775.jpg",
       quote: "Being a Diamond member has opened doors to incredible networking opportunities. It's more than a yacht club - it's a lifestyle."
     }
   ];
