@@ -1176,15 +1176,15 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl font-bold text-white mb-4">
+          <h2 className="text-6xl md:text-7xl font-bold text-white mb-4" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
             MARINER'S MEMBERSHIP
           </h2>
-          <p className="text-xl text-blue-400 font-semibold tracking-wider">
+          <p className="text-xl bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold tracking-wider" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
             THE ULTIMATE FLEXIBLE YACHTING EXPERIENCE
           </p>
           <div className="max-w-4xl mx-auto mt-8">
-            <p className="text-gray-300 leading-relaxed">
-              The <span className="text-blue-400 font-semibold">Mariner's Membership</span> is designed for those who seek <span className="text-blue-400 font-semibold">ultimate flexibility</span> in their yachting experience. This <span className="text-blue-400 font-semibold">à la carte</span> membership allows you to tailor your access to the club on a <span className="text-blue-400 font-semibold">month-to-month basis</span>, choosing your membership tier based on your plans and needs.
+            <p className="text-gray-300 leading-relaxed text-lg" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
+              The <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">Mariner's Membership</span> is designed for those who seek <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">ultimate flexibility</span> in their yachting experience. This <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">à la carte</span> membership allows you to tailor your access to the club on a <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">month-to-month basis</span>, choosing your membership tier based on your plans and needs.
             </p>
           </div>
         </motion.div>
@@ -1196,25 +1196,25 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8"
+            className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-8 hover:border-purple-400/50 transition-all duration-300"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">HOW IT WORKS:</h3>
+            <h3 className="text-3xl font-bold text-white mb-6" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>HOW IT WORKS:</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <span className="text-blue-400 font-bold text-lg">1.</span>
-                <p className="text-gray-300">Membership can <span className="text-blue-400 font-semibold">begin on the 1st or 15th</span> of any month.</p>
+                <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm px-2 py-1 rounded-full min-w-[24px] text-center">1</span>
+                <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Membership can <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">begin on the 1st or 15th</span> of any month.</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-blue-400 font-bold text-lg">2.</span>
-                <p className="text-gray-300">Members can <span className="text-blue-400 font-semibold">change tiers each month</span> depending on their schedule.</p>
+                <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm px-2 py-1 rounded-full min-w-[24px] text-center">2</span>
+                <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Members can <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">change tiers each month</span> depending on their schedule.</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-blue-400 font-bold text-lg">3.</span>
-                <p className="text-gray-300"><span className="text-blue-400 font-semibold">Example:</span> Be a Gold Member from <span className="text-blue-400">Feb 15 - March 15</span>, switch to Diamond from <span className="text-blue-400">March 15 - April 15</span>, and take a break until returning in September, without paying for unused months.</p>
+                <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm px-2 py-1 rounded-full min-w-[24px] text-center">3</span>
+                <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}><span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">Example:</span> Be a Gold Member from <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Feb 15 - March 15</span>, switch to Diamond from <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">March 15 - April 15</span>, and take a break until returning in September, without paying for unused months.</p>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-blue-400 font-bold text-lg">4.</span>
-                <p className="text-gray-300"><span className="text-blue-400 font-semibold">No long-term commitments</span>, only pay for the months you choose to be active.</p>
+                <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm px-2 py-1 rounded-full min-w-[24px] text-center">4</span>
+                <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}><span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">No long-term commitments</span>, only pay for the months you choose to be active.</p>
               </div>
             </div>
           </motion.div>
@@ -1225,30 +1225,30 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-yellow-900/30 to-amber-900/30 backdrop-blur-sm border border-yellow-500/30 rounded-2xl p-8"
+            className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-8 hover:border-purple-400/50 transition-all duration-300"
           >
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">PRICING</h3>
+              <h3 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>PRICING</h3>
             </div>
             <div className="space-y-4">
-              <div className="bg-yellow-900/20 rounded-lg p-4 border border-yellow-500/20">
-                <p className="text-yellow-400 font-semibold mb-2">One-Time Member Ownership Fee:</p>
-                <p className="text-3xl font-bold text-white">$10,000</p>
+              <div className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-lg p-4 border border-purple-500/20">
+                <p className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold mb-2" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>One-Time Member Ownership Fee:</p>
+                <p className="text-3xl font-bold text-white" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>$10,000</p>
               </div>
-              <div className="bg-yellow-900/20 rounded-lg p-4 border border-yellow-500/20">
-                <p className="text-yellow-400 font-semibold mb-3">Monthly Fee: 2X the standard membership rate</p>
+              <div className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-lg p-4 border border-purple-500/20">
+                <p className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold mb-3" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Monthly Fee: 2X the standard membership rate</p>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-300">Gold:</span>
-                    <span className="text-white font-bold">$10,000/month</span>
+                    <span className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Gold:</span>
+                    <span className="text-white font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>$10,000/month</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-300">Platinum:</span>
-                    <span className="text-white font-bold">$15,000/month</span>
+                    <span className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Platinum:</span>
+                    <span className="text-white font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>$15,000/month</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-300">Diamond:</span>
-                    <span className="text-white font-bold">$20,000/month</span>
+                    <span className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Diamond:</span>
+                    <span className="text-white font-bold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>$20,000/month</span>
                   </div>
                 </div>
               </div>
@@ -1261,30 +1261,30 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8"
+            className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-8 hover:border-purple-400/50 transition-all duration-300"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">BENEFITS & OUTING ACCESS</h3>
+            <h3 className="text-3xl font-bold text-white mb-6" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>BENEFITS & OUTING ACCESS</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Crown className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <Crown className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-blue-400 font-semibold">Gold Membership:</p>
-                  <p className="text-gray-300">4 four-hour outings per month</p>
+                  <p className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Gold Membership:</p>
+                  <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>4 four-hour outings per month</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <Sparkles className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-blue-400 font-semibold">Platinum Membership:</p>
-                  <p className="text-gray-300">6 four-hour outings per month</p>
+                  <p className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Platinum Membership:</p>
+                  <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>6 four-hour outings per month</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Award className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                <Award className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-blue-400 font-semibold">Diamond Membership:</p>
-                  <p className="text-gray-300">6 four-hour outings per month</p>
-                  <p className="text-sm text-blue-300 mt-1">Diamond members get 2 outings on the 95' yacht, and the remaining 4 outings must be on other yachts in the fleet.</p>
+                  <p className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Diamond Membership:</p>
+                  <p className="text-gray-300" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>6 four-hour outings per month</p>
+                  <p className="text-sm text-purple-300 mt-1" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>Diamond members get 2 outings on the 95' yacht, and the remaining 4 outings must be on other yachts in the fleet.</p>
                 </div>
               </div>
             </div>
@@ -1299,14 +1299,14 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
           viewport={{ once: true }}
           className="mt-12 max-w-6xl mx-auto"
         >
-          <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-white mb-6 text-center">FLEXIBILITY:</h3>
-            <p className="text-gray-300 leading-relaxed mb-6 text-center">
-              This membership is perfect for those who <span className="text-purple-400 font-semibold">split their time between locations</span>, have <span className="text-purple-400 font-semibold">changing schedules</span>, or want the <span className="text-purple-400 font-semibold">flexibility to experience different levels of membership</span> throughout the year without any long-term obligations.
+          <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8 hover:border-purple-400/50 transition-all duration-300">
+            <h3 className="text-3xl font-bold text-white mb-6 text-center" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>FLEXIBILITY:</h3>
+            <p className="text-gray-300 leading-relaxed mb-6 text-center text-lg" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
+              This membership is perfect for those who <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">split their time between locations</span>, have <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">changing schedules</span>, or want the <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">flexibility to experience different levels of membership</span> throughout the year without any long-term obligations.
             </p>
-            <div className="bg-purple-900/20 rounded-lg p-6 border border-purple-500/20">
-              <p className="text-gray-300 leading-relaxed">
-                <span className="text-purple-400 font-semibold">Mariner's Members</span> can switch to a yearly membership plan at any time, and their initial <span className="text-purple-400 font-semibold">$10,000 Member Ownership fee</span> will be credited towards their yearly membership. And by switching to full time membership your <span className="text-purple-400 font-semibold">monthly fees will be cut in half</span>.
+            <div className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-lg p-6 border border-purple-500/20">
+              <p className="text-gray-300 leading-relaxed" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
+                <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">Mariner's Members</span> can switch to a yearly membership plan at any time, and their initial <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">$10,000 Member Ownership fee</span> will be credited towards their yearly membership. And by switching to full time membership your <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent font-semibold">monthly fees will be cut in half</span>.
               </p>
             </div>
           </div>
@@ -1324,11 +1324,12 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onApplyClick || (() => window.location.href = '/apply')}
-            className="px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-full text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-full text-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}
           >
             APPLY NOW
           </motion.button>
-          <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-400 mt-4 max-w-2xl mx-auto" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' }}>
             Ready to get started? Contact us today to learn more and secure your Mariner's Membership at The Miami Beach Yacht Club!
           </p>
         </motion.div>
