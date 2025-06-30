@@ -1002,44 +1002,45 @@ function StatsSection() {
 function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
   const packages = [
     {
-      name: "Silver",
-      icon: <Anchor className="w-8 h-8 text-white" />,
-      price: "Contact Us",
+      name: "Gold",
+      nameSubtext: "MEMBERSHIP",
+      icon: <Crown className="w-8 h-8 text-white" />,
+      price: "$5,000",
+      priceSubtext: "every month",
+      membershipFee: "+$25,000 One Time Member Ownership Fee",
       features: [
-        "Access to 40-64ft yachts",
-        "2-4 concurrent bookings",
-        "Professional captain & crew",
-        "Basic concierge services",
-        "Member events access"
+        "Access Yachts Up To 70ft",
+        "Future Access To Marinas In Caribbeans, Europe & More..."
       ],
+      detailedDescription: "Unlimited reservations 4 Bookings at a time. *Gold members are entitled to four (4) reservations concurrently on the calendar, two (2) on weekdays and two (2) on weekends.",
       popular: false
     },
     {
-      name: "Gold",
-      icon: <Crown className="w-8 h-8 text-white" />,
-      price: "Contact Us",
+      name: "Platinum", 
+      nameSubtext: "MEMBERSHIP",
+      icon: <Sparkles className="w-8 h-8 text-white" />,
+      price: "$7,500",
+      priceSubtext: "every month",
+      membershipFee: "+$50,000 One Time Member Ownership Fee",
       features: [
-        "Access to 65-74ft yachts",
-        "4 concurrent bookings",
-        "Priority booking",
-        "Premium concierge services",
-        "VIP event invitations",
-        "Guest passes included"
+        "Access Yachts Up To 80ft",
+        "Future Access To Marinas In Caribbeans, Europe & More..."
       ],
+      detailedDescription: "Unlimited reservations 6 Bookings at a time. *Platinum members are entitled to six (6) reservations concurrently on the calendar, no more than three (3) on weekdays and with three (3) on weekends.",
       popular: true
     },
     {
-      name: "Platinum",
-      icon: <Sparkles className="w-8 h-8 text-white" />,
-      price: "Contact Us",
+      name: "Diamond",
+      nameSubtext: "MEMBERSHIP", 
+      icon: <Award className="w-8 h-8 text-white" />,
+      price: "$10,000",
+      priceSubtext: "every month",
+      membershipFee: "+$100,000 One Time Member Ownership Fee",
       features: [
-        "Access to 75-84ft yachts",
-        "6-8 concurrent bookings",
-        "24/7 dedicated concierge",
-        "Luxury car transfers",
-        "Private chef services",
-        "Custom itinerary planning"
+        "Access Yachts Up To 100ft",
+        "Future Access To Marinas In Caribbeans, Europe & More..."
       ],
+      detailedDescription: "Unlimited reservations 6 Bookings at a time. *Diamond members are entitled to six (6) reservations concurrently on the calendar, three (3) on weekdays and three (3) on weekends.",
       popular: false
     }
   ];
@@ -1102,12 +1103,15 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
                   <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
                     {pkg.icon}
                   </div>
-                  <h3 className="text-3xl font-bold text-white mb-2">{pkg.name}</h3>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  <h3 className="text-3xl font-bold text-white mb-1">{pkg.name}</h3>
+                  <p className="text-sm text-gray-400 mb-4 tracking-widest">{pkg.nameSubtext}</p>
+                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {pkg.price}
                   </p>
+                  <p className="text-sm text-gray-400 mb-4">{pkg.priceSubtext}</p>
+                  <p className="text-sm text-purple-400 font-semibold mb-6">{pkg.membershipFee}</p>
                 </div>
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-4 mb-6">
                   {pkg.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
@@ -1115,6 +1119,9 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
                     </li>
                   ))}
                 </ul>
+                <div className="mb-8 p-4 bg-purple-900/10 rounded-lg border border-purple-500/20">
+                  <p className="text-sm text-gray-400 leading-relaxed">{pkg.detailedDescription}</p>
+                </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -1131,6 +1138,26 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
             </motion.div>
           ))}
         </div>
+        
+        {/* Additional Information Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          viewport={{ once: true }}
+          className="mt-16 max-w-4xl mx-auto"
+        >
+          <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8">
+            <p className="text-gray-300 text-center leading-relaxed mb-6">
+              The Member Ownership Fee is a one-time, lifetime fee that grants ownership of a membership which owns the right to use the yachts. As long as membership dues are maintained, and once we reach the maximum number of memberships sold, new members will only be able to join by purchasing a membership from an existing member through MBYC directly.
+            </p>
+            <div className="text-center">
+              <p className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent italic">
+                The bookings replenish 48 hours after you complete your trip.
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
