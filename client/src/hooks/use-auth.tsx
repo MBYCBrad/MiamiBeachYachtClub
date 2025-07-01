@@ -99,27 +99,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // Clear user data immediately
+      // Clear user data immediately when logout is triggered
       queryClient.setQueryData(["/api/user"], null);
       queryClient.clear(); // Clear all cached data
       
       // Call logout endpoint to destroy session
       await fetch('/api/logout', { method: 'GET' });
-      
-      // Instant client-side navigation to home page
-      setLocation('/');
     },
     onSuccess: () => {
+      // Ensure user state is null and invalidate any remaining cache
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
+      
+      // Navigate to home page immediately
+      setLocation('/');
     },
     onError: (error: Error) => {
+      // If logout fails, still clear frontend state for security
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.clear();
+      setLocation('/');
+      
       toast({
-        title: "Logout failed", 
-        description: error.message,
-        variant: "destructive",
+        title: "Logged out",
+        description: "You have been logged out locally.",
+        variant: "default",
       });
     },
   });
