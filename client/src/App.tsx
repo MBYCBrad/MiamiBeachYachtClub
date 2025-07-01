@@ -44,6 +44,7 @@ import InvestPage from "@/pages/invest";
 import YachtPartnerPage from "@/pages/yacht-partner";
 import ServicePartnerPage from "@/pages/service-partner";
 import EventPartnerPage from "@/pages/event-partner";
+import ContactPage from "@/pages/contact";
 
 import MessagesPage from "@/pages/messages-page";
 
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/partner/yacht" component={YachtPartnerPage} />
       <Route path="/partner/service" component={ServicePartnerPage} />
       <Route path="/partner/event" component={EventPartnerPage} />
+      <Route path="/contact" component={ContactPage} />
 
       <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/messages" component={MessagesPage} />
