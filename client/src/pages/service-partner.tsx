@@ -175,14 +175,14 @@ export default function ServicePartnerPage() {
           </video>
         )}
         
-        {/* Gradient overlay with blur effect at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 z-10" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 backdrop-blur-sm bg-black/30 z-10" />
+        {/* Enhanced gradient overlay matching landing page */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/90 z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
         
         <div className="relative z-20 h-full flex flex-col justify-center">
           <div className="max-w-4xl mx-auto px-6">
             <Link href="/partner">
-              <Button variant="ghost" className="text-white hover:text-purple-400 mb-6">
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-full transform hover:scale-105 transition-all duration-300 shadow-lg mb-6">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Partner Options
               </Button>
