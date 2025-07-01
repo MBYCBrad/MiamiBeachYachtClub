@@ -136,6 +136,11 @@ export default function EventsPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
         </div>
 
+        {/* Blur overlay for top section */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-x-0 top-0 h-1/2 backdrop-blur-sm bg-black/20" />
+        </div>
+
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
           <motion.div
