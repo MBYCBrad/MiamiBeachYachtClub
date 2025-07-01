@@ -74,6 +74,42 @@ export function useUpdateTourRequest() {
   });
 }
 
+// Mutation hook for scheduling a tour request (Admin/Staff only)
+export function useScheduleTourRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      id, 
+      scheduledDateTime, 
+      assignedTo, 
+      notes 
+    }: { 
+      id: number; 
+      scheduledDateTime: string; 
+      assignedTo?: number; 
+      notes?: string; 
+    }): Promise<TourRequest> => {
+      const response = await apiRequest('PUT', `/api/tour-requests/${id}`, {
+        status: 'confirmed',
+        scheduledDateTime: new Date(scheduledDateTime).toISOString(),
+        assignedTo,
+        notes,
+        confirmedAt: new Date().toISOString()
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText || 'Failed to schedule tour'}`);
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Invalidate and refetch tour requests
+      queryClient.invalidateQueries({ queryKey: ['/api/tour-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tour-requests', data.id] });
+    },
+  });
+}
+
 // Mutation hook for deleting a tour request (Admin only)
 export function useDeleteTourRequest() {
   const queryClient = useQueryClient();
