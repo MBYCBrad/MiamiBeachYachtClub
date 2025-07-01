@@ -208,57 +208,14 @@ export default function FleetPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-6xl font-bold text-white mb-8"
-            style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
-          >
-            Ready to Access Our Fleet?
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="text-xl text-gray-300 mb-12"
-          >
-            Join Miami Beach Yacht Club and enjoy unlimited access to our world-class yacht fleet.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-6 justify-center"
-          >
-            <Button 
-              onClick={() => setIsApplicationModalOpen(true)}
-              size="lg"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-            >
-              Apply for Membership
-            </Button>
-            <Link href="/book-tour">
-              <Button 
-                variant="outline"
-                size="lg"
-                className="border-2 border-white/30 text-white hover:bg-white/10 px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
-              >
-                Book a Private Tour
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+
 
       {/* Video CTA */}
-      <VideoCTA onApplyClick={() => setIsApplicationModalOpen(true)} />
+      <VideoCTA 
+        title="Ready to Access Our Fleet?"
+        description="Join Miami Beach Yacht Club and enjoy unlimited access to our world-class yacht fleet."
+        onApplyClick={() => setIsApplicationModalOpen(true)} 
+      />
 
       <Footer />
       
