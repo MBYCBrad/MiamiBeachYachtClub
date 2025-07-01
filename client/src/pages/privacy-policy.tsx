@@ -14,17 +14,17 @@ export default function PrivacyPolicy() {
         subtitle="Your privacy and data protection are our highest priorities"
       >
         {/* Stats Cards */}
-        <div className="flex flex-wrap justify-center gap-6 mt-12">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-            <Shield className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+        <div className="flex flex-wrap justify-center gap-6 mt-12 relative z-20">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center relative z-30">
+            <Shield className="w-8 h-8 text-purple-400 mx-auto mb-3 relative z-40" />
             <div className="text-2xl font-bold text-white">SSL</div>
             <div className="text-sm text-gray-400">Encrypted</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center relative z-30">
             <div className="text-2xl font-bold text-white">GDPR</div>
             <div className="text-sm text-gray-400">Compliant</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center relative z-30">
             <div className="text-2xl font-bold text-white">24/7</div>
             <div className="text-sm text-gray-400">Protection</div>
           </div>
