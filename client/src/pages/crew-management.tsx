@@ -192,7 +192,7 @@ export default function CrewManagementPage() {
     .sort((a, b) => getBookingPriority(b) - getBookingPriority(a));
 
   const createAssignmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/staff/assignments', data, 'POST'),
+    mutationFn: (data: any) => apiRequest('POST', '/api/staff/assignments', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
@@ -986,7 +986,7 @@ function EditAssignmentDialog({
   );
 
   const updateAssignmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest(`/api/staff/assignments/${assignment.id}`, data, 'PATCH'),
+    mutationFn: (data: any) => apiRequest('PATCH', `/api/staff/assignments/${assignment.id}`, data),
     onSuccess: () => {
       onUpdate();
     },
