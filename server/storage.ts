@@ -913,33 +913,47 @@ export class DatabaseStorage implements IStorage {
 
   async getCrewAssignments(): Promise<CrewAssignment[]> {
     const assignments = await db.select().from(crewAssignments);
+    console.log('Raw assignments from DB:', assignments);
     
     // Enrich assignments with captain, coordinator, and crew member details
     const enrichedAssignments = await Promise.all(assignments.map(async (assignment) => {
+      console.log('Processing assignment:', assignment.id, 'captainId:', assignment.captainId, 'coordinatorId:', assignment.coordinatorId);
+      
       const captain = assignment.captainId ? await this.getStaffMember(assignment.captainId) : null;
       const coordinator = assignment.coordinatorId ? await this.getStaffMember(assignment.coordinatorId) : null;
+      
+      console.log('Found captain:', captain?.username, 'coordinator:', coordinator?.username);
       
       // Parse crew member IDs and fetch their details
       const crewMemberIds = assignment.crewMemberIds ? 
         (typeof assignment.crewMemberIds === 'string' ? 
           JSON.parse(assignment.crewMemberIds) : assignment.crewMemberIds) : [];
       
+      console.log('Crew member IDs:', crewMemberIds);
+      
       const crewMembers = await Promise.all(
         crewMemberIds.map((id: number) => this.getStaffMember(id))
       );
       
+      console.log('Found crew members:', crewMembers.map(c => c?.username));
+      
       // Get booking details if available
       const booking = assignment.bookingId ? await this.getBooking(assignment.bookingId) : null;
       
-      return {
+      const enriched = {
         ...assignment,
         captain,
         coordinator,
         crewMembers: crewMembers.filter(Boolean), // Remove null values
         booking
       };
+      
+      console.log('Enriched assignment:', enriched.id, 'has captain:', !!enriched.captain, 'has coordinator:', !!enriched.coordinator, 'crew count:', enriched.crewMembers.length);
+      
+      return enriched;
     }));
     
+    console.log('Returning enriched assignments count:', enrichedAssignments.length);
     return enrichedAssignments;
   }
 
