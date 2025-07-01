@@ -1,30 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { 
   Anchor, 
   Eye, 
   EyeOff, 
-  Sparkles, 
-  Crown, 
-  Star,
-  Users,
   Shield,
-  Waves,
   ArrowRight,
-  CheckCircle,
   Zap,
-  Loader2
+  Crown
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { insertUserSchema, UserRole, MembershipTier } from '@shared/schema';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -32,601 +24,288 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const registerSchema = insertUserSchema.extend({
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
 type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
-
-
 
 const PremiumAuthPage: React.FC = () => {
-  const { user, isAuthenticated, isLoading, loginMutation, registerMutation } = useAuth();
+  const { user, isAuthenticated, isLoading, loginMutation } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Redirect authenticated users to their dashboard
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && user) {
-      console.log('Auth page - user already authenticated, redirecting to dashboard', user.role);
-      if (user.role === "admin") {
-        window.location.href = '/admin';
-      } else if (user.role === "staff") {
-        window.location.href = '/staff-portal';
-      } else if (user.role === "yacht_owner") {
-        window.location.href = '/yacht-owner';
-      } else if (user.role === "service_provider") {
-        window.location.href = '/service-provider';
-      } else if (user.role === "member") {
-        window.location.href = '/member';
-      } else {
-        window.location.href = '/';
-      }
-    }
-  }, [isAuthenticated, isLoading, user]);
-
-  // Preload video on component mount
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.load();
-    }
-  }, []);
+  const particleRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: '',
-      password: '',
+      username: "",
+      password: "",
     },
   });
 
-  const registerForm = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      role: UserRole.MEMBER,
-      membershipTier: MembershipTier.BRONZE,
-    },
-  });
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      switch (user.role) {
+        case 'admin':
+          setLocation('/admin');
+          break;
+        case 'staff':
+          setLocation('/staff');
+          break;
+        case 'yacht_owner':
+          setLocation('/yacht-owner');
+          break;
+        case 'service_provider':
+          setLocation('/service-provider');
+          break;
+        default:
+          setLocation('/member');
+      }
+    }
+  }, [isAuthenticated, user, setLocation]);
 
   const onLoginSubmit = (data: LoginFormData) => {
-    loginMutation.mutate({
-      username: data.username,
-      password: data.password,
-    }, {
-      onSuccess: (user) => {
-        // Immediately redirect after successful login
-        setTimeout(() => {
-          if (user.role === UserRole.ADMIN) {
-            setLocation('/admin');
-          } else if (user.role === UserRole.YACHT_OWNER) {
-            setLocation('/yacht-owner');
-          } else if (user.role === UserRole.SERVICE_PROVIDER) {
-            setLocation('/service-provider');
-          } else if (user.role === 'staff') {
-            setLocation('/staff');
-          } else {
-            // Members go to their dashboard, not the marketing website
-            setLocation('/member');
-          }
-        }, 100);
+    loginMutation.mutate(data);
+  };
+
+  // Floating particles animation
+  useEffect(() => {
+    const particles = particleRefs.current;
+    particles.forEach((particle, index) => {
+      if (particle) {
+        const delay = index * 200;
+        const duration = 3000 + Math.random() * 2000;
+        
+        const animate = () => {
+          particle.animate([
+            { transform: 'translateY(100vh) translateX(0px) rotate(0deg)', opacity: 0 },
+            { transform: 'translateY(-20vh) translateX(50px) rotate(180deg)', opacity: 1 },
+            { transform: 'translateY(-100vh) translateX(-30px) rotate(360deg)', opacity: 0 }
+          ], {
+            duration,
+            easing: 'ease-in-out',
+            delay
+          }).addEventListener('finish', animate);
+        };
+        
+        setTimeout(animate, delay);
       }
     });
-  };
+  }, []);
 
-  const onRegisterSubmit = (data: RegisterFormData) => {
-    const { confirmPassword, ...userData } = data;
-    registerMutation.mutate(userData);
-  };
-
-  if (user) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-white text-lg">Loading...</p>
+        </motion.div>
+      </div>
+    );
   }
 
-  const membershipTiers = [
-    { value: MembershipTier.BRONZE, label: 'Bronze Member', icon: Star, color: 'text-orange-400', desc: 'Yachts up to 40ft' },
-    { value: MembershipTier.SILVER, label: 'Silver Member', icon: Shield, color: 'text-gray-300', desc: 'Yachts up to 55ft' },
-    { value: MembershipTier.GOLD, label: 'Gold Member', icon: Crown, color: 'text-yellow-400', desc: 'Yachts up to 70ft' },
-    { value: MembershipTier.PLATINUM, label: 'Platinum Elite', icon: Sparkles, color: 'text-purple-400', desc: 'Unlimited access' },
-  ];
-
-  const roleOptions = [
-    { value: UserRole.MEMBER, label: 'Club Member', icon: Users, desc: 'Book yachts and services' },
-    { value: UserRole.YACHT_OWNER, label: 'Yacht Owner', icon: Anchor, desc: 'List your yacht' },
-    { value: UserRole.SERVICE_PROVIDER, label: 'Service Provider', icon: Sparkles, desc: 'Offer premium services' },
-  ];
-
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Video Background */}
-      <div className="absolute inset-0 z-0">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Background Video */}
+      <div className="absolute inset-0">
         <video
-          ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
-          onLoadedData={() => setIsVideoLoaded(true)}
-          onError={(e) => console.error('Video error:', e)}
           className="w-full h-full object-cover"
-          style={{ 
-            opacity: isVideoLoaded ? 1 : 0, 
-            transition: 'opacity 0.5s ease-in-out',
-            // Force hardware acceleration
-            transform: 'translateZ(0)',
-            willChange: 'transform',
-            backfaceVisibility: 'hidden',
-            perspective: 1000
-          }}
         >
           <source src="/api/media/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
         </video>
-        
-        {/* Fallback gradient background when video is loading */}
-        {!isVideoLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
-        )}
-        
-        {/* Video Overlay - very light to show video clearly */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-purple-900/5 to-blue-900/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-        
-        {/* 3D Anamorphic Side Edges */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Bottom Edge - Deeper for mobile */}
-          <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
-          
-          {/* Left Edge - Narrower */}
-          <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
-          
-          {/* Right Edge - Narrower */}
-          <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
-        </div>
-
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/30 to-blue-900/50" />
       </div>
 
-
+      {/* Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <div
+            key={i}
+            ref={el => particleRefs.current[i] = el}
+            className="absolute w-2 h-2 bg-purple-400/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.5}s`
+            }}
+          />
+        ))}
+      </div>
 
       {/* Main Content */}
-      <div className="relative z-20 min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md mx-auto space-y-8">
-          
-          {/* Logo Section */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
           <motion.div
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="flex items-center justify-center"
+            transition={{ duration: 0.8 }}
+            className="text-center mb-8"
           >
+            {/* Logo */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, duration: 0.8, type: "spring" }}
+              className="mx-auto mb-6 relative w-20 h-20"
             >
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.02, 1],
-                  opacity: [0.3, 0.6, 0.3]
-                }}
-                transition={{ 
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl"
-              />
-              <div className="relative p-4">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full animate-pulse" />
+              <div className="absolute inset-1 bg-black rounded-full flex items-center justify-center">
                 <img 
-                  src="/api/media/MBYC-LOGO-WHITE_1750553590720.png" 
-                  alt="Miami Beach Yacht Club" 
-                  className="w-64 h-auto drop-shadow-2xl"
+                  src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
+                  alt="MBYC Logo" 
+                  className="w-8 h-8 object-contain filter brightness-110"
                 />
               </div>
+              {/* Rotating rings */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-2 border-2 border-purple-400/30 rounded-full"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-3 border border-blue-400/20 rounded-full"
+              />
             </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-4xl font-bold text-white mb-2"
+            >
+              Miami Beach Yacht Club
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="text-gray-300 text-lg"
+            >
+              Exclusive Maritime Excellence
+            </motion.p>
           </motion.div>
 
-          {/* Authentication Form */}
+          {/* Auth Card */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
-            className="w-full"
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
           >
-            <Card className="bg-black/40 backdrop-blur-2xl border border-purple-500/20 shadow-2xl">
+            <Card className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 shadow-2xl">
               <CardContent className="p-8">
-                {/* Form Header */}
+                {/* Header */}
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8 }}
                   className="text-center mb-8"
                 >
                   <h3 className="text-3xl font-bold text-white mb-2">
-                    {activeTab === 'login' ? 'Welcome Back' : 'Join The Elite'}
+                    Welcome Back
                   </h3>
                   <p className="text-gray-300 text-lg">
-                    {activeTab === 'login' 
-                      ? 'Access your exclusive membership portal' 
-                      : 'Begin your luxury yacht experience'}
+                    Access your exclusive membership portal
                   </p>
                 </motion.div>
 
-                {/* Tab Switcher */}
+                {/* Login Form */}
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="flex space-x-2 mb-8 p-1 bg-gray-800/50 rounded-full"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.0 }}
                 >
-                  {(['login', 'register'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`flex-1 py-3 px-6 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden ${
-                        activeTab === tab
-                          ? 'text-white'
-                          : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      {activeTab === tab && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center justify-center">
-                        {tab === 'login' ? (
-                          <>
-                            <Shield className="w-4 h-4 mr-2" />
-                            Sign In
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Join Elite
-                          </>
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+                      <FormField
+                        control={loginForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm font-medium">Username</FormLabel>
+                            <FormControl>
+                              <motion.div whileFocus={{ scale: 1.02 }} className="relative">
+                                <Input 
+                                  {...field} 
+                                  placeholder="Username"
+                                  className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
+                                />
+                              </motion.div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      </span>
-                    </button>
-                  ))}
+                      />
+
+                      <FormField
+                        control={loginForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm font-medium">Password</FormLabel>
+                            <FormControl>
+                              <motion.div whileFocus={{ scale: 1.02 }} className="relative">
+                                <Input 
+                                  {...field} 
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="Password"
+                                  className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 pr-12"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                >
+                                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                              </motion.div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Button 
+                          type="submit" 
+                          className="w-full h-14 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg"
+                          disabled={loginMutation.isPending}
+                        >
+                          <motion.div
+                            initial={{ x: 0 }}
+                            animate={{ x: loginMutation.isPending ? 0 : 0 }}
+                            className="flex items-center justify-center"
+                          >
+                            {loginMutation.isPending ? (
+                              <>
+                                <motion.div
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
+                                />
+                                Signing In...
+                              </>
+                            ) : (
+                              <>
+                                <Shield className="w-5 h-5 mr-2" />
+                                Access Your Account
+                                <ArrowRight className="w-5 h-5 ml-2" />
+                              </>
+                            )}
+                          </motion.div>
+                        </Button>
+                      </motion.div>
+                    </form>
+                  </Form>
                 </motion.div>
-
-                <AnimatePresence mode="wait">
-                  {/* Login Form */}
-                  {activeTab === 'login' && (
-                    <motion.div
-                      key="login"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Form {...loginForm}>
-                        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-                          <FormField
-                            control={loginForm.control}
-                            name="username"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white text-sm font-medium">Username</FormLabel>
-                                <FormControl>
-                                  <motion.div
-                                    whileFocus={{ scale: 1.02 }}
-                                    className="relative"
-                                  >
-                                    <Input 
-                                      {...field} 
-                                      placeholder="Enter your username"
-                                      className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
-                                    />
-                                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/0 to-blue-500/0 hover:from-purple-500/5 hover:to-blue-500/5 transition-all duration-300 pointer-events-none" />
-                                  </motion.div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={loginForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white text-sm font-medium">Password</FormLabel>
-                                <FormControl>
-                                  <motion.div
-                                    whileFocus={{ scale: 1.02 }}
-                                    className="relative"
-                                  >
-                                    <Input 
-                                      {...field} 
-                                      type={showPassword ? "text" : "password"}
-                                      placeholder="Enter your password"
-                                      className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 pr-12"
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-white hover:bg-purple-500/20"
-                                      onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    </Button>
-                                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/0 to-blue-500/0 hover:from-purple-500/5 hover:to-blue-500/5 transition-all duration-300 pointer-events-none" />
-                                  </motion.div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <Button 
-                              type="submit" 
-                              className="w-full h-14 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg"
-                              disabled={loginMutation.isPending}
-                            >
-                              <motion.div
-                                initial={{ x: 0 }}
-                                animate={{ x: loginMutation.isPending ? 0 : 0 }}
-                                className="flex items-center justify-center"
-                              >
-                                {loginMutation.isPending ? (
-                                  <>
-                                    <motion.div
-                                      animate={{ rotate: 360 }}
-                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
-                                    />
-                                    Signing In...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Shield className="w-5 h-5 mr-2" />
-                                    Access Your Account
-                                    <ArrowRight className="w-5 h-5 ml-2" />
-                                  </>
-                                )}
-                              </motion.div>
-                            </Button>
-                          </motion.div>
-                        </form>
-                      </Form>
-                    </motion.div>
-                  )}
-
-                  {/* Register Form */}
-                  {activeTab === 'register' && (
-                    <motion.div
-                      key="register"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Form {...registerForm}>
-                        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                              control={registerForm.control}
-                              name="username"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-white text-sm font-medium">Username</FormLabel>
-                                  <FormControl>
-                                    <motion.div whileFocus={{ scale: 1.02 }} className="relative">
-                                      <Input 
-                                        {...field} 
-                                        placeholder="Username"
-                                        className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
-                                      />
-                                    </motion.div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={registerForm.control}
-                              name="email"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-white text-sm font-medium">Email</FormLabel>
-                                  <FormControl>
-                                    <motion.div whileFocus={{ scale: 1.02 }} className="relative">
-                                      <Input 
-                                        {...field} 
-                                        type="email"
-                                        placeholder="Email"
-                                        className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
-                                      />
-                                    </motion.div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <FormField
-                            control={registerForm.control}
-                            name="password"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white text-sm font-medium">Password</FormLabel>
-                                <FormControl>
-                                  <motion.div whileFocus={{ scale: 1.02 }} className="relative">
-                                    <Input 
-                                      {...field} 
-                                      type={showPassword ? "text" : "password"}
-                                      placeholder="Create password"
-                                      className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 pr-12"
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-white hover:bg-purple-500/20"
-                                      onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    </Button>
-                                  </motion.div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={registerForm.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-white text-sm font-medium">Confirm Password</FormLabel>
-                                <FormControl>
-                                  <motion.div whileFocus={{ scale: 1.02 }} className="relative">
-                                    <Input 
-                                      {...field} 
-                                      type={showConfirmPassword ? "text" : "password"}
-                                      placeholder="Confirm password"
-                                      className="bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 pr-12"
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-white hover:bg-purple-500/20"
-                                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    >
-                                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    </Button>
-                                  </motion.div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                              control={registerForm.control}
-                              name="role"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-white text-sm font-medium">Account Type</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="bg-gray-800/50 border border-gray-600 text-white h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20">
-                                        <SelectValue placeholder="Select role" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="bg-gray-800 border-gray-600">
-                                      {roleOptions.map((role) => (
-                                        <SelectItem key={role.value} value={role.value} className="text-white hover:bg-purple-500/20">
-                                          <div className="flex items-center space-x-3">
-                                            <role.icon className="h-4 w-4" />
-                                            <div>
-                                              <div className="font-medium">{role.label}</div>
-                                              <div className="text-xs text-gray-400">{role.desc}</div>
-                                            </div>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={registerForm.control}
-                              name="membershipTier"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-white text-sm font-medium">Membership Tier</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="bg-gray-800/50 border border-gray-600 text-white h-12 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20">
-                                        <SelectValue placeholder="Select tier" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="bg-gray-800 border-gray-600">
-                                      {membershipTiers.map((tier) => (
-                                        <SelectItem key={tier.value} value={tier.value} className="text-white hover:bg-purple-500/20">
-                                          <div className="flex items-center space-x-3">
-                                            <tier.icon className={`h-4 w-4 ${tier.color}`} />
-                                            <div>
-                                              <div className="font-medium">{tier.label}</div>
-                                              <div className="text-xs text-gray-400">{tier.desc}</div>
-                                            </div>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-
-                          <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <Button 
-                              type="submit" 
-                              className="w-full h-14 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg"
-                              disabled={registerMutation.isPending}
-                            >
-                              <motion.div
-                                initial={{ x: 0 }}
-                                animate={{ x: registerMutation.isPending ? 0 : 0 }}
-                                className="flex items-center justify-center"
-                              >
-                                {registerMutation.isPending ? (
-                                  <>
-                                    <motion.div
-                                      animate={{ rotate: 360 }}
-                                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
-                                    />
-                                    Creating Account...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Crown className="w-5 h-5 mr-2" />
-                                    Join The Elite
-                                    <Sparkles className="w-5 h-5 ml-2" />
-                                  </>
-                                )}
-                              </motion.div>
-                            </Button>
-                          </motion.div>
-                        </form>
-                      </Form>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
 
                 {/* Footer */}
                 <motion.div
