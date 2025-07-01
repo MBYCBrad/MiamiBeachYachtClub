@@ -6628,9 +6628,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Trigger real-time notification
       notificationService.notifyDataUpdate('tour-requests', 'created', tourRequest);
       
-      // Create notification for admin (user ID 1)
+      // Create notification for admin (same pattern as application form)
       await dbStorage.createNotification({
-        userId: 1, // Admin user
+        userId: 60, // Simon Librati admin user ID
         type: 'tour_request',
         title: 'New Tour Request',
         message: `${fullName} has requested a tour for ${groupSize} people`,
