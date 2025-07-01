@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Crown, Quote, ChevronLeft, ChevronRight, User, Package, CreditCard, CheckCircle, Ship, X } from "lucide-react";
+import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Crown, Quote, ChevronLeft, ChevronRight, User, Package, CreditCard, CheckCircle, Ship, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1579,6 +1579,12 @@ function FleetPreviewSection() {
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    
+                    {/* Lock Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                      <Lock className="w-16 h-16 text-white" />
+                    </div>
+                    
                     <div className="absolute bottom-4 left-4 right-4">
                       <h3 className="text-2xl font-bold text-white mb-2">{yacht.name}</h3>
                       <div className="flex items-center gap-4 text-gray-300">
