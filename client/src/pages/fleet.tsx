@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { ApplicationModal } from "@/components/application-modal";
 
 export default function FleetPage() {
   const { data: yachts } = useQuery({
@@ -14,6 +15,7 @@ export default function FleetPage() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const categories = [
     { id: "all", name: "All Yachts" },
@@ -234,14 +236,13 @@ export default function FleetPage() {
             viewport={{ once: true }}
             className="flex flex-col sm:flex-row gap-6 justify-center"
           >
-            <Link href="/apply">
-              <Button 
-                size="lg"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-              >
-                Apply for Membership
-              </Button>
-            </Link>
+            <Button 
+              onClick={() => setIsApplicationModalOpen(true)}
+              size="lg"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+            >
+              Apply for Membership
+            </Button>
             <Link href="/book-tour">
               <Button 
                 variant="outline"
@@ -256,6 +257,11 @@ export default function FleetPage() {
       </section>
 
       <Footer />
+      
+      <ApplicationModal 
+        isOpen={isApplicationModalOpen}
+        onClose={() => setIsApplicationModalOpen(false)}
+      />
     </div>
   );
 }

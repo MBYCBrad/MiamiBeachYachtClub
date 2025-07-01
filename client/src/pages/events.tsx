@@ -7,6 +7,8 @@ import { Calendar, Users, Sparkles, MapPin, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { ApplicationModal } from "@/components/application-modal";
 
 export default function EventsPage() {
   const { data: events } = useQuery({
@@ -14,6 +16,7 @@ export default function EventsPage() {
   });
 
   const upcomingEvents = events || [];
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-black">
@@ -123,14 +126,13 @@ export default function EventsPage() {
                 From intimate gatherings to grand celebrations, we'll help you design an unforgettable experience on the water.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/apply">
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
-                  >
-                    Apply for Membership
-                  </Button>
-                </Link>
+                <Button 
+                  onClick={() => setIsApplicationModalOpen(true)}
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+                >
+                  Apply for Membership
+                </Button>
                 <Link href="/contact">
                   <Button 
                     size="lg"
@@ -148,6 +150,11 @@ export default function EventsPage() {
 
       <VideoCTA />
       <Footer />
+      
+      <ApplicationModal 
+        isOpen={isApplicationModalOpen}
+        onClose={() => setIsApplicationModalOpen(false)}
+      />
     </div>
   );
 }

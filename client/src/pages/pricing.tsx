@@ -7,6 +7,7 @@ import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { Check, Crown, Star, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { ApplicationModal } from "@/components/application-modal";
 
 // Membership Tiers Data (matching themiamibeachyachtclub.com exactly)
 const membershipTiers = [
@@ -68,6 +69,7 @@ const membershipTiers = [
 
 export default function Pricing() {
   const [activeTab, setActiveTab] = useState('full');
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -178,13 +180,12 @@ export default function Pricing() {
                           </div>
                         </div>
 
-                        <Link href="/apply">
-                          <Button 
-                            className="w-full bg-gray-800 hover:bg-gray-700 text-white mb-6"
-                          >
-                            APPLY NOW
-                          </Button>
-                        </Link>
+                        <Button 
+                          onClick={() => setIsApplicationModalOpen(true)}
+                          className="w-full bg-gray-800 hover:bg-gray-700 text-white mb-6"
+                        >
+                          APPLY NOW
+                        </Button>
 
                         <div className="text-sm text-gray-400 space-y-2">
                           <p>Unlimited reservations {tier.bookings}.</p>
@@ -337,14 +338,13 @@ export default function Pricing() {
                   <p className="text-gray-400 mb-6">
                     Ready to get started? Contact us today to learn more and secure your Mariner's Membership at The Miami Beach Yacht Club!
                   </p>
-                  <Link href="/apply">
-                    <Button 
-                      size="lg"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg rounded-full"
-                    >
-                      APPLY NOW
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => setIsApplicationModalOpen(true)}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg rounded-full"
+                  >
+                    APPLY NOW
+                  </Button>
                 </div>
               </motion.div>
             </div>
@@ -357,6 +357,11 @@ export default function Pricing() {
       
       {/* Footer */}
       <Footer />
+      
+      <ApplicationModal 
+        isOpen={isApplicationModalOpen}
+        onClose={() => setIsApplicationModalOpen(false)}
+      />
     </div>
   );
 }
