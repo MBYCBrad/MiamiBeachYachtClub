@@ -1438,26 +1438,9 @@ function TestimonialsSection({ onApplyClick }: { onApplyClick: () => void }) {
 
 // Fleet Preview Section
 function FleetPreviewSection() {
-  const yachts = [
-    {
-      name: "Azure Dream",
-      size: "65ft",
-      capacity: "12 guests",
-      image: "/api/media/pexels-pixabay-163236_1750537277230.jpg"
-    },
-    {
-      name: "Marina Breeze",
-      size: "75ft",
-      capacity: "15 guests",
-      image: "/api/media/pexels-mali-42092_1750537277229.jpg"
-    },
-    {
-      name: "Ocean Pearl",
-      size: "85ft",
-      capacity: "20 guests",
-      image: "/api/media/pexels-mikebirdy-144634_1750537277230.jpg"
-    }
-  ];
+  const { data: yachts = [], isLoading } = useQuery({
+    queryKey: ['/api/yachts'],
+  });
 
   return (
     <section className="py-20 relative">
@@ -1481,43 +1464,65 @@ function FleetPreviewSection() {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {yachts.map((yacht, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
+          {isLoading ? (
+            // Loading skeleton
+            Array.from({ length: 3 }).map((_, index) => (
               <motion.div
-                whileHover={{ y: -10 }}
-                className="group cursor-pointer"
-                onClick={() => window.location.href = '/fleet'}
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="relative overflow-hidden rounded-2xl mb-4 bg-gray-800 animate-pulse"
               >
-                <div className="relative overflow-hidden rounded-2xl mb-4">
-                  <img 
-                    src={yacht.image} 
-                    alt={yacht.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-2xl font-bold text-white mb-2">{yacht.name}</h3>
-                    <div className="flex items-center gap-4 text-gray-300">
-                      <span className="flex items-center gap-1">
-                        <Anchor className="w-4 h-4" />
-                        {yacht.size}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {yacht.capacity}
-                      </span>
-                    </div>
+                <div className="w-full h-64 bg-gray-700" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="h-6 bg-gray-600 rounded mb-2" />
+                  <div className="flex gap-4">
+                    <div className="h-4 w-16 bg-gray-600 rounded" />
+                    <div className="h-4 w-20 bg-gray-600 rounded" />
                   </div>
                 </div>
               </motion.div>
-            </motion.div>
-          ))}
+            ))
+          ) : (
+            yachts.slice(0, 3).map((yacht: any, index: number) => (
+              <motion.div
+                key={yacht.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <motion.div
+                  whileHover={{ y: -10 }}
+                  className="group cursor-pointer"
+                  onClick={() => window.location.href = '/fleet'}
+                >
+                  <div className="relative overflow-hidden rounded-2xl mb-4">
+                    <img 
+                      src={yacht.imageUrl || yacht.images?.[0] || '/api/media/pexels-pixabay-163236_1750537277230.jpg'} 
+                      alt={yacht.name}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <h3 className="text-2xl font-bold text-white mb-2">{yacht.name}</h3>
+                      <div className="flex items-center gap-4 text-gray-300">
+                        <span className="flex items-center gap-1">
+                          <Anchor className="w-4 h-4" />
+                          {yacht.size}ft
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {yacht.capacity} guests
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))
+          )}
         </div>
 
         <motion.div
