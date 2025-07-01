@@ -167,7 +167,7 @@ export default function YachtPartnerPage() {
         <div className="relative z-20 h-full flex flex-col justify-center">
           <div className="max-w-4xl mx-auto px-6 pt-20">
             <Link href="/partner">
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-full transform hover:scale-105 transition-all duration-300 shadow-lg mb-6">
+              <Button variant="ghost" className="text-white hover:text-purple-400 hover:bg-white/10 px-6 py-3 rounded-full transform hover:scale-105 transition-all duration-300 mb-6">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Partner Options
               </Button>
