@@ -5703,9 +5703,6 @@ export default function AdminDashboard() {
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <ViewPaymentDialog payment={payment} />
-                        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
                       </div>
                     </td>
                   </motion.tr>
