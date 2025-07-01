@@ -856,9 +856,7 @@ export type InsertMaintenanceSchedule = z.infer<typeof insertMaintenanceSchedule
 export type YachtValuation = typeof yachtValuations.$inferSelect;
 export type InsertYachtValuation = z.infer<typeof insertYachtValuationSchema>;
 
-// Staff types - separate from user types
-export type Staff = typeof staff.$inferSelect;
-export type InsertStaff = z.infer<typeof insertStaffSchema>;
+// Staff types already defined above
 
 // System Settings table for admin configuration
 export const systemSettings = pgTable("system_settings", {

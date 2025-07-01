@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
+import AdminApplications from "@/pages/admin-applications";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
 import { 
@@ -58,7 +59,8 @@ import {
   Briefcase,
   Plus,
   Phone,
-  Send
+  Send,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +131,7 @@ interface AdminStats {
 
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
+  { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-purple-500 to-pink-500' },
   { id: 'yachts', label: 'Yachts', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
   { id: 'services', label: 'Services', icon: Star, color: 'from-orange-500 to-red-500' },
@@ -4476,6 +4479,7 @@ export default function StaffPortal() {
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'payments' && renderPayments()}
+            {activeSection === 'applications' && <AdminApplications />}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'messages' && renderMessages()}
             {activeSection === 'notifications' && renderNotifications()}
