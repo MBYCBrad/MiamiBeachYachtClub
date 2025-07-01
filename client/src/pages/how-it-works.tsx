@@ -48,43 +48,34 @@ const steps = [
   }
 ];
 
-// Membership Tiers Data (matching application form requirements)
+// Membership Tiers Data (matching actual website packages)
 const membershipTiers = [
   {
-    name: "bronze",
-    title: "Bronze Explorer",
-    icon: <Ship className="w-6 h-6" />,
-    price: "$2,500/month",
-    yachtSize: "Up to 40ft",
-    features: ["4 days/month", "Basic concierge", "Standard amenities"],
-    color: "from-amber-600 to-amber-700"
-  },
-  {
-    name: "silver",
-    title: "Silver Navigator",
-    icon: <Sparkles className="w-6 h-6" />,
-    price: "$4,500/month",
-    yachtSize: "Up to 55ft",
-    features: ["8 days/month", "Premium concierge", "Enhanced amenities"],
-    color: "from-gray-400 to-gray-500"
-  },
-  {
     name: "gold",
-    title: "Gold Admiral",
+    title: "Gold Membership",
     icon: <Crown className="w-6 h-6" />,
-    price: "$7,500/month",
+    price: "$5,000/month + $25,000 One Time Member Ownership Fee",
     yachtSize: "Up to 70ft",
-    features: ["12 days/month", "VIP concierge", "Luxury amenities"],
+    features: ["Unlimited reservations 4 Bookings at a time", "2 on weekdays and 2 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
     color: "from-yellow-400 to-yellow-500"
   },
   {
     name: "platinum",
-    title: "Platinum Captain",
+    title: "Platinum Membership",
     icon: <Star className="w-6 h-6" />,
-    price: "$15,000/month",
-    yachtSize: "Unlimited",
-    features: ["Unlimited access", "Dedicated concierge", "All amenities"],
-    color: "from-purple-600 to-indigo-600"
+    price: "$7,500/month + $50,000 One Time Member Ownership Fee",
+    yachtSize: "Up to 80ft",
+    features: ["Unlimited reservations 6 Bookings at a time", "3 on weekdays and 3 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
+    color: "from-gray-300 to-gray-400"
+  },
+  {
+    name: "diamond",
+    title: "Diamond Membership",
+    icon: <Sparkles className="w-6 h-6" />,
+    price: "$10,000/month + $100,000 One Time Member Ownership Fee",
+    yachtSize: "Up to 100ft",
+    features: ["Unlimited reservations 6 Bookings at a time", "3 on weekdays and 3 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
+    color: "from-blue-400 to-purple-500"
   }
 ];
 
@@ -533,17 +524,72 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="membershipPackage" className="text-white">Membership Package *</Label>
-                  <Select onValueChange={(value) => updateFormData('membershipPackage', value)}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue placeholder="Select package type" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
-                      <SelectItem value="annual">Annual Payment Plan</SelectItem>
-                      <SelectItem value="monthly">Monthly Payment Plan</SelectItem>
-                      <SelectItem value="mariners">Mariner's Membership</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-white text-lg font-semibold mb-4 block">Membership Package Type *</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => updateFormData('membershipPackage', 'full')}
+                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                        formData.membershipPackage === 'full'
+                          ? 'border-purple-600 bg-purple-600/10'
+                          : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 mb-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Full Membership</h3>
+                          <p className="text-blue-400 font-medium">Annual & Monthly payment plans available</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-300 font-medium">12-month commitment with discounted rates</p>
+                        <p className="text-gray-400 text-sm">• Lower monthly rates</p>
+                        <p className="text-gray-400 text-sm">• Annual payment plan</p>
+                        <p className="text-gray-400 text-sm">• Priority booking</p>
+                      </div>
+                      {formData.membershipPackage === 'full' && (
+                        <div className="absolute top-4 right-4">
+                          <CheckCircle className="w-6 h-6 text-purple-600" />
+                        </div>
+                      )}
+                    </motion.div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => updateFormData('membershipPackage', 'mariners')}
+                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                        formData.membershipPackage === 'mariners'
+                          ? 'border-purple-600 bg-purple-600/10'
+                          : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3 mb-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                          <Star className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Mariner's Membership</h3>
+                          <p className="text-purple-400 font-medium">Flexible à la carte options</p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-300 font-medium">Pay-per-use flexibility</p>
+                        <p className="text-gray-400 text-sm">• No monthly commitment</p>
+                        <p className="text-gray-400 text-sm">• Per-booking pricing</p>
+                        <p className="text-gray-400 text-sm">• Full yacht access</p>
+                      </div>
+                      {formData.membershipPackage === 'mariners' && (
+                        <div className="absolute top-4 right-4">
+                          <CheckCircle className="w-6 h-6 text-purple-600" />
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -583,8 +629,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <span className="text-gray-400">Package:</span>
                     <span className="text-white ml-2">
                       {formData.membershipPackage === 'mariners' ? "Mariner's Membership" : 
-                       formData.membershipPackage === 'annual' ? "Annual Payment Plan" : 
-                       formData.membershipPackage === 'monthly' ? "Monthly Payment Plan" : 'Not selected'}
+                       formData.membershipPackage === 'full' ? "Full Membership" : 'Not selected'}
                     </span>
                   </div>
                   <div>
