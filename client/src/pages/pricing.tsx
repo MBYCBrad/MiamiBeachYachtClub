@@ -350,7 +350,7 @@ export default function Pricing() {
       )}
 
       {/* Video CTA */}
-      <VideoCTA />
+      <VideoCTA onApplyClick={() => setIsApplicationModalOpen(true)} />
       
       {/* Footer */}
       <Footer />
