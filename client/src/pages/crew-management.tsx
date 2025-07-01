@@ -152,6 +152,8 @@ export default function CrewManagementPage() {
 
 
 
+
+
   // Transform booking data for staff portal compatibility
   const transformedBookings = (Array.isArray(activeBookings) ? activeBookings : []).map((booking: any) => ({
     ...booking,
