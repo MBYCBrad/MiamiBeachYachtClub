@@ -576,6 +576,8 @@ export const messageAnalytics = pgTable("message_analytics", {
 
 export const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
+  // Application Type - determines which form was used
+  applicationType: text("application_type").notNull().default("member"), // member, yacht_partner, service_provider, event_provider
   // Step 1: Personal Information
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),

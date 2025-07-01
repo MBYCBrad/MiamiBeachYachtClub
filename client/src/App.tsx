@@ -41,6 +41,9 @@ import FleetPage from "@/pages/fleet";
 import BookTourPage from "@/pages/book-tour";
 import FAQPage from "@/pages/faq";
 import InvestPage from "@/pages/invest";
+import YachtPartnerPage from "@/pages/yacht-partner";
+import ServicePartnerPage from "@/pages/service-partner";
+import EventPartnerPage from "@/pages/event-partner";
 import ContactPage from "@/pages/contact";
 import MessagesPage from "@/pages/messages-page";
 
@@ -61,7 +64,10 @@ function Router() {
       <Route path="/fleet" component={FleetPage} />
       <Route path="/book-tour" component={BookTourPage} />
       <Route path="/faq" component={FAQPage} />
-      <Route path="/invest" component={InvestPage} />
+      <Route path="/partner" component={InvestPage} />
+      <Route path="/partner/yacht" component={YachtPartnerPage} />
+      <Route path="/partner/service" component={ServicePartnerPage} />
+      <Route path="/partner/event" component={EventPartnerPage} />
       <Route path="/contact" component={ContactPage} />
       <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/messages" component={MessagesPage} />

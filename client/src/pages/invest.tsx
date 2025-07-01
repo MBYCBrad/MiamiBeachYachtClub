@@ -3,60 +3,103 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
-import { Anchor, DollarSign, Shield, Users, Settings, TrendingUp, Ship } from "lucide-react";
+import { Anchor, DollarSign, Shield, Users, Settings, TrendingUp, Ship, ChevronDown, Star, Award, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useState } from "react";
 
-export default function InvestPage() {
-  const benefits = [
-    {
-      icon: DollarSign,
-      title: "Earn Passive Income",
-      description: "Receive a stable monthly lease payment while your yacht is professionally managed, maintained, and chartered exclusively to MBYC members.",
-    },
-    {
-      icon: Anchor,
-      title: "Unlock Elite Membership",
-      description: "As a fleet partner, you become a top-tier member of MBYC—enjoying access to our entire collection of luxury yachts across all locations, not just your own vessel.",
-    },
-    {
-      icon: Settings,
-      title: "No Hassle Ownership",
-      description: "We handle everything—crew, maintenance, insurance, bookings, logistics, and more. You enjoy your yacht when you want it, and we take care of the rest.",
-    },
-    {
-      icon: TrendingUp,
-      title: "Be Part of the Expansion",
-      description: "We're growing fast. From Miami Beach to Palm Beach, the Hamptons, Newport, San Diego, and Cabo, our port-by-port expansion is designed to build the most exclusive, asset-light yacht club in the world.",
-    },
-  ];
+export default function PartnerPage() {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
-  const steps = [
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const partnerTypes = [
     {
-      number: "01",
-      title: "Submit Your Yacht",
-      description: "Submit your yacht for consideration (typically 65 ft. and up)",
+      id: "yacht",
+      title: "Become A Yacht Partner",
+      subtitle: "Join the fleet showing star images instead of the yachts",
+      icon: Ship,
+      description: "Partner with MBYC by adding your luxury yacht to our exclusive fleet. Earn passive income while we handle everything from maintenance to member experiences.",
+      benefits: [
+        "Earn Passive Income - Receive stable monthly lease payments",
+        "Unlock Elite Membership - Access our entire yacht collection",
+        "No Hassle Ownership - We handle crew, maintenance, and logistics",
+        "Be Part of the Expansion - Join our growing luxury yacht network"
+      ],
+      testimonials: [
+        {
+          name: "Marcus Richardson",
+          role: "Investor & Fleet Partner",
+          content: "MBYC transformed my yacht from a seasonal expense into a year-round income stream. The professional management is exceptional.",
+          avatar: "⭐"
+        },
+        {
+          name: "Sarah Wellington",
+          role: "Investment Portfolio Manager",
+          content: "The returns have exceeded expectations while maintaining the pristine condition of our vessel. A brilliant partnership model.",
+          avatar: "⭐"
+        }
+      ],
+      cta: "Apply as Yacht Partner"
     },
     {
-      number: "02",
-      title: "Evaluation",
-      description: "We evaluate and onboard select yachts into the MBYC fleet",
+      id: "service",
+      title: "Become A Service Provider Partner",
+      subtitle: "Full page similar to yacht owner page with application form",
+      icon: Users,
+      description: "Join our network of premium service providers offering luxury yacht experiences to MBYC members across beauty, culinary, wellness, and lifestyle services.",
+      benefits: [
+        "Access Elite Clientele - Serve MBYC's exclusive membership base",
+        "Guaranteed Bookings - Steady stream of high-value clients",
+        "Professional Support - Marketing and booking management included",
+        "Premium Rates - Command top-tier pricing for your services"
+      ],
+      testimonials: [
+        {
+          name: "Chef Alexandre Dubois",
+          role: "Service Provider Partner",
+          content: "MBYC connects me with discerning clients who appreciate culinary excellence. The partnership has elevated my business significantly.",
+          avatar: "⭐"
+        },
+        {
+          name: "Isabella Martinez",
+          role: "Wellness Provider",
+          content: "The quality of clients and consistent bookings through MBYC have made this partnership incredibly rewarding for my spa services.",
+          avatar: "⭐"
+        }
+      ],
+      cta: "Apply as Service Provider"
     },
     {
-      number: "03",
-      title: "Agreement",
-      description: "You receive a lease agreement with monthly income and membership access",
-    },
-    {
-      number: "04",
-      title: "Management",
-      description: "We promote and manage your yacht within our high-end member network",
-    },
-    {
-      number: "05",
-      title: "Stay in Control",
-      description: "You stay in control—your yacht, your benefits, our expertise",
-    },
+      id: "event",
+      title: "Become An Event Provider Partner",
+      subtitle: "Application form to become an event provider",
+      icon: Calendar,
+      description: "Partner with MBYC to create and host exclusive yacht club events, from intimate member gatherings to luxury celebrations and corporate experiences.",
+      benefits: [
+        "Premium Event Platform - Host exclusive yacht club experiences",
+        "High-Value Events - Access to luxury event budgets and requirements",
+        "Marketing Support - MBYC promotion and member outreach included",
+        "Repeat Business - Build relationships with returning members"
+      ],
+      testimonials: [
+        {
+          name: "Victoria Sterling",
+          role: "Event Partner",
+          content: "Creating events for MBYC members is a privilege. The sophistication and appreciation of our clients makes every event memorable.",
+          avatar: "⭐"
+        },
+        {
+          name: "David Chen",
+          role: "Corporate Events",
+          content: "MBYC partnerships have opened doors to the most exclusive corporate events. The member network is unparalleled.",
+          avatar: "⭐"
+        }
+      ],
+      cta: "Apply as Event Provider"
+    }
   ];
 
   return (
@@ -64,8 +107,8 @@ export default function InvestPage() {
       <Navigation />
       
       <VideoHeader 
-        title="Invest" 
-        subtitle="Say Goodbye to Yacht Costs. Say Hello to Revenue and Unlimited Access."
+        title="Partner" 
+        subtitle="Join Miami Beach Yacht Club's exclusive partner network"
       />
 
       {/* Hero Content */}
@@ -77,22 +120,19 @@ export default function InvestPage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Earn income. Get exclusive access. Be part of the fastest-growing luxury yacht club in the world.
+              Partner with Miami Beach Yacht Club
             </h2>
             <p className="text-xl text-gray-300 mb-8">
-              At Miami Beach Yacht Club (MBYC), we're redefining luxury yachting—and you can be a part of it.
+              Join our elite network of partners and be part of the world's most exclusive yacht club experience.
             </p>
-            <p className="text-lg text-gray-400 mb-8">
-              We're inviting select yacht owners and investors to join our elite fleet program and enjoy the benefits of ownership without the hassle.
-            </p>
-            <p className="text-lg text-gray-300">
-              Whether you own a yacht or are looking to invest, MBYC offers a unique opportunity: Place your yacht into our fleet and receive guaranteed monthly lease income, full service management, and a luxury membership granting you access to our growing national fleet.
+            <p className="text-lg text-gray-400">
+              Choose your partnership path and unlock premium opportunities with MBYC's growing luxury ecosystem.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Partnership Options */}
       <section className="py-32">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
@@ -101,211 +141,118 @@ export default function InvestPage() {
             transition={{ duration: 0.5 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Why Partner with MBYC?</h2>
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Choose Your Partnership</h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Join our exclusive fleet program and transform your yacht from a cost center into a revenue generator
+              Three distinct paths to join Miami Beach Yacht Club's exclusive partner network
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {benefits.map((benefit, index) => (
-              <motion.div
-                key={benefit.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-purple-500/50 transition-all"
-              >
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                  <benefit.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">{benefit.title}</h3>
-                <p className="text-gray-400">{benefit.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-32 bg-gradient-to-b from-purple-900/10 to-black">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">How It Works</h2>
-            <p className="text-xl text-gray-400">Simple process to join our exclusive fleet program</p>
-          </motion.div>
-
           <div className="space-y-8">
-            {steps.map((step, index) => (
+            {partnerTypes.map((partner, index) => (
               <motion.div
-                key={step.number}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-2xl p-8 border border-purple-500/20"
-              >
-                <div className="flex items-start gap-6">
-                  <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full w-16 h-16 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-white">{step.number}</span>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-semibold text-white mb-2">{step.title}</h3>
-                    <p className="text-gray-300 text-lg">{step.description}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section with Yacht Image */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-center lg:text-left"
-            >
-              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                Join the Fleet. Live the Club.
-              </h2>
-              <p className="text-xl text-gray-300 mb-8">
-                This is more than a yacht program—it's a partnership. As we scale MBYC into new harbors and luxury destinations, we're offering a chance to grow with us, benefit from our brand, and enjoy the ultimate lifestyle access.
-              </p>
-              <p className="text-lg text-purple-400 font-semibold mb-12">
-                Limited fleet partner spots available.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/book-tour">
-                  <Button 
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 px-8"
-                  >
-                    Submit Your Yacht
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-purple-500 text-purple-400 hover:bg-purple-500/10 transition-all duration-300 px-8"
-                  >
-                    Contact Us to Learn More
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* Yacht Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="relative rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-indigo-600/20 z-10" />
-                <img 
-                  src="/api/media/PF0007919-big_1751025963434.jpg"
-                  alt="Luxury Yacht for Fleet Partnership"
-                  className="w-full h-[500px] object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent p-8 z-20">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <Ship className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-lg">Premium Fleet Partner</p>
-                      <p className="text-purple-400">Join our exclusive yacht network</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Decorative Elements */}
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-600/10 rounded-full blur-3xl" />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Investor Testimonials */}
-      <section className="py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Investor Testimonials</h2>
-            <p className="text-xl text-gray-400">What our investors say about MBYC</p>
-          </motion.div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Alexandra Chen",
-                role: "Partner, Venture Capital Fund",
-                quote: "MBYC's unit economics are exceptional. The recurring revenue model combined with high member retention creates a compelling investment opportunity.",
-              },
-              {
-                name: "Marcus Wellington",
-                role: "Family Office Director",
-                quote: "We invested in MBYC because they're solving a real problem in the luxury market. Their growth trajectory has exceeded our expectations.",
-              },
-              {
-                name: "Isabella Rodriguez",
-                role: "Angel Investor",
-                quote: "The team's execution has been flawless. They've built a premium brand that resonates with their target market while maintaining operational excellence.",
-              },
-            ].map((testimonial, index) => (
-              <motion.div
-                key={testimonial.name}
+                key={partner.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-white/10"
+                className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden"
               >
-                <p className="text-gray-300 mb-6 italic">"{testimonial.quote}"</p>
-                <div>
-                  <p className="text-white font-semibold">{testimonial.name}</p>
-                  <p className="text-purple-400">{testimonial.role}</p>
+                {/* Header */}
+                <div 
+                  className="p-8 cursor-pointer hover:bg-gray-800/30 transition-all"
+                  onClick={() => toggleSection(partner.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-6">
+                      <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center">
+                        <partner.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white mb-2">{partner.title}</h3>
+                        <p className="text-gray-400">{partner.subtitle}</p>
+                      </div>
+                    </div>
+                    <motion.div
+                      animate={{ rotate: expandedSection === partner.id ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ChevronDown className="w-6 h-6 text-gray-400" />
+                    </motion.div>
+                  </div>
                 </div>
+
+                {/* Expanded Content */}
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: expandedSection === partner.id ? "auto" : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-8 pb-8 border-t border-white/10">
+                    <div className="grid lg:grid-cols-2 gap-12 pt-8">
+                      {/* Left Column - Description & Benefits */}
+                      <div>
+                        <p className="text-lg text-gray-300 mb-8">{partner.description}</p>
+                        
+                        <h4 className="text-xl font-bold text-white mb-4">Partnership Benefits</h4>
+                        <ul className="space-y-3">
+                          {partner.benefits.map((benefit, idx) => (
+                            <li key={idx} className="flex items-start space-x-3">
+                              <Star className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-300">{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="mt-8">
+                          <Link href={`/partner/${partner.id}`}>
+                            <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl transform hover:scale-105 transition-all">
+                              {partner.cta}
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Right Column - Testimonials */}
+                      <div>
+                        <h4 className="text-xl font-bold text-white mb-6">Partner Testimonials</h4>
+                        <div className="space-y-6">
+                          {partner.testimonials.map((testimonial, idx) => (
+                            <div key={idx} className="bg-black/30 rounded-xl p-6 border border-white/5">
+                              <div className="flex items-start space-x-4">
+                                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
+                                  {testimonial.avatar}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-gray-300 mb-3 italic">"{testimonial.content}"</p>
+                                  <div>
+                                    <p className="font-semibold text-white">{testimonial.name}</p>
+                                    <p className="text-sm text-gray-400">{testimonial.role}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Video CTA */}
       <VideoCTA 
-        title="Ready to Transform Your Yacht Investment?"
-        description="Join Miami Beach Yacht Club's exclusive fleet program and turn your yacht into a revenue-generating asset while enjoying unlimited access to our growing luxury fleet."
-        primaryButtonText="Submit Your Yacht"
-        primaryButtonLink="/book-tour"
-        secondaryButtonText="Contact Us"
-        secondaryButtonLink="/contact"
+        title="Ready to Become a Partner?"
+        subtitle="Join Miami Beach Yacht Club's exclusive partner network and unlock premium opportunities."
+        buttonText="Apply Now"
+        buttonLink="/partner/yacht"
+        showStats={false}
       />
-      
+
       <Footer />
     </div>
   );

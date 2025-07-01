@@ -246,6 +246,17 @@ Changelog:
   - Added custom VideoCTA with yacht submission messaging
   - All buttons now direct to yacht submission rather than investment opportunities
   - Page accurately reflects that it's for yacht providers wanting to lease their vessels to MBYC's growing fleet
+- July 1, 2025. Complete partner system transformation with three distinct application paths
+  - Completely transformed invest.tsx into comprehensive partner landing page (now /partner route)
+  - Created three dropdown sections: Yacht Partner, Service Provider Partner, and Event Provider Partner
+  - Each section includes detailed descriptions, benefits, testimonials, and dedicated application CTAs
+  - Built three separate application pages with comprehensive forms and database integration:
+    * /partner/yacht - Yacht Partner Application with yacht specifications, partnership types, and revenue expectations
+    * /partner/service - Service Provider Application with 7 service categories and 4 delivery types
+    * /partner/event - Event Provider Application with 8 event types and capacity ranges
+  - All applications route to database under Simon Librati applications with proper type categories (yacht_partner, service_provider, event_provider)
+  - Enhanced user experience with success confirmations, form validation, and professional UI consistency
+  - Database schema updated with applicationType field supporting 4 application types for admin identification
 - June 22, 2025. Enhanced yacht booking system with improved time slots and experience types
   - Added actual time ranges display for all 4-hour time slots (9:00 AM - 1:00 PM, 1:00 PM - 5:00 PM, etc.)
   - Replaced generic experience types with specific yacht activity categories
