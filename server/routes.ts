@@ -6240,7 +6240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         captainId,
         coordinatorId,
         crewMemberIds: crewMemberIds || [],
-        briefingTime,
+        briefingTime: briefingTime ? new Date(briefingTime) : new Date(),
         notes: notes || '',
         status: 'planned'
       });
