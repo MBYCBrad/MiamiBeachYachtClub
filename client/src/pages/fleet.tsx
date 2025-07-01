@@ -103,8 +103,8 @@ export default function FleetPage() {
                       <Lock className="w-16 h-16 text-white" />
                     </div>
                     
-                    <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {yacht.type}
+                    <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                      Members Only
                     </div>
                   </div>
                   
