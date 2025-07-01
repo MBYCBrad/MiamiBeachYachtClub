@@ -2901,7 +2901,7 @@ export default function AdminDashboard() {
                             <MapPin className="h-6 w-6 text-white" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold text-white">{request.fullName}</h3>
+                            <h3 className="text-lg font-semibold text-white">{request.name}</h3>
                             <p className="text-gray-400">{request.email} • {request.phone}</p>
                           </div>
                         </div>

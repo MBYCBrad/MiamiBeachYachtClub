@@ -6615,7 +6615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { fullName, email, phone, groupSize, preferredDate, preferredTime, message } = req.body;
       
       const tourRequest = await dbStorage.createTourRequest({
-        fullName,
+        name: fullName, // Map fullName from form to name in database
         email,
         phone,
         groupSize,
@@ -6637,7 +6637,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         priority: 'high',
         data: {
           tourRequestId: tourRequest.id,
-          fullName,
+          name: fullName,
           email,
           preferredDate,
           preferredTime

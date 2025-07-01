@@ -634,13 +634,12 @@ export const applications = pgTable("applications", {
 
 export const tourRequests = pgTable("tour_requests", {
   id: serial("id").primaryKey(),
-  fullName: text("full_name").notNull(),
+  name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  groupSize: integer("group_size").notNull(),
-  preferredDate: date("preferred_date").notNull(),
+  groupSize: text("group_size").notNull(), // Database stores as text, not integer
+  preferredDate: text("preferred_date").notNull(), // Database stores as text, not date
   preferredTime: text("preferred_time").notNull(), // morning, afternoon, evening
-  interests: text("interests").array(),
   message: text("message"),
   status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
   assignedTo: integer("assigned_to").references(() => users.id),
