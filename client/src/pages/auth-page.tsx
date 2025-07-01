@@ -104,24 +104,6 @@ const PremiumAuthPage: React.FC = () => {
     loginMutation.mutate({
       username: data.username,
       password: data.password,
-    }, {
-      onSuccess: (user) => {
-        // Immediately redirect after successful login
-        setTimeout(() => {
-          if (user.role === UserRole.ADMIN) {
-            setLocation('/admin');
-          } else if (user.role === UserRole.YACHT_OWNER) {
-            setLocation('/yacht-owner');
-          } else if (user.role === UserRole.SERVICE_PROVIDER) {
-            setLocation('/service-provider');
-          } else if (user.role === 'staff') {
-            setLocation('/staff');
-          } else {
-            // Members go to their dashboard, not the marketing website
-            setLocation('/member');
-          }
-        }, 100);
-      }
     });
   };
 
@@ -130,8 +112,35 @@ const PremiumAuthPage: React.FC = () => {
     registerMutation.mutate(userData);
   };
 
+  // Immediate redirect if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      console.log("Auth page - user already authenticated, redirecting to dashboard", user.role);
+      
+      // Immediate redirect without delay
+      if (user.role === "admin") {
+        window.location.href = "/admin";
+      } else if (user.role === "yacht_owner") {
+        window.location.href = "/yacht-owner";
+      } else if (user.role === "service_provider") {
+        window.location.href = "/service-provider";
+      } else if (user.role === "staff") {
+        window.location.href = "/staff-portal";
+      } else if (user.role === "member") {
+        window.location.href = "/member";
+      } else {
+        window.location.href = "/";
+      }
+    }
+  }, [user]);
+
   if (user) {
-    return null;
+    // Show minimal loading while redirecting
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-lg">Redirecting to dashboard...</div>
+      </div>
+    );
   }
 
   const membershipTiers = [
