@@ -445,7 +445,12 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                             ? 'border-purple-500 bg-purple-900/20'
                             : 'border-gray-600 bg-gray-800 hover:border-gray-500'
                         }`}
-                        onClick={() => updateFormData('membershipTier', tier.name)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Tier card clicked:', tier.name);
+                          updateFormData('membershipTier', tier.name);
+                        }}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center gap-3 mb-2">
@@ -477,7 +482,12 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                           ? 'border-purple-500 bg-purple-900/20'
                           : 'border-gray-600 bg-gray-800 hover:border-gray-500'
                       }`}
-                      onClick={() => updateFormData('membershipPackage', 'full')}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Package card clicked: full');
+                        updateFormData('membershipPackage', 'full');
+                      }}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-2">
@@ -503,7 +513,12 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                           ? 'border-purple-500 bg-purple-900/20'
                           : 'border-gray-600 bg-gray-800 hover:border-gray-500'
                       }`}
-                      onClick={() => updateFormData('membershipPackage', 'mariners')}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Package card clicked: mariners');
+                        updateFormData('membershipPackage', 'mariners');
+                      }}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-2">
