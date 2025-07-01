@@ -47,7 +47,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const PremiumAuthPage: React.FC = () => {
   const { user, isAuthenticated, isLoading, loginMutation, registerMutation } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab] = useState<'login'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
