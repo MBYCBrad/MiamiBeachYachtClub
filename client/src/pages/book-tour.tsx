@@ -358,123 +358,149 @@ export default function BookTourPage() {
             </Form>
           </motion.div>
 
-          {/* Contact Info */}
+          {/* Contact Info with Video Background */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="mt-16 text-center"
+            className="mt-16"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">Prefer to Schedule by Phone?</h3>
-            <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-              <a href="tel:+17869813875" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
-                <Phone className="w-5 h-5" />
-                <span className="text-lg">786-981-3875</span>
-              </a>
-              <a href="mailto:membership@mbyc.miami" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
-                <Mail className="w-5 h-5" />
-                <span className="text-lg">membership@mbyc.miami</span>
-              </a>
+            {/* Video Footer Cover within Contact Section */}
+            <div className="relative h-[40vh] min-h-[300px] overflow-hidden rounded-2xl">
+              {/* Video Background */}
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+              </video>
+              
+              {/* Dark Overlay */}
+              <div className="absolute inset-0 bg-black/70" />
+              
+              {/* Enhanced gradient blur from black at top - stronger blend */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black via-black/50 to-transparent" />
+              
+              {/* Additional top blur for seamless blend */}
+              <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black via-black/80 to-transparent" />
+              
+              {/* 3D Anamorphic Edges */}
+              <div className="absolute inset-0 pointer-events-none">
+                {/* Top Edge - Deeper for mobile */}
+                <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
+                
+                {/* Bottom Edge - Deeper for mobile */}
+                <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
+                
+                {/* Left Edge - Narrower */}
+                <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
+                
+                {/* Right Edge - Narrower */}
+                <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
+              </div>
+
+              {/* Contact Content Overlay */}
+              <div className="relative z-10 h-full flex items-center justify-center">
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-white mb-6">Prefer to Schedule by Phone?</h3>
+                  <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+                    <a href="tel:+17869813875" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
+                      <Phone className="w-5 h-5" />
+                      <span className="text-lg">786-981-3875</span>
+                    </a>
+                    <a href="mailto:membership@mbyc.miami" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
+                      <Mail className="w-5 h-5" />
+                      <span className="text-lg">membership@mbyc.miami</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Content */}
+              <div className="absolute bottom-0 left-0 right-0 z-10 max-w-7xl mx-auto px-6 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full text-white">
+                  {/* Logo Section */}
+                  <div className="flex flex-col items-start">
+                    <img 
+                      src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
+                      alt="Miami Beach Yacht Club"
+                      className="h-12 w-auto mb-3"
+                    />
+                    <p className="text-gray-300 text-sm">
+                      Where luxury meets the ocean
+                    </p>
+                  </div>
+
+                  {/* Quick Links */}
+                  <div>
+                    <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+                    <ul className="space-y-2">
+                      <li><a href="/fleet" className="text-gray-300 hover:text-white transition-colors text-sm">Our Fleet</a></li>
+                      <li><a href="/events" className="text-gray-300 hover:text-white transition-colors text-sm">Events</a></li>
+                      <li><a href="/services" className="text-gray-300 hover:text-white transition-colors text-sm">Membership</a></li>
+                    </ul>
+                  </div>
+
+                  {/* Company */}
+                  <div>
+                    <h3 className="text-white font-semibold mb-4">Company</h3>
+                    <ul className="space-y-2">
+                      <li><a href="/about" className="text-gray-300 hover:text-white transition-colors text-sm">About Us</a></li>
+                      <li><a href="/invest" className="text-gray-300 hover:text-white transition-colors text-sm">Investors</a></li>
+                      <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">Careers</a></li>
+                    </ul>
+                  </div>
+
+                  {/* Contact & Hours */}
+                  <div>
+                    <h3 className="text-white font-semibold mb-4">Contact</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-purple-400" />
+                        <a href="tel:+17869813875" className="text-gray-300 hover:text-white transition-colors text-sm">
+                          786-981-3875
+                        </a>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Mail className="w-4 h-4 text-purple-400 mt-0.5" />
+                        <a href="mailto:membership@mbyc.miami" className="text-gray-300 hover:text-white transition-colors text-sm">
+                          membership@mbyc.miami
+                        </a>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-purple-400 mt-0.5" />
+                        <span className="text-gray-300 text-sm">
+                          300 Alton Road, Suite 305b
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <h4 className="text-white font-semibold mb-2 text-sm">Opening Hours</h4>
+                      <div className="space-y-1 text-xs text-gray-300">
+                        <div className="flex justify-between">
+                          <span>Mon - Fri:</span>
+                          <span>9am - 6pm</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Sat:</span>
+                          <span>10am - 6pm</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Sun:</span>
+                          <span>10am - 5pm</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Footer Video Cover Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Video Background */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
-        </video>
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/60" />
-        
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-white">
-            {/* Logo Section */}
-            <div className="flex flex-col items-start">
-              <img 
-                src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
-                alt="Miami Beach Yacht Club"
-                className="h-16 w-auto mb-4"
-              />
-              <p className="text-gray-300 text-sm">
-                Where luxury meets the ocean
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
-              <ul className="space-y-3">
-                <li><a href="/fleet" className="text-gray-300 hover:text-white transition-colors">Our Fleet</a></li>
-                <li><a href="/events" className="text-gray-300 hover:text-white transition-colors">Events</a></li>
-                <li><a href="/services" className="text-gray-300 hover:text-white transition-colors">Membership</a></li>
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Company</h3>
-              <ul className="space-y-3">
-                <li><a href="/about" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
-                <li><a href="/invest" className="text-gray-300 hover:text-white transition-colors">Investors</a></li>
-                <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Careers</a></li>
-              </ul>
-            </div>
-
-            {/* Contact & Hours */}
-            <div>
-              <h3 className="text-lg font-semibold mb-6">Contact</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-purple-400" />
-                  <a href="tel:+17869813875" className="text-gray-300 hover:text-white transition-colors">
-                    786-981-3875
-                  </a>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-purple-400 mt-0.5" />
-                  <a href="mailto:membership@mbyc.miami" className="text-gray-300 hover:text-white transition-colors">
-                    membership@mbyc.miami
-                  </a>
-                </div>
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-purple-400 mt-0.5" />
-                  <span className="text-gray-300">
-                    300 Alton Road, Suite 305b
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <h4 className="text-sm font-semibold mb-3">Opening Hours</h4>
-                <div className="space-y-1 text-sm text-gray-300">
-                  <div className="flex justify-between">
-                    <span>Mon - Fri:</span>
-                    <span>9am - 6pm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sat:</span>
-                    <span>10am - 6pm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sun:</span>
-                    <span>10am - 5pm</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
