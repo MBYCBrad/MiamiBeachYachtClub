@@ -712,6 +712,111 @@ function ViewTourRequestDialog({ request }: { request: any }) {
   );
 }
 
+// View Contact Message Dialog
+function ViewContactMessageDialog({ message }: { message: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <button
+          className="text-white hover:text-gray-300 transition-colors cursor-pointer"
+        >
+          <Eye className="h-4 w-4" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">
+            Contact Message Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            View complete contact message information
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Contact Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300">First Name</label>
+              <p className="text-white">{message.firstName}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Last Name</label>
+              <p className="text-white">{message.lastName}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Email</label>
+              <p className="text-white">{message.email}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Phone</label>
+              <p className="text-white">{message.phone || 'Not provided'}</p>
+            </div>
+          </div>
+
+          {/* Message Details */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300">Inquiry Type</label>
+              <p className="text-white capitalize">{message.inquiryType}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Priority</label>
+              <Badge 
+                className={`
+                  ${message.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : ''}
+                  ${message.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : ''}
+                  ${message.priority === 'low' ? 'bg-green-500/20 text-green-400 border-green-500/30' : ''}
+                `}
+              >
+                {message.priority}
+              </Badge>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Status</label>
+              <Badge 
+                className={`
+                  ${message.status === 'new' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : ''}
+                  ${message.status === 'in_progress' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : ''}
+                  ${message.status === 'resolved' ? 'bg-green-500/20 text-green-400 border-green-500/30' : ''}
+                  ${message.status === 'closed' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' : ''}
+                `}
+              >
+                {message.status?.replace('_', ' ')}
+              </Badge>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Submitted</label>
+              <p className="text-white">
+                {new Date(message.createdAt).toLocaleDateString()} at {new Date(message.createdAt).toLocaleTimeString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Message Content */}
+          <div>
+            <label className="text-sm font-medium text-gray-300">Message</label>
+            <div className="text-white bg-gray-900 p-4 rounded-lg mt-2 max-h-40 overflow-y-auto">
+              {message.message}
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            onClick={() => setIsOpen(false)}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // View User Dialog
 function ViewUserDialog({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -2575,6 +2680,9 @@ export default function AdminDashboard() {
     priceRange: "all" // all, free, paid
   });
   
+  // Contact message dialog state
+  const [selectedContactMessage, setSelectedContactMessage] = useState<any>(null);
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
@@ -3278,14 +3386,7 @@ export default function AdminDashboard() {
                             Submitted: {new Date(message.createdAt).toLocaleDateString()} at {new Date(message.createdAt).toLocaleTimeString()}
                           </div>
                           <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
+                            <ViewContactMessageDialog message={message} />
                           </div>
                         </div>
                       </div>
