@@ -185,6 +185,7 @@ export default function Pricing() {
                         </Button>
 
                         <div className="text-sm text-gray-400 space-y-2">
+                          <p>Unlimited reservations {tier.bookings}.</p>
                           {tier.features.map((feature, idx) => (
                             <p key={idx}>{feature}</p>
                           ))}
