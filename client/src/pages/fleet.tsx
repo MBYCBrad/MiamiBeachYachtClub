@@ -2,7 +2,7 @@ import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Anchor, Users, Gauge, Check, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -219,10 +219,12 @@ export default function FleetPage() {
 
       <Footer />
       
-      <ApplicationModal 
-        isOpen={isApplicationModalOpen}
-        onClose={() => setIsApplicationModalOpen(false)}
-      />
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+        />
+      </AnimatePresence>
     </div>
   );
 }

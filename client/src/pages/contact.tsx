@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation } from '@/components/navigation';
 import { VideoHeader } from '@/components/video-header';
 import { VideoCTA } from '@/components/video-cta';
 import { VideoFooter } from '@/components/video-footer';
 import { Footer } from '@/components/footer';
+import { ApplicationModal } from '@/components/application-modal';
 import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Anchor } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,6 +57,7 @@ const contactInfo = [
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<ContactFormData>({
@@ -290,10 +292,18 @@ export default function ContactPage() {
       </section>
 
       {/* Video CTA */}
-      <VideoCTA />
+      <VideoCTA onApplyClick={() => setIsApplicationModalOpen(true)} />
       
       {/* Footer */}
       <Footer />
+      
+      {/* Application Modal */}
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+        />
+      </AnimatePresence>
     </div>
   );
 }

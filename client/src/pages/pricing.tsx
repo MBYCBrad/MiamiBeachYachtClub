@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/navigation";
@@ -355,10 +355,12 @@ export default function Pricing() {
       {/* Footer */}
       <Footer />
       
-      <ApplicationModal 
-        isOpen={isApplicationModalOpen}
-        onClose={() => setIsApplicationModalOpen(false)}
-      />
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+        />
+      </AnimatePresence>
     </div>
   );
 }

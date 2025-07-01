@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ServiceBookingModal from '@/components/service-booking-modal';
+import { ApplicationModal } from '@/components/application-modal';
 import { 
   Heart, 
   Star, 
@@ -14,7 +15,7 @@ import {
   Building2,
   Phone
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Link } from 'wouter';
 import type { Service } from '@shared/schema';
@@ -54,6 +55,7 @@ export default function Services() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<string>('all');
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
 
@@ -350,10 +352,10 @@ export default function Services() {
                             className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedService(service);
+                              setIsApplicationModalOpen(true);
                             }}
                           >
-                            Book Service
+                            Apply for Membership
                           </Button>
                         </motion.div>
                       </div>
@@ -424,15 +426,14 @@ export default function Services() {
             <div className="text-3xl font-bold text-purple-400 mb-8">
               Call: 786-551-3878
             </div>
-            <Link href="/apply">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
-              >
-                Start Your Application
-              </motion.button>
-            </Link>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsApplicationModalOpen(true)}
+              className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
+            >
+              Start Your Application
+            </motion.button>
           </motion.div>
         </div>
       </section>
@@ -444,6 +445,14 @@ export default function Services() {
         service={selectedService!}
         onConfirm={handleServiceBooking}
       />
+      
+      {/* Application Modal */}
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+        />
+      </AnimatePresence>
     </div>
   );
 }

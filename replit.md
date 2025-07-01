@@ -709,6 +709,14 @@ Changelog:
   - Simplified to clean `useQuery` with `queryKey: ['/api/services', { available: true }]` pattern
   - Services now display real-time database content with proper image URLs and pricing from PostgreSQL
   - Authentication API calls show services being fetched correctly: 18 yacht concierge services loaded
+- July 1, 2025. Complete ApplicationModal integration across all marketing pages
+  - Updated Services page: changed "Book Service" buttons to "Apply for Membership" with ApplicationModal integration
+  - Updated Contact page: connected VideoCTA to ApplicationModal with proper state management and AnimatePresence
+  - Applied consistent useState and AnimatePresence pattern across all marketing pages for unified user experience
+  - All "Apply" buttons now trigger ApplicationModal instead of redirecting to /apply route
+  - Backend integration confirmed working with real-time admin notifications to user ID 60 (Simon)
+  - Maintained appropriate page-specific buttons: Book Tour page keeps "Submit Tour Request", Invest page keeps "Submit Your Yacht"
+  - Complete standardization of membership application flow throughout Miami Beach Yacht Club marketing website
   - Real-time synchronization achieved with millisecond response times matching yachts page performance
   - Complete database integration operational showing live service data instead of placeholder content
 - June 28, 2025. Complete service categorization system implemented with proper yacht club business structure
