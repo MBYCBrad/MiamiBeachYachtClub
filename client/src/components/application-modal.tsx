@@ -96,7 +96,59 @@ export function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose
   });
 
   const mutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', '/api/applications', data),
+    mutationFn: (data: any) => {
+      // Map frontend form data to backend schema
+      const [firstName, ...lastNameParts] = data.fullName.split(' ');
+      const lastName = lastNameParts.join(' ');
+      
+      const backendData = {
+        // Step 1: Personal Information  
+        firstName: firstName || '',
+        lastName: lastName || '',
+        email: data.email,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        country: data.country || 'United States',
+        occupation: data.occupation,
+        employer: data.employer,
+        
+        // Step 2: Membership Package Selection
+        membershipTier: data.membershipTier,
+        membershipPackage: data.membershipPackage,
+        preferredLocation: 'Miami Beach',
+        expectedUsageFrequency: data.intendedUsage || 'weekly',
+        primaryUseCase: data.intendedUsage || 'recreation',
+        groupSize: data.preferredYachtSize || 'medium',
+        
+        // Step 3: Financial Information
+        annualIncome: data.annualIncome,
+        netWorth: data.netWorth,
+        liquidAssets: data.liquidAssets || data.netWorth,
+        creditScore: '750+',
+        bankName: 'N/A',
+        hasBoatingExperience: data.yachtingExperience !== 'beginner',
+        boatingExperienceYears: data.yachtingExperience === 'expert' ? 10 : data.yachtingExperience === 'advanced' ? 7 : data.yachtingExperience === 'intermediate' ? 3 : 1,
+        boatingLicenseNumber: null,
+        
+        // Step 4: References and Final Details
+        referenceSource: data.referralSource || 'website',
+        referralName: null,
+        preferredStartDate: new Date().toISOString().split('T')[0],
+        specialRequests: data.specialRequests,
+        emergencyContactName: 'N/A',
+        emergencyContactPhone: 'N/A',
+        emergencyContactRelation: 'N/A',
+        agreeToTerms: data.agreeToTerms,
+        agreeToBackground: data.agreeToPrivacy,
+        marketingOptIn: true
+      };
+      
+      return apiRequest('POST', '/api/applications', backendData);
+    },
     onSuccess: () => {
       toast({
         title: "Application Submitted Successfully!",
@@ -133,6 +185,7 @@ export function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose
       });
     },
     onError: (error) => {
+      console.error('Application submission error:', error);
       toast({
         title: "Application Error",
         description: "There was an error submitting your application. Please try again.",
@@ -558,7 +611,10 @@ export function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose
               className="space-y-6"
             >
               <h3 className="text-xl font-semibold text-white mb-4">Review & Submit</h3>
+              
+              {/* Personal Information Section */}
               <div className="bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <h4 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Personal Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-400">Name:</span>
@@ -573,8 +629,78 @@ export function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose
                     <span className="text-white ml-2">{formData.phone}</span>
                   </div>
                   <div>
-                    <span className="text-gray-400">Experience:</span>
-                    <span className="text-white ml-2">{formData.yachtingExperience}</span>
+                    <span className="text-gray-400">Date of Birth:</span>
+                    <span className="text-white ml-2">{formData.dateOfBirth}</span>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-gray-400">Address:</span>
+                    <span className="text-white ml-2">{formData.address}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">City:</span>
+                    <span className="text-white ml-2">{formData.city}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">State:</span>
+                    <span className="text-white ml-2">{formData.state}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Zip Code:</span>
+                    <span className="text-white ml-2">{formData.zipCode}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Country:</span>
+                    <span className="text-white ml-2">{formData.country}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Employment & Financial Information */}
+              <div className="bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <h4 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Employment & Financial Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-400">Employment Status:</span>
+                    <span className="text-white ml-2 capitalize">{formData.employmentStatus?.replace('-', ' ')}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Occupation:</span>
+                    <span className="text-white ml-2">{formData.occupation}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Employer:</span>
+                    <span className="text-white ml-2">{formData.employer}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Annual Income:</span>
+                    <span className="text-white ml-2">{formData.annualIncome}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Net Worth:</span>
+                    <span className="text-white ml-2">{formData.netWorth}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Liquid Assets:</span>
+                    <span className="text-white ml-2">{formData.liquidAssets}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Yacht Experience & Preferences */}
+              <div className="bg-gray-800/50 rounded-lg p-6 space-y-4">
+                <h4 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Yacht Experience & Preferences</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-400">Yachting Experience:</span>
+                    <span className="text-white ml-2 capitalize">{formData.yachtingExperience}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Preferred Yacht Size:</span>
+                    <span className="text-white ml-2 capitalize">{formData.preferredYachtSize?.replace('-', ' ')}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Intended Usage:</span>
+                    <span className="text-white ml-2 capitalize">{formData.intendedUsage?.replace('-', ' ')}</span>
                   </div>
                   <div>
                     <span className="text-gray-400">Membership Tier:</span>
@@ -584,12 +710,18 @@ export function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose
                     <span className="text-gray-400">Package:</span>
                     <span className="text-white ml-2 capitalize">{formData.membershipPackage}</span>
                   </div>
+                  {formData.currentBoats && (
+                    <div className="md:col-span-2">
+                      <span className="text-gray-400">Current Yachts Owned:</span>
+                      <span className="text-white ml-2">{formData.currentBoats}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               
               <div>
                 <Label htmlFor="referralSource" className="text-white">How did you hear about us?</Label>
-                <Select onValueChange={(value) => updateFormData('referralSource', value)}>
+                <Select value={formData.referralSource} onValueChange={(value) => updateFormData('referralSource', value)}>
                   <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
                     <SelectValue placeholder="Select referral source" />
                   </SelectTrigger>
