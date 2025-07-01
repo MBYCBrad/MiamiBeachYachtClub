@@ -16,16 +16,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreateTourRequest } from "@/hooks/use-tour-requests";
 import { insertTourRequestSchema } from "@shared/schema";
 
-// Use the actual schema from shared schema with UI-specific additions
-const tourFormSchema = insertTourRequestSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  status: true,
-}).extend({
+// Create a simplified form schema that matches our form needs
+const tourFormSchema = z.object({
+  fullName: z.string().min(1, "Please enter your full name"),
+  email: z.string().email("Please enter a valid email"),
+  phone: z.string().min(1, "Please enter your phone number"),
   preferredDate: z.string().min(1, "Please select a preferred date"),
-  groupSize: z.string().min(1, "Please select group size"),
   preferredTime: z.string().min(1, "Please select a preferred time"),
+  groupSize: z.string().min(1, "Please select group size"),
+  message: z.string().optional(),
 });
 
 type TourFormData = z.infer<typeof tourFormSchema>;
@@ -43,7 +42,6 @@ export default function BookTourPage() {
       preferredDate: "",
       preferredTime: "",
       groupSize: "",
-      interests: [],
       message: "",
     },
   });
@@ -55,12 +53,10 @@ export default function BookTourPage() {
         fullName: data.fullName,
         email: data.email,
         phone: data.phone,
-        preferredDate: new Date(data.preferredDate),
+        preferredDate: data.preferredDate, // Keep as string to match database
         preferredTime: data.preferredTime,
-        groupSize: parseInt(data.groupSize),
-        interests: data.interests || [],
+        groupSize: data.groupSize, // Keep as string to match database
         message: data.message || null,
-        status: "pending" as const,
       };
 
       await createTourRequest.mutateAsync(tourRequestData);
