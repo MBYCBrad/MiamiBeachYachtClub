@@ -96,6 +96,8 @@ export default function FleetPage() {
                       alt={yacht.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
+                    {/* Light overlay for better text visibility over image only */}
+                    <div className="absolute inset-0 bg-white/10" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                     
                     {/* Lock Overlay on Hover */}
@@ -103,7 +105,7 @@ export default function FleetPage() {
                       <Lock className="w-16 h-16 text-white" />
                     </div>
                     
-                    <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-bold text-white">
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 rounded-full text-sm font-bold text-white shadow-lg border border-white/20">
                       Members Only
                     </div>
                   </div>
