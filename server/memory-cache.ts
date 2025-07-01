@@ -24,8 +24,20 @@ class MemoryCache {
     });
   }
 
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
+
   clear(): void {
     this.cache.clear();
+  }
+
+  clearByPattern(pattern: string): void {
+    for (const key of this.cache.keys()) {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    }
   }
 
   // Preload critical data on startup

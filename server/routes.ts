@@ -437,6 +437,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ownerId: req.user!.role === UserRole.YACHT_OWNER ? req.user!.id : validatedData.ownerId
       });
 
+      // CROSS-LAYER CACHE INVALIDATION - Clear all yacht caches
+      memoryCache.clearByPattern('yachts');
+      memoryCache.clearByPattern('api/yachts');
+      memoryCache.delete('/api/yachts');
+
+      // Real-time WebSocket notification to all layers
+      if (wss) {
+        const message = JSON.stringify({
+          type: 'yacht_created',
+          yacht: yacht
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+          }
+        });
+      }
+
       // Real-time cross-role notifications - notify all members of new yacht
       await notificationService.notifyMembersOfNewContent('yacht', {
         yachtId: yacht.id,
@@ -530,6 +549,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         providerId: req.user!.role === UserRole.SERVICE_PROVIDER ? req.user!.id : validatedData.providerId
       });
+
+      // CROSS-LAYER CACHE INVALIDATION - Clear all service caches
+      memoryCache.clearByPattern('services');
+      memoryCache.clearByPattern('api/services');
+      memoryCache.delete('/api/services');
+
+      // Real-time WebSocket notification to all layers
+      if (wss) {
+        const message = JSON.stringify({
+          type: 'service_added',
+          data: service
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+          }
+        });
+      }
 
       // Real-time cross-role notifications - notify all members of new service
       await notificationService.notifyMembersOfNewContent('service', {
@@ -1289,6 +1327,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedService = await dbStorage.updateService(serviceId, req.body);
+
+      // CROSS-LAYER CACHE INVALIDATION - Clear all service caches
+      memoryCache.clearByPattern('services');
+      memoryCache.clearByPattern('api/services');
+      memoryCache.delete('/api/services');
+      memoryCache.delete(`/api/services/${serviceId}`);
+
+      // Real-time WebSocket notification to all layers
+      if (wss) {
+        const message = JSON.stringify({
+          type: 'service_updated',
+          data: updatedService
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+          }
+        });
+      }
+
+      // Broadcast real-time data update to all connected users (marketing site, member dashboard, admin)
+      await notificationService.notifyDataUpdate('service_updated', {
+        service: updatedService,
+        serviceId
+      }, req.user!.id);
+
       res.json(updatedService);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1310,6 +1375,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await dbStorage.deleteService(serviceId);
+
+      // CROSS-LAYER CACHE INVALIDATION - Clear all service caches
+      memoryCache.clearByPattern('services');
+      memoryCache.clearByPattern('api/services');
+      memoryCache.delete('/api/services');
+      memoryCache.delete(`/api/services/${serviceId}`);
+
+      // Real-time WebSocket notification to all layers
+      if (wss) {
+        const message = JSON.stringify({
+          type: 'service_deleted',
+          data: { id: serviceId, service }
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+          }
+        });
+      }
+
+      // Broadcast real-time data update to all connected users
+      await notificationService.notifyDataUpdate('service_deleted', {
+        serviceId,
+        service
+      }, req.user!.id);
+
       res.status(204).send();
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -4451,6 +4543,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newYacht = await dbStorage.createYacht(yachtData);
       await auditService.logAction(req, 'create', 'yacht', newYacht.id, yachtData);
 
+      // CROSS-LAYER CACHE INVALIDATION - Clear all yacht caches
+      memoryCache.clearByPattern('yachts');
+      memoryCache.clearByPattern('api/yachts');
+      memoryCache.delete('/api/yachts');
+
       // Real-time WebSocket broadcast to all layers
       if (wss) {
         wss.clients.forEach(client => {
@@ -4492,6 +4589,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Yacht not found" });
       }
       await auditService.logAction(req, 'update', 'yacht', yachtId, updateData);
+
+      // CROSS-LAYER CACHE INVALIDATION - Clear all yacht caches
+      memoryCache.clearByPattern('yachts');
+      memoryCache.clearByPattern('api/yachts');
+      memoryCache.delete('/api/yachts');
 
       // Real-time WebSocket broadcast to all layers
       if (wss) {
