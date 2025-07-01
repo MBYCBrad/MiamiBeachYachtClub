@@ -6216,7 +6216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff assignment endpoints
   app.get('/api/staff/assignments', requireAuth, async (req, res) => {
     try {
-      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator' && req.user.role !== 'admin') {
+      if (!req.user || (!req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator' && req.user.role !== 'admin')) {
         return res.status(403).json({ message: 'Staff access required' });
       }
       const assignments = await dbStorage.getCrewAssignments();

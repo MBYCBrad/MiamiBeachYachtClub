@@ -145,10 +145,15 @@ export default function CrewManagementPage() {
     staleTime: 30000,
   });
 
-  const { data: assignments = [] } = useQuery<any[]>({
+  const { data: assignments = [], isLoading: assignmentsLoading, error: assignmentsError } = useQuery<any[]>({
     queryKey: ['/api/staff/assignments'],
     staleTime: 30000,
   });
+
+  // Debug logging
+  console.log('Assignments data:', assignments);
+  console.log('Assignments loading:', assignmentsLoading);
+  console.log('Assignments error:', assignmentsError);
 
 
 
