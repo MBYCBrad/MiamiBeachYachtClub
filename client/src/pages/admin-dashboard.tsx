@@ -533,7 +533,8 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
 };
 
 // Tour Request Eye Dropdown Component
-function TourRequestEyeDropdown({ request, updateStatusMutation }: { 
+// Tour Request Status Dropdown (ChevronDown icon)
+function TourRequestStatusDropdown({ request, updateStatusMutation }: { 
   request: any; 
   updateStatusMutation: any; 
 }) {
@@ -552,7 +553,7 @@ function TourRequestEyeDropdown({ request, updateStatusMutation }: {
           variant="ghost"
           className="text-gray-400 hover:text-white p-2"
         >
-          <Eye className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
@@ -566,10 +567,10 @@ function TourRequestEyeDropdown({ request, updateStatusMutation }: {
           Mark as Pending
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => handleStatusChange('active')}
+          onClick={() => handleStatusChange('scheduled')}
           className="text-green-400 hover:bg-gray-800 cursor-pointer"
         >
-          Mark as Active
+          Mark as Scheduled
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => handleStatusChange('completed')}
@@ -585,6 +586,129 @@ function TourRequestEyeDropdown({ request, updateStatusMutation }: {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+// View Tour Request Dialog (Eye icon)
+function ViewTourRequestDialog({ request }: { request: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-gray-400 hover:text-white p-2"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-white">
+            Tour Request Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            View complete tour request information
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Contact Information */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300">Name</label>
+              <p className="text-white">{request.name}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Email</label>
+              <p className="text-white">{request.email}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Phone</label>
+              <p className="text-white">{request.phone}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Status</label>
+              <Badge 
+                className={`
+                  ${request.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : ''}
+                  ${request.status === 'scheduled' ? 'bg-green-500/20 text-green-400 border-green-500/30' : ''}
+                  ${request.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : ''}
+                  ${request.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border-red-500/30' : ''}
+                `}
+              >
+                {request.status}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Tour Details */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300">Preferred Date</label>
+              <p className="text-white">{request.preferredDate}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Preferred Time</label>
+              <p className="text-white">{request.preferredTime}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Group Size</label>
+              <p className="text-white">{request.groupSize}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Submitted</label>
+              <p className="text-white">
+                {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Recently'}
+              </p>
+            </div>
+          </div>
+
+          {/* Message */}
+          {request.message && (
+            <div>
+              <label className="text-sm font-medium text-gray-300">Message</label>
+              <p className="text-white bg-gray-900 p-3 rounded-lg mt-1">
+                {request.message}
+              </p>
+            </div>
+          )}
+
+          {/* Additional Info */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-300">Assigned To</label>
+              <p className="text-white">{request.assignedTo || 'Not assigned'}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-300">Priority</label>
+              <p className="text-white">{request.priority || 'Medium'}</p>
+            </div>
+          </div>
+
+          {/* Notes */}
+          {request.notes && (
+            <div>
+              <label className="text-sm font-medium text-gray-300">Admin Notes</label>
+              <p className="text-white bg-gray-900 p-3 rounded-lg mt-1">
+                {request.notes}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button 
+            onClick={() => setIsOpen(false)}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -3030,10 +3154,11 @@ export default function AdminDashboard() {
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            <TourRequestEyeDropdown 
+                            <TourRequestStatusDropdown 
                               request={request} 
                               updateStatusMutation={updateTourRequestStatusMutation} 
                             />
+                            <ViewTourRequestDialog request={request} />
                           </div>
                         </div>
                       </div>
