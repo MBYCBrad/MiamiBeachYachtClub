@@ -47,6 +47,7 @@ import EventPartnerPage from "@/pages/event-partner";
 import ContactPage from "@/pages/contact";
 import MessagesPage from "@/pages/messages-page";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsOfService from "@/pages/terms-of-service";
 
 // Basic fallback - sophisticated 3D loading screen is in components/loading-screen.tsx
 
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/partner/event" component={EventPartnerPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
       <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/messages" component={MessagesPage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
