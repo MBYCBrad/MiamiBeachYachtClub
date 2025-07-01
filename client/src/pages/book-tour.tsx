@@ -381,6 +381,103 @@ export default function BookTourPage() {
         </div>
       </section>
 
+      {/* Footer Video Cover Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+        
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-white">
+            {/* Logo Section */}
+            <div className="flex flex-col items-start">
+              <img 
+                src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
+                alt="Miami Beach Yacht Club"
+                className="h-16 w-auto mb-4"
+              />
+              <p className="text-gray-300 text-sm">
+                Where luxury meets the ocean
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
+              <ul className="space-y-3">
+                <li><a href="/fleet" className="text-gray-300 hover:text-white transition-colors">Our Fleet</a></li>
+                <li><a href="/events" className="text-gray-300 hover:text-white transition-colors">Events</a></li>
+                <li><a href="/services" className="text-gray-300 hover:text-white transition-colors">Membership</a></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Company</h3>
+              <ul className="space-y-3">
+                <li><a href="/about" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
+                <li><a href="/invest" className="text-gray-300 hover:text-white transition-colors">Investors</a></li>
+                <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Careers</a></li>
+              </ul>
+            </div>
+
+            {/* Contact & Hours */}
+            <div>
+              <h3 className="text-lg font-semibold mb-6">Contact</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-purple-400" />
+                  <a href="tel:+17869813875" className="text-gray-300 hover:text-white transition-colors">
+                    786-981-3875
+                  </a>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Mail className="w-4 h-4 text-purple-400 mt-0.5" />
+                  <a href="mailto:membership@mbyc.miami" className="text-gray-300 hover:text-white transition-colors">
+                    membership@mbyc.miami
+                  </a>
+                </div>
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-purple-400 mt-0.5" />
+                  <span className="text-gray-300">
+                    300 Alton Road, Suite 305b
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <h4 className="text-sm font-semibold mb-3">Opening Hours</h4>
+                <div className="space-y-1 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>Mon - Fri:</span>
+                    <span>9am - 6pm</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Sat:</span>
+                    <span>10am - 6pm</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Sun:</span>
+                    <span>10am - 5pm</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
