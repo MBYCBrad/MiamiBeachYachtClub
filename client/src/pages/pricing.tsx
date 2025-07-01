@@ -24,7 +24,6 @@ const membershipTiers = [
     weekendBookings: "2", 
     features: [
       "Future Access To Marinas In Caribbeans, Europe & More...",
-      "Unlimited reservations 4 Bookings at a time",
       "*Gold members are entitled to four (4) reservations concurrently on the calendar, two (2) on weekdays and two (2) on weekends."
     ],
     popular: false
@@ -42,7 +41,6 @@ const membershipTiers = [
     weekendBookings: "3",
     features: [
       "Future Access To Marinas In Caribbeans, Europe & More...",
-      "Unlimited reservations 6 Bookings at a time",
       "*Platinum members are entitled to six (6) reservations concurrently on the calendar, no more than three (3) on weekdays and with three (3) on weekends."
     ],
     popular: false
@@ -60,7 +58,6 @@ const membershipTiers = [
     weekendBookings: "3",
     features: [
       "Future Access To Marinas In Caribbeans, Europe & More...",
-      "Unlimited reservations 6 Bookings at a time",
       "*Diamond members are entitled to six (6) reservations concurrently on the calendar, three (3) on weekdays and three (3) on weekends."
     ],
     popular: true
@@ -188,7 +185,6 @@ export default function Pricing() {
                         </Button>
 
                         <div className="text-sm text-gray-400 space-y-2">
-                          <p>Unlimited reservations {tier.bookings}.</p>
                           {tier.features.map((feature, idx) => (
                             <p key={idx}>{feature}</p>
                           ))}
