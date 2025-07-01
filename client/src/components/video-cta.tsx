@@ -25,7 +25,7 @@ export function VideoCTA({
   });
 
   return (
-    <section className="relative py-32 overflow-hidden">
+    <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden">
       {/* Video Background */}
       {heroVideo && (
         <video
@@ -62,7 +62,7 @@ export function VideoCTA({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
         <h2
           className="text-4xl md:text-6xl font-bold text-white mb-8"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
