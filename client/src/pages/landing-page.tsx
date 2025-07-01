@@ -1339,7 +1339,7 @@ function MarinersSection({ onApplyClick }: { onApplyClick?: () => void }) {
 }
 
 // Testimonials Section Component
-function TestimonialsSection() {
+function TestimonialsSection({ onApplyClick }: { onApplyClick: () => void }) {
   const testimonials = [
     {
       name: "Michael Chen",
@@ -1425,7 +1425,7 @@ function TestimonialsSection() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/book-tour'}
+            onClick={onApplyClick}
             className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
           >
             Join Our Community
@@ -1856,7 +1856,7 @@ export default function LandingPage() {
       <StatsSection />
       <PackagesSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <MarinersSection onApplyClick={() => setIsApplicationModalOpen(true)} />
-      <TestimonialsSection />
+      <TestimonialsSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <FleetPreviewSection />
       <FAQSection />
       <FinalCTASection onApplyClick={() => setIsApplicationModalOpen(true)} />
