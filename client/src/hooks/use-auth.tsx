@@ -103,8 +103,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], null);
       queryClient.clear(); // Clear all cached data
       
-      // Navigate to logout endpoint which handles session destruction
-      window.location.href = "/api/logout";
+      // Call logout endpoint to destroy session
+      await fetch('/api/logout', { method: 'GET' });
+      
+      // Instant client-side navigation to home page
+      setLocation('/');
     },
     onSuccess: () => {
       toast({

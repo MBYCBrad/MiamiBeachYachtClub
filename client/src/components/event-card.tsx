@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@shared/schema";
 
@@ -6,6 +7,7 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const [, setLocation] = useLocation();
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -38,7 +40,7 @@ export default function EventCard({ event }: EventCardProps) {
         <div className="flex items-center justify-between">
           <p className="text-xs text-gray-500">From ${event.ticketPrice || '0'} / guest</p>
           <Button 
-            onClick={() => window.location.href = `/events/${event.id}`}
+            onClick={() => setLocation(`/events/${event.id}`)}
             size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-1 rounded-lg text-xs font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
             Register
           </Button>

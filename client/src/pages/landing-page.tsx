@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ChevronDown, Anchor, Sparkles, Waves, Star, Users, Trophy, Shield, ArrowRight, Phone, Mail, MapPin, Clock, Check, Zap, Globe, Award, Crown, Quote, ChevronLeft, ChevronRight, User, Package, CreditCard, CheckCircle, Ship, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -1330,20 +1330,21 @@ function Footer() {
 // Main Landing Page Component
 export default function LandingPage() {
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen bg-black">
       <Navigation />
-      <HeroSection onApplyClick={() => setIsApplicationModalOpen(true)} />
-      <FeaturesSection />
+      <HeroSection onApplyClick={() => setIsApplicationModalOpen(true)} setLocation={setLocation} />
+      <FeaturesSection setLocation={setLocation} />
       <StatsSection />
-      <FleetPreviewSection />
-      <PackagesSection onApplyClick={() => setIsApplicationModalOpen(true)} />
-      <MarinersSection onApplyClick={() => setIsApplicationModalOpen(true)} />
+      <FleetPreviewSection setLocation={setLocation} />
+      <PackagesSection onApplyClick={() => setIsApplicationModalOpen(true)} setLocation={setLocation} />
+      <MarinersSection onApplyClick={() => setIsApplicationModalOpen(true)} setLocation={setLocation} />
       <TestimonialsSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <FAQSection />
-      <FinalCTASection onApplyClick={() => setIsApplicationModalOpen(true)} />
-      <Footer />
+      <FinalCTASection onApplyClick={() => setIsApplicationModalOpen(true)} setLocation={setLocation} />
+      <Footer setLocation={setLocation} />
       
       <AnimatePresence>
         <ApplicationModal 

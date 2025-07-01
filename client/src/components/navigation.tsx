@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,33 +8,34 @@ import { useAuth } from "@/hooks/use-auth";
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
   const handleAuthClick = () => {
     if (isAuthenticated && user) {
       // Route to appropriate dashboard based on role
       if (user.role === "admin") {
-        window.location.href = '/admin';
+        setLocation('/admin');
       } else if (user.role === "staff") {
-        window.location.href = '/staff-portal';
+        setLocation('/staff-portal');
       } else if (user.role === "yacht_owner") {
-        window.location.href = '/yacht-owner';
+        setLocation('/yacht-owner');
       } else if (user.role === "service_provider") {
-        window.location.href = '/service-provider';
+        setLocation('/service-provider');
       } else if (user.role === "member") {
-        window.location.href = '/member';
+        setLocation('/member');
       }
     } else {
-      window.location.href = '/auth';
+      setLocation('/auth');
     }
   };
 
   const handleLogout = async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
-      window.location.href = '/';
+      setLocation('/');
     } catch (error) {
       console.error('Logout error:', error);
-      window.location.href = '/';
+      setLocation('/');
     }
   };
 

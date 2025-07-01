@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import BottomNavigation from '@/components/BottomNavigation';
 import { motion } from 'framer-motion';
@@ -19,6 +20,7 @@ import AdminDashboard from '@/screens/AdminDashboard';
 
 export default function HomePage() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [currentView, setCurrentView] = useState('explore');
 
   if (!user) {
@@ -35,16 +37,16 @@ export default function HomePage() {
       case 'member':
         return renderMemberContent();
       case 'yacht_owner':
-        // Redirect yacht owner users to the new yacht owner dashboard
-        window.location.href = '/yacht-owner';
+        // Instant client-side navigation to yacht owner dashboard
+        setLocation('/yacht-owner');
         return null;
       case 'service_provider':
-        // Redirect service provider users to the new service provider dashboard
-        window.location.href = '/service-provider';
+        // Instant client-side navigation to service provider dashboard
+        setLocation('/service-provider');
         return null;
       case 'admin':
-        // Redirect admin users to the new admin dashboard
-        window.location.href = '/admin';
+        // Instant client-side navigation to admin dashboard
+        setLocation('/admin');
         return null;
       default:
         return renderMemberContent();

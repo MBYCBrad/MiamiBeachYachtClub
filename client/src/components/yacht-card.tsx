@@ -1,4 +1,5 @@
 import React, { useState, memo } from 'react';
+import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { Heart, Star } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   // Use yacht's database image URL or fallback to curated yacht images
   const yachtImage = yacht.imageUrl || getYachtImage(yacht.id);
@@ -348,7 +350,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
               <Button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.location.href = `/yachts/${yacht.id}`;
+                  setLocation(`/yachts/${yacht.id}`);
                 }}
                 variant="outline"
                 className="px-3 py-2 rounded-lg text-sm font-medium border-purple-500/30 hover:border-purple-400/50 text-purple-300 hover:text-purple-200 transition-all duration-300"

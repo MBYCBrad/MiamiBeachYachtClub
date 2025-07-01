@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import type { Service } from "@shared/schema";
 
@@ -6,6 +7,7 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service }: ServiceCardProps) {
+  const [, setLocation] = useLocation();
   return (
     <div className="group bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/30 hover:border-purple-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-600/20 transform hover:scale-105">
       <div className="relative overflow-hidden">
@@ -42,7 +44,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
             <span className="text-sm text-gray-400">/ session</span>
           </div>
           <Button 
-            onClick={() => window.location.href = `/services/${service.id}`}
+            onClick={() => setLocation(`/services/${service.id}`)}
             className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
             Book Now
           </Button>

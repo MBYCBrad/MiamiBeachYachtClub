@@ -67,9 +67,8 @@ export const getQueryFn: <T>(options: {
       return null;
     }
 
-    // Handle authentication redirects gracefully
-    if (res.status === 401 && window.location.pathname !== "/auth") {
-      window.location.href = "/auth";
+    // Let ProtectedRoute and auth components handle 401s gracefully
+    if (res.status === 401) {
       return null;
     }
 
