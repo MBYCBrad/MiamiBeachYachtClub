@@ -3,67 +3,69 @@ import { Phone, Mail, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="py-20 bg-black border-t border-white/10">
+    <footer className="bg-black border-t border-gray-800 py-16">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-5 gap-8 mb-12">
+        <div className="grid md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-1">
             <img 
-              src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
-              alt="MBYC" 
-              className="w-32 h-32 mb-4"
+              src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
+              alt="Miami Beach Yacht Club" 
+              className="w-48 mb-4"
             />
-            <p className="text-gray-400">
-              Where luxury meets the ocean. Experience yachting redefined.
+            <p className="text-gray-400 text-sm">
+              Miami's premier yacht club offering exclusive access to luxury vessels and world-class maritime experiences.
             </p>
           </div>
           
-          {/* Quick Links */}
+          {/* Main Menu */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Main Menu</h3>
             <ul className="space-y-2">
-              <li><Link href="/fleet" className="text-gray-400 hover:text-white transition-colors">Our Fleet</Link></li>
-              <li><Link href="/events" className="text-gray-400 hover:text-white transition-colors">Events</Link></li>
-              <li><Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Membership</Link></li>
-              <li><Link href="/how-it-works" className="text-gray-400 hover:text-white transition-colors">How It Works</Link></li>
+              <li><Link href="/" className="text-gray-400 hover:text-purple-400 transition-colors">Home</Link></li>
+              <li><Link href="/how-it-works" className="text-gray-400 hover:text-purple-400 transition-colors">How It Works</Link></li>
+              <li><Link href="/pricing" className="text-gray-400 hover:text-purple-400 transition-colors">Plans & Pricing</Link></li>
+              <li><Link href="/events" className="text-gray-400 hover:text-purple-400 transition-colors">Events</Link></li>
+              <li><Link href="/fleet" className="text-gray-400 hover:text-purple-400 transition-colors">Fleet</Link></li>
+              <li><Link href="/book-tour" className="text-gray-400 hover:text-purple-400 transition-colors">Book a Private Tour</Link></li>
+              <li><Link href="/faq" className="text-gray-400 hover:text-purple-400 transition-colors">FAQ</Link></li>
+              <li><Link href="/partner" className="text-gray-400 hover:text-purple-400 transition-colors">Partner</Link></li>
+              <li><Link href="/contact" className="text-gray-400 hover:text-purple-400 transition-colors">Contact Us</Link></li>
             </ul>
           </div>
           
-          {/* Company */}
+          {/* Contact Info */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/partner" className="text-gray-400 hover:text-white transition-colors">Partner</Link></li>
-            </ul>
-          </div>
-          
-          {/* Contact */}
-          <div>
-            <h4 className="text-white font-semibold mb-4">Contact</h4>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-3 text-gray-400">
-                <Phone className="w-4 h-4" />
-                <a href="tel:786-981-3875" className="hover:text-purple-400 transition-colors">786-981-3875</a>
-              </li>
-              <li className="flex items-center gap-3 text-gray-400">
-                <Mail className="w-4 h-4" />
-                <a href="mailto:membership@mbyc.miami" className="hover:text-purple-400 transition-colors">membership@mbyc.miami</a>
-              </li>
-              <li className="flex items-start gap-3 text-gray-400">
-                <MapPin className="w-4 h-4 mt-0.5" />
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Contact</h3>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-purple-400 mt-0.5" />
                 <div>
+                  <a href="tel:786-981-3875" className="text-gray-400 hover:text-purple-400 transition-colors">
+                    786-981-3875
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-purple-400 mt-0.5" />
+                <a href="mailto:membership@mbyc.miami" className="text-gray-400 hover:text-purple-400 transition-colors">
+                  membership@mbyc.miami
+                </a>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-purple-400 mt-0.5" />
+                <div className="text-gray-400">
                   300 Alton Road, Suite 305b<br />
                   Miami Beach, Florida 33139<br />
                   United States
                 </div>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
           
           {/* Opening Hours */}
           <div>
-            <h4 className="text-white font-semibold mb-4">Opening Hours</h4>
+            <h3 className="text-white font-semibold mb-4 uppercase tracking-wider">Opening Hours</h3>
             <div className="space-y-2 text-gray-400">
               <div className="flex gap-4">
                 <span className="w-20">Mon - Fri:</span>
@@ -82,13 +84,19 @@ export function Footer() {
         </div>
         
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 mb-4 md:mb-0">
-            © 2025 Miami Beach Yacht Club. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
+        <div className="mt-12 pt-8 border-t border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-sm">
+              ©2025 Miami Beach Yacht Club. All Rights Reserved.
+            </p>
+            <div className="flex gap-6">
+              <Link href="/privacy" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
+                Terms & Conditions
+              </Link>
+            </div>
           </div>
         </div>
       </div>
