@@ -145,6 +145,7 @@ export default function StaffManagement() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffUser | null>(null);
   const [newStaffData, setNewStaffData] = useState({
     fullName: "",
@@ -492,6 +493,18 @@ export default function StaffManagement() {
                         
                         <TableCell>
                           <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedStaff(staff);
+                                setShowViewDialog(true);
+                              }}
+                              className="h-8 w-8 p-0 hover:bg-gray-700/50"
+                              title="View Staff Details"
+                            >
+                              <Eye className="h-4 w-4 text-gray-400" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -888,6 +901,135 @@ export default function StaffManagement() {
               className="bg-red-600 hover:bg-red-700"
             >
               {deleteStaffMutation.isPending ? "Deleting..." : "Delete Staff Member"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Staff Dialog */}
+      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Staff Member Details</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View complete information for this staff member.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedStaff && (
+            <div className="space-y-6">
+              {/* Profile Section */}
+              <div className="flex items-center gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-lg">
+                    {selectedStaff.fullName ? selectedStaff.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : selectedStaff.username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-white">{selectedStaff.fullName || selectedStaff.username}</h3>
+                  <p className="text-gray-400">@{selectedStaff.username}</p>
+                  <Badge className={`mt-2 text-xs ${getStatusColor(selectedStaff.status)}`}>
+                    {selectedStaff.status}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Basic Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Email</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <span className="text-white">{selectedStaff.email}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Phone</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <span className="text-white">{selectedStaff.phone || 'Not provided'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Role and Location */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Role</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    {getRoleIcon(selectedStaff.role)}
+                    <span className="text-white">{selectedStaff.role}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Location</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    <BadgeIcon className="h-4 w-4 text-gray-400" />
+                    <span className="text-white">{selectedStaff.location || 'Not specified'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Permissions */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-300">Permissions</Label>
+                <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  {(selectedStaff.permissions && selectedStaff.permissions.length > 0) ? (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedStaff.permissions.map(permission => (
+                        <Badge key={permission} variant="secondary" className="text-xs">
+                          <Key className="h-3 w-3 mr-1" />
+                          {availablePermissions.find(p => p.id === permission)?.name || permission}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-sm">No specific permissions assigned</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Created By</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span className="text-white">{selectedStaff.createdByName || 'System'}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-300">Last Login</Label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    <span className="text-white">
+                      {selectedStaff.lastLogin 
+                        ? formatDistanceToNow(new Date(selectedStaff.lastLogin), { addSuffix: true })
+                        : 'Never'
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-300">Account Created</Label>
+                <div className="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <span className="text-white">
+                    {formatDistanceToNow(new Date(selectedStaff.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowViewDialog(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
