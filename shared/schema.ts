@@ -52,6 +52,40 @@ export const MembershipPackage = {
   MARINERS: "mariners"
 } as const;
 
+// Predefined locations for Miami Beach area services
+export const MARINA_LOCATIONS = [
+  "Miami Beach Marina",
+  "Island Gardens Deep Harbour",
+  "Bayfront Park Marina",
+  "Crandon Park Marina",
+  "Dinner Key Marina",
+  "Haulover Marine Center",
+  "Miamarina at Bayside",
+  "Rickenbacker Marina",
+  "Watson Island Marina",
+  "Coconut Grove Marina"
+] as const;
+
+export const EXTERNAL_LOCATIONS = [
+  "Miami Beach",
+  "South Beach", 
+  "Downtown Miami",
+  "Brickell",
+  "Coconut Grove",
+  "Key Biscayne",
+  "Coral Gables",
+  "Aventura",
+  "Bal Harbour",
+  "Fisher Island"
+] as const;
+
+export const SERVICE_AREAS = [
+  "Miami-Dade County",
+  "Broward County",
+  "Monroe County (Keys)",
+  "Palm Beach County"
+] as const;
+
 // Core tables
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -111,6 +145,7 @@ export const services = pgTable("services", {
   requiresAddress: boolean("requires_address").default(true), // Whether member needs to provide address
   marinaLocation: text("marina_location"), // Specific marina location for marina services
   businessAddress: text("business_address"), // Business address for external_location services
+  proximityMiles: integer("proximity_miles").default(10), // Service radius in miles for "come to you" services
   isAvailable: boolean("is_available").default(true),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0.00"),
   reviewCount: integer("review_count").default(0),

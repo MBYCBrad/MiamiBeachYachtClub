@@ -3031,7 +3031,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/services", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const services = await dbStorage.getServices();
-      res.json(services);
+      const users = await dbStorage.getAllUsers();
+      
+      // Enhance services with provider information for category display
+      const enhancedServices = services.map(service => {
+        const provider = users.find(user => user.id === service.providerId);
+        
+        return {
+          ...service,
+          provider: provider ? {
+            id: provider.id,
+            role: provider.role,
+            username: provider.username
+          } : null,
+          // Categorize based on provider role: admin = MBYC Service, service_provider = Service Provider
+          serviceCategory: provider?.role === UserRole.ADMIN ? 'MBYC Service' : 'Service Provider'
+        };
+      });
+      
+      res.json(enhancedServices);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

@@ -1749,6 +1749,9 @@ function AddServiceDialog() {
     providerId: '68',
     imageUrl: '',
     images: [] as string[],
+    marinaLocation: '',
+    businessAddress: '',
+    proximityMiles: '10',
     isAvailable: true
   });
   const { toast } = useToast();
@@ -1761,7 +1764,10 @@ function AddServiceDialog() {
         duration: data.duration ? parseInt(data.duration) : null,
         providerId: data.providerId && data.providerId !== '' ? parseInt(data.providerId) : undefined,
         imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
-        images: data.images || []
+        images: data.images || [],
+        proximityMiles: data.proximityMiles ? parseInt(data.proximityMiles) : 10,
+        marinaLocation: data.serviceType === 'marina' ? data.marinaLocation : null,
+        businessAddress: data.serviceType === 'external_location' ? data.businessAddress : null
       };
       const response = await apiRequest("POST", "/api/admin/services", serviceData);
       return response.json();
@@ -1773,7 +1779,7 @@ function AddServiceDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/service-provider"] });
       toast({ title: "Success", description: "Service created successfully" });
       setIsOpen(false);
-      setFormData({ name: '', category: '', serviceType: 'yacht', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], isAvailable: true });
+      setFormData({ name: '', category: '', serviceType: 'yacht', description: '', pricePerSession: '', duration: '', providerId: '68', imageUrl: '', images: [], marinaLocation: '', businessAddress: '', proximityMiles: '10', isAvailable: true });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1837,6 +1843,62 @@ function AddServiceDialog() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Location-specific fields */}
+          {formData.serviceType === 'marina' && (
+            <div className="form-field-spacing">
+              <Label htmlFor="marinaLocation" className="form-label text-gray-300">Marina Location</Label>
+              <Select value={formData.marinaLocation} onValueChange={(value) => setFormData({...formData, marinaLocation: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue placeholder="Select marina location" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="Miami Beach Marina">Miami Beach Marina</SelectItem>
+                  <SelectItem value="Island Gardens Deep Harbour">Island Gardens Deep Harbour</SelectItem>
+                  <SelectItem value="Bayfront Park Marina">Bayfront Park Marina</SelectItem>
+                  <SelectItem value="Crandon Park Marina">Crandon Park Marina</SelectItem>
+                  <SelectItem value="Dinner Key Marina">Dinner Key Marina</SelectItem>
+                  <SelectItem value="Haulover Marine Center">Haulover Marine Center</SelectItem>
+                  <SelectItem value="Miamarina at Bayside">Miamarina at Bayside</SelectItem>
+                  <SelectItem value="Rickenbacker Marina">Rickenbacker Marina</SelectItem>
+                  <SelectItem value="Watson Island Marina">Watson Island Marina</SelectItem>
+                  <SelectItem value="Coconut Grove Marina">Coconut Grove Marina</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {formData.serviceType === 'external_location' && (
+            <div className="form-field-spacing">
+              <Label htmlFor="businessAddress" className="form-label text-gray-300">Business Address</Label>
+              <Input
+                id="businessAddress"
+                value={formData.businessAddress}
+                onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
+                className="form-input bg-gray-900 border-gray-700 text-white"
+                placeholder="Full business address including city and zip"
+              />
+            </div>
+          )}
+
+          {formData.serviceType === 'location' && (
+            <div className="form-field-spacing">
+              <Label htmlFor="proximityMiles" className="form-label text-gray-300">Service Radius (miles)</Label>
+              <Select value={formData.proximityMiles} onValueChange={(value) => setFormData({...formData, proximityMiles: value})}>
+                <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                  <SelectValue placeholder="Select service radius" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-700">
+                  <SelectItem value="5">5 miles</SelectItem>
+                  <SelectItem value="10">10 miles</SelectItem>
+                  <SelectItem value="15">15 miles</SelectItem>
+                  <SelectItem value="20">20 miles</SelectItem>
+                  <SelectItem value="25">25 miles</SelectItem>
+                  <SelectItem value="30">30 miles</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           
           <div className="form-grid-2">
             <div className="form-field-spacing">
@@ -5041,9 +5103,12 @@ export default function AdminDashboard() {
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 )}
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 flex flex-col space-y-2">
                   <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30">
                     {service.category}
+                  </Badge>
+                  <Badge className={`${service.serviceCategory === 'MBYC Service' ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-emerald-500/30' : 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500/30'}`}>
+                    {service.serviceCategory}
                   </Badge>
                 </div>
               </div>
