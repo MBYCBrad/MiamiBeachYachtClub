@@ -296,8 +296,21 @@ export default function CustomerServiceDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="relative">
-                        <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                          <User className="h-6 w-6 text-green-400" />
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold">
+                          {activeCall.contact.profileImage ? (
+                            <img 
+                              src={activeCall.contact.profileImage} 
+                              alt={activeCall.contact.username}
+                              className="w-12 h-12 rounded-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <span className={activeCall.contact.profileImage ? 'hidden' : ''}>
+                            {activeCall.contact.username ? activeCall.contact.username.charAt(0).toUpperCase() : 'U'}
+                          </span>
                         </div>
                         {activeCall.status === 'connected' && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse" />
@@ -407,8 +420,21 @@ export default function CustomerServiceDashboard() {
                           onClick={() => openContactModal(contact)}
                         >
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
-                              <User className="h-5 w-5 text-purple-400" />
+                            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                              {contact.profileImage ? (
+                                <img 
+                                  src={contact.profileImage} 
+                                  alt={contact.username}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <span className={contact.profileImage ? 'hidden' : ''}>
+                                {contact.username ? contact.username.charAt(0).toUpperCase() : 'U'}
+                              </span>
                             </div>
                             <div>
                               <h4 className="font-medium text-white">{contact.username}</h4>
@@ -672,8 +698,21 @@ export default function CustomerServiceDashboard() {
               <div className="space-y-6">
                 {/* Contact Info */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
-                    <User className="h-8 w-8 text-purple-400" />
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    {selectedContact.profileImage ? (
+                      <img 
+                        src={selectedContact.profileImage} 
+                        alt={selectedContact.username}
+                        className="w-16 h-16 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <span className={selectedContact.profileImage ? 'hidden' : ''}>
+                      {selectedContact.username ? selectedContact.username.charAt(0).toUpperCase() : 'U'}
+                    </span>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold">{selectedContact.username}</h3>
