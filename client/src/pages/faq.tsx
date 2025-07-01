@@ -1,7 +1,9 @@
 import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
+import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
-import { motion } from "framer-motion";
+import { ApplicationModal } from "@/components/application-modal";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
@@ -52,6 +54,7 @@ const faqs = [
 
 export default function FAQPage() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const toggleItem = (key: string) => {
     setOpenItems(prev => ({ ...prev, [key]: !prev[key] }));
@@ -127,7 +130,20 @@ export default function FAQPage() {
         </div>
       </section>
 
+      {/* Video CTA */}
+      <VideoCTA 
+        onApplyClick={() => setIsApplicationModalOpen(true)}
+      />
+      
+      {/* Footer */}
       <Footer />
+
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen} 
+          onClose={() => setIsApplicationModalOpen(false)} 
+        />
+      </AnimatePresence>
     </div>
   );
 }
