@@ -2953,11 +2953,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const totalRevenue = [...bookings, ...serviceBookings, ...eventRegistrations]
         .reduce((sum, item) => sum + parseFloat(item.totalPrice || '0'), 0);
 
-      // Calculate membership breakdown
-      const membershipBreakdown = ['Bronze', 'Silver', 'Gold', 'Platinum'].map(tier => {
+      // Calculate membership breakdown - fix casing to match database values
+      const membershipBreakdown = ['bronze', 'silver', 'gold', 'platinum'].map(tier => {
         const count = users.filter(user => user.membershipTier === tier).length;
         return {
-          tier,
+          tier: tier.charAt(0).toUpperCase() + tier.slice(1), // Convert to proper case for display
           count,
           percentage: users.length > 0 ? Math.round((count / users.length) * 100) : 0
         };
@@ -3637,7 +3637,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ].length,
           avgBookingValue: totalRevenue / (serviceBookings.length + eventRegistrations.length || 1),
           peakBookingHours: [9, 14, 16], // Could be calculated from actual booking times
-          customerSatisfaction: 4.8
+          customerSatisfaction: 4.8,
+          // Calculate overall fleet utilization from yacht utilization data
+          fleetUtilization: yachtUtilization.length > 0 ? 
+            yachtUtilization.reduce((sum, yacht) => sum + yacht.utilizationRate, 0) / yachtUtilization.length : 0,
+          // Calculate average booking duration from actual booking data
+          averageBookingDuration: bookings.length > 0 ?
+            bookings.reduce((sum, booking) => {
+              const duration = (new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) / (1000 * 60 * 60);
+              return sum + duration;
+            }, 0) / bookings.length : 4.0
         }
       };
 

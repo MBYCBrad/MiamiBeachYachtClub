@@ -95,6 +95,9 @@ interface AdminStats {
   totalRevenue: number;
   activeServices: number;
   monthlyGrowth: number;
+  bookingGrowth?: number;
+  revenueGrowth?: number;
+  serviceGrowth?: number;
   membershipBreakdown: Array<{
     tier: string;
     count: number;
@@ -3376,29 +3379,41 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {stats?.membershipBreakdown?.map((tier, index) => (
-                <motion.div
-                  key={tier.tier}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  className="text-center p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
-                >
-                  <div className={`text-2xl font-bold mb-2 ${
-                    tier.tier === 'Platinum' ? 'text-purple-400' :
-                    tier.tier === 'Gold' ? 'text-yellow-400' :
-                    tier.tier === 'Silver' ? 'text-gray-300' : 'text-orange-400'
-                  }`}>
-                    {tier.count}
-                  </div>
-                  <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
-                  <div className="text-xs text-gray-500">{tier.percentage}%</div>
-                </motion.div>
-              )) || (
+              {stats?.membershipBreakdown && stats.membershipBreakdown.length > 0 ? (
+                stats.membershipBreakdown.map((tier, index) => (
+                  <motion.div
+                    key={tier.tier}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="text-center p-4 rounded-xl bg-gray-900/30 hover:bg-gray-700/40 transition-all duration-300 group cursor-pointer"
+                  >
+                    <div className={`text-2xl font-bold mb-2 ${
+                      tier.tier === 'Platinum' ? 'text-purple-400' :
+                      tier.tier === 'Gold' ? 'text-yellow-400' :
+                      tier.tier === 'Silver' ? 'text-gray-300' : 'text-orange-400'
+                    }`}>
+                      {tier.count}
+                    </div>
+                    <div className="text-sm text-gray-400 mb-1">{tier.tier}</div>
+                    <div className="text-xs text-gray-500">{tier.percentage}%</div>
+                  </motion.div>
+                ))
+              ) : (
                 <div className="col-span-4 text-center py-8">
                   <Crown className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                   <p className="text-gray-400">No membership data available</p>
-                  <p className="text-gray-500 text-sm">Data will appear when members join</p>
+                  <p className="text-gray-500 text-sm">
+                    {stats?.totalUsers > 0 ? 
+                      'Members exist but no membership tiers assigned' : 
+                      'Data will appear when members join'
+                    }
+                  </p>
+                  {stats && (
+                    <p className="text-gray-600 text-xs mt-2">
+                      Debug: totalUsers={stats.totalUsers}, breakdown={JSON.stringify(stats.membershipBreakdown)}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
