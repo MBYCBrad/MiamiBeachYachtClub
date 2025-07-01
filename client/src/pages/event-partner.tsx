@@ -26,7 +26,8 @@ import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 
 const eventPartnerSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   company: z.string().min(2, "Company name is required"),
@@ -65,7 +66,8 @@ export default function EventPartnerPage() {
   const form = useForm<EventPartnerFormData>({
     resolver: zodResolver(eventPartnerSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       company: "",
@@ -83,7 +85,9 @@ export default function EventPartnerPage() {
   const submitApplication = useMutation({
     mutationFn: async (data: EventPartnerFormData) => {
       const applicationData = {
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fullName: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
         company: data.company,
@@ -227,19 +231,35 @@ export default function EventPartnerPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Full Name *</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="bg-black/50 border-gray-700 text-white" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">First Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-black/50 border-gray-700 text-white" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">Last Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-black/50 border-gray-700 text-white" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={form.control}
