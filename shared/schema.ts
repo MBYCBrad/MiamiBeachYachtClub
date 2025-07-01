@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, decimal, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, decimal, timestamp, boolean, jsonb, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -634,12 +634,13 @@ export const applications = pgTable("applications", {
 
 export const tourRequests = pgTable("tour_requests", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  fullName: text("full_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone").notNull(),
-  groupSize: text("group_size").notNull(),
-  preferredDate: text("preferred_date").notNull(),
-  preferredTime: text("preferred_time").notNull(),
+  groupSize: integer("group_size").notNull(),
+  preferredDate: date("preferred_date").notNull(),
+  preferredTime: text("preferred_time").notNull(), // morning, afternoon, evening
+  interests: text("interests").array(),
   message: text("message"),
   status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
   assignedTo: integer("assigned_to").references(() => users.id),

@@ -25,6 +25,7 @@ const tourFormSchema = insertTourRequestSchema.omit({
 }).extend({
   preferredDate: z.string().min(1, "Please select a preferred date"),
   groupSize: z.string().min(1, "Please select group size"),
+  preferredTime: z.string().min(1, "Please select a preferred time"),
 });
 
 type TourFormData = z.infer<typeof tourFormSchema>;
@@ -40,6 +41,7 @@ export default function BookTourPage() {
       email: "",
       phone: "",
       preferredDate: "",
+      preferredTime: "",
       groupSize: "",
       interests: [],
       message: "",
@@ -54,6 +56,7 @@ export default function BookTourPage() {
         email: data.email,
         phone: data.phone,
         preferredDate: new Date(data.preferredDate),
+        preferredTime: data.preferredTime,
         groupSize: parseInt(data.groupSize),
         interests: data.interests || [],
         message: data.message || null,
@@ -241,24 +244,50 @@ export default function BookTourPage() {
                   />
                 </div>
                 
-                <FormField
-                  control={form.control}
-                  name="preferredDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Preferred Date</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          type="date"
-                          className="bg-black/50 border-white/20 text-white"
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="preferredDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Preferred Date</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            type="date"
+                            className="bg-black/50 border-white/20 text-white"
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="preferredTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Preferred Time</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-black/50 border-white/20 text-white">
+                              <SelectValue placeholder="Select preferred time" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-gray-900 border-white/20">
+                            <SelectItem value="morning">Morning (9:00 AM - 12:00 PM)</SelectItem>
+                            <SelectItem value="afternoon">Afternoon (12:00 PM - 4:00 PM)</SelectItem>
+                            <SelectItem value="evening">Evening (4:00 PM - 8:00 PM)</SelectItem>
+                            <SelectItem value="flexible">Flexible</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 
                 {/* Interests Selection */}
                 <div className="space-y-4">
