@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
+import type { Yacht } from "@shared/schema";
 import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 import { useState } from "react";
@@ -1550,7 +1551,7 @@ function TestimonialsSection({ onApplyClick }: { onApplyClick: () => void }) {
 
 // Fleet Preview Section
 function FleetPreviewSection() {
-  const { data: yachts = [], isLoading } = useQuery({
+  const { data: yachts = [], isLoading } = useQuery<Yacht[]>({
     queryKey: ['/api/yachts'],
   });
 
@@ -1597,7 +1598,7 @@ function FleetPreviewSection() {
               </motion.div>
             ))
           ) : (
-            yachts.slice(0, 3).map((yacht: any, index: number) => (
+            (yachts as Yacht[]).slice(0, 3).map((yacht: Yacht, index: number) => (
               <motion.div
                 key={yacht.id}
                 initial={{ opacity: 0, y: 30 }}
