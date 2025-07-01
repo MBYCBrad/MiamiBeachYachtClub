@@ -75,28 +75,41 @@ export default function EventsPage() {
                     <div className="space-y-2 mb-6">
                       <div className="flex items-center gap-2 text-gray-300">
                         <Calendar className="w-4 h-4 text-purple-400" />
-                        <span>{new Date(event.eventDate).toLocaleDateString('en-US', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}</span>
+                        <span>
+                          {event.eventDate 
+                            ? new Date(event.eventDate).toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })
+                            : event.startTime 
+                              ? new Date(event.startTime).toLocaleDateString('en-US', { 
+                                  weekday: 'long', 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })
+                              : 'Date TBD'
+                          }
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-300">
                         <MapPin className="w-4 h-4 text-purple-400" />
-                        <span>{event.location}</span>
+                        <span>{event.location || 'Location TBD'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-300">
                         <Users className="w-4 h-4 text-purple-400" />
-                        <span>{event.capacity - (event.bookedCount || 0)} spots available</span>
+                        <span>{(event.capacity - (event.bookedCount || 0)) || event.capacity || 'TBD'} spots available</span>
                       </div>
                     </div>
                     
-                    <Link href="/auth">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700">
-                        Register Now
-                      </Button>
-                    </Link>
+                    <Button 
+                      onClick={() => setIsApplicationModalOpen(true)}
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                    >
+                      Register Now
+                    </Button>
                   </div>
                 </div>
               </motion.div>
@@ -148,7 +161,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      <VideoCTA />
+      <VideoCTA onApplyClick={() => setIsApplicationModalOpen(true)} />
       <Footer />
       
       <AnimatePresence>

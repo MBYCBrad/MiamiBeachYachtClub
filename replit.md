@@ -717,6 +717,13 @@ Changelog:
   - Backend integration confirmed working with real-time admin notifications to user ID 60 (Simon)
   - Maintained appropriate page-specific buttons: Book Tour page keeps "Submit Tour Request", Invest page keeps "Submit Your Yacht"
   - Complete standardization of membership application flow throughout Miami Beach Yacht Club marketing website
+- July 1, 2025. Events page registration system updated with date formatting fixes
+  - Fixed "Invalid Date" display issue by adding proper date formatting logic with fallbacks for eventDate and startTime fields
+  - Updated all "Register Now" buttons to trigger ApplicationModal instead of redirecting to separate registration pages
+  - Added enhanced date handling with fallback to "Date TBD" when date fields are missing or invalid
+  - Connected Events page VideoCTA to ApplicationModal for consistent membership application flow
+  - Added light overlay to Fleet page yacht cards to make "Members Only" badges more prominent
+  - Complete event registration now flows through unified membership application system
   - Real-time synchronization achieved with millisecond response times matching yachts page performance
   - Complete database integration operational showing live service data instead of placeholder content
 - June 28, 2025. Complete service categorization system implemented with proper yacht club business structure
