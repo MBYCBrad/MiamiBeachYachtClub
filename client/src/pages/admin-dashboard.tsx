@@ -4802,8 +4802,8 @@ export default function AdminDashboard() {
                   </Badge>
                 </div>
                 <div className="absolute top-4 left-4">
-                  <Badge className={`${yacht.owner?.role === 'admin' ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-emerald-500/30' : 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500/30'}`}>
-                    {yacht.owner?.role === 'admin' ? 'MBYC Fleet' : 'Partner Fleet'}
+                  <Badge className="bg-gradient-to-r from-emerald-600 to-green-600 text-white border-emerald-500/30">
+                    MBYC Fleet
                   </Badge>
                 </div>
               </div>

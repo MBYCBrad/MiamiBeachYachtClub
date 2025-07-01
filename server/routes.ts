@@ -3022,22 +3022,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/yachts", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const yachts = await dbStorage.getYachts();
-      const users = await dbStorage.getAllUsers();
-      
-      // Enhance yachts with owner information for category display
-      const enhancedYachts = yachts.map(yacht => {
-        const owner = users.find(user => user.id === yacht.ownerId);
-        return {
-          ...yacht,
-          owner: owner ? {
-            id: owner.id,
-            role: owner.role,
-            username: owner.username
-          } : null
-        };
-      });
-      
-      res.json(enhancedYachts);
+      res.json(yachts);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
