@@ -724,6 +724,13 @@ Changelog:
   - Connected Events page VideoCTA to ApplicationModal for consistent membership application flow
   - Added light overlay to Fleet page yacht cards to make "Members Only" badges more prominent
   - Complete event registration now flows through unified membership application system
+- July 1, 2025. Events page footer cleanup with single Private Events section
+  - Removed duplicate VideoCTA and extra footer sections for clean single-footer design
+  - Created cinematic Private Events section with full video background and gradient overlays
+  - Enhanced video footer design with larger typography and improved button styling
+  - "Apply for Membership" button triggers ApplicationModal, "Plan Your Event" routes to contact page
+  - Eliminated multiple footer sections in favor of single focused Private Events call-to-action
+  - Clean page structure with events grid followed by single video footer section
   - Real-time synchronization achieved with millisecond response times matching yachts page performance
   - Complete database integration operational showing live service data instead of placeholder content
 - June 28, 2025. Complete service categorization system implemented with proper yacht club business structure

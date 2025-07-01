@@ -116,52 +116,64 @@ export default function EventsPage() {
             ))}
           </div>
 
-          {/* Special Events Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="mt-32"
+        </div>
+      </section>
+
+      {/* Private Events Footer Section */}
+      <section className="relative py-32 overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline
+            className="w-full h-full object-cover"
           >
-            <div className="text-center mb-16">
-              <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-6" />
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Private Events</h2>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Host your next corporate event, wedding, or celebration aboard one of our luxury yachts. 
-                Our event planning team will ensure every detail is perfect.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-3xl p-12 text-center">
-              <h3 className="text-3xl font-bold text-white mb-4">Create Your Perfect Event</h3>
-              <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-                From intimate gatherings to grand celebrations, we'll help you design an unforgettable experience on the water.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-8" />
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">
+              Private Events
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Host your next corporate event, wedding, or celebration aboard one of our luxury yachts. 
+              Our event planning team will ensure every detail is perfect.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button 
+                onClick={() => setIsApplicationModalOpen(true)}
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+              >
+                Apply for Membership
+              </Button>
+              <Link href="/contact">
                 <Button 
-                  onClick={() => setIsApplicationModalOpen(true)}
                   size="lg"
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+                  variant="outline"
+                  className="border-2 border-white/30 text-white hover:bg-white/10 px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
                 >
-                  Apply for Membership
+                  Plan Your Event
                 </Button>
-                <Link href="/contact">
-                  <Button 
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
-                  >
-                    Plan Your Event
-                  </Button>
-                </Link>
-              </div>
+              </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <VideoCTA onApplyClick={() => setIsApplicationModalOpen(true)} />
       <Footer />
       
       <AnimatePresence>
