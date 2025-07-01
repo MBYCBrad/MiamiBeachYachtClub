@@ -89,7 +89,7 @@ export default function CrewManagementPage() {
   });
 
   const { data: crewMembers = [] } = useQuery<any[]>({
-    queryKey: ['/api/staff/crew'],
+    queryKey: ['/api/admin/staff'],
     staleTime: 30000,
   });
 
@@ -97,6 +97,38 @@ export default function CrewManagementPage() {
     queryKey: ['/api/staff/assignments'],
     staleTime: 30000,
   });
+
+  // Format booking time to show proper business hours instead of raw timestamps
+  const formatBookingTime = (startTime: string, endTime: string) => {
+    try {
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      
+      // Format as "Mon, Jun 23, 2025 at 9:00 AM - 1:00 PM"
+      const dateStr = start.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+      
+      const startTimeStr = start.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+      
+      const endTimeStr = end.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+      
+      return `${dateStr} at ${startTimeStr} - ${endTimeStr}`;
+    } catch (error) {
+      return `${startTime} - ${endTime}`;
+    }
+  };
 
   // Transform booking data for staff portal compatibility
   const transformedBookings = (Array.isArray(activeBookings) ? activeBookings : []).map((booking: any) => ({
@@ -327,7 +359,7 @@ export default function CrewManagementPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
                             <div className="text-gray-400 mb-1">Time</div>
-                            <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+                            <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
                           </div>
                           <div>
                             <div className="text-gray-400 mb-1">Guests</div>
@@ -391,7 +423,7 @@ export default function CrewManagementPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
                             <div className="text-gray-400 mb-1">Time</div>
-                            <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+                            <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
                           </div>
                           <div>
                             <div className="text-gray-400 mb-1">Guests</div>
@@ -442,7 +474,7 @@ export default function CrewManagementPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
                             <div className="text-gray-400 mb-1">Duration</div>
-                            <div className="text-white">{new Date(booking.startTime).toLocaleString()} - {new Date(booking.endTime).toLocaleString()}</div>
+                            <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
                           </div>
                           <div>
                             <div className="text-gray-400 mb-1">Guests</div>
@@ -583,7 +615,7 @@ function CrewAssignmentDialog({
             </div>
             <div>
               <div className="text-gray-400 text-sm">Date & Time</div>
-              <div className="text-white">{new Date(booking.startTime).toLocaleString()}</div>
+              <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
             </div>
             <div>
               <div className="text-gray-400 text-sm">Guests</div>
