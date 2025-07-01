@@ -2226,10 +2226,11 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
         imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
         images: data.images || []
       };
-      const response = await apiRequest("POST", "/api/events", eventData);
+      const response = await apiRequest("POST", "/api/admin/events", eventData);
       return response.json();
     },
     onSuccess: () => {
+      // Invalidate all event-related queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({ title: "Success", description: "Event created successfully" });
@@ -5274,7 +5275,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Events Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
             <Calendar className="h-12 w-12 text-gray-600 mb-4" />
@@ -5304,34 +5305,95 @@ export default function AdminDashboard() {
             transition={{ delay: index * 0.1 }}
             whileHover={{ y: -5 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-violet-500/50 transition-all duration-300 overflow-hidden group">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 overflow-hidden group">
               <div className="relative">
-                <img 
-                  src={event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
-                  alt={event.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {event.images && event.images.length > 1 ? (
+                  <div className="relative h-48 bg-gray-900">
+                    <img 
+                      src={event.images[0] || event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                      alt={event.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute bottom-2 right-2 flex space-x-1">
+                      {event.images.slice(0, 4).map((img: string, idx: number) => (
+                        <div key={idx} className="relative">
+                          <img 
+                            src={img}
+                            alt={`${event.title} ${idx + 1}`}
+                            className="w-8 h-8 object-cover rounded border border-white/20"
+                          />
+                          {idx === 3 && event.images.length > 4 && (
+                            <div className="absolute inset-0 bg-black/60 rounded flex items-center justify-center">
+                              <span className="text-white text-xs font-medium">+{event.images.length - 4}</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <img 
+                    src={event.imageUrl || (event.images && event.images[0]) || '/api/media/pexels-pixabay-163236_1750537277230.jpg'}
+                    alt={event.title}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                )}
+                <div className="absolute top-4 left-4">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
+                    MBYC Event
+                  </Badge>
+                </div>
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30">
+                  <Badge className="bg-gray-900/80 text-white border-gray-500/30">
                     {event.capacity} spots
                   </Badge>
                 </div>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-2">{event.title}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-bold text-white">{event.title}</h3>
+                  <span className="text-lg font-bold text-white">${event.ticketPrice || '0'}</span>
+                </div>
                 <p className="text-gray-400 text-sm mb-4 line-clamp-2">{event.description}</p>
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-gray-400">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{new Date(event.startTime).toLocaleDateString()}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm flex items-center">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      Date
+                    </span>
+                    <span className="text-white text-sm font-medium">{new Date(event.startTime).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center text-gray-400">
-                    <Clock className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{event.startTime} - {event.endTime}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm flex items-center">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Time
+                    </span>
+                    <span className="text-white text-sm font-medium">
+                      {new Date(event.startTime).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'America/New_York'
+                      })} - {new Date(event.endTime).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'America/New_York'
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm flex items-center">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      Location
+                    </span>
+                    <span className="text-white text-sm font-medium">{event.location}</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-semibold">${event.ticketPrice || '0'}</span>
+                <div className="flex items-center justify-between pt-2 border-t border-gray-700">
+                  <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                    {event.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
                   <div className="flex items-center space-x-2">
                     <ViewEventDialog event={event} />
                     <EditEventDialog event={event} />
@@ -6313,7 +6375,19 @@ function ViewEventDialog({ event }: { event: any }) {
                 </div>
                 <div>
                   <Label className="text-gray-300">Event Time</Label>
-                  <p className="text-white font-medium">{new Date(event.startTime).toLocaleTimeString()}</p>
+                  <p className="text-white font-medium">
+                    {new Date(event.startTime).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                      timeZone: 'America/New_York'
+                    })} - {new Date(event.endTime).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                      timeZone: 'America/New_York'
+                    })}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-gray-300">Capacity</Label>
