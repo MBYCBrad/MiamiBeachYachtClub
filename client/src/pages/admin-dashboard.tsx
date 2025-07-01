@@ -60,7 +60,8 @@ import {
   BellRing,
   Dot,
   Wrench,
-  User
+  User,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,6 +106,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
   { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-emerald-500 to-teal-500' },
+  { id: 'contact-messages', label: 'Contact Messages', icon: Mail, color: 'from-pink-500 to-purple-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
@@ -2532,6 +2534,13 @@ export default function AdminDashboard() {
   // Tour requests data using the hook
   const { data: tourRequests = [] } = useTourRequests();
 
+  // Contact messages data
+  const { data: contactMessages = [] } = useQuery<any[]>({
+    queryKey: ['/api/contact-messages'],
+    staleTime: 30000, // Refresh every 30 seconds for real-time data
+    refetchInterval: 30000
+  });
+
   // Initialize yacht WebSocket for real-time yacht updates
   useYachtWebSocket();
   
@@ -2973,6 +2982,141 @@ export default function AdminDashboard() {
                 <MapPin className="h-16 w-16 text-gray-500 mx-auto mb-4" />
                 <p className="text-xl text-gray-400 mb-2">No tour requests yet</p>
                 <p className="text-gray-500">Private tour requests will appear here when submitted</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderContactMessages = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Contact Messages
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage website contact form submissions and inquiries
+          </motion.p>
+        </div>
+      </div>
+
+      {/* Contact Messages Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Mail className="h-5 w-5 mr-2 text-purple-500" />
+              Contact Messages ({contactMessages?.length || 0})
+            </CardTitle>
+            <CardDescription>Manage and respond to website contact form submissions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {contactMessages && contactMessages.length > 0 ? (
+              <div className="space-y-4">
+                {contactMessages.map((message: any, index: number) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600">
+                            <Mail className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{message.firstName} {message.lastName}</h3>
+                            <p className="text-gray-400">{message.email}</p>
+                            {message.phone && (
+                              <p className="text-gray-400">{message.phone}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm text-gray-500 uppercase tracking-wide">Inquiry Type</p>
+                            <p className="text-white font-medium capitalize">{message.inquiryType?.replace('_', ' ')}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500 uppercase tracking-wide">Priority</p>
+                            <Badge variant={message.priority === 'high' ? 'destructive' : message.priority === 'medium' ? 'default' : 'secondary'}>
+                              {message.priority}
+                            </Badge>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500 uppercase tracking-wide">Status</p>
+                            <Badge variant={message.status === 'resolved' ? 'default' : message.status === 'in_progress' ? 'secondary' : 'outline'}>
+                              {message.status?.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">Message</p>
+                          <p className="text-gray-300 bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+                            {message.message}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm text-gray-500">
+                            Submitted: {new Date(message.createdAt).toLocaleDateString()} at {new Date(message.createdAt).toLocaleTimeString()}
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
+                            >
+                              <Mail className="h-4 w-4 mr-1" />
+                              Reply
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Mail className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-400 mb-2">No contact messages yet</p>
+                <p className="text-gray-500">Website contact form submissions will appear here</p>
               </div>
             )}
           </CardContent>
@@ -5863,6 +6007,7 @@ export default function AdminDashboard() {
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'applications' && <AdminApplications />}
             {activeSection === 'tour-requests' && renderTourRequests()}
+            {activeSection === 'contact-messages' && renderContactMessages()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}
