@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
 import { useServicesWebSocket } from "@/hooks/use-services-websocket";
+import { useTourRequests } from "@/hooks/use-tour-requests";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -28,6 +29,7 @@ import {
   Search,
   Filter,
   MoreVertical,
+  MapPin,
   ChevronRight,
   Sparkles,
   Crown,
@@ -36,7 +38,6 @@ import {
   Star,
   DollarSign,
   Clock,
-  MapPin,
   Eye,
   Edit,
   Database,
@@ -103,6 +104,7 @@ interface AdminStats {
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
+  { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-emerald-500 to-teal-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
@@ -2527,6 +2529,9 @@ export default function AdminDashboard() {
     refetchInterval: 30000
   });
 
+  // Tour requests data using the hook
+  const { data: tourRequests = [] } = useTourRequests();
+
   // Initialize yacht WebSocket for real-time yacht updates
   useYachtWebSocket();
   
@@ -2835,6 +2840,146 @@ export default function AdminDashboard() {
 
     return filtered;
   }, [events, eventFilters, activeSection]);
+
+  const renderTourRequests = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Tour Requests
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage private yacht tour requests and scheduling
+          </motion.p>
+        </div>
+      </div>
+
+      {/* Tour Requests Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <MapPin className="h-5 w-5 mr-2 text-purple-500" />
+              Private Tour Requests ({tourRequests?.length || 0})
+            </CardTitle>
+            <CardDescription>Manage and respond to tour booking requests</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {tourRequests && tourRequests.length > 0 ? (
+              <div className="space-y-4">
+                {tourRequests.map((request: any, index: number) => (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600">
+                            <MapPin className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{request.fullName}</h3>
+                            <p className="text-gray-400">{request.email} • {request.phone}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-400 mb-1">Preferred Date</p>
+                            <p className="text-white font-medium">
+                              {request.preferredDate ? new Date(request.preferredDate).toLocaleDateString() : 'Not specified'}
+                            </p>
+                          </div>
+                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-400 mb-1">Preferred Time</p>
+                            <p className="text-white font-medium">{request.preferredTime || 'Not specified'}</p>
+                          </div>
+                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-400 mb-1">Guest Count</p>
+                            <p className="text-white font-medium">{request.guestCount || 1} guests</p>
+                          </div>
+                        </div>
+
+                        {request.specialRequests && (
+                          <div className="bg-gray-900/50 p-4 rounded-lg mb-4">
+                            <p className="text-sm text-gray-400 mb-2">Special Requests</p>
+                            <p className="text-white">{request.specialRequests}</p>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Badge className={`${
+                              request.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              request.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                              request.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                              'bg-red-500/20 text-red-400 border-red-500/30'
+                            }`}>
+                              {request.status?.charAt(0).toUpperCase() + request.status?.slice(1) || 'Pending'}
+                            </Badge>
+                            <span className="text-sm text-gray-400">
+                              {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Recently'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Details
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                            >
+                              <Calendar className="h-4 w-4 mr-1" />
+                              Schedule Tour
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MapPin className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-400 mb-2">No tour requests yet</p>
+                <p className="text-gray-500">Private tour requests will appear here when submitted</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
 
   const renderOverview = () => (
     <motion.div
@@ -5717,6 +5862,7 @@ export default function AdminDashboard() {
           <AnimatePresence mode="wait">
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'applications' && <AdminApplications />}
+            {activeSection === 'tour-requests' && renderTourRequests()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}
