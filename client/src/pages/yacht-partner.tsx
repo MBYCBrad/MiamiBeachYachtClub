@@ -25,7 +25,8 @@ import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 
 const yachtPartnerSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   company: z.string().optional(),
@@ -54,7 +55,8 @@ export default function YachtPartnerPage() {
   const form = useForm<YachtPartnerFormData>({
     resolver: zodResolver(yachtPartnerSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       company: "",
@@ -73,7 +75,9 @@ export default function YachtPartnerPage() {
   const submitApplication = useMutation({
     mutationFn: async (data: YachtPartnerFormData) => {
       const applicationData = {
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fullName: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
         company: data.company || null,
@@ -220,10 +224,24 @@ export default function YachtPartnerPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="fullName"
+                    name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white">Full Name *</FormLabel>
+                        <FormLabel className="text-white">First Name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} className="bg-black/50 border-gray-700 text-white" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Last Name *</FormLabel>
                         <FormControl>
                           <Input {...field} className="bg-black/50 border-gray-700 text-white" />
                         </FormControl>

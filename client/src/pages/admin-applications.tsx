@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Building } from "lucide-react";
+import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Building, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { type Application } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -15,12 +15,19 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminApplications() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["/api/admin/applications"],
   });
+
+  // Filter applications based on type
+  const filteredApplications = useMemo(() => {
+    if (typeFilter === "all") return applications;
+    return applications.filter(app => app.applicationType === typeFilter);
+  }, [applications, typeFilter]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
@@ -72,6 +79,36 @@ export default function AdminApplications() {
     }
   };
 
+  const getApplicationTypeColor = (applicationType: string) => {
+    switch (applicationType) {
+      case "member":
+        return "from-blue-600 to-cyan-600";
+      case "yacht_partner":
+        return "from-indigo-600 to-purple-600";
+      case "service_provider":
+        return "from-pink-600 to-rose-600";
+      case "event_provider":
+        return "from-emerald-600 to-teal-600";
+      default:
+        return "from-gray-600 to-slate-600";
+    }
+  };
+
+  const getApplicationTypeLabel = (applicationType: string) => {
+    switch (applicationType) {
+      case "member":
+        return "MEMBER";
+      case "yacht_partner":
+        return "YACHT PARTNER";
+      case "service_provider":
+        return "SERVICE PARTNER";
+      case "event_provider":
+        return "EVENT PARTNER";
+      default:
+        return "UNKNOWN";
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white">
@@ -98,15 +135,37 @@ export default function AdminApplications() {
             className="text-5xl font-bold tracking-tight mb-2"
             style={{ fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
-            Membership Applications
+            Applications Management
           </h1>
           <p className="text-lg text-gray-400">
-            Review and manage incoming membership applications
+            Review and manage membership and partner applications
           </p>
         </div>
 
+        {/* Filter Controls */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-4">
+            <Filter className="h-5 w-5 text-purple-400" />
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[200px] bg-gray-900/50 border-gray-700/50">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="all">All Applications</SelectItem>
+                <SelectItem value="member">Member Applications</SelectItem>
+                <SelectItem value="yacht_partner">Yacht Partners</SelectItem>
+                <SelectItem value="service_provider">Service Partners</SelectItem>
+                <SelectItem value="event_provider">Event Partners</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="text-sm text-gray-400">
+            Showing {filteredApplications.length} of {applications.length} applications
+          </div>
+        </div>
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -115,6 +174,34 @@ export default function AdminApplications() {
                   <p className="text-2xl font-bold">{applications.length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400">Member Applications</p>
+                  <p className="text-2xl font-bold">
+                    {applications.filter(app => app.applicationType === "member").length}
+                  </p>
+                </div>
+                <User className="h-8 w-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400">Partner Applications</p>
+                  <p className="text-2xl font-bold">
+                    {applications.filter(app => app.applicationType !== "member").length}
+                  </p>
+                </div>
+                <Building className="h-8 w-8 text-indigo-400" />
               </div>
             </CardContent>
           </Card>
@@ -164,7 +251,7 @@ export default function AdminApplications() {
 
         {/* Applications List */}
         <div className="space-y-4">
-          {applications.map((application: Application) => (
+          {filteredApplications.map((application: Application) => (
             <Card 
               key={application.id} 
               className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-800/50 transition-colors cursor-pointer"
@@ -199,6 +286,11 @@ export default function AdminApplications() {
                       className={`bg-gradient-to-r ${getStatusColor(application.status)} text-white border-none`}
                     >
                       {application.status?.replace("_", " ").toUpperCase()}
+                    </Badge>
+                    <Badge 
+                      className={`bg-gradient-to-r ${getApplicationTypeColor(application.applicationType)} text-white border-none`}
+                    >
+                      {getApplicationTypeLabel(application.applicationType)}
                     </Badge>
                     <Badge variant="outline" className="border-purple-500 text-purple-400">
                       {application.membershipTier?.toUpperCase()}
