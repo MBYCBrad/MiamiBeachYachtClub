@@ -779,7 +779,7 @@ export default function YachtMaintenance() {
                             {record.priority}
                           </Badge>
                           <Badge variant="outline" className="border-blue-500 text-blue-400">
-                            {record.taskType ? record.taskType.replace('_', ' ') : 'Maintenance Task'}
+                            {record.taskType && typeof record.taskType === 'string' ? record.taskType.replace('_', ' ') : 'Maintenance Task'}
                           </Badge>
                           {record.component && (
                             <Badge variant="outline" className="border-green-500 text-green-400">
@@ -810,7 +810,7 @@ export default function YachtMaintenance() {
                             record.status === 'overdue' ? 'border-red-500 text-red-400' :
                             'border-gray-500 text-gray-400'
                           }`}>
-                            {record.status?.replace('_', ' ') || 'Scheduled'}
+                            {record.status && typeof record.status === 'string' ? record.status.replace('_', ' ') : 'Scheduled'}
                           </Badge>
                         </div>
                         <div className="text-gray-400">
@@ -825,7 +825,7 @@ export default function YachtMaintenance() {
                         <div className="mb-3">
                           <span className="text-gray-400 font-medium">Category: </span>
                           <Badge variant="outline" className="border-purple-500 text-purple-400">
-                            {record.category.replace('_', ' ')}
+                            {record.category && typeof record.category === 'string' ? record.category.replace('_', ' ') : 'General'}
                           </Badge>
                         </div>
                       )}
@@ -1420,8 +1420,8 @@ export default function YachtMaintenance() {
                             />
                             <defs>
                               <linearGradient id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" className={`stop-color-gradient-start ${item.color.split(' ')[0].replace('from-', '')}`} />
-                                <stop offset="100%" className={`stop-color-gradient-end ${item.color.split(' ')[2].replace('to-', '')}`} />
+                                <stop offset="0%" className={`stop-color-gradient-start ${item.color && typeof item.color === 'string' ? item.color.split(' ')[0]?.replace('from-', '') || 'purple-600' : 'purple-600'}`} />
+                                <stop offset="100%" className={`stop-color-gradient-end ${item.color && typeof item.color === 'string' ? item.color.split(' ')[2]?.replace('to-', '') || 'indigo-600' : 'indigo-600'}`} />
                               </linearGradient>
                             </defs>
                           </svg>
