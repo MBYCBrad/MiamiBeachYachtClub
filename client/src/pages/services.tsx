@@ -110,9 +110,12 @@ export default function ServicesPage() {
                     </div>
                     
                     {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-4 left-4 flex gap-2">
                       <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                         {service.category}
+                      </Badge>
+                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        {service.serviceType || 'location'}
                       </Badge>
                     </div>
 
