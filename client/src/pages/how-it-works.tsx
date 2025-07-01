@@ -447,13 +447,13 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="currentBoats" className="text-white">Current Boats/Yachts Owned</Label>
+                  <Label htmlFor="currentBoats" className="text-white">Current Yachts Owned</Label>
                   <Textarea
                     id="currentBoats"
                     value={formData.currentBoats}
                     onChange={(e) => updateFormData('currentBoats', e.target.value)}
                     className="bg-gray-800 border-gray-600 text-white"
-                    placeholder="Describe any boats or yachts you currently own"
+                    placeholder="Describe any yachts you currently own"
                     rows={3}
                   />
                 </div>
