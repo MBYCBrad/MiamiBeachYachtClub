@@ -6235,7 +6235,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { bookingId, captainId, coordinatorId, crewMemberIds, briefingTime, notes } = req.body;
       
+      // Generate unique ID for the assignment
+      const assignmentId = `assignment_${bookingId}_${Date.now()}`;
+      
       const assignment = await dbStorage.createCrewAssignment({
+        id: assignmentId,
         bookingId,
         captainId,
         coordinatorId,
