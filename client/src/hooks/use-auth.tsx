@@ -32,9 +32,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: 0, // No retries for instant response
-    staleTime: 1, // 1ms for instant refresh
-    gcTime: 1000, // 1 second cache
-    refetchOnMount: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes for stable session
+    gcTime: 10 * 60 * 1000, // 10 minutes cache
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
@@ -50,22 +50,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Welcome back, ${user.username}!`,
       });
       
-      // Trigger role-based routing after successful login - instant transition
-      setTimeout(() => {
-        if (user.role === "admin") {
-          window.location.href = "/admin";
-        } else if (user.role === "yacht_owner") {
-          window.location.href = "/yacht-owner";
-        } else if (user.role === "service_provider") {
-          window.location.href = "/service-provider";
-        } else if (user.role === "staff") {
-          window.location.href = "/staff-portal";
-        } else if (user.role === "member") {
-          window.location.href = "/member";
-        } else {
-          window.location.href = "/";
-        }
-      }, 1);
+      // Immediate role-based routing without delay
+      if (user.role === "admin") {
+        window.location.href = "/admin";
+      } else if (user.role === "yacht_owner") {
+        window.location.href = "/yacht-owner";
+      } else if (user.role === "service_provider") {
+        window.location.href = "/service-provider";
+      } else if (user.role === "staff") {
+        window.location.href = "/staff-portal";
+      } else if (user.role === "member") {
+        window.location.href = "/member";
+      } else {
+        window.location.href = "/";
+      }
     },
     onError: (error: Error) => {
       toast({
