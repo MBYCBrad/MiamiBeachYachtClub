@@ -4126,13 +4126,7 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          <QuickActionButton 
-                            booking={booking}
-                            action="message"
-                            icon={MessageSquare}
-                            tooltip="Message Member"
-                          />
+                        <div className="flex items-center justify-center">
                           <QuickActionButton 
                             booking={booking}
                             action="view"
