@@ -6213,6 +6213,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff assignment endpoints
+  app.get('/api/staff/assignments', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      const assignments = await dbStorage.getCrewAssignments();
+      res.json(assignments);
+    } catch (error) {
+      console.error('Error fetching staff assignments:', error);
+      res.status(500).json({ message: 'Failed to fetch staff assignments' });
+    }
+  });
+
+  app.post('/api/staff/assignments', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      
+      const { bookingId, captainId, coordinatorId, crewMemberIds, briefingTime, notes } = req.body;
+      
+      const assignment = await dbStorage.createCrewAssignment({
+        bookingId,
+        captainId,
+        coordinatorId,
+        crewMemberIds: crewMemberIds || [],
+        briefingTime,
+        notes: notes || '',
+        status: 'planned'
+      });
+      
+      res.json(assignment);
+    } catch (error) {
+      console.error('Error creating staff assignment:', error);
+      res.status(500).json({ message: 'Failed to create staff assignment' });
+    }
+  });
+
+  app.patch('/api/staff/assignments/:id', requireAuth, async (req, res) => {
+    try {
+      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator' && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      
+      const assignmentId = req.params.id;
+      const updateData = req.body;
+      
+      const assignment = await dbStorage.updateCrewAssignment(assignmentId, updateData);
+      
+      res.json(assignment);
+    } catch (error) {
+      console.error('Error updating staff assignment:', error);
+      res.status(500).json({ message: 'Failed to update staff assignment' });
+    }
+  });
+
   // MEMBERSHIP APPLICATION ROUTES
   app.post("/api/applications", async (req, res) => {
     try {

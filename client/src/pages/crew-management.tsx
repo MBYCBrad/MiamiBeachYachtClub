@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -119,6 +120,7 @@ interface CrewAssignment {
 
 export default function CrewManagementPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   const [selectedBooking, setSelectedBooking] = useState<number | null>(null);
   const [selectedCaptain, setSelectedCaptain] = useState<number | null>(null);
@@ -196,11 +198,20 @@ export default function CrewManagementPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
+      toast({
+        title: "Assignment Created",
+        description: "Crew assignment successfully created and scheduled.",
+      });
       setShowAssignmentDialog(false);
       resetForm();
     },
     onError: (error: Error) => {
       console.error('Assignment creation failed:', error);
+      toast({
+        title: "Assignment Failed",
+        description: "Could not create crew assignment. Please try again.",
+        variant: "destructive",
+      });
     }
   });
 
@@ -397,65 +408,82 @@ export default function CrewManagementPage() {
               </TabsContent>
 
               <TabsContent value="active" className="mt-6">
-                {activeBookings.filter((booking: any) => (booking.status === 'confirmed' || booking.status === 'in-progress') && booking.crewAssigned).length === 0 ? (
+                {assignments.length === 0 ? (
                   <div className="text-center py-12">
                     <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Bookings</h3>
-                    <p className="text-gray-500">No yacht bookings are currently active with crew assignments.</p>
+                    <h3 className="text-lg font-medium text-gray-400 mb-2">No Active Assignments</h3>
+                    <p className="text-gray-500">No crew assignments have been created yet.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {activeBookings
-                      .filter((booking: any) => (booking.status === 'confirmed' || booking.status === 'in-progress') && booking.crewAssigned)
-                      .map((booking: any) => (
-                      <div key={booking.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <Badge 
-                              variant="outline" 
-                              className="border-gray-600 bg-gradient-to-r from-green-600 to-emerald-600 text-white"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              {booking.status === 'in-progress' ? 'In Progress' : 'Ready'}
-                            </Badge>
-                            <div className="text-white font-medium">
-                              {booking.yachtName} - {booking.memberName}
-                            </div>
-                            {booking.status === 'in-progress' && (
-                              <div className="flex items-center gap-1 text-green-400 text-xs">
-                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                                LIVE
+                    {assignments.map((assignment: any) => {
+                      const booking = assignment.booking || {};
+                      return (
+                        <div key={assignment.id} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <Badge 
+                                variant="outline" 
+                                className={`border-gray-600 text-white ${
+                                  assignment.status === 'planned' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+                                  assignment.status === 'in-progress' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
+                                  'bg-gradient-to-r from-blue-600 to-cyan-600'
+                                }`}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                {assignment.status === 'in-progress' ? 'In Progress' : 
+                                 assignment.status === 'completed' ? 'Completed' : 'Planned'}
+                              </Badge>
+                              <div className="text-white font-medium">
+                                Booking #{assignment.bookingId} - Assignment #{assignment.id}
                               </div>
-                            )}
+                              {assignment.status === 'in-progress' && (
+                                <div className="flex items-center gap-1 text-green-400 text-xs">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                                  LIVE
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
+                                onClick={() => {
+                                  setSelectedAssignment(assignment);
+                                  setViewDetailsDialog(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                View Details
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Crew
-                            </Button>
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <div className="text-gray-400 mb-1">Time</div>
-                            <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <div className="text-gray-400 mb-1">Captain</div>
+                              <div className="text-white">{assignment.captain?.username || 'Not assigned'}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-400 mb-1">Coordinator</div>
+                              <div className="text-white">{assignment.coordinator?.username || 'Not assigned'}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-400 mb-1">Crew Members</div>
+                              <div className="text-white">{assignment.crewMembers?.length || 0} assigned</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="text-gray-400 mb-1">Guests</div>
-                            <div className="text-white">{booking.guestCount} guests</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-400 mb-1">Crew Status</div>
-                            <div className="text-emerald-400">Assigned</div>
-                          </div>
+                          
+                          {assignment.briefingTime && (
+                            <div className="mt-3 pt-3 border-t border-gray-700">
+                              <div className="text-gray-400 text-xs mb-1">Briefing Time</div>
+                              <div className="text-white text-sm">{new Date(assignment.briefingTime).toLocaleString()}</div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>
