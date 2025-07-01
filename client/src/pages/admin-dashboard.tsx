@@ -300,17 +300,12 @@ const AutomatedBookingStatus = ({ booking }: { booking: any }) => {
   const { status, reason, color, icon: Icon } = calculateAutomatedStatus();
 
   return (
-    <div className="flex flex-col items-center space-y-1">
-      <Badge className={`${color} flex items-center space-x-1 px-2 py-1`}>
-        <Icon className="h-3 w-3" />
-        <span className="capitalize text-xs font-medium">
-          {status.replace('_', ' ')}
-        </span>
-      </Badge>
-      <div className="text-xs text-gray-500 text-center max-w-28 leading-tight">
-        {reason}
-      </div>
-    </div>
+    <Badge className={`${color} flex items-center space-x-1 px-2 py-1`}>
+      <Icon className="h-3 w-3" />
+      <span className="capitalize text-xs font-medium">
+        {status.replace('_', ' ')}
+      </span>
+    </Badge>
   );
 };
 
@@ -4054,9 +4049,7 @@ export default function AdminDashboard() {
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Yacht</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Experience</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Guests</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Booking Status</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Auto Status</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Crew Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -4113,17 +4106,7 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <BookingStatusBadge booking={booking} />
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          <AutomatedBookingStatus booking={booking} />
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          <CrewStatusIndicator booking={booking} />
-                        </div>
+                        <AutomatedBookingStatus booking={booking} />
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center justify-center">
