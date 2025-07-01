@@ -1,9 +1,9 @@
 import React, { useState, memo } from 'react';
-import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { Heart, Star } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import YachtBookingModal from './yacht-booking-modal';
+import YachtDetailsModal from './yacht-details-modal';
 import type { Yacht } from "@shared/schema";
 import { cn } from '@/lib/utils';
 import { useOptimizedImage } from '@/hooks/use-optimized-images';
@@ -12,24 +12,6 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 
-// Authentic yacht images from storage bucket
-const YACHT_IMAGES = [
-  "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg", // Luxury mega yacht
-  "/api/media/pexels-goumbik-296278_1750537277229.jpg", // White sport yacht
-  "/api/media/pexels-mali-42092_1750537277229.jpg", // Marina luxury yacht
-  "/api/media/pexels-mikebirdy-144634_1750537277230.jpg", // Harbor motor yacht
-  "/api/media/pexels-pixabay-163236_1750537277230.jpg", // Modern sport cruiser
-  "/api/media/pexels-mali-42091_1750537294323.jpg", // Premium superyacht
-  "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg", // Luxury mega yacht
-  "/api/media/pexels-goumbik-296278_1750537277229.jpg", // White sport yacht
-  "/api/media/pexels-mali-42092_1750537277229.jpg", // Marina luxury yacht
-  "/api/media/pexels-mikebirdy-144634_1750537277230.jpg"  // Harbor motor yacht
-];
-
-const getYachtImage = (yachtId: number) => {
-  return YACHT_IMAGES[(yachtId - 1) % YACHT_IMAGES.length];
-};
-
 interface YachtCardProps {
   yacht: Yacht;
   index?: number;
@@ -37,14 +19,14 @@ interface YachtCardProps {
 
 const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [, setLocation] = useLocation();
   
-  // Use yacht's database image URL or fallback to curated yacht images
-  const yachtImage = yacht.imageUrl || getYachtImage(yacht.id);
-  const { imageSrc, isLoading } = useOptimizedImage(yachtImage);
+  // Use real yacht images from database - imageUrl for main image or first image from images array
+  const yachtImage = yacht.imageUrl || (yacht.images && yacht.images.length > 0 ? yacht.images[0] : undefined);
+  const { imageSrc, isLoading } = useOptimizedImage(yachtImage || "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg");
 
   // Get user's favorites
   const { data: userFavorites = [] } = useQuery({
@@ -140,7 +122,7 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
         }
       }}
       whileTap={{ scale: 0.98 }}
-      onClick={() => setLocation(`/yachts/${yacht.id}`)}
+      onClick={() => setIsDetailsModalOpen(true)}
       className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden cursor-pointer
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60
@@ -390,6 +372,13 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
           )}
         </div>
       </div>
+
+      {/* Yacht Details Modal */}
+      <YachtDetailsModal 
+        yacht={yacht}
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+      />
 
       {/* Booking Modal */}
       <YachtBookingModal 
