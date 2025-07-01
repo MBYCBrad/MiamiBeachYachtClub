@@ -10,83 +10,41 @@ const faqs = [
     category: "Membership",
     questions: [
       {
-        question: "What are the different membership tiers?",
-        answer: "MBYC offers four membership tiers: Bronze (access to yachts up to 40ft), Silver (up to 55ft), Gold (up to 70ft), and Platinum (unlimited access to all yachts including mega yachts over 100ft). Each tier includes different levels of concierge services and exclusive event access."
+        question: "What types of memberships are available?",
+        answer: "We offer several membership tiers, including Gold, Platinum, and Diamond. Each tier offers different benefits and access to our fleet of yachts."
       },
       {
-        question: "Can I upgrade my membership tier?",
-        answer: "Yes, you can upgrade your membership tier at any time. The upgrade takes effect immediately, and you'll only pay the prorated difference for the remainder of your billing period. Contact our membership team to process your upgrade."
+        question: "How does the membership work?",
+        answer: "Diamond membership offers you access to the entire fleet. Platinum membership offer access to yachts 80 feet and lower. Gold memberships to 70 feet and lower."
       },
       {
-        question: "What's included in my membership?",
-        answer: "All memberships include: yacht access based on your tier, professional crew for every voyage, comprehensive insurance, 24/7 concierge support, access to exclusive events, and priority booking. Higher tiers include additional benefits like extended booking windows and premium concierge services."
+        question: "Can I pay my membership dues yearly?",
+        answer: "Absolutely! If you do you will get a 10% discount."
       },
       {
-        question: "Is there a minimum commitment period?",
-        answer: "We offer both annual and monthly membership options. Annual members receive a 15% discount and additional benefits. There's no long-term contract required, but we do require 30 days notice for cancellations."
+        question: "What is included in the membership fee?",
+        answer: "Your Membership covers the yacht usage, the captain and crew, fuel costs, exclusive club events, and concierge services, including transportation and private jet bookings. Tips are appreciated but at your discretion."
+      },
+      {
+        question: "How do I renew my membership?",
+        answer: "Membership can be renewed annually through our online portal or by speaking with our concierge team."
       }
     ]
   },
   {
-    category: "Booking & Availability",
+    category: "Booking & Usage",
     questions: [
       {
-        question: "How far in advance can I book a yacht?",
-        answer: "Booking windows vary by membership tier: Bronze members can book 30 days in advance, Silver 45 days, Gold 60 days, and Platinum members enjoy 90-day advance booking privileges. This ensures fair access for all members while rewarding higher tiers."
+        question: "How do I book a yacht?",
+        answer: "You can book a yacht either through our concierge service or through our booking app."
       },
       {
-        question: "What if the yacht I want isn't available?",
-        answer: "Our concierge team will work with you to find an alternative yacht that meets your needs. We can also add you to a waitlist and notify you immediately if your preferred yacht becomes available due to cancellations."
+        question: "Can I bring guests aboard the yacht?",
+        answer: "Yes, members are welcome to bring guests according to the capacity limits of the booked yacht."
       },
       {
-        question: "Can I book multiple yachts for an event?",
-        answer: "Yes, we can arrange multi-yacht charters for special events. This service is available to Gold and Platinum members. Contact our events team at least 30 days in advance to coordinate your multi-yacht experience."
-      },
-      {
-        question: "What's your cancellation policy?",
-        answer: "Cancellations made more than 48 hours before your booking are free. Cancellations within 48 hours incur a 50% charge. No-shows are charged in full. Platinum members enjoy more flexible cancellation terms with only 24-hour notice required."
-      }
-    ]
-  },
-  {
-    category: "Yacht Experience",
-    questions: [
-      {
-        question: "Are crew members included with every booking?",
-        answer: "Yes, every yacht booking includes a professional captain and appropriate crew based on the yacht size. Our crew members are fully licensed, insured, and trained to provide exceptional service while ensuring your safety."
-      },
-      {
-        question: "Can I bring my own food and beverages?",
-        answer: "Absolutely! You're welcome to bring your own provisions. We also offer premium catering services through our culinary partners, ranging from casual dining to Michelin-star chef experiences. Our concierge team can arrange everything."
-      },
-      {
-        question: "What safety equipment is on board?",
-        answer: "All yachts exceed USCG safety requirements with life jackets for all passengers, emergency beacons, first aid kits, fire suppression systems, and emergency rafts. Crew members are trained in emergency procedures and first aid."
-      },
-      {
-        question: "Can I dock at other marinas during my charter?",
-        answer: "Yes, you can visit other marinas during your charter. Docking fees at other marinas are additional and vary by location. Our crew can recommend popular destinations and handle docking arrangements."
-      }
-    ]
-  },
-  {
-    category: "Payment & Pricing",
-    questions: [
-      {
-        question: "What payment methods do you accept?",
-        answer: "We accept all major credit cards, ACH transfers, and wire transfers for membership fees. Yacht bookings and additional services can be charged to your card on file or invoiced monthly for Platinum members."
-      },
-      {
-        question: "Are there any hidden fees?",
-        answer: "No hidden fees. Your membership includes yacht access, crew, insurance, and standard fuel for day trips. Additional charges only apply for overnight trips, excessive fuel consumption, damage, or optional services like catering."
-      },
-      {
-        question: "Do you offer corporate memberships?",
-        answer: "Yes, we offer corporate membership packages with multiple user accounts, priority booking, and dedicated account management. Corporate members also receive tax-advantageous invoicing and can host client entertainment events."
-      },
-      {
-        question: "Is there a referral program?",
-        answer: "Yes! When you refer a friend who joins MBYC, you both receive a month of complimentary membership at your current tier. Platinum members receive additional benefits including priority booking credits."
+        question: "Can I buy a membership as a gift?",
+        answer: "Yes you can as long as we do a background check on the club member."
       }
     ]
   }
