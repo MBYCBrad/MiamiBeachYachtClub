@@ -57,7 +57,7 @@ export function VideoCTA({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col justify-center min-h-full">
         <h2
           className="text-4xl md:text-6xl font-bold text-white mb-8"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
