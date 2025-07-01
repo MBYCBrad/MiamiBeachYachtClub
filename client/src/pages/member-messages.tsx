@@ -114,7 +114,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-screen bg-black text-white pb-32">
       {/* Video Header */}
       <div className="relative h-96 overflow-hidden">
         {/* Hero Video Background */}
