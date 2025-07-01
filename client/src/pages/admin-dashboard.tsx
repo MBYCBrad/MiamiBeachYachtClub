@@ -110,7 +110,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
   { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-emerald-500 to-teal-500' },
-  { id: 'contact-messages', label: 'Contact Messages', icon: Mail, color: 'from-pink-500 to-purple-500' },
+  { id: 'contact-messages', label: 'Contact Inquiries', icon: Mail, color: 'from-pink-500 to-purple-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
@@ -3302,7 +3302,7 @@ export default function AdminDashboard() {
             className="text-5xl font-bold text-white mb-2 tracking-tight"
             style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
           >
-            Contact Messages
+            Contact Inquiries
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
@@ -3325,7 +3325,7 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Mail className="h-5 w-5 mr-2 text-purple-500" />
-              Contact Messages ({contactMessages?.length || 0})
+              Contact Inquiries ({contactMessages?.length || 0})
             </CardTitle>
             <CardDescription>Manage and respond to website contact form submissions</CardDescription>
           </CardHeader>
