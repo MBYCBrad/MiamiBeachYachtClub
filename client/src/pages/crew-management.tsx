@@ -131,6 +131,7 @@ export default function CrewManagementPage() {
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [viewDetailsDialog, setViewDetailsDialog] = useState(false);
   const [editDetailsDialog, setEditDetailsDialog] = useState(false);
+  const [viewBookingDialog, setViewBookingDialog] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<CrewAssignment | null>(null);
 
   // Staff portal API endpoints
@@ -514,8 +515,21 @@ export default function CrewManagementPage() {
                               {booking.yachtName} - {booking.memberName}
                             </div>
                           </div>
-                          <div className="text-gray-400 text-sm">
-                            {new Date(booking.createdAt).toLocaleDateString()}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedBooking(booking.id);
+                                setViewBookingDialog(true);
+                              }}
+                              className="text-purple-400 hover:text-purple-300 hover:bg-purple-900/20"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <div className="text-gray-400 text-sm">
+                              {new Date(booking.createdAt).toLocaleDateString()}
+                            </div>
                           </div>
                         </div>
 
@@ -568,6 +582,15 @@ export default function CrewManagementPage() {
               assignment={selectedAssignment}
               crewMembers={crewMembers}
               onUpdate={() => updateAssignmentMutation.mutate({ id: selectedAssignment.id, data: {} })}
+            />
+          )}
+        </Dialog>
+
+        {/* View Booking Dialog */}
+        <Dialog open={viewBookingDialog} onOpenChange={setViewBookingDialog}>
+          {selectedBooking && (
+            <ViewBookingDetailsDialog 
+              booking={transformedBookings.find(b => b.id === selectedBooking) || null} 
             />
           )}
         </Dialog>
@@ -1229,6 +1252,158 @@ function EditAssignmentDialog({
             Update Assignment
           </Button>
         </div>
+      </div>
+    </DialogContent>
+  );
+}
+function ViewBookingDetailsDialog({ booking }: { booking: YachtBooking | null }) {
+  if (!booking) return null;
+
+  return (
+    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-gray-950 border-gray-700">
+      <DialogHeader>
+        <DialogTitle className="text-xl text-purple-400 flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          Booking Details - {booking.yachtName}
+        </DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-6">
+        {/* Booking Status */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-green-400 flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              Booking Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <Badge 
+                variant="outline" 
+                className="border-gray-600 bg-gray-600 text-white"
+              >
+                {booking.status || 'Completed'}
+              </Badge>
+              <div className="text-gray-400 text-sm uppercase tracking-wide mt-2">Current Status</div>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-blue-400">{booking.guestCount}</div>
+              <div className="text-gray-400 text-sm uppercase tracking-wide">Guests</div>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
+              <div className="text-2xl font-bold text-orange-400">{booking.memberTier}</div>
+              <div className="text-gray-400 text-sm uppercase tracking-wide">Member Tier</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Yacht Information */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-blue-400 flex items-center gap-2">
+              <Ship className="h-5 w-5" />
+              Yacht Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-gray-400 text-sm">Yacht Name</div>
+              <div className="text-white font-medium">{booking.yachtName}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Member</div>
+              <div className="text-white">{booking.memberName}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Booking Duration</div>
+              <div className="text-white">{formatBookingTime(booking.startTime, booking.endTime)}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Guest Count</div>
+              <div className="text-white">{booking.guestCount} people</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Trip Timeline */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-purple-400 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Trip Timeline
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-green-900/20 rounded-lg border border-green-700/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-green-400" />
+                  <span className="font-medium text-green-400">Start Time</span>
+                </div>
+                <div className="text-white font-medium">
+                  {new Date(booking.startTime).toLocaleString()}
+                </div>
+              </div>
+              <div className="p-3 bg-red-900/20 rounded-lg border border-red-700/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-red-400" />
+                  <span className="font-medium text-red-400">End Time</span>
+                </div>
+                <div className="text-white font-medium">
+                  {new Date(booking.endTime).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Special Requests */}
+        {booking.specialRequests && (
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg text-orange-400 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Special Requests
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-white bg-orange-900/20 p-3 rounded text-sm border border-orange-700/50">
+                {booking.specialRequests}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Booking Information */}
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-indigo-400 flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Booking Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-gray-400 text-sm">Booking ID</div>
+              <div className="text-white font-mono">#{booking.id}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Created Date</div>
+              <div className="text-white">
+                {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'Unknown'}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Membership Tier</div>
+              <div className="text-white capitalize">{booking.memberTier}</div>
+            </div>
+            <div>
+              <div className="text-gray-400 text-sm">Booking Type</div>
+              <div className="text-white">Yacht Charter</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DialogContent>
   );
