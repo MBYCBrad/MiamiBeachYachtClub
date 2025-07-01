@@ -4329,7 +4329,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const eventId = parseInt(req.params.id);
-      const updateData = req.body;
+      const updateData = { ...req.body };
+      
+      // Ensure dates are properly converted to Date objects
+      if (updateData.startTime) {
+        updateData.startTime = new Date(updateData.startTime);
+        if (isNaN(updateData.startTime.getTime())) {
+          return res.status(400).json({ message: 'Invalid start time format' });
+        }
+      }
+      
+      if (updateData.endTime) {
+        updateData.endTime = new Date(updateData.endTime);
+        if (isNaN(updateData.endTime.getTime())) {
+          return res.status(400).json({ message: 'Invalid end time format' });
+        }
+      }
+      
       const event = await dbStorage.updateEvent(eventId, updateData);
       res.json(event);
     } catch (error: any) {
@@ -4775,8 +4791,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Create Event
   app.post("/api/admin/events", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
-      const newEvent = await dbStorage.createEvent(req.body);
-      await auditService.logAction(req, 'create', 'event', newEvent.id, req.body);
+      const eventData = { ...req.body };
+      
+      // Ensure dates are properly converted to Date objects
+      if (eventData.startTime) {
+        eventData.startTime = new Date(eventData.startTime);
+        if (isNaN(eventData.startTime.getTime())) {
+          return res.status(400).json({ message: 'Invalid start time format' });
+        }
+      }
+      
+      if (eventData.endTime) {
+        eventData.endTime = new Date(eventData.endTime);
+        if (isNaN(eventData.endTime.getTime())) {
+          return res.status(400).json({ message: 'Invalid end time format' });
+        }
+      }
+      
+      const newEvent = await dbStorage.createEvent(eventData);
+      await auditService.logAction(req, 'create', 'event', newEvent.id, eventData);
       res.status(201).json(newEvent);
     } catch (error: any) {
       await auditService.logAction(req, 'create', 'event', undefined, req.body, false, error.message);
