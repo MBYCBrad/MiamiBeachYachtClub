@@ -493,19 +493,18 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   <Label className="text-white text-lg font-semibold mb-4 block">Preferred Membership Tier *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {membershipTiers.map((tier) => (
-                      <motion.div
+                      <div
                         key={tier.name}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           console.log('Tier clicked:', tier.name);
                           updateFormData('membershipTier', tier.name);
                         }}
-                        className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                        className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 hover:scale-105 ${
                           formData.membershipTier === tier.name
                             ? 'border-purple-600 bg-purple-600/10'
                             : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
                         }`}
+                        style={{ zIndex: 10 }}
                       >
                         <div className="flex items-center space-x-3 mb-3">
                           <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${tier.color} flex items-center justify-center`}>
@@ -527,25 +526,24 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                             <CheckCircle className="w-6 h-6 text-purple-600" />
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
                 <div>
                   <Label className="text-white text-lg font-semibold mb-4 block">Membership Package Type *</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <div
                       onClick={() => {
                         console.log('Package clicked: full');
                         updateFormData('membershipPackage', 'full');
                       }}
-                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 hover:scale-105 ${
                         formData.membershipPackage === 'full'
                           ? 'border-purple-600 bg-purple-600/10'
                           : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
                       }`}
+                      style={{ zIndex: 10 }}
                     >
                       <div className="flex items-center space-x-3 mb-3">
                         <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 flex items-center justify-center">
@@ -567,20 +565,19 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                           <CheckCircle className="w-6 h-6 text-purple-600" />
                         </div>
                       )}
-                    </motion.div>
+                    </div>
                     
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <div
                       onClick={() => {
                         console.log('Package clicked: mariners');
                         updateFormData('membershipPackage', 'mariners');
                       }}
-                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                      className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 hover:scale-105 ${
                         formData.membershipPackage === 'mariners'
                           ? 'border-purple-600 bg-purple-600/10'
                           : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
                       }`}
+                      style={{ zIndex: 10 }}
                     >
                       <div className="flex items-center space-x-3 mb-3">
                         <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
@@ -602,7 +599,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                           <CheckCircle className="w-6 h-6 text-purple-600" />
                         </div>
                       )}
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </div>
