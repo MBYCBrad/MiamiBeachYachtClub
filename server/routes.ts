@@ -2823,7 +2823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Must specify yachtId, serviceId, or eventId" });
       }
 
-      const favorite = await dbStorage.addFavorite({
+      const favorite = await dbStorage.createFavorite({
         userId: req.user!.id,
         yachtId: yachtId || null,
         serviceId: serviceId || null,
@@ -2832,6 +2832,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(favorite);
     } catch (error: any) {
+      console.error('Favorites error:', error);
       res.status(400).json({ message: error.message });
     }
   });
@@ -2840,12 +2841,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { yachtId, serviceId, eventId } = req.query;
       
-      const success = await dbStorage.removeFavorite(
-        req.user!.id,
-        yachtId ? parseInt(yachtId as string) : undefined,
-        serviceId ? parseInt(serviceId as string) : undefined,
-        eventId ? parseInt(eventId as string) : undefined
+      if (!yachtId && !serviceId && !eventId) {
+        return res.status(400).json({ message: "Must specify yachtId, serviceId, or eventId" });
+      }
+
+      // Find and delete the favorite
+      const userFavorites = await dbStorage.getUserFavorites(req.user!.id);
+      const favoriteToDelete = userFavorites.find(fav => 
+        (yachtId && fav.yachtId === parseInt(yachtId as string)) ||
+        (serviceId && fav.serviceId === parseInt(serviceId as string)) ||
+        (eventId && fav.eventId === parseInt(eventId as string))
       );
+
+      if (!favoriteToDelete) {
+        return res.status(404).json({ message: "Favorite not found" });
+      }
+
+      const success = await dbStorage.deleteFavorite(favoriteToDelete.id);
 
       if (success) {
         res.json({ message: "Favorite removed successfully" });
@@ -2853,6 +2865,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(404).json({ message: "Favorite not found" });
       }
     } catch (error: any) {
+      console.error('Delete favorites error:', error);
       res.status(500).json({ message: error.message });
     }
   });
