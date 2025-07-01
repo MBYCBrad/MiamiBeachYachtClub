@@ -295,9 +295,7 @@ export default function AdminApplications() {
                     <Badge variant="outline" className="border-purple-500 text-purple-400">
                       {application.membershipTier?.toUpperCase()}
                     </Badge>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center hover:from-purple-500 hover:to-indigo-500 transition-colors cursor-pointer">
-                      <Eye className="w-4 h-4 text-white" />
-                    </div>
+                    <Eye className="w-5 h-5 text-gray-400 hover:text-purple-400 transition-colors cursor-pointer" />
                   </div>
                 </div>
               </CardContent>
