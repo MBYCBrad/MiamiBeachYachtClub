@@ -2217,12 +2217,24 @@ function AddEventDialog({ currentUser }: { currentUser: any }) {
 
   const createEventMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Ensure dates are properly formatted for the database
+      const startTime = data.startTime ? new Date(data.startTime) : null;
+      const endTime = data.endTime ? new Date(data.endTime) : null;
+      
+      // Validate dates
+      if (!startTime || isNaN(startTime.getTime())) {
+        throw new Error('Invalid start time');
+      }
+      if (!endTime || isNaN(endTime.getTime())) {
+        throw new Error('Invalid end time');
+      }
+      
       const eventData = {
         ...data,
         capacity: parseInt(data.capacity),
         hostId: data.hostId && data.hostId !== "system" ? parseInt(data.hostId) : null,
-        startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime),
+        startTime,
+        endTime,
         imageUrl: data.images && data.images.length > 0 ? data.images[0] : null,
         images: data.images || []
       };
@@ -2408,12 +2420,24 @@ function EditEventDialog({ event }: { event: any }) {
 
   const updateEventMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Ensure dates are properly formatted for the database
+      const startTime = data.startTime ? new Date(data.startTime) : null;
+      const endTime = data.endTime ? new Date(data.endTime) : null;
+      
+      // Validate dates
+      if (!startTime || isNaN(startTime.getTime())) {
+        throw new Error('Invalid start time');
+      }
+      if (!endTime || isNaN(endTime.getTime())) {
+        throw new Error('Invalid end time');
+      }
+      
       const eventData = {
         ...data,
         capacity: parseInt(data.capacity) || 0,
-        startTime: new Date(data.startTime),
-        endTime: new Date(data.endTime),
-        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl,
+        startTime,
+        endTime,
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : event.imageUrl,
         images: data.images || []
       };
       const response = await apiRequest("PUT", `/api/admin/events/${event.id}`, eventData);
