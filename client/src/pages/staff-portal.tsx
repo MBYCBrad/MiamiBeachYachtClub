@@ -4640,11 +4640,9 @@ export default function StaffPortal() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="bg-gray-800 border-gray-600">
-                          <SelectItem value="Bronze">Bronze</SelectItem>
-                          <SelectItem value="Silver">Silver</SelectItem>
-                          <SelectItem value="Gold">Gold</SelectItem>
-                          <SelectItem value="Platinum">Platinum</SelectItem>
-                          <SelectItem value="Diamond">Diamond</SelectItem>
+                          <SelectItem value="Gold">Gold Membership</SelectItem>
+                          <SelectItem value="Platinum">Platinum Membership</SelectItem>
+                          <SelectItem value="Diamond">Diamond Membership</SelectItem>
                           <SelectItem value="Mariner Gold">Mariner's Gold</SelectItem>
                           <SelectItem value="Mariner Platinum">Mariner's Platinum</SelectItem>
                           <SelectItem value="Mariner Diamond">Mariner's Diamond</SelectItem>

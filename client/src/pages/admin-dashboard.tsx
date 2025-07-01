@@ -921,11 +921,9 @@ function AddUserDialog() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="bronze">Bronze</SelectItem>
-                      <SelectItem value="silver">Silver</SelectItem>
-                      <SelectItem value="gold">Gold</SelectItem>
-                      <SelectItem value="platinum">Platinum</SelectItem>
-                      <SelectItem value="diamond">Diamond</SelectItem>
+                      <SelectItem value="gold">Gold Membership</SelectItem>
+                      <SelectItem value="platinum">Platinum Membership</SelectItem>
+                      <SelectItem value="diamond">Diamond Membership</SelectItem>
                       <SelectItem value="mariner_gold">Mariner's Gold</SelectItem>
                       <SelectItem value="mariner_platinum">Mariner's Platinum</SelectItem>
                       <SelectItem value="mariner_diamond">Mariner's Diamond</SelectItem>
@@ -942,8 +940,8 @@ function AddUserDialog() {
                     <SelectContent className="bg-gray-900 border-gray-700">
                       <SelectItem value="full">
                         <div className="flex flex-col">
-                          <span className="font-medium">Full Membership</span>
-                          <span className="text-xs text-gray-400">Traditional monthly recurring membership</span>
+                          <span className="font-medium">Annual Membership</span>
+                          <span className="text-xs text-gray-400">12-month commitment with discounted rates</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="mariners">

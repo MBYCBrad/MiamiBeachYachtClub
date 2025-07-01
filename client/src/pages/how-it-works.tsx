@@ -48,7 +48,7 @@ const steps = [
   }
 ];
 
-// Membership Tiers Data (matching landing page)
+// Membership Tiers Data (matching application form requirements)
 const membershipTiers = [
   {
     name: "bronze",
@@ -84,7 +84,7 @@ const membershipTiers = [
     price: "$15,000/month",
     yachtSize: "Unlimited",
     features: ["Unlimited access", "Dedicated concierge", "All amenities"],
-    color: "from-purple-400 to-purple-500"
+    color: "from-purple-600 to-indigo-600"
   }
 ];
 
@@ -494,19 +494,43 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="membershipTier" className="text-white">Preferred Membership Tier *</Label>
-                  <Select onValueChange={(value) => updateFormData('membershipTier', value)}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                      <SelectValue placeholder="Select membership tier" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
-                      {membershipTiers.map((tier) => (
-                        <SelectItem key={tier.name} value={tier.name}>
-                          {tier.title} - {tier.price}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-white text-lg font-semibold mb-4 block">Preferred Membership Tier *</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {membershipTiers.map((tier) => (
+                      <motion.div
+                        key={tier.name}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => updateFormData('membershipTier', tier.name)}
+                        className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
+                          formData.membershipTier === tier.name
+                            ? 'border-purple-600 bg-purple-600/10'
+                            : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${tier.color} flex items-center justify-center`}>
+                            {tier.icon}
+                          </div>
+                          <div>
+                            <h3 className="text-white font-semibold text-lg">{tier.title}</h3>
+                            <p className="text-purple-400 font-medium">{tier.price}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-gray-300 font-medium">{tier.yachtSize}</p>
+                          {tier.features.map((feature, index) => (
+                            <p key={index} className="text-gray-400 text-sm">{feature}</p>
+                          ))}
+                        </div>
+                        {formData.membershipTier === tier.name && (
+                          <div className="absolute top-4 right-4">
+                            <CheckCircle className="w-6 h-6 text-purple-600" />
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="membershipPackage" className="text-white">Membership Package *</Label>
@@ -515,8 +539,9 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                       <SelectValue placeholder="Select package type" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600">
-                      <SelectItem value="full">Full Membership</SelectItem>
-                      <SelectItem value="mariners">Mariner's Membership (à la carte)</SelectItem>
+                      <SelectItem value="annual">Annual Payment Plan</SelectItem>
+                      <SelectItem value="monthly">Monthly Payment Plan</SelectItem>
+                      <SelectItem value="mariners">Mariner's Membership</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -558,7 +583,8 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <span className="text-gray-400">Package:</span>
                     <span className="text-white ml-2">
                       {formData.membershipPackage === 'mariners' ? "Mariner's Membership" : 
-                       formData.membershipPackage === 'full' ? "Full Membership" : 'Not selected'}
+                       formData.membershipPackage === 'annual' ? "Annual Payment Plan" : 
+                       formData.membershipPackage === 'monthly' ? "Monthly Payment Plan" : 'Not selected'}
                     </span>
                   </div>
                   <div>

@@ -21,40 +21,31 @@ import { VideoFooter } from "@/components/video-footer";
 // Membership Tiers Data
 const membershipTiers = [
   {
-    name: "bronze",
-    title: "Bronze Explorer",
-    icon: <Ship className="w-6 h-6" />,
-    price: "$2,500/month",
-    yachtSize: "Up to 40ft",
-    features: ["4 days/month", "Basic concierge", "Standard amenities"],
-    color: "from-amber-600 to-amber-700"
-  },
-  {
-    name: "silver",
-    title: "Silver Navigator",
-    icon: <Sparkles className="w-6 h-6" />,
-    price: "$4,500/month",
-    yachtSize: "Up to 55ft",
-    features: ["8 days/month", "Premium concierge", "Enhanced amenities"],
-    color: "from-gray-400 to-gray-500"
-  },
-  {
     name: "gold",
-    title: "Gold Admiral",
+    title: "Gold Membership",
     icon: <Crown className="w-6 h-6" />,
-    price: "$7,500/month",
+    price: "$5,000/month + $25,000 One Time Member Ownership Fee",
     yachtSize: "Up to 70ft",
-    features: ["12 days/month", "VIP concierge", "Luxury amenities"],
+    features: ["Unlimited reservations 4 Bookings at a time", "2 on weekdays and 2 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
     color: "from-yellow-400 to-yellow-500"
   },
   {
     name: "platinum",
-    title: "Platinum Captain",
+    title: "Platinum Membership",
     icon: <Star className="w-6 h-6" />,
-    price: "$15,000/month",
-    yachtSize: "Unlimited",
-    features: ["Unlimited access", "Dedicated concierge", "All amenities"],
-    color: "from-purple-400 to-purple-500"
+    price: "$7,500/month + $50,000 One Time Member Ownership Fee",
+    yachtSize: "Up to 80ft",
+    features: ["Unlimited reservations 6 Bookings at a time", "3 on weekdays and 3 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
+    color: "from-gray-300 to-gray-400"
+  },
+  {
+    name: "diamond",
+    title: "Diamond Membership",
+    icon: <Sparkles className="w-6 h-6" />,
+    price: "$10,000/month + $100,000 One Time Member Ownership Fee",
+    yachtSize: "Up to 100ft",
+    features: ["Unlimited reservations 6 Bookings at a time", "3 on weekdays and 3 on weekends", "Future Access To Marinas In Caribbeans, Europe & More"],
+    color: "from-blue-400 to-purple-500"
   }
 ];
 
@@ -494,7 +485,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                             <Anchor className="w-6 h-6" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-white">Full Membership</h4>
+                            <h4 className="font-semibold text-white">Annual Membership</h4>
                             <p className="text-sm text-gray-400">Annual Commitment</p>
                           </div>
                         </div>
@@ -526,9 +517,9 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </div>
                         <p className="text-sm text-gray-300 mb-2">$10,000 one-time fee + 2x monthly rates</p>
                         <div className="space-y-1">
-                          <p className="text-xs text-gray-400">• Month-to-month flexibility</p>
-                          <p className="text-xs text-gray-400">• Tier switching allowed</p>
-                          <p className="text-xs text-gray-400">• Premium access</p>
+                          <p className="text-xs text-gray-400">• Gold: $10,000/month</p>
+                          <p className="text-xs text-gray-400">• Platinum: $15,000/month</p>
+                          <p className="text-xs text-gray-400">• Diamond: $20,000/month</p>
                         </div>
                       </CardContent>
                     </Card>
