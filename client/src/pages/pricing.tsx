@@ -16,7 +16,7 @@ const membershipTiers = [
     title: "GOLD MEMBERSHIP",
     monthlyFee: "$5,000",
     initiationFee: "$25,000",
-    color: "from-yellow-400 to-yellow-600",
+    color: "from-purple-600 to-indigo-600",
     icon: <Crown className="w-8 h-8 text-white" />,
     yachtAccess: "Access Yachts Up To 70ft",
     bookings: "4 Bookings at a time",
@@ -27,14 +27,14 @@ const membershipTiers = [
       "Unlimited reservations 4 Bookings at a time",
       "*Gold members are entitled to four (4) reservations concurrently on the calendar, two (2) on weekdays and two (2) on weekends."
     ],
-    popular: true
+    popular: false
   },
   {
     name: "Platinum", 
     title: "PLATINUM MEMBERSHIP",
     monthlyFee: "$7,500",
     initiationFee: "$50,000",
-    color: "from-gray-300 to-gray-500",
+    color: "from-purple-600 to-indigo-600",
     icon: <Star className="w-8 h-8 text-white" />,
     yachtAccess: "Access Yachts Up To 80ft",
     bookings: "6 Bookings at a time",
@@ -52,7 +52,7 @@ const membershipTiers = [
     title: "DIAMOND MEMBERSHIP", 
     monthlyFee: "$10,000",
     initiationFee: "$100,000",
-    color: "from-gray-800 to-black",
+    color: "from-purple-600 to-indigo-600",
     icon: <Sparkles className="w-8 h-8 text-white" />,
     yachtAccess: "Access Yachts Up To 100ft",
     bookings: "6 Bookings at a time",
@@ -63,7 +63,7 @@ const membershipTiers = [
       "Unlimited reservations 6 Bookings at a time",
       "*Diamond members are entitled to six (6) reservations concurrently on the calendar, three (3) on weekdays and three (3) on weekends."
     ],
-    popular: false
+    popular: true
   }
 ];
 
@@ -182,7 +182,7 @@ export default function Pricing() {
 
                         <Button 
                           onClick={() => setIsApplicationModalOpen(true)}
-                          className="w-full bg-gray-800 hover:bg-gray-700 text-white mb-6"
+                          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white mb-6"
                         >
                           APPLY NOW
                         </Button>
