@@ -6591,5 +6591,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== Tour Request Management =====
+  
+  // Get all tour requests (Admin/Staff only)
+  app.get('/api/tour-requests', requireAuth, async (req, res) => {
+    try {
+      const isAuthorized = req.user && (req.user.role === 'admin' || req.user.role?.startsWith('Staff') || req.user.role === 'VIP Coordinator' || req.user.department);
+      if (!isAuthorized) {
+        return res.status(403).json({ message: 'Admin or staff access required' });
+      }
+      
+      const tourRequests = await dbStorage.getTourRequests();
+      res.json(tourRequests);
+    } catch (error) {
+      console.error('Error fetching tour requests:', error);
+      res.status(500).json({ message: 'Failed to fetch tour requests' });
+    }
+  });
+
+  // Create tour request (Public endpoint from the form)
+  app.post('/api/tour-requests', async (req, res) => {
+    try {
+      const { name, email, phone, groupSize, preferredDate, preferredTime, message } = req.body;
+      
+      const tourRequest = await dbStorage.createTourRequest({
+        name,
+        email,
+        phone,
+        groupSize,
+        preferredDate,
+        preferredTime,
+        message: message || null,
+        status: 'pending'
+      });
+
+      // Trigger real-time notification
+      notificationService.notifyDataUpdate('tour-requests', 'created', tourRequest);
+      
+      // Create notification for admin (user ID 1)
+      await dbStorage.createNotification({
+        userId: 1, // Admin user
+        type: 'tour_request',
+        title: 'New Tour Request',
+        message: `${name} has requested a tour for ${groupSize} people`,
+        priority: 'high',
+        data: {
+          tourRequestId: tourRequest.id,
+          name,
+          email,
+          preferredDate,
+          preferredTime
+        }
+      });
+
+      res.status(201).json(tourRequest);
+    } catch (error) {
+      console.error('Error creating tour request:', error);
+      res.status(500).json({ message: 'Failed to create tour request' });
+    }
+  });
+
+  // Update tour request (Admin/Staff only)
+  app.put('/api/tour-requests/:id', requireAuth, async (req, res) => {
+    try {
+      const isAuthorized = req.user && (req.user.role === 'admin' || req.user.role?.startsWith('Staff') || req.user.role === 'VIP Coordinator' || req.user.department);
+      if (!isAuthorized) {
+        return res.status(403).json({ message: 'Admin or staff access required' });
+      }
+
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const updatedTourRequest = await dbStorage.updateTourRequest(parseInt(id), updateData);
+      
+      // Trigger real-time notification
+      notificationService.notifyDataUpdate('tour-requests', 'updated', updatedTourRequest);
+      memoryCache.clearByPattern('tour-requests');
+
+      res.json(updatedTourRequest);
+    } catch (error) {
+      console.error('Error updating tour request:', error);
+      res.status(500).json({ message: 'Failed to update tour request' });
+    }
+  });
+
+  // Delete tour request (Admin only)
+  app.delete('/api/tour-requests/:id', requireAuth, async (req, res) => {
+    try {
+      if (req.user?.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      await dbStorage.deleteTourRequest(parseInt(id));
+      
+      // Trigger real-time notification
+      notificationService.notifyDataUpdate('tour-requests', 'deleted', { id: parseInt(id) });
+      memoryCache.clearByPattern('tour-requests');
+
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting tour request:', error);
+      res.status(500).json({ message: 'Failed to delete tour request' });
+    }
+  });
+
   return httpServer;
 }

@@ -13,42 +13,67 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateTourRequest } from "@/hooks/use-tour-requests";
+import { insertTourRequestSchema } from "@shared/schema";
 
-const tourFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+// Use the actual schema from shared schema with UI-specific additions
+const tourFormSchema = insertTourRequestSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  status: true,
+}).extend({
   preferredDate: z.string().min(1, "Please select a preferred date"),
-  preferredTime: z.string().min(1, "Please select a preferred time"),
   groupSize: z.string().min(1, "Please select group size"),
-  message: z.string().optional(),
 });
 
 type TourFormData = z.infer<typeof tourFormSchema>;
 
 export default function BookTourPage() {
   const { toast } = useToast();
+  const createTourRequest = useCreateTourRequest();
+  
   const form = useForm<TourFormData>({
     resolver: zodResolver(tourFormSchema),
     defaultValues: {
-      name: "",
+      fullName: "",
       email: "",
       phone: "",
       preferredDate: "",
-      preferredTime: "",
       groupSize: "",
+      interests: [],
       message: "",
     },
   });
 
   const onSubmit = async (data: TourFormData) => {
-    // In a real app, this would send the tour request
-    console.log(data);
-    toast({
-      title: "Tour Request Submitted!",
-      description: "We'll contact you within 24 hours to confirm your private tour.",
-    });
-    form.reset();
+    try {
+      // Convert form data to match the database schema
+      const tourRequestData = {
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        preferredDate: new Date(data.preferredDate),
+        groupSize: parseInt(data.groupSize),
+        interests: data.interests || [],
+        message: data.message || null,
+        status: "pending" as const,
+      };
+
+      await createTourRequest.mutateAsync(tourRequestData);
+      
+      toast({
+        title: "Tour Request Submitted!",
+        description: "We'll contact you within 24 hours to confirm your private tour.",
+      });
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit tour request. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -135,7 +160,7 @@ export default function BookTourPage() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="fullName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-white">Full Name</FormLabel>
@@ -216,48 +241,67 @@ export default function BookTourPage() {
                   />
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="preferredDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Preferred Date</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            type="date"
-                            className="bg-black/50 border-white/20 text-white"
-                            min={new Date().toISOString().split('T')[0]}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="preferredTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Preferred Time</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-black/50 border-white/20 text-white">
-                              <SelectValue placeholder="Select time" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-gray-900 border-white/20">
-                            <SelectItem value="morning">Morning (9AM - 12PM)</SelectItem>
-                            <SelectItem value="afternoon">Afternoon (12PM - 3PM)</SelectItem>
-                            <SelectItem value="evening">Evening (3PM - 6PM)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="preferredDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Preferred Date</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="date"
+                          className="bg-black/50 border-white/20 text-white"
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Interests Selection */}
+                <div className="space-y-4">
+                  <FormLabel className="text-white text-lg">What interests you most? (Select all that apply)</FormLabel>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      "Yacht Features",
+                      "Charter Options", 
+                      "Membership Packages",
+                      "Fleet Overview",
+                      "Pricing Information",
+                      "Amenities & Services",
+                      "Investment Opportunities",
+                      "Event Hosting"
+                    ].map((interest) => (
+                      <FormField
+                        key={interest}
+                        control={form.control}
+                        name="interests"
+                        render={({ field }) => (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={interest}
+                              checked={field.value?.includes(interest) || false}
+                              onChange={(e) => {
+                                const currentInterests = field.value || [];
+                                if (e.target.checked) {
+                                  field.onChange([...currentInterests, interest]);
+                                } else {
+                                  field.onChange(currentInterests.filter((i: string) => i !== interest));
+                                }
+                              }}
+                              className="w-4 h-4 text-purple-600 bg-black/50 border-white/20 rounded focus:ring-purple-500"
+                            />
+                            <label htmlFor={interest} className="text-white text-sm cursor-pointer">
+                              {interest}
+                            </label>
+                          </div>
+                        )}
+                      />
+                    ))}
+                  </div>
                 </div>
                 
                 <FormField

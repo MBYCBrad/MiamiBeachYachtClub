@@ -632,6 +632,27 @@ export const applications = pgTable("applications", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const tourRequests = pgTable("tour_requests", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  groupSize: text("group_size").notNull(),
+  preferredDate: text("preferred_date").notNull(),
+  preferredTime: text("preferred_time").notNull(),
+  message: text("message"),
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled
+  assignedTo: integer("assigned_to").references(() => users.id),
+  scheduledDateTime: timestamp("scheduled_date_time"),
+  notes: text("notes"),
+  responseNotes: text("response_notes"),
+  contactedAt: timestamp("contacted_at"),
+  confirmedAt: timestamp("confirmed_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas and types
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -739,6 +760,12 @@ export const insertApplicationSchema = createInsertSchema(applications).omit({
   updatedAt: true,
 });
 
+export const insertTourRequestSchema = createInsertSchema(tourRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Yacht maintenance insert schemas
 export const insertYachtComponentSchema = createInsertSchema(yachtComponents).omit({
   id: true,
@@ -839,6 +866,8 @@ export type MessageAnalytics = typeof messageAnalytics.$inferSelect;
 export type InsertMessageAnalytics = z.infer<typeof insertMessageAnalyticsSchema>;
 export type Application = typeof applications.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;
+export type TourRequest = typeof tourRequests.$inferSelect;
+export type InsertTourRequest = z.infer<typeof insertTourRequestSchema>;
 
 // Yacht maintenance types
 export type YachtComponent = typeof yachtComponents.$inferSelect;

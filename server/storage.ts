@@ -1,6 +1,6 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
-  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications,
+  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications, tourRequests,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
   systemSettings,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
@@ -11,7 +11,7 @@ import {
   type Conversation, type InsertConversation, type PhoneCall, type InsertPhoneCall,
   type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
   type CrewAssignment, type InsertCrewAssignment, type Staff, type InsertStaff,
-  type Application, type InsertApplication,
+  type Application, type InsertApplication, type TourRequest, type InsertTourRequest,
   type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
@@ -203,6 +203,13 @@ export interface IStorage {
   createSystemSetting(setting: InsertSystemSetting): Promise<SystemSetting>;
   updateSystemSetting(key: string, value: string, updatedBy: number): Promise<SystemSetting | undefined>;
   deleteSystemSetting(key: string): Promise<boolean>;
+
+  // Tour Request methods
+  getTourRequests(): Promise<TourRequest[]>;
+  getTourRequest(id: number): Promise<TourRequest | undefined>;
+  createTourRequest(tourRequest: InsertTourRequest): Promise<TourRequest>;
+  updateTourRequest(id: number, tourRequest: Partial<InsertTourRequest>): Promise<TourRequest | undefined>;
+  deleteTourRequest(id: number): Promise<boolean>;
 
   sessionStore: session.SessionStore;
 }
@@ -1698,6 +1705,74 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error('Error deleting system setting:', error);
+      return false;
+    }
+  }
+
+  // Tour Request methods
+  async getTourRequests(): Promise<TourRequest[]> {
+    try {
+      const results = await db
+        .select()
+        .from(tourRequests)
+        .orderBy(desc(tourRequests.createdAt));
+      return results;
+    } catch (error) {
+      console.error('Error fetching tour requests from database:', error);
+      return [];
+    }
+  }
+
+  async getTourRequest(id: number): Promise<TourRequest | undefined> {
+    try {
+      const [result] = await db
+        .select()
+        .from(tourRequests)
+        .where(eq(tourRequests.id, id));
+      return result;
+    } catch (error) {
+      console.error('Error fetching tour request from database:', error);
+      return undefined;
+    }
+  }
+
+  async createTourRequest(tourRequest: InsertTourRequest): Promise<TourRequest> {
+    const [result] = await db
+      .insert(tourRequests)
+      .values({
+        ...tourRequest,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return result;
+  }
+
+  async updateTourRequest(id: number, tourRequest: Partial<InsertTourRequest>): Promise<TourRequest | undefined> {
+    try {
+      const [result] = await db
+        .update(tourRequests)
+        .set({ 
+          ...tourRequest, 
+          updatedAt: new Date() 
+        })
+        .where(eq(tourRequests.id, id))
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error updating tour request:', error);
+      return undefined;
+    }
+  }
+
+  async deleteTourRequest(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(tourRequests)
+        .where(eq(tourRequests.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting tour request:', error);
       return false;
     }
   }
