@@ -3286,14 +3286,6 @@ export default function AdminDashboard() {
                               <Eye className="h-4 w-4 mr-1" />
                               View
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-indigo-500/50 text-indigo-400 hover:bg-indigo-500/10"
-                            >
-                              <Mail className="h-4 w-4 mr-1" />
-                              Reply
-                            </Button>
                           </div>
                         </div>
                       </div>
