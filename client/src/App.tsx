@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./lib/protected-route";
 import { usePrefetchData } from "@/hooks/use-prefetch";
 import { usePerformanceMonitor, preloadCriticalResources } from "@/hooks/use-performance-monitor";
 import { useInstantCache } from "@/hooks/use-instant-cache";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { Loader2 } from "lucide-react";
 import { LoadingScreen } from "@/components/loading-screen";
 
@@ -46,6 +47,9 @@ import MessagesPage from "@/pages/messages-page";
 // Basic fallback - sophisticated 3D loading screen is in components/loading-screen.tsx
 
 function Router() {
+  // Scroll to top on route changes
+  useScrollToTop();
+  
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
