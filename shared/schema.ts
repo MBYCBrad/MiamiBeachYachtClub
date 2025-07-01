@@ -47,6 +47,11 @@ export const MembershipTier = {
   MARINER_DIAMOND: "mariner_diamond"
 } as const;
 
+export const MembershipPackage = {
+  REGULAR: "regular",
+  MARINERS: "mariners"
+} as const;
+
 // Core tables
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -57,6 +62,7 @@ export const users = pgTable("users", {
   fullName: text("full_name"),
   role: text("role").notNull(),
   membershipTier: text("membership_tier"),
+  membershipPackage: text("membership_package"), // regular or mariners
   membershipStatus: text("membership_status").default("active"),
   profileImage: text("profile_image"),
   language: text("language").default("en"),
@@ -586,6 +592,7 @@ export const applications = pgTable("applications", {
   
   // Step 2: Membership Package Selection
   membershipTier: text("membership_tier").notNull(), // bronze, silver, gold, platinum
+  membershipPackage: text("membership_package"), // regular or mariners
   preferredLocation: text("preferred_location").notNull(),
   expectedUsageFrequency: text("expected_usage_frequency").notNull(),
   primaryUseCase: text("primary_use_case").notNull(),

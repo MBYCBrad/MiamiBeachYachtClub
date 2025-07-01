@@ -826,7 +826,8 @@ function AddUserDialog() {
     email: '',
     password: '',
     role: 'member',
-    membershipTier: 'bronze'
+    membershipTier: 'bronze',
+    membershipPackage: 'regular'
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -840,7 +841,7 @@ function AddUserDialog() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       toast({ title: "Success", description: "User created successfully" });
       setIsOpen(false);
-      setFormData({ username: '', email: '', password: '', role: 'member', membershipTier: 'bronze' });
+      setFormData({ username: '', email: '', password: '', role: 'member', membershipTier: 'bronze', membershipPackage: 'regular' });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -912,24 +913,49 @@ function AddUserDialog() {
               </Select>
             </div>
             {formData.role === 'member' && (
-              <div className="form-field-spacing">
-                <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
-                <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
-                  <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-700">
-                    <SelectItem value="bronze">Bronze</SelectItem>
-                    <SelectItem value="silver">Silver</SelectItem>
-                    <SelectItem value="gold">Gold</SelectItem>
-                    <SelectItem value="platinum">Platinum</SelectItem>
-                    <SelectItem value="diamond">Diamond</SelectItem>
-                    <SelectItem value="mariner_gold">Mariner's Gold</SelectItem>
-                    <SelectItem value="mariner_platinum">Mariner's Platinum</SelectItem>
-                    <SelectItem value="mariner_diamond">Mariner's Diamond</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <>
+                <div className="form-field-spacing">
+                  <Label htmlFor="membershipTier" className="form-label text-gray-300">Membership Tier</Label>
+                  <Select value={formData.membershipTier} onValueChange={(value) => setFormData({...formData, membershipTier: value})}>
+                    <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="bronze">Bronze</SelectItem>
+                      <SelectItem value="silver">Silver</SelectItem>
+                      <SelectItem value="gold">Gold</SelectItem>
+                      <SelectItem value="platinum">Platinum</SelectItem>
+                      <SelectItem value="diamond">Diamond</SelectItem>
+                      <SelectItem value="mariner_gold">Mariner's Gold</SelectItem>
+                      <SelectItem value="mariner_platinum">Mariner's Platinum</SelectItem>
+                      <SelectItem value="mariner_diamond">Mariner's Diamond</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="form-field-spacing">
+                  <Label htmlFor="membershipPackage" className="form-label text-gray-300">Membership Package</Label>
+                  <Select value={formData.membershipPackage} onValueChange={(value) => setFormData({...formData, membershipPackage: value})}>
+                    <SelectTrigger className="form-select bg-gray-900 border-gray-700 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-700">
+                      <SelectItem value="regular">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Regular Membership</span>
+                          <span className="text-xs text-gray-400">Traditional monthly recurring membership</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="mariners">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Mariner's Membership</span>
+                          <span className="text-xs text-gray-400">One-time fee + 2x rates, month-to-month flexibility</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
             )}
           </div>
         </div>

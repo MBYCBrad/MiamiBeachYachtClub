@@ -88,6 +88,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     
     // Membership & Preferences
     membershipTier: "",
+    membershipPackage: "", // regular or mariners
     referralSource: "",
     specialRequests: "",
     agreeToTerms: false,
@@ -127,6 +128,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         preferredYachtSize: "",
         intendedUsage: "",
         membershipTier: "",
+        membershipPackage: "",
         referralSource: "",
         specialRequests: "",
         agreeToTerms: false,
@@ -438,6 +440,63 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </CardContent>
                       </Card>
                     ))}
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="membershipPackage" className="text-white">Membership Package Type *</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <Card
+                      className={`cursor-pointer transition-all duration-300 ${
+                        formData.membershipPackage === "regular"
+                          ? 'border-purple-500 bg-purple-900/20'
+                          : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                      }`}
+                      onClick={() => updateFormData('membershipPackage', 'regular')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
+                            <Anchor className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-white">Regular Membership</h4>
+                            <p className="text-sm text-gray-400">Annual Commitment</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-300 mb-2">12-month commitment with discounted rates</p>
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-400">• Lower monthly rates</p>
+                          <p className="text-xs text-gray-400">• Annual payment plan</p>
+                          <p className="text-xs text-gray-400">• Priority booking</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card
+                      className={`cursor-pointer transition-all duration-300 ${
+                        formData.membershipPackage === "mariners"
+                          ? 'border-purple-500 bg-purple-900/20'
+                          : 'border-gray-600 bg-gray-800 hover:border-gray-500'
+                      }`}
+                      onClick={() => updateFormData('membershipPackage', 'mariners')}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="p-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600">
+                            <Users className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-white">Mariner's Membership</h4>
+                            <p className="text-sm text-gray-400">Month-to-Month Flexibility</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-300 mb-2">$10,000 one-time fee + 2x monthly rates</p>
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-400">• Month-to-month flexibility</p>
+                          <p className="text-xs text-gray-400">• Tier switching allowed</p>
+                          <p className="text-xs text-gray-400">• Premium access</p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </div>
                 <div>

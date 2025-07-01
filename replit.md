@@ -834,3 +834,13 @@ Preferred communication style: Simple, everyday language.
 CRITICAL DESIGN RULE: NEVER redesign or modify the UI and staff portal interface when adding features. ALWAYS use 100% copy/paste code from admin dashboard with identical styling and functionality. NO freestyle coding or design changes allowed.
 MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER STEPS - ADD THIS TO MEMORY AND NEVER EVER DO IT AGAIN.
 ```
+
+## Recent Changes
+
+- July 1, 2025. Membership package implementation with admin user creation form enhancement
+  - Added membershipPackage field to users database table for regular vs mariner's membership tracking
+  - Enhanced admin dashboard user creation form with comprehensive membership package dropdown
+  - Implemented descriptive labels showing "Regular Membership" vs "Mariner's Membership" with explanatory text
+  - Added proper form validation and reset functionality including membershipPackage field
+  - Maintained Apple-style design consistency with SF Pro typography and purple-to-indigo gradients
+  - Admin can now create users with specific membership package types for complete user management
