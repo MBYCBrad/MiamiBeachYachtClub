@@ -92,10 +92,18 @@ export default function YachtMaintenance() {
       return response.json();
     },
     enabled: !!selectedYacht,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: tripLogs = [], isLoading: tripsLoading } = useQuery({
     queryKey: ['/api/maintenance/trip-logs'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const maintenanceRecords = useQuery({
@@ -119,16 +127,28 @@ export default function YachtMaintenance() {
   const { data: valuationData = {}, isLoading: valuationLoading } = useQuery({
     queryKey: [`/api/maintenance/valuation/${selectedYacht}`],
     enabled: !!selectedYacht,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: usageMetrics = [], isLoading: metricsLoading } = useQuery({
     queryKey: [`/api/maintenance/usage-metrics/${selectedYacht}`],
     enabled: !!selectedYacht,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: yachtComponents = [], isLoading: componentsLoading } = useQuery({
     queryKey: [`/api/maintenance/components/${selectedYacht}`],
     enabled: !!selectedYacht,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: maintenanceSchedules = [], isLoading: schedulesLoading, refetch: refetchSchedules } = useQuery({
