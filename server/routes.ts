@@ -6710,6 +6710,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update tour request status (Admin/Staff only)
+  app.put('/api/tour-requests/:id/status', requireAuth, async (req, res) => {
+    try {
+      const isAuthorized = req.user && (req.user.role === 'admin' || req.user.role?.startsWith('Staff') || req.user.role === 'VIP Coordinator' || req.user.department);
+      if (!isAuthorized) {
+        return res.status(403).json({ message: 'Admin or staff access required' });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedTourRequest = await dbStorage.updateTourRequest(parseInt(id), { status });
+      
+      // Trigger real-time notification
+      notificationService.notifyDataUpdate('tour-requests', 'updated', updatedTourRequest);
+      memoryCache.clearByPattern('tour-requests');
+
+      res.json(updatedTourRequest);
+    } catch (error) {
+      console.error('Error updating tour request status:', error);
+      res.status(500).json({ message: 'Failed to update tour request status' });
+    }
+  });
+
   // Update tour request (Admin/Staff only)
   app.put('/api/tour-requests/:id', requireAuth, async (req, res) => {
     try {

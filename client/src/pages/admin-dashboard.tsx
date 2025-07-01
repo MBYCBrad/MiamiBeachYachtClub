@@ -78,6 +78,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -530,6 +531,62 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
     </div>
   );
 };
+
+// Tour Request Eye Dropdown Component
+function TourRequestEyeDropdown({ request, updateStatusMutation }: { 
+  request: any; 
+  updateStatusMutation: any; 
+}) {
+  const handleStatusChange = (newStatus: string) => {
+    updateStatusMutation.mutate({ 
+      requestId: request.id, 
+      status: newStatus 
+    });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-gray-400 hover:text-white p-2"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent 
+        align="end" 
+        className="bg-gray-950 border-gray-700 w-40"
+      >
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange('pending')}
+          className="text-yellow-400 hover:bg-gray-800 cursor-pointer"
+        >
+          Mark as Pending
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange('active')}
+          className="text-green-400 hover:bg-gray-800 cursor-pointer"
+        >
+          Mark as Active
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange('completed')}
+          className="text-blue-400 hover:bg-gray-800 cursor-pointer"
+        >
+          Mark as Completed
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => handleStatusChange('cancelled')}
+          className="text-red-400 hover:bg-gray-800 cursor-pointer"
+        >
+          Mark as Cancelled
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 // View User Dialog
 function ViewUserDialog({ user }: { user: any }) {
@@ -2399,6 +2456,21 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Tour request status update mutation
+  const updateTourRequestStatusMutation = useMutation({
+    mutationFn: async ({ requestId, status }: { requestId: number; status: string }) => {
+      const response = await apiRequest("PUT", `/api/tour-requests/${requestId}/status`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tour-requests"] });
+      toast({ title: "Success", description: "Tour request status updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
   // Settings hooks - must be at top level to avoid React Hooks Rules violation
   const { data: settings, isLoading: settingsLoading } = useQuery({
     queryKey: ['/api/admin/settings'],
@@ -2958,15 +3030,10 @@ export default function AdminDashboard() {
                           </div>
                           
                           <div className="flex items-center space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View Details
-                            </Button>
-
+                            <TourRequestEyeDropdown 
+                              request={request} 
+                              updateStatusMutation={updateTourRequestStatusMutation} 
+                            />
                           </div>
                         </div>
                       </div>
