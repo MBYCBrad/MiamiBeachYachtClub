@@ -103,21 +103,62 @@ export default function Services() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+    <div className="min-h-screen bg-black text-white">
+      {/* Video Header Section */}
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Premium Concierge Services
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Enhance your yacht experience with our four-tier service delivery system
-          </p>
-        </motion.div>
+          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+        
+        {/* 3D Anamorphic Edges */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black via-black/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-black/40 to-transparent" />
+          <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-black/40 to-transparent" />
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+          >
+            <h1 
+              className="text-6xl md:text-8xl font-bold text-white mb-6 leading-tight"
+              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            >
+              Premium Concierge
+              <br />
+              <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                Services
+              </span>
+            </h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="text-2xl text-gray-300 max-w-3xl mx-auto mb-8"
+            >
+              Elevate your yacht experience with our world-class concierge services, 
+              delivered through four specialized tiers of luxury support.
+            </motion.p>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto p-6">
 
         {/* Delivery Type Filter */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
