@@ -4796,9 +4796,14 @@ export default function AdminDashboard() {
                   alt={yacht.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 right-4 space-y-2">
                   <Badge className={`${yacht.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
                     {yacht.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
+                <div className="absolute top-4 left-4">
+                  <Badge className={`${yacht.owner?.role === 'admin' ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white border-emerald-500/30' : 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-blue-500/30'}`}>
+                    {yacht.owner?.role === 'admin' ? 'MBYC Fleet' : 'Partner Fleet'}
                   </Badge>
                 </div>
               </div>
