@@ -46,7 +46,7 @@ export function Navigation() {
     { label: "Services", href: "/services" },
     { label: "Book a Private Tour", href: "/book-tour" },
     { label: "FAQ", href: "/faq" },
-    { label: "Invest", href: "/invest" },
+    { label: "Partner", href: "/partner" },
     { label: "Contact Us", href: "/contact" }
   ];
 
