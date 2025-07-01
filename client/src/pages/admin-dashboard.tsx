@@ -60,7 +60,8 @@ import {
   BellRing,
   Dot,
   Wrench,
-  User
+  User,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,6 +106,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
   { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-emerald-500 to-teal-500' },
+  { id: 'contact-messages', label: 'Contact Messages', icon: Mail, color: 'from-purple-500 to-indigo-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
@@ -3928,6 +3930,279 @@ export default function AdminDashboard() {
     </motion.div>
   );
 
+  const renderContactMessages = () => {
+    const { data: contactMessages, isLoading } = useQuery({
+      queryKey: ['/api/admin/contact-messages'],
+      enabled: !!user && activeSection === 'contact-messages'
+    });
+
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [priorityFilter, setPriorityFilter] = useState('all');
+    const [inquiryTypeFilter, setInquiryTypeFilter] = useState('all');
+
+    // Filter messages based on status, priority, and inquiry type
+    const filteredMessages = useMemo(() => {
+      if (!contactMessages || !Array.isArray(contactMessages)) return [];
+      
+      return contactMessages.filter((message: any) => {
+        const statusMatch = statusFilter === 'all' || message.status === statusFilter;
+        const priorityMatch = priorityFilter === 'all' || message.priority === priorityFilter;
+        const inquiryMatch = inquiryTypeFilter === 'all' || message.inquiryType === inquiryTypeFilter;
+        
+        return statusMatch && priorityMatch && inquiryMatch;
+      });
+    }, [contactMessages, statusFilter, priorityFilter, inquiryTypeFilter]);
+
+    const getStatusBadgeConfig = (status: string) => {
+      switch (status) {
+        case 'unread':
+          return { color: 'bg-red-500/20 text-red-400 border-red-500/30', text: 'Unread' };
+        case 'read':
+          return { color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', text: 'Read' };
+        case 'responded':
+          return { color: 'bg-green-500/20 text-green-400 border-green-500/30', text: 'Responded' };
+        case 'closed':
+          return { color: 'bg-gray-500/20 text-gray-400 border-gray-500/30', text: 'Closed' };
+        default:
+          return { color: 'bg-gray-500/20 text-gray-400 border-gray-500/30', text: status };
+      }
+    };
+
+    const getPriorityBadgeConfig = (priority: string) => {
+      switch (priority) {
+        case 'high':
+          return { color: 'bg-red-500/20 text-red-400 border-red-500/30', text: 'High' };
+        case 'medium':
+          return { color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', text: 'Medium' };
+        case 'low':
+          return { color: 'bg-green-500/20 text-green-400 border-green-500/30', text: 'Low' };
+        default:
+          return { color: 'bg-gray-500/20 text-gray-400 border-gray-500/30', text: priority };
+      }
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Contact Messages
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Manage customer inquiries and communication
+            </motion.p>
+          </div>
+          
+          {/* Filters */}
+          <div className="flex items-center space-x-4">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-gray-900/50 border-gray-700/50 text-white px-3 py-2 rounded-lg focus:border-purple-500 focus:ring-purple-500"
+            >
+              <option value="all">All Status</option>
+              <option value="unread">Unread</option>
+              <option value="read">Read</option>
+              <option value="responded">Responded</option>
+              <option value="closed">Closed</option>
+            </select>
+            
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="bg-gray-900/50 border-gray-700/50 text-white px-3 py-2 rounded-lg focus:border-purple-500 focus:ring-purple-500"
+            >
+              <option value="all">All Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            
+            <select
+              value={inquiryTypeFilter}
+              onChange={(e) => setInquiryTypeFilter(e.target.value)}
+              className="bg-gray-900/50 border-gray-700/50 text-white px-3 py-2 rounded-lg focus:border-purple-500 focus:ring-purple-500"
+            >
+              <option value="all">All Types</option>
+              <option value="general">General</option>
+              <option value="booking">Booking</option>
+              <option value="partnership">Partnership</option>
+              <option value="support">Support</option>
+              <option value="pricing">Pricing</option>
+              <option value="technical">Technical</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[
+            { 
+              title: 'Total Messages', 
+              value: contactMessages?.length || 0, 
+              icon: Mail, 
+              color: 'from-purple-500 to-indigo-500',
+              description: 'All contact messages'
+            },
+            { 
+              title: 'Unread', 
+              value: contactMessages?.filter((m: any) => m.status === 'unread')?.length || 0, 
+              icon: AlertCircle, 
+              color: 'from-red-500 to-orange-500',
+              description: 'Require attention'
+            },
+            { 
+              title: 'High Priority', 
+              value: contactMessages?.filter((m: any) => m.priority === 'high')?.length || 0, 
+              icon: BellRing, 
+              color: 'from-orange-500 to-red-500',
+              description: 'Urgent inquiries'
+            },
+            { 
+              title: 'Responded', 
+              value: contactMessages?.filter((m: any) => m.status === 'responded')?.length || 0, 
+              icon: CheckCircle, 
+              color: 'from-green-500 to-emerald-500',
+              description: 'Completed responses'
+            }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+            >
+              <Card className="bg-gray-900/50 border-gray-700/50 hover:bg-gray-800/50 transition-all duration-300 group">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">{stat.title}</p>
+                      <p className="text-3xl font-bold text-white">{stat.value}</p>
+                      <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
+                    </div>
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} group-hover:scale-110 transition-transform`}>
+                      <stat.icon className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Messages List */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="bg-gray-900/50 border-gray-700/50">
+            <CardHeader>
+              <CardTitle className="text-xl text-white">Contact Messages</CardTitle>
+              <CardDescription className="text-gray-400">
+                {filteredMessages.length} messages {statusFilter !== 'all' || priorityFilter !== 'all' || inquiryTypeFilter !== 'all' ? '(filtered)' : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                  <span className="ml-3 text-gray-400">Loading contact messages...</span>
+                </div>
+              ) : filteredMessages.length === 0 ? (
+                <div className="text-center py-12">
+                  <Mail className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">No contact messages found</p>
+                  <p className="text-gray-500 text-sm">Messages will appear here when customers submit contact forms</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredMessages.map((message: any, index: number) => {
+                    const statusConfig = getStatusBadgeConfig(message.status);
+                    const priorityConfig = getPriorityBadgeConfig(message.priority);
+                    
+                    return (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-center space-x-4 p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 group border border-gray-700/50"
+                      >
+                        {/* Message Icon */}
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 group-hover:scale-110 transition-transform">
+                          <Mail className="h-5 w-5 text-white" />
+                        </div>
+                        
+                        {/* Message Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-white font-medium truncate">{message.firstName} {message.lastName}</h3>
+                            <Badge className={`${priorityConfig.color} border text-xs`}>
+                              {priorityConfig.text}
+                            </Badge>
+                            <Badge className={`${statusConfig.color} border text-xs`}>
+                              {statusConfig.text}
+                            </Badge>
+                          </div>
+                          <p className="text-gray-400 text-sm truncate mb-1">{message.email}</p>
+                          <p className="text-gray-300 text-sm line-clamp-2">{message.message}</p>
+                          <div className="flex items-center space-x-4 mt-2">
+                            <span className="text-xs text-gray-500">
+                              {message.inquiryType?.charAt(0).toUpperCase() + message.inquiryType?.slice(1)}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(message.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => {/* TODO: Open message details */}}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => {/* TODO: Reply to message */}}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
+    );
+  };
+
   const renderAnalytics = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -5863,6 +6138,7 @@ export default function AdminDashboard() {
             {activeSection === 'overview' && renderOverview()}
             {activeSection === 'applications' && <AdminApplications />}
             {activeSection === 'tour-requests' && renderTourRequests()}
+            {activeSection === 'contact-messages' && renderContactMessages()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}
