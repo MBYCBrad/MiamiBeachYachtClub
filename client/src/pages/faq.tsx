@@ -123,35 +123,7 @@ export default function FAQPage() {
             </motion.div>
           ))}
 
-          {/* Contact CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="mt-20 text-center bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-3xl p-12 border border-purple-500/20"
-          >
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Still have questions?
-            </h3>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Our membership specialists are available to answer any questions and help you choose the perfect membership tier for your yachting lifestyle.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="tel:+13055550692"
-                className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
-              >
-                Call Us: (305) 555-MBYC
-              </a>
-              <a 
-                href="/contact"
-                className="inline-flex items-center justify-center px-8 py-3 border border-white/20 text-white font-semibold rounded-full hover:bg-white/10 transition-all"
-              >
-                Contact Form
-              </a>
-            </div>
-          </motion.div>
+
         </div>
       </section>
 
