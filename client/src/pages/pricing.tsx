@@ -141,7 +141,7 @@ export default function Pricing() {
                     className={`relative group ${tier.popular ? 'transform scale-105' : ''}`}
                   >
                     {tier.popular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold z-20">
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-1 rounded-full text-sm font-semibold z-20">
                         Most Popular
                       </div>
                     )}
