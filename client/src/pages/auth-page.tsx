@@ -117,22 +117,22 @@ const PremiumAuthPage: React.FC = () => {
     if (user) {
       console.log("Auth page - user already authenticated, redirecting to dashboard", user.role);
       
-      // Immediate redirect without delay
+      // Instant client-side navigation without page reload
       if (user.role === "admin") {
-        window.location.href = "/admin";
+        setLocation("/admin");
       } else if (user.role === "yacht_owner") {
-        window.location.href = "/yacht-owner";
+        setLocation("/yacht-owner");
       } else if (user.role === "service_provider") {
-        window.location.href = "/service-provider";
+        setLocation("/service-provider");
       } else if (user.role === "staff") {
-        window.location.href = "/staff-portal";
+        setLocation("/staff-portal");
       } else if (user.role === "member") {
-        window.location.href = "/member";
+        setLocation("/member");
       } else {
-        window.location.href = "/";
+        setLocation("/");
       }
     }
-  }, [user]);
+  }, [user, setLocation]);
 
   if (user) {
     // Show minimal loading while redirecting

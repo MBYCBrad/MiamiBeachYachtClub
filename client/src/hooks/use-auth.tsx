@@ -7,6 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -24,6 +25,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const {
     data: user,
     error,
@@ -50,19 +52,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Welcome back, ${user.username}!`,
       });
       
-      // Immediate role-based routing without delay
+      // Instant client-side navigation without page reload
       if (user.role === "admin") {
-        window.location.href = "/admin";
+        setLocation("/admin");
       } else if (user.role === "yacht_owner") {
-        window.location.href = "/yacht-owner";
+        setLocation("/yacht-owner");
       } else if (user.role === "service_provider") {
-        window.location.href = "/service-provider";
+        setLocation("/service-provider");
       } else if (user.role === "staff") {
-        window.location.href = "/staff-portal";
+        setLocation("/staff-portal");
       } else if (user.role === "member") {
-        window.location.href = "/member";
+        setLocation("/member");
       } else {
-        window.location.href = "/";
+        setLocation("/");
       }
     },
     onError: (error: Error) => {
