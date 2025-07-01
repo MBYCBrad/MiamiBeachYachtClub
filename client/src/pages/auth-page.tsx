@@ -295,7 +295,7 @@ const PremiumAuthPage: React.FC = () => {
                         ) : (
                           <>
                             <Sparkles className="w-4 h-4 mr-2" />
-                            Join Elite
+                            Register
                           </>
                         )}
                       </span>
