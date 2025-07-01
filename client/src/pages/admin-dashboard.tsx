@@ -3806,7 +3806,7 @@ export default function AdminDashboard() {
           <Button 
             size="sm" 
             onClick={() => setActiveSection('calendar')}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all cursor-pointer"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
           >
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
@@ -4169,7 +4169,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
             <BarChart3 className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
