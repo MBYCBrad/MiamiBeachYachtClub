@@ -43,7 +43,6 @@ import FAQPage from "@/pages/faq";
 import InvestPage from "@/pages/invest";
 import ContactPage from "@/pages/contact";
 import MessagesPage from "@/pages/messages-page";
-import Apply from "@/pages/apply";
 
 // Basic fallback - sophisticated 3D loading screen is in components/loading-screen.tsx
 
@@ -64,7 +63,6 @@ function Router() {
       <Route path="/faq" component={FAQPage} />
       <Route path="/invest" component={InvestPage} />
       <Route path="/contact" component={ContactPage} />
-      <Route path="/apply" component={Apply} />
       <ProtectedRoute path="/member" component={HomePage} />
       <ProtectedRoute path="/messages" component={MessagesPage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />

@@ -8,6 +8,7 @@ interface VideoCTAProps {
   description?: string;
   primaryButtonText?: string;
   primaryButtonLink?: string;
+  onApplyClick?: () => void;
   secondaryButtonText?: string;
   secondaryButtonLink?: string;
 }
@@ -17,6 +18,7 @@ export function VideoCTA({
   description = "Join Miami Beach Yacht Club today and experience luxury yachting like never before.",
   primaryButtonText = "Apply for Membership",
   primaryButtonLink = "/apply",
+  onApplyClick,
   secondaryButtonText,
   secondaryButtonLink
 }: VideoCTAProps = {}) {
@@ -73,14 +75,24 @@ export function VideoCTA({
           {description}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href={primaryButtonLink}>
+          {onApplyClick ? (
             <Button 
               size="lg"
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+              onClick={onApplyClick}
             >
               {primaryButtonText}
             </Button>
-          </Link>
+          ) : (
+            <Link href={primaryButtonLink}>
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+              >
+                {primaryButtonText}
+              </Button>
+            </Link>
+          )}
           {secondaryButtonText && secondaryButtonLink && (
             <Link href={secondaryButtonLink}>
               <Button 
