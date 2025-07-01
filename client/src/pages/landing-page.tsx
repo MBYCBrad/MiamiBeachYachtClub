@@ -1581,7 +1581,7 @@ function FleetPreviewSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     
                     {/* Lock Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-start justify-center pt-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
                       <Lock className="w-16 h-16 text-white" />
                     </div>
                     
