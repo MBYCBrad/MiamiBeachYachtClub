@@ -20,13 +20,30 @@ const formatBookingTime = (startTime: string, endTime: string) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
     
-    // Format as "Mon, Jun 23, 2025 at 9:00 AM - 1:00 PM"
-    const dateStr = start.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return 'Invalid Date';
+    }
+    
+    // Check if it's today
+    const today = new Date();
+    const isToday = start.toDateString() === today.toDateString();
+    
+    // Check if it's tomorrow
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const isTomorrow = start.toDateString() === tomorrow.toDateString();
+    
+    let dateStr;
+    if (isToday) {
+      dateStr = 'Today';
+    } else if (isTomorrow) {
+      dateStr = 'Tomorrow';
+    } else {
+      dateStr = start.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+      });
+    }
     
     const startTimeStr = start.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
@@ -42,7 +59,7 @@ const formatBookingTime = (startTime: string, endTime: string) => {
     
     return `${dateStr} at ${startTimeStr} - ${endTimeStr}`;
   } catch (error) {
-    return `${startTime} - ${endTime}`;
+    return 'Invalid Date';
   }
 };
 
@@ -175,9 +192,10 @@ export default function CrewManagementPage() {
     .sort((a, b) => getBookingPriority(b) - getBookingPriority(a));
 
   const createAssignmentMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/staff/assignments', data),
+    mutationFn: (data: any) => apiRequest('/api/staff/assignments', data, 'POST'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/bookings'] });
       setShowAssignmentDialog(false);
       resetForm();
     },
@@ -520,7 +538,8 @@ export default function CrewManagementPage() {
           {selectedAssignment && (
             <EditAssignmentDialog
               assignment={selectedAssignment}
-              onUpdate={(data) => updateAssignmentMutation.mutate({ id: selectedAssignment.id, data })}
+              crewMembers={crewMembers}
+              onUpdate={() => updateAssignmentMutation.mutate({ id: selectedAssignment.id, data: {} })}
             />
           )}
         </Dialog>
