@@ -11,10 +11,12 @@ import {
   Ship,
   MapPinIcon,
   Car,
-  Building2
+  Building2,
+  Phone
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Link } from 'wouter';
 import type { Service } from '@shared/schema';
 
 const deliveryTypeConfig = {
@@ -328,6 +330,43 @@ export default function Services() {
           </div>
         )}
       </div>
+
+      {/* Concierge Section */}
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-indigo-900/10" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 backdrop-blur-sm rounded-3xl p-12 border border-white/10"
+          >
+            <Phone className="w-16 h-16 text-purple-400 mx-auto mb-6" />
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6"
+              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            >
+              24/7 Concierge Service
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Our dedicated concierge team is always available to assist with bookings, 
+              special requests, and ensuring your experience is perfect.
+            </p>
+            <div className="text-3xl font-bold text-purple-400 mb-8">
+              Call: 786-551-3878
+            </div>
+            <Link href="/apply">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+              >
+                Start Your Application
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Service Booking Modal */}
       <ServiceBookingModal
