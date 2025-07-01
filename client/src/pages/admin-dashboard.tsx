@@ -4505,11 +4505,22 @@ export default function AdminDashboard() {
                   >
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white">
+                        <div className="relative">
+                          {user.profileImage ? (
+                            <img 
+                              src={user.profileImage} 
+                              alt={user.username}
+                              className="h-10 w-10 rounded-full object-cover border-2 border-purple-500/30"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold ${user.profileImage ? 'hidden' : ''}`}>
                             {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
+                          </div>
+                        </div>
                         <div>
                           <p className="text-white font-medium">{user.username}</p>
                           <p className="text-sm text-gray-400">{user.email}</p>
@@ -4517,14 +4528,29 @@ export default function AdminDashboard() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge className={`${
-                        user.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
-                        user.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                        user.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
-                        'bg-orange-500/20 text-orange-400 border-orange-500/30'
-                      }`}>
-                        {user.membershipTier}
-                      </Badge>
+                      {user.membershipTier && user.membershipPackage ? (
+                        <Badge className={`${
+                          user.membershipTier === 'platinum' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                          user.membershipTier === 'gold' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          user.membershipTier === 'silver' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                          user.membershipTier === 'diamond' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
+                          'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                        }`}>
+                          {user.membershipPackage.charAt(0).toUpperCase() + user.membershipPackage.slice(1)} {user.membershipTier.charAt(0).toUpperCase() + user.membershipTier.slice(1)}
+                        </Badge>
+                      ) : user.role === 'yacht_owner' ? (
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                          Fleet Partner
+                        </Badge>
+                      ) : user.role === 'service_provider' ? (
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                          Service Partner
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
+                          No Membership
+                        </Badge>
+                      )}
                     </td>
                     <td className="py-4 px-4">
                       <span className="text-gray-300 capitalize">{user.role?.replace('_', ' ')}</span>

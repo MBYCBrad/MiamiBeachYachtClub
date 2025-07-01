@@ -224,6 +224,7 @@ export const staff = pgTable("staff", {
   role: text("role").notNull(),
   department: text("department").notNull(),
   phone: text("phone"),
+  profileImageUrl: text("profile_image_url"),
   permissions: jsonb("permissions").$type<string[]>().default([]),
   status: text("status").notNull().default("active"),
   location: text("location"),
