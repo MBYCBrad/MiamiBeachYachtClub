@@ -236,7 +236,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border-gray-700 text-white">
         <DialogHeader className="pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-white">Book Your Yacht</DialogTitle>
@@ -247,7 +247,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         </DialogHeader>
 
         {/* Yacht Header */}
-        <div className="bg-gray-800/50 rounded-lg p-4 mb-6">
+        <div className="bg-black/50 rounded-lg p-4 mb-6 border border-gray-700/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <img 
@@ -322,17 +322,17 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     value={bookingData.startDate}
                     onChange={(e) => setBookingData(prev => ({ ...prev, startDate: e.target.value }))}
                     min={new Date().toISOString().split('T')[0]}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-black border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-white font-medium">Experience Type</Label>
                   <Select value={bookingData.experienceType} onValueChange={(value) => setBookingData(prev => ({ ...prev, experienceType: value }))}>
-                    <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="bg-black border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectContent className="bg-black border-gray-600">
                       <SelectItem value="leisure_tour">Leisure Tour</SelectItem>
                       <SelectItem value="swimming_watersports">Swimming & Water Sports</SelectItem>
                       <SelectItem value="fine_dining">Fine Dining Experience</SelectItem>
@@ -440,7 +440,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                     type="tel"
                     value={bookingData.contactPhone}
                     onChange={(e) => setBookingData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                    className="bg-gray-800 border-gray-600 text-white"
+                    className="bg-black border-gray-600 text-white placeholder:text-gray-400"
                     placeholder="(555) 123-4567"
                   />
                 </div>

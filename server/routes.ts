@@ -23,6 +23,7 @@ import {
   insertMaintenanceScheduleSchema, insertYachtValuationSchema, insertUsageMetricSchema,
   insertApplicationSchema, insertContactMessageSchema, UserRole, MembershipTier
 } from "@shared/schema";
+import { canBookYacht, getMembershipBenefits } from "@shared/membership";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { pool, db } from "./db";
@@ -1139,17 +1140,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (req.user!.role === UserRole.MEMBER) {
-        const tierLimits = {
-          [MembershipTier.BRONZE]: 40,
-          [MembershipTier.SILVER]: 55,
-          [MembershipTier.GOLD]: 70,
-          [MembershipTier.PLATINUM]: Infinity
-        };
-        const userLimit = tierLimits[req.user!.membershipTier as keyof typeof tierLimits] || 40;
-        
-        if (yacht.size > userLimit) {
+        // Use proper membership tier validation from shared system
+        const canBook = canBookYacht(req.user!.membershipTier, yacht.size);  
+        if (!canBook) {
+          const membershipBenefits = getMembershipBenefits(req.user!.membershipTier);
+          const maxSize = membershipBenefits.maxYachtSize === Infinity ? "unlimited" : `${membershipBenefits.maxYachtSize}ft`;
           return res.status(403).json({ 
-            message: `Yacht size exceeds your membership tier limit of ${userLimit}ft` 
+            message: `This ${yacht.size}ft yacht exceeds your ${req.user!.membershipTier} membership limit of ${maxSize}` 
           });
         }
       }
