@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
 import { useServicesWebSocket } from "@/hooks/use-services-websocket";
-import { useTourRequests, useScheduleTourRequest } from "@/hooks/use-tour-requests";
+import { useTourRequests } from "@/hooks/use-tour-requests";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
@@ -2361,228 +2361,6 @@ function DeleteEventDialog({ event }: { event: any }) {
   );
 }
 
-// Tour Details Dialog Component
-const TourDetailsDialog = ({ tourRequest, isOpen, onClose }: { tourRequest: any; isOpen: boolean; onClose: () => void }) => {
-  if (!tourRequest) return null;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-white flex items-center">
-            <MapPin className="h-5 w-5 mr-2 text-purple-500" />
-            Tour Request Details
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Complete information about this tour request
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Full Name</Label>
-              <p className="text-white font-medium">{tourRequest.name}</p>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Email</Label>
-              <p className="text-white font-medium">{tourRequest.email}</p>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Phone</Label>
-              <p className="text-white font-medium">{tourRequest.phone}</p>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Group Size</Label>
-              <p className="text-white font-medium">{tourRequest.guestCount || tourRequest.groupSize || 1} guests</p>
-            </div>
-          </div>
-
-          {/* Tour Preferences */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Preferred Date</Label>
-              <p className="text-white font-medium">
-                {tourRequest.preferredDate ? new Date(tourRequest.preferredDate).toLocaleDateString() : 'Not specified'}
-              </p>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Preferred Time</Label>
-              <p className="text-white font-medium">{tourRequest.preferredTime || 'Not specified'}</p>
-            </div>
-          </div>
-
-          {/* Special Requests */}
-          {tourRequest.specialRequests && (
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Special Requests</Label>
-              <p className="text-white">{tourRequest.specialRequests}</p>
-            </div>
-          )}
-
-          {/* Status and Timestamps */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Status</Label>
-              <Badge className={`${
-                tourRequest.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                tourRequest.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                tourRequest.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
-                'bg-red-500/20 text-red-400 border-red-500/30'
-              }`}>
-                {tourRequest.status?.charAt(0).toUpperCase() + tourRequest.status?.slice(1) || 'Pending'}
-              </Badge>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Submitted</Label>
-              <p className="text-white font-medium">
-                {tourRequest.createdAt ? new Date(tourRequest.createdAt).toLocaleDateString() : 'Recently'}
-              </p>
-            </div>
-            <div className="p-4 bg-gray-900/50 rounded-lg">
-              <Label className="text-gray-400 text-sm">Priority</Label>
-              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                {tourRequest.priority || 'Normal'}
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-// Schedule Tour Dialog Component
-const ScheduleTourDialog = ({ tourRequest, isOpen, onClose }: { tourRequest: any; isOpen: boolean; onClose: () => void }) => {
-  const [scheduledDate, setScheduledDate] = useState('');
-  const [scheduledTime, setScheduledTime] = useState('');
-  const [notes, setNotes] = useState('');
-  const { toast } = useToast();
-
-  const scheduleTourMutation = useScheduleTourRequest();
-
-  const handleSchedule = () => {
-    if (!scheduledDate || !scheduledTime) {
-      toast({ title: "Error", description: "Please select date and time", variant: "destructive" });
-      return;
-    }
-
-    // Combine date and time into a proper DateTime string
-    const scheduledDateTime = `${scheduledDate}T${scheduledTime}:00`;
-
-    scheduleTourMutation.mutate({
-      id: tourRequest.id,
-      scheduledDateTime,
-      notes,
-    }, {
-      onSuccess: () => {
-        toast({ title: "Success", description: "Tour scheduled successfully" });
-        onClose();
-        setScheduledDate('');
-        setScheduledTime('');
-        setNotes('');
-      },
-      onError: (error: any) => {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      }
-    });
-  };
-
-  if (!tourRequest) return null;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="text-white flex items-center">
-            <Calendar className="h-5 w-5 mr-2 text-purple-500" />
-            Schedule Tour
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Schedule a private tour for {tourRequest.name}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4">
-          {/* Request Summary */}
-          <div className="p-4 bg-gray-900/50 rounded-lg">
-            <div className="flex justify-between items-start">
-              <div>
-                <h4 className="text-white font-medium">{tourRequest.name}</h4>
-                <p className="text-gray-400 text-sm">{tourRequest.email} • {tourRequest.phone}</p>
-              </div>
-              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                {tourRequest.guestCount || tourRequest.groupSize || 1} guests
-              </Badge>
-            </div>
-          </div>
-
-          {/* Scheduling */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-gray-300">Tour Date</Label>
-              <Input
-                type="date"
-                value={scheduledDate}
-                onChange={(e) => setScheduledDate(e.target.value)}
-                className="bg-gray-900 border-gray-700 text-white"
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-            <div>
-              <Label className="text-gray-300">Tour Time</Label>
-              <Select value={scheduledTime} onValueChange={setScheduledTime}>
-                <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
-                  <SelectValue placeholder="Select time" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-gray-700">
-                  <SelectItem value="09:00">9:00 AM</SelectItem>
-                  <SelectItem value="10:00">10:00 AM</SelectItem>
-                  <SelectItem value="11:00">11:00 AM</SelectItem>
-                  <SelectItem value="12:00">12:00 PM</SelectItem>
-                  <SelectItem value="13:00">1:00 PM</SelectItem>
-                  <SelectItem value="14:00">2:00 PM</SelectItem>
-                  <SelectItem value="15:00">3:00 PM</SelectItem>
-                  <SelectItem value="16:00">4:00 PM</SelectItem>
-                  <SelectItem value="17:00">5:00 PM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <Label className="text-gray-300">Tour Notes (Optional)</Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Special instructions, meeting point details, etc."
-              rows={3}
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="flex space-x-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button 
-            onClick={handleSchedule}
-            disabled={scheduleTourMutation.isPending}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-          >
-            {scheduleTourMutation.isPending ? "Scheduling..." : "Schedule Tour"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
@@ -2758,11 +2536,6 @@ export default function AdminDashboard() {
 
   // Tour requests data using the hook
   const { data: tourRequests = [] } = useTourRequests();
-  
-  // Tour request dialog states
-  const [selectedTourRequest, setSelectedTourRequest] = useState<any>(null);
-  const [showTourDetailsModal, setShowTourDetailsModal] = useState(false);
-  const [showScheduleTourModal, setShowScheduleTourModal] = useState(false);
 
   // Contact messages data
   const { data: contactMessages = [] } = useQuery<any[]>({
@@ -3189,10 +2962,6 @@ export default function AdminDashboard() {
                               size="sm"
                               variant="outline"
                               className="border-gray-600 hover:border-purple-500 text-gray-300 hover:text-white"
-                              onClick={() => {
-                                setSelectedTourRequest(request);
-                                setShowTourDetailsModal(true);
-                              }}
                             >
                               <Eye className="h-4 w-4 mr-1" />
                               View Details
@@ -3200,10 +2969,6 @@ export default function AdminDashboard() {
                             <Button
                               size="sm"
                               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                              onClick={() => {
-                                setSelectedTourRequest(request);
-                                setShowScheduleTourModal(true);
-                              }}
                             >
                               <Calendar className="h-4 w-4 mr-1" />
                               Schedule Tour
@@ -6275,18 +6040,6 @@ export default function AdminDashboard() {
           </AnimatePresence>
         </motion.div>
       </div>
-      
-      {/* Tour Request Dialogs */}
-      <TourDetailsDialog 
-        tourRequest={selectedTourRequest}
-        isOpen={showTourDetailsModal}
-        onClose={() => setShowTourDetailsModal(false)}
-      />
-      <ScheduleTourDialog 
-        tourRequest={selectedTourRequest}
-        isOpen={showScheduleTourModal}
-        onClose={() => setShowScheduleTourModal(false)}
-      />
     </div>
   );
 }
