@@ -257,6 +257,11 @@ Changelog:
   - All applications route to database under Simon Librati applications with proper type categories (yacht_partner, service_provider, event_provider)
   - Enhanced user experience with success confirmations, form validation, and professional UI consistency
   - Database schema updated with applicationType field supporting 4 application types for admin identification
+- July 1, 2025. Video cover header with blur effect implemented across all partner application pages
+  - Applied consistent video background design to yacht-partner.tsx, service-partner.tsx, and event-partner.tsx
+  - Each page features hero video with gradient overlay and bottom blur effect for enhanced readability
+  - Maintained unique branding per application type while ensuring visual consistency
+  - Enhanced professional UI experience with smooth video transitions and backdrop blur effects
 - June 22, 2025. Enhanced yacht booking system with improved time slots and experience types
   - Added actual time ranges display for all 4-hour time slots (9:00 AM - 1:00 PM, 1:00 PM - 5:00 PM, etc.)
   - Replaced generic experience types with specific yacht activity categories

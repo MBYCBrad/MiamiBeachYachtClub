@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Wrench, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
@@ -62,6 +62,11 @@ const deliveryTypes = [
 export default function ServicePartnerPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+
+  // Fetch hero video for background
+  const { data: heroVideo } = useQuery({
+    queryKey: ["/api/media/hero/active"],
+  });
 
   const form = useForm<ServicePartnerFormData>({
     resolver: zodResolver(servicePartnerSchema),
@@ -156,30 +161,48 @@ export default function ServicePartnerPage() {
     <div className="min-h-screen bg-black">
       <Navigation />
       
-      {/* Header */}
-      <div className="relative py-20 border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-6">
-          <Link href="/partner">
-            <Button variant="ghost" className="text-white hover:text-purple-400 mb-6">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Partner Options
-            </Button>
-          </Link>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
+      {/* Video Header with Blur Effect */}
+      <div className="relative h-[60vh] overflow-hidden">
+        {heroVideo?.url && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
           >
-            <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Wrench className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Service Provider Application</h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Join our premium service network and serve Miami Beach Yacht Club's exclusive members
-            </p>
-          </motion.div>
+            <source src={`/api/media/video/${heroVideo.url}`} type="video/mp4" />
+          </video>
+        )}
+        
+        {/* Gradient overlay with blur effect at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 backdrop-blur-sm bg-black/30" />
+        
+        <div className="relative z-10 h-full flex flex-col justify-center">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <Link href="/partner">
+              <Button variant="ghost" className="text-white hover:text-purple-400 mb-6">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Partner Options
+              </Button>
+            </Link>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center"
+            >
+              <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Wrench className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Service Provider Application</h1>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                Join our premium service network and serve Miami Beach Yacht Club's exclusive members
+              </p>
+            </motion.div>
+          </div>
         </div>
       </div>
 
