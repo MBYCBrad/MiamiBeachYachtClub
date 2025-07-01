@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Navigation } from "@/components/navigation";
 import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
-import { motion } from "framer-motion";
+import { ApplicationModal } from "@/components/application-modal";
+import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Users, MapPin, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { useCreateTourRequest } from "@/hooks/use-tour-requests";
 import { insertTourRequestSchema } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
 // Create a simplified form schema that matches our form needs
 const tourFormSchema = z.object({
@@ -32,6 +35,12 @@ type TourFormData = z.infer<typeof tourFormSchema>;
 export default function BookTourPage() {
   const { toast } = useToast();
   const createTourRequest = useCreateTourRequest();
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  
+  // Get hero video for the video footer
+  const { data: heroVideo } = useQuery({
+    queryKey: ['/api/media/hero/active'],
+  });
   
   const form = useForm<TourFormData>({
     resolver: zodResolver(tourFormSchema),
@@ -403,20 +412,21 @@ export default function BookTourPage() {
                 <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
               </div>
 
-              {/* Contact Content Overlay */}
+              {/* CTA Content Overlay */}
               <div className="relative z-10 h-full flex items-center justify-center">
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-6">Prefer to Schedule by Phone?</h3>
-                  <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-                    <a href="tel:+17869813875" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
-                      <Phone className="w-5 h-5" />
-                      <span className="text-lg">786-981-3875</span>
-                    </a>
-                    <a href="mailto:membership@mbyc.miami" className="flex items-center gap-3 text-purple-400 hover:text-purple-300 transition-colors">
-                      <Mail className="w-5 h-5" />
-                      <span className="text-lg">membership@mbyc.miami</span>
-                    </a>
-                  </div>
+                  <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                    Ready to Start Your Journey?
+                  </h2>
+                  <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                    Join Miami Beach Yacht Club today and experience luxury yachting like never before.
+                  </p>
+                  <button 
+                    onClick={() => setIsApplicationModalOpen(true)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    Apply for Membership
+                  </button>
                 </div>
               </div>
 
@@ -504,7 +514,12 @@ export default function BookTourPage() {
         </div>
       </section>
 
-      <Footer />
+      <AnimatePresence>
+        <ApplicationModal 
+          isOpen={isApplicationModalOpen} 
+          onClose={() => setIsApplicationModalOpen(false)} 
+        />
+      </AnimatePresence>
     </div>
   );
 }
