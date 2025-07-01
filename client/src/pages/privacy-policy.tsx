@@ -1,193 +1,35 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Shield, Menu, X, Phone, Mail, MapPin, ArrowLeft } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-
-// Navigation Component
-function Navigation() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <img 
-                src="/api/media/MBYC-LOGO-WHITE_1750532808484.png" 
-                alt="MBYC Logo" 
-                className="w-6 h-6 object-contain"
-              />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-              MBYC
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/how-it-works" className="text-gray-300 hover:text-purple-400 transition-colors">
-              How It Works
-            </Link>
-            <Link href="/fleet" className="text-gray-300 hover:text-purple-400 transition-colors">
-              Fleet
-            </Link>
-            <Link href="/services" className="text-gray-300 hover:text-purple-400 transition-colors">
-              Services
-            </Link>
-            <Link href="/events" className="text-gray-300 hover:text-purple-400 transition-colors">
-              Events
-            </Link>
-            <Link href="/pricing" className="text-gray-300 hover:text-purple-400 transition-colors">
-              Pricing
-            </Link>
-            <Link href="/contact" className="text-gray-300 hover:text-purple-400 transition-colors">
-              Contact
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden text-white hover:text-purple-400 transition-colors"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-gray-800 py-4"
-          >
-            <div className="flex flex-col space-y-4">
-              <Link href="/how-it-works" className="text-gray-300 hover:text-purple-400 transition-colors">
-                How It Works
-              </Link>
-              <Link href="/fleet" className="text-gray-300 hover:text-purple-400 transition-colors">
-                Fleet
-              </Link>
-              <Link href="/services" className="text-gray-300 hover:text-purple-400 transition-colors">
-                Services
-              </Link>
-              <Link href="/events" className="text-gray-300 hover:text-purple-400 transition-colors">
-                Events
-              </Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-purple-400 transition-colors">
-                Pricing
-              </Link>
-              <Link href="/contact" className="text-gray-300 hover:text-purple-400 transition-colors">
-                Contact
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </nav>
-  );
-}
-
-// Video Header Component
-function VideoHeader() {
-  const { data: heroVideo } = useQuery({
-    queryKey: ["/api/media/hero/active"],
-  });
-
-  return (
-    <div className="relative h-screen overflow-hidden">
-      {/* Video Background */}
-      {heroVideo && (heroVideo as any).videoUrl && (
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={(heroVideo as any).videoUrl} type="video/mp4" />
-        </video>
-      )}
-
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
-      
-      {/* Bottom Blur Effect */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/50 to-transparent backdrop-blur-sm"></div>
-
-      {/* Header Content */}
-      <div className="relative z-10 flex items-center justify-center h-full">
-        <div className="text-center px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-8"
-          >
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full mb-6">
-              <Shield className="w-12 h-12 text-white" />
-            </div>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-6xl md:text-8xl font-bold mb-6 tracking-tight"
-            style={{
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif'
-            }}
-          >
-            <span className="bg-gradient-to-r from-purple-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Privacy Policy
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-xl md:text-2xl text-gray-300 font-light max-w-3xl mx-auto leading-relaxed"
-          >
-            Your privacy and data protection are our highest priorities
-          </motion.p>
-
-          {/* Stats Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-wrap justify-center gap-6 mt-12"
-          >
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-              <Shield className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-              <div className="text-2xl font-bold text-white">SSL</div>
-              <div className="text-sm text-gray-400">Encrypted</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-              <div className="text-2xl font-bold text-white">GDPR</div>
-              <div className="text-sm text-gray-400">Compliant</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
-              <div className="text-2xl font-bold text-white">24/7</div>
-              <div className="text-sm text-gray-400">Protection</div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { Shield, ArrowLeft } from "lucide-react";
+import { Navigation } from "@/components/navigation";
+import { VideoHeader } from "@/components/video-header";
+import { Footer } from "@/components/footer";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Navigation />
-      <VideoHeader />
+      <VideoHeader 
+        title="Privacy Policy" 
+        subtitle="Your privacy and data protection are our highest priorities"
+      >
+        {/* Stats Cards */}
+        <div className="flex flex-wrap justify-center gap-6 mt-12">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+            <Shield className="w-8 h-8 text-purple-400 mx-auto mb-3" />
+            <div className="text-2xl font-bold text-white">SSL</div>
+            <div className="text-sm text-gray-400">Encrypted</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+            <div className="text-2xl font-bold text-white">GDPR</div>
+            <div className="text-sm text-gray-400">Compliant</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-center">
+            <div className="text-2xl font-bold text-white">24/7</div>
+            <div className="text-sm text-gray-400">Protection</div>
+          </div>
+        </div>
+      </VideoHeader>
 
       {/* Main Content */}
       <div className="relative z-10 -mt-32 pb-16">
@@ -311,24 +153,7 @@ export default function PrivacyPolicy() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900/50 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-gray-500 text-sm">
-              ©2025 Miami Beach Yacht Club. All Rights Reserved.
-            </p>
-            <div className="flex justify-center gap-6 mt-4">
-              <Link href="/privacy" className="text-purple-400 text-sm font-medium">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-gray-500 hover:text-purple-400 text-sm transition-colors">
-                Terms & Conditions
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
