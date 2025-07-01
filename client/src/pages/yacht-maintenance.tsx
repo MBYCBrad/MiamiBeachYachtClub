@@ -80,6 +80,9 @@ export default function YachtMaintenance() {
     queryKey: ['/api/yachts'],
   });
 
+  // Get selected yacht data
+  const selectedYachtData = selectedYacht ? yachts.find((yacht: any) => yacht.id === selectedYacht) : null;
+
   const { data: maintenanceOverview = {}, isLoading: overviewLoading } = useQuery({
     queryKey: ['/api/maintenance/overview', selectedYacht],
     queryFn: async () => {
@@ -220,8 +223,6 @@ export default function YachtMaintenance() {
       </div>
     );
   }
-
-  const selectedYachtData = yachts.find((y: any) => y.id === selectedYacht);
 
   return (
     <div className="min-h-screen bg-black text-white">
