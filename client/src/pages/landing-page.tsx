@@ -61,8 +61,9 @@ const membershipTiers = [
 function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Personal Information
-    fullName: "",
+    // Step 1: Personal Information
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     dateOfBirth: "",
@@ -71,35 +72,41 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     state: "",
     zipCode: "",
     country: "",
+    occupation: "",
+    employer: "",
     
-    // Financial Information
+    // Step 2: Membership Package Selection
+    membershipTier: "",
+    membershipPackage: "", // full or mariners
+    preferredLocation: "",
+    expectedUsageFrequency: "",
+    primaryUseCase: "",
+    groupSize: "",
+    
+    // Step 3: Financial Information
     annualIncome: "",
     netWorth: "",
     liquidAssets: "",
-    employmentStatus: "",
-    employer: "",
-    occupation: "",
+    creditScore: "",
+    bankName: "",
+    hasBoatingExperience: false,
+    boatingExperienceYears: 0,
+    boatingLicenseNumber: "",
     
-    // Yacht Experience
-    yachtingExperience: "",
-    currentBoats: "",
-    preferredYachtSize: "",
-    intendedUsage: "",
-    
-    // Membership & Preferences
-    membershipTier: "",
-    membershipPackage: "", // regular or mariners
-    referralSource: "",
+    // Step 4: References and Final Details
+    referenceSource: "",
+    referralName: "",
+    preferredStartDate: "",
     specialRequests: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    emergencyContactRelation: "",
     agreeToTerms: false,
-    agreeToPrivacy: false
+    agreeToBackground: false
   });
 
   const mutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/applications', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: any) => apiRequest('POST', '/api/applications', data),
     onSuccess: () => {
       toast({
         title: "Application Submitted Successfully!",
@@ -108,7 +115,9 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       onClose();
       setCurrentStep(1);
       setFormData({
-        fullName: "",
+        // Step 1: Personal Information
+        firstName: "",
+        lastName: "",
         email: "",
         phone: "",
         dateOfBirth: "",
@@ -117,22 +126,37 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         state: "",
         zipCode: "",
         country: "",
+        occupation: "",
+        employer: "",
+        
+        // Step 2: Membership Package Selection
+        membershipTier: "",
+        membershipPackage: "",
+        preferredLocation: "",
+        expectedUsageFrequency: "",
+        primaryUseCase: "",
+        groupSize: "",
+        
+        // Step 3: Financial Information
         annualIncome: "",
         netWorth: "",
         liquidAssets: "",
-        employmentStatus: "",
-        employer: "",
-        occupation: "",
-        yachtingExperience: "",
-        currentBoats: "",
-        preferredYachtSize: "",
-        intendedUsage: "",
-        membershipTier: "",
-        membershipPackage: "",
-        referralSource: "",
+        creditScore: "",
+        bankName: "",
+        hasBoatingExperience: false,
+        boatingExperienceYears: 0,
+        boatingLicenseNumber: "",
+        
+        // Step 4: References and Final Details
+        referenceSource: "",
+        referralName: "",
+        preferredStartDate: "",
         specialRequests: "",
+        emergencyContactName: "",
+        emergencyContactPhone: "",
+        emergencyContactRelation: "",
         agreeToTerms: false,
-        agreeToPrivacy: false
+        agreeToBackground: false
       });
     },
     onError: (error) => {
@@ -148,7 +172,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   const handlePrev = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = () => {
-    if (!formData.agreeToTerms || !formData.agreeToPrivacy) {
+    if (!formData.agreeToTerms || !formData.agreeToBackground) {
       toast({
         title: "Agreement Required",
         description: "Please agree to the terms and privacy policy to proceed.",
@@ -237,13 +261,23 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <h3 className="text-xl font-semibold text-white mb-4">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="fullName" className="text-white">Full Name *</Label>
+                  <Label htmlFor="firstName" className="text-white">First Name *</Label>
                   <Input
-                    id="fullName"
-                    value={formData.fullName}
-                    onChange={(e) => updateFormData('fullName', e.target.value)}
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => updateFormData('firstName', e.target.value)}
                     className="bg-gray-800 border-gray-600 text-white"
-                    placeholder="Enter your full name"
+                    placeholder="Enter your first name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName" className="text-white">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => updateFormData('lastName', e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                    placeholder="Enter your last name"
                   />
                 </div>
                 <div>
@@ -447,11 +481,11 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <Card
                       className={`cursor-pointer transition-all duration-300 ${
-                        formData.membershipPackage === "regular"
+                        formData.membershipPackage === "full"
                           ? 'border-purple-500 bg-purple-900/20'
                           : 'border-gray-600 bg-gray-800 hover:border-gray-500'
                       }`}
-                      onClick={() => updateFormData('membershipPackage', 'regular')}
+                      onClick={() => updateFormData('membershipPackage', 'full')}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-2">
@@ -459,7 +493,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                             <Anchor className="w-6 h-6" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-white">Regular Membership</h4>
+                            <h4 className="font-semibold text-white">Full Membership</h4>
                             <p className="text-sm text-gray-400">Annual Commitment</p>
                           </div>
                         </div>
@@ -571,7 +605,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <h4 className="font-semibold text-white mb-2">Personal Information</h4>
-                    <p className="text-gray-300">Name: {formData.fullName}</p>
+                    <p className="text-gray-300">Name: {formData.firstName} {formData.lastName}</p>
                     <p className="text-gray-300">Email: {formData.email}</p>
                     <p className="text-gray-300">Phone: {formData.phone}</p>
                   </div>
@@ -580,8 +614,12 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <p className="text-gray-300">
                       Tier: {membershipTiers.find(t => t.name === formData.membershipTier)?.title || 'Not selected'}
                     </p>
-                    <p className="text-gray-300">Experience: {formData.yachtingExperience}</p>
-                    <p className="text-gray-300">Usage: {formData.intendedUsage}</p>
+                    <p className="text-gray-300">
+                      Package: {formData.membershipPackage === 'mariners' ? "Mariner's Membership" : 
+                               formData.membershipPackage === 'full' ? "Full Membership" : 'Not selected'}
+                    </p>
+                    <p className="text-gray-300">Experience: {formData.hasBoatingExperience ? `${formData.boatingExperienceYears} years` : 'No experience'}</p>
+                    <p className="text-gray-300">Primary Use: {formData.primaryUseCase}</p>
                   </div>
                 </div>
               </div>
@@ -599,11 +637,11 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
-                    id="privacy"
-                    checked={formData.agreeToPrivacy}
-                    onCheckedChange={(checked) => updateFormData('agreeToPrivacy', checked)}
+                    id="background"
+                    checked={formData.agreeToBackground}
+                    onCheckedChange={(checked) => updateFormData('agreeToBackground', checked)}
                   />
-                  <Label htmlFor="privacy" className="text-white text-sm">
+                  <Label htmlFor="background" className="text-white text-sm">
                     I agree to the Privacy Policy and consent to background verification
                   </Label>
                 </div>
@@ -635,7 +673,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
           ) : (
             <Button
               onClick={handleSubmit}
-              disabled={mutation.isPending || !formData.agreeToTerms || !formData.agreeToPrivacy}
+              disabled={mutation.isPending || !formData.agreeToTerms || !formData.agreeToBackground}
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50"
             >
               {mutation.isPending ? "Submitting..." : "Submit Application"}

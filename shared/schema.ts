@@ -48,7 +48,7 @@ export const MembershipTier = {
 } as const;
 
 export const MembershipPackage = {
-  REGULAR: "regular",
+  FULL: "full",
   MARINERS: "mariners"
 } as const;
 
@@ -592,7 +592,7 @@ export const applications = pgTable("applications", {
   
   // Step 2: Membership Package Selection
   membershipTier: text("membership_tier").notNull(), // bronze, silver, gold, platinum
-  membershipPackage: text("membership_package"), // regular or mariners
+  membershipPackage: text("membership_package"), // full or mariners
   preferredLocation: text("preferred_location").notNull(),
   expectedUsageFrequency: text("expected_usage_frequency").notNull(),
   primaryUseCase: text("primary_use_case").notNull(),

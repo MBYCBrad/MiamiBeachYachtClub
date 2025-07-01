@@ -127,10 +127,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   });
 
   const mutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/applications', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: any) => apiRequest('POST', '/api/applications', data),
     onSuccess: () => {
       toast({
         title: "Application Submitted Successfully!",
@@ -518,7 +515,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                       <SelectValue placeholder="Select package type" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600">
-                      <SelectItem value="regular">Regular Membership</SelectItem>
+                      <SelectItem value="full">Full Membership</SelectItem>
                       <SelectItem value="mariners">Mariner's Membership (à la carte)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -561,7 +558,7 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <span className="text-gray-400">Package:</span>
                     <span className="text-white ml-2">
                       {formData.membershipPackage === 'mariners' ? "Mariner's Membership" : 
-                       formData.membershipPackage === 'regular' ? "Regular Membership" : 'Not selected'}
+                       formData.membershipPackage === 'full' ? "Full Membership" : 'Not selected'}
                     </span>
                   </div>
                   <div>

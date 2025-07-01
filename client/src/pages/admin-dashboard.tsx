@@ -940,9 +940,9 @@ function AddUserDialog() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-700">
-                      <SelectItem value="regular">
+                      <SelectItem value="full">
                         <div className="flex flex-col">
-                          <span className="font-medium">Regular Membership</span>
+                          <span className="font-medium">Full Membership</span>
                           <span className="text-xs text-gray-400">Traditional monthly recurring membership</span>
                         </div>
                       </SelectItem>

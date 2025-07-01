@@ -6110,7 +6110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create notification for admin
       await dbStorage.createNotification({
-        userId: 1, // Admin user ID
+        userId: 60, // Simon Librati admin user ID
         type: "application_submitted",
         title: "New Membership Application",
         message: `${validatedData.firstName} ${validatedData.lastName} has submitted a ${validatedData.membershipTier} membership application`,
