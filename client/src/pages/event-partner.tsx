@@ -156,25 +156,25 @@ export default function EventPartnerPage() {
       <Navigation />
       
       {/* Video Header with Blur Effect */}
-      <div className="relative h-[60vh] overflow-hidden">
+      <div className="relative h-[60vh] overflow-hidden bg-black">
         {heroVideo?.url && (
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover z-0"
           >
             <source src={`/api/media/video/${heroVideo.url}`} type="video/mp4" />
           </video>
         )}
         
         {/* Gradient overlay with blur effect at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90" />
-        <div className="absolute bottom-0 left-0 right-0 h-32 backdrop-blur-sm bg-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90 z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 backdrop-blur-sm bg-black/30 z-10" />
         
-        <div className="relative z-10 h-full flex flex-col justify-center">
-          <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="relative z-20 h-full flex flex-col justify-center">
+          <div className="max-w-4xl mx-auto px-6">
             <Link href="/partner">
               <Button variant="ghost" className="text-white hover:text-purple-400 mb-6">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -182,20 +182,21 @@ export default function EventPartnerPage() {
               </Button>
             </Link>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center"
-            >
-              <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Calendar className="w-10 h-10 text-white" />
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Event Provider Application</h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Create unforgettable experiences for Miami Beach Yacht Club's exclusive members
-              </p>
-            </motion.div>
+            <div className="text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Calendar className="w-10 h-10 text-white" />
+                </div>
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Event Provider Application</h1>
+                <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                  Create unforgettable experiences for Miami Beach Yacht Club's exclusive members
+                </p>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>
