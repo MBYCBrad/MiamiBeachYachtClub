@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Building, Filter } from "lucide-react";
+import { FileText, Calendar, DollarSign, User, Phone, Mail, MapPin, Building, Filter, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { type Application } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -295,6 +295,9 @@ export default function AdminApplications() {
                     <Badge variant="outline" className="border-purple-500 text-purple-400">
                       {application.membershipTier?.toUpperCase()}
                     </Badge>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center hover:from-purple-500 hover:to-indigo-500 transition-colors cursor-pointer">
+                      <Eye className="w-4 h-4 text-white" />
+                    </div>
                   </div>
                 </div>
               </CardContent>
