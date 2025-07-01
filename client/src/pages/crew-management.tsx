@@ -461,6 +461,35 @@ export default function CrewManagementPage() {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Assignment Dialog */}
+        <Dialog open={showAssignmentDialog} onOpenChange={setShowAssignmentDialog}>
+          <CrewAssignmentDialog
+            booking={selectedBooking ? transformedBookings.find(b => b.id === selectedBooking) || null : null}
+            crewMembers={crewMembers}
+            captains={captains}
+            coordinators={coordinators}
+            otherCrew={otherCrew}
+            onAssign={(data) => createAssignmentMutation.mutate(data)}
+          />
+        </Dialog>
+
+        {/* View Assignment Dialog */}
+        <Dialog open={viewDetailsDialog} onOpenChange={setViewDetailsDialog}>
+          {selectedAssignment && (
+            <ViewAssignmentDialog assignment={selectedAssignment} />
+          )}
+        </Dialog>
+
+        {/* Edit Assignment Dialog */}
+        <Dialog open={editDetailsDialog} onOpenChange={setEditDetailsDialog}>
+          {selectedAssignment && (
+            <EditAssignmentDialog
+              assignment={selectedAssignment}
+              onUpdate={(data) => updateAssignmentMutation.mutate({ id: selectedAssignment.id, data })}
+            />
+          )}
+        </Dialog>
       </div>
     </div>
   );
