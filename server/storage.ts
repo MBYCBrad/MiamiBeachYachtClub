@@ -1,6 +1,6 @@
 import { 
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
-  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications, tourRequests,
+  conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications, tourRequests, contactMessages,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
   systemSettings,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
@@ -12,6 +12,7 @@ import {
   type MessageAnalytics, type InsertMessageAnalytics, type CrewMember, type InsertCrewMember,
   type CrewAssignment, type InsertCrewAssignment, type Staff, type InsertStaff,
   type Application, type InsertApplication, type TourRequest, type InsertTourRequest,
+  type ContactMessage, type InsertContactMessage,
   type YachtComponent, type InsertYachtComponent, type TripLog, type InsertTripLog,
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
@@ -210,6 +211,13 @@ export interface IStorage {
   createTourRequest(tourRequest: InsertTourRequest): Promise<TourRequest>;
   updateTourRequest(id: number, tourRequest: Partial<InsertTourRequest>): Promise<TourRequest | undefined>;
   deleteTourRequest(id: number): Promise<boolean>;
+
+  // Contact Message methods
+  getContactMessages(filters?: { status?: string; priority?: string; inquiryType?: string }): Promise<ContactMessage[]>;
+  getContactMessage(id: number): Promise<ContactMessage | undefined>;
+  createContactMessage(contactMessage: InsertContactMessage): Promise<ContactMessage>;
+  updateContactMessage(id: number, contactMessage: Partial<InsertContactMessage>): Promise<ContactMessage | undefined>;
+  deleteContactMessage(id: number): Promise<boolean>;
 
   sessionStore: session.SessionStore;
 }
@@ -1773,6 +1781,84 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error('Error deleting tour request:', error);
+      return false;
+    }
+  }
+
+  // Contact Message methods
+  async getContactMessages(filters?: { status?: string; priority?: string; inquiryType?: string }): Promise<ContactMessage[]> {
+    try {
+      let query = db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+      
+      if (filters) {
+        const conditions = [];
+        if (filters.status) conditions.push(eq(contactMessages.status, filters.status));
+        if (filters.priority) conditions.push(eq(contactMessages.priority, filters.priority));
+        if (filters.inquiryType) conditions.push(eq(contactMessages.inquiryType, filters.inquiryType));
+        
+        if (conditions.length > 0) {
+          query = query.where(and(...conditions));
+        }
+      }
+      
+      const results = await query;
+      return results;
+    } catch (error) {
+      console.error('Error fetching contact messages from database:', error);
+      return [];
+    }
+  }
+
+  async getContactMessage(id: number): Promise<ContactMessage | undefined> {
+    try {
+      const [result] = await db
+        .select()
+        .from(contactMessages)
+        .where(eq(contactMessages.id, id));
+      return result;
+    } catch (error) {
+      console.error('Error fetching contact message from database:', error);
+      return undefined;
+    }
+  }
+
+  async createContactMessage(contactMessage: InsertContactMessage): Promise<ContactMessage> {
+    const [result] = await db
+      .insert(contactMessages)
+      .values({
+        ...contactMessage,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    return result;
+  }
+
+  async updateContactMessage(id: number, contactMessage: Partial<InsertContactMessage>): Promise<ContactMessage | undefined> {
+    try {
+      const [result] = await db
+        .update(contactMessages)
+        .set({ 
+          ...contactMessage, 
+          updatedAt: new Date() 
+        })
+        .where(eq(contactMessages.id, id))
+        .returning();
+      return result;
+    } catch (error) {
+      console.error('Error updating contact message:', error);
+      return undefined;
+    }
+  }
+
+  async deleteContactMessage(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(contactMessages)
+        .where(eq(contactMessages.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting contact message:', error);
       return false;
     }
   }

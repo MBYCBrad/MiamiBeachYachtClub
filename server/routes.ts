@@ -21,7 +21,7 @@ import {
   insertReviewSchema, insertMessageSchema, insertNotificationSchema, 
   insertTripLogSchema, insertMaintenanceRecordSchema, insertConditionAssessmentSchema,
   insertMaintenanceScheduleSchema, insertYachtValuationSchema, insertUsageMetricSchema,
-  insertApplicationSchema, UserRole, MembershipTier
+  insertApplicationSchema, insertContactMessageSchema, UserRole, MembershipTier
 } from "@shared/schema";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
@@ -6743,6 +6743,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error deleting tour request:', error);
       res.status(500).json({ message: 'Failed to delete tour request' });
+    }
+  });
+
+  // CONTACT MESSAGE ROUTES
+  app.get("/api/contact-messages", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { status, priority, inquiryType } = req.query;
+      const filters: any = {};
+      
+      if (status) filters.status = status as string;
+      if (priority) filters.priority = priority as string;
+      if (inquiryType) filters.inquiryType = inquiryType as string;
+
+      const contactMessages = await dbStorage.getContactMessages(filters);
+      res.json(contactMessages);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/contact-messages", async (req, res) => {
+    try {
+      const validatedData = insertContactMessageSchema.parse(req.body);
+      const contactMessage = await dbStorage.createContactMessage(validatedData);
+      
+      // Create notification for admin
+      await dbStorage.createNotification({
+        userId: 60, // Simon Librati
+        type: 'contact_message',
+        title: 'New Contact Message',
+        message: `${validatedData.firstName} ${validatedData.lastName} sent a ${validatedData.inquiryType} inquiry: ${validatedData.subject}`,
+        priority: validatedData.priority || 'medium',
+        data: {
+          messageId: contactMessage.id,
+          senderName: `${validatedData.firstName} ${validatedData.lastName}`,
+          inquiryType: validatedData.inquiryType
+        },
+        actionUrl: `/admin/messages/${contactMessage.id}`
+      });
+
+      res.status(201).json(contactMessage);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/contact-messages/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      const { status, priority, assignedTo, internalNotes, responseNotes } = req.body;
+      
+      const updateData: any = {};
+      if (status) updateData.status = status;
+      if (priority) updateData.priority = priority;
+      if (assignedTo) updateData.assignedTo = assignedTo;
+      if (internalNotes) updateData.internalNotes = internalNotes;
+      if (responseNotes) updateData.responseNotes = responseNotes;
+      if (status === 'resolved') updateData.resolvedAt = new Date();
+      
+      updateData.updatedAt = new Date();
+
+      const updatedMessage = await dbStorage.updateContactMessage(messageId, updateData);
+      res.json(updatedMessage);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/contact-messages/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      await dbStorage.deleteContactMessage(messageId);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 

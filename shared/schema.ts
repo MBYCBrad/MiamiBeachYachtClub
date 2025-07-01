@@ -684,6 +684,28 @@ export const tourRequests = pgTable("tour_requests", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const contactMessages = pgTable("contact_messages", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  inquiryType: text("inquiry_type").notNull(), // general, membership, events, services, technical, partnerships
+  priority: text("priority").notNull().default("medium"), // low, medium, high, urgent
+  status: text("status").notNull().default("new"), // new, in_progress, resolved, closed
+  assignedTo: integer("assigned_to").references(() => users.id).default(60), // Default to Simon Librati
+  source: text("source").default("website"), // website, phone, email, social
+  tags: jsonb("tags").$type<string[]>().default([]),
+  internalNotes: text("internal_notes"),
+  responseNotes: text("response_notes"),
+  contactedAt: timestamp("contacted_at"),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas and types
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -840,6 +862,12 @@ export const insertTourRequestSchema = createInsertSchema(tourRequests).omit({
   updatedAt: true,
 });
 
+export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Yacht maintenance insert schemas
 export const insertYachtComponentSchema = createInsertSchema(yachtComponents).omit({
   id: true,
@@ -942,6 +970,8 @@ export type Application = typeof applications.$inferSelect;
 export type InsertApplication = z.infer<typeof insertApplicationSchema>;
 export type TourRequest = typeof tourRequests.$inferSelect;
 export type InsertTourRequest = z.infer<typeof insertTourRequestSchema>;
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 
 // Yacht maintenance types
 export type YachtComponent = typeof yachtComponents.$inferSelect;
