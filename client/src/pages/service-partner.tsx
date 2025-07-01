@@ -26,7 +26,8 @@ import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 
 const servicePartnerSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   company: z.string().min(2, "Company name is required"),
@@ -54,9 +55,9 @@ const serviceCategories = [
 
 const deliveryTypes = [
   { id: "yacht_addon", label: "Yacht Add-on Service (onboard delivery)" },
-  { id: "marina_service", label: "Marina Service (members come to you)" },
+  { id: "marina_service", label: "Marina Service (marina address)" },
   { id: "come_to_you", label: "Come To You (travel to member location)" },
-  { id: "external_location", label: "External Location (dedicated venue)" },
+  { id: "external_location", label: "External Location (members come to you)" },
 ];
 
 export default function ServicePartnerPage() {
@@ -71,7 +72,8 @@ export default function ServicePartnerPage() {
   const form = useForm<ServicePartnerFormData>({
     resolver: zodResolver(servicePartnerSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       company: "",
@@ -89,10 +91,12 @@ export default function ServicePartnerPage() {
   const submitApplication = useMutation({
     mutationFn: async (data: ServicePartnerFormData) => {
       const applicationData = {
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fullName: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
-        company: data.company,
+        company: data.company || null,
         applicationType: "service_provider",
         details: {
           businessType: data.businessType,
@@ -233,19 +237,35 @@ export default function ServicePartnerPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Full Name *</FormLabel>
-                        <FormControl>
-                          <Input {...field} className="bg-black/50 border-gray-700 text-white" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">First Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-black/50 border-gray-700 text-white" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white">Last Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} className="bg-black/50 border-gray-700 text-white" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={form.control}
