@@ -149,19 +149,19 @@ export default function FleetPage() {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                      <Link href={`/fleet/${yacht.id}`}>
-                        <Button 
-                          variant="outline" 
-                          className="w-full border-white/20 text-white hover:bg-white/10"
-                        >
-                          View Details
-                        </Button>
-                      </Link>
-                      <Link href="/auth">
-                        <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700">
-                          Book Now
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-white/20 text-white hover:bg-white/10"
+                        onClick={() => setIsApplicationModalOpen(true)}
+                      >
+                        View Details
+                      </Button>
+                      <Button 
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                        onClick={() => setIsApplicationModalOpen(true)}
+                      >
+                        Book Now
+                      </Button>
                     </div>
                   </div>
                 </div>
