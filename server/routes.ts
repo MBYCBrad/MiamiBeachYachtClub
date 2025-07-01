@@ -6612,10 +6612,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create tour request (Public endpoint from the form)
   app.post('/api/tour-requests', async (req, res) => {
     try {
-      const { name, email, phone, groupSize, preferredDate, preferredTime, message } = req.body;
+      const { fullName, email, phone, groupSize, preferredDate, preferredTime, message } = req.body;
       
       const tourRequest = await dbStorage.createTourRequest({
-        name,
+        fullName,
         email,
         phone,
         groupSize,
@@ -6633,11 +6633,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: 1, // Admin user
         type: 'tour_request',
         title: 'New Tour Request',
-        message: `${name} has requested a tour for ${groupSize} people`,
+        message: `${fullName} has requested a tour for ${groupSize} people`,
         priority: 'high',
         data: {
           tourRequestId: tourRequest.id,
-          name,
+          fullName,
           email,
           preferredDate,
           preferredTime
