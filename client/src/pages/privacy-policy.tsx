@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
       </VideoHeader>
 
       {/* Main Content */}
-      <div className="relative z-10 -mt-32 pb-16">
+      <div className="relative z-10 mt-16 pb-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -137,15 +137,6 @@ export default function PrivacyPolicy() {
                   <p className="text-gray-300 leading-relaxed">
                     If you have any questions about this Privacy Policy or our practices, please contact Miami Beach Yacht Club through our website's contact form or reach out to our member services team.
                   </p>
-                  <div className="mt-6">
-                    <Link 
-                      href="/" 
-                      className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 transform hover:scale-105"
-                    >
-                      <ArrowLeft className="w-5 h-5" />
-                      Return to Home
-                    </Link>
-                  </div>
                 </section>
               </motion.div>
             </div>
