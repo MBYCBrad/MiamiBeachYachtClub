@@ -144,6 +144,12 @@ export const bookings = pgTable("bookings", {
   specialRequests: text("special_requests"),
   status: text("status").notNull().default("confirmed"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).default("0.00"),
+  // Crew assignment fields for automated status management
+  assignedCaptain: integer("assigned_captain").references(() => users.id),
+  assignedFirstMate: integer("assigned_first_mate").references(() => users.id),
+  assignedCrew: jsonb("assigned_crew").$type<number[]>().default([]), // Array of staff IDs
+  crewAssignedAt: timestamp("crew_assigned_at"),
+  automaticStatusEnabled: boolean("automatic_status_enabled").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

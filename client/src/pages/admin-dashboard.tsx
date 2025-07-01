@@ -61,7 +61,9 @@ import {
   Dot,
   Wrench,
   User,
-  Mail
+  Mail,
+  Play,
+  Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -228,222 +230,107 @@ const BookingStatusBadge = ({ booking }: { booking: any }) => {
 };
 
 // Enhanced Real-Time MBYC Actions Component
-const BookingActionsDropdown = ({ booking }: { booking: any }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+// Automated Status System - calculates status based on crew assignment and real-time timeslots
+const AutomatedBookingStatus = ({ booking }: { booking: any }) => {
+  const calculateAutomatedStatus = () => {
+    const now = new Date();
+    const startTime = new Date(booking.startTime);
+    const endTime = new Date(booking.endTime);
+    
+    // Check if crew is assigned from crew management system
+    const hasCrewAssigned = booking.assignedCaptain || booking.assignedFirstMate || 
+      (booking.assignedCrew && booking.assignedCrew.length > 0);
 
-  // Real-time status update mutation with optimistic updates
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ status }: { status: string }) => {
-      setActionLoading(status);
-      const response = await apiRequest("PATCH", `/api/admin/bookings/${booking.id}/status`, { status });
-      return { status, bookingId: booking.id };
-    },
-    onMutate: async ({ status }) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["/api/admin/bookings"] });
-      
-      // Snapshot the previous value
-      const previousBookings = queryClient.getQueryData(["/api/admin/bookings"]);
-      
-      // Optimistically update to the new value
-      queryClient.setQueryData(["/api/admin/bookings"], (old: any) => {
-        if (!old) return old;
-        return old.map((b: any) => 
-          b.id === booking.id ? { ...b, status } : b
-        );
-      });
-
-      return { previousBookings };
-    },
-    onSuccess: (data) => {
-      // Real-time success feedback
-      const statusMessages = {
-        confirmed: "Booking confirmed and yacht prepared for departure",
-        completed: "Experience marked as completed - crew can stand down",
-        cancelled: "Booking cancelled and yacht availability restored",
-        pending: "Booking set to pending - awaiting final confirmation"
+    // Automated status progression based on crew assignment and time
+    if (!hasCrewAssigned && booking.automaticStatusEnabled !== false) {
+      return { 
+        status: 'pending', 
+        reason: 'Awaiting crew assignment',
+        color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+        icon: Clock
       };
-      
-      toast({ 
-        title: "MBYC Action Completed", 
-        description: statusMessages[data.status as keyof typeof statusMessages] || "Status updated successfully",
-        className: "border-green-500/30 bg-green-950/50"
-      });
-      
-      setIsOpen(false);
-      setActionLoading(null);
-      
-      // Force refresh for real-time sync
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/bookings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/analytics"] });
-    },
-    onError: (error: any, variables, context) => {
-      // Rollback optimistic update
-      if (context?.previousBookings) {
-        queryClient.setQueryData(["/api/admin/bookings"], context.previousBookings);
-      }
-      
-      toast({ 
-        title: "Action Failed", 
-        description: error.message || "Failed to update booking status", 
-        variant: "destructive" 
-      });
-      setActionLoading(null);
     }
-  });
-
-  // Enhanced status options with descriptions and visual improvements
-  const statusOptions = [
-    { 
-      value: 'confirmed', 
-      label: 'Confirm Booking', 
-      description: 'Prepare yacht and assign crew',
-      icon: CheckCircle, 
-      color: 'text-green-400',
-      bgColor: 'hover:bg-green-950/30',
-      priority: 1
-    },
-    { 
-      value: 'pending', 
-      label: 'Set Pending', 
-      description: 'Hold for review or member response',
-      icon: Clock, 
-      color: 'text-orange-400',
-      bgColor: 'hover:bg-orange-950/30',
-      priority: 2
-    },
-    { 
-      value: 'completed', 
-      label: 'Mark Completed', 
-      description: 'Experience finished successfully',
-      icon: CheckCircle, 
-      color: 'text-blue-400',
-      bgColor: 'hover:bg-blue-950/30',
-      priority: 3
-    },
-    { 
-      value: 'cancelled', 
-      label: 'Cancel Booking', 
-      description: 'Release yacht and notify member',
-      icon: XCircle, 
-      color: 'text-red-400',
-      bgColor: 'hover:bg-red-950/30',
-      priority: 4
-    }
-  ];
-
-  // Filter and sort actions based on current status
-  const availableActions = statusOptions.filter(option => {
-    if (booking.status === option.value) return false;
     
-    // Smart action filtering based on current status
-    if (booking.status === 'completed' && option.value !== 'pending') return false;
-    if (booking.status === 'cancelled' && option.value === 'completed') return false;
-    
-    return true;
-  }).sort((a, b) => a.priority - b.priority);
-
-  const handleClickOutside = () => {
-    if (isOpen && !updateStatusMutation.isPending) {
-      setIsOpen(false);
+    if (hasCrewAssigned && now < startTime) {
+      return { 
+        status: 'confirmed', 
+        reason: 'Crew assigned - ready for departure',
+        color: 'bg-green-500/20 text-green-400 border-green-500/30',
+        icon: CheckCircle
+      };
     }
+    
+    if (hasCrewAssigned && now >= startTime && now < endTime) {
+      return { 
+        status: 'in_progress', 
+        reason: 'Experience in progress',
+        color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        icon: Play
+      };
+    }
+    
+    if (hasCrewAssigned && now >= endTime) {
+      return { 
+        status: 'completed', 
+        reason: 'Experience completed',
+        color: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+        icon: Trophy
+      };
+    }
+
+    // Handle cancelled bookings
+    if (booking.status === 'cancelled') {
+      return { 
+        status: 'cancelled', 
+        reason: 'Booking cancelled',
+        color: 'bg-red-500/20 text-red-400 border-red-500/30',
+        icon: XCircle
+      };
+    }
+
+    // Fallback to current status if automation is disabled
+    return { 
+      status: booking.status, 
+      reason: 'Manual status override',
+      color: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+      icon: Settings
+    };
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as Element;
-      if (!target.closest('.booking-actions-dropdown')) {
-        handleClickOutside();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('click', handleClick);
-      return () => document.removeEventListener('click', handleClick);
-    }
-  }, [isOpen]);
+  const { status, reason, color, icon: Icon } = calculateAutomatedStatus();
 
   return (
-    <div className="relative booking-actions-dropdown">
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={() => setIsOpen(!isOpen)}
-        disabled={updateStatusMutation.isPending}
-        className={`text-gray-400 hover:text-white transition-all ${
-          updateStatusMutation.isPending ? 'animate-pulse' : ''
-        }`}
-      >
-        {updateStatusMutation.isPending ? (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
-            <Clock className="h-4 w-4" />
-          </motion.div>
-        ) : (
-          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        )}
-      </Button>
+    <div className="flex flex-col items-center space-y-1">
+      <Badge className={`${color} flex items-center space-x-1 px-2 py-1`}>
+        <Icon className="h-3 w-3" />
+        <span className="capitalize text-xs font-medium">
+          {status.replace('_', ' ')}
+        </span>
+      </Badge>
+      <div className="text-xs text-gray-500 text-center max-w-28 leading-tight">
+        {reason}
+      </div>
+    </div>
+  );
+};
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-8 w-64 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-lg shadow-2xl z-50"
-          >
-            <div className="p-3">
-              <div className="text-xs text-gray-400 mb-3 font-medium">MBYC Actions</div>
-              {availableActions.map((option, index) => {
-                const Icon = option.icon;
-                const isLoading = actionLoading === option.value;
-                
-                return (
-                  <motion.button
-                    key={option.value}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => updateStatusMutation.mutate({ status: option.value })}
-                    disabled={updateStatusMutation.isPending}
-                    className={`w-full flex items-start space-x-3 px-3 py-3 text-sm rounded-md transition-all ${
-                      updateStatusMutation.isPending && !isLoading
-                        ? 'opacity-50 cursor-not-allowed'
-                        : `${option.bgColor} text-gray-300 hover:text-white`
-                    }`}
-                  >
-                    <div className={`flex-shrink-0 ${isLoading ? 'animate-spin' : ''}`}>
-                      <Icon className={`h-4 w-4 ${option.color}`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{option.description}</div>
-                    </div>
-                    {isLoading && (
-                      <div className="flex-shrink-0">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                      </div>
-                    )}
-                  </motion.button>
-                );
-              })}
-              
-              {availableActions.length === 0 && (
-                <div className="text-center py-4 text-gray-500 text-sm">
-                  No actions available for {booking.status} status
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+// Crew Status Indicator - shows crew assignment status
+const CrewStatusIndicator = ({ booking }: { booking: any }) => {
+  const hasCrewAssigned = booking.assignedCaptain || booking.assignedFirstMate || 
+    (booking.assignedCrew && booking.assignedCrew.length > 0);
+
+  const crewCount = [
+    booking.assignedCaptain,
+    booking.assignedFirstMate,
+    ...(booking.assignedCrew || [])
+  ].filter(Boolean).length;
+
+  return (
+    <div className="flex items-center space-x-1">
+      <Users className={`h-4 w-4 ${hasCrewAssigned ? 'text-green-400' : 'text-gray-500'}`} />
+      <span className={`text-xs ${hasCrewAssigned ? 'text-green-400' : 'text-gray-500'}`}>
+        {crewCount > 0 ? `${crewCount} assigned` : 'Not assigned'}
+      </span>
     </div>
   );
 };
@@ -4167,8 +4054,10 @@ export default function AdminDashboard() {
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Yacht</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Experience</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Guests</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">MBYC Actions</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Booking Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Auto Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Crew Status</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -4228,7 +4117,16 @@ export default function AdminDashboard() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-2">
-                          <BookingActionsDropdown booking={booking} />
+                          <AutomatedBookingStatus booking={booking} />
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <CrewStatusIndicator booking={booking} />
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
                           <QuickActionButton 
                             booking={booking}
                             action="message"

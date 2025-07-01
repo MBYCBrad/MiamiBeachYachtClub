@@ -277,6 +277,14 @@ Changelog:
   - Added View and Reply action buttons for comprehensive contact management workflow
   - Empty state handling with professional messaging when no contact submissions exist
   - Contact messages section integrates seamlessly with existing admin dashboard design patterns
+- July 1, 2025. Automated booking status system with crew assignment integration completed
+  - Replaced manual BookingActionsDropdown component with automated status calculation system
+  - Status now automatically progresses based on crew assignment (from crew management page) and real-time timeslots
+  - Added AutomatedBookingStatus component that calculates: pending → confirmed → in_progress → completed based on crew assignment and time
+  - Added CrewStatusIndicator component showing crew assignment status from crew management system
+  - Updated admin dashboard table with three status columns: Booking Status, Auto Status, Crew Status for comprehensive oversight
+  - Crew assignment is managed in dedicated crew management page, status reflects automatically in booking dashboard
+  - System eliminates manual status updates while providing full visibility into booking progression and crew coordination
 - June 22, 2025. Enhanced yacht booking system with improved time slots and experience types
   - Added actual time ranges display for all 4-hour time slots (9:00 AM - 1:00 PM, 1:00 PM - 5:00 PM, etc.)
   - Replaced generic experience types with specific yacht activity categories
