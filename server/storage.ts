@@ -912,7 +912,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCrewAssignments(): Promise<CrewAssignment[]> {
-    return db.select().from(crewAssignments);
+    const assignments = await db.select().from(crewAssignments);
+    
+    // Enrich assignments with captain, coordinator, and crew member details
+    const enrichedAssignments = await Promise.all(assignments.map(async (assignment) => {
+      const captain = assignment.captainId ? await this.getStaffMember(assignment.captainId) : null;
+      const coordinator = assignment.coordinatorId ? await this.getStaffMember(assignment.coordinatorId) : null;
+      
+      // Parse crew member IDs and fetch their details
+      const crewMemberIds = assignment.crewMemberIds ? 
+        (typeof assignment.crewMemberIds === 'string' ? 
+          JSON.parse(assignment.crewMemberIds) : assignment.crewMemberIds) : [];
+      
+      const crewMembers = await Promise.all(
+        crewMemberIds.map((id: number) => this.getStaffMember(id))
+      );
+      
+      // Get booking details if available
+      const booking = assignment.bookingId ? await this.getBooking(assignment.bookingId) : null;
+      
+      return {
+        ...assignment,
+        captain,
+        coordinator,
+        crewMembers: crewMembers.filter(Boolean), // Remove null values
+        booking
+      };
+    }));
+    
+    return enrichedAssignments;
   }
 
   async getCrewAssignment(id: string): Promise<CrewAssignment | undefined> {
@@ -923,11 +951,6 @@ export class DatabaseStorage implements IStorage {
   async createCrewAssignment(assignment: InsertCrewAssignment): Promise<CrewAssignment> {
     const [created] = await db.insert(crewAssignments).values(assignment).returning();
     return created;
-  }
-
-  async updateCrewAssignment(id: string, assignment: Partial<InsertCrewAssignment>): Promise<CrewAssignment | undefined> {
-    const [updated] = await db.update(crewAssignments).set(assignment).where(eq(crewAssignments.id, id)).returning();
-    return updated || undefined;
   }
 
   async getStaffMember(id: number): Promise<User | undefined> {

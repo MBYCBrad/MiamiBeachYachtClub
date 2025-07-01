@@ -448,15 +448,14 @@ export default function CrewManagementPage() {
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="border-gray-600 text-gray-400 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white"
+                                variant="ghost"
+                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
                                 onClick={() => {
                                   setSelectedAssignment(assignment);
                                   setViewDetailsDialog(true);
                                 }}
                               >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
@@ -893,7 +892,7 @@ function ViewAssignmentDialog({ assignment }: { assignment: CrewAssignment }) {
               <div className="text-gray-400 text-sm uppercase tracking-wide">Current Status</div>
             </div>
             <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
-              <div className="text-2xl font-bold text-blue-400">{assignment.crewMembers.length + 2}</div>
+              <div className="text-2xl font-bold text-blue-400">{(assignment.crewMembers?.length || 0) + 2}</div>
               <div className="text-gray-400 text-sm uppercase tracking-wide">Total Crew</div>
             </div>
             <div className="flex flex-col items-center p-3 bg-gray-700/30 rounded-lg">
