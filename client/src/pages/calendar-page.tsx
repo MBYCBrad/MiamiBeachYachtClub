@@ -438,9 +438,10 @@ export default function CalendarPage() {
       });
     });
 
-    // Add club events
-    events.forEach((eventRegistration: any) => {
+    // Add club events from event registrations
+    eventRegistrations.forEach((eventRegistration: any) => {
       const eventData = eventsData.find((e: any) => e.id === eventRegistration.eventId);
+      const member = users.find((u: any) => u.id === eventRegistration.userId);
       
       events.push({
         id: `event-${eventRegistration.id}`,
@@ -454,11 +455,42 @@ export default function CalendarPage() {
         attendees: eventData?.attendees,
         status: 'confirmed',
         color: EVENT_COLORS.event,
+        member: member ? {
+          name: member.username,
+          email: member.email,
+          membershipTier: member.membershipTier
+        } : undefined,
         details: {
           eventType: eventData?.category
         }
       });
     });
+
+    // Add all scheduled events (not just registered ones) for admin visibility
+    if (user?.role === 'admin') {
+      eventsData.forEach((eventData: any) => {
+        // Only add if not already added through registrations
+        const alreadyAdded = events.some(e => e.id === `event-${eventData.id}`);
+        if (!alreadyAdded) {
+          events.push({
+            id: `event-${eventData.id}`,
+            title: eventData.title,
+            type: 'event',
+            startTime: new Date(eventData.startTime),
+            endTime: new Date(eventData.endTime),
+            description: eventData.description,
+            location: eventData.location,
+            capacity: eventData.capacity,
+            attendees: eventData.attendees || 0,
+            status: 'confirmed',
+            color: EVENT_COLORS.event,
+            details: {
+              eventType: eventData.category
+            }
+          });
+        }
+      });
+    }
 
     return events;
   }, [bookings, serviceBookings, eventRegistrations, users, yachtsData, servicesData, eventsData]);
