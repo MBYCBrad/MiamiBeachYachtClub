@@ -278,30 +278,40 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-between mb-6 px-4">
+        <div className="flex items-center justify-center mb-6 px-4 relative">
+          {/* Progress Line Background */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-600" />
+          
           {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium
-                ${currentStep >= step.id 
-                  ? 'bg-purple-600 text-white' 
-                  : step.completed 
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-600 text-gray-300'
+            <React.Fragment key={step.id}>
+              <div className="flex flex-col items-center relative z-10">
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium border-2 border-black
+                  ${currentStep >= step.id 
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' 
+                    : step.completed 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
+                      : 'bg-gray-600 text-gray-300'
+                  }`}>
+                  {step.completed ? <CheckCircle className="w-4 h-4" /> : step.id}
+                </div>
+                <span className={`mt-2 text-sm font-medium ${
+                  currentStep >= step.id ? 'text-purple-300' : 'text-gray-400'
                 }`}>
-                {step.completed ? <CheckCircle className="w-4 h-4" /> : step.id}
+                  {step.title}
+                </span>
               </div>
-              <span className={`ml-2 text-sm font-medium ${
-                currentStep >= step.id ? 'text-purple-300' : 'text-gray-400'
-              }`}>
-                {step.title}
-              </span>
+              
               {index < steps.length - 1 && (
-                <div className={`w-8 h-0.5 mx-4 ${
-                  currentStep > step.id ? 'bg-green-500' : 'bg-gray-600'
-                }`} />
+                <div className="flex-1 mx-4" />
               )}
-            </div>
+            </React.Fragment>
           ))}
+          
+          {/* Progress Line Active */}
+          <div 
+            className="absolute top-4 left-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 transition-all duration-300"
+            style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+          />
         </div>
 
         <AnimatePresence mode="wait">
@@ -400,7 +410,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
                 <Button
                   onClick={() => setCurrentStep(2)}
                   disabled={!bookingData.startDate || !bookingData.timeSlot}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 text-white"
                 >
                   Continue to Guest Details
                 </Button>

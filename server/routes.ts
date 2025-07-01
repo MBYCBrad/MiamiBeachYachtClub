@@ -23,7 +23,7 @@ import {
   insertMaintenanceScheduleSchema, insertYachtValuationSchema, insertUsageMetricSchema,
   insertApplicationSchema, insertContactMessageSchema, UserRole, MembershipTier
 } from "@shared/schema";
-import { canBookYacht, getMembershipBenefits } from "@shared/membership";
+import { canBookYacht, getMembershipBenefits, MEMBERSHIP_BENEFITS } from "@shared/membership";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { pool, db } from "./db";
@@ -1141,12 +1141,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (req.user!.role === UserRole.MEMBER) {
         // Use proper membership tier validation from shared system
-        const canBook = canBookYacht(req.user!.membershipTier, yacht.size);  
+        const userTier = req.user!.membershipTier || 'bronze';
+        console.log('Raw user membership tier:', req.user!.membershipTier, 'Normalized:', userTier, 'Yacht size:', yacht.size);
+        
+        // Normalize tier to lowercase to match MEMBERSHIP_BENEFITS keys
+        const membershipTier = userTier.toLowerCase();
+        
+        // Validate that the tier exists in our benefits system  
+        const membershipBenefits = getMembershipBenefits(membershipTier);
+        if (!membershipBenefits) {
+          console.error('Invalid membership tier:', membershipTier, 'Available tiers:', Object.keys(MEMBERSHIP_BENEFITS));
+          return res.status(400).json({ 
+            message: `Invalid membership tier: ${membershipTier}` 
+          });
+        }
+        
+        const canBook = canBookYacht(membershipTier, yacht.size);  
         if (!canBook) {
-          const membershipBenefits = getMembershipBenefits(req.user!.membershipTier);
           const maxSize = membershipBenefits.maxYachtSize === Infinity ? "unlimited" : `${membershipBenefits.maxYachtSize}ft`;
           return res.status(403).json({ 
-            message: `This ${yacht.size}ft yacht exceeds your ${req.user!.membershipTier} membership limit of ${maxSize}` 
+            message: `This ${yacht.size}ft yacht exceeds your ${membershipTier} membership limit of ${maxSize}` 
           });
         }
       }

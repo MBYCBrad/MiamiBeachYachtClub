@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Bell, LogOut, Calendar, HeadphonesIcon } from 'lucide-react';
+import { X, User, Bell, LogOut, Calendar, MessageCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -91,7 +91,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: unreadCount, action: () => setIsNotificationOpen(true) },
-    { id: 'support', icon: HeadphonesIcon, label: 'Customer Service', badge: null, action: () => setIsCustomerServiceOpen(true) },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: null, action: () => setCurrentView('messages') },
   ];
 
   const handleNavClick = (itemId: string) => {
