@@ -80,7 +80,9 @@ export default function FAQPage() {
               transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
               className="mb-12"
             >
-
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+                {category.category}
+              </h2>
               
               <div className="space-y-4">
                 {category.questions.map((item, index) => {
