@@ -1933,10 +1933,10 @@ export default function LandingPage() {
       <HeroSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <FeaturesSection />
       <StatsSection />
+      <FleetPreviewSection />
       <PackagesSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <MarinersSection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <TestimonialsSection onApplyClick={() => setIsApplicationModalOpen(true)} />
-      <FleetPreviewSection />
       <FAQSection />
       <FinalCTASection onApplyClick={() => setIsApplicationModalOpen(true)} />
       <Footer />
