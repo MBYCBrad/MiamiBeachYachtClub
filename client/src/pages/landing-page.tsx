@@ -1252,7 +1252,7 @@ function Footer() {
               <li><Link href="/fleet" className="text-gray-400 hover:text-purple-400 transition-colors">Fleet</Link></li>
               <li><Link href="/book-tour" className="text-gray-400 hover:text-purple-400 transition-colors">Book a Private Tour</Link></li>
               <li><Link href="/faq" className="text-gray-400 hover:text-purple-400 transition-colors">FAQ</Link></li>
-              <li><Link href="/invest" className="text-gray-400 hover:text-purple-400 transition-colors">Invest</Link></li>
+              <li><Link href="/partner" className="text-gray-400 hover:text-purple-400 transition-colors">Partner</Link></li>
               <li><Link href="/contact" className="text-gray-400 hover:text-purple-400 transition-colors">Contact Us</Link></li>
             </ul>
           </div>
