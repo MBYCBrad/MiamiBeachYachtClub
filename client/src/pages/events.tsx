@@ -120,31 +120,25 @@ export default function EventsPage() {
       </section>
 
       {/* Private Events Footer Section */}
-      <section className="relative py-32 overflow-hidden">
+      <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden">
         {/* Video Background */}
-        <div className="absolute inset-0">
-          <video 
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60" />
-        </div>
-
-        {/* Blur overlay for top section */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-x-0 top-0 h-1/2 backdrop-blur-sm bg-black/20" />
-        </div>
-
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/api/media/video/MBYC_UPDATED_1751023212560.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/70" />
+        
         {/* 3D Anamorphic Edges */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Top Edge - Deeper for mobile */}
-          <div className="absolute top-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-b from-black/40 to-transparent" />
+          {/* Top Edge - Enhanced blur to blend into black background */}
+          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black via-black/80 to-transparent" />
           
           {/* Bottom Edge - Deeper for mobile */}
           <div className="absolute bottom-0 left-0 right-0 h-20 md:h-24 bg-gradient-to-t from-black/40 to-transparent" />
@@ -155,9 +149,9 @@ export default function EventsPage() {
           {/* Right Edge - Narrower */}
           <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
         </div>
-
+        
         {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -165,31 +159,53 @@ export default function EventsPage() {
             viewport={{ once: true }}
           >
             <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-8" />
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-6xl font-bold text-white mb-6"
+              style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
+            >
               Private Events
-            </h2>
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="text-xl text-gray-300 mb-10"
+            >
               Host your next corporate event, wedding, or celebration aboard one of our luxury yachts. 
               Our event planning team will ensure every detail is perfect.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Button 
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsApplicationModalOpen(true)}
-                size="lg"
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+                className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
               >
                 Apply for Membership
-              </Button>
+              </motion.button>
               <Link href="/contact">
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white/30 text-white hover:bg-white/10 px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-10 py-5 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all"
                 >
                   Plan Your Event
-                </Button>
+                </motion.button>
               </Link>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
