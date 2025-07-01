@@ -188,7 +188,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Membership Benefits Section */}
-      <section className="py-32 bg-white/5">
+      <section className="py-32 bg-black">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <motion.h2
