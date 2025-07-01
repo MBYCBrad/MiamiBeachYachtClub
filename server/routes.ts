@@ -6208,14 +6208,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/applications", async (req, res) => {
     try {
       const validatedData = insertApplicationSchema.parse(req.body);
-      const application = await dbStorage.createApplication(validatedData);
       
-      // Create notification for admin
+      // Handle different application types
+      let processedData = { ...validatedData };
+      
+      // For partner applications, extract names from fullName if needed
+      if (validatedData.applicationType !== 'member' && validatedData.fullName) {
+        const nameParts = validatedData.fullName.split(' ');
+        processedData.firstName = nameParts[0] || validatedData.fullName;
+        processedData.lastName = nameParts.slice(1).join(' ') || '';
+      }
+      
+      // Set default values for partner applications
+      if (validatedData.applicationType !== 'member') {
+        processedData.dateOfBirth = processedData.dateOfBirth || '1990-01-01';
+        processedData.address = processedData.address || 'Partner Address';
+        processedData.city = processedData.city || 'Miami';
+        processedData.state = processedData.state || 'FL';
+        processedData.zipCode = processedData.zipCode || '33139';
+        processedData.country = processedData.country || 'USA';
+        processedData.occupation = processedData.occupation || 'Partner';
+        processedData.membershipTier = processedData.membershipTier || 'partner';
+        processedData.preferredLocation = processedData.preferredLocation || 'Miami Beach';
+        processedData.expectedUsageFrequency = processedData.expectedUsageFrequency || 'As needed';
+        processedData.primaryUseCase = processedData.primaryUseCase || 'Partnership';
+        processedData.groupSize = processedData.groupSize || '1-2';
+        processedData.annualIncome = processedData.annualIncome || '$100,000+';
+        processedData.netWorth = processedData.netWorth || '$100,000+';
+        processedData.liquidAssets = processedData.liquidAssets || '$50,000+';
+        processedData.creditScore = processedData.creditScore || '750+';
+        processedData.bankName = processedData.bankName || 'Partner Bank';
+        processedData.hasBoatingExperience = processedData.hasBoatingExperience ?? true;
+        processedData.referenceSource = processedData.referenceSource || 'Partnership Application';
+        processedData.preferredStartDate = processedData.preferredStartDate || new Date().toISOString().split('T')[0];
+        processedData.emergencyContactName = processedData.emergencyContactName || 'Emergency Contact';
+        processedData.emergencyContactPhone = processedData.emergencyContactPhone || '555-0123';
+        processedData.emergencyContactRelation = processedData.emergencyContactRelation || 'Business';
+        processedData.agreeToTerms = processedData.agreeToTerms ?? true;
+        processedData.agreeToBackground = processedData.agreeToBackground ?? true;
+      }
+      
+      const application = await dbStorage.createApplication(processedData);
+      
+      // Create appropriate notification based on application type
+      const applicationTypes = {
+        member: "New Membership Application",
+        yacht_partner: "New Yacht Partner Application", 
+        service_provider: "New Service Provider Application",
+        event_provider: "New Event Provider Application"
+      };
+      
+      const displayName = validatedData.fullName || `${validatedData.firstName} ${validatedData.lastName}`;
+      const appType = validatedData.applicationType || 'member';
+      
       await dbStorage.createNotification({
         userId: 60, // Simon Librati admin user ID
         type: "application_submitted",
-        title: "New Membership Application",
-        message: `${validatedData.firstName} ${validatedData.lastName} has submitted a ${validatedData.membershipTier} membership application`,
+        title: applicationTypes[appType as keyof typeof applicationTypes] || "New Application",
+        message: `${displayName} has submitted a ${appType.replace('_', ' ')} application`,
         priority: "high",
         actionUrl: "/admin/applications"
       });

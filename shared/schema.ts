@@ -622,6 +622,35 @@ export const applications = pgTable("applications", {
   agreeToBackground: boolean("agree_to_background").notNull(),
   marketingOptIn: boolean("marketing_opt_in").default(false),
   
+  // Partner-specific fields (flexible for yacht, service, and event partners)
+  fullName: text("full_name"), // For partner applications
+  company: text("company"), // For partner applications
+  message: text("message"), // Additional message for partners
+  details: jsonb("details").$type<{
+    // Yacht Partner fields
+    yachtName?: string;
+    yachtType?: string;
+    yachtLength?: string;
+    yachtYear?: string;
+    homePort?: string;
+    experience?: string;
+    partnershipType?: string;
+    expectedRevenue?: string;
+    
+    // Service Provider fields
+    businessType?: string;
+    serviceCategories?: string[];
+    deliveryTypes?: string[];
+    coverage?: string;
+    pricing?: string;
+    portfolio?: string;
+    
+    // Event Provider fields
+    eventTypes?: string[];
+    capacity?: string;
+    budget?: string;
+  }>(),
+  
   // System fields
   status: text("status").notNull().default("pending"), // pending, approved, rejected, under_review
   submittedAt: timestamp("submitted_at").defaultNow(),
@@ -760,6 +789,49 @@ export const insertApplicationSchema = createInsertSchema(applications).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Make member-specific fields optional for partner applications
+  dateOfBirth: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  country: z.string().optional(),
+  occupation: z.string().optional(),
+  membershipTier: z.string().optional(),
+  preferredLocation: z.string().optional(),
+  expectedUsageFrequency: z.string().optional(),
+  primaryUseCase: z.string().optional(),
+  groupSize: z.string().optional(),
+  annualIncome: z.string().optional(),
+  netWorth: z.string().optional(),
+  liquidAssets: z.string().optional(),
+  creditScore: z.string().optional(),
+  bankName: z.string().optional(),
+  hasBoatingExperience: z.boolean().optional(),
+  referenceSource: z.string().optional(),
+  preferredStartDate: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
+  emergencyContactRelation: z.string().optional(),
+  agreeToTerms: z.boolean().optional(),
+  agreeToBackground: z.boolean().optional(),
+}).refine((data) => {
+  // For member applications, require all fields
+  if (data.applicationType === 'member') {
+    return data.dateOfBirth && data.address && data.city && data.state && 
+           data.zipCode && data.country && data.occupation && data.membershipTier &&
+           data.preferredLocation && data.expectedUsageFrequency && data.primaryUseCase &&
+           data.groupSize && data.annualIncome && data.netWorth && data.liquidAssets &&
+           data.creditScore && data.bankName && data.hasBoatingExperience !== undefined &&
+           data.referenceSource && data.preferredStartDate && data.emergencyContactName &&
+           data.emergencyContactPhone && data.emergencyContactRelation && 
+           data.agreeToTerms && data.agreeToBackground;
+  }
+  // For partner applications, only require basic fields
+  return data.fullName && data.email && data.phone;
+}, {
+  message: "Required fields missing for application type"
 });
 
 export const insertTourRequestSchema = createInsertSchema(tourRequests).omit({
