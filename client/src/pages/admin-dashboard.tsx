@@ -2966,13 +2966,7 @@ export default function AdminDashboard() {
                               <Eye className="h-4 w-4 mr-1" />
                               View Details
                             </Button>
-                            <Button
-                              size="sm"
-                              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                            >
-                              <Calendar className="h-4 w-4 mr-1" />
-                              Schedule Tour
-                            </Button>
+
                           </div>
                         </div>
                       </div>
