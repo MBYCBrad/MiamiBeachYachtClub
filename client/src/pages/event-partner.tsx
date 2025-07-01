@@ -171,7 +171,21 @@ export default function EventPartnerPage() {
         
         {/* Enhanced gradient overlay matching landing page */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/90 z-10" />
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+        
+        {/* 3D Anamorphic Edges */}
+        <div className="absolute inset-0 pointer-events-none z-10">
+          {/* Top Edge - Enhanced blur to blend into black background */}
+          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black via-black/80 to-transparent" />
+          
+          {/* Bottom Edge - Deeper for text readability */}
+          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent" />
+          
+          {/* Left Edge */}
+          <div className="absolute top-0 left-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-black/40 to-transparent" />
+          
+          {/* Right Edge */}
+          <div className="absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-black/40 to-transparent" />
+        </div>
         
         <div className="relative z-20 h-full flex flex-col justify-center">
           <div className="max-w-4xl mx-auto px-6 pt-20">
