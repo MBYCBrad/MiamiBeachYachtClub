@@ -94,27 +94,20 @@ export default function ServicesPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 border border-white/10 relative">
-                  {/* Hover Overlay with Lock Icon */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center">
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      whileHover={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-white/20 backdrop-blur-md rounded-full p-4"
-                    >
-                      <Lock className="w-8 h-8 text-white" />
-                    </motion.div>
-                  </div>
-
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 border border-white/10">
                   {/* Service Image */}
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden group">
                     <img
                       src={service.imageUrl || '/api/placeholder/400/300'}
                       alt={service.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    {/* Lock Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                      <Lock className="w-16 h-16 text-white" />
+                    </div>
                     
                     {/* Category Badge */}
                     <div className="absolute top-4 left-4">

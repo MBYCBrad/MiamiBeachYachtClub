@@ -712,6 +712,11 @@ Changelog:
 - July 1, 2025. Complete ApplicationModal integration across all marketing pages
   - Updated Services page: changed "Book Service" buttons to "Apply for Membership" with ApplicationModal integration
   - Updated Contact page: connected VideoCTA to ApplicationModal with proper state management and AnimatePresence
+- July 1, 2025. Services cards hover effect implemented matching fleet and events design
+  - Added purple-to-indigo gradient hover overlay with white lock icon over service card images
+  - Updated button text from "Apply for Membership" to "Book Now" with ApplicationModal integration
+  - Implemented exact hover pattern from fleet cards: gradient overlay appears only over image area with centered lock icon
+  - Maintained consistent user experience across yachts, events, and services with identical hover interactions
   - Applied consistent useState and AnimatePresence pattern across all marketing pages for unified user experience
   - All "Apply" buttons now trigger ApplicationModal instead of redirecting to /apply route
   - Backend integration confirmed working with real-time admin notifications to user ID 60 (Simon)
