@@ -70,8 +70,10 @@ export default function BookTourPage() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-center"
             >
-              <Clock className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">90 Minutes</h3>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">60 Minutes</h3>
               <p className="text-gray-400">Comprehensive tour of our facilities and fleet</p>
             </motion.div>
             
@@ -81,7 +83,9 @@ export default function BookTourPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-center"
             >
-              <MapPin className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Miami Beach Marina</h3>
               <p className="text-gray-400">Tour our exclusive dock facilities</p>
             </motion.div>
@@ -92,7 +96,9 @@ export default function BookTourPage() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-center"
             >
-              <Users className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-white" />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Personal Guide</h3>
               <p className="text-gray-400">Led by our membership specialists</p>
             </motion.div>
@@ -103,7 +109,9 @@ export default function BookTourPage() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="text-center"
             >
-              <Calendar className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Flexible Scheduling</h3>
               <p className="text-gray-400">Available 7 days a week</p>
             </motion.div>
