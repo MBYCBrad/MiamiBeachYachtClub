@@ -876,6 +876,21 @@ function FeaturesSection() {
                     </video>
                   )}
                   
+                  {/* 3D Anamorphic Edges for Mobile Screen */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    {/* Top Edge - Enhanced blur to blend into black background */}
+                    <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black via-black/80 to-transparent rounded-t-[48px]" />
+                    
+                    {/* Bottom Edge - Deeper for mobile */}
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent rounded-b-[48px]" />
+                    
+                    {/* Left Edge - Narrower */}
+                    <div className="absolute top-0 left-0 bottom-0 w-6 bg-gradient-to-r from-black/40 to-transparent rounded-l-[48px]" />
+                    
+                    {/* Right Edge - Narrower */}
+                    <div className="absolute top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-black/40 to-transparent rounded-r-[48px]" />
+                  </div>
+                  
                   {/* App UI Overlay - Login Form */}
                   <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center px-6">
                     {/* Logo */}
