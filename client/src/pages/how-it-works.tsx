@@ -179,7 +179,12 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   };
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    console.log('updateFormData called:', field, value);
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      console.log('Updated form data:', newData);
+      return newData;
+    });
   };
 
   if (!isOpen) return null;
@@ -492,7 +497,10 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         key={tier.name}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => updateFormData('membershipTier', tier.name)}
+                        onClick={() => {
+                          console.log('Tier clicked:', tier.name);
+                          updateFormData('membershipTier', tier.name);
+                        }}
                         className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
                           formData.membershipTier === tier.name
                             ? 'border-purple-600 bg-purple-600/10'
@@ -529,7 +537,10 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => updateFormData('membershipPackage', 'full')}
+                      onClick={() => {
+                        console.log('Package clicked: full');
+                        updateFormData('membershipPackage', 'full');
+                      }}
                       className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
                         formData.membershipPackage === 'full'
                           ? 'border-purple-600 bg-purple-600/10'
@@ -561,7 +572,10 @@ function ApplicationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => updateFormData('membershipPackage', 'mariners')}
+                      onClick={() => {
+                        console.log('Package clicked: mariners');
+                        updateFormData('membershipPackage', 'mariners');
+                      }}
                       className={`relative cursor-pointer rounded-xl border-2 p-6 transition-all duration-300 ${
                         formData.membershipPackage === 'mariners'
                           ? 'border-purple-600 bg-purple-600/10'
