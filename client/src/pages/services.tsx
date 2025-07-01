@@ -115,7 +115,11 @@ export default function ServicesPage() {
                         {service.category}
                       </Badge>
                       <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                        {service.serviceType || 'location'}
+                        {service.deliveryType === 'yacht' && 'Yacht Add-on'}
+                        {service.deliveryType === 'location' && 'Come To You'}
+                        {service.deliveryType === 'marina' && 'Marina Address'}
+                        {service.deliveryType === 'external_location' && 'Physical Address'}
+                        {!service.deliveryType && 'Come To You'}
                       </Badge>
                     </div>
 
