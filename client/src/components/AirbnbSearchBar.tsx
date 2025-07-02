@@ -101,7 +101,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | undefined>(undefined);
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
-  const [searchStep, setSearchStep] = useState<'fields' | 'yachts' | 'confirmation'>('fields');
+  // Remove searchStep since we're using integrated form
   const searchBarRef = useRef<HTMLDivElement>(null);
 
   // Fetch yachts data
@@ -111,15 +111,9 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
     gcTime: 60 * 60 * 1000, // 1 hour
   });
 
-  // Handler functions for new flow
-  const proceedToYachtSelection = () => {
-    setSearchStep('yachts');
-    setActiveField(null);
-  };
-
+  // Handler function for yacht selection
   const handleYachtSelect = (yacht: Yacht) => {
     setSelectedYacht(yacht);
-    setSearchStep('confirmation');
   };
 
   // Available 4-hour time slots
@@ -174,8 +168,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
   };
 
   const handleSearch = () => {
-    // If this is the final confirmation step, trigger the actual search
-    if (searchStep === 'confirmation' && selectedYacht) {
+    // Trigger the search with all selected criteria including yacht
+    if (selectedYacht) {
       onSearch({
         ...searchCriteria,
         selectedYacht,
@@ -185,7 +179,6 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
       
       // Close dropdown and reset state
       setActiveField(null);
-      setSearchStep('fields');
       setSelectedYacht(null);
     }
   };
@@ -333,8 +326,8 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
               >
                 <X size={18} className="text-white" />
               </button>
-            {/* Search Fields Step */}
-            {searchStep === 'fields' && activeField === 'where' && (
+            {/* Where Dropdown */}
+            {activeField === 'where' && (
               <div className="p-6">
                 <h3 className="text-lg font-semibold mb-4 text-white">Where do you want to go?</h3>
                 <div className="space-y-3">
@@ -356,7 +349,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             )}
 
             {/* Date and Time Selection */}
-            {searchStep === 'fields' && (activeField === 'checkin' || activeField === 'checkout') && (
+            {(activeField === 'checkin' || activeField === 'checkout') && (
               <div className="p-6">
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-2 text-white">Select Your Charter Date & Time</h3>
@@ -447,7 +440,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             )}
 
             {/* Who Dropdown */}
-            {searchStep === 'fields' && activeField === 'who' && (
+            {activeField === 'who' && (
               <div className="p-6">
                 <div className="space-y-6">
                   {/* Adults */}
@@ -572,203 +565,97 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                     </div>
                   </div>
 
-                  {/* Next Button */}
-                  <div className="pt-6 border-t border-gray-700">
-                    <Button
-                      onClick={proceedToYachtSelection}
-                      disabled={!searchCriteria.location || !selectedDate || !selectedTimeSlot || getTotalGuests() === 0}
-                      className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                      size="lg"
-                    >
-                      Choose Your Yacht
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Yacht Selection Step */}
-            {searchStep === 'yachts' && (
-              <div className="p-6">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-semibold mb-2 text-white">Choose Your Yacht</h3>
-                  <p className="text-gray-300">Select from our premium fleet for your charter experience</p>
-                </div>
-                
-                {yachtsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                    <p className="text-gray-300">Loading available yachts...</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 mb-24">
-                    {yachts.map((yacht) => (
-                      <motion.div
-                        key={yacht.id}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handleYachtSelect(yacht)}
-                        className="relative bg-gradient-to-br from-gray-900/80 to-black/60 backdrop-blur-lg rounded-2xl border border-purple-500/20 overflow-hidden cursor-pointer hover:border-purple-400/40 transition-all duration-300"
-                      >
-                        {/* Yacht Image */}
-                        <div className="relative h-48 overflow-hidden rounded-t-2xl">
-                          {yacht.imageUrl ? (
-                            <img
-                              src={yacht.imageUrl}
-                              alt={yacht.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = '/api/media/yacht-placeholder.jpg';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-purple-600/20 to-indigo-600/20 flex items-center justify-center">
-                              <span className="text-6xl">🛥️</span>
-                            </div>
-                          )}
-                          
-                          {/* Member Favorite Badge */}
-                          <div className="absolute top-3 left-3">
-                            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium">
-                              Member Favorite
-                            </span>
-                          </div>
-                          
-                          {/* Heart Icon */}
-                          <button className="absolute top-3 right-3 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors">
-                            <Heart size={20} className="text-white" />
-                          </button>
+                  {/* Yacht Selection Section */}
+                  {searchCriteria.location && selectedDate && selectedTimeSlot && getTotalGuests() > 0 && (
+                    <div className="pt-6 border-t border-gray-700">
+                      <h4 className="text-lg font-semibold mb-4 text-white">Select Your Yacht</h4>
+                      {yachtsLoading ? (
+                        <div className="text-center py-4">
+                          <div className="animate-spin w-6 h-6 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                          <p className="text-gray-300 text-sm">Loading yachts...</p>
                         </div>
+                      ) : (
+                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                          {yachts.map((yacht) => (
+                            <div
+                              key={yacht.id}
+                              onClick={() => handleYachtSelect(yacht)}
+                              className={cn(
+                                "relative bg-gradient-to-br from-gray-900/60 to-black/40 backdrop-blur-lg rounded-xl border border-purple-500/20 overflow-hidden cursor-pointer hover:border-purple-400/40 transition-all duration-300 p-3",
+                                selectedYacht?.id === yacht.id ? "border-purple-400 ring-2 ring-purple-400/50" : ""
+                              )}
+                            >
+                              <div className="flex items-center space-x-3">
+                                {/* Yacht Image */}
+                                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                  {yacht.imageUrl ? (
+                                    <img
+                                      src={yacht.imageUrl}
+                                      alt={yacht.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.src = '/api/media/yacht-placeholder.jpg';
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-purple-600/20 to-indigo-600/20 flex items-center justify-center">
+                                      <span className="text-2xl">🛥️</span>
+                                    </div>
+                                  )}
+                                </div>
 
-                        {/* Yacht Details */}
-                        <div className="p-4">
-                          {/* Title and Rating */}
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-lg font-semibold text-white pr-2">{yacht.name}</h3>
-                            <div className="flex items-center space-x-1 bg-black/20 px-2 py-1 rounded-lg">
-                              <Star size={14} className="text-yellow-400 fill-current" />
-                              <span className="text-sm font-medium text-white">5.0</span>
-                            </div>
-                          </div>
+                                {/* Yacht Details */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className="text-white font-semibold text-sm truncate">{yacht.name}</h5>
+                                      <p className="text-gray-300 text-xs">
+                                        {yacht.size ? `${yacht.size}ft` : 'Luxury'} • Capacity: {yacht.capacity || 8}
+                                      </p>
+                                      <p className="text-gray-400 text-xs truncate">{yacht.location || 'Miami Beach, Florida'}</p>
+                                    </div>
+                                    <div className="text-right ml-2">
+                                      <div className="text-white font-bold text-sm">FREE</div>
+                                      <div className="text-gray-400 text-xs">membership</div>
+                                    </div>
+                                  </div>
+                                </div>
 
-                          {/* Location */}
-                          <p className="text-gray-300 text-sm mb-2">{yacht.location || 'Miami Beach, Florida'}</p>
-
-                          {/* Specifications */}
-                          <p className="text-gray-300 text-sm mb-4">
-                            {yacht.size ? `${yacht.size}ft` : 'Luxury'} • Capacity: {yacht.capacity || 8}
-                          </p>
-
-                          {/* Price */}
-                          <div className="mb-4">
-                            <div className="text-2xl font-bold text-white">FREE</div>
-                            <div className="text-sm text-gray-400">with membership</div>
-                          </div>
-
-                          {/* Book Now Button */}
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleYachtSelect(yacht);
-                            }}
-                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                          >
-                            Book This Yacht
-                          </button>
-
-                          {/* Amenities */}
-                          {yacht.amenities && yacht.amenities.length > 0 && (
-                            <div className="mt-4">
-                              <p className="text-white text-sm font-medium mb-2">Amenities:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {yacht.amenities.slice(0, 3).map((amenity, index) => (
-                                  <span
-                                    key={index}
-                                    className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-lg text-xs"
-                                  >
-                                    {amenity}
-                                  </span>
-                                ))}
-                                {yacht.amenities.length > 3 && (
-                                  <span className="text-purple-300 text-xs px-2 py-1">
-                                    +{yacht.amenities.length - 3} more
-                                  </span>
+                                {/* Selection Indicator */}
+                                {selectedYacht?.id === yacht.id && (
+                                  <div className="absolute top-2 right-2">
+                                    <div className="w-5 h-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                      </svg>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             </div>
-                          )}
+                          ))}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                      )}
 
-            {/* Confirmation Step */}
-            {searchStep === 'confirmation' && selectedYacht && (
-              <div className="p-6">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-semibold mb-2 text-white">Booking Confirmation</h3>
-                  <p className="text-gray-300">Review your charter details</p>
-                </div>
-
-                {/* Selected Yacht Summary */}
-                <div className="bg-gradient-to-br from-gray-900/80 to-black/60 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-4 mb-6">
-                  <div className="flex items-center space-x-4">
-                    {selectedYacht.imageUrl && (
-                      <img
-                        src={selectedYacht.imageUrl}
-                        alt={selectedYacht.name}
-                        className="w-20 h-20 object-cover rounded-xl"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-white">{selectedYacht.name}</h4>
-                      <p className="text-gray-300 text-sm">{selectedYacht.location || 'Miami Beach, Florida'}</p>
-                      <p className="text-gray-300 text-sm">{selectedYacht.size ? `${selectedYacht.size}ft` : 'Luxury'} • Capacity: {selectedYacht.capacity || 8}</p>
+                      {/* Search Button - Only show when yacht is selected */}
+                      {selectedYacht && (
+                        <div className="mt-4">
+                          <Button
+                            onClick={handleSearch}
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl"
+                            size="lg"
+                          >
+                            Book {selectedYacht.name}
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                {/* Charter Details */}
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
-                    <span className="text-gray-300">Destination</span>
-                    <span className="text-white font-medium">{searchCriteria.location}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
-                    <span className="text-gray-300">Date</span>
-                    <span className="text-white font-medium">
-                      {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : ''}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
-                    <span className="text-gray-300">Time</span>
-                    <span className="text-white font-medium">
-                      {selectedTimeSlot ? timeSlots.find(slot => slot.id === selectedTimeSlot)?.time : ''}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
-                    <span className="text-gray-300">Guests</span>
-                    <span className="text-white font-medium">{getGuestText()}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-300">Total Cost</span>
-                    <span className="text-2xl font-bold text-white">FREE</span>
-                  </div>
-                </div>
-
-                {/* Confirm Booking Button */}
-                <Button
-                  onClick={handleSearch}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-4 rounded-xl text-lg"
-                  size="lg"
-                >
-                  Confirm Booking
-                </Button>
               </div>
             )}
+
+
             </div>
           </motion.div>
         )}
