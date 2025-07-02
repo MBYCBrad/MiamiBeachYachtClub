@@ -235,7 +235,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-24"
             >
               {filteredYachts.map((yacht, index) => (
                 <YachtCard key={yacht.id} yacht={yacht} index={index} />
@@ -250,7 +250,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-24"
             >
               {filteredServices.map((service, index) => (
                 <motion.div
@@ -378,7 +378,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-24"
             >
               {filteredEvents.map((event, index) => (
                 <motion.div

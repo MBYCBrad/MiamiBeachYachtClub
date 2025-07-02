@@ -393,7 +393,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
                 {filteredYachts.map((yacht, index) => renderYachtCard(yacht, index))}
                 {filteredServices.map((service, index) => renderServiceCard(service, index))}
                 {filteredEvents.map((event, index) => renderEventCard(event, index))}
@@ -409,7 +409,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
                 <p className="text-gray-500">Save yachts you'd love to charter</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
                 {filteredYachts.map((yacht, index) => renderYachtCard(yacht, index))}
               </div>
             )}
@@ -423,7 +423,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
                 <p className="text-gray-500">Save services you'd like to book</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
                 {filteredServices.map((service, index) => renderServiceCard(service, index))}
               </div>
             )}
@@ -437,7 +437,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
                 <p className="text-gray-500">Save events you're interested in</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-24">
                 {filteredEvents.map((event, index) => renderEventCard(event, index))}
               </div>
             )}
