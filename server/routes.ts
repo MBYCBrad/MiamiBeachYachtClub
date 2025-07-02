@@ -4965,9 +4965,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const conversationId = `user_${userId}_admin`;
           const newConversation = await dbStorage.createConversation({
             id: conversationId,
+            memberId: userId, // Fix: Add required member_id field
+            memberName: req.user!.username,
+            memberPhone: null,
+            membershipTier: req.user!.membershipTier || 'Bronze',
             participants: [userId, 60], // user + admin
             title: `Member Support - ${req.user!.username}`,
             type: 'member_admin',
+            status: 'active',
+            priority: 'medium',
+            lastMessage: 'Conversation started',
+            tags: [],
             metadata: {
               memberId: userId,
               adminId: 60,
