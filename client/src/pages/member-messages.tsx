@@ -61,7 +61,9 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
     setSelectedConversation(adminConversationId);
   };
 
-  const getConversationName = (conversationId: string) => {
+  const getConversationName = (conversationId: string | null | undefined) => {
+    if (!conversationId || typeof conversationId !== 'string') return 'Customer Support';
+    
     if (conversationId.includes('_admin')) {
       return 'MBYC Admin';
     } else if (conversationId.includes('_concierge')) {
@@ -72,7 +74,9 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
     return 'Customer Support';
   };
 
-  const getConversationRole = (conversationId: string) => {
+  const getConversationRole = (conversationId: string | null | undefined) => {
+    if (!conversationId || typeof conversationId !== 'string') return 'Customer Support';
+    
     if (conversationId.includes('_admin')) {
       return 'Club Administrator';
     } else if (conversationId.includes('_concierge')) {
@@ -228,10 +232,10 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           <div className="text-center py-12">
             <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">
-              No conversations yet
+              Ready to connect with MBYC
             </h3>
             <p className="text-gray-400 mb-6 max-w-sm mx-auto">
-              Start your first conversation with MBYC Admin. We're here 24/7 to assist with your yacht club experience.
+              Start your conversation with MBYC Admin. We're here 24/7 to assist with your yacht club experience.
             </p>
             <Button
               onClick={handleNewConversation}
@@ -243,7 +247,13 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredConversations.map((conversation: any, index: number) => (
+            {filteredConversations.map((conversation: any, index: number) => {
+              // Extra safety check for conversation object
+              if (!conversation || typeof conversation !== 'object') {
+                return null;
+              }
+              
+              return (
               <motion.div
                 key={conversation.id || conversation.conversationId || index}
                 initial={{ opacity: 0, y: 20 }}
@@ -281,7 +291,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                         </div>
                         
                         <p className="text-sm text-gray-400 mb-1">
-                          {getConversationRole(conversation.conversationId)}
+                          {getConversationRole(conversation.id || conversation.conversationId)}
                         </p>
                         
                         {conversation.lastMessage && (
@@ -302,7 +312,8 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
