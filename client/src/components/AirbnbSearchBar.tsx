@@ -21,7 +21,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format, addDays, startOfMonth, endOfMonth } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import type { Yacht } from '@shared/schema';
 
 interface SearchCriteria {
@@ -41,6 +43,7 @@ interface SearchCriteria {
 
 interface AirbnbSearchBarProps {
   onSearch: (criteria: SearchCriteria) => void;
+  onBooking?: (bookingData: any) => void;
   className?: string;
 }
 
@@ -83,7 +86,7 @@ const locations = [
   }
 ];
 
-export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBarProps) {
+export default function AirbnbSearchBar({ onSearch, onBooking, className }: AirbnbSearchBarProps) {
   const [activeField, setActiveField] = useState<'where' | 'checkin' | 'checkout' | 'who' | null>(null);
   const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
     location: '',
@@ -101,14 +104,59 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | undefined>(undefined);
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
-  // Remove searchStep since we're using integrated form
+  const [isBooking, setIsBooking] = useState(false);
   const searchBarRef = useRef<HTMLDivElement>(null);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Fetch yachts data
   const { data: yachts = [], isLoading: yachtsLoading } = useQuery<Yacht[]>({
     queryKey: ['/api/yachts'],
     staleTime: 15 * 60 * 1000, // 15 minutes
     gcTime: 60 * 60 * 1000, // 1 hour
+  });
+
+  // Booking mutation
+  const bookingMutation = useMutation({
+    mutationFn: async (bookingData: any) => {
+      const response = await apiRequest('POST', '/api/bookings', bookingData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Booking Confirmed!",
+        description: `Your yacht booking for ${selectedYacht?.name} has been confirmed.`,
+      });
+      
+      // Reset form state
+      setActiveField(null);
+      setSelectedYacht(null);
+      setSelectedDate(undefined);
+      setSelectedTimeSlot(undefined);
+      setSearchCriteria({
+        location: '',
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: { adults: 0, children: 0, infants: 0, pets: 0 }
+      });
+      
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['/api/trips'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      
+      // Call callback if provided
+      if (onBooking) {
+        onBooking(data);
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Booking Failed",
+        description: error.message || "There was an error processing your booking. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   // Handler function for yacht selection
@@ -168,18 +216,48 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
   };
 
   const handleSearch = () => {
-    // Trigger the search with all selected criteria including yacht
-    if (selectedYacht) {
-      onSearch({
-        ...searchCriteria,
-        selectedYacht,
-        selectedDate,
-        selectedTimeSlot
-      });
+    // Create booking instead of just searching
+    if (selectedYacht && selectedDate && selectedTimeSlot) {
+      const timeSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
+      if (!timeSlot) return;
+
+      // Calculate start and end times based on time slot
+      const startTime = new Date(selectedDate);
+      const endTime = new Date(selectedDate);
       
-      // Close dropdown and reset state
-      setActiveField(null);
-      setSelectedYacht(null);
+      // Set times based on selected slot
+      switch (selectedTimeSlot) {
+        case 'morning':
+          startTime.setHours(8, 0, 0, 0);
+          endTime.setHours(12, 0, 0, 0);
+          break;
+        case 'midday':
+          startTime.setHours(12, 0, 0, 0);
+          endTime.setHours(16, 0, 0, 0);
+          break;
+        case 'afternoon':
+          startTime.setHours(16, 0, 0, 0);
+          endTime.setHours(20, 0, 0, 0);
+          break;
+        case 'evening':
+          startTime.setHours(18, 0, 0, 0);
+          endTime.setHours(22, 0, 0, 0);
+          break;
+        default:
+          startTime.setHours(9, 0, 0, 0);
+          endTime.setHours(13, 0, 0, 0);
+      }
+
+      // Create booking data with all required fields
+      const bookingData = {
+        yachtId: selectedYacht.id,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        guestCount: Math.max(1, getTotalGuests()), // Ensure at least 1 guest
+        specialRequests: `Location: ${searchCriteria.location}. Time Slot: ${timeSlot.time}. ${getGuestText()}`
+      };
+
+      bookingMutation.mutate(bookingData);
     }
   };
 
@@ -637,15 +715,23 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                         </div>
                       )}
 
-                      {/* Search Button - Only show when yacht is selected */}
+                      {/* Booking Button - Only show when yacht is selected */}
                       {selectedYacht && (
                         <div className="mt-4">
                           <Button
                             onClick={handleSearch}
-                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl"
+                            disabled={bookingMutation.isPending}
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                             size="lg"
                           >
-                            Book {selectedYacht.name}
+                            {bookingMutation.isPending ? (
+                              <div className="flex items-center justify-center space-x-2">
+                                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                <span>Booking...</span>
+                              </div>
+                            ) : (
+                              `Book ${selectedYacht.name}`
+                            )}
                           </Button>
                         </div>
                       )}
