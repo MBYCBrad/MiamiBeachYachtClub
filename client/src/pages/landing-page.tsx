@@ -281,9 +281,9 @@ function FeaturesSection() {
                 className="absolute inset-0 w-full h-full z-20 pointer-events-none"
               />
               
-              {/* Screen Content - dynamically sized to fit within phone frame */}
-              <div className="absolute inset-0 flex items-center justify-center p-[8%]">
-                <div className="relative w-full h-full rounded-[20%] overflow-hidden">
+              {/* Screen Content - properly sized to fit within phone frame */}
+              <div className="absolute inset-0 flex items-center justify-center p-[12%]">
+                <div className="relative w-full h-full rounded-[12%] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
@@ -299,16 +299,16 @@ function FeaturesSection() {
                   {/* 3D Anamorphic Edges for Mobile Screen */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Top Edge - Enhanced blur to blend into black background */}
-                    <div className="absolute top-0 left-0 right-0 h-[10%] bg-gradient-to-b from-black via-black/80 to-transparent rounded-t-[20%]" />
+                    <div className="absolute top-0 left-0 right-0 h-[10%] bg-gradient-to-b from-black via-black/80 to-transparent rounded-t-[12%]" />
                     
                     {/* Bottom Edge - Deeper for mobile */}
-                    <div className="absolute bottom-0 left-0 right-0 h-[10%] bg-gradient-to-t from-black/40 to-transparent rounded-b-[20%]" />
+                    <div className="absolute bottom-0 left-0 right-0 h-[10%] bg-gradient-to-t from-black/40 to-transparent rounded-b-[12%]" />
                     
                     {/* Left Edge - Narrower */}
-                    <div className="absolute top-0 left-0 bottom-0 w-[4%] bg-gradient-to-r from-black/40 to-transparent rounded-l-[20%]" />
+                    <div className="absolute top-0 left-0 bottom-0 w-[4%] bg-gradient-to-r from-black/40 to-transparent rounded-l-[12%]" />
                     
                     {/* Right Edge - Narrower */}
-                    <div className="absolute top-0 right-0 bottom-0 w-[4%] bg-gradient-to-l from-black/40 to-transparent rounded-r-[20%]" />
+                    <div className="absolute top-0 right-0 bottom-0 w-[4%] bg-gradient-to-l from-black/40 to-transparent rounded-r-[12%]" />
                   </div>
                   
                   {/* App UI Overlay - Login Form */}
@@ -366,29 +366,29 @@ function FeaturesSection() {
             </div>
             
             {/* App Store Badges Below Phone */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-8 sm:mt-12 lg:mt-16">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-8 sm:mt-12 lg:mt-16">
               <motion.a
                 href="#"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-block"
+                className="flex justify-center"
               >
                 <img 
                   src="/api/media/app-store-badge_1751029750830.png" 
                   alt="Download on the App Store" 
-                  className="h-12 sm:h-14 lg:h-16 object-contain"
+                  className="h-12 sm:h-14 lg:h-16 object-contain mx-auto"
                 />
               </motion.a>
               <motion.a
                 href="#"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-block"
+                className="flex justify-center"
               >
                 <img 
                   src="/api/media/google-play-badge_1751029663061.png" 
                   alt="Get it on Google Play" 
-                  className="h-12 sm:h-14 lg:h-16 object-contain"
+                  className="h-12 sm:h-14 lg:h-16 object-contain mx-auto"
                 />
               </motion.a>
             </div>
