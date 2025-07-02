@@ -39,11 +39,22 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
     staleTime: 15 * 60 * 1000, // 15 minutes
   });
 
-  const filteredConversations = conversations?.filter((conv: any) => 
-    conv.id?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
-    conv.memberName?.toLowerCase()?.includes(searchQuery.toLowerCase())
-  ) || [];
+  // Ensure conversations is an array
+  const conversationsList = Array.isArray(conversations) ? conversations : [];
+  
+  const filteredConversations = conversationsList.filter((conv: any) => {
+    // Safe guard against null/undefined conversation objects
+    if (!conv || typeof conv !== 'object') return false;
+    
+    const searchLower = searchQuery.toLowerCase();
+    const id = (conv.id || '').toString();
+    const lastMessage = (conv.lastMessage || '').toString();
+    const memberName = (conv.memberName || '').toString();
+    
+    return id.toLowerCase().includes(searchLower) ||
+           lastMessage.toLowerCase().includes(searchLower) ||
+           memberName.toLowerCase().includes(searchLower);
+  });
 
   const handleNewConversation = () => {
     const adminConversationId = `user_${user?.id}_admin`;
@@ -72,12 +83,28 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
     return 'Customer Support';
   };
 
-  if (isLoading) {
+  if (isLoading || !conversations) {
     return (
       <div className="h-screen bg-black flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full" />
           <p className="text-sm text-gray-400">Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error loading conversations</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-gradient-to-r from-purple-600 to-blue-600"
+          >
+            Retry
+          </Button>
         </div>
       </div>
     );
@@ -218,27 +245,27 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           <div className="space-y-3">
             {filteredConversations.map((conversation: any, index: number) => (
               <motion.div
-                key={conversation.conversationId}
+                key={conversation.id || conversation.conversationId || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
                 <Card 
                   className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900/90 backdrop-blur-sm border-gray-800"
-                  onClick={() => setSelectedConversation(conversation.conversationId)}
+                  onClick={() => setSelectedConversation(conversation.id || conversation.conversationId)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-4">
                       <Avatar className="h-12 w-12 ring-2 ring-purple-500">
                         <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-semibold">
-                          {getConversationName(conversation.conversationId).charAt(0)}
+                          {getConversationName(conversation.id || conversation.conversationId).charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <h3 className="font-semibold text-white truncate">
-                            {getConversationName(conversation.conversationId)}
+                            {getConversationName(conversation.id || conversation.conversationId)}
                           </h3>
                           <div className="flex items-center space-x-2">
                             {conversation.unreadCount > 0 && (
