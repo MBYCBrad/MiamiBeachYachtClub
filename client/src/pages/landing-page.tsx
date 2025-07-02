@@ -86,17 +86,17 @@ function HeroSection({ onApplyClick }: { onApplyClick: () => void }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
+      <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto mt-16 sm:mt-20 lg:mt-0">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <img 
             src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
             alt="Miami Beach Yacht Club" 
-            className="mx-auto w-[400px] md:w-[600px] lg:w-[700px] mb-8"
+            className="mx-auto w-[280px] sm:w-[400px] md:w-[500px] lg:w-[600px] xl:w-[700px] mb-6 sm:mb-8"
           />
         </motion.div>
         
@@ -106,12 +106,12 @@ function HeroSection({ onApplyClick }: { onApplyClick: () => void }) {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-6 justify-center"
+          className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center"
         >
           <Button 
             size="lg" 
             onClick={onApplyClick}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg rounded-full transform hover:scale-105 transition-all duration-300 shadow-2xl"
           >
             APPLY NOW
           </Button>
@@ -119,7 +119,7 @@ function HeroSection({ onApplyClick }: { onApplyClick: () => void }) {
             <Button 
               variant="outline"
               size="lg" 
-              className="border-2 border-white/30 text-white hover:bg-white/10 px-12 py-6 text-lg rounded-full transform hover:scale-105 transition-all duration-300"
+              className="border-2 border-white/30 text-white hover:bg-white/10 px-6 sm:px-8 lg:px-12 py-4 sm:py-5 lg:py-6 text-base sm:text-lg rounded-full transform hover:scale-105 transition-all duration-300"
             >
               BOOK A PRIVATE TOUR
             </Button>
@@ -182,7 +182,7 @@ function FeaturesSection() {
   ];
 
   return (
-    <section className="py-32 bg-black relative overflow-hidden">
+    <section className="py-16 sm:py-24 lg:py-32 bg-black relative overflow-hidden">
       {/* Silver Stars Background Pattern */}
       <div 
         className="absolute inset-0"
@@ -199,15 +199,15 @@ function FeaturesSection() {
       {/* Background gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-indigo-900/10" />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
         >
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6"
             style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
             Become A Member Today &
@@ -220,9 +220,31 @@ function FeaturesSection() {
 
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8 items-center">
-          {/* Left Features */}
-          <div className="space-y-8">
+        {/* Mobile: Top 3 features */}
+        <div className="lg:hidden space-y-6 mb-12">
+          {leftFeatures.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="p-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex-shrink-0">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white">{feature.title}</h3>
+              </div>
+              <p className="text-sm sm:text-base text-gray-400">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
+          {/* Left Features - Desktop Only */}
+          <div className="hidden lg:block space-y-8">
             {leftFeatures.map((feature, index) => (
               <motion.div
                 key={index}
@@ -233,12 +255,12 @@ function FeaturesSection() {
                 className="text-right"
               >
                 <div className="flex items-center justify-end gap-4 mb-2">
-                  <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
-                  <div className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600">
+                  <h3 className="text-xl lg:text-2xl font-bold text-white">{feature.title}</h3>
+                  <div className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex-shrink-0">
                     {feature.icon}
                   </div>
                 </div>
-                <p className="text-gray-400">{feature.description}</p>
+                <p className="text-base text-gray-400">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -249,9 +271,9 @@ function FeaturesSection() {
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative mx-auto"
+            className="relative mx-auto lg:order-2"
           >
-            <div className="relative w-[300px] h-[650px] mx-auto">
+            <div className="relative w-[240px] sm:w-[280px] lg:w-[300px] h-[520px] sm:h-[600px] lg:h-[650px] mx-auto">
               {/* iPhone Frame Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751028888126.png"
@@ -259,9 +281,9 @@ function FeaturesSection() {
                 className="absolute inset-0 w-full h-full z-20 pointer-events-none"
               />
               
-              {/* Screen Content - positioned to fit within the phone screen area */}
-              <div className="absolute inset-0 flex items-center justify-center" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
-                <div className="relative w-[278px] h-[626px] rounded-[48px] overflow-hidden">
+              {/* Screen Content - dynamically sized to fit within phone frame */}
+              <div className="absolute inset-0 flex items-center justify-center p-[8%]">
+                <div className="relative w-full h-full rounded-[20%] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
@@ -277,16 +299,16 @@ function FeaturesSection() {
                   {/* 3D Anamorphic Edges for Mobile Screen */}
                   <div className="absolute inset-0 pointer-events-none">
                     {/* Top Edge - Enhanced blur to blend into black background */}
-                    <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black via-black/80 to-transparent rounded-t-[48px]" />
+                    <div className="absolute top-0 left-0 right-0 h-[10%] bg-gradient-to-b from-black via-black/80 to-transparent rounded-t-[20%]" />
                     
                     {/* Bottom Edge - Deeper for mobile */}
-                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent rounded-b-[48px]" />
+                    <div className="absolute bottom-0 left-0 right-0 h-[10%] bg-gradient-to-t from-black/40 to-transparent rounded-b-[20%]" />
                     
                     {/* Left Edge - Narrower */}
-                    <div className="absolute top-0 left-0 bottom-0 w-6 bg-gradient-to-r from-black/40 to-transparent rounded-l-[48px]" />
+                    <div className="absolute top-0 left-0 bottom-0 w-[4%] bg-gradient-to-r from-black/40 to-transparent rounded-l-[20%]" />
                     
                     {/* Right Edge - Narrower */}
-                    <div className="absolute top-0 right-0 bottom-0 w-6 bg-gradient-to-l from-black/40 to-transparent rounded-r-[48px]" />
+                    <div className="absolute top-0 right-0 bottom-0 w-[4%] bg-gradient-to-l from-black/40 to-transparent rounded-r-[20%]" />
                   </div>
                   
                   {/* App UI Overlay - Login Form */}
@@ -344,7 +366,7 @@ function FeaturesSection() {
             </div>
             
             {/* App Store Badges Below Phone */}
-            <div className="flex gap-4 justify-center mt-16">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-8 sm:mt-12 lg:mt-16">
               <motion.a
                 href="#"
                 whileHover={{ scale: 1.05 }}
@@ -354,7 +376,7 @@ function FeaturesSection() {
                 <img 
                   src="/api/media/app-store-badge_1751029750830.png" 
                   alt="Download on the App Store" 
-                  className="h-16 object-contain"
+                  className="h-12 sm:h-14 lg:h-16 object-contain"
                 />
               </motion.a>
               <motion.a
@@ -366,14 +388,14 @@ function FeaturesSection() {
                 <img 
                   src="/api/media/google-play-badge_1751029663061.png" 
                   alt="Get it on Google Play" 
-                  className="h-16 object-contain"
+                  className="h-12 sm:h-14 lg:h-16 object-contain"
                 />
               </motion.a>
             </div>
           </motion.div>
 
-          {/* Right Features */}
-          <div className="space-y-8">
+          {/* Right Features - Desktop Only */}
+          <div className="hidden lg:block space-y-8">
             {rightFeatures.map((feature, index) => (
               <motion.div
                 key={index}
@@ -383,16 +405,38 @@ function FeaturesSection() {
                 viewport={{ once: true }}
                 className="text-left"
               >
-                <div className="flex items-center gap-4 mb-2">
-                  <div className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600">
+                <div className="flex items-center justify-start gap-4 mb-2">
+                  <div className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex-shrink-0">
                     {feature.icon}
                   </div>
-                  <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
+                  <h3 className="text-xl lg:text-2xl font-bold text-white">{feature.title}</h3>
                 </div>
-                <p className="text-gray-400 ml-14">{feature.description}</p>
+                <p className="text-base text-gray-400 ml-14">{feature.description}</p>
               </motion.div>
             ))}
           </div>
+        </div>
+
+        {/* Mobile: Bottom 3 features */}
+        <div className="lg:hidden space-y-6 mt-12">
+          {rightFeatures.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="p-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex-shrink-0">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white">{feature.title}</h3>
+              </div>
+              <p className="text-sm sm:text-base text-gray-400">{feature.description}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -411,30 +455,30 @@ function StatsSection() {
   ];
 
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-12 sm:py-16 lg:py-20 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-900/10 to-black" />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6"
             style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
             Why Choose
             <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> MBYC</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto px-4">
             Join Miami's most exclusive yacht club and experience luxury like never before
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {stats.map((stat, index) => (
             <motion.div
               key={index}
@@ -446,21 +490,23 @@ function StatsSection() {
             >
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-8 h-full"
+                className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 backdrop-blur-sm border border-purple-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 h-full"
               >
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                  {stat.icon}
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white">
+                    {stat.icon}
+                  </div>
                 </div>
                 <motion.div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
                   viewport={{ once: true }}
-                  className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2"
+                  className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2"
                 >
                   {stat.value}
                 </motion.div>
-                <p className="text-gray-400 text-lg">{stat.label}</p>
+                <p className="text-gray-400 text-sm sm:text-base lg:text-lg">{stat.label}</p>
               </motion.div>
             </motion.div>
           ))}
@@ -518,35 +564,35 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
   ];
 
   return (
-    <section className="py-20 relative">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-12 sm:py-16 lg:py-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6"
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6"
             style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
             Choose Your
             <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"> Membership</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto mb-6 sm:mb-8 px-4">
             Select the perfect tier for your yachting lifestyle
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/pricing'}
-            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all text-sm sm:text-base"
           >
             View All Membership Tiers
           </motion.button>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {packages.map((pkg, index) => (
             <motion.div
               key={index}
@@ -565,40 +611,42 @@ function PackagesSection({ onApplyClick }: { onApplyClick?: () => void }) {
               )}
               <motion.div
                 whileHover={{ scale: 1.02, y: -5 }}
-                className={`h-full rounded-2xl p-8 ${
+                className={`h-full rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 ${
                   pkg.popular 
                     ? 'bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border-2 border-purple-500/50' 
                     : 'bg-gradient-to-br from-purple-900/10 to-indigo-900/10 border border-purple-500/20'
                 } backdrop-blur-sm`}
               >
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                    {pkg.icon}
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white">
+                      {pkg.icon}
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-bold text-white mb-1">{pkg.name}</h3>
-                  <p className="text-sm text-gray-400 mb-4 tracking-widest">{pkg.nameSubtext}</p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-1">{pkg.name}</h3>
+                  <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4 tracking-widest">{pkg.nameSubtext}</p>
+                  <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {pkg.price}
                   </p>
-                  <p className="text-sm text-gray-400 mb-4">{pkg.priceSubtext}</p>
-                  <p className="text-sm text-purple-400 font-semibold mb-6">{pkg.membershipFee}</p>
+                  <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">{pkg.priceSubtext}</p>
+                  <p className="text-xs sm:text-sm text-purple-400 font-semibold mb-4 sm:mb-6">{pkg.membershipFee}</p>
                 </div>
-                <ul className="space-y-4 mb-6">
+                <ul className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                   {pkg.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-300">{feature}</span>
+                    <li key={i} className="flex items-start gap-2 sm:gap-3">
+                      <Check className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-300 text-sm sm:text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <div className="mb-8 p-4 bg-purple-900/10 rounded-lg border border-purple-500/20">
-                  <p className="text-sm text-gray-400 leading-relaxed">{pkg.detailedDescription}</p>
+                <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-purple-900/10 rounded-lg border border-purple-500/20">
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">{pkg.detailedDescription}</p>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onApplyClick || (() => window.location.href = '/book-tour')}
-                  className={`w-full py-3 rounded-full font-semibold transition-all ${
+                  className={`w-full py-2.5 sm:py-3 rounded-full font-semibold transition-all text-sm sm:text-base ${
                     pkg.popular
                       ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'
                       : 'bg-purple-900/20 text-purple-400 border border-purple-500/50 hover:bg-purple-900/30'
@@ -1171,13 +1219,13 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
       </div>
       
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center py-20">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12 sm:py-16 lg:py-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-4xl md:text-6xl font-bold text-white mb-6"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6"
           style={{ fontFamily: 'SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif' }}
         >
           Ready to Join Miami's Most Exclusive
@@ -1189,7 +1237,7 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
           viewport={{ once: true }}
-          className="text-xl text-gray-300 mb-10"
+          className="text-base sm:text-lg lg:text-xl text-gray-300 mb-8 sm:mb-10 px-4"
         >
           Start your luxury yachting journey today. Limited memberships available.
         </motion.p>
@@ -1205,7 +1253,7 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/book-tour'}
-            className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
+            className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-base sm:text-lg rounded-full hover:from-purple-700 hover:to-indigo-700 transition-all shadow-2xl"
           >
             Book Your Private Tour
           </motion.button>
@@ -1213,7 +1261,7 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => window.location.href = '/contact'}
-            className="px-10 py-5 bg-transparent border-2 border-white text-white font-bold text-lg rounded-full hover:bg-white/10 transition-all"
+            className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-transparent border-2 border-white text-white font-bold text-base sm:text-lg rounded-full hover:bg-white/10 transition-all"
           >
             Contact Us
           </motion.button>
@@ -1226,15 +1274,15 @@ function FinalCTASection({ onApplyClick }: { onApplyClick: () => void }) {
 // Footer Component
 function Footer() {
   return (
-    <footer className="bg-black border-t border-gray-800 py-16">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-8">
+    <footer className="bg-black border-t border-gray-800 py-12 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description */}
-          <div className="md:col-span-1">
+          <div className="sm:col-span-2 lg:col-span-1">
             <img 
               src="/api/media/MBYC-LOGO-WHITE (1)_1751027380901.png" 
               alt="Miami Beach Yacht Club" 
-              className="w-48 mb-4"
+              className="w-32 sm:w-40 lg:w-48 mb-4"
             />
             <p className="text-gray-400 text-sm">
               Miami's premier yacht club offering exclusive access to luxury vessels and world-class maritime experiences.

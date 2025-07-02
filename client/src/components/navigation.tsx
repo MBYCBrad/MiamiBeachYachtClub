@@ -53,15 +53,15 @@ export function Navigation() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
               <img 
                 src="/api/media/MBYC-LOGO-WHITE_1751029522037.png" 
                 alt="MBYC" 
-                className="w-12 h-12 object-contain animate-subtle-glow" 
+                className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain animate-subtle-glow" 
               />
             </div>
           </Link>
@@ -91,13 +91,13 @@ export function Navigation() {
                 Loading...
               </Button>
             ) : isAuthenticated && user ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-2">
-                  <span className="text-sm text-white font-medium">{user.username}</span>
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                <div className="flex items-center space-x-2 px-2 py-1 lg:px-3 lg:py-2">
+                  <span className="text-xs lg:text-sm text-white font-medium">{user.username}</span>
                 </div>
                 <Button
                   onClick={handleAuthClick}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-3 py-2 lg:px-4 lg:py-2 text-sm"
                 >
                   Dashboard
                 </Button>
@@ -134,7 +134,7 @@ export function Navigation() {
             {/* White edge at bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
             
-            <div className="px-6 py-4 space-y-3">
+            <div className="px-4 sm:px-6 py-4 space-y-3">
               {navItems.map((item) => (
                 <Link key={item.label} href={item.href}>
                   <div
