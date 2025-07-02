@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import type { Yacht } from "@shared/schema";
-import { NavigationTest } from "@/components/navigation-test";
+import { Navigation } from "@/components/navigation";
 import starPattern from "@assets/PF0007919-big_1751025963434.jpg";
 import { useState } from "react";
 import { VideoFooter } from "@/components/video-footer";
@@ -1382,7 +1382,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <NavigationTest />
+      <Navigation />
       <HeroSection onApplyClick={() => setIsApplicationModalOpen(true)} setLocation={setLocation} />
       <FeaturesSection setLocation={setLocation} />
       <StatsSection />
