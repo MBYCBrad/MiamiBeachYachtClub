@@ -237,7 +237,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
   return (
     <div className="min-h-screen bg-black">
       {/* Back to Explore Breadcrumb */}
-      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-xl border-b border-gray-800 shadow-2xl">
+      <div className="sticky top-0 z-[60] bg-black/95 backdrop-blur-xl border-b border-gray-800 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button
             onClick={() => setCurrentView('home')}
@@ -251,7 +251,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 pb-32">
         {/* Results Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -426,7 +426,7 @@ export default function SearchResults({ currentView, setCurrentView, searchCrite
 
         {/* Results Grid */}
         {filteredResults.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-24">
             <AnimatePresence>
               {filteredResults.map((yacht, index) => (
               <motion.div
