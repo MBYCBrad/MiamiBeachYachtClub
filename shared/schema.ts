@@ -776,6 +776,7 @@ export const insertEventSchema = createInsertSchema(events).omit({
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
+  userId: true, // Omit userId since server sets it automatically
 }).extend({
   startTime: z.union([z.date(), z.string().transform(str => new Date(str))]),
   endTime: z.union([z.date(), z.string().transform(str => new Date(str))]),
