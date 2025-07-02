@@ -791,7 +791,7 @@ export const insertServiceBookingSchema = createInsertSchema(serviceBookings).om
 export const insertEventRegistrationSchema = createInsertSchema(eventRegistrations).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
+  userId: true, // Omit userId since server sets it automatically
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({

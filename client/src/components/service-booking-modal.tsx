@@ -217,7 +217,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
-                className="rounded-md border border-gray-700 bg-gray-800"
+                className="rounded-md border border-gray-700 bg-black text-white [&_.rdp-day]:text-white [&_.rdp-day_button]:text-white [&_.rdp-nav_button]:text-white [&_.rdp-caption]:text-white [&_.rdp-head_cell]:text-gray-400"
               />
             </div>
 

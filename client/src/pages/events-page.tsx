@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, Calendar, MapPin, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import EventRegistrationModal from '@/components/event-registration-modal';
 import type { Event } from '@shared/schema';
 
 interface EventsPageProps {
@@ -13,6 +14,8 @@ interface EventsPageProps {
 
 export default function EventsPage({ currentView, setCurrentView }: EventsPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   
   const { data: events = [], isLoading } = useQuery<Event[]>({
     queryKey: ['/api/events', { upcoming: true, active: true }]
@@ -29,6 +32,16 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleRegisterClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsRegistrationModalOpen(true);
+  };
+
+  const handleCloseRegistrationModal = () => {
+    setIsRegistrationModalOpen(false);
+    setSelectedEvent(null);
   };
 
   return (
@@ -162,6 +175,7 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
                     </div>
                     <Button
                       size="sm"
+                      onClick={() => handleRegisterClick(event)}
                       className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl px-6"
                     >
                       Register
@@ -173,6 +187,13 @@ export default function EventsPage({ currentView, setCurrentView }: EventsPagePr
           </motion.div>
         )}
       </div>
+
+      {/* Event Registration Modal */}
+      <EventRegistrationModal
+        event={selectedEvent}
+        isOpen={isRegistrationModalOpen}
+        onClose={handleCloseRegistrationModal}
+      />
     </div>
   );
 }
