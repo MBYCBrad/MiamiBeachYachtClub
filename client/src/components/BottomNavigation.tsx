@@ -124,7 +124,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`fixed bottom-0 left-0 right-0 z-50 glass-dark border-t border-white/10 rounded-t-2xl transition-transform duration-200 ${
+        className={`fixed bottom-0 left-0 right-0 z-40 glass-dark border-t border-white/10 rounded-t-2xl transition-transform duration-200 ${
           isDragging ? 'swipe-active' : ''
         }`}
         onTouchStart={handleTouchStart}
@@ -194,7 +194,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
               onClick={() => setIsMenuOpen(false)}
             />
 
@@ -204,7 +204,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 h-full w-80 bg-black/20 backdrop-blur-2xl border-l border-white/10 z-50"
+              className="fixed top-0 right-0 h-full w-80 bg-black/20 backdrop-blur-2xl border-l border-white/10 z-35"
             >
               {/* Menu Header */}
               <div className="p-6 border-b border-white/10">
