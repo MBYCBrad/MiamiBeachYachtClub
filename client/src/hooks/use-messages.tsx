@@ -88,27 +88,9 @@ export function useConversations() {
 
   const conversationsQuery = useQuery({
     queryKey: ["/api/conversations"],
-    queryFn: async () => {
-      try {
-        const response = await apiRequest("GET", "/api/conversations");
-        const data = await response.json();
-        console.log('Conversations API Response:', data);
-        return data;
-      } catch (error) {
-        console.error('Conversations API Error:', error);
-        throw error;
-      }
-    },
+    queryFn: () => apiRequest("GET", "/api/conversations").then(res => res.json()),
     staleTime: 60000, // 1 minute
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
-    retry: 1, // Only retry once on failure
-  });
-
-  console.log('useConversations Query State:', {
-    isLoading: conversationsQuery.isLoading,
-    isFetching: conversationsQuery.isFetching,
-    data: conversationsQuery.data,
-    error: conversationsQuery.error
   });
 
   return {

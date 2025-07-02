@@ -31,13 +31,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Debug logging
-  console.log('MemberMessages Debug:', { 
-    isLoading, 
-    conversations: conversations?.length || 0, 
-    user: user?.username,
-    error: error?.message 
-  });
+
 
   // Fetch active hero video
   const { data: heroVideo } = useQuery<any>({
@@ -46,9 +40,9 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
   });
 
   const filteredConversations = conversations?.filter((conv: any) => 
-    conv.conversationId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage?.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.memberName?.toLowerCase().includes(searchQuery.toLowerCase())
+    conv.id?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+    conv.lastMessage?.toLowerCase()?.includes(searchQuery.toLowerCase()) ||
+    conv.memberName?.toLowerCase()?.includes(searchQuery.toLowerCase())
   ) || [];
 
   const handleNewConversation = () => {
