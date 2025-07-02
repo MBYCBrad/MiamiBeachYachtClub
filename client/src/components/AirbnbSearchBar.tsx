@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -272,9 +273,10 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-20 left-4 right-4 mx-auto w-[calc(100%-2rem)] max-w-[800px] max-h-[calc(100vh-120px)] bg-black/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-500/30 overflow-y-auto scroll-smooth md:absolute md:top-full md:mt-2 md:left-0 md:right-0"
-            style={{ zIndex: 999999 }}
+            className="fixed inset-0 z-[2147483647]"
           >
+            <div className="absolute top-20 left-4 right-4 mx-auto w-[calc(100%-2rem)] max-w-[800px] max-h-[calc(100vh-120px)] bg-black/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-purple-500/30 overflow-y-auto scroll-smooth"
+            >
             {/* Where Dropdown */}
             {activeField === 'where' && (
               <div className="p-6">
@@ -527,6 +529,7 @@ export default function AirbnbSearchBar({ onSearch, className }: AirbnbSearchBar
                 </div>
               </div>
             )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
