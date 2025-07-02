@@ -95,8 +95,10 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   ];
 
   const handleNavClick = (itemId: string) => {
+    console.log('Nav click:', itemId, 'Current menu state:', isMenuOpen);
     if (itemId === 'menu') {
       setIsMenuOpen(!isMenuOpen);
+      console.log('Menu state after toggle:', !isMenuOpen);
     } else {
       setCurrentView(itemId);
       setIsMenuOpen(false);
@@ -185,6 +187,13 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
         </div>
       </motion.div>
 
+      {/* Debug Menu State */}
+      {isMenuOpen && (
+        <div className="fixed top-4 left-4 bg-red-500 text-white p-2 rounded z-[999]">
+          Menu is OPEN
+        </div>
+      )}
+
       {/* Hamburger Menu Panel */}
       <AnimatePresence>
         {isMenuOpen && (
@@ -194,7 +203,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
               onClick={() => setIsMenuOpen(false)}
             />
 
@@ -204,7 +213,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 h-full w-80 bg-black/20 backdrop-blur-2xl border-l border-white/10 z-35"
+              className="fixed top-0 right-0 h-full w-80 bg-black/95 backdrop-blur-2xl border-l border-white/10 z-[60]"
             >
               {/* Menu Header */}
               <div className="p-6 border-b border-white/10">
