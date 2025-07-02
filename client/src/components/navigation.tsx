@@ -114,8 +114,12 @@ export function Navigation() {
 
           {/* Mobile Menu Toggle */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-white p-2"
+            onClick={() => {
+              console.log('Menu button clicked, current state:', isOpen);
+              setIsOpen(!isOpen);
+              console.log('Menu state will be:', !isOpen);
+            }}
+            className="lg:hidden text-white p-2 border border-white/20 rounded"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -126,15 +130,19 @@ export function Navigation() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ height: 0 }}
-            animate={{ height: "auto" }}
-            exit={{ height: 0 }}
-            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md relative"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="lg:hidden overflow-hidden bg-black/95 backdrop-blur-md relative z-40 border border-white/20"
           >
+            {/* Debug indicator */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-red-500" />
+            
             {/* White edge at bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
             
-            <div className="px-4 sm:px-6 py-4 space-y-3">
+            <div className="px-4 sm:px-6 py-4 space-y-3 min-h-[200px]">
               {navItems.map((item) => (
                 <Link key={item.label} href={item.href}>
                   <div
