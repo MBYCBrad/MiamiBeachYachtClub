@@ -20,8 +20,8 @@ export function useMessages(conversationId?: string) {
 
   // Get user conversations
   const conversationsQuery = useQuery({
-    queryKey: ["/api/messages/conversations"],
-    queryFn: () => apiRequest("GET", "/api/messages/conversations").then(res => res.json()),
+    queryKey: ["/api/conversations"],
+    queryFn: () => apiRequest("GET", "/api/conversations").then(res => res.json()),
     staleTime: 60000, // 1 minute
   });
 
@@ -40,7 +40,7 @@ export function useMessages(conversationId?: string) {
       }
       
       // Invalidate conversations to update last message
-      queryClient.invalidateQueries({ queryKey: ["/api/messages/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
       
       toast({
         title: "Message sent",
@@ -67,7 +67,7 @@ export function useMessages(conversationId?: string) {
       if (conversationId) {
         queryClient.invalidateQueries({ queryKey: ["/api/messages", conversationId] });
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/messages/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },
   });
 
@@ -87,8 +87,8 @@ export function useConversations() {
   const { toast } = useToast();
 
   const conversationsQuery = useQuery({
-    queryKey: ["/api/messages/conversations"],
-    queryFn: () => apiRequest("GET", "/api/messages/conversations").then(res => res.json()),
+    queryKey: ["/api/conversations"],
+    queryFn: () => apiRequest("GET", "/api/conversations").then(res => res.json()),
     staleTime: 60000, // 1 minute
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
