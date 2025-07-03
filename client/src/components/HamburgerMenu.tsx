@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, MessageCircle, Bell, Heart, LogOut } from 'lucide-react';
+import { Menu, X, User, MessageCircle, Bell, Heart, LogOut, Calendar, Star } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 
@@ -14,14 +14,20 @@ export default function HamburgerMenu({ currentView, setCurrentView }: Hamburger
   const { user, logoutMutation } = useAuth();
 
   const menuItems = [
-    { id: 'profile', icon: User, label: 'Profile', badge: null },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 3 },
-    { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7 },
-    { id: 'favorites', icon: Heart, label: 'Favorites', badge: null },
+    { id: 'profile', icon: User, label: 'Profile', badge: null, route: null },
+    { id: 'my-events', icon: Calendar, label: 'My Events', badge: null, route: '/my-events' },
+    { id: 'my-services', icon: Star, label: 'My Services', badge: null, route: '/my-services' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 3, route: null },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: 7, route: null },
+    { id: 'favorites', icon: Heart, label: 'Favorites', badge: null, route: null },
   ];
 
-  const handleMenuItemClick = (itemId: string) => {
-    setCurrentView(itemId);
+  const handleMenuItemClick = (itemId: string, route?: string) => {
+    if (route) {
+      window.location.href = route;
+    } else {
+      setCurrentView(itemId);
+    }
     setIsOpen(false);
   };
 
@@ -90,7 +96,7 @@ export default function HamburgerMenu({ currentView, setCurrentView }: Hamburger
                   return (
                     <motion.button
                       key={item.id}
-                      onClick={() => handleMenuItemClick(item.id)}
+                      onClick={() => handleMenuItemClick(item.id, item.route)}
                       className={`w-full flex items-center justify-between px-6 py-4 text-left transition-colors ${
                         isActive 
                           ? 'bg-purple-600/20 text-purple-400 border-r-2 border-purple-400' 
