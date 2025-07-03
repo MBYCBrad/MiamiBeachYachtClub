@@ -459,47 +459,49 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <Label className="text-base font-medium text-gray-300 mb-3 block">Full Name</Label>
+                <div className="max-w-md space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
+                      <Input
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder="Enter full name"
+                        className="bg-gray-900/50 border-gray-700 h-12"
+                      />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Email Address</Label>
+                      <Input
+                        type="email"
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                        placeholder="Enter email address"
+                        className="bg-gray-900/50 border-gray-700 h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-300 mb-2 block">Phone Number</Label>
                     <Input
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      placeholder="Enter full name"
-                      className="bg-gray-900/50 border-gray-700 h-14 text-base"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      placeholder="Enter phone number"
+                      className="bg-gray-900/50 border-gray-700 h-12"
                     />
                   </div>
-                  
-                  <div className="space-y-4">
-                    <Label className="text-base font-medium text-gray-300 mb-3 block">Email Address</Label>
-                    <Input
-                      type="email"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      placeholder="Enter email address"
-                      className="bg-gray-900/50 border-gray-700 h-14 text-base"
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-300 mb-2 block">Special Requests (Optional)</Label>
+                    <Textarea
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      placeholder="Any special requests or requirements..."
+                      className="bg-gray-900/50 border-gray-700 min-h-[120px] resize-none"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-base font-medium text-gray-300 mb-3 block">Phone Number</Label>
-                  <Input
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
-                    placeholder="Enter phone number"
-                    className="bg-gray-900/50 border-gray-700 h-14 text-base"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-base font-medium text-gray-300 mb-3 block">Special Requests (Optional)</Label>
-                  <Textarea
-                    value={specialRequests}
-                    onChange={(e) => setSpecialRequests(e.target.value)}
-                    placeholder="Any special requests or requirements..."
-                    className="bg-gray-900/50 border-gray-700 min-h-[140px] resize-none text-base"
-                  />
                 </div>
               </motion.div>
             )}
