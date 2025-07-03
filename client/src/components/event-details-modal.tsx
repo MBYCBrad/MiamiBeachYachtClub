@@ -30,6 +30,10 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   // Event registration mutation
   const registerMutation = useMutation({
     mutationFn: async () => {
+      if (!user) {
+        throw new Error("Please log in to register for events");
+      }
+      
       return apiRequest("POST", "/api/event-registrations", {
         eventId: event.id,
         ticketCount: 1
@@ -41,6 +45,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
         description: "You've successfully registered for this event!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/event-registrations"] });
       onClose();
     },
     onError: (error: any) => {

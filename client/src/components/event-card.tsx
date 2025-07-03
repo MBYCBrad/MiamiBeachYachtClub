@@ -21,11 +21,11 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <>
-      <div 
-        onClick={() => setShowModal(true)}
-        className="group bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/30 hover:border-purple-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-600/20 transform hover:scale-105 cursor-pointer"
-      >
-        <div className="relative overflow-hidden">
+      <div className="group bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/30 hover:border-purple-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-600/20 transform hover:scale-105">
+        <div 
+          onClick={() => setShowModal(true)}
+          className="relative overflow-hidden cursor-pointer"
+        >
           <img 
             src={event.imageUrl || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300'} 
             alt={event.title}
@@ -38,18 +38,36 @@ export default function EventCard({ event }: EventCardProps) {
             <i className="fas fa-share text-white text-sm"></i>
           </button>
         </div>
-        <div className="p-4">
+        <div 
+          onClick={() => setShowModal(true)}
+          className="p-4 cursor-pointer"
+        >
           <h4 className="font-semibold text-white mb-2 line-clamp-2">{event.title}</h4>
           <p className="text-xs text-white mb-2">{event.location}</p>
           <p className="text-xs text-gray-400 mb-2">{formatDate(event.startTime)}</p>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-gray-500">From ${event.ticketPrice || '0'} / guest</p>
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-lg text-xs font-medium text-white">
-              Register
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-gray-700/30">
             <p className="text-xs text-gray-500">Capacity: {event.capacity} guests</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowModal(true);
+              }}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs py-2 rounded-lg transition-all duration-300"
+            >
+              View Details
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowModal(true);
+              }}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs py-2 rounded-lg transition-all duration-300"
+            >
+              Register
+            </Button>
           </div>
         </div>
       </div>

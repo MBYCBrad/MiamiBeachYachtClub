@@ -1445,10 +1445,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertEventRegistrationSchema.parse(req.body);
       
-      if (req.user!.role === UserRole.MEMBER) {
-        validatedData.userId = req.user!.id;
-      }
-
       const event = await dbStorage.getEvent(validatedData.eventId!);
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -1458,10 +1454,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? (parseFloat(event.ticketPrice) * validatedData.ticketCount!).toFixed(2)
         : "0.00";
 
-      const registration = await dbStorage.createEventRegistration({
+      const registrationData = {
         ...validatedData,
+        userId: req.user!.id, // Always use authenticated user's ID
         totalPrice
-      });
+      };
+
+      const registration = await dbStorage.createEventRegistration(registrationData);
 
       // Real-time cross-role notifications - notify event host
       if (event.hostId) {
