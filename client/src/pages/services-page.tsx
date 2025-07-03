@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import type { Service } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
-import ServiceBookingModal from '@/components/service-booking-modal';
+import ServiceBookingModal from '@/components/service-booking-modal-4step';
 
 interface ServicesPageProps {
   currentView: string;

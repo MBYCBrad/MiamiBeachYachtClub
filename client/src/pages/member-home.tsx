@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 import { TabNavigation } from '@/components/AnimatedTabIcons';
-import ServiceBookingModal from '@/components/service-booking-modal';
+import ServiceBookingModal from '@/components/service-booking-modal-4step';
 import ServiceDetailsModal from '@/components/service-details-modal';
 import EventDetailsModal from '@/components/event-details-modal';
 import EventBookingModal from '@/components/event-booking-modal';
