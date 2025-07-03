@@ -12,7 +12,7 @@ import { Event } from "@shared/schema";
 import { format } from "date-fns";
 
 interface EventDetailsModalProps {
-  event: Event;
+  event: Event | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -22,6 +22,9 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Early return if no event
+  if (!event) return null;
 
   // Parse event images
   const eventImages = event.images && Array.isArray(event.images) ? event.images : [];
