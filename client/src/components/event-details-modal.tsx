@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -25,7 +25,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
 
   // Parse event images
   const eventImages = event.images && Array.isArray(event.images) ? event.images : [];
-  const displayImages = eventImages.length > 0 ? eventImages : [event.imageUrl].filter(Boolean);
+  const displayImages = eventImages.length > 0 ? eventImages : [event.imageUrl].filter(Boolean) as string[];
 
   // Event registration mutation
   const registerMutation = useMutation({
@@ -73,9 +73,21 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
     }
   };
 
+  const formatEventTime = (startTime: Date | string, endTime: Date | string) => {
+    try {
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      const startStr = format(start, "h:mm a");
+      const endStr = format(end, "h:mm a");
+      return `${startStr} - ${endStr}`;
+    } catch {
+      return "Time TBD";
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900/95 backdrop-blur-lg border border-purple-500/20 text-white">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white">
         <DialogTitle className="sr-only">{event.title}</DialogTitle>
         
         {/* Close Button */}
@@ -149,7 +161,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
                   <div className="flex items-center space-x-1">
                     <Calendar size={16} />
                     <span className="text-sm">
-                      {formatEventDate(event.startDate)}
+                      {formatEventDate(event.startTime)}
                     </span>
                   </div>
                   {event.location && (
@@ -162,11 +174,11 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
               </div>
 
               <div className="flex flex-col items-end space-y-2">
-                {event.price && event.price > 0 ? (
+                {event.ticketPrice && parseFloat(event.ticketPrice) > 0 ? (
                   <div className="text-right">
                     <div className="text-2xl font-bold text-white flex items-center">
                       <DollarSign size={20} />
-                      {event.price}
+                      {event.ticketPrice}
                     </div>
                     <span className="text-sm text-gray-400">per ticket</span>
                   </div>
@@ -190,7 +202,7 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
                 <Clock size={16} className="text-blue-400" />
                 <span className="text-sm">
-                  {event.duration ? `${event.duration} hours` : "Duration TBD"}
+                  {formatEventTime(event.startTime, event.endTime)}
                 </span>
               </div>
               <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
@@ -210,15 +222,13 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
             </div>
           )}
 
-          {/* Event Category */}
-          {event.category && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Event Type</h3>
-              <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                {event.category}
-              </Badge>
-            </div>
-          )}
+          {/* Event Type Badge */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Event Type</h3>
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+              Yacht Club Event
+            </Badge>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
