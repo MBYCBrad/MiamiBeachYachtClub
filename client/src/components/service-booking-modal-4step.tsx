@@ -342,7 +342,8 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
         </DialogHeader>
 
         <div className="mt-8 px-2">
-          <AnimatePresence mode="wait">
+          <div className="max-w-3xl mx-auto">
+            <AnimatePresence mode="wait">
             {/* Step 1: Service Details & Date */}
             {currentStep === 1 && (
               <motion.div
@@ -355,7 +356,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 <div>
                   <h3 className="text-xl font-semibold mb-6 text-white">Select Date & Time</h3>
                   
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                  <div className="flex flex-col lg:flex-row gap-8 max-w-3xl">
                     <div className="space-y-4">
                       <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Date</Label>
                       <Calendar
@@ -367,7 +368,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                       />
                     </div>
 
-                    <div className="space-y-6 max-w-sm">
+                    <div className="space-y-6 w-80">
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Time</Label>
                         <Select value={selectedTime} onValueChange={setSelectedTime}>
@@ -459,7 +460,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
                 
-                <div className="max-w-sm space-y-6">
+                <div className="max-w-lg space-y-6 mx-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
@@ -620,6 +621,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
 
         {/* Navigation Buttons */}
