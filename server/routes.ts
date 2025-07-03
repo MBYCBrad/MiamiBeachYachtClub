@@ -4914,6 +4914,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/notifications/:id/read", requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await dbStorage.getNotification(notificationId);
+      
+      if (!notification || notification.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      
+      const updatedNotification = await dbStorage.markNotificationAsRead(notificationId);
+      res.json(updatedNotification);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/notifications/:id", requireAuth, async (req, res) => {
+    try {
+      const notificationId = parseInt(req.params.id);
+      const notification = await dbStorage.getNotification(notificationId);
+      
+      if (!notification || notification.userId !== req.user!.id) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      
+      await dbStorage.deleteNotification(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/notifications/mark-all-read", requireAuth, async (req, res) => {
+    try {
+      await dbStorage.markAllNotificationsAsRead(req.user!.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/notifications/mark-all-read", requireAuth, async (req, res) => {
     try {
       await dbStorage.markAllNotificationsAsRead(req.user!.id);

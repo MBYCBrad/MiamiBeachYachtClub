@@ -47,28 +47,51 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
   // Mark notification as read mutation
   const markAsReadMutation = useMutation({
-    mutationFn: (notificationId: number) => 
-      apiRequest('POST', `${notificationsEndpoint.replace('/notifications', '')}/notifications/${notificationId}/read`, {}),
+    mutationFn: (notificationId: number) => {
+      if (user?.role === 'admin' || user?.role?.includes('staff')) {
+        return apiRequest('PATCH', `/api/admin/notifications/${notificationId}/read`, {});
+      } else {
+        return apiRequest('POST', `/api/notifications/${notificationId}/read`, {});
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [notificationsEndpoint] });
+      toast({ title: "Notification marked as read" });
     },
+    onError: (error) => {
+      toast({ title: "Failed to mark as read", description: error.message, variant: "destructive" });
+    }
   });
 
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
-    mutationFn: (notificationId: number) => 
-      apiRequest('DELETE', `${notificationsEndpoint.replace('/notifications', '')}/notifications/${notificationId}`, {}),
+    mutationFn: (notificationId: number) => {
+      if (user?.role === 'admin' || user?.role?.includes('staff')) {
+        return apiRequest('DELETE', `/api/admin/notifications/${notificationId}`, {});
+      } else {
+        return apiRequest('DELETE', `/api/notifications/${notificationId}`, {});
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [notificationsEndpoint] });
       toast({ title: "Notification deleted" });
     },
+    onError: (error) => {
+      toast({ title: "Failed to delete notification", description: error.message, variant: "destructive" });
+    }
   });
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => apiRequest('POST', `${notificationsEndpoint.replace('/notifications', '')}/notifications/mark-all-read`, {}),
+    mutationFn: () => {
+      if (user?.role === 'admin' || user?.role?.includes('staff')) {
+        return apiRequest('PATCH', `/api/admin/notifications/mark-all-read`, {});
+      } else {
+        return apiRequest('POST', `/api/notifications/mark-all-read`, {});
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
+      queryClient.invalidateQueries({ queryKey: [notificationsEndpoint] });
       toast({ title: "All notifications marked as read" });
     },
   });
@@ -135,7 +158,9 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
             <div className="flex items-center gap-3">
               <Bell className="h-5 w-5 text-purple-400" />
               <div>
-                <h3 className="font-semibold text-white">Staff Notifications</h3>
+                <h3 className="font-semibold text-white">
+                  {user?.role === 'admin' || user?.role?.includes('staff') ? 'Staff Notifications' : 'Notifications'}
+                </h3>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
                   Connected
