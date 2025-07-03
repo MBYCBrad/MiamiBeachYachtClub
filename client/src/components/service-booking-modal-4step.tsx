@@ -357,26 +357,26 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                   
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                     <div className="space-y-4">
-                      <Label className="text-base font-medium text-gray-300 mb-3 block">Select Date</Label>
+                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Date</Label>
                       <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
                         disabled={(date) => date < new Date()}
-                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-4 w-full"
+                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3"
                       />
                     </div>
 
-                    <div className="space-y-8">
-                      <div className="space-y-4">
-                        <Label className="text-base font-medium text-gray-300 mb-3 block">Select Time</Label>
+                    <div className="space-y-6 max-w-md">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Time</Label>
                         <Select value={selectedTime} onValueChange={setSelectedTime}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-14 text-base">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12 w-full">
                             <SelectValue placeholder="Choose time slot" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
                             {timeSlots.map((time) => (
-                              <SelectItem key={time} value={time} className="text-white hover:bg-gray-800 text-base py-3">
+                              <SelectItem key={time} value={time} className="text-white hover:bg-gray-800">
                                 {time}
                               </SelectItem>
                             ))}
@@ -384,19 +384,28 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                         </Select>
                       </div>
 
-                      <div className="space-y-4">
-                        <Label className="text-base font-medium text-gray-300 mb-3 block">Delivery Type</Label>
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Service Type</Label>
+                        <div className="bg-gray-900/50 border border-gray-700 rounded-md h-12 px-3 flex items-center">
+                          <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600">
+                            {service.category}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Delivery Type</Label>
                         <Select value={deliveryType} onValueChange={setDeliveryType}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-14 text-base">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12 w-full">
                             <SelectValue placeholder="How would you like this service delivered?" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
                             {Object.entries(deliveryTypeConfig).map(([key, config]) => {
                               const Icon = config.icon;
                               return (
-                                <SelectItem key={key} value={key} className="text-white hover:bg-gray-800 text-base py-3">
-                                  <div className="flex items-center gap-3">
-                                    <Icon className="w-5 h-5" />
+                                <SelectItem key={key} value={key} className="text-white hover:bg-gray-800">
+                                  <div className="flex items-center gap-2">
+                                    <Icon className="w-4 h-4" />
                                     {config.label}
                                   </div>
                                 </SelectItem>
@@ -407,27 +416,27 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                       </div>
 
                       {deliveryType === 'location' && (
-                        <div className="space-y-4">
-                          <Label className="text-base font-medium text-gray-300 mb-3 block">Your Address</Label>
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-300 mb-2 block">Your Address</Label>
                           <Input
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Enter your full address"
-                            className="bg-gray-900/50 border-gray-700 h-14 text-base"
+                            className="bg-gray-900/50 border-gray-700 h-12 w-full"
                           />
                         </div>
                       )}
 
                       {deliveryType && config && (
-                        <Card className="bg-gray-900/50 border-gray-700 mt-6">
-                          <CardContent className="p-6">
-                            <div className="flex items-center gap-4">
-                              <div className={`p-3 rounded-lg ${config.color}`}>
-                                <IconComponent className="w-6 h-6 text-white" />
+                        <Card className="bg-gray-900/50 border-gray-700 mt-4">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 rounded-lg ${config.color}`}>
+                                <IconComponent className="w-5 h-5 text-white" />
                               </div>
                               <div>
-                                <div className="font-medium text-white text-base">{config.label}</div>
-                                <div className="text-sm text-gray-400 mt-1">{config.description}</div>
+                                <div className="font-medium text-white">{config.label}</div>
+                                <div className="text-sm text-gray-400">{config.description}</div>
                               </div>
                             </div>
                           </CardContent>
