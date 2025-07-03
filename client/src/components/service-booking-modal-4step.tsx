@@ -328,50 +328,54 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
           </div>
 
           {/* Step Indicator */}
-          <div className="px-4">
-            <div className="flex items-center">
+          <div className="px-4 relative">
+            <div className="flex justify-between">
               {steps.map((step, index) => {
                 const StepIcon = step.icon;
                 return (
-                  <div key={step.number} className="flex items-center flex-1">
-                    <div className="flex flex-col items-center">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all bg-black relative z-10 ${
+                  <div key={step.number} className="flex flex-col items-center relative z-10">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all bg-black ${
+                      currentStep >= step.number 
+                        ? 'border-purple-500 text-white shadow-lg shadow-purple-500/20' 
+                        : 'border-gray-600 text-gray-400'
+                    }`}>
+                      <div className={`absolute inset-0 rounded-full transition-all ${
                         currentStep >= step.number 
-                          ? 'border-purple-500 text-white shadow-lg shadow-purple-500/20' 
-                          : 'border-gray-600 text-gray-400'
-                      }`}>
-                        <div className={`absolute inset-0 rounded-full transition-all ${
-                          currentStep >= step.number 
-                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
-                            : 'bg-transparent'
-                        }`} />
-                        <div className="relative z-10">
-                          {currentStep > step.number ? (
-                            <Check className="w-5 h-5" />
-                          ) : (
-                            <StepIcon className="w-5 h-5" />
-                          )}
-                        </div>
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                          : 'bg-transparent'
+                      }`} />
+                      <div className="relative z-10">
+                        {currentStep > step.number ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          <StepIcon className="w-5 h-5" />
+                        )}
                       </div>
-                      <span className={`mt-2 text-sm font-medium text-center ${
-                        currentStep >= step.number ? 'text-white' : 'text-gray-400'
-                      }`}>
-                        {step.title}
-                      </span>
                     </div>
-                    {/* Connecting Line */}
-                    {index < steps.length - 1 && (
-                      <div className="flex-1 h-0.5 relative">
-                        <div className={`h-full transition-all duration-300 ${
-                          currentStep > step.number 
-                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
-                            : 'bg-gray-600'
-                        }`} />
-                      </div>
-                    )}
+                    <span className={`mt-2 text-sm font-medium text-center ${
+                      currentStep >= step.number ? 'text-white' : 'text-gray-400'
+                    }`}>
+                      {step.title}
+                    </span>
                   </div>
                 );
               })}
+            </div>
+            {/* Connecting Lines - positioned absolutely to connect circles */}
+            <div className="absolute top-5 left-0 right-0 px-4 pointer-events-none">
+              <div className="flex justify-between">
+                {Array.from({ length: steps.length - 1 }).map((_, index) => (
+                  <div key={`line-${index}`} className="flex-1 flex items-center">
+                    <div className="w-5" />
+                    <div className={`flex-1 h-0.5 transition-all duration-300 ${
+                      currentStep > index + 1 
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                        : 'bg-gray-600'
+                    }`} />
+                    <div className="w-5" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </DialogHeader>
