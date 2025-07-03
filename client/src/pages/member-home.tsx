@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 import { TabNavigation } from '@/components/AnimatedTabIcons';
 import ServiceBookingModal from '@/components/service-booking-modal';
+import ServiceDetailsModal from '@/components/service-details-modal';
 import { 
   Search, 
   Heart, 
@@ -47,6 +48,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<Service | null>(null);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -260,6 +262,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -8 }}
                   className="group cursor-pointer"
+                  onClick={() => setSelectedServiceForDetails(service)}
                 >
                   <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
                     <div className="relative overflow-hidden">
@@ -520,6 +523,19 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         onClose={() => setSelectedService(null)}
         service={selectedService!}
         onConfirm={handleServiceBooking}
+      />
+
+      {/* Service Details Modal */}
+      <ServiceDetailsModal
+        service={selectedServiceForDetails}
+        isOpen={!!selectedServiceForDetails}
+        onClose={() => setSelectedServiceForDetails(null)}
+        onBookService={(service) => {
+          setSelectedServiceForDetails(null);
+          setSelectedService(service);
+        }}
+        isFavorite={selectedServiceForDetails ? likedItems.has(selectedServiceForDetails.id) : false}
+        onToggleFavorite={(serviceId) => toggleLike(serviceId)}
       />
     </div>
   );

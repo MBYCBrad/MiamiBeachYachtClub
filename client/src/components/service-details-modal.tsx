@@ -1,236 +1,261 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { X, Star, Clock, DollarSign, User, Calendar, ChevronLeft, ChevronRight, Heart } from "lucide-react";
-import { Service } from "@shared/schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Star, MapPin, Clock, Users, Calendar, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+interface Service {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  pricePerSession: string;
+  duration: number;
+  rating: number;
+  reviewCount: number;
+  imageUrl?: string;
+  images?: string[];
+  deliveryType: string;
+  businessAddress?: string;
+  marinaLocation?: string;
+  provider?: {
+    name: string;
+    role: string;
+  };
+  availability?: string;
+  maxCapacity?: number;
+  isAvailable: boolean;
+}
 
 interface ServiceDetailsModalProps {
   service: Service | null;
   isOpen: boolean;
   onClose: () => void;
+  onBookService?: (service: Service) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (serviceId: number) => void;
 }
 
-const serviceCategories = {
-  "beauty_grooming": "💅",
-  "culinary": "👨‍🍳",
-  "wellness_spa": "🧘‍♀️",
-  "photography_media": "📸",
-  "entertainment": "🎵",
-  "water_sports": "🏄‍♂️",
-  "concierge_lifestyle": "🛎️"
-};
-
-export default function ServiceDetailsModal({ service, isOpen, onClose }: ServiceDetailsModalProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+export default function ServiceDetailsModal({
+  service,
+  isOpen,
+  onClose,
+  onBookService,
+  isFavorite = false,
+  onToggleFavorite
+}: ServiceDetailsModalProps) {
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   if (!service) return null;
 
-  const serviceImages = service.images ? 
-    (Array.isArray(service.images) ? service.images : [service.images]) : 
-    service.imageUrl ? [service.imageUrl] : 
-    ["/api/media/pexels-pixabay-163236_1750537277230.jpg"];
+  const allImages = service.images && service.images.length > 0 
+    ? service.images 
+    : service.imageUrl 
+    ? [service.imageUrl] 
+    : [];
 
-  const toggleFavoriteMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/favorites/service/${service.id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites"] });
-      toast({
-        title: "Success",
-        description: "Updated favorites",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update favorites",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const nextImage = () => {
-    if (serviceImages.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % serviceImages.length);
+  const getDeliveryTypeInfo = () => {
+    switch (service.deliveryType) {
+      case 'yacht':
+        return { icon: '🛥️', text: 'Available during your yacht charter', color: 'text-white' };
+      case 'marina':
+        return { icon: '📍', text: `Marina: ${service.marinaLocation || 'Miami Marina'}`, color: 'text-white' };
+      case 'location':
+        return { icon: '🚗', text: 'We come to your location', color: 'text-white' };
+      case 'external_location':
+        return { icon: '📍', text: `Visit: ${service.businessAddress || 'Provider Location'}`, color: 'text-white' };
+      default:
+        return { icon: '📍', text: 'Location service', color: 'text-white' };
     }
   };
 
-  const prevImage = () => {
-    if (serviceImages.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + serviceImages.length) % serviceImages.length);
-    }
-  };
-
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleFavoriteMutation.mutate();
-  };
+  const deliveryInfo = getDeliveryTypeInfo();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900/95 backdrop-blur-lg border border-purple-500/20 text-white">
-        <DialogHeader className="sr-only">
-          <h2>{service.name} Details</h2>
+      <DialogContent className="max-w-4xl bg-black border-gray-700 text-white max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-center mb-4">
+            {service.name}
+          </DialogTitle>
         </DialogHeader>
-        
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
-        >
-          <X size={20} className="text-gray-400" />
-        </button>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Image Gallery */}
-          {serviceImages.length > 0 && (
-            <div className="relative w-full h-80 bg-gray-800 rounded-lg overflow-hidden">
-              <img
-                src={serviceImages[currentImageIndex]}
-                alt={service.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/api/media/pexels-pixabay-163236_1750537277230.jpg";
-                }}
-              />
+          <div className="space-y-4">
+            {allImages.length > 0 && (
+              <div className="relative">
+                <motion.img
+                  key={selectedImageIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src={allImages[selectedImageIndex]}
+                  alt={service.name}
+                  className="w-full h-64 lg:h-80 object-cover rounded-lg"
+                />
+                
+                {/* Image Counter */}
+                {allImages.length > 1 && (
+                  <div className="absolute top-4 right-4 bg-black/60 px-3 py-1 rounded-full text-sm">
+                    {selectedImageIndex + 1} / {allImages.length}
+                  </div>
+                )}
 
-              {/* Navigation arrows */}
-              {serviceImages.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors"
-                  >
-                    <ChevronLeft size={20} className="text-white" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors"
-                  >
-                    <ChevronRight size={20} className="text-white" />
-                  </button>
-                </>
-              )}
+                {/* Navigation Arrows */}
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImageIndex(selectedImageIndex > 0 ? selectedImageIndex - 1 : allImages.length - 1)}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 p-2 rounded-full transition-colors"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={() => setSelectedImageIndex(selectedImageIndex < allImages.length - 1 ? selectedImageIndex + 1 : 0)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 p-2 rounded-full transition-colors"
+                    >
+                      →
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
-              {/* Image counter */}
-              {serviceImages.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 rounded-full px-3 py-1">
-                  <span className="text-white text-sm">
-                    {currentImageIndex + 1} / {serviceImages.length}
-                  </span>
+            {/* Image Thumbnails */}
+            {allImages.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {allImages.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={cn(
+                      "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors",
+                      selectedImageIndex === index ? "border-purple-500" : "border-gray-600 hover:border-gray-400"
+                    )}
+                  >
+                    <img
+                      src={image}
+                      alt={`${service.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Service Details */}
+          <div className="space-y-6">
+            {/* Tags and Rating */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                  {service.category}
+                </Badge>
+                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                  {service.deliveryType === 'yacht' && 'Yacht Add-On'}
+                  {service.deliveryType === 'location' && 'Your Location'}
+                  {service.deliveryType === 'marina' && 'Marina Service'}
+                  {service.deliveryType === 'external_location' && 'External Location'}
+                  {!service.deliveryType && 'Location Service'}
+                </Badge>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                  <span className="font-medium">{service.rating}</span>
+                  <span className="text-gray-400">({service.reviewCount} reviews)</span>
+                </div>
+                
+                {onToggleFavorite && (
+                  <button
+                    onClick={() => onToggleFavorite(service.id)}
+                    className="flex items-center gap-1 hover:scale-110 transition-transform"
+                  >
+                    <Heart 
+                      className={cn(
+                        "w-5 h-5 transition-colors",
+                        isFavorite ? "text-red-500 fill-current" : "text-gray-400 hover:text-red-400"
+                      )} 
+                    />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <h3 className="font-semibold mb-2">Description</h3>
+              <p className="text-gray-300 leading-relaxed">{service.description}</p>
+            </div>
+
+            {/* Service Details */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-purple-400" />
+                <span className="text-sm">{service.duration} minutes</span>
+              </div>
+              
+              {service.maxCapacity && (
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm">Up to {service.maxCapacity} guests</span>
                 </div>
               )}
-
-              {/* Favorite button */}
-              <button
-                onClick={handleToggleFavorite}
-                disabled={toggleFavoriteMutation.isPending}
-                className="absolute top-4 left-4 bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors"
-              >
-                <Heart size={20} className="text-white" />
-              </button>
+              
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-white">Available Now</span>
+              </div>
             </div>
-          )}
 
-          {/* Service Header */}
-          <div className="space-y-4">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="text-3xl">
-                    {serviceCategories[service.category as keyof typeof serviceCategories] || "🛎️"}
+            {/* Location Info */}
+            <div className="flex items-center gap-2 p-3 bg-gray-800/50 rounded-lg">
+              <span className="text-lg">{deliveryInfo.icon}</span>
+              <span className="text-white text-sm">{deliveryInfo.text}</span>
+            </div>
+
+            {/* Provider Info */}
+            {service.provider && (
+              <div>
+                <h3 className="font-semibold mb-2">Service Provider</h3>
+                <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                    <span className="text-white font-semibold">{service.provider.name.charAt(0)}</span>
                   </div>
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">
-                      {service.name}
-                    </h2>
-                    <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white mt-2">
-                      {service.category?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </Badge>
+                    <p className="font-medium">{service.provider.name}</p>
+                    <p className="text-gray-400 text-sm">{service.provider.role}</p>
                   </div>
                 </div>
               </div>
+            )}
 
-              <div className="text-right">
-                <div className="text-3xl font-bold text-purple-400">
-                  ${service.pricePerSession}
+            {/* Pricing and Book Button */}
+            <div className="border-t border-gray-700 pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <span className="text-3xl font-bold text-white">${service.pricePerSession}</span>
+                  <span className="text-gray-400 ml-2">/session</span>
                 </div>
-                <div className="text-gray-400 text-sm">per session</div>
-              </div>
-            </div>
-
-            {/* Service Stats */}
-            <div className="flex flex-wrap gap-4">
-              {service.duration && (
-                <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
-                  <Clock size={16} className="text-blue-400" />
-                  <span className="text-sm">{service.duration} minutes</span>
+                <div className="text-right">
+                  <p className="text-sm text-gray-400">Duration</p>
+                  <p className="font-medium">{service.duration} min</p>
                 </div>
-              )}
-              <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
-                <Star size={16} className="text-yellow-400" />
-                <span className="text-sm">{service.rating || '4.8'} rating</span>
               </div>
-              <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
-                <User size={16} className="text-green-400" />
-                <span className="text-sm">
-                  {service.isAvailable ? "Available" : "Unavailable"}
-                </span>
-              </div>
-            </div>
-          </div>
 
-          {/* Service Description */}
-          {service.description && (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">About This Service</h3>
-              <p className="text-gray-300 leading-relaxed">
-                {service.description}
-              </p>
+              <Button
+                onClick={() => onBookService?.(service)}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-semibold"
+                disabled={!service.isAvailable}
+              >
+                {service.isAvailable ? 'Book Service' : 'Currently Unavailable'}
+              </Button>
             </div>
-          )}
-
-          {/* Provider Information */}
-          <div className="bg-gray-800/30 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3">Service Provider</h3>
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                <User size={20} className="text-white" />
-              </div>
-              <div>
-                <p className="text-white font-medium">
-                  {service.providerId === 60 ? "MBYC Service" : "Service Provider"}
-                </p>
-                <p className="text-gray-400 text-sm">Professional Service</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button 
-              className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-              disabled={!service.isAvailable}
-            >
-              <Calendar size={16} className="mr-2" />
-              {service.isAvailable ? "Book Service" : "Currently Unavailable"}
-            </Button>
-            <Button 
-              variant="outline" 
-              className="border-purple-500/30 text-purple-400 hover:border-purple-400 hover:text-purple-300"
-              onClick={handleToggleFavorite}
-              disabled={toggleFavoriteMutation.isPending}
-            >
-              <Heart size={16} className="mr-2" />
-              Favorite
-            </Button>
           </div>
         </div>
       </DialogContent>
