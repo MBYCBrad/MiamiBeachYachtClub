@@ -11,6 +11,7 @@ import AirbnbSearchBar from '@/components/AirbnbSearchBar';
 import { TabNavigation } from '@/components/AnimatedTabIcons';
 import ServiceBookingModal from '@/components/service-booking-modal';
 import ServiceDetailsModal from '@/components/service-details-modal';
+import EventDetailsModal from '@/components/event-details-modal';
 import { 
   Search, 
   Heart, 
@@ -49,6 +50,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<Service | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -442,6 +444,10 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           >
                             <Button 
                               size="sm" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedEvent(event);
+                              }}
                               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg shadow-purple-500/25"
                             >
                               Register
@@ -536,6 +542,13 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         }}
         isFavorite={selectedServiceForDetails ? likedItems.has(selectedServiceForDetails.id) : false}
         onToggleFavorite={(serviceId) => toggleLike(serviceId)}
+      />
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={selectedEvent}
+        isOpen={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
       />
     </div>
   );

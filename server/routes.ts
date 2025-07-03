@@ -1443,6 +1443,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/event-registrations", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
     try {
+      console.log("Event registration request body:", req.body);
+      console.log("User:", req.user);
       const validatedData = insertEventRegistrationSchema.parse(req.body);
       
       const event = await dbStorage.getEvent(validatedData.eventId!);
