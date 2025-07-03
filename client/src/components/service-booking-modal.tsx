@@ -96,7 +96,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-gray-900 border-gray-700 text-white max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl bg-black border-gray-700 text-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">
             Book {service.name}
