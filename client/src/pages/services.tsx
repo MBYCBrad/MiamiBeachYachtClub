@@ -3,11 +3,14 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Star, Clock, Users, Check, Lock } from "lucide-react";
+import { Sparkles, Star, Clock, Users, Check, Lock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { ApplicationModal } from "@/components/application-modal";
 
@@ -29,6 +32,79 @@ export default function ServicesPage() {
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Get user favorites
+  const { data: userFavorites = [] } = useQuery({
+    queryKey: ['/api/favorites'],
+    enabled: !!user
+  });
+
+  // Add favorite mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async (serviceId: number) => {
+      const response = await apiRequest('POST', '/api/favorites', { serviceId });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: "Service has been added to your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add service to favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Remove favorite mutation
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (serviceId: number) => {
+      const response = await apiRequest('DELETE', `/api/favorites?serviceId=${serviceId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: "Service has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove service from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const toggleFavorite = (e: React.MouseEvent, serviceId: number) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const isFavorite = userFavorites.some((fav: any) => fav.serviceId === serviceId);
+    
+    if (isFavorite) {
+      removeFavoriteMutation.mutate(serviceId);
+    } else {
+      addFavoriteMutation.mutate(serviceId);
+    }
+  };
 
   const filteredServices = services?.filter((service: any) => {
     if (selectedCategory === "all") return true;
@@ -115,8 +191,8 @@ export default function ServicesPage() {
                         {service.category}
                       </Badge>
                       <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                        {service.deliveryType === 'yacht' && 'Yacht Add-on Service'}
-                        {service.deliveryType === 'location' && 'Come To You'}
+                        {service.deliveryType === 'yacht' && 'Yacht Add-On'}
+                        {service.deliveryType === 'location' && 'Your Location'}
                         {service.deliveryType === 'marina' && 'Marina Service'}
                         {service.deliveryType === 'external_location' && 'External Location'}
                         {!service.deliveryType && 'Location Service'}
@@ -130,6 +206,22 @@ export default function ServicesPage() {
                         {service.rating || 4.8}
                       </span>
                     </div>
+
+                    {/* Heart Button */}
+                    <Button
+                      onClick={(e) => toggleFavorite(e, service.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-4 left-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                    >
+                      <Heart 
+                        className={`w-4 h-4 transition-colors ${
+                          userFavorites.some((fav: any) => fav.serviceId === service.id)
+                            ? 'text-red-500 fill-current' 
+                            : 'text-white'
+                        }`} 
+                      />
+                    </Button>
                   </div>
 
                   {/* Service Content */}
