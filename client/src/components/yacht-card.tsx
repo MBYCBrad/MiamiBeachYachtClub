@@ -122,7 +122,8 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
         }
       }}
       whileTap={{ scale: 0.98 }}
-      className="group relative bg-gray-800/30 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-500/20 transition-all duration-500 overflow-hidden
+      onClick={() => setIsDetailsModalOpen(true)}
+      className="group relative cursor-pointer bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 overflow-hidden
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60
         hover:bg-gray-800/50
@@ -320,25 +321,6 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300"
               >
                 Book Now
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ 
-                scale: 1.02,
-                transition: { type: "spring", stiffness: 400 }
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsDetailsModalOpen(true);
-                }}
-                variant="outline"
-                className="px-3 py-2 border-purple-500/30 text-purple-400 hover:border-purple-400 hover:text-purple-300 transition-all duration-300"
-              >
-                Details
               </Button>
             </motion.div>
           </motion.div>

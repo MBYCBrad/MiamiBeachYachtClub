@@ -94,7 +94,7 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900/95 backdrop-blur-lg border border-purple-500/20 text-white">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white">
           <DialogHeader className="sr-only">
             <h2>{yacht.name} Details</h2>
           </DialogHeader>
@@ -219,8 +219,7 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
                     {yacht.amenities.map((amenity, index) => (
                       <Badge
                         key={index}
-                        variant="secondary"
-                        className="bg-purple-600/20 text-purple-300 border-purple-600/30"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0"
                       >
                         {amenity}
                       </Badge>
