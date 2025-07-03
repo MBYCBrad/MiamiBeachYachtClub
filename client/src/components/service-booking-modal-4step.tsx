@@ -154,7 +154,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
   // Step 1: Service Details & Date
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState("");
-  const [deliveryType, setDeliveryType] = useState<string>("");
+  const [deliveryType, setDeliveryType] = useState<string>(service?.deliveryType || "");
   const [address, setAddress] = useState("");
 
   // Step 2: Guest Details
@@ -272,7 +272,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
     setClientSecret("");
   };
 
-  const canProceedFromStep1 = selectedDate && selectedTime && deliveryType && (deliveryType !== 'location' || address);
+  const canProceedFromStep1 = selectedDate && selectedTime && (deliveryType !== 'location' || address);
   const canProceedFromStep2 = guestName && guestEmail && guestPhone;
 
   if (!service) return null;
@@ -395,25 +395,22 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                       </div>
 
                       <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Delivery Type</Label>
-                        <Select value={deliveryType} onValueChange={setDeliveryType}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12">
-                            <SelectValue placeholder="How would you like this service delivered?" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-gray-900 border-gray-700">
-                            {Object.entries(deliveryTypeConfig).map(([key, config]) => {
-                              const Icon = config.icon;
-                              return (
-                                <SelectItem key={key} value={key} className="text-white hover:bg-gray-800">
-                                  <div className="flex items-center gap-2">
-                                    <Icon className="w-4 h-4" />
-                                    {config.label}
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Service Delivery</Label>
+                        {config && (
+                          <Card className="bg-gray-900/50 border-gray-700">
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${config.color}`}>
+                                  <IconComponent className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <div className="font-medium text-white">{config.label}</div>
+                                  <div className="text-sm text-gray-400">{config.description}</div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
                       </div>
 
                       {deliveryType === 'location' && (
@@ -428,21 +425,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                         </div>
                       )}
 
-                      {deliveryType && config && (
-                        <Card className="bg-gray-900/50 border-gray-700 mt-4">
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg ${config.color}`}>
-                                <IconComponent className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-white">{config.label}</div>
-                                <div className="text-sm text-gray-400">{config.description}</div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
+
                     </div>
                   </div>
                 </div>
