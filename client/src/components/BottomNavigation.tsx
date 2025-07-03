@@ -95,10 +95,8 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   ];
 
   const handleNavClick = (itemId: string) => {
-    console.log('Nav click:', itemId, 'Current menu state:', isMenuOpen);
     if (itemId === 'menu') {
       setIsMenuOpen(!isMenuOpen);
-      console.log('Menu state after toggle:', !isMenuOpen);
     } else {
       setCurrentView(itemId);
       setIsMenuOpen(false);
@@ -186,13 +184,6 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
           })}
         </div>
       </motion.div>
-
-      {/* Debug Menu State */}
-      {isMenuOpen && (
-        <div className="fixed top-4 left-4 bg-red-500 text-white p-2 rounded z-[999]">
-          Menu is OPEN
-        </div>
-      )}
 
       {/* Hamburger Menu Panel */}
       <AnimatePresence>

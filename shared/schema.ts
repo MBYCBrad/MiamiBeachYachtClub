@@ -87,7 +87,7 @@ export const SERVICE_AREAS = [
 ] as const;
 
 // Core tables
-export const users = pgTable("users", {
+export const users: any = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").unique().notNull(),
   password: text("password").notNull(),

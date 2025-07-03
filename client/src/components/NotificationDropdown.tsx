@@ -33,9 +33,13 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch notifications with real-time updates
+  // Fetch notifications with real-time updates - use member notifications for members
+  const notificationsEndpoint = user?.role === 'admin' || user?.role?.includes('staff') 
+    ? '/api/staff/notifications' 
+    : '/api/notifications';
+    
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
-    queryKey: ['/api/staff/notifications'],
+    queryKey: [notificationsEndpoint],
     enabled: !!user && isOpen,
     staleTime: 10000, // 10 seconds
     refetchInterval: isOpen ? 30000 : false, // Refetch every 30 seconds when open
@@ -44,38 +48,38 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
   // Mark notification as read mutation
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}/read`, { method: 'POST' }),
+      apiRequest('POST', `${notificationsEndpoint.replace('/notifications', '')}/notifications/${notificationId}/read`, {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
+      queryClient.invalidateQueries({ queryKey: [notificationsEndpoint] });
     },
   });
 
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
     mutationFn: (notificationId: number) => 
-      apiRequest(`/api/staff/notifications/${notificationId}`, { method: 'DELETE' }),
+      apiRequest('DELETE', `${notificationsEndpoint.replace('/notifications', '')}/notifications/${notificationId}`, {}),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
+      queryClient.invalidateQueries({ queryKey: [notificationsEndpoint] });
       toast({ title: "Notification deleted" });
     },
   });
 
   // Mark all as read mutation
   const markAllAsReadMutation = useMutation({
-    mutationFn: () => apiRequest('/api/staff/notifications/mark-all-read', { method: 'POST' }),
+    mutationFn: () => apiRequest('POST', `${notificationsEndpoint.replace('/notifications', '')}/notifications/mark-all-read`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/staff/notifications'] });
       toast({ title: "All notifications marked as read" });
     },
   });
 
-  const filteredNotifications = notifications.filter(notification => {
+  const filteredNotifications = (notifications || []).filter(notification => {
     if (filter === 'unread') return !notification.read;
     if (filter === 'important') return ['high', 'urgent'].includes(notification.priority);
     return true;
   });
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = (notifications || []).filter(n => !n.read).length;
 
   const getNotificationIcon = (type: string, priority: string) => {
     if (priority === 'urgent') return <AlertCircle className="h-5 w-5 text-red-400" />;
