@@ -23,18 +23,14 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
   const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Early return if no event
-  if (!event) return null;
-
-  // Parse event images
-  const eventImages = event.images && Array.isArray(event.images) ? event.images : [];
-  const displayImages = eventImages.length > 0 ? eventImages : [event.imageUrl].filter(Boolean) as string[];
-
   // Event registration mutation
   const registerMutation = useMutation({
     mutationFn: async () => {
       if (!user) {
         throw new Error("Please log in to register for events");
+      }
+      if (!event) {
+        throw new Error("No event selected");
       }
       
       return apiRequest("POST", "/api/event-registrations", {
@@ -59,6 +55,13 @@ export default function EventDetailsModal({ event, isOpen, onClose }: EventDetai
       });
     },
   });
+
+  // Early return after all hooks
+  if (!event) return null;
+
+  // Parse event images
+  const eventImages = event.images && Array.isArray(event.images) ? event.images : [];
+  const displayImages = eventImages.length > 0 ? eventImages : [event.imageUrl].filter(Boolean) as string[];
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
