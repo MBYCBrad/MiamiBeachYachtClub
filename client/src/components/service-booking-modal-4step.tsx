@@ -16,6 +16,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { loadStripe } from '@stripe/stripe-js';
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
@@ -151,17 +152,35 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
   const [clientSecret, setClientSecret] = useState("");
   const { toast } = useToast();
 
+  // Get logged-in user information
+  const { data: user } = useQuery({
+    queryKey: ["/api/user"],
+    enabled: isOpen
+  }) as { data?: any };
+
   // Step 1: Service Details & Date
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState("");
   const [deliveryType, setDeliveryType] = useState<string>(service?.deliveryType || "");
   const [address, setAddress] = useState("");
 
-  // Step 2: Guest Details
+  // Step 2: Guest Details (pre-filled with user data)
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [specialRequests, setSpecialRequests] = useState("");
+
+  // Pre-fill user information when modal opens
+  useEffect(() => {
+    if (user && isOpen) {
+      setGuestName(user?.username || "");
+      setGuestEmail(user?.email || "");
+      setGuestPhone(user?.phone || "");
+      if (user?.location && deliveryType === 'location') {
+        setAddress(user.location);
+      }
+    }
+  }, [user, isOpen, deliveryType]);
 
   // Step 3: Review & Payment Setup
   const [paymentReady, setPaymentReady] = useState(false);
@@ -309,31 +328,37 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
           </div>
 
           {/* Step Indicator */}
-          <div className="flex justify-between items-center px-4">
+          <div className="flex items-center justify-between px-4">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
               return (
-                <div key={step.number} className="flex items-center">
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
-                    currentStep >= step.number 
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-500 text-white' 
-                      : 'border-gray-600 text-gray-400'
-                  }`}>
-                    {currentStep > step.number ? (
-                      <Check className="w-5 h-5" />
-                    ) : (
-                      <StepIcon className="w-5 h-5" />
-                    )}
+                <div key={step.number} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
+                      currentStep >= step.number 
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-500 text-white' 
+                        : 'border-gray-600 text-gray-400'
+                    }`}>
+                      {currentStep > step.number ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <StepIcon className="w-5 h-5" />
+                      )}
+                    </div>
+                    <span className={`mt-2 text-sm font-medium text-center ${
+                      currentStep >= step.number ? 'text-white' : 'text-gray-400'
+                    }`}>
+                      {step.title}
+                    </span>
                   </div>
-                  <span className={`ml-2 text-sm font-medium ${
-                    currentStep >= step.number ? 'text-white' : 'text-gray-400'
-                  }`}>
-                    {step.title}
-                  </span>
                   {index < steps.length - 1 && (
-                    <div className={`w-12 h-0.5 mx-4 ${
-                      currentStep > step.number ? 'bg-purple-500' : 'bg-gray-600'
-                    }`} />
+                    <div className="flex-1 h-0.5 mx-4 relative">
+                      <div className={`h-full transition-all duration-300 ${
+                        currentStep > step.number 
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                          : 'bg-gray-600'
+                      }`} />
+                    </div>
                   )}
                 </div>
               );
@@ -399,13 +424,44 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                         {config && (
                           <Card className="bg-gray-900/50 border-gray-700">
                             <CardContent className="p-4">
-                              <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${config.color}`}>
+                              <div className="flex items-start gap-3">
+                                <div className={`p-2 rounded-lg ${config.color} flex-shrink-0`}>
                                   <IconComponent className="w-5 h-5 text-white" />
                                 </div>
-                                <div>
+                                <div className="flex-1">
                                   <div className="font-medium text-white">{config.label}</div>
-                                  <div className="text-sm text-gray-400">{config.description}</div>
+                                  <div className="text-sm text-gray-400 mb-2">{config.description}</div>
+                                  
+                                  {/* Show actual address for provider location and marina services */}
+                                  {deliveryType === 'external_location' && service.businessAddress && (
+                                    <div className="mt-2 p-2 bg-gray-800/50 rounded text-sm">
+                                      <div className="flex items-center gap-2 text-gray-300">
+                                        <MapPin className="w-4 h-4" />
+                                        <span className="font-medium">Visit us at:</span>
+                                      </div>
+                                      <div className="text-white mt-1">{service.businessAddress}</div>
+                                    </div>
+                                  )}
+                                  
+                                  {deliveryType === 'marina' && service.marinaLocation && (
+                                    <div className="mt-2 p-2 bg-gray-800/50 rounded text-sm">
+                                      <div className="flex items-center gap-2 text-gray-300">
+                                        <Building2 className="w-4 h-4" />
+                                        <span className="font-medium">Marina location:</span>
+                                      </div>
+                                      <div className="text-white mt-1">{service.marinaLocation}</div>
+                                    </div>
+                                  )}
+                                  
+                                  {deliveryType === 'yacht' && (
+                                    <div className="mt-2 p-2 bg-gray-800/50 rounded text-sm">
+                                      <div className="flex items-center gap-2 text-gray-300">
+                                        <Anchor className="w-4 h-4" />
+                                        <span className="font-medium">During yacht charter:</span>
+                                      </div>
+                                      <div className="text-white mt-1">Service provided onboard during your yacht experience</div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </CardContent>
@@ -441,38 +497,50 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
+                <div className="flex items-center gap-2 mb-6">
+                  <h3 className="text-xl font-semibold text-white">Member Information</h3>
+                  <Badge className="bg-green-600 text-white text-xs">Pre-filled from your profile</Badge>
+                </div>
                 
                 <div className="w-full max-w-lg space-y-6 mx-auto px-4">
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-purple-400" />
+                        <Label className="text-sm font-medium text-gray-300">Member Name</Label>
+                      </div>
                       <Input
                         value={guestName}
                         onChange={(e) => setGuestName(e.target.value)}
-                        placeholder="Enter full name"
+                        placeholder="Your name from profile"
                         className="bg-gray-900/50 border-gray-700 h-12"
                       />
                     </div>
                     
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Email Address</Label>
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-purple-400" />
+                        <Label className="text-sm font-medium text-gray-300">Email Address</Label>
+                      </div>
                       <Input
                         type="email"
                         value={guestEmail}
                         onChange={(e) => setGuestEmail(e.target.value)}
-                        placeholder="Enter email address"
+                        placeholder="Your email from profile"
                         className="bg-gray-900/50 border-gray-700 h-12"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-300 mb-2 block">Phone Number</Label>
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-purple-400" />
+                      <Label className="text-sm font-medium text-gray-300">Phone Number</Label>
+                    </div>
                     <Input
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
-                      placeholder="Enter phone number"
+                      placeholder="Your phone from profile"
                       className="bg-gray-900/50 border-gray-700 h-12"
                     />
                   </div>
