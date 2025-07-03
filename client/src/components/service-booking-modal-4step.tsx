@@ -341,7 +341,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
           </div>
         </DialogHeader>
 
-        <div className="mt-6">
+        <div className="mt-8 px-2">
           <AnimatePresence mode="wait">
             {/* Step 1: Service Details & Date */}
             {currentStep === 1 && (
@@ -350,28 +350,28 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-8"
               >
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Select Date & Time</h3>
+                  <h3 className="text-xl font-semibold mb-6 text-white">Select Date & Time</h3>
                   
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                      <Label>Select Date</Label>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Date</Label>
                       <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
                         disabled={(date) => date < new Date()}
-                        className="rounded-md border border-gray-700 bg-gray-900/50"
+                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3"
                       />
                     </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Select Time</Label>
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Time</Label>
                         <Select value={selectedTime} onValueChange={setSelectedTime}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12">
                             <SelectValue placeholder="Choose time slot" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
@@ -384,10 +384,10 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                         </Select>
                       </div>
 
-                      <div>
-                        <Label>Delivery Type</Label>
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-300 mb-2 block">Delivery Type</Label>
                         <Select value={deliveryType} onValueChange={setDeliveryType}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12">
                             <SelectValue placeholder="How would you like this service delivered?" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
@@ -407,26 +407,26 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                       </div>
 
                       {deliveryType === 'location' && (
-                        <div>
-                          <Label>Your Address</Label>
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-gray-300 mb-2 block">Your Address</Label>
                           <Input
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Enter your full address"
-                            className="bg-gray-900/50 border-gray-700"
+                            className="bg-gray-900/50 border-gray-700 h-12"
                           />
                         </div>
                       )}
 
                       {deliveryType && config && (
-                        <Card className="bg-gray-900/50 border-gray-700">
+                        <Card className="bg-gray-900/50 border-gray-700 mt-4">
                           <CardContent className="p-4">
                             <div className="flex items-center gap-3">
                               <div className={`p-2 rounded-lg ${config.color}`}>
                                 <IconComponent className="w-5 h-5 text-white" />
                               </div>
                               <div>
-                                <div className="font-medium">{config.label}</div>
+                                <div className="font-medium text-white">{config.label}</div>
                                 <div className="text-sm text-gray-400">{config.description}</div>
                               </div>
                             </div>
@@ -446,50 +446,50 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-8"
               >
-                <h3 className="text-lg font-semibold">Guest Information</h3>
+                <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Full Name</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
                     <Input
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       placeholder="Enter full name"
-                      className="bg-gray-900/50 border-gray-700"
+                      className="bg-gray-900/50 border-gray-700 h-12"
                     />
                   </div>
                   
-                  <div>
-                    <Label>Email Address</Label>
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-300 mb-2 block">Email Address</Label>
                     <Input
                       type="email"
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
                       placeholder="Enter email address"
-                      className="bg-gray-900/50 border-gray-700"
+                      className="bg-gray-900/50 border-gray-700 h-12"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <Label>Phone Number</Label>
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-gray-300 mb-2 block">Phone Number</Label>
                   <Input
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value)}
                     placeholder="Enter phone number"
-                    className="bg-gray-900/50 border-gray-700"
+                    className="bg-gray-900/50 border-gray-700 h-12"
                   />
                 </div>
 
-                <div>
-                  <Label>Special Requests (Optional)</Label>
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-gray-300 mb-2 block">Special Requests (Optional)</Label>
                   <Textarea
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     placeholder="Any special requests or requirements..."
-                    className="bg-gray-900/50 border-gray-700 min-h-[100px]"
+                    className="bg-gray-900/50 border-gray-700 min-h-[120px] resize-none"
                   />
                 </div>
               </motion.div>
@@ -502,12 +502,12 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-8"
               >
-                <h3 className="text-lg font-semibold">Review Your Booking</h3>
+                <h3 className="text-xl font-semibold mb-6 text-white">Review Your Booking</h3>
                 
                 <Card className="bg-gray-900/50 border-gray-700">
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-8 space-y-6">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-semibold text-lg">{service.name}</h4>
@@ -612,12 +612,12 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8 pt-6 border-t border-gray-700">
+        <div className="flex justify-between items-center mt-10 pt-8 border-t border-gray-700/50">
           <Button
             variant="outline"
             onClick={handlePrevious}
             disabled={currentStep === 1}
-            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 h-12 px-6 text-sm font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Previous
@@ -630,7 +630,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 (currentStep === 1 && !canProceedFromStep1) ||
                 (currentStep === 2 && !canProceedFromStep2)
               }
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 h-12 px-6 text-sm font-medium"
             >
               Next
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -639,7 +639,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
             <Button
               variant="outline"
               onClick={onClose}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 h-12 px-6 text-sm font-medium"
             >
               Close
             </Button>
