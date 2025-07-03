@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
-import { ApplicationModal } from "@/components/application-modal";
+import ServiceBookingModal from "@/components/service-booking-modal-4step";
 
 const serviceCategories = [
   { id: "all", name: "All Services", icon: Sparkles },
@@ -31,7 +31,8 @@ export default function ServicesPage() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [isServiceBookingModalOpen, setIsServiceBookingModalOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -85,6 +86,47 @@ export default function ServicesPage() {
       });
     }
   });
+
+  // Service booking mutation
+  const serviceBookingMutation = useMutation({
+    mutationFn: async (bookingData: any) => {
+      const response = await apiRequest('POST', '/api/service-bookings', bookingData);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
+      toast({
+        title: "Service Booked Successfully!",
+        description: "Your service booking has been confirmed.",
+      });
+      setSelectedService(null);
+      setIsServiceBookingModalOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Booking Failed",
+        description: "Failed to book service. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleBookService = (service: any) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to book services",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedService(service);
+    setIsServiceBookingModalOpen(true);
+  };
+
+  const handleServiceBookingConfirm = (bookingData: any) => {
+    serviceBookingMutation.mutate(bookingData);
+  };
 
   const toggleFavorite = (e: React.MouseEvent, serviceId: number) => {
     e.stopPropagation();
@@ -258,7 +300,7 @@ export default function ServicesPage() {
 
                     {/* Book Now Button */}
                     <Button
-                      onClick={() => setIsApplicationModalOpen(true)}
+                      onClick={() => handleBookService(service)}
                       className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white relative z-20"
                     >
                       Book Now
@@ -351,22 +393,23 @@ export default function ServicesPage() {
       <VideoCTA 
         title="Ready to Elevate Your Yacht Experience?"
         description="Become a member and unlock access to our exclusive concierge services. From personal chefs to water sports instructors, we'll make every moment on the water extraordinary."
-        onApplyClick={() => setIsApplicationModalOpen(true)}
+        onApplyClick={() => window.location.href = '/auth'}
         secondaryButtonText="Contact Our Concierge"
         secondaryButtonLink="/contact"
       />
 
       <Footer />
 
-      {/* Application Modal */}
-      <AnimatePresence>
-        {isApplicationModalOpen && (
-          <ApplicationModal
-            isOpen={isApplicationModalOpen}
-            onClose={() => setIsApplicationModalOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {/* Service Booking Modal */}
+      <ServiceBookingModal
+        service={selectedService}
+        isOpen={isServiceBookingModalOpen}
+        onClose={() => {
+          setIsServiceBookingModalOpen(false);
+          setSelectedService(null);
+        }}
+        onConfirm={handleServiceBookingConfirm}
+      />
     </div>
   );
 }
