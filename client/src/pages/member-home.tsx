@@ -314,22 +314,22 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                           </p>
                           <div className="mt-2 space-y-1">
                             {service.deliveryType === 'marina' && service.marinaLocation && (
-                              <p className="text-green-400 text-xs">
+                              <p className="text-white text-xs">
                                 📍 Marina: {service.marinaLocation}
                               </p>
                             )}
                             {service.deliveryType === 'external_location' && service.businessAddress && (
-                              <p className="text-red-400 text-xs">
+                              <p className="text-white text-xs">
                                 📍 Visit: {service.businessAddress}
                               </p>
                             )}
                             {service.deliveryType === 'location' && (
-                              <p className="text-orange-400 text-xs">
+                              <p className="text-white text-xs">
                                 🚗 We come to your location
                               </p>
                             )}
                             {service.deliveryType === 'yacht' && (
-                              <p className="text-blue-400 text-xs">
+                              <p className="text-white text-xs">
                                 🛥️ Available during your yacht charter
                               </p>
                             )}
