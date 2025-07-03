@@ -289,17 +289,11 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       </motion.button>
 
                       <div className="absolute top-3 left-3 space-y-1">
-                        <Badge className="bg-purple-600/80 text-white backdrop-blur-sm">
+                        <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white backdrop-blur-sm">
                           {service.category}
                         </Badge>
                         <Badge 
-                          className={cn(
-                            "backdrop-blur-sm text-xs",
-                            service.deliveryType === 'yacht' ? 'bg-blue-600/80 text-white' :
-                            service.deliveryType === 'marina' ? 'bg-green-600/80 text-white' :
-                            service.deliveryType === 'location' ? 'bg-orange-600/80 text-white' :
-                            'bg-red-600/80 text-white'
-                          )}
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white backdrop-blur-sm text-xs"
                         >
                           {service.deliveryType === 'yacht' ? 'Yacht Add-On' :
                            service.deliveryType === 'marina' ? 'Marina Service' :
