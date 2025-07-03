@@ -282,18 +282,18 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl bg-black border-gray-800 text-white max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl w-[95vw] sm:w-full bg-black border-gray-800 text-white max-h-[95vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-3 sm:gap-4">
             <img 
               src={service.imageUrl || '/api/placeholder/80/80'} 
               alt={service.name}
-              className="w-16 h-16 rounded-lg object-cover"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
             />
-            <div>
-              <DialogTitle className="text-xl text-white">{service.name}</DialogTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600">
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-lg sm:text-xl text-white truncate">{service.name}</DialogTitle>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 w-fit">
                   {service.category}
                 </Badge>
                 <div className="flex items-center gap-1">
@@ -302,7 +302,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 </div>
               </div>
             </div>
-            <div className="ml-auto text-right">
+            <div className="text-right flex-shrink-0">
               <div className="text-2xl font-bold text-green-400">${service.pricePerSession}</div>
               <div className="text-sm text-gray-400">per session</div>
             </div>
@@ -341,8 +341,8 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
           </div>
         </DialogHeader>
 
-        <div className="mt-8 px-2">
-          <div className="max-w-3xl mx-auto">
+        <div className="mt-8 px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto w-full">
             <AnimatePresence mode="wait">
             {/* Step 1: Service Details & Date */}
             {currentStep === 1 && (
@@ -356,19 +356,19 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                 <div>
                   <h3 className="text-xl font-semibold mb-6 text-white">Select Date & Time</h3>
                   
-                  <div className="flex flex-col lg:flex-row gap-8 max-w-3xl">
-                    <div className="space-y-4">
+                  <div className="flex flex-col lg:flex-row gap-6 w-full">
+                    <div className="space-y-4 flex-shrink-0">
                       <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Date</Label>
                       <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
                         disabled={(date) => date < new Date()}
-                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3 w-fit"
+                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3 w-fit mx-auto lg:mx-0"
                       />
                     </div>
 
-                    <div className="space-y-6 w-80">
+                    <div className="space-y-6 flex-1 max-w-sm mx-auto lg:mx-0">
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Time</Label>
                         <Select value={selectedTime} onValueChange={setSelectedTime}>
@@ -460,8 +460,8 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
                 
-                <div className="max-w-lg space-y-6 mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="w-full max-w-lg space-y-6 mx-auto px-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
                       <Input
