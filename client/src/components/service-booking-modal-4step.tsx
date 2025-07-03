@@ -363,15 +363,15 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                         selected={selectedDate}
                         onSelect={setSelectedDate}
                         disabled={(date) => date < new Date()}
-                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3"
+                        className="rounded-lg border border-gray-700 bg-gray-900/50 p-3 w-fit"
                       />
                     </div>
 
-                    <div className="space-y-6 max-w-md">
+                    <div className="space-y-6 max-w-sm">
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-300 mb-2 block">Select Time</Label>
                         <Select value={selectedTime} onValueChange={setSelectedTime}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12 w-full">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12">
                             <SelectValue placeholder="Choose time slot" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
@@ -396,7 +396,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                       <div className="space-y-3">
                         <Label className="text-sm font-medium text-gray-300 mb-2 block">Delivery Type</Label>
                         <Select value={deliveryType} onValueChange={setDeliveryType}>
-                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12 w-full">
+                          <SelectTrigger className="bg-gray-900/50 border-gray-700 h-12">
                             <SelectValue placeholder="How would you like this service delivered?" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-900 border-gray-700">
@@ -422,7 +422,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Enter your full address"
-                            className="bg-gray-900/50 border-gray-700 h-12 w-full"
+                            className="bg-gray-900/50 border-gray-700 h-12"
                           />
                         </div>
                       )}
@@ -459,7 +459,7 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onConfir
               >
                 <h3 className="text-xl font-semibold mb-6 text-white">Guest Information</h3>
                 
-                <div className="max-w-md space-y-6">
+                <div className="max-w-sm space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-gray-300 mb-2 block">Full Name</Label>
