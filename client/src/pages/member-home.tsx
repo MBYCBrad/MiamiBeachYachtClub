@@ -12,6 +12,7 @@ import { TabNavigation } from '@/components/AnimatedTabIcons';
 import ServiceBookingModal from '@/components/service-booking-modal';
 import ServiceDetailsModal from '@/components/service-details-modal';
 import EventDetailsModal from '@/components/event-details-modal';
+import EventBookingModal from '@/components/event-booking-modal';
 import { 
   Search, 
   Heart, 
@@ -51,6 +52,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<Service | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
+  const [selectedEventForDetails, setSelectedEventForDetails] = useState<EventType | null>(null);
   const [isMuted, setIsMuted] = useState(true);
 
   const handleSearch = (criteria: any) => {
@@ -387,6 +389,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -8 }}
                   className="group cursor-pointer"
+                  onClick={() => setSelectedEventForDetails(event)}
                 >
                   <Card className="overflow-hidden bg-gray-900/50 border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10">
                     <div className="relative overflow-hidden">
@@ -544,11 +547,24 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         onToggleFavorite={(serviceId) => toggleLike(serviceId)}
       />
 
-      {/* Event Details Modal */}
-      <EventDetailsModal
+      {/* Event Booking Modal */}
+      <EventBookingModal
         event={selectedEvent}
         isOpen={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
+      />
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={selectedEventForDetails}
+        isOpen={!!selectedEventForDetails}
+        onClose={() => setSelectedEventForDetails(null)}
+        onBookEvent={(event) => {
+          setSelectedEventForDetails(null);
+          setSelectedEvent(event);
+        }}
+        isFavorite={selectedEventForDetails ? likedItems.has(selectedEventForDetails.id) : false}
+        onToggleFavorite={(eventId) => toggleLike(eventId)}
       />
     </div>
   );

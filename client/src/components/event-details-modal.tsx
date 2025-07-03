@@ -15,9 +15,12 @@ interface EventDetailsModalProps {
   event: Event | null;
   isOpen: boolean;
   onClose: () => void;
+  onBookEvent?: (event: Event) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (eventId: number) => void;
 }
 
-export default function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalProps) {
+export default function EventDetailsModal({ event, isOpen, onClose, onBookEvent, isFavorite, onToggleFavorite }: EventDetailsModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
