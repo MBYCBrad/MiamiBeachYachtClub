@@ -301,7 +301,7 @@ export default function ServicesPage() {
                     {/* Book Now Button */}
                     <Button
                       onClick={() => handleBookService(service)}
-                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white relative z-20"
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white relative z-20 px-6 py-2"
                     >
                       Book Now
                     </Button>
