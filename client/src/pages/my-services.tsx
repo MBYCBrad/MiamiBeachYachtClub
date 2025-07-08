@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import jsPDF from 'jspdf';
 import type { MediaAsset } from '@shared/schema';
+import ServiceBookingModal from "@/components/service-booking-modal";
 
 interface ServiceBooking {
   id: number;
@@ -47,6 +48,8 @@ interface MyServicesProps {
 
 export default function MyServices({ currentView, setCurrentView }: MyServicesProps) {
   const queryClient = useQueryClient();
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   
   const { data: heroVideo } = useQuery<MediaAsset>({
     queryKey: ['/api/media/hero/active']
@@ -617,12 +620,12 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                     View Details
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
-                                  <DialogHeader>
+                                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                                  <DialogHeader className="flex-shrink-0 pb-4">
                                     <DialogTitle className="text-gradient-animate">Service Experience</DialogTitle>
                                   </DialogHeader>
                                   
-                                  <div className="space-y-6">
+                                  <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-6">
                                     {/* Service Info */}
                                     <div className="flex items-center gap-4">
                                       <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
@@ -739,6 +742,18 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   </div>
                                 </DialogContent>
                               </Dialog>
+                              
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedService(booking.service);
+                                  setIsBookingModalOpen(true);
+                                }}
+                                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                              >
+                                <Star className="w-4 h-4 mr-2" />
+                                Begin Experience
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -751,6 +766,15 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
           </div>
         )}
       </div>
+      
+      {/* Service Booking Modal */}
+      {isBookingModalOpen && selectedService && (
+        <ServiceBookingModal
+          service={selectedService}
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
