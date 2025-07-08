@@ -28,7 +28,12 @@ export function useMessages(conversationId?: string) {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: Omit<InsertMessage, 'senderId'>) => {
-      const res = await apiRequest("POST", "/api/messages", messageData);
+      const fullMessageData = {
+        ...messageData,
+        conversationId: conversationId || messageData.conversationId
+      };
+      console.log('Sending message with data:', fullMessageData);
+      const res = await apiRequest("POST", "/api/messages", fullMessageData);
       return res.json();
     },
     onSuccess: (newMessage: Message) => {
