@@ -117,298 +117,40 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     console.log('Starting ticket download for:', event.title);
     const confirmationCode = getConfirmationCode(registration);
     
-    // Create new PDF document
-    const doc = new jsPDF();
-    
-    // Apple-style colors
-    const purple = [147, 51, 234]; // purple-600
-    const blue = [79, 70, 229]; // indigo-600
-    const black = [0, 0, 0];
-    const darkGray = [55, 65, 81]; // gray-700
-    const mediumGray = [107, 114, 128]; // gray-500
-    const lightGray = [156, 163, 175]; // gray-400
-    const white = [255, 255, 255];
-    
-    // Create smooth gradient header (purple to blue) - no lines
-    const headerHeight = 80;
-    const gradientSteps = 50;
-    const stepHeight = headerHeight / gradientSteps;
-    
-    for (let i = 0; i < gradientSteps; i++) {
-      const ratio = i / gradientSteps;
-      const r = purple[0] + (blue[0] - purple[0]) * ratio;
-      const g = purple[1] + (blue[1] - purple[1]) * ratio;
-      const b = purple[2] + (blue[2] - purple[2]) * ratio;
+    // Test simple PDF generation first
+    try {
+      console.log('Creating PDF document...');
+      const doc = new jsPDF();
       
-      doc.setFillColor(r, g, b);
-      doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+      // Simple test - just add text
+      doc.setFontSize(20);
+      doc.text('MBYC Event Ticket', 105, 50, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text(`Event: ${event.title}`, 20, 80);
+      doc.text(`Confirmation: ${confirmationCode}`, 20, 100);
+      
+      console.log('Attempting to save simple PDF...');
+      doc.save(`MBYC_Simple_Ticket_${registration.id}.pdf`);
+      console.log('Simple PDF saved successfully');
+      
+      // Clear downloading state
+      setDownloadingTickets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(registration.id);
+        return newSet;
+      });
+      
+      return;
+    } catch (error) {
+      console.error('Error with simple PDF:', error);
+      // Clear downloading state on error
+      setDownloadingTickets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(registration.id);
+        return newSet;
+      });
+      return;
     }
-    
-    // Add MBYC logo to the header
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      console.log('MBYC logo loaded successfully');
-      // Large centered logo
-      doc.addImage(img, 'PNG', 85, 15, 40, 20); // x, y, width, height - larger and centered
-      
-      // "Event Ticket" text below logo - Apple SF Pro style
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Event Ticket', 105, 60, { align: 'center' });
-      
-      // Main content area with clean Apple spacing
-      const contentStartY = 100;
-      const leftMargin = 30;
-      const rightMargin = 180;
-      const sectionSpacing = 40;
-      
-      // Event Details Section - Apple style typography
-      doc.setTextColor(black[0], black[1], black[2]);
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Event Details', leftMargin, contentStartY);
-      
-      let currentY = contentStartY + 20;
-      
-      // Event name - prominent
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text(event.title, leftMargin, currentY);
-      currentY += 20;
-      
-      // Date and time info - Apple style
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      
-      const dateText = event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA';
-      doc.text(dateText, leftMargin, currentY);
-      currentY += 12;
-      
-      const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
-      const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
-      doc.text(timeText + endTimeText, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(event.location, leftMargin, currentY);
-      currentY += sectionSpacing;
-      
-      // Registration Details Section
-      doc.setTextColor(black[0], black[1], black[2]);
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Registration Details', leftMargin, currentY);
-      currentY += 20;
-      
-      // Registration info - clean Apple style
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      
-      doc.text(`${registration.ticketCount} Ticket${registration.ticketCount > 1 ? 's' : ''}`, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(`Total: $${registration.totalPrice}`, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(`ID: ${registration.id}`, leftMargin, currentY);
-      currentY += 20;
-      
-      // Confirmation code - prominent purple styling
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(purple[0], purple[1], purple[2]);
-      doc.text(confirmationCode, leftMargin, currentY);
-      currentY += 30;
-      
-      // Add QR code
-      const qrCodeUrl = generateQRCode(confirmationCode);
-      console.log('QR code URL:', qrCodeUrl);
-      
-      const qrImg = new Image();
-      qrImg.crossOrigin = 'anonymous';
-      qrImg.onload = () => {
-        console.log('QR code image loaded successfully');
-        // Position QR code on the right side
-        doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
-        
-        // QR code label
-        doc.setFontSize(12);
-        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
-        
-        // Footer - minimal Apple style
-        doc.setFontSize(11);
-        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
-        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
-        doc.text('- MBYC Team', leftMargin, 290);
-        
-        // Save the PDF
-        console.log('Saving PDF with QR code...');
-        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
-        
-        // Clear downloading state
-        setDownloadingTickets(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(registration.id);
-          return newSet;
-        });
-      };
-      
-      qrImg.onerror = (error) => {
-        console.error('QR code loading failed:', error);
-        // Continue without QR code if it fails
-        doc.setFontSize(11);
-        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
-        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
-        doc.text('- MBYC Team', leftMargin, 290);
-        
-        console.log('Saving PDF without QR code...');
-        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
-        
-        // Clear downloading state
-        setDownloadingTickets(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(registration.id);
-          return newSet;
-        });
-      };
-      
-      console.log('Loading QR code image...');
-      qrImg.src = qrCodeUrl;
-    };
-    
-    img.onerror = (error) => {
-      console.error('MBYC logo loading failed:', error);
-      // Fallback without logo but maintain Apple design
-      doc.setFillColor(purple[0], purple[1], purple[2]);
-      doc.rect(0, 0, 210, 80, 'F');
-      
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
-      doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Event Ticket', 105, 55, { align: 'center' });
-      
-      // Continue with same content layout
-      const contentStartY = 100;
-      const leftMargin = 30;
-      const sectionSpacing = 40;
-      
-      doc.setTextColor(black[0], black[1], black[2]);
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Event Details', leftMargin, contentStartY);
-      
-      let currentY = contentStartY + 20;
-      
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text(event.title, leftMargin, currentY);
-      currentY += 20;
-      
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      
-      const dateText = event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA';
-      doc.text(dateText, leftMargin, currentY);
-      currentY += 12;
-      
-      const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
-      const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
-      doc.text(timeText + endTimeText, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(event.location, leftMargin, currentY);
-      currentY += sectionSpacing;
-      
-      doc.setTextColor(black[0], black[1], black[2]);
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Registration Details', leftMargin, currentY);
-      currentY += 20;
-      
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      
-      doc.text(`${registration.ticketCount} Ticket${registration.ticketCount > 1 ? 's' : ''}`, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(`Total: $${registration.totalPrice}`, leftMargin, currentY);
-      currentY += 12;
-      
-      doc.text(`ID: ${registration.id}`, leftMargin, currentY);
-      currentY += 20;
-      
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(purple[0], purple[1], purple[2]);
-      doc.text(confirmationCode, leftMargin, currentY);
-      
-      // Add QR code to fallback version too
-      const qrCodeUrl = generateQRCode(confirmationCode);
-      console.log('Fallback QR code URL:', qrCodeUrl);
-      const qrImg = new Image();
-      qrImg.crossOrigin = 'anonymous';
-      qrImg.onload = () => {
-        console.log('Fallback QR code image loaded successfully');
-        doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
-        doc.setFontSize(12);
-        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
-        
-        doc.setFontSize(11);
-        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
-        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
-        doc.text('- MBYC Team', leftMargin, 290);
-        
-        console.log('Saving fallback PDF with QR code...');
-        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
-        
-        // Clear downloading state
-        setDownloadingTickets(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(registration.id);
-          return newSet;
-        });
-      };
-      
-      qrImg.onerror = (error) => {
-        console.error('Fallback QR code loading failed:', error);
-        doc.setFontSize(11);
-        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
-        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
-        doc.text('- MBYC Team', leftMargin, 290);
-        
-        console.log('Saving fallback PDF without QR code...');
-        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
-        
-        // Clear downloading state
-        setDownloadingTickets(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(registration.id);
-          return newSet;
-        });
-      };
-      
-      console.log('Loading fallback QR code image...');
-      qrImg.src = qrCodeUrl;
-    };
-    
-    // Load the MBYC logo
-    console.log('Loading MBYC logo from:', mbycLogoWhite);
-    img.src = mbycLogoWhite;
   };
 
   if (isLoading) {
@@ -639,24 +381,24 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                 <h4 className="font-semibold text-white mb-2">Registration Details</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                   <div>
-                                    <span className="text-gray-400">Guest Name: </span>
-                                    <span className="text-white">{registration.guestDetails?.name || 'N/A'}</span>
+                                    <span className="text-gray-400">Tickets: </span>
+                                    <span className="text-white">{registration.ticketCount || 1}</span>
                                   </div>
                                   <div>
-                                    <span className="text-gray-400">Email: </span>
-                                    <span className="text-white">{registration.guestDetails?.email || 'N/A'}</span>
+                                    <span className="text-gray-400">Total Price: </span>
+                                    <span className="text-white">${registration.totalPrice || '0.00'}</span>
                                   </div>
                                   <div>
-                                    <span className="text-gray-400">Phone: </span>
-                                    <span className="text-white">{registration.guestDetails?.phone || 'N/A'}</span>
+                                    <span className="text-gray-400">Status: </span>
+                                    <span className="text-white capitalize">{registration.status || 'Pending'}</span>
                                   </div>
                                   <div>
                                     <span className="text-gray-400">Registered: </span>
                                     <span className="text-white">
                                       {(() => {
                                         try {
-                                          if (registration.registrationDate) {
-                                            const date = new Date(registration.registrationDate);
+                                          if (registration.createdAt) {
+                                            const date = new Date(registration.createdAt);
                                             return isNaN(date.getTime()) ? 'N/A' : format(date, 'MMM dd, yyyy');
                                           }
                                           return 'N/A';
