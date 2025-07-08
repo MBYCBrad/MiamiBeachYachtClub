@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle, Eye, FileText, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from 'jspdf';
+import mbycLogoWhite from '@/assets/mbyc-logo-white.png';
 import type { MediaAsset, Event } from '@shared/schema';
 
 interface EventRegistration {
@@ -94,7 +95,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
   };
 
-  // Ticket download functionality - PDF generation
+  // Ticket download functionality - PDF generation with MBYC logo
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) return;
     
@@ -109,89 +110,189 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     const darkGray = [31, 41, 55]; // gray-800
     const lightGray = [156, 163, 175]; // gray-400
     
-    // Header with gradient-like effect
-    doc.setFillColor(purple[0], purple[1], purple[2]);
-    doc.rect(0, 0, 210, 40, 'F');
+    // Create gradient header effect (purple to blue)
+    const headerHeight = 50;
+    const gradientSteps = 20;
+    const stepHeight = headerHeight / gradientSteps;
     
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.text('MIAMI BEACH YACHT CLUB', 105, 20, { align: 'center' });
-    doc.setFontSize(14);
-    doc.text('Event Ticket', 105, 30, { align: 'center' });
+    for (let i = 0; i < gradientSteps; i++) {
+      const ratio = i / gradientSteps;
+      const r = purple[0] + (blue[0] - purple[0]) * ratio;
+      const g = purple[1] + (blue[1] - purple[1]) * ratio;
+      const b = purple[2] + (blue[2] - purple[2]) * ratio;
+      
+      doc.setFillColor(r, g, b);
+      doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+    }
     
-    // Event details section
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.setFontSize(16);
-    doc.text('Event Details', 20, 60);
+    // Add MBYC logo to the header
+    const img = new Image();
+    img.onload = () => {
+      // Add logo to PDF (centered in header)
+      doc.addImage(img, 'PNG', 75, 10, 30, 15); // x, y, width, height
+      
+      // Add "Event Ticket" text below logo
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.text('Event Ticket', 105, 40, { align: 'center' });
+      
+      // Event details section
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.setFontSize(16);
+      doc.text('Event Details', 20, 70);
+      
+      // Draw line separator
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(20, 75, 190, 75);
+      
+      // Event information
+      doc.setFontSize(12);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Event:', 20, 90);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.title, 20, 98);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Date:', 20, 110);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 118);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Time:', 20, 130);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
+      const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
+      doc.text(timeText + endTimeText, 20, 138);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Location:', 20, 150);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.location, 20, 158);
+      
+      // Registration details section
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.setFontSize(16);
+      doc.text('Registration Details', 20, 180);
+      
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(20, 185, 190, 185);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Tickets:', 20, 200);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(registration.ticketCount.toString(), 20, 208);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Total Price:', 20, 220);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(`$${registration.totalPrice}`, 20, 228);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Registration ID:', 20, 240);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(registration.id.toString(), 20, 248);
+      
+      // Confirmation code highlight
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Confirmation Code:', 20, 260);
+      doc.setTextColor(purple[0], purple[1], purple[2]);
+      doc.setFontSize(14);
+      doc.text(confirmationCode, 20, 268);
+      
+      // Footer
+      doc.setFontSize(10);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Please present this ticket at the event entrance.', 20, 280);
+      doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 290);
+      doc.text('Thank you for choosing MBYC!', 20, 300);
+      
+      // Save the PDF
+      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+    };
     
-    // Draw line separator
-    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.line(20, 65, 190, 65);
+    img.onerror = () => {
+      // Fallback to text-based header if image fails to load
+      doc.setFillColor(purple[0], purple[1], purple[2]);
+      doc.rect(0, 0, 210, 50, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.text('MIAMI BEACH YACHT CLUB', 105, 25, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text('Event Ticket', 105, 40, { align: 'center' });
+      
+      // Continue with rest of the PDF generation (same as above but starting from y=70)
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.setFontSize(16);
+      doc.text('Event Details', 20, 70);
+      
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(20, 75, 190, 75);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Event:', 20, 90);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.title, 20, 98);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Date:', 20, 110);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 118);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Time:', 20, 130);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
+      const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
+      doc.text(timeText + endTimeText, 20, 138);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Location:', 20, 150);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(event.location, 20, 158);
+      
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.setFontSize(16);
+      doc.text('Registration Details', 20, 180);
+      
+      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.line(20, 185, 190, 185);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Tickets:', 20, 200);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(registration.ticketCount.toString(), 20, 208);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Total Price:', 20, 220);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(`$${registration.totalPrice}`, 20, 228);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Registration ID:', 20, 240);
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      doc.text(registration.id.toString(), 20, 248);
+      
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Confirmation Code:', 20, 260);
+      doc.setTextColor(purple[0], purple[1], purple[2]);
+      doc.setFontSize(14);
+      doc.text(confirmationCode, 20, 268);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+      doc.text('Please present this ticket at the event entrance.', 20, 280);
+      doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 290);
+      doc.text('Thank you for choosing MBYC!', 20, 300);
+      
+      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+    };
     
-    // Event information
-    doc.setFontSize(12);
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Event:', 20, 80);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(event.title, 20, 88);
-    
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Date:', 20, 100);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 108);
-    
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Time:', 20, 120);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
-    const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
-    doc.text(timeText + endTimeText, 20, 128);
-    
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Location:', 20, 140);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(event.location, 20, 148);
-    
-    // Registration details section
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.setFontSize(16);
-    doc.text('Registration Details', 20, 170);
-    
-    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.line(20, 175, 190, 175);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Tickets:', 20, 190);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(registration.ticketCount.toString(), 20, 198);
-    
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Total Price:', 20, 210);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(`$${registration.totalPrice}`, 20, 218);
-    
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Registration ID:', 20, 230);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(registration.id.toString(), 20, 238);
-    
-    // Confirmation code highlight
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Confirmation Code:', 20, 250);
-    doc.setTextColor(purple[0], purple[1], purple[2]);
-    doc.setFontSize(14);
-    doc.text(confirmationCode, 20, 258);
-    
-    // Footer
-    doc.setFontSize(10);
-    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-    doc.text('Please present this ticket at the event entrance.', 20, 270);
-    doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 280);
-    doc.text('Thank you for choosing MBYC!', 20, 290);
-    
-    // Save the PDF
-    doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+    // Load the MBYC logo
+    img.src = mbycLogoWhite;
   };
 
   if (isLoading) {
@@ -241,6 +342,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
             </video>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+          {/* Bottom blur transition */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black via-black/50 to-transparent" />
         </div>
         
         <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
@@ -257,38 +360,40 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
               Track your event registrations and upcoming experiences
             </p>
           </motion.div>
-          
-          {/* Stats Cards Overlay */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="absolute bottom-4 left-4 right-4"
-          >
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
-                <div className="text-xl font-bold text-purple-400">{registrations.length}</div>
-                <div className="text-xs text-gray-300">Events</div>
-              </div>
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
-                <div className="text-xl font-bold text-purple-400">
-                  {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
-                </div>
-                <div className="text-xs text-gray-300">Tickets</div>
-              </div>
-              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20 col-span-2 md:col-span-1">
-                <div className="text-xl font-bold text-purple-400">
-                  ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(0)}
-                </div>
-                <div className="text-xs text-gray-300">Total Spent</div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </div>
 
+      {/* Stats Cards - positioned below video */}
+      <div className="relative -mt-16 z-20 px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="container mx-auto"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
+              <div className="text-xl font-bold text-purple-400">{registrations.length}</div>
+              <div className="text-xs text-gray-300">Events</div>
+            </div>
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
+              <div className="text-xl font-bold text-purple-400">
+                {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
+              </div>
+              <div className="text-xs text-gray-300">Tickets</div>
+            </div>
+            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20 col-span-2 md:col-span-1">
+              <div className="text-xl font-bold text-purple-400">
+                ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(0)}
+              </div>
+              <div className="text-xs text-gray-300">Total Spent</div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
       {/* Content */}
-      <div className="container mx-auto px-4 py-8 pb-24">
+      <div className="container mx-auto px-4 py-12 pb-24">
         {registrations.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
