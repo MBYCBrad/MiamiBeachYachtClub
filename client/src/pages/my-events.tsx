@@ -95,7 +95,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
   };
 
-  // Ticket download functionality - PDF generation with MBYC logo
+  // Apple-style PDF ticket generation with QR code
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) return;
     
@@ -104,15 +104,18 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     // Create new PDF document
     const doc = new jsPDF();
     
-    // Set colors
+    // Apple-style colors
     const purple = [147, 51, 234]; // purple-600
     const blue = [79, 70, 229]; // indigo-600
-    const darkGray = [31, 41, 55]; // gray-800
+    const black = [0, 0, 0];
+    const darkGray = [55, 65, 81]; // gray-700
+    const mediumGray = [107, 114, 128]; // gray-500
     const lightGray = [156, 163, 175]; // gray-400
+    const white = [255, 255, 255];
     
-    // Create gradient header effect (purple to blue)
-    const headerHeight = 50;
-    const gradientSteps = 20;
+    // Create smooth gradient header (purple to blue) - no lines
+    const headerHeight = 80;
+    const gradientSteps = 50;
     const stepHeight = headerHeight / gradientSteps;
     
     for (let i = 0; i < gradientSteps; i++) {
@@ -128,167 +131,213 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     // Add MBYC logo to the header
     const img = new Image();
     img.onload = () => {
-      // Add logo to PDF (centered in header)
-      doc.addImage(img, 'PNG', 75, 10, 30, 15); // x, y, width, height
+      // Large centered logo
+      doc.addImage(img, 'PNG', 85, 15, 40, 20); // x, y, width, height - larger and centered
       
-      // Add "Event Ticket" text below logo
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.text('Event Ticket', 105, 40, { align: 'center' });
+      // "Event Ticket" text below logo - Apple SF Pro style
+      doc.setTextColor(white[0], white[1], white[2]);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Event Ticket', 105, 60, { align: 'center' });
       
-      // Event details section
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      // Main content area with clean Apple spacing
+      const contentStartY = 100;
+      const leftMargin = 30;
+      const rightMargin = 180;
+      const sectionSpacing = 40;
+      
+      // Event Details Section - Apple style typography
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Event Details', leftMargin, contentStartY);
+      
+      let currentY = contentStartY + 20;
+      
+      // Event name - prominent
       doc.setFontSize(16);
-      doc.text('Event Details', 20, 70);
+      doc.setFont('helvetica', 'bold');
+      doc.text(event.title, leftMargin, currentY);
+      currentY += 20;
       
-      // Draw line separator
-      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.line(20, 75, 190, 75);
-      
-      // Event information
-      doc.setFontSize(12);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Event:', 20, 90);
+      // Date and time info - Apple style
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.title, 20, 98);
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Date:', 20, 110);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 118);
+      const dateText = event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA';
+      doc.text(dateText, leftMargin, currentY);
+      currentY += 12;
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Time:', 20, 130);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
       const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
       const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
-      doc.text(timeText + endTimeText, 20, 138);
+      doc.text(timeText + endTimeText, leftMargin, currentY);
+      currentY += 12;
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Location:', 20, 150);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.location, 20, 158);
+      doc.text(event.location, leftMargin, currentY);
+      currentY += sectionSpacing;
       
-      // Registration details section
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(16);
-      doc.text('Registration Details', 20, 180);
+      // Registration Details Section
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Registration Details', leftMargin, currentY);
+      currentY += 20;
       
-      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.line(20, 185, 190, 185);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Tickets:', 20, 200);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(registration.ticketCount.toString(), 20, 208);
-      
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Total Price:', 20, 220);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(`$${registration.totalPrice}`, 20, 228);
-      
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Registration ID:', 20, 240);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(registration.id.toString(), 20, 248);
-      
-      // Confirmation code highlight
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Confirmation Code:', 20, 260);
-      doc.setTextColor(purple[0], purple[1], purple[2]);
+      // Registration info - clean Apple style
       doc.setFontSize(14);
-      doc.text(confirmationCode, 20, 268);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
       
-      // Footer
-      doc.setFontSize(10);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Please present this ticket at the event entrance.', 20, 280);
-      doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 290);
-      doc.text('Thank you for choosing MBYC!', 20, 300);
+      doc.text(`${registration.ticketCount} Ticket${registration.ticketCount > 1 ? 's' : ''}`, leftMargin, currentY);
+      currentY += 12;
       
-      // Save the PDF
-      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      doc.text(`Total: $${registration.totalPrice}`, leftMargin, currentY);
+      currentY += 12;
+      
+      doc.text(`ID: ${registration.id}`, leftMargin, currentY);
+      currentY += 20;
+      
+      // Confirmation code - prominent purple styling
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(purple[0], purple[1], purple[2]);
+      doc.text(confirmationCode, leftMargin, currentY);
+      currentY += 30;
+      
+      // Add QR code
+      const qrCodeUrl = generateQRCode(registration, event);
+      const qrImg = new Image();
+      qrImg.onload = () => {
+        // Position QR code on the right side
+        doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
+        
+        // QR code label
+        doc.setFontSize(12);
+        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
+        
+        // Footer - minimal Apple style
+        doc.setFontSize(11);
+        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
+        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        
+        // Save the PDF
+        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      };
+      
+      qrImg.onerror = () => {
+        // Continue without QR code if it fails
+        doc.setFontSize(11);
+        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
+        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        
+        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      };
+      
+      qrImg.src = qrCodeUrl;
     };
     
     img.onerror = () => {
-      // Fallback to text-based header if image fails to load
+      // Fallback without logo but maintain Apple design
       doc.setFillColor(purple[0], purple[1], purple[2]);
-      doc.rect(0, 0, 210, 50, 'F');
+      doc.rect(0, 0, 210, 80, 'F');
       
-      doc.setTextColor(255, 255, 255);
+      doc.setTextColor(white[0], white[1], white[2]);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Event Ticket', 105, 55, { align: 'center' });
+      
+      // Continue with same content layout
+      const contentStartY = 100;
+      const leftMargin = 30;
+      const sectionSpacing = 40;
+      
+      doc.setTextColor(black[0], black[1], black[2]);
       doc.setFontSize(20);
-      doc.text('MIAMI BEACH YACHT CLUB', 105, 25, { align: 'center' });
-      doc.setFontSize(14);
-      doc.text('Event Ticket', 105, 40, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.text('Event Details', leftMargin, contentStartY);
       
-      // Continue with rest of the PDF generation (same as above but starting from y=70)
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      let currentY = contentStartY + 20;
+      
       doc.setFontSize(16);
-      doc.text('Event Details', 20, 70);
+      doc.setFont('helvetica', 'bold');
+      doc.text(event.title, leftMargin, currentY);
+      currentY += 20;
       
-      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.line(20, 75, 190, 75);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Event:', 20, 90);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.title, 20, 98);
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Date:', 20, 110);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 118);
+      const dateText = event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA';
+      doc.text(dateText, leftMargin, currentY);
+      currentY += 12;
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Time:', 20, 130);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
       const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
       const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
-      doc.text(timeText + endTimeText, 20, 138);
+      doc.text(timeText + endTimeText, leftMargin, currentY);
+      currentY += 12;
       
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Location:', 20, 150);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(event.location, 20, 158);
+      doc.text(event.location, leftMargin, currentY);
+      currentY += sectionSpacing;
       
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(16);
-      doc.text('Registration Details', 20, 180);
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Registration Details', leftMargin, currentY);
+      currentY += 20;
       
-      doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.line(20, 185, 190, 185);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Tickets:', 20, 200);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(registration.ticketCount.toString(), 20, 208);
-      
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Total Price:', 20, 220);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(`$${registration.totalPrice}`, 20, 228);
-      
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Registration ID:', 20, 240);
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.text(registration.id.toString(), 20, 248);
-      
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Confirmation Code:', 20, 260);
-      doc.setTextColor(purple[0], purple[1], purple[2]);
       doc.setFontSize(14);
-      doc.text(confirmationCode, 20, 268);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
       
-      doc.setFontSize(10);
-      doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.text('Please present this ticket at the event entrance.', 20, 280);
-      doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 290);
-      doc.text('Thank you for choosing MBYC!', 20, 300);
+      doc.text(`${registration.ticketCount} Ticket${registration.ticketCount > 1 ? 's' : ''}`, leftMargin, currentY);
+      currentY += 12;
       
-      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      doc.text(`Total: $${registration.totalPrice}`, leftMargin, currentY);
+      currentY += 12;
+      
+      doc.text(`ID: ${registration.id}`, leftMargin, currentY);
+      currentY += 20;
+      
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(purple[0], purple[1], purple[2]);
+      doc.text(confirmationCode, leftMargin, currentY);
+      
+      // Add QR code to fallback version too
+      const qrCodeUrl = generateQRCode(registration, event);
+      const qrImg = new Image();
+      qrImg.onload = () => {
+        doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
+        doc.setFontSize(12);
+        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
+        
+        doc.setFontSize(11);
+        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
+        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        
+        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      };
+      
+      qrImg.onerror = () => {
+        doc.setFontSize(11);
+        doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
+        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        
+        doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      };
+      
+      qrImg.src = qrCodeUrl;
     };
     
     // Load the MBYC logo
