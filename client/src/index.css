@@ -71,29 +71,6 @@ html, body, #root {
   @apply bg-gradient-to-r from-purple-600 to-indigo-600 text-white;
 }
 
-/* Force dialog content to dark grey background */
-[data-radix-dialog-content] {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-  border-color: #374151 !important;
-}
-
-/* Override any blue backgrounds in dialogs */
-.bg-blue-900,
-.bg-blue-800,
-.bg-slate-900,
-.bg-slate-800,
-[class*="bg-blue"],
-[class*="bg-slate"] {
-  background-color: #1f2937 !important;
-}
-
-/* Specifically target dialog content with blue styling */
-div[role="dialog"] {
-  background-color: #1f2937 !important;
-  background: #1f2937 !important;
-}
-
 /* Hide scrollbars globally */
 * {
   scrollbar-width: none; /* Firefox */
