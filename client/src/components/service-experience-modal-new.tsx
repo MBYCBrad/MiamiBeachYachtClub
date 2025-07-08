@@ -843,6 +843,16 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
     return true;
   };
 
+  const scrollToTop = () => {
+    const contentDiv = document.querySelector('.service-experience-content');
+    if (contentDiv) {
+      contentDiv.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
@@ -850,6 +860,8 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
       setCurrentStage(currentStage + 1);
       setCurrentStep(1);
     }
+    // Scroll to top after navigation
+    setTimeout(scrollToTop, 100);
   };
 
   const handlePrevious = () => {
@@ -859,6 +871,8 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
       setCurrentStage(currentStage - 1);
       setCurrentStep(3);
     }
+    // Scroll to top after navigation
+    setTimeout(scrollToTop, 100);
   };
 
   const getTotalStep = () => {
@@ -905,7 +919,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6">
+        <div className="flex-1 overflow-y-auto px-6 service-experience-content">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${currentStage}-${currentStep}`}
