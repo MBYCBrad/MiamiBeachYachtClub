@@ -7,11 +7,14 @@ import { ArrowLeft, Clock, DollarSign, Star, MapPin, Calendar, CreditCard } from
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { Service } from "@shared/schema";
+import ServiceBookingModal from "@/components/service-booking-modal";
+import { useState } from "react";
 
 export default function ServiceDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [showBookingModal, setShowBookingModal] = useState(false);
   
   const { data: service, isLoading } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
@@ -20,13 +23,7 @@ export default function ServiceDetail() {
 
   const handleBookNow = () => {
     if (!service) return;
-    
-    // Store payment details for checkout
-    localStorage.setItem('paymentAmount', String(service.pricePerSession || '0'));
-    localStorage.setItem('paymentDescription', `${service.name} - ${service.category}`);
-    
-    // Navigate to checkout
-    setLocation('/checkout');
+    setShowBookingModal(true);
   };
 
   if (isLoading) {
@@ -192,7 +189,7 @@ export default function ServiceDetail() {
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 font-semibold py-3 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
-                {service.isAvailable ? 'Book Now' : 'Unavailable'}
+                {service.isAvailable ? 'Begin Experience' : 'Unavailable'}
               </Button>
 
               <p className="text-xs text-gray-500 text-center mb-4">
@@ -220,6 +217,15 @@ export default function ServiceDetail() {
           </div>
         </div>
       </div>
+      
+      {/* Service Booking Modal */}
+      {showBookingModal && (
+        <ServiceBookingModal
+          service={service}
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+        />
+      )}
     </div>
   );
 }
