@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import type { Service } from '@shared/schema';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import ServiceBookingModal from '@/components/service-booking-modal';
+import ServiceDetailsModal from '@/components/service-details-modal';
 
 interface ServicesPageProps {
   currentView: string;
@@ -17,6 +18,7 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   
   const { data: services = [], isLoading } = useQuery<Service[]>({
     queryKey: ['/api/services', { available: true }]
@@ -30,6 +32,11 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
   const handleBookService = (service: Service) => {
     setSelectedService(service);
     setIsBookingModalOpen(true);
+  };
+
+  const handleViewDetails = (service: Service) => {
+    setSelectedService(service);
+    setIsDetailsModalOpen(true);
   };
 
   return (
@@ -160,7 +167,7 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
                     {service.description}
                   </p>
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       {service.duration && (
                         <span className="flex items-center">
@@ -173,13 +180,23 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
                         {service.rating || '4.8'}
                       </span>
                     </div>
-                    
+                  </div>
+                  
+                  <div className="flex flex-col space-y-2">
                     <Button 
                       size="sm" 
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      variant="outline"
+                      className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20"
+                      onClick={() => handleViewDetails(service)}
+                    >
+                      Details
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                       onClick={() => handleBookService(service)}
                     >
-                      Book Now
+                      Begin Experience
                     </Button>
                   </div>
                 </div>
@@ -193,6 +210,25 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
           )}
         </div>
       </div>
+      
+      {/* Service Details Modal */}
+      {isDetailsModalOpen && selectedService && (
+        <ServiceDetailsModal
+          service={selectedService}
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          onBookService={handleBookService}
+        />
+      )}
+      
+      {/* Service Booking Modal */}
+      {isBookingModalOpen && selectedService && (
+        <ServiceBookingModal
+          service={selectedService}
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

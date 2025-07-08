@@ -75,13 +75,13 @@ export default function ServiceDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl bg-black border-gray-700 text-white max-h-[90vh] overflow-hidden">
-        <div className="max-h-[80vh] overflow-y-auto pr-2">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">
+      <DialogContent className="max-w-4xl bg-black border-gray-700 text-white max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="pb-4 flex-shrink-0">
+          <DialogTitle className="text-2xl font-bold text-center">
             {service.name}
           </DialogTitle>
         </DialogHeader>
+        <div className="flex-1 overflow-y-auto pr-2 -mr-2">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Image Gallery */}
@@ -251,7 +251,10 @@ export default function ServiceDetailsModal({
 
               <div className="space-y-3">
                 <Button
-                  onClick={() => onBookService?.(service)}
+                  onClick={() => {
+                    onBookService?.(service);
+                    onClose();
+                  }}
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-semibold"
                   disabled={!service.isAvailable}
                 >
