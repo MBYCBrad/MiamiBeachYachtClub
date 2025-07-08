@@ -130,20 +130,26 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       const lightGray = [156, 163, 175]; // gray-400
       const white = [255, 255, 255];
       
-      // Create truly smooth gradient header (purple to blue) with no visible lines
+      // Create a single solid gradient rectangle instead of multiple stripes
+      // First fill with purple
+      doc.setFillColor(purple[0], purple[1], purple[2]);
+      doc.rect(0, 0, 210, 80, 'F');
+      
+      // Then overlay with gradient using many tiny steps
       const headerHeight = 80;
-      const gradientSteps = 200; // Increased steps for smoother gradient
+      const gradientSteps = 400; // Even more steps
       const stepHeight = headerHeight / gradientSteps;
       
       for (let i = 0; i < gradientSteps; i++) {
-        const ratio = i / gradientSteps;
-        const r = Math.round(purple[0] + (blue[0] - purple[0]) * ratio);
-        const g = Math.round(purple[1] + (blue[1] - purple[1]) * ratio);
-        const b = Math.round(purple[2] + (blue[2] - purple[2]) * ratio);
+        const ratio = i / (gradientSteps - 1);
+        // Use smoother interpolation
+        const r = Math.floor(purple[0] * (1 - ratio) + blue[0] * ratio);
+        const g = Math.floor(purple[1] * (1 - ratio) + blue[1] * ratio);
+        const b = Math.floor(purple[2] * (1 - ratio) + blue[2] * ratio);
         
         doc.setFillColor(r, g, b);
-        // Use slightly overlapping rectangles to prevent gaps
-        doc.rect(0, i * stepHeight, 210, stepHeight + 0.1, 'F');
+        // Draw with overlap to prevent any gaps
+        doc.rect(0, i * stepHeight - 0.5, 210, stepHeight + 1, 'F');
       }
       
       // Try to load and add logo with Promise
@@ -162,7 +168,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
             clearTimeout(timeout);
             try {
               console.log('Adding logo to PDF');
-              doc.addImage(img, 'PNG', 85, 15, 40, 20);
+              // Make logo larger and centered
+              doc.addImage(img, 'PNG', 70, 15, 70, 35);
               resolve();
             } catch (error) {
               console.error('Error adding logo:', error);
