@@ -34,11 +34,16 @@ interface EventRegistration {
 }
 
 export default function MyEvents() {
-  const { data: eventRegistrations, isLoading } = useQuery({
+  const { data: eventRegistrations, isLoading, error } = useQuery({
     queryKey: ["/api/event-registrations"],
   });
 
-  const registrations = eventRegistrations as EventRegistration[] || [];
+  // Safe data handling with extensive error checking
+  const registrations = Array.isArray(eventRegistrations) ? eventRegistrations as EventRegistration[] : [];
+
+  // Debug logging
+  console.log("Event registrations data:", eventRegistrations);
+  console.log("Processed registrations:", registrations);
 
   if (isLoading) {
     return (
@@ -51,6 +56,19 @@ export default function MyEvents() {
                 <div key={i} className="h-48 bg-gray-800 rounded-lg"></div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-bold mb-4 text-red-400">Error Loading Events</h2>
+            <p className="text-gray-400">{error.message || 'Unable to load event registrations'}</p>
           </div>
         </div>
       </div>
@@ -139,7 +157,7 @@ export default function MyEvents() {
                       <div>
                         <p className="text-sm text-gray-400">Total Tickets</p>
                         <p className="text-2xl font-bold text-white">
-                          {registrations.reduce((sum, reg) => sum + reg.ticketCount, 0)}
+                          {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
                         </p>
                       </div>
                     </div>
@@ -161,7 +179,7 @@ export default function MyEvents() {
                       <div>
                         <p className="text-sm text-gray-400">Total Spent</p>
                         <p className="text-2xl font-bold text-white">
-                          ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice), 0).toFixed(2)}
+                          ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -172,13 +190,20 @@ export default function MyEvents() {
 
             {/* Event Registration Cards */}
             <div className="space-y-6">
-              {registrations.map((registration, index) => (
-                <motion.div
-                  key={registration.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 * index }}
-                >
+              {registrations.map((registration, index) => {
+                // Safety check for registration data
+                if (!registration || !registration.id) {
+                  console.warn("Invalid registration data:", registration);
+                  return null;
+                }
+                
+                return (
+                  <motion.div
+                    key={registration.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 * index }}
+                  >
                   <Card className="bg-gray-900/50 border-gray-700 hover:border-purple-600/50 transition-all duration-300">
                     <CardContent className="p-0">
                       <div className="flex flex-col lg:flex-row">
@@ -223,19 +248,36 @@ export default function MyEvents() {
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Calendar className="w-4 h-4" />
                                   <span>
-                                    {registration.event?.startTime 
-                                      ? format(new Date(registration.event.startTime), 'MMM dd, yyyy')
-                                      : format(new Date(registration.registrationDate), 'MMM dd, yyyy')
-                                    }
+                                    {(() => {
+                                      try {
+                                        if (registration.event?.startTime) {
+                                          const date = new Date(registration.event.startTime);
+                                          return isNaN(date.getTime()) ? 'TBA' : format(date, 'MMM dd, yyyy');
+                                        } else if (registration.registrationDate) {
+                                          const date = new Date(registration.registrationDate);
+                                          return isNaN(date.getTime()) ? 'TBA' : format(date, 'MMM dd, yyyy');
+                                        }
+                                        return 'TBA';
+                                      } catch (error) {
+                                        return 'TBA';
+                                      }
+                                    })()}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Clock className="w-4 h-4" />
                                   <span>
-                                    {registration.event?.startTime 
-                                      ? format(new Date(registration.event.startTime), 'h:mm a')
-                                      : 'TBA'
-                                    }
+                                    {(() => {
+                                      try {
+                                        if (registration.event?.startTime) {
+                                          const date = new Date(registration.event.startTime);
+                                          return isNaN(date.getTime()) ? 'TBA' : format(date, 'h:mm a');
+                                        }
+                                        return 'TBA';
+                                      } catch (error) {
+                                        return 'TBA';
+                                      }
+                                    })()}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
@@ -267,10 +309,17 @@ export default function MyEvents() {
                                   <div>
                                     <span className="text-gray-400">Registered: </span>
                                     <span className="text-white">
-                                      {registration.registrationDate 
-                                        ? format(new Date(registration.registrationDate), 'MMM dd, yyyy')
-                                        : 'N/A'
-                                      }
+                                      {(() => {
+                                        try {
+                                          if (registration.registrationDate) {
+                                            const date = new Date(registration.registrationDate);
+                                            return isNaN(date.getTime()) ? 'N/A' : format(date, 'MMM dd, yyyy');
+                                          }
+                                          return 'N/A';
+                                        } catch (error) {
+                                          return 'N/A';
+                                        }
+                                      })()}
                                     </span>
                                   </div>
                                 </div>
@@ -317,7 +366,8 @@ export default function MyEvents() {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))}
+                );
+              }).filter(Boolean)}
             </div>
           </div>
         )}
