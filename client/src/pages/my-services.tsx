@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Users, Star, Download, Phone, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
+import type { MediaAsset } from '@shared/schema';
 
 interface ServiceBooking {
   id: number;
@@ -34,6 +35,10 @@ interface ServiceBooking {
 }
 
 export default function MyServices() {
+  const { data: heroVideo } = useQuery<MediaAsset>({
+    queryKey: ['/api/media/hero/active']
+  });
+
   const { data: serviceBookings, isLoading } = useQuery({
     queryKey: ["/api/service-bookings"],
   });
@@ -60,15 +65,15 @@ export default function MyServices() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return 'bg-green-600';
+        return 'bg-gradient-to-r from-green-600 to-green-500';
       case 'pending':
-        return 'bg-yellow-600';
+        return 'bg-gradient-to-r from-yellow-600 to-yellow-500';
       case 'completed':
-        return 'bg-blue-600';
+        return 'bg-gradient-to-r from-purple-600 to-indigo-600';
       case 'cancelled':
-        return 'bg-red-600';
+        return 'bg-gradient-to-r from-red-600 to-red-500';
       default:
-        return 'bg-gray-600';
+        return 'bg-gradient-to-r from-gray-600 to-gray-500';
     }
   };
 
@@ -95,21 +100,66 @@ export default function MyServices() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      {/* Header */}
-      <div className="relative bg-gradient-to-b from-purple-900/20 to-black">
-        <div className="container mx-auto px-4 py-12">
-          <motion.div
+      {/* Video Header */}
+      <div className="relative h-64 md:h-80 overflow-hidden">
+        <div className="absolute inset-0">
+          {heroVideo?.url && (
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src={heroVideo.url} type="video/mp4" />
+            </video>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90" />
+          {/* Enhanced bottom blur transition */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm" />
+        </div>
+        
+        <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-bold text-gradient-animate mb-4"
+          >
+            My Services
+          </motion.h1>
+          <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              My Services
-            </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Track your service bookings and concierge experiences
-            </p>
+            Track your service bookings and concierge experiences
+          </motion.p>
+          
+          {/* Stats overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex space-x-6 text-center"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{bookings.length}</div>
+              <div className="text-sm text-gray-300">Services</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">
+                {bookings.filter(b => b.status === 'confirmed').length}
+              </div>
+              <div className="text-sm text-gray-300">Confirmed</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">
+                ${bookings.reduce((sum, booking) => sum + parseFloat(booking.totalPrice || '0'), 0).toFixed(0)}
+              </div>
+              <div className="text-sm text-gray-300">Total Spent</div>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -123,7 +173,7 @@ export default function MyServices() {
             transition={{ duration: 0.6 }}
             className="text-center py-16"
           >
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
               <Star className="w-12 h-12 text-white" />
             </div>
             <h3 className="text-2xl font-bold mb-4 text-gray-300">No Services Booked</h3>
@@ -132,7 +182,7 @@ export default function MyServices() {
             </p>
             <Button
               onClick={() => window.location.href = '/member-home'}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
             >
               Browse Services
             </Button>
@@ -213,7 +263,7 @@ export default function MyServices() {
                 <Card className="bg-gray-900/50 border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
                         <Star className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -268,7 +318,7 @@ export default function MyServices() {
                                   <div className="flex items-center gap-2 mb-3">
                                     <Badge 
                                       variant="outline" 
-                                      className="border-purple-600 text-purple-400"
+                                      className="border-purple-600 text-purple-400 bg-gradient-to-r from-purple-600/10 to-indigo-600/10"
                                     >
                                       {booking.service.category}
                                     </Badge>
@@ -339,7 +389,7 @@ export default function MyServices() {
                                 <div className="text-sm text-gray-400">
                                   Service Price: ${booking.service.price}
                                 </div>
-                                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
                                   ${booking.totalPrice}
                                 </div>
                               </div>
@@ -352,7 +402,7 @@ export default function MyServices() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-green-600 text-green-400 hover:bg-green-600/20"
+                                    className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
                                   >
                                     <Phone className="w-4 h-4 mr-2" />
                                     Contact Provider
@@ -360,7 +410,7 @@ export default function MyServices() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                                    className="border-indigo-600 text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-600/20 hover:to-purple-600/20"
                                   >
                                     <MessageSquare className="w-4 h-4 mr-2" />
                                     Message
@@ -371,7 +421,7 @@ export default function MyServices() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="border-yellow-600 text-yellow-400 hover:bg-yellow-600/20"
+                                  className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
                                 >
                                   <Star className="w-4 h-4 mr-2" />
                                   Rate Service
@@ -380,7 +430,7 @@ export default function MyServices() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Download Receipt
