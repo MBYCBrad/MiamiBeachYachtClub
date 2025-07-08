@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle, Eye, FileText, QrCode } from "lucide-react";
 import { format } from "date-fns";
+import jsPDF from 'jspdf';
 import type { MediaAsset, Event } from '@shared/schema';
 
 interface EventRegistration {
@@ -93,63 +94,104 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
   };
 
-  // Ticket download functionality
+  // Ticket download functionality - PDF generation
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) return;
     
     const confirmationCode = getConfirmationCode(registration);
     
-    // Create ticket data
-    const ticketData = {
-      eventTitle: event.title,
-      eventDate: format(new Date(event.startTime), 'MMMM dd, yyyy'),
-      eventTime: format(new Date(event.startTime), 'h:mm a'),
-      eventLocation: event.location,
-      ticketCount: registration.ticketCount,
-      totalPrice: registration.totalPrice,
-      registrationId: registration.id,
-      registrationDate: format(new Date(registration.createdAt), 'MMMM dd, yyyy'),
-      confirmationCode: confirmationCode
-    };
-
-    // Create ticket content
-    const ticketContent = `
-MIAMI BEACH YACHT CLUB
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-EVENT TICKET
-
-Event: ${ticketData.eventTitle}
-Date: ${ticketData.eventDate}
-Time: ${ticketData.eventTime}
-Location: ${ticketData.eventLocation}
-
-Ticket Count: ${ticketData.ticketCount}
-Total Price: $${ticketData.totalPrice}
-
-Registration ID: ${ticketData.registrationId}
-Registration Date: ${ticketData.registrationDate}
-Confirmation Code: ${ticketData.confirmationCode}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Please present this ticket and confirmation code at the event entrance.
-Staff will verify your confirmation code: ${ticketData.confirmationCode}
-For questions, contact Miami Beach Yacht Club.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `;
-
-    // Create and download the ticket file
-    const blob = new Blob([ticketContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `MBYC_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Create new PDF document
+    const doc = new jsPDF();
+    
+    // Set colors
+    const purple = [147, 51, 234]; // purple-600
+    const blue = [79, 70, 229]; // indigo-600
+    const darkGray = [31, 41, 55]; // gray-800
+    const lightGray = [156, 163, 175]; // gray-400
+    
+    // Header with gradient-like effect
+    doc.setFillColor(purple[0], purple[1], purple[2]);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.text('MIAMI BEACH YACHT CLUB', 105, 20, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text('Event Ticket', 105, 30, { align: 'center' });
+    
+    // Event details section
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.setFontSize(16);
+    doc.text('Event Details', 20, 60);
+    
+    // Draw line separator
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(20, 65, 190, 65);
+    
+    // Event information
+    doc.setFontSize(12);
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Event:', 20, 80);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(event.title, 20, 88);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Date:', 20, 100);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA', 20, 108);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Time:', 20, 120);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
+    const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
+    doc.text(timeText + endTimeText, 20, 128);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Location:', 20, 140);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(event.location, 20, 148);
+    
+    // Registration details section
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.setFontSize(16);
+    doc.text('Registration Details', 20, 170);
+    
+    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.line(20, 175, 190, 175);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Tickets:', 20, 190);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(registration.ticketCount.toString(), 20, 198);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Total Price:', 20, 210);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(`$${registration.totalPrice}`, 20, 218);
+    
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Registration ID:', 20, 230);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.text(registration.id.toString(), 20, 238);
+    
+    // Confirmation code highlight
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Confirmation Code:', 20, 250);
+    doc.setTextColor(purple[0], purple[1], purple[2]);
+    doc.setFontSize(14);
+    doc.text(confirmationCode, 20, 258);
+    
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.text('Please present this ticket at the event entrance.', 20, 270);
+    doc.text('For inquiries, contact Miami Beach Yacht Club', 20, 280);
+    doc.text('Thank you for choosing MBYC!', 20, 290);
+    
+    // Save the PDF
+    doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
   };
 
   if (isLoading) {
