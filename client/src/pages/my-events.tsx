@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
-import type { MediaAsset } from '@shared/schema';
+import type { MediaAsset, Event } from '@shared/schema';
 
 interface EventRegistration {
   id: number;
@@ -49,12 +49,23 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     queryKey: ["/api/event-registrations"],
   });
 
+  // Fetch all events to get event details
+  const { data: events = [] } = useQuery<Event[]>({
+    queryKey: ['/api/events']
+  });
+
   // Safe data handling with extensive error checking
   const registrations = Array.isArray(eventRegistrations) ? eventRegistrations as EventRegistration[] : [];
+
+  // Helper function to get event details by ID
+  const getEventById = (eventId: number) => {
+    return events.find(event => event.id === eventId);
+  };
 
   // Debug logging
   console.log("Event registrations data:", eventRegistrations);
   console.log("Processed registrations:", registrations);
+  console.log("Events data:", events);
 
   if (isLoading) {
     return (
@@ -184,6 +195,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                   return null;
                 }
                 
+                const event = getEventById(registration.eventId);
                 return (
                   <motion.div
                     key={registration.id}
@@ -197,8 +209,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                         {/* Event Image */}
                         <div className="lg:w-1/3">
                           <img
-                            src={(registration.event?.imageUrl) || '/api/media/pexels-mali-42092_1750537277229.jpg'}
-                            alt={registration.event?.title || 'Event'}
+                            src={event?.imageUrl || '/api/media/pexels-mali-42092_1750537277229.jpg'}
+                            alt={event?.title || 'Event'}
                             className="w-full h-48 lg:h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-t-none"
                           />
                         </div>
@@ -210,13 +222,13 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                               <div className="flex items-start justify-between mb-4">
                                 <div>
                                   <h3 className="text-2xl font-bold text-white mb-2">
-                                    {registration.event?.title || 'Event'}
+                                    {event?.title || 'Event'}
                                   </h3>
                                   <Badge 
                                     variant="outline" 
                                     className="border-purple-600 text-purple-400 mb-3"
                                   >
-                                    {registration.event?.category || 'Event'}
+                                    Event
                                   </Badge>
                                 </div>
                                 <Badge 
@@ -227,7 +239,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                               </div>
 
                               <p className="text-gray-300 mb-4 line-clamp-2">
-                                {registration.event?.description || 'Event details not available'}
+                                {event?.description || 'Event details not available'}
                               </p>
 
                               {/* Event Info */}
@@ -237,11 +249,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                   <span>
                                     {(() => {
                                       try {
-                                        if (registration.event?.startTime) {
-                                          const date = new Date(registration.event.startTime);
-                                          return isNaN(date.getTime()) ? 'TBA' : format(date, 'MMM dd, yyyy');
-                                        } else if (registration.registrationDate) {
-                                          const date = new Date(registration.registrationDate);
+                                        if (event?.startTime) {
+                                          const date = new Date(event.startTime);
                                           return isNaN(date.getTime()) ? 'TBA' : format(date, 'MMM dd, yyyy');
                                         }
                                         return 'TBA';
@@ -256,8 +265,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                   <span>
                                     {(() => {
                                       try {
-                                        if (registration.event?.startTime) {
-                                          const date = new Date(registration.event.startTime);
+                                        if (event?.startTime) {
+                                          const date = new Date(event.startTime);
                                           return isNaN(date.getTime()) ? 'TBA' : format(date, 'h:mm a');
                                         }
                                         return 'TBA';
@@ -269,7 +278,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <MapPin className="w-4 h-4" />
-                                  <span>{registration.event?.location || 'Location TBA'}</span>
+                                  <span>{event?.location || 'Location TBA'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Ticket className="w-4 h-4" />
