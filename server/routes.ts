@@ -2944,16 +2944,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         unreadCount: messageType === 'text' ? 1 : 0
       });
 
-      // Send real-time notification (if notification service supports it)
+      // Send real-time notification to admin (Simon Librati - ID 60)
       try {
-        if (notificationService && typeof notificationService.broadcast === 'function') {
-          notificationService.broadcast({
-            type: 'message',
-            data: message
+        if (notificationService) {
+          // Create notification for admin
+          await dbStorage.createNotification({
+            userId: 60, // Simon Librati admin user ID
+            type: 'new_message',
+            title: 'New Member Message',
+            message: `New message from ${req.user!.username}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+            priority: 'medium',
+            data: {
+              messageId: message.id,
+              conversationId: message.conversationId,
+              senderId: message.senderId,
+              senderName: req.user!.username
+            },
+            actionUrl: `/admin/messages/${message.conversationId}`
+          });
+
+          // Broadcast real-time update via WebSocket to admin
+          await notificationService.sendNotification({
+            userId: 60,
+            type: 'new_message',
+            title: 'New Member Message',
+            message: `${req.user!.username}: ${content}`,
+            priority: 'medium',
+            data: {
+              messageId: message.id,
+              conversationId: message.conversationId,
+              messageData: message
+            }
           });
         }
       } catch (error) {
-        console.log('Notification service not available:', error);
+        console.log('Notification service error:', error);
       }
 
       res.status(201).json(message);

@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
 import { useServicesWebSocket } from "@/hooks/use-services-websocket";
+import { useMessageWebSocket } from "@/hooks/use-message-websocket";
 import { useTourRequests } from "@/hooks/use-tour-requests";
 import CalendarPage from "@/pages/calendar-page";
 import MessengerDashboard from "@/pages/messenger-dashboard";
@@ -2656,6 +2657,11 @@ export default function AdminDashboard() {
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Initialize WebSocket hooks for real-time updates
+  useYachtWebSocket();
+  useServicesWebSocket();
+  useMessageWebSocket(); // Real-time message synchronization
 
   // Tour request status update mutation
   const updateTourRequestStatusMutation = useMutation({

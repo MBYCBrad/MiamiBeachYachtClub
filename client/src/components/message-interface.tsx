@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useMessages } from "@/hooks/use-messages";
 import { useAuth } from "@/hooks/use-auth";
+import { useMessageWebSocket } from "@/hooks/use-message-websocket";
 import { Send, Phone, MessageCircle, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { Message } from "@shared/schema";
@@ -27,6 +28,9 @@ export function MessageInterface({
   const { user } = useAuth();
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize real-time message WebSocket
+  useMessageWebSocket();
   
   const activeConversationId = conversationId || `user_${user?.id}_admin`;
   
