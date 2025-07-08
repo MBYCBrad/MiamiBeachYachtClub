@@ -1412,9 +1412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.user!.id,
         yachtId: booking.yachtId,
         rating: rating,
-        comment: review?.trim() || null,
-        title: "Yacht Experience Review",
-        isVerified: true
+        comment: review?.trim() || null
       };
       
       const createdReview = await dbStorage.createReview(reviewData);

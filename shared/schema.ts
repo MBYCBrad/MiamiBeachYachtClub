@@ -224,9 +224,7 @@ export const reviews = pgTable("reviews", {
   yachtId: integer("yacht_id").references(() => yachts.id),
   eventId: integer("event_id").references(() => events.id),
   rating: integer("rating").notNull(),
-  title: text("title"),
   comment: text("comment"),
-  isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
