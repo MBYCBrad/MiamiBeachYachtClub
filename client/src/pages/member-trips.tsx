@@ -380,8 +380,8 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             </div>
                             
-                            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-xl p-4 border border-blue-500/20">
-                              <div className="flex items-center text-blue-300 mb-2">
+                            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/30 rounded-xl p-4 border border-gray-700/30">
+                              <div className="flex items-center text-gray-300 mb-2">
                                 <Clock size={18} className="mr-2" />
                                 <span className="font-medium">Time</span>
                               </div>
