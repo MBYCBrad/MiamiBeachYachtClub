@@ -283,7 +283,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
           <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-600" />
           
           {steps.map((step, index) => (
-            <React.Fragment key={step.id}>
+            <div key={step.id} className="contents">
               <div className="flex flex-col items-center relative z-10">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium border-2 border-black
                   ${currentStep >= step.id 
@@ -304,7 +304,7 @@ export default function YachtBookingModal({ yacht, isOpen, onClose }: YachtBooki
               {index < steps.length - 1 && (
                 <div className="flex-1 mx-4" />
               )}
-            </React.Fragment>
+            </div>
           ))}
           
           {/* Progress Line Active */}
