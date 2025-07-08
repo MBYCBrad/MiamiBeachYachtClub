@@ -1,10 +1,12 @@
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, Users, Ticket, Download, Star } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle } from "lucide-react";
 import { format } from "date-fns";
+import type { MediaAsset } from '@shared/schema';
 
 interface EventRegistration {
   id: number;
@@ -33,7 +35,16 @@ interface EventRegistration {
   };
 }
 
-export default function MyEvents() {
+interface MyEventsProps {
+  currentView: string;
+  setCurrentView: (view: string) => void;
+}
+
+export default function MyEvents({ currentView, setCurrentView }: MyEventsProps) {
+  const { data: heroVideo } = useQuery<MediaAsset>({
+    queryKey: ['/api/media/hero/active']
+  });
+
   const { data: eventRegistrations, isLoading, error } = useQuery({
     queryKey: ["/api/event-registrations"],
   });
@@ -76,28 +87,70 @@ export default function MyEvents() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
-      {/* Header */}
-      <div className="relative bg-gradient-to-b from-purple-900/20 to-black">
-        <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-black text-white">
+      {/* Video Header */}
+      <div className="relative h-64 md:h-80 overflow-hidden">
+        <div className="absolute inset-0">
+          {heroVideo?.url && (
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src={heroVideo.url} type="video/mp4" />
+            </video>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+        </div>
+        
+        <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+            transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <PlayCircle className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-80" />
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               My Events
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
               Track your event registrations and upcoming experiences
             </p>
+          </motion.div>
+          
+          {/* Stats Cards Overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="absolute bottom-4 left-4 right-4"
+          >
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
+                <div className="text-xl font-bold text-purple-400">{registrations.length}</div>
+                <div className="text-xs text-gray-300">Events</div>
+              </div>
+              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
+                <div className="text-xl font-bold text-purple-400">
+                  {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
+                </div>
+                <div className="text-xs text-gray-300">Tickets</div>
+              </div>
+              <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20 col-span-2 md:col-span-1">
+                <div className="text-xl font-bold text-purple-400">
+                  ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(0)}
+                </div>
+                <div className="text-xs text-gray-300">Total Spent</div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pb-24">
         {registrations.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -113,7 +166,7 @@ export default function MyEvents() {
               You haven't registered for any events yet. Explore our upcoming events and join exciting experiences!
             </p>
             <Button
-              onClick={() => window.location.href = '/member-home'}
+              onClick={() => setCurrentView('explore')}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               Browse Events
@@ -121,72 +174,6 @@ export default function MyEvents() {
           </motion.div>
         ) : (
           <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <Card className="bg-gray-900/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-                        <Ticket className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Total Events</p>
-                        <p className="text-2xl font-bold text-white">{registrations.length}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Card className="bg-gray-900/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center">
-                        <Users className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Total Tickets</p>
-                        <p className="text-2xl font-bold text-white">
-                          {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-              >
-                <Card className="bg-gray-900/50 border-gray-700">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-full flex items-center justify-center">
-                        <Star className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Total Spent</p>
-                        <p className="text-2xl font-bold text-white">
-                          ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
 
             {/* Event Registration Cards */}
             <div className="space-y-6">
