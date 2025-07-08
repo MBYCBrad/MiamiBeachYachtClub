@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import jsPDF from 'jspdf';
 import type { MediaAsset } from '@shared/schema';
-import ServiceBookingModal from "@/components/service-booking-modal";
+import ServiceExperienceModal from "@/components/service-experience-modal";
 
 interface ServiceBooking {
   id: number;
@@ -48,8 +48,8 @@ interface MyServicesProps {
 
 export default function MyServices({ currentView, setCurrentView }: MyServicesProps) {
   const queryClient = useQueryClient();
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   
   const { data: heroVideo } = useQuery<MediaAsset>({
     queryKey: ['/api/media/hero/active']
@@ -746,8 +746,8 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                               <Button
                                 size="sm"
                                 onClick={() => {
-                                  setSelectedService(booking.service);
-                                  setIsBookingModalOpen(true);
+                                  setSelectedBooking(booking);
+                                  setIsExperienceModalOpen(true);
                                 }}
                                 className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                               >
@@ -767,12 +767,12 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
         )}
       </div>
       
-      {/* Service Booking Modal */}
-      {isBookingModalOpen && selectedService && (
-        <ServiceBookingModal
-          service={selectedService}
-          isOpen={isBookingModalOpen}
-          onClose={() => setIsBookingModalOpen(false)}
+      {/* Service Experience Modal */}
+      {isExperienceModalOpen && selectedBooking && (
+        <ServiceExperienceModal
+          booking={selectedBooking}
+          isOpen={isExperienceModalOpen}
+          onClose={() => setIsExperienceModalOpen(false)}
         />
       )}
     </div>
