@@ -1407,21 +1407,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Cannot rate yacht experiences that haven't started yet" });
       }
 
-      // Update booking with rating and review
-      const updatedBooking = await dbStorage.updateBooking(bookingId, {
+      // Create a review record for the yacht experience
+      const reviewData = {
+        memberId: req.user!.id,
+        yachtId: booking.yachtId,
         rating: rating,
-        review: review?.trim() || null
-      });
+        comment: review?.trim() || null,
+        title: "Yacht Experience Review",
+        isVerified: true
+      };
+      
+      const createdReview = await dbStorage.createReview(reviewData);
 
       // Get yacht details for notifications
       const yacht = await dbStorage.getYacht(booking.yachtId);
       
-      // Update yacht average rating
+      // Update yacht average rating based on reviews
       if (yacht) {
-        const allBookings = await dbStorage.getBookings({ yachtId: booking.yachtId });
-        const ratedBookings = allBookings.filter(b => b.rating);
-        if (ratedBookings.length > 0) {
-          const averageRating = ratedBookings.reduce((sum, b) => sum + b.rating!, 0) / ratedBookings.length;
+        const allReviews = await dbStorage.getReviews({ yachtId: booking.yachtId });
+        if (allReviews.length > 0) {
+          const averageRating = allReviews.reduce((sum, review) => sum + review.rating, 0) / allReviews.length;
           await dbStorage.updateYacht(booking.yachtId, { 
             rating: averageRating.toFixed(1)
           });
@@ -1473,7 +1478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         message: "Yacht rating submitted successfully",
-        booking: updatedBooking,
+        review: createdReview,
         yachtRating: yacht ? parseFloat(yacht.rating || '0') : 0
       });
     } catch (error: any) {
