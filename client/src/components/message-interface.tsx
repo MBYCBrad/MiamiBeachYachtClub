@@ -106,23 +106,11 @@ export function MessageInterface({
     onSuccess: (newCall: any, callData: any) => {
       toast({
         title: "Call Initiated",
-        description: `Connecting you to ${recipientName}. Call ID: ${newCall.id}`,
+        description: `Call connecting to ${recipientName}. You will receive a call back shortly.`,
       });
       
-      // Invalidate related queries
+      // Invalidate related queries to show real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
-      
-      // Create a notification message about the call
-      sendMessage({
-        content: `📞 Phone call initiated to ${recipientName}. Call ID: ${newCall.id}`,
-        messageType: "system",
-        metadata: {
-          callId: newCall.id,
-          phoneNumber: callData.memberPhone,
-          callStatus: "initiated"
-        }
-      });
     },
     onError: (error: any) => {
       console.error("Phone call error:", error);
