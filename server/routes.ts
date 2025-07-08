@@ -1409,7 +1409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create a review record for the yacht experience
       const reviewData = {
-        memberId: req.user!.id,
+        userId: req.user!.id,
         yachtId: booking.yachtId,
         rating: rating,
         comment: review?.trim() || null,

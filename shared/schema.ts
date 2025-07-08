@@ -219,7 +219,7 @@ export const eventRegistrations = pgTable("event_registrations", {
 
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  memberId: integer("member_id").references(() => users.id).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   serviceId: integer("service_id").references(() => services.id),
   yachtId: integer("yacht_id").references(() => yachts.id),
   eventId: integer("event_id").references(() => events.id),

@@ -1740,7 +1740,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
       {/* Phase 3: End Trip Dialog - World-Class Review Experience */}
       <Dialog open={showEndTripForm} onOpenChange={setShowEndTripForm}>
-        <DialogContent className="max-w-4xl bg-gray-900/50 border-gray-800 p-0 overflow-hidden max-h-[85vh] flex flex-col">
+        <DialogContent className="max-w-4xl bg-black border-gray-800 p-0 overflow-hidden max-h-[85vh] flex flex-col">
           <div className="relative flex-shrink-0">
             {/* Header with gradient */}
             <div className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 backdrop-blur-xl p-6 border-b border-gray-800">
@@ -1748,7 +1748,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               <p className="text-gray-300 mt-2">Share your experience and help us improve</p>
             </div>
             {/* Progress bar */}
-            <div className="px-6 py-4 bg-gray-900/50">
+            <div className="px-6 py-4 bg-black">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-400">Step {endTripStep} of 5</span>
                 <span className="text-sm text-purple-400">{Math.round((endTripStep / 5) * 100)}% Complete</span>
@@ -1758,7 +1758,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
           </div>
 
             {/* Content area - scrollable */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-900/50">
+            <div className="flex-1 overflow-y-auto p-6 bg-black">
               <AnimatePresence mode="wait">
                 {endTripStep === 1 && (
                   <motion.div
