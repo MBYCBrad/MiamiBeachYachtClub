@@ -60,10 +60,89 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
     queryKey: ['/api/services']
   });
 
+  // Yacht rating mutation
+  const rateYachtMutation = useMutation({
+    mutationFn: async ({ bookingId, rating, review }: { bookingId: number; rating: number; review: string }) => {
+      const response = await apiRequest('POST', '/api/bookings/rate', {
+        bookingId,
+        rating,
+        review: review.trim()
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      setShowRatingDialog(false);
+      setSelectedTripForRating(null);
+      setRating(0);
+      setReviewText('');
+      toast({
+        title: "Rating Submitted",
+        description: "Thank you for your feedback! Your yacht rating helps improve our charter experiences.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Helper functions
   const getYachtById = (yachtId: number | null) => {
     if (!yachtId) return null;
     return yachts.find(yacht => yacht.id === yachtId);
+  };
+
+  // Yacht experience phase helper
+  const getYachtExperiencePhase = (booking: Booking) => {
+    const now = new Date();
+    const startTime = new Date(booking.startTime);
+    const endTime = new Date(booking.endTime);
+
+    if (now < startTime) {
+      return 'before'; // Pre-charter phase
+    } else if (now >= startTime && now <= endTime) {
+      return 'during'; // Active charter phase
+    } else {
+      return 'after'; // Post-charter phase
+    }
+  };
+
+  // Get phase title and description
+  const getPhaseInfo = (phase: string) => {
+    switch (phase) {
+      case 'before':
+        return {
+          title: 'Pre-Charter Preparation',
+          description: 'Your yacht experience is being prepared',
+          icon: <Calendar className="w-5 h-5" />,
+          color: 'blue'
+        };
+      case 'during':
+        return {
+          title: 'Active Charter',
+          description: 'Enjoy your yacht experience',
+          icon: <Navigation className="w-5 h-5" />,
+          color: 'purple'
+        };
+      case 'after':
+        return {
+          title: 'Charter Complete',
+          description: 'Rate your yacht experience',
+          icon: <Star className="w-5 h-5" />,
+          color: 'green'
+        };
+      default:
+        return {
+          title: 'Charter Status',
+          description: 'Yacht experience timeline',
+          icon: <Anchor className="w-5 h-5" />,
+          color: 'gray'
+        };
+    }
   };
 
   const getServiceById = (serviceId: number | null) => {
@@ -202,6 +281,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   };
 
   const startRating = (booking: Booking) => {
+    setSelectedTripForRating(booking);
+    setShowRatingDialog(true);
+  };
+
+  const startYachtRating = (booking: Booking) => {
     setSelectedTripForRating(booking);
     setShowRatingDialog(true);
   };
@@ -365,6 +449,96 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               <PlayCircle size={16} className="mr-2" />
                               Begin Experience
                             </Button>
+                          </div>
+
+                          {/* Yacht Experience Timeline */}
+                          <div className="mb-6">
+                            <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                              <Timer className="w-5 h-5 text-purple-400" />
+                              Charter Experience Timeline
+                            </h4>
+                            <div className="relative">
+                              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-700"></div>
+                              
+                              {/* Before Charter Phase */}
+                              <div className="relative flex items-start gap-4 pb-6">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
+                                  getYachtExperiencePhase(booking) === 'before' 
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-400' 
+                                    : 'bg-gray-800 border-gray-600'
+                                }`}>
+                                  <Calendar className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="text-white font-medium">Pre-Charter Preparation</h5>
+                                  <p className="text-gray-400 text-sm">Yacht preparation and final arrangements</p>
+                                  {getYachtExperiencePhase(booking) === 'before' && (
+                                    <div className="mt-2">
+                                      <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+                                        <Timer className="w-3 h-3 mr-1" />
+                                        Current Phase
+                                      </Badge>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* During Charter Phase */}
+                              <div className="relative flex items-start gap-4 pb-6">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
+                                  getYachtExperiencePhase(booking) === 'during' 
+                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-400' 
+                                    : 'bg-gray-800 border-gray-600'
+                                }`}>
+                                  <Navigation className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="text-white font-medium">Active Charter</h5>
+                                  <p className="text-gray-400 text-sm">Enjoying your yacht experience</p>
+                                  {getYachtExperiencePhase(booking) === 'during' && (
+                                    <div className="mt-2">
+                                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                                        <Activity className="w-3 h-3 mr-1" />
+                                        In Progress
+                                      </Badge>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* After Charter Phase */}
+                              <div className="relative flex items-start gap-4">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 ${
+                                  getYachtExperiencePhase(booking) === 'after' 
+                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 border-green-400' 
+                                    : 'bg-gray-800 border-gray-600'
+                                }`}>
+                                  <Star className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="text-white font-medium">Post-Charter Review</h5>
+                                  <p className="text-gray-400 text-sm">Rate your yacht experience</p>
+                                  {getYachtExperiencePhase(booking) === 'after' && (
+                                    <div className="mt-2 flex items-center gap-2">
+                                      <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                        Complete
+                                      </Badge>
+                                      {!booking.rating && (
+                                        <Button
+                                          onClick={() => startYachtRating(booking)}
+                                          size="sm"
+                                          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-xs"
+                                        >
+                                          <Star className="w-3 h-3 mr-1" />
+                                          Rate Experience
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Trip Details Grid */}
@@ -637,13 +811,27 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             </div>
                           </div>
-                          <Button
-                            onClick={() => startRating(booking)}
-                            className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30"
-                          >
-                            <Star size={16} className="mr-2" />
-                            Rate Experience
-                          </Button>
+                          {booking.rating ? (
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    className={`w-4 h-4 ${i < booking.rating! ? 'text-yellow-400 fill-current' : 'text-gray-400'}`} 
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-gray-300">({booking.rating}/5)</span>
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => startYachtRating(booking)}
+                              className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30"
+                            >
+                              <Star size={16} className="mr-2" />
+                              Rate Experience
+                            </Button>
+                          )}
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -683,14 +871,38 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                           </div>
                         )}
 
+                        {/* Yacht Rating & Review Display */}
+                        {booking.rating && booking.review && (
+                          <div className="mb-4 bg-gray-800/30 rounded-lg p-4 border border-gray-700/40">
+                            <h5 className="font-medium text-white mb-2 flex items-center gap-2">
+                              <Star className="w-4 h-4 text-yellow-400" />
+                              Your Yacht Experience Review
+                            </h5>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    className={`w-4 h-4 ${i < booking.rating! ? 'text-yellow-400 fill-current' : 'text-gray-400'}`} 
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-gray-300">({booking.rating}/5)</span>
+                            </div>
+                            <p className="text-gray-300 text-sm italic">"{booking.review}"</p>
+                          </div>
+                        )}
+
                         <div className="flex space-x-3">
-                          <Button
-                            onClick={() => startRating(booking)}
-                            className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
-                          >
-                            <Star size={16} className="mr-2" />
-                            Share Review
-                          </Button>
+                          {!booking.rating && (
+                            <Button
+                              onClick={() => startYachtRating(booking)}
+                              className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
+                            >
+                              <Star size={16} className="mr-2" />
+                              Share Review
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             className="border-gray-600 text-gray-300 hover:bg-gray-800 rounded-xl"
@@ -845,30 +1057,36 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                   setShowRatingDialog(false);
                   setRating(0);
                   setReviewText('');
+                  setSelectedTripForRating(null);
                 }}
                 className="border-gray-600 text-gray-300"
               >
-                Maybe Later
+                Cancel
               </Button>
               <Button
                 onClick={() => {
                   if (selectedTripForRating && rating > 0) {
-                    submitRatingMutation.mutate({
+                    rateYachtMutation.mutate({
                       bookingId: selectedTripForRating.id,
                       rating,
-                      review: reviewText
+                      review: reviewText.trim()
                     });
                   }
                 }}
-                disabled={submitRatingMutation.isPending || rating === 0}
-                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700"
+                disabled={!selectedTripForRating || rating === 0 || rateYachtMutation.isPending}
+                className="bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
               >
-                {submitRatingMutation.isPending ? (
-                  <Loader2 size={16} className="mr-2 animate-spin" />
+                {rateYachtMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
                 ) : (
-                  <ThumbsUp size={16} className="mr-2" />
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Submit Review
+                  </>
                 )}
-                Submit Review
               </Button>
             </div>
           </div>

@@ -1371,6 +1371,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rate a yacht booking
+  app.post("/api/bookings/rate", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { bookingId, rating, review } = req.body;
+
+      // Validate input
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: "Rating must be between 1 and 5" });
+      }
+
+      // Get the yacht booking
+      const booking = await dbStorage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Check if user owns this booking
+      if (req.user!.role === UserRole.MEMBER && booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if booking is completed
+      const now = new Date();
+      const bookingEndTime = new Date(booking.endTime);
+      if (now <= bookingEndTime) {
+        return res.status(400).json({ message: "Can only rate completed yacht experiences" });
+      }
+
+      // Update booking with rating and review
+      const updatedBooking = await dbStorage.updateBooking(bookingId, {
+        rating: rating,
+        review: review?.trim() || null
+      });
+
+      // Get yacht details for notifications
+      const yacht = await dbStorage.getYacht(booking.yachtId);
+      
+      // Update yacht average rating
+      if (yacht) {
+        const allBookings = await dbStorage.getBookings({ yachtId: booking.yachtId });
+        const ratedBookings = allBookings.filter(b => b.rating);
+        if (ratedBookings.length > 0) {
+          const averageRating = ratedBookings.reduce((sum, b) => sum + b.rating!, 0) / ratedBookings.length;
+          await dbStorage.updateYacht(booking.yachtId, { 
+            rating: averageRating.toFixed(1)
+          });
+        }
+      }
+
+      // Notify yacht owner about new rating
+      if (yacht && yacht.ownerId) {
+        await dbStorage.createNotification({
+          userId: yacht.ownerId,
+          type: "yacht_rated",
+          title: "Yacht Rated",
+          message: `Your ${yacht.name} received a ${rating}-star rating from ${req.user!.username}`,
+          priority: "medium",
+          read: false,
+          actionUrl: "/yacht-owner/experience",
+          data: {
+            yachtId: yacht.id,
+            yachtName: yacht.name,
+            rating: rating,
+            review: review,
+            memberName: req.user!.username
+          }
+        });
+      }
+
+      // Notify admin about yacht rating
+      const adminUsers = await dbStorage.getAllUsers();
+      const admin = adminUsers.find(u => u.role === 'admin');
+      
+      if (admin) {
+        await dbStorage.createNotification({
+          userId: admin.id,
+          type: "yacht_rated",
+          title: "Yacht Experience Rated",
+          message: `${yacht?.name || 'Yacht'} received a ${rating}-star rating from ${req.user!.username}`,
+          priority: "medium",
+          read: false,
+          actionUrl: "/admin/yacht-experience",
+          data: {
+            yachtId: yacht?.id,
+            yachtName: yacht?.name,
+            rating: rating,
+            review: review,
+            memberName: req.user!.username
+          }
+        });
+      }
+
+      res.json({ 
+        message: "Yacht rating submitted successfully",
+        booking: updatedBooking,
+        yachtRating: yacht ? parseFloat(yacht.rating || '0') : 0
+      });
+    } catch (error: any) {
+      console.error('Yacht rating error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // SERVICE BOOKING ROUTES
   app.get("/api/service-bookings", requireAuth, async (req, res) => {
     try {
