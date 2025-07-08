@@ -726,7 +726,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
       {/* Enhanced Onboarding Experience */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
-        <DialogContent className="!bg-gray-900 border-gray-700 max-w-2xl" style={{ backgroundColor: '#1f2937 !important', background: '#1f2937 !important', borderColor: '#374151 !important' }}>
+        <DialogContent className="max-w-2xl" style={{ backgroundColor: '#000000', background: '#000000', borderColor: '#333333', border: '1px solid #333333' }}>
           <DialogHeader>
             <DialogTitle className="text-white text-2xl text-center">
               {onboardingSteps[onboardingStep]?.title}
