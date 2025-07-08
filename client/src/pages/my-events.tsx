@@ -99,7 +99,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
   const [downloadingTickets, setDownloadingTickets] = useState<Set<number>>(new Set());
 
   // Apple-style PDF ticket generation with QR code
-  const downloadTicket = async (registration: EventRegistration, event: Event | undefined) => {
+  const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) {
       console.error('No event data available for ticket download');
       return;
@@ -115,11 +115,38 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     setDownloadingTickets(prev => new Set(prev).add(registration.id));
     
     try {
-      console.log('Starting Apple-style ticket download for:', event.title);
-      const confirmationCode = getConfirmationCode(registration);
-      
-      // Create new PDF document
+      // Simple test to ensure jsPDF works
       const doc = new jsPDF();
+      
+      // Test with simple content first
+      doc.setFontSize(20);
+      doc.text('MIAMI BEACH YACHT CLUB', 105, 30, { align: 'center' });
+      doc.setFontSize(16);
+      doc.text('Event Ticket', 105, 45, { align: 'center' });
+      
+      doc.setFontSize(14);
+      doc.text(`Event: ${event.title}`, 20, 70);
+      doc.text(`Confirmation: ${getConfirmationCode(registration)}`, 20, 85);
+      doc.text(`Date: ${event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA'}`, 20, 100);
+      doc.text(`Location: ${event.location}`, 20, 115);
+      
+      // Try to save
+      const filename = `MBYC_Event_Ticket_${registration.id}.pdf`;
+      doc.save(filename);
+      console.log('Simple PDF saved successfully');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      // Always clear downloading state
+      setDownloadingTickets(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(registration.id);
+        return newSet;
+      });
+    }
+  };
       
       // Apple-style colors
       const purple = [147, 51, 234]; // purple-600
@@ -127,66 +154,37 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       const black = [0, 0, 0];
       const darkGray = [55, 65, 81]; // gray-700
       const mediumGray = [107, 114, 128]; // gray-500
-      const lightGray = [156, 163, 175]; // gray-400
       const white = [255, 255, 255];
       
-      // Create smooth gradient header (purple to blue) - no lines
+      // Create smooth gradient header (purple to blue)
+      console.log('Creating gradient header...');
       const headerHeight = 80;
       const gradientSteps = 50;
       const stepHeight = headerHeight / gradientSteps;
       
-      for (let i = 0; i < gradientSteps; i++) {
-        const ratio = i / gradientSteps;
-        const r = purple[0] + (blue[0] - purple[0]) * ratio;
-        const g = purple[1] + (blue[1] - purple[1]) * ratio;
-        const b = purple[2] + (blue[2] - purple[2]) * ratio;
-        
-        doc.setFillColor(r, g, b);
-        doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+      try {
+        for (let i = 0; i < gradientSteps; i++) {
+          const ratio = i / gradientSteps;
+          const r = Math.round(purple[0] + (blue[0] - purple[0]) * ratio);
+          const g = Math.round(purple[1] + (blue[1] - purple[1]) * ratio);
+          const b = Math.round(purple[2] + (blue[2] - purple[2]) * ratio);
+          
+          doc.setFillColor(r, g, b);
+          doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+        }
+        console.log('Gradient header created successfully');
+      } catch (gradientError) {
+        console.error('Error creating gradient:', gradientError);
+        // Fallback to solid color
+        doc.setFillColor(purple[0], purple[1], purple[2]);
+        doc.rect(0, 0, 210, headerHeight, 'F');
       }
       
-      // Try to load and add logo with Promise
-      console.log('Loading MBYC logo...');
-      const logoLoaded = await new Promise<boolean>((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        const timeout = setTimeout(() => {
-          console.log('Logo load timeout');
-          resolve(false);
-        }, 2000);
-        
-        img.onload = () => {
-          clearTimeout(timeout);
-          try {
-            console.log('Adding logo to PDF');
-            doc.addImage(img, 'PNG', 85, 15, 40, 20);
-            resolve(true);
-          } catch (error) {
-            console.error('Error adding logo:', error);
-            resolve(false);
-          }
-        };
-        
-        img.onerror = () => {
-          clearTimeout(timeout);
-          console.error('Logo failed to load');
-          resolve(false);
-        };
-        
-        img.src = mbycLogoWhite;
-      });
-      
-      if (!logoLoaded) {
-        // Fallback text header
-        doc.setTextColor(white[0], white[1], white[2]);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
-      }
-      
-      // "Event Ticket" text
+      // Add header text
       doc.setTextColor(white[0], white[1], white[2]);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
       doc.setFontSize(18);
       doc.setFont('helvetica', 'normal');
       doc.text('Event Ticket', 105, 60, { align: 'center' });
@@ -194,6 +192,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       // Main content
       const contentStartY = 100;
       const leftMargin = 30;
+      const sectionSpacing = 40;
       let currentY = contentStartY;
       
       // Event Details Section
@@ -254,43 +253,6 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       doc.text(confirmationCode, leftMargin, currentY);
       currentY += 30;
       
-      // Try to add QR code
-      const qrCodeUrl = generateQRCode(confirmationCode);
-      console.log('Loading QR code...');
-      const qrLoaded = await new Promise<boolean>((resolve) => {
-        const qrImg = new Image();
-        qrImg.crossOrigin = 'anonymous';
-        
-        const timeout = setTimeout(() => {
-          console.log('QR code load timeout');
-          resolve(false);
-        }, 2000);
-        
-        qrImg.onload = () => {
-          clearTimeout(timeout);
-          try {
-            console.log('Adding QR code to PDF');
-            doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
-            doc.setFontSize(12);
-            doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
-            resolve(true);
-          } catch (error) {
-            console.error('Error adding QR code:', error);
-            resolve(false);
-          }
-        };
-        
-        qrImg.onerror = () => {
-          clearTimeout(timeout);
-          console.error('QR code failed to load');
-          resolve(false);
-        };
-        
-        qrImg.src = qrCodeUrl;
-      });
-      
       // Footer
       doc.setFontSize(11);
       doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
@@ -298,13 +260,26 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       doc.text('We look forward to seeing you at the event!', leftMargin, 275);
       doc.text('- MBYC Team', leftMargin, 290);
       
-      // Save PDF
-      console.log('Saving Apple-style PDF...');
-      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
-      console.log('Apple-style PDF saved successfully');
+      // Save PDF immediately
+      console.log('About to save PDF...');
+      const filename = `MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`;
+      console.log('Filename:', filename);
+      
+      try {
+        doc.save(filename);
+        console.log('PDF saved successfully!');
+      } catch (saveError) {
+        console.error('Error saving PDF:', saveError);
+        throw saveError;
+      }
       
     } catch (error) {
       console.error('Error generating PDF:', error);
+      console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      
+      // Show alert to user
+      alert('Error generating PDF. Please try again.');
     } finally {
       // Always clear downloading state
       setDownloadingTickets(prev => {
