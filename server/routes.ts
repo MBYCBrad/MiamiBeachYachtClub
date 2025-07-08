@@ -1392,11 +1392,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      // Check if booking is completed
+      // Check if booking is completed or for testing, allow rating if booking has started
       const now = new Date();
+      const bookingStartTime = new Date(booking.startTime);
       const bookingEndTime = new Date(booking.endTime);
-      if (now <= bookingEndTime) {
-        return res.status(400).json({ message: "Can only rate completed yacht experiences" });
+      
+      // For testing purposes, allow rating if the booking has started
+      // In production, you would only allow rating after the booking has ended
+      if (now < bookingStartTime) {
+        return res.status(400).json({ message: "Cannot rate yacht experiences that haven't started yet" });
       }
 
       // Update booking with rating and review

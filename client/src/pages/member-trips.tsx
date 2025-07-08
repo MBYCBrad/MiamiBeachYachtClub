@@ -49,6 +49,21 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const [beginExperienceStep, setBeginExperienceStep] = useState(1);
   const [adventureStep, setAdventureStep] = useState(1);
   
+  // End trip form states for individual ratings and notes
+  const [step1Note, setStep1Note] = useState('');
+  const [captainRating, setCaptainRating] = useState(0);
+  const [captainNote, setCaptainNote] = useState('');
+  const [firstMateRating, setFirstMateRating] = useState(0);
+  const [firstMateNote, setFirstMateNote] = useState('');
+  const [conciergeRating, setConciergeRating] = useState(0);
+  const [conciergeNote, setConciergeNote] = useState('');
+  const [cleanlinessRating, setCleanlinessRating] = useState(0);
+  const [comfortRating, setComfortRating] = useState(0);
+  const [equipmentRating, setEquipmentRating] = useState(0);
+  const [amenitiesRating, setAmenitiesRating] = useState(0);
+  const [step3Note, setStep3Note] = useState('');
+  const [step4Note, setStep4Note] = useState('');
+  
   const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
@@ -158,12 +173,13 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
           <Button
             onClick={() => {
               setSelectedAdventureBooking(booking);
-              setShowAdventureDetails(true);
+              setShowEndTripForm(true);
+              setEndTripStep(1);
             }}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
           >
-            <Compass className="w-4 h-4 mr-2" />
-            Adventure Details
+            <Star className="w-4 h-4 mr-2" />
+            End Trip
           </Button>
         );
       case 'after':
@@ -174,7 +190,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               setShowEndTripForm(true);
               setEndTripStep(1);
             }}
-            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
           >
             <Star className="w-4 h-4 mr-2" />
             End Trip
@@ -1724,20 +1740,20 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
       {/* Phase 3: End Trip Dialog - World-Class Review Experience */}
       <Dialog open={showEndTripForm} onOpenChange={setShowEndTripForm}>
-        <DialogContent className="max-w-4xl bg-slate-900 border-slate-700 p-0 overflow-hidden">
+        <DialogContent className="max-w-4xl bg-black border-gray-800 p-0 overflow-hidden">
           <div className="relative">
             {/* Header with gradient */}
-            <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 backdrop-blur-xl p-6 border-b border-slate-700">
+            <div className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 backdrop-blur-xl p-6 border-b border-gray-800">
               <h2 className="text-3xl font-bold text-white">Complete Your Journey</h2>
               <p className="text-gray-300 mt-2">Share your experience and help us improve</p>
             </div>
             {/* Progress bar */}
-            <div className="px-6 py-4 bg-slate-800/50">
+            <div className="px-6 py-4 bg-gray-900/50">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-400">Step {endTripStep} of 5</span>
-                <span className="text-sm text-orange-400">{Math.round((endTripStep / 5) * 100)}% Complete</span>
+                <span className="text-sm text-purple-400">{Math.round((endTripStep / 5) * 100)}% Complete</span>
               </div>
-              <Progress value={(endTripStep / 5) * 100} className="h-2 bg-slate-700" />
+              <Progress value={(endTripStep / 5) * 100} className="h-2 bg-gray-700" />
             </div>
 
             {/* Content area */}
@@ -1752,14 +1768,14 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     className="space-y-6"
                   >
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Star className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">Overall Experience</h3>
                       <p className="text-gray-400">How was your yacht adventure today?</p>
                     </div>
 
-                    <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                    <div className="bg-gray-900/50 rounded-lg p-6 border border-gray-800">
                       <p className="text-gray-300 text-center mb-4">Rate your overall experience</p>
                       <div className="flex justify-center gap-3">
                         {[1, 2, 3, 4, 5].map((star) => (
@@ -1788,6 +1804,16 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                           {endTripRating <= 2 && "We appreciate your honesty and will work to improve."}
                         </p>
                       )}
+                      
+                      <div className="mt-6">
+                        <label className="text-white text-sm font-medium mb-2 block">Add a note (optional)</label>
+                        <Textarea
+                          value={step1Note}
+                          onChange={(e) => setStep1Note(e.target.value)}
+                          placeholder="Share your thoughts about the overall experience..."
+                          className="bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 min-h-[80px]"
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -1801,7 +1827,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     className="space-y-6"
                   >
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">Captain & Crew</h3>
@@ -1810,12 +1836,36 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
                     <div className="space-y-4">
                       {[
-                        { role: "Captain", name: "Captain Rodriguez", desc: "Professional navigation and leadership" },
-                        { role: "First Mate", name: "Sarah Johnson", desc: "Safety and guest assistance" },
-                        { role: "Concierge", name: "Michael Chen", desc: "Service and hospitality" }
+                        { 
+                          role: "Captain", 
+                          name: "Captain Rodriguez", 
+                          desc: "Professional navigation and leadership",
+                          rating: captainRating,
+                          setRating: setCaptainRating,
+                          note: captainNote,
+                          setNote: setCaptainNote
+                        },
+                        { 
+                          role: "First Mate", 
+                          name: "Sarah Johnson", 
+                          desc: "Safety and guest assistance",
+                          rating: firstMateRating,
+                          setRating: setFirstMateRating,
+                          note: firstMateNote,
+                          setNote: setFirstMateNote
+                        },
+                        { 
+                          role: "Concierge", 
+                          name: "Michael Chen", 
+                          desc: "Service and hospitality",
+                          rating: conciergeRating,
+                          setRating: setConciergeRating,
+                          note: conciergeNote,
+                          setNote: setConciergeNote
+                        }
                       ].map((crew, index) => (
-                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-                          <div className="flex items-center justify-between">
+                        <div key={index} className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
+                          <div className="flex items-center justify-between mb-3">
                             <div>
                               <h4 className="text-white font-medium">{crew.role}</h4>
                               <p className="text-gray-400 text-sm">{crew.name}</p>
@@ -1823,10 +1873,28 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                             </div>
                             <div className="flex gap-1">
                               {[1, 2, 3, 4, 5].map((star) => (
-                                <Star key={star} className="w-5 h-5 text-yellow-400 fill-current" />
+                                <button
+                                  key={star}
+                                  onClick={() => crew.setRating(star)}
+                                  className="transition-all hover:scale-110"
+                                >
+                                  <Star 
+                                    className={`w-5 h-5 ${
+                                      star <= crew.rating 
+                                        ? 'text-yellow-400 fill-current' 
+                                        : 'text-gray-600 hover:text-gray-500'
+                                    }`} 
+                                  />
+                                </button>
                               ))}
                             </div>
                           </div>
+                          <Textarea
+                            value={crew.note}
+                            onChange={(e) => crew.setNote(e.target.value)}
+                            placeholder={`Add a note about ${crew.name}...`}
+                            className="bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 min-h-[60px]"
+                          />
                         </div>
                       ))}
                     </div>
@@ -1842,7 +1910,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     className="space-y-6"
                   >
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Sailboat className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">Yacht Condition</h3>
@@ -1851,23 +1919,45 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        { aspect: "Cleanliness", icon: Sparkles },
-                        { aspect: "Comfort", icon: Heart },
-                        { aspect: "Equipment", icon: Anchor },
-                        { aspect: "Amenities", icon: Wine }
+                        { aspect: "Cleanliness", icon: Sparkles, rating: cleanlinessRating, setRating: setCleanlinessRating },
+                        { aspect: "Comfort", icon: Heart, rating: comfortRating, setRating: setComfortRating },
+                        { aspect: "Equipment", icon: Anchor, rating: equipmentRating, setRating: setEquipmentRating },
+                        { aspect: "Amenities", icon: Wine, rating: amenitiesRating, setRating: setAmenitiesRating }
                       ].map((item, index) => (
-                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <div key={index} className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
                           <div className="flex items-center gap-3 mb-3">
                             <item.icon className="w-6 h-6 text-purple-400" />
                             <h4 className="text-white font-medium">{item.aspect}</h4>
                           </div>
                           <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                              <Star key={star} className="w-4 h-4 text-yellow-400 fill-current" />
+                              <button
+                                key={star}
+                                onClick={() => item.setRating(star)}
+                                className="transition-all hover:scale-110"
+                              >
+                                <Star 
+                                  className={`w-4 h-4 ${
+                                    star <= item.rating 
+                                      ? 'text-yellow-400 fill-current' 
+                                      : 'text-gray-600 hover:text-gray-500'
+                                  }`} 
+                                />
+                              </button>
                             ))}
                           </div>
                         </div>
                       ))}
+                    </div>
+                    
+                    <div className="mt-6">
+                      <label className="text-white text-sm font-medium mb-2 block">Add a note about the yacht condition (optional)</label>
+                      <Textarea
+                        value={step3Note}
+                        onChange={(e) => setStep3Note(e.target.value)}
+                        placeholder="Share your thoughts about the yacht's condition..."
+                        className="bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 min-h-[80px]"
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -1881,7 +1971,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     className="space-y-6"
                   >
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                         <MessageCircle className="w-10 h-10 text-white" />
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2">Share Your Experience</h3>
@@ -1889,17 +1979,27 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     </div>
 
                     <div className="space-y-4">
-                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
                         <h4 className="text-white font-medium mb-3">What was the highlight of your trip?</h4>
                         <Textarea
                           value={endTripNotes}
                           onChange={(e) => setEndTripNotes(e.target.value)}
                           placeholder="The sunset view was absolutely breathtaking..."
-                          className="min-h-[100px] bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
+                          className="min-h-[100px] bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
                         />
                       </div>
 
-                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
+                        <h4 className="text-white font-medium mb-3">Final thoughts and suggestions</h4>
+                        <Textarea
+                          value={step4Note}
+                          onChange={(e) => setStep4Note(e.target.value)}
+                          placeholder="Any final feedback or suggestions for improvement..."
+                          className="min-h-[100px] bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
+                        />
+                      </div>
+
+                      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
                         <h4 className="text-white font-medium mb-3">Quick feedback options</h4>
                         <div className="flex flex-wrap gap-2">
                           {[
@@ -1963,7 +2063,6 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                     </div>
 
                     <div className="text-center">
-                      <p className="text-gray-400 mb-4">Book your next adventure and get 10% off!</p>
                       <div className="flex gap-3 justify-center">
                         <Button
                           variant="outline"
@@ -1986,7 +2085,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
             </div>
 
             {/* Footer with navigation */}
-            <div className="px-6 py-4 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
+            <div className="px-6 py-4 bg-gray-900/50 border-t border-gray-800 flex justify-between items-center">
               <Button
                 variant="ghost"
                 onClick={() => setEndTripStep(Math.max(1, endTripStep - 1))}
@@ -2000,7 +2099,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                 <Button
                   onClick={() => setEndTripStep(endTripStep + 1)}
                   disabled={endTripStep === 1 && endTripRating === 0}
-                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                 >
                   Continue
                   <ChevronRight className="w-4 h-4 ml-2" />
@@ -2008,27 +2107,62 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               ) : (
                 <Button
                   onClick={() => {
+                    // Submit complete review data
+                    if (selectedAdventureBooking && endTripRating > 0) {
+                      const reviewData = {
+                        bookingId: selectedAdventureBooking.id,
+                        overallRating: endTripRating,
+                        overallNote: step1Note,
+                        captainRating,
+                        captainNote,
+                        firstMateRating,
+                        firstMateNote,
+                        conciergeRating,
+                        conciergeNote,
+                        cleanlinessRating,
+                        comfortRating,
+                        equipmentRating,
+                        amenitiesRating,
+                        yachtConditionNote: step3Note,
+                        highlightNote: endTripNotes,
+                        finalNote: step4Note,
+                        completedAt: new Date().toISOString()
+                      };
+                      
+                      // Submit rating - update to use comprehensive review data
+                      rateYachtMutation.mutate({
+                        bookingId: selectedAdventureBooking.id,
+                        rating: endTripRating,
+                        review: JSON.stringify(reviewData)
+                      });
+                    }
+                    
+                    // Reset all form states
                     setShowEndTripForm(false);
                     setEndTripStep(1);
                     setEndTripRating(0);
                     setEndTripNotes('');
+                    setStep1Note('');
+                    setCaptainRating(0);
+                    setCaptainNote('');
+                    setFirstMateRating(0);
+                    setFirstMateNote('');
+                    setConciergeRating(0);
+                    setConciergeNote('');
+                    setCleanlinessRating(0);
+                    setComfortRating(0);
+                    setEquipmentRating(0);
+                    setAmenitiesRating(0);
+                    setStep3Note('');
+                    setStep4Note('');
                     setSelectedAdventureBooking(null);
-                    
-                    // Submit rating
-                    if (selectedAdventureBooking && endTripRating > 0) {
-                      rateYachtMutation.mutate({
-                        bookingId: selectedAdventureBooking.id,
-                        rating: endTripRating,
-                        review: endTripNotes || 'Great experience!'
-                      });
-                    }
                     
                     toast({
                       title: "Trip Completed!",
                       description: "Thank you for sailing with Miami Beach Yacht Club.",
                     });
                   }}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                 >
                   Complete Journey
                   <CheckCircle className="w-4 h-4 ml-2" />
