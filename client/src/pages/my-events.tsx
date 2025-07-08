@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, MapPin, Clock, Users, Ticket, Download, Star, PlayCircle, Eye, FileText, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import type { MediaAsset, Event } from '@shared/schema';
 
@@ -66,6 +67,60 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
   console.log("Event registrations data:", eventRegistrations);
   console.log("Processed registrations:", registrations);
   console.log("Events data:", events);
+
+  // Ticket download functionality
+  const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
+    if (!event) return;
+    
+    // Create ticket data
+    const ticketData = {
+      eventTitle: event.title,
+      eventDate: format(new Date(event.startTime), 'MMMM dd, yyyy'),
+      eventTime: format(new Date(event.startTime), 'h:mm a'),
+      eventLocation: event.location,
+      ticketCount: registration.ticketCount,
+      totalPrice: registration.totalPrice,
+      registrationId: registration.id,
+      registrationDate: format(new Date(registration.createdAt), 'MMMM dd, yyyy')
+    };
+
+    // Create ticket content
+    const ticketContent = `
+MIAMI BEACH YACHT CLUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EVENT TICKET
+
+Event: ${ticketData.eventTitle}
+Date: ${ticketData.eventDate}
+Time: ${ticketData.eventTime}
+Location: ${ticketData.eventLocation}
+
+Ticket Count: ${ticketData.ticketCount}
+Total Price: $${ticketData.totalPrice}
+
+Registration ID: ${ticketData.registrationId}
+Registration Date: ${ticketData.registrationDate}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Please present this ticket at the event entrance.
+For questions, contact Miami Beach Yacht Club.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    `;
+
+    // Create and download the ticket file
+    const blob = new Blob([ticketContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `MBYC_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   if (isLoading) {
     return (
@@ -344,17 +399,204 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                 variant="outline"
                                 size="sm"
                                 className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                onClick={() => downloadTicket(registration, event)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Download Ticket
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
-                              >
-                                View Event
-                              </Button>
+                              
+                              {/* View Ticket Dialog */}
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                                  >
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    View Ticket
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-white text-2xl">Event Ticket</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-6">
+                                    {/* Ticket Header */}
+                                    <div className="text-center border-b border-gray-700 pb-4">
+                                      <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                                        MIAMI BEACH YACHT CLUB
+                                      </h2>
+                                      <p className="text-gray-400 mt-2">Event Ticket</p>
+                                    </div>
+                                    
+                                    {/* Ticket Content */}
+                                    <div className="bg-gray-800/50 rounded-lg p-6 space-y-4">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <label className="text-sm text-gray-400">Event</label>
+                                          <p className="text-white font-semibold">{event?.title}</p>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm text-gray-400">Date</label>
+                                          <p className="text-white font-semibold">
+                                            {event?.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm text-gray-400">Time</label>
+                                          <p className="text-white font-semibold">
+                                            {event?.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm text-gray-400">Location</label>
+                                          <p className="text-white font-semibold">{event?.location}</p>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm text-gray-400">Tickets</label>
+                                          <p className="text-white font-semibold">{registration.ticketCount}</p>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm text-gray-400">Total Price</label>
+                                          <p className="text-white font-semibold">${registration.totalPrice}</p>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="border-t border-gray-700 pt-4">
+                                        <div className="flex items-center justify-between">
+                                          <div>
+                                            <label className="text-sm text-gray-400">Registration ID</label>
+                                            <p className="text-white font-mono">{registration.id}</p>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <QrCode className="w-8 h-8 text-purple-400" />
+                                            <span className="text-sm text-gray-400">Present at entrance</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex gap-2 pt-4">
+                                      <Button
+                                        onClick={() => downloadTicket(registration, event)}
+                                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                      >
+                                        <Download className="w-4 h-4 mr-2" />
+                                        Download Ticket
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+
+                              {/* View Event Dialog */}
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    View Event
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-white text-2xl">Event Details</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-6">
+                                    {/* Event Image */}
+                                    {event?.imageUrl && (
+                                      <div className="w-full h-64 rounded-lg overflow-hidden">
+                                        <img
+                                          src={event.imageUrl}
+                                          alt={event.title}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Event Info */}
+                                    <div className="space-y-4">
+                                      <div>
+                                        <h3 className="text-3xl font-bold text-white mb-2">{event?.title}</h3>
+                                        <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                                          Event
+                                        </Badge>
+                                      </div>
+                                      
+                                      <p className="text-gray-300 text-lg">{event?.description}</p>
+                                      
+                                      <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-4">
+                                          <div className="flex items-center gap-3">
+                                            <Calendar className="w-5 h-5 text-purple-400" />
+                                            <div>
+                                              <p className="text-sm text-gray-400">Date</p>
+                                              <p className="text-white font-semibold">
+                                                {event?.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA'}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <Clock className="w-5 h-5 text-purple-400" />
+                                            <div>
+                                              <p className="text-sm text-gray-400">Time</p>
+                                              <p className="text-white font-semibold">
+                                                {event?.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA'}
+                                                {event?.endTime && ` - ${format(new Date(event.endTime), 'h:mm a')}`}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div className="space-y-4">
+                                          <div className="flex items-center gap-3">
+                                            <MapPin className="w-5 h-5 text-purple-400" />
+                                            <div>
+                                              <p className="text-sm text-gray-400">Location</p>
+                                              <p className="text-white font-semibold">{event?.location}</p>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <Users className="w-5 h-5 text-purple-400" />
+                                            <div>
+                                              <p className="text-sm text-gray-400">Capacity</p>
+                                              <p className="text-white font-semibold">{event?.capacity} guests</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="bg-gray-800/50 rounded-lg p-4">
+                                        <h4 className="font-semibold text-white mb-2">Your Registration</h4>
+                                        <div className="grid grid-cols-2 gap-4 text-sm">
+                                          <div>
+                                            <span className="text-gray-400">Tickets: </span>
+                                            <span className="text-white">{registration.ticketCount}</span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400">Total Paid: </span>
+                                            <span className="text-white">${registration.totalPrice}</span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400">Registration ID: </span>
+                                            <span className="text-white font-mono">{registration.id}</span>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400">Status: </span>
+                                            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                                              {registration.status}
+                                            </Badge>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
                             </div>
                           </div>
                         </div>
