@@ -6474,14 +6474,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         } catch (twilioError: any) {
           console.error('Twilio call failed:', twilioError);
+          
+          // Check if it's a trial account limitation
+          let errorMessage = twilioError.message;
+          if (twilioError.code === 21219 || twilioError.code === 21608) {
+            errorMessage = "Twilio trial account can only call verified numbers. Please upgrade your Twilio account or verify the phone numbers.";
+          }
+          
           // Still update status even if Twilio fails
           await dbStorage.updatePhoneCall(phoneCall.id, {
             status: "failed",
             metadata: {
               ...phoneCall.metadata,
-              twilioError: twilioError.message,
+              twilioError: errorMessage,
+              twilioErrorCode: twilioError.code,
               notificationsSent: true
             }
+          });
+          
+          // Return error to user
+          return res.status(400).json({ 
+            message: errorMessage,
+            code: twilioError.code,
+            requiresVerification: twilioError.code === 21219 || twilioError.code === 21608
           });
         }
       } else {

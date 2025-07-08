@@ -116,11 +116,22 @@ export function MessageInterface({
     },
     onError: (error: any) => {
       console.error("Phone call error:", error);
-      toast({
-        title: "Call Failed",
-        description: error.message || "Unable to initiate call. Please try again.",
-        variant: "destructive",
-      });
+      const errorMessage = error.message || "Unable to initiate call. Please try again.";
+      
+      // Check if it's a verification issue
+      if (error.requiresVerification || errorMessage.includes("verified")) {
+        toast({
+          title: "Phone Verification Required",
+          description: "This is a Twilio trial account. To make calls, your phone number needs to be verified in Twilio, or upgrade to a paid Twilio account.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Call Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     },
   });
 
