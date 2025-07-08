@@ -10,6 +10,7 @@ import NotificationDropdown from '@/components/NotificationDropdown';
 import { 
   Explore3DIcon, 
   Trips3DIcon, 
+  Services3DIcon,
   Favorites3DIcon, 
   Messages3DIcon, 
   Menu3DIcon 
@@ -44,6 +45,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const navItems = [
     { id: 'explore', icon: Explore3DIcon, label: 'Explore' },
     { id: 'trips', icon: Trips3DIcon, label: 'Trips' },
+    { id: 'services', icon: Services3DIcon, label: 'Services' },
     { id: 'favorites', icon: Favorites3DIcon, label: 'Favorites' },
     { id: 'messages', icon: Messages3DIcon, label: 'Messages' },
     { id: 'menu', icon: Menu3DIcon, label: '' }

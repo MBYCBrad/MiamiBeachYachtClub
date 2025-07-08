@@ -34,7 +34,12 @@ interface ServiceBooking {
   };
 }
 
-export default function MyServices() {
+interface MyServicesProps {
+  currentView: string;
+  setCurrentView: (view: string) => void;
+}
+
+export default function MyServices({ currentView, setCurrentView }: MyServicesProps) {
   const { data: heroVideo } = useQuery<MediaAsset>({
     queryKey: ['/api/media/hero/active']
   });

@@ -292,6 +292,124 @@ export const Favorites3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size 
   );
 };
 
+// 3D Services Icon (Concierge Bell)
+export const Services3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24, className }) => {
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (isActive) {
+      controls.start({
+        scale: [1, 1.08, 1],
+        rotateY: [0, 8, -8, 0],
+        transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+      });
+    } else {
+      controls.start({
+        scale: 1,
+        rotateY: 0,
+        transition: { duration: 0.3 }
+      });
+    }
+  }, [isActive, controls]);
+
+  return (
+    <motion.div
+      animate={controls}
+      className={cn("relative", className)}
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+      >
+        <defs>
+          <linearGradient id="bellGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+          <linearGradient id="baseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#374151" />
+            <stop offset="50%" stopColor="#4b5563" />
+            <stop offset="100%" stopColor="#6b7280" />
+          </linearGradient>
+        </defs>
+        
+        {/* Bell Base */}
+        <ellipse cx="16" cy="25" rx="8" ry="2" fill="url(#baseGradient)" />
+        <ellipse cx="16" cy="24.5" rx="7" ry="1.5" fill="url(#baseGradient)" opacity="0.8" />
+        
+        {/* Bell Body */}
+        <motion.path
+          d="M16 6 C12 6 8 9 8 14 C8 18 8 20 6 22 L26 22 C24 20 24 18 24 14 C24 9 20 6 16 6 Z"
+          fill="url(#bellGradient)"
+          animate={isActive ? { 
+            scale: [1, 1.02, 1],
+            rotateZ: [0, 1, -1, 0] 
+          } : {}}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Bell Highlight */}
+        <ellipse cx="13" cy="10" rx="2" ry="3" fill="rgba(255,255,255,0.3)" />
+        
+        {/* Bell Handle/Button */}
+        <motion.circle
+          cx="16" cy="6" r="2"
+          fill="url(#baseGradient)"
+          animate={isActive ? { 
+            scale: [1, 1.1, 1],
+            y: [0, -1, 0]
+          } : {}}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Service Stars */}
+        <motion.g
+          animate={isActive ? { 
+            opacity: [0.6, 1, 0.6],
+            scale: [1, 1.1, 1]
+          } : { opacity: 0.8 }}
+          transition={{ duration: 1.5, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
+        >
+          <polygon points="11,15 11.5,16.5 10,16.5" fill="#fbbf24" />
+          <polygon points="21,15 21.5,16.5 20,16.5" fill="#fbbf24" />
+          <polygon points="16,12 16.5,13.5 15,13.5" fill="#fbbf24" />
+        </motion.g>
+        
+        {/* Bell Clapper */}
+        <motion.circle
+          cx="16" cy="18" r="1.5"
+          fill="#8b5cf6"
+          animate={isActive ? { 
+            x: [0, 1, -1, 0],
+            scale: [1, 1.1, 1]
+          } : {}}
+          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Service Sparkles */}
+        <motion.g
+          animate={isActive ? { 
+            opacity: [0, 1, 0],
+            scale: [0.8, 1.2, 0.8]
+          } : { opacity: 0 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        >
+          <circle cx="10" cy="8" r="0.5" fill="#8b5cf6" />
+          <circle cx="22" cy="10" r="0.5" fill="#8b5cf6" />
+          <circle cx="8" cy="18" r="0.5" fill="#8b5cf6" />
+          <circle cx="24" cy="16" r="0.5" fill="#8b5cf6" />
+        </motion.g>
+      </svg>
+    </motion.div>
+  );
+};
+
 // 3D Messages Icon (Chat bubbles)
 export const Messages3DIcon: React.FC<Animated3DIconProps> = ({ isActive, size = 24, className }) => {
   const controls = useAnimation();

@@ -521,43 +521,8 @@ export class DatabaseStorage implements IStorage {
   // Service Booking methods
   async getServiceBookings(filters?: { userId?: number, serviceId?: number, status?: string }): Promise<ServiceBooking[]> {
     try {
-      let query = db.select({
-        id: serviceBookings.id,
-        userId: serviceBookings.userId,
-        serviceId: serviceBookings.serviceId,
-        bookingDate: serviceBookings.bookingDate,
-        scheduledDate: serviceBookings.bookingDate, // Use bookingDate as scheduledDate
-        status: serviceBookings.status,
-        totalPrice: serviceBookings.totalPrice,
-        stripePaymentIntentId: serviceBookings.stripePaymentIntentId,
-        createdAt: serviceBookings.createdAt,
-        yachtBookingId: serviceBookings.yachtBookingId,
-        location: serviceBookings.location,
-        specialRequests: serviceBookings.specialRequests,
-        guestCount: serviceBookings.guestCount,
-        serviceAddress: serviceBookings.serviceAddress,
-        deliveryNotes: serviceBookings.deliveryNotes,
-        notes: serviceBookings.specialRequests, // Map specialRequests to notes
-        // Service details
-        service: {
-          id: services.id,
-          name: services.name,
-          description: services.description,
-          price: services.price,
-          duration: services.duration,
-          imageUrl: services.imageUrl,
-          category: services.category,
-          providerId: services.providerId,
-          provider: {
-            id: users.id,
-            username: users.username,
-            email: users.email,
-            phone: users.phone,
-          }
-        }
-      }).from(serviceBookings)
-      .leftJoin(services, eq(serviceBookings.serviceId, services.id))
-      .leftJoin(users, eq(services.providerId, users.id));
+      // Get raw service bookings first
+      let query = db.select().from(serviceBookings);
       
       if (filters?.userId) {
         query = query.where(eq(serviceBookings.userId, filters.userId));
@@ -571,7 +536,46 @@ export class DatabaseStorage implements IStorage {
         query = query.where(eq(serviceBookings.status, filters.status));
       }
       
-      return await query;
+      const rawBookings = await query;
+      
+      // Enrich with service and provider data
+      const enrichedBookings = [];
+      for (const booking of rawBookings) {
+        // Get service details
+        const [service] = await db.select().from(services).where(eq(services.id, booking.serviceId));
+        
+        // Get provider details if service exists
+        let provider = null;
+        if (service) {
+          const [providerData] = await db.select().from(users).where(eq(users.id, service.providerId));
+          provider = providerData ? {
+            id: providerData.id,
+            username: providerData.username,
+            email: providerData.email,
+            phone: providerData.phone,
+          } : null;
+        }
+        
+        // Structure the response
+        enrichedBookings.push({
+          ...booking,
+          scheduledDate: booking.bookingDate,
+          notes: booking.specialRequests,
+          service: service ? {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            price: service.price,
+            duration: service.duration,
+            imageUrl: service.imageUrl,
+            category: service.category,
+            providerId: service.providerId,
+            provider
+          } : null
+        });
+      }
+      
+      return enrichedBookings;
     } catch (error) {
       console.error('Error fetching service bookings:', error);
       return [];

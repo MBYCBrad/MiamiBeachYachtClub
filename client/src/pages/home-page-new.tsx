@@ -13,6 +13,7 @@ import MemberProfile from '@/pages/member-profile';
 import SearchResults from '@/pages/search-results';
 import EventsPage from '@/pages/events-page';
 import MyEvents from '@/pages/my-events';
+import MyServices from '@/pages/my-services';
 
 // Import dashboard components for other roles
 import YachtOwnerDashboard from '@/screens/YachtOwnerDashboard';
@@ -64,6 +65,8 @@ export default function HomePage() {
         return <MemberFavorites currentView={currentView} setCurrentView={setCurrentView} />;
       case 'events':
         return <MyEvents currentView={currentView} setCurrentView={setCurrentView} />;
+      case 'services':
+        return <MyServices currentView={currentView} setCurrentView={setCurrentView} />;
       case 'messages':
         return <MemberMessages currentView={currentView} setCurrentView={setCurrentView} />;
       case 'profile':
