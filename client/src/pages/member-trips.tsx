@@ -5,7 +5,9 @@ import {
   Calendar, MapPin, Clock, Users, Star, MessageCircle, Phone, ChevronDown, 
   CheckCircle, User, Shield, Navigation, Anchor, Trophy, ArrowRight, PlayCircle, 
   FileText, ThumbsUp, Zap, Crown, Compass, Loader2, Sailboat, Scissors, 
-  UtensilsCrossed, Camera, Waves, Music, Heart, Coffee, Send, Timer, Gem, Plus
+  UtensilsCrossed, Camera, Waves, Music, Heart, Coffee, Send, Timer, Gem, Plus,
+  CloudSun, Wifi, Wine, Sun, LifeBuoy, ChevronRight, Sparkles, AlertCircle,
+  DollarSign, Package, Utensils, Mail, Activity, Paperclip, Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -123,8 +125,8 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
         };
       case 'during':
         return {
-          title: 'Active Charter',
-          description: 'Enjoy your yacht experience',
+          title: 'The Adventure has begun',
+          description: 'Your luxury yacht experience is now active',
           icon: <Navigation className="w-5 h-5" />,
           color: 'purple'
         };
@@ -493,11 +495,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <Navigation className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <h5 className="text-white font-medium">Active Charter</h5>
-                                  <p className="text-gray-400 text-sm">Enjoying your yacht experience</p>
+                                  <h5 className="text-white font-medium">The Adventure has begun</h5>
+                                  <p className="text-gray-400 text-sm">Your luxury yacht experience is now active</p>
                                   {getYachtExperiencePhase(booking) === 'during' && (
                                     <div className="mt-2">
-                                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 animate-pulse">
                                         <Activity className="w-3 h-3 mr-1" />
                                         In Progress
                                       </Badge>
@@ -540,6 +542,261 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             </div>
                           </div>
+
+                          {/* The Adventure has begun - Live Experience Dashboard */}
+                          {getYachtExperiencePhase(booking) === 'during' && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.6 }}
+                              className="mb-6"
+                            >
+                              {/* Adventure Banner */}
+                              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-blue-900/40 backdrop-blur-xl border border-purple-500/30 p-8 mb-6">
+                                {/* Animated background particles */}
+                                <div className="absolute inset-0">
+                                  {[...Array(20)].map((_, i) => (
+                                    <motion.div
+                                      key={i}
+                                      className="absolute w-1 h-1 bg-purple-400/40 rounded-full"
+                                      initial={{ 
+                                        x: Math.random() * 100 + '%',
+                                        y: Math.random() * 100 + '%',
+                                      }}
+                                      animate={{
+                                        x: [null, Math.random() * 100 + '%'],
+                                        y: [null, Math.random() * 100 + '%'],
+                                      }}
+                                      transition={{
+                                        duration: Math.random() * 10 + 10,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+
+                                <div className="relative z-10">
+                                  <motion.h3 
+                                    className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 mb-2"
+                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                  >
+                                    The Adventure has begun!
+                                  </motion.h3>
+                                  <p className="text-xl text-white/90 mb-6">
+                                    Your luxury yacht experience is now active on {yacht?.name}
+                                  </p>
+                                  
+                                  {/* Real-time Status Grid */}
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <motion.div 
+                                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
+                                      whileHover={{ scale: 1.05 }}
+                                      transition={{ type: "spring", stiffness: 300 }}
+                                    >
+                                      <div className="flex items-center justify-between mb-2">
+                                        <Navigation className="w-6 h-6 text-purple-400" />
+                                        <Badge className="bg-green-500/20 text-green-300 text-xs animate-pulse">LIVE</Badge>
+                                      </div>
+                                      <div className="text-2xl font-bold text-white">Active</div>
+                                      <div className="text-sm text-gray-300">Charter Status</div>
+                                    </motion.div>
+
+                                    <motion.div 
+                                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
+                                      whileHover={{ scale: 1.05 }}
+                                      transition={{ type: "spring", stiffness: 300 }}
+                                    >
+                                      <MapPin className="w-6 h-6 text-blue-400 mb-2" />
+                                      <div className="text-2xl font-bold text-white">Miami Beach</div>
+                                      <div className="text-sm text-gray-300">Current Location</div>
+                                    </motion.div>
+
+                                    <motion.div 
+                                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
+                                      whileHover={{ scale: 1.05 }}
+                                      transition={{ type: "spring", stiffness: 300 }}
+                                    >
+                                      <Timer className="w-6 h-6 text-yellow-400 mb-2" />
+                                      <div className="text-2xl font-bold text-white">
+                                        {(() => {
+                                          const now = new Date();
+                                          const end = new Date(booking.endTime);
+                                          const hoursRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60)));
+                                          const minutesRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60)) % 60);
+                                          return `${hoursRemaining}h ${minutesRemaining}m`;
+                                        })()}
+                                      </div>
+                                      <div className="text-sm text-gray-300">Time Remaining</div>
+                                    </motion.div>
+
+                                    <motion.div 
+                                      className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
+                                      whileHover={{ scale: 1.05 }}
+                                      transition={{ type: "spring", stiffness: 300 }}
+                                    >
+                                      <Users className="w-6 h-6 text-green-400 mb-2" />
+                                      <div className="text-2xl font-bold text-white">{booking.guestCount}</div>
+                                      <div className="text-sm text-gray-300">Guests Onboard</div>
+                                    </motion.div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Quick Actions */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl p-6 flex items-center justify-between group transition-all duration-200"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Emergency Contact",
+                                      description: "Connecting to yacht captain...",
+                                    });
+                                  }}
+                                >
+                                  <div className="flex items-center">
+                                    <Phone className="w-8 h-8 mr-4" />
+                                    <div className="text-left">
+                                      <div className="text-lg font-semibold">Contact Captain</div>
+                                      <div className="text-sm opacity-90">Direct line to your captain</div>
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </motion.button>
+
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl p-6 flex items-center justify-between group transition-all duration-200"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Concierge Service",
+                                      description: "Your request has been sent to the concierge team.",
+                                    });
+                                  }}
+                                >
+                                  <div className="flex items-center">
+                                    <Sparkles className="w-8 h-8 mr-4" />
+                                    <div className="text-left">
+                                      <div className="text-lg font-semibold">Request Service</div>
+                                      <div className="text-sm opacity-90">Get immediate assistance</div>
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </motion.button>
+
+                                <motion.button
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl p-6 flex items-center justify-between group transition-all duration-200"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Weather Update",
+                                      description: "Perfect sailing conditions! Clear skies, 75°F, light breeze.",
+                                    });
+                                  }}
+                                >
+                                  <div className="flex items-center">
+                                    <CloudSun className="w-8 h-8 mr-4" />
+                                    <div className="text-left">
+                                      <div className="text-lg font-semibold">Weather Status</div>
+                                      <div className="text-sm opacity-90">Current conditions</div>
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </motion.button>
+                              </div>
+
+                              {/* Live Experience Features */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Yacht Live Info */}
+                                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
+                                  <h4 className="text-xl font-semibold text-white mb-4 flex items-center">
+                                    <Sailboat className="w-6 h-6 mr-2 text-purple-400" />
+                                    Your Yacht Details
+                                  </h4>
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                                      <span className="text-gray-300">Captain</span>
+                                      <span className="text-white font-medium">Captain Rodriguez</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                                      <span className="text-gray-300">Crew Members</span>
+                                      <span className="text-white font-medium">3 Professional Staff</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                                      <span className="text-gray-300">Safety Equipment</span>
+                                      <Badge className="bg-green-500/20 text-green-300">All Checked</Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-gray-800/30 rounded-lg">
+                                      <span className="text-gray-300">Emergency Contact</span>
+                                      <span className="text-white font-medium">+1 (305) 555-0199</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Live Amenities */}
+                                <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
+                                  <h4 className="text-xl font-semibold text-white mb-4 flex items-center">
+                                    <Trophy className="w-6 h-6 mr-2 text-yellow-400" />
+                                    Available Amenities
+                                  </h4>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                      { icon: <Wifi className="w-5 h-5" />, name: "High-Speed WiFi", status: "Active" },
+                                      { icon: <Music className="w-5 h-5" />, name: "Sound System", status: "Ready" },
+                                      { icon: <Wine className="w-5 h-5" />, name: "Premium Bar", status: "Stocked" },
+                                      { icon: <Utensils className="w-5 h-5" />, name: "Full Kitchen", status: "Available" },
+                                      { icon: <Waves className="w-5 h-5" />, name: "Water Sports", status: "Ready" },
+                                      { icon: <Sun className="w-5 h-5" />, name: "Sun Deck", status: "Open" },
+                                    ].map((amenity, idx) => (
+                                      <motion.div
+                                        key={idx}
+                                        whileHover={{ scale: 1.05 }}
+                                        className="flex items-center p-3 bg-gray-800/30 rounded-lg border border-gray-700/30"
+                                      >
+                                        <div className="text-purple-400 mr-3">{amenity.icon}</div>
+                                        <div className="flex-1">
+                                          <div className="text-white text-sm font-medium">{amenity.name}</div>
+                                          <div className="text-green-400 text-xs">{amenity.status}</div>
+                                        </div>
+                                      </motion.div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Safety Information */}
+                              <motion.div 
+                                className="mt-6 bg-gradient-to-r from-orange-900/20 to-red-900/20 backdrop-blur-sm rounded-xl p-6 border border-orange-500/30"
+                                whileHover={{ scale: 1.01 }}
+                              >
+                                <h4 className="text-xl font-semibold text-white mb-3 flex items-center">
+                                  <AlertCircle className="w-6 h-6 mr-2 text-orange-400" />
+                                  Important Safety Information
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div className="flex items-start">
+                                    <Shield className="w-5 h-5 text-orange-400 mr-2 mt-0.5" />
+                                    <div>
+                                      <div className="text-white font-medium">Emergency Services</div>
+                                      <div className="text-gray-300">Coast Guard: 911 or VHF Channel 16</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-start">
+                                    <LifeBuoy className="w-5 h-5 text-orange-400 mr-2 mt-0.5" />
+                                    <div>
+                                      <div className="text-white font-medium">Life Jackets</div>
+                                      <div className="text-gray-300">Located in marked storage compartments</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            </motion.div>
+                          )}
 
                           {/* Trip Details Grid */}
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
