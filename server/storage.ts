@@ -640,8 +640,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Review methods
-  async getReviews(filters?: { targetType?: string, targetId?: number, userId?: number }): Promise<Review[]> {
-    return await db.select().from(reviews);
+  async getReviews(filters?: { targetType?: string, targetId?: number, userId?: number, yachtId?: number }): Promise<Review[]> {
+    let conditions = [];
+    
+    if (filters) {
+      if (filters.yachtId) conditions.push(eq(reviews.yachtId, filters.yachtId));
+      if (filters.userId) conditions.push(eq(reviews.userId, filters.userId));
+      if (filters.targetId) conditions.push(eq(reviews.serviceId, filters.targetId));
+    }
+    
+    if (conditions.length === 0) {
+      return await db.select().from(reviews);
+    } else if (conditions.length === 1) {
+      return await db.select().from(reviews).where(conditions[0]);
+    } else {
+      return await db.select().from(reviews).where(and(...conditions));
+    }
   }
 
   async getReview(id: number): Promise<Review | undefined> {
