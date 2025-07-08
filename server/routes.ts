@@ -2902,8 +2902,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // MESSAGES ROUTES - Real-time messaging with Twilio integration
   app.get("/api/messages/conversations", requireAuth, async (req, res) => {
     try {
-      const conversations = await dbStorage.getUserConversations(req.user!.id);
-      res.json(conversations);
+      // If admin, show all member conversations
+      if (req.user!.role === UserRole.ADMIN) {
+        const conversations = await dbStorage.getAllConversations();
+        res.json(conversations);
+      } else {
+        // Regular users only see their conversations
+        const conversations = await dbStorage.getUserConversations(req.user!.id);
+        res.json(conversations);
+      }
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -2928,9 +2935,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "conversationId and content are required" });
       }
 
+      // Set recipientId to admin (Simon Librati - ID 60) if not specified
+      const actualRecipientId = recipientId || 60;
+
       const message = await dbStorage.createMessage({
         senderId: req.user!.id,
-        recipientId,
+        recipientId: actualRecipientId,
         conversationId,
         content,
         messageType,
@@ -2944,46 +2954,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         unreadCount: messageType === 'text' ? 1 : 0
       });
 
-      // Send real-time notification to admin (Simon Librati - ID 60)
+      // Send real-time WebSocket message to all clients (including admin)
       try {
-        if (notificationService) {
-          // Create notification for admin
-          await dbStorage.createNotification({
-            userId: 60, // Simon Librati admin user ID
-            type: 'new_message',
-            title: 'New Member Message',
-            message: `New message from ${req.user!.username}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-            priority: 'medium',
-            data: {
-              messageId: message.id,
-              conversationId: message.conversationId,
-              senderId: message.senderId,
-              senderName: req.user!.username
-            },
-            actionUrl: `/admin/messages/${message.conversationId}`
-          });
-
-          // Broadcast real-time update via WebSocket to admin
-          await notificationService.sendNotification({
-            userId: 60,
-            type: 'new_message',
-            title: 'New Member Message',
-            message: `${req.user!.username}: ${content}`,
-            priority: 'medium',
-            data: {
-              messageId: message.id,
-              conversationId: message.conversationId,
-              messageData: message
+        if (wss) {
+          // Broadcast message to all connected WebSocket clients
+          wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({
+                type: 'new_message',
+                messageId: message.id,
+                conversationId: message.conversationId,
+                messageData: message,
+                senderName: req.user!.username,
+                content: message.content
+              }));
             }
           });
         }
       } catch (error) {
-        console.log('Notification service error:', error);
+        console.log('WebSocket broadcast error:', error);
       }
 
       res.status(201).json(message);
     } catch (error: any) {
       console.error('Message creation error:', error);
+      console.error('Error details:', {
+        conversationId: req.body.conversationId,
+        content: req.body.content,
+        senderId: req.user?.id,
+        recipientId: req.body.recipientId
+      });
       res.status(400).json({ message: error.message });
     }
   });

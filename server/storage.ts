@@ -111,6 +111,7 @@ export interface IStorage {
 
   // Message methods
   getConversations(userId: number): Promise<any[]>;
+  getAllConversations(): Promise<any[]>;
   getMessages(conversationId: string): Promise<Message[]>;
   getAllMessages(): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
@@ -735,6 +736,15 @@ export class DatabaseStorage implements IStorage {
 
   async getUserConversations(userId: number): Promise<any[]> {
     return this.getConversations(userId);
+  }
+
+  async getAllConversations(): Promise<any[]> {
+    const allConversations = await db
+      .select()
+      .from(conversations)
+      .orderBy(desc(conversations.lastMessageTime));
+    
+    return allConversations;
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
