@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Calendar, Clock, Users, MapPin, Star, Shield, CheckCircle, X, Info, Camera, Phone, MessageSquare, Timer, Award, Heart, Smile, ThumbsUp, Crown } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, Star, Shield, CheckCircle, X, Info, Camera, Phone, MessageSquare, Timer, Award, Heart, Smile, ThumbsUp, Crown, Anchor } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,11 +59,11 @@ const STEP_TITLES = {
     "Experience Summary"
   ],
   3: [
-    "Rate Service",
-    "Rate Provider", 
-    "Written Review",
-    "Photo Upload",
-    "Review Complete"
+    "Experience Complete",
+    "Service Summary",
+    "Next Steps",
+    "Loyalty Rewards",
+    "Thank You"
   ]
 };
 
@@ -811,61 +811,71 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
     }
   };
 
-  // Process 3: Review & Rating
+  // Process 3: Experience Complete
   const renderProcess3 = () => {
     const { currentStep } = experienceData;
     
     switch (currentStep) {
-      case 1: // Rate Service
+      case 1: // Experience Complete
         return (
           <div className="space-y-6">
-            <Card className="bg-gray-800/50 border-gray-700">
+            <Card className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border-green-600/50">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Rate Your Service</h4>
-                <p className="text-gray-300 mb-6">How would you rate your {booking.service.category} experience?</p>
-                
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="flex justify-center mb-4">
-                      {renderStarRating(experienceData.serviceRating, (rating) => 
-                        setExperienceData(prev => ({ ...prev, serviceRating: rating }))
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-400">
-                      {experienceData.serviceRating === 0 && "Select a rating"}
-                      {experienceData.serviceRating === 1 && "Poor - Service did not meet expectations"}
-                      {experienceData.serviceRating === 2 && "Fair - Service was below average"}
-                      {experienceData.serviceRating === 3 && "Good - Service met expectations"}
-                      {experienceData.serviceRating === 4 && "Very Good - Service exceeded expectations"}
-                      {experienceData.serviceRating === 5 && "Excellent - Outstanding service experience"}
-                    </p>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-white" />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <h5 className="font-medium text-white mb-2">Service Quality</h5>
-                      <div className="flex justify-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < experienceData.serviceRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <h5 className="font-medium text-white mb-2">Overall Experience</h5>
-                      <div className="flex justify-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < experienceData.serviceRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-white">Experience Complete!</h4>
+                    <p className="text-sm text-green-300">Your {booking.service?.category || 'premium'} service experience has been successfully completed</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Service delivered as promised</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Provider was professional and courteous</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Experience met expectations</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Service Details</h4>
+                <h4 className="font-semibold text-white mb-4">Experience Duration</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Total Duration</span>
+                    <span className="text-white font-medium">{booking.service?.duration || 2} hours</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Start Time</span>
+                    <span className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'h:mm a') : '9:00 AM'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">End Time</span>
+                    <span className="text-white font-medium">{format(new Date(), 'h:mm a')}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 2: // Service Summary
+        return (
+          <div className="space-y-6">
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-white mb-4">Service Summary</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Service Name</span>
@@ -876,8 +886,8 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <span className="text-white font-medium">{booking.service?.category || 'Premium'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Duration</span>
-                    <span className="text-white font-medium">{booking.service?.duration || 2} hours</span>
+                    <span className="text-gray-300">Provider</span>
+                    <span className="text-white font-medium">{booking.service?.provider?.username || 'Professional Provider'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Date</span>
@@ -886,73 +896,22 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                 </div>
               </CardContent>
             </Card>
-          </div>
-        );
-
-      case 2: // Rate Provider
-        return (
-          <div className="space-y-6">
+            
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Rate Your Provider</h4>
-                <p className="text-gray-300 mb-6">How would you rate your service provider's performance?</p>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">
-                        {booking.service.provider?.username?.charAt(0) || 'P'}
-                      </span>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-white">
-                        {booking.service.provider?.username || 'Professional Provider'}
-                      </h5>
-                      <p className="text-sm text-gray-400">Certified {booking.service.category} Specialist</p>
-                    </div>
+                <h4 className="font-semibold text-white mb-4">Service Highlights</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Award className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Premium service experience</span>
                   </div>
-                  
-                  <div className="text-center">
-                    <div className="flex justify-center mb-4">
-                      {renderStarRating(experienceData.providerRating, (rating) => 
-                        setExperienceData(prev => ({ ...prev, providerRating: rating }))
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-400">
-                      {experienceData.providerRating === 0 && "Select a rating"}
-                      {experienceData.providerRating === 1 && "Poor - Provider was unprofessional"}
-                      {experienceData.providerRating === 2 && "Fair - Provider was below average"}
-                      {experienceData.providerRating === 3 && "Good - Provider met expectations"}
-                      {experienceData.providerRating === 4 && "Very Good - Provider exceeded expectations"}
-                      {experienceData.providerRating === 5 && "Excellent - Outstanding provider performance"}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Fully insured and licensed provider</span>
                   </div>
-                  
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <h5 className="font-medium text-white mb-2">Professionalism</h5>
-                      <div className="flex justify-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < experienceData.providerRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <h5 className="font-medium text-white mb-2">Communication</h5>
-                      <div className="flex justify-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < experienceData.providerRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="bg-gray-700/50 rounded-lg p-4">
-                      <h5 className="font-medium text-white mb-2">Expertise</h5>
-                      <div className="flex justify-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < experienceData.providerRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">MBYC quality guarantee</span>
                   </div>
                 </div>
               </CardContent>
@@ -960,101 +919,98 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
           </div>
         );
 
-      case 3: // Written Review
+      case 3: // Next Steps
         return (
           <div className="space-y-6">
             <Card className="bg-gray-800/50 border-gray-700">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Write Your Review</h4>
-                <p className="text-gray-300 mb-6">Share your experience to help other members</p>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-white">Overall Rating</Label>
-                    <div className="flex items-center gap-4 mt-2">
-                      {renderStarRating(experienceData.overallRating, (rating) => 
-                        setExperienceData(prev => ({ ...prev, overallRating: rating }))
-                      )}
-                      <span className="text-sm text-gray-400">
-                        {experienceData.overallRating > 0 && `${experienceData.overallRating} out of 5 stars`}
-                      </span>
-                    </div>
+                <h4 className="font-semibold text-white mb-4">What's Next?</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Service receipt has been emailed to you</span>
                   </div>
-                  
-                  <div>
-                    <Label className="text-white">Review Title</Label>
-                    <Input
-                      className="mt-2 bg-gray-700 border-gray-600 text-white"
-                      placeholder="Give your review a title..."
-                    />
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Your review is now live on our platform</span>
                   </div>
-                  
-                  <div>
-                    <Label className="text-white">Your Review</Label>
-                    <Textarea
-                      className="mt-2 bg-gray-700 border-gray-600 text-white min-h-[120px]"
-                      placeholder="Tell other members about your experience. What did you like? What could be improved?"
-                      value={experienceData.writtenReview}
-                      onChange={(e) => setExperienceData(prev => ({ ...prev, writtenReview: e.target.value }))}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-white">What went well?</Label>
-                      <Select>
-                        <SelectTrigger className="mt-2 bg-gray-700 border-gray-600 text-white">
-                          <SelectValue placeholder="Select highlights" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="professionalism">Professional service</SelectItem>
-                          <SelectItem value="timing">Great timing</SelectItem>
-                          <SelectItem value="quality">High quality</SelectItem>
-                          <SelectItem value="location">Perfect location</SelectItem>
-                          <SelectItem value="communication">Clear communication</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label className="text-white">Service Category</Label>
-                      <Input
-                        className="mt-2 bg-gray-700 border-gray-600 text-white"
-                        value={booking.service.category}
-                        disabled
-                      />
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white">Loyalty points have been credited to your account</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="bg-gray-800/50 border-gray-700">
+            
+            <Card className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border-purple-600/50">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Review Summary</h4>
+                <h4 className="font-semibold text-white mb-4">Recommended Actions</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Heart className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Book this service again for future events</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Recommend to other MBYC members</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Star className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Explore our other premium services</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      case 4: // Loyalty Rewards
+        return (
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border-purple-600/50">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <Award className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">Loyalty Rewards Earned!</h4>
+                    <p className="text-sm text-purple-300">Your membership benefits continue to grow</p>
+                  </div>
+                </div>
+                
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Service Rating</span>
-                    <div className="flex">
-                      {[...Array(experienceData.serviceRating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
+                    <span className="text-gray-300">Points Earned</span>
+                    <span className="text-white font-medium">+250 Points</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Provider Rating</span>
-                    <div className="flex">
-                      {[...Array(experienceData.providerRating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
+                    <span className="text-gray-300">Review Bonus</span>
+                    <span className="text-white font-medium">+100 Points</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Overall Rating</span>
-                    <div className="flex">
-                      {[...Array(experienceData.overallRating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
+                    <span className="text-gray-300">Total Balance</span>
+                    <span className="text-white font-medium">1,850 Points</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-gray-800/50 border-gray-700">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-white mb-4">Redeem Your Points</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-yellow-400" />
+                    <span className="text-white">500 pts = $50 service credit</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <span className="text-white">1000 pts = Premium yacht upgrade</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Heart className="w-5 h-5 text-yellow-400" />
+                    <span className="text-white">1500 pts = VIP event access</span>
                   </div>
                 </div>
               </CardContent>
@@ -1062,69 +1018,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
           </div>
         );
 
-      case 4: // Photo Upload
-        return (
-          <div className="space-y-6">
-            <Card className="bg-gray-800/50 border-gray-700">
-              <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Add Photos</h4>
-                <p className="text-gray-300 mb-6">Share photos from your experience (optional)</p>
-                
-                <div className="space-y-4">
-                  <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
-                    <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-400 mb-2">Drag & drop photos here or click to upload</p>
-                    <Button
-                      variant="outline"
-                      className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
-                    >
-                      Choose Photos
-                    </Button>
-                  </div>
-                  
-                  {experienceData.experiencePhotos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-4">
-                      {experienceData.experiencePhotos.map((photo, index) => (
-                        <div key={index} className="relative group">
-                          <img src={photo} alt={`Experience ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
-                          <button className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gray-800/50 border-gray-700">
-              <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">Photo Guidelines</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-gray-300">Photos should be relevant to your service experience</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-gray-300">High-quality images are preferred</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-gray-300">Respect privacy of other guests</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-gray-300">Maximum 10 photos per review</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 5: // Review Complete
+      case 5: // Experience Complete
         return (
           <div className="space-y-6">
             <Card className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border-green-600/50">
@@ -1134,23 +1028,15 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white">Review Complete!</h4>
-                    <p className="text-sm text-green-300">Thank you for sharing your experience</p>
+                    <h4 className="font-semibold text-white">Experience Complete!</h4>
+                    <p className="text-sm text-green-300">Thank you for using Miami Beach Yacht Club</p>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h5 className="font-medium text-white mb-2">Review Summary</h5>
+                    <h5 className="font-medium text-white mb-2">Experience Summary</h5>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-300">Overall Rating</span>
-                        <div className="flex">
-                          {[...Array(experienceData.overallRating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                          ))}
-                        </div>
-                      </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-300">Service</span>
                         <span className="text-white font-medium">{booking.service?.name || 'Premium Service'}</span>
@@ -1163,12 +1049,11 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                         <span className="text-gray-300">Date</span>
                         <span className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'MMM d, yyyy') : 'Today'}</span>
                       </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Total Points Earned</span>
+                        <span className="text-white font-medium">350 Points</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="bg-gray-800/50 rounded-lg p-4">
-                    <h5 className="font-medium text-white mb-2">Your Review</h5>
-                    <p className="text-gray-300 text-sm">{experienceData.writtenReview || 'No written review provided'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -1176,19 +1061,19 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
 
             <Card className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border-purple-600/50">
               <CardContent className="p-6">
-                <h4 className="font-semibold text-white mb-4">What's Next?</h4>
+                <h4 className="font-semibold text-white mb-4">Continue Your Journey</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">Your review will be published after moderation</span>
+                    <Star className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Explore more premium services</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">You'll receive loyalty points for your review</span>
+                    <Anchor className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Book your next yacht experience</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span className="text-white">Your feedback helps improve our services</span>
+                    <Crown className="w-5 h-5 text-purple-400" />
+                    <span className="text-white">Upgrade to Platinum membership</span>
                   </div>
                 </div>
                 
@@ -1240,14 +1125,8 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
     if (currentProcess === 2 && currentStep === 5) {
       return experienceData.experienceCompleted;
     }
-    if (currentProcess === 3 && currentStep === 1) {
-      return experienceData.serviceRating > 0;
-    }
-    if (currentProcess === 3 && currentStep === 2) {
-      return experienceData.providerRating > 0;
-    }
-    if (currentProcess === 3 && currentStep === 3) {
-      return experienceData.overallRating > 0 && experienceData.writtenReview.length > 10;
+    if (currentProcess === 3) {
+      return true; // Process 3 steps can always proceed
     }
     
     return true;
