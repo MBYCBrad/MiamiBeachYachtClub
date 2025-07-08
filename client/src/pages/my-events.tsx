@@ -95,12 +95,24 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
   };
 
+  // Add state to prevent multiple clicks
+  const [downloadingTickets, setDownloadingTickets] = useState<Set<number>>(new Set());
+
   // Apple-style PDF ticket generation with QR code
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) {
       console.error('No event data available for ticket download');
       return;
     }
+    
+    // Prevent multiple downloads at the same time
+    if (downloadingTickets.has(registration.id)) {
+      console.log('Download already in progress for registration:', registration.id);
+      return;
+    }
+    
+    // Mark as downloading
+    setDownloadingTickets(prev => new Set(prev).add(registration.id));
     
     console.log('Starting ticket download for:', event.title);
     const confirmationCode = getConfirmationCode(registration);
@@ -212,7 +224,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       currentY += 30;
       
       // Add QR code
-      const qrCodeUrl = generateQRCode(registration, event);
+      const qrCodeUrl = generateQRCode(confirmationCode);
       console.log('QR code URL:', qrCodeUrl);
       
       const qrImg = new Image();
@@ -238,6 +250,13 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         // Save the PDF
         console.log('Saving PDF with QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+        
+        // Clear downloading state
+        setDownloadingTickets(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(registration.id);
+          return newSet;
+        });
       };
       
       qrImg.onerror = (error) => {
@@ -251,6 +270,13 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         
         console.log('Saving PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+        
+        // Clear downloading state
+        setDownloadingTickets(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(registration.id);
+          return newSet;
+        });
       };
       
       console.log('Loading QR code image...');
@@ -329,7 +355,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       doc.text(confirmationCode, leftMargin, currentY);
       
       // Add QR code to fallback version too
-      const qrCodeUrl = generateQRCode(registration, event);
+      const qrCodeUrl = generateQRCode(confirmationCode);
       console.log('Fallback QR code URL:', qrCodeUrl);
       const qrImg = new Image();
       qrImg.crossOrigin = 'anonymous';
@@ -348,6 +374,13 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         
         console.log('Saving fallback PDF with QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+        
+        // Clear downloading state
+        setDownloadingTickets(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(registration.id);
+          return newSet;
+        });
       };
       
       qrImg.onerror = (error) => {
@@ -360,6 +393,13 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         
         console.log('Saving fallback PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+        
+        // Clear downloading state
+        setDownloadingTickets(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(registration.id);
+          return newSet;
+        });
       };
       
       console.log('Loading fallback QR code image...');
@@ -653,9 +693,10 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                 size="sm"
                                 className="border-gray-600 text-gray-300 hover:bg-gray-700"
                                 onClick={() => downloadTicket(registration, event)}
+                                disabled={downloadingTickets.has(registration.id)}
                               >
                                 <Download className="w-4 h-4 mr-2" />
-                                Download Ticket
+                                {downloadingTickets.has(registration.id) ? 'Downloading...' : 'Download Ticket'}
                               </Button>
                               
                               {/* View Ticket Dialog */}
@@ -748,9 +789,10 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                                       <Button
                                         onClick={() => downloadTicket(registration, event)}
                                         className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                                        disabled={downloadingTickets.has(registration.id)}
                                       >
                                         <Download className="w-4 h-4 mr-2" />
-                                        Download Ticket
+                                        {downloadingTickets.has(registration.id) ? 'Downloading...' : 'Download Ticket'}
                                       </Button>
                                     </div>
                                   </div>
