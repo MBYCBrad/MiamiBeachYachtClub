@@ -130,9 +130,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       const lightGray = [156, 163, 175]; // gray-400
       const white = [255, 255, 255];
       
-      // Create smooth gradient header (purple to blue) - no lines
+      // Create truly smooth gradient header (purple to blue) with no visible lines
       const headerHeight = 80;
-      const gradientSteps = 50;
+      const gradientSteps = 200; // Increased steps for smoother gradient
       const stepHeight = headerHeight / gradientSteps;
       
       for (let i = 0; i < gradientSteps; i++) {
@@ -142,7 +142,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         const b = Math.round(purple[2] + (blue[2] - purple[2]) * ratio);
         
         doc.setFillColor(r, g, b);
-        doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+        // Use slightly overlapping rectangles to prevent gaps
+        doc.rect(0, i * stepHeight, 210, stepHeight + 0.1, 'F');
       }
       
       // Try to load and add logo with Promise
@@ -182,11 +183,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         // Continue without logo
       }
       
-      // Always add header text (whether logo loaded or not)
+      // Only add "Event Ticket" text below logo
       doc.setTextColor(white[0], white[1], white[2]);
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
-      doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
       doc.setFontSize(18);
       doc.setFont('helvetica', 'normal');
       doc.text('Event Ticket', 105, 60, { align: 'center' });
