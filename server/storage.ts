@@ -641,20 +641,39 @@ export class DatabaseStorage implements IStorage {
 
   // Review methods
   async getReviews(filters?: { targetType?: string, targetId?: number, userId?: number, yachtId?: number }): Promise<Review[]> {
-    let conditions = [];
-    
-    if (filters) {
-      if (filters.yachtId) conditions.push(eq(reviews.yachtId, filters.yachtId));
-      if (filters.userId) conditions.push(eq(reviews.userId, filters.userId));
-      if (filters.targetId) conditions.push(eq(reviews.serviceId, filters.targetId));
-    }
-    
-    if (conditions.length === 0) {
-      return await db.select().from(reviews);
-    } else if (conditions.length === 1) {
-      return await db.select().from(reviews).where(conditions[0]);
-    } else {
-      return await db.select().from(reviews).where(and(...conditions));
+    try {
+      // If no filters, return all reviews
+      if (!filters || Object.keys(filters).length === 0) {
+        return await db.select().from(reviews);
+      }
+      
+      // Build conditions array
+      const conditions = [];
+      
+      if (filters.yachtId !== undefined && filters.yachtId !== null) {
+        conditions.push(eq(reviews.yachtId, filters.yachtId));
+      }
+      
+      if (filters.userId !== undefined && filters.userId !== null) {
+        conditions.push(eq(reviews.userId, filters.userId));
+      }
+      
+      if (filters.targetId !== undefined && filters.targetId !== null) {
+        conditions.push(eq(reviews.serviceId, filters.targetId));
+      }
+      
+      // Apply conditions
+      if (conditions.length === 0) {
+        return await db.select().from(reviews);
+      } else if (conditions.length === 1) {
+        return await db.select().from(reviews).where(conditions[0]);
+      } else {
+        return await db.select().from(reviews).where(and(...conditions));
+      }
+    } catch (error) {
+      console.error('getReviews SQL error:', error);
+      console.error('Filters:', filters);
+      throw error;
     }
   }
 
