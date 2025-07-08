@@ -521,7 +521,43 @@ export class DatabaseStorage implements IStorage {
   // Service Booking methods
   async getServiceBookings(filters?: { userId?: number, serviceId?: number, status?: string }): Promise<ServiceBooking[]> {
     try {
-      let query = db.select().from(serviceBookings);
+      let query = db.select({
+        id: serviceBookings.id,
+        userId: serviceBookings.userId,
+        serviceId: serviceBookings.serviceId,
+        bookingDate: serviceBookings.bookingDate,
+        scheduledDate: serviceBookings.bookingDate, // Use bookingDate as scheduledDate
+        status: serviceBookings.status,
+        totalPrice: serviceBookings.totalPrice,
+        stripePaymentIntentId: serviceBookings.stripePaymentIntentId,
+        createdAt: serviceBookings.createdAt,
+        yachtBookingId: serviceBookings.yachtBookingId,
+        location: serviceBookings.location,
+        specialRequests: serviceBookings.specialRequests,
+        guestCount: serviceBookings.guestCount,
+        serviceAddress: serviceBookings.serviceAddress,
+        deliveryNotes: serviceBookings.deliveryNotes,
+        notes: serviceBookings.specialRequests, // Map specialRequests to notes
+        // Service details
+        service: {
+          id: services.id,
+          name: services.name,
+          description: services.description,
+          price: services.price,
+          duration: services.duration,
+          imageUrl: services.imageUrl,
+          category: services.category,
+          providerId: services.providerId,
+          provider: {
+            id: users.id,
+            username: users.username,
+            email: users.email,
+            phone: users.phone,
+          }
+        }
+      }).from(serviceBookings)
+      .leftJoin(services, eq(serviceBookings.serviceId, services.id))
+      .leftJoin(users, eq(services.providerId, users.id));
       
       if (filters?.userId) {
         query = query.where(eq(serviceBookings.userId, filters.userId));
