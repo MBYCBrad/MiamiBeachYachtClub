@@ -221,7 +221,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <Timer className="w-5 h-5 text-purple-400" />
                     <div>
                       <p className="text-sm text-gray-400">Duration</p>
-                      <p className="text-white font-medium">{booking.service.duration} hours</p>
+                      <p className="text-white font-medium">{booking.service?.duration || 2} hours</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -396,7 +396,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                      {format(new Date(booking.scheduledDate), 'h:mm')}
+                      {booking.scheduledDate ? format(new Date(booking.scheduledDate), 'h:mm') : '9:00'}
                     </div>
                     <div>
                       <p className="text-white font-medium">Service Start</p>
@@ -405,7 +405,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                      {format(new Date(new Date(booking.scheduledDate).getTime() + (booking.service.duration * 60 * 60 * 1000)), 'h:mm')}
+                      {booking.scheduledDate ? format(new Date(new Date(booking.scheduledDate).getTime() + ((booking.service?.duration || 2) * 60 * 60 * 1000)), 'h:mm') : '1:00'}
                     </div>
                     <div>
                       <p className="text-white font-medium">Service End</p>
@@ -493,7 +493,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div>
                     <h4 className="font-semibold text-white">Experience Started!</h4>
-                    <p className="text-sm text-green-300">Your {booking.service.category} service has begun</p>
+                    <p className="text-sm text-green-300">Your {booking.service?.category || 'premium'} service has begun</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -507,7 +507,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Duration</span>
-                    <span className="text-white font-medium">{booking.service.duration} hours</span>
+                    <span className="text-white font-medium">{booking.service?.duration || 2} hours</span>
                   </div>
                 </div>
               </CardContent>
@@ -584,7 +584,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <Timer className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h5 className="font-medium text-white">Delivering {booking.service.category} Service</h5>
+                    <h5 className="font-medium text-white">Delivering {booking.service?.category || 'Premium'} Service</h5>
                     <p className="text-sm text-gray-400">Your provider is currently delivering the main service experience</p>
                   </div>
                 </div>
@@ -595,7 +595,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Remaining Time</span>
-                    <span className="text-white font-medium">{booking.service.duration - 1.5} hours</span>
+                    <span className="text-white font-medium">{(booking.service?.duration || 2) - 1.5} hours</span>
                   </div>
                 </div>
               </CardContent>
@@ -670,13 +670,13 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div>
                     <h4 className="font-semibold text-white">Service Completed!</h4>
-                    <p className="text-sm text-green-300">Your {booking.service.category} service is now complete</p>
+                    <p className="text-sm text-green-300">Your {booking.service?.category || 'premium'} service is now complete</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Total Duration</span>
-                    <span className="text-white font-medium">{booking.service.duration} hours</span>
+                    <span className="text-white font-medium">{booking.service?.duration || 2} hours</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Completed At</span>
