@@ -749,10 +749,24 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   setSelectedBooking(booking);
                                   setIsExperienceModalOpen(true);
                                 }}
-                                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                                className={`${
+                                  booking.status === 'completed' 
+                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
+                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                                } text-white`}
+                                disabled={booking.status === 'completed'}
                               >
-                                <Star className="w-4 h-4 mr-2" />
-                                Begin Experience
+                                {booking.status === 'completed' ? (
+                                  <>
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    Experience Completed
+                                  </>
+                                ) : (
+                                  <>
+                                    <Star className="w-4 h-4 mr-2" />
+                                    Begin Experience
+                                  </>
+                                )}
                               </Button>
                             </div>
                           </div>
