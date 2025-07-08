@@ -3,10 +3,8 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Calendar, MapPin, Clock, Users, Star, Download, Phone, MessageSquare, Search } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Star, Download, Phone, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
 
 interface ServiceBooking {
   id: number;
@@ -36,30 +34,11 @@ interface ServiceBooking {
 }
 
 export default function MyServices() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-
   const { data: serviceBookings, isLoading } = useQuery({
     queryKey: ["/api/service-bookings"],
   });
 
-  const { data: heroVideo } = useQuery({
-    queryKey: ["/api/media/hero/active"],
-  });
-
   const bookings = serviceBookings as ServiceBooking[] || [];
-
-  const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.service.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (activeTab === "all") return matchesSearch;
-    if (activeTab === "active") return matchesSearch && ['confirmed', 'pending'].includes(booking.status);
-    if (activeTab === "completed") return matchesSearch && booking.status === 'completed';
-    if (activeTab === "cancelled") return matchesSearch && booking.status === 'cancelled';
-    
-    return matchesSearch;
-  });
 
   if (isLoading) {
     return (
@@ -116,115 +95,28 @@ export default function MyServices() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      {/* Video Hero Header */}
-      <div className="relative h-96 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={heroVideo?.fileUrl || "/api/media/video/MBYC_UPDATED_1751023212560.mp4"} type="video/mp4" />
-        </video>
-        
-        <div className="absolute inset-0 bg-black/50"></div>
-        
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
-            >
-              Your Services
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl mx-auto"
-            >
-              Premium concierge services curated for your yacht experience
-            </motion.p>
-            
-            {/* Stats Cards */}
-            <div className="flex justify-center gap-6 mt-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="bg-black/30 backdrop-blur-sm rounded-lg p-4 text-center"
-              >
-                <div className="text-2xl font-bold text-white">{bookings.length}</div>
-                <div className="text-sm text-gray-300">Total Services</div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="bg-black/30 backdrop-blur-sm rounded-lg p-4 text-center"
-              >
-                <div className="text-2xl font-bold text-white">
-                  {bookings.filter(b => ['confirmed', 'pending'].includes(b.status)).length}
-                </div>
-                <div className="text-sm text-gray-300">Active Bookings</div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="bg-black/30 backdrop-blur-sm rounded-lg p-4 text-center"
-              >
-                <div className="text-2xl font-bold text-white">
-                  ${bookings.reduce((sum, b) => sum + parseFloat(b.totalPrice), 0).toFixed(0)}
-                </div>
-                <div className="text-sm text-gray-300">Total Invested</div>
-              </motion.div>
-            </div>
-          </div>
+      {/* Header */}
+      <div className="relative bg-gradient-to-b from-purple-900/20 to-black">
+        <div className="container mx-auto px-4 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              My Services
+            </h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              Track your service bookings and concierge experiences
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      {/* Search and Filter Controls */}
+      {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="relative mb-8">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input
-            placeholder="Search your services..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-gray-900/50 border-gray-700 text-white placeholder-gray-400"
-          />
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex space-x-1 mb-8">
-          {[
-            { id: 'all', label: `All (${bookings.length})` },
-            { id: 'active', label: `Active (${bookings.filter(b => ['confirmed', 'pending'].includes(b.status)).length})` },
-            { id: 'completed', label: `Completed (${bookings.filter(b => b.status === 'completed').length})` },
-            { id: 'cancelled', label: `Cancelled (${bookings.filter(b => b.status === 'cancelled').length})` }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                  : 'bg-gray-900/50 text-gray-300 hover:bg-gray-800/50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        {filteredBookings.length === 0 ? (
+        {bookings.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,23 +126,111 @@ export default function MyServices() {
             <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
               <Star className="w-12 h-12 text-white" />
             </div>
-            <h3 className="text-2xl font-bold mb-4 text-gray-300">No Services Found</h3>
+            <h3 className="text-2xl font-bold mb-4 text-gray-300">No Services Booked</h3>
             <p className="text-gray-400 mb-8 max-w-md mx-auto">
-              {searchTerm ? `No services match "${searchTerm}"` : activeTab === 'all' ? "You haven't booked any services yet. Explore our premium concierge services!" : `No ${activeTab} services found.`}
+              You haven't booked any services yet. Explore our premium concierge services and enhance your yacht experience!
             </p>
-            {activeTab === 'all' && !searchTerm && (
-              <Button
-                onClick={() => window.location.href = '/member-home'}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                Browse Services
-              </Button>
-            )}
+            <Button
+              onClick={() => window.location.href = '/member-home'}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              Browse Services
+            </Button>
           </motion.div>
         ) : (
           <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                        <Star className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400">Total Services</p>
+                        <p className="text-2xl font-bold text-white">{bookings.length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center">
+                        <Clock className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400">Completed</p>
+                        <p className="text-2xl font-bold text-white">
+                          {bookings.filter(booking => booking.status === 'completed').length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400">Active</p>
+                        <p className="text-2xl font-bold text-white">
+                          {bookings.filter(booking => ['confirmed', 'pending'].includes(booking.status)).length}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <Card className="bg-gray-900/50 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <Star className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-400">Total Spent</p>
+                        <p className="text-2xl font-bold text-white">
+                          ${bookings.reduce((sum, booking) => sum + parseFloat(booking.totalPrice), 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
             {/* Service Booking Cards */}
-            {filteredBookings.map((booking, index) => (
+            <div className="space-y-6">
+              {bookings.map((booking, index) => (
                 <motion.div
                   key={booking.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -414,7 +394,7 @@ export default function MyServices() {
                 </motion.div>
               ))}
             </div>
-          )}
+          </div>
         )}
       </div>
     </div>
