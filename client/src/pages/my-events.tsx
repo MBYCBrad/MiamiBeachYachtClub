@@ -185,8 +185,8 @@ export default function MyEvents() {
                         {/* Event Image */}
                         <div className="lg:w-1/3">
                           <img
-                            src={registration.event.imageUrl || '/api/media/pexels-mali-42092_1750537277229.jpg'}
-                            alt={registration.event.title}
+                            src={(registration.event?.imageUrl) || '/api/media/pexels-mali-42092_1750537277229.jpg'}
+                            alt={registration.event?.title || 'Event'}
                             className="w-full h-48 lg:h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-t-none"
                           />
                         </div>
@@ -198,13 +198,13 @@ export default function MyEvents() {
                               <div className="flex items-start justify-between mb-4">
                                 <div>
                                   <h3 className="text-2xl font-bold text-white mb-2">
-                                    {registration.event.title}
+                                    {registration.event?.title || 'Event'}
                                   </h3>
                                   <Badge 
                                     variant="outline" 
                                     className="border-purple-600 text-purple-400 mb-3"
                                   >
-                                    {registration.event.category}
+                                    {registration.event?.category || 'Event'}
                                   </Badge>
                                 </div>
                                 <Badge 
@@ -215,26 +215,36 @@ export default function MyEvents() {
                               </div>
 
                               <p className="text-gray-300 mb-4 line-clamp-2">
-                                {registration.event.description}
+                                {registration.event?.description || 'Event details not available'}
                               </p>
 
                               {/* Event Info */}
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Calendar className="w-4 h-4" />
-                                  <span>{format(new Date(registration.event.startTime), 'MMM dd, yyyy')}</span>
+                                  <span>
+                                    {registration.event?.startTime 
+                                      ? format(new Date(registration.event.startTime), 'MMM dd, yyyy')
+                                      : format(new Date(registration.registrationDate), 'MMM dd, yyyy')
+                                    }
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Clock className="w-4 h-4" />
-                                  <span>{format(new Date(registration.event.startTime), 'h:mm a')}</span>
+                                  <span>
+                                    {registration.event?.startTime 
+                                      ? format(new Date(registration.event.startTime), 'h:mm a')
+                                      : 'TBA'
+                                    }
+                                  </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <MapPin className="w-4 h-4" />
-                                  <span>{registration.event.location}</span>
+                                  <span>{registration.event?.location || 'Location TBA'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-300">
                                   <Ticket className="w-4 h-4" />
-                                  <span>{registration.ticketCount} {registration.ticketCount === 1 ? 'Ticket' : 'Tickets'}</span>
+                                  <span>{registration.ticketCount || 1} {(registration.ticketCount || 1) === 1 ? 'Ticket' : 'Tickets'}</span>
                                 </div>
                               </div>
 
@@ -244,20 +254,23 @@ export default function MyEvents() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                   <div>
                                     <span className="text-gray-400">Guest Name: </span>
-                                    <span className="text-white">{registration.guestDetails.name}</span>
+                                    <span className="text-white">{registration.guestDetails?.name || 'N/A'}</span>
                                   </div>
                                   <div>
                                     <span className="text-gray-400">Email: </span>
-                                    <span className="text-white">{registration.guestDetails.email}</span>
+                                    <span className="text-white">{registration.guestDetails?.email || 'N/A'}</span>
                                   </div>
                                   <div>
                                     <span className="text-gray-400">Phone: </span>
-                                    <span className="text-white">{registration.guestDetails.phone}</span>
+                                    <span className="text-white">{registration.guestDetails?.phone || 'N/A'}</span>
                                   </div>
                                   <div>
                                     <span className="text-gray-400">Registered: </span>
                                     <span className="text-white">
-                                      {format(new Date(registration.registrationDate), 'MMM dd, yyyy')}
+                                      {registration.registrationDate 
+                                        ? format(new Date(registration.registrationDate), 'MMM dd, yyyy')
+                                        : 'N/A'
+                                      }
                                     </span>
                                   </div>
                                 </div>
@@ -272,10 +285,10 @@ export default function MyEvents() {
                               {/* Pricing */}
                               <div className="flex items-center justify-between">
                                 <div className="text-sm text-gray-400">
-                                  ${registration.event.ticketPrice} x {registration.ticketCount} tickets
+                                  ${registration.event?.ticketPrice || '0'} x {registration.ticketCount || 1} tickets
                                 </div>
                                 <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                  ${registration.totalPrice}
+                                  ${registration.totalPrice || '0'}
                                 </div>
                               </div>
                             </div>

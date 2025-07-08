@@ -249,7 +249,7 @@ export function setupFastAdminRoutes(app: Express) {
     }
   });
 
-  // Ultra-fast event registrations endpoint
+  // Ultra-fast event registrations endpoint with complete event details
   app.get("/api/event-registrations", requireAuth, async (req, res) => {
     try {
       const cacheKey = `event-registrations-user-${req.user.id}`;
@@ -257,16 +257,44 @@ export function setupFastAdminRoutes(app: Express) {
       
       if (!registrations) {
         const result = await pool.query(`
-          SELECT er.*, e.title as "event.title", e."startDate" as "event.startDate"
+          SELECT 
+            er.*,
+            e.title as "event.title",
+            e.description as "event.description", 
+            e."startTime" as "event.startTime",
+            e."endTime" as "event.endTime",
+            e.location as "event.location",
+            e."imageUrl" as "event.imageUrl",
+            e."ticketPrice" as "event.ticketPrice",
+            e.capacity as "event.capacity",
+            e.category as "event.category"
           FROM event_registrations er
           LEFT JOIN events e ON er."eventId" = e.id
           WHERE er."userId" = $1
-          ORDER BY e."startDate" DESC
+          ORDER BY e."startTime" DESC NULLS LAST
         `, [req.user.id]);
         
         registrations = result.rows.map(row => ({
-          ...row,
-          event: { title: row['event.title'], startDate: row['event.startDate'] }
+          id: row.id,
+          eventId: row.eventId,
+          userId: row.userId,
+          ticketCount: row.ticketCount,
+          totalPrice: row.totalPrice,
+          registrationDate: row.registrationDate,
+          specialRequests: row.specialRequests,
+          guestDetails: row.guestDetails,
+          event: {
+            id: row.eventId,
+            title: row['event.title'],
+            description: row['event.description'],
+            startTime: row['event.startTime'],
+            endTime: row['event.endTime'],
+            location: row['event.location'],
+            imageUrl: row['event.imageUrl'],
+            ticketPrice: row['event.ticketPrice'],
+            capacity: row['event.capacity'],
+            category: row['event.category']
+          }
         }));
         
         cache.set(cacheKey, registrations, 60 * 1000); // 1 minute cache
