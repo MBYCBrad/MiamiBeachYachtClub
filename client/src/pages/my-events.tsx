@@ -99,7 +99,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
   const [downloadingTickets, setDownloadingTickets] = useState<Set<number>>(new Set());
 
   // Apple-style PDF ticket generation with QR code
-  const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
+  const downloadTicket = async (registration: EventRegistration, event: Event | undefined) => {
     if (!event) {
       console.error('No event data available for ticket download');
       return;
@@ -115,28 +115,206 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     setDownloadingTickets(prev => new Set(prev).add(registration.id));
     
     try {
-      // Simple test to ensure jsPDF works
+      console.log('Starting Apple-style ticket download for:', event.title);
+      const confirmationCode = getConfirmationCode(registration);
+      
+      // Create new PDF document
       const doc = new jsPDF();
       
-      // Test with simple content first
+      // Apple-style colors
+      const purple = [147, 51, 234]; // purple-600
+      const blue = [79, 70, 229]; // indigo-600
+      const black = [0, 0, 0];
+      const darkGray = [55, 65, 81]; // gray-700
+      const mediumGray = [107, 114, 128]; // gray-500
+      const lightGray = [156, 163, 175]; // gray-400
+      const white = [255, 255, 255];
+      
+      // Create smooth gradient header (purple to blue) - no lines
+      const headerHeight = 80;
+      const gradientSteps = 50;
+      const stepHeight = headerHeight / gradientSteps;
+      
+      for (let i = 0; i < gradientSteps; i++) {
+        const ratio = i / gradientSteps;
+        const r = Math.round(purple[0] + (blue[0] - purple[0]) * ratio);
+        const g = Math.round(purple[1] + (blue[1] - purple[1]) * ratio);
+        const b = Math.round(purple[2] + (blue[2] - purple[2]) * ratio);
+        
+        doc.setFillColor(r, g, b);
+        doc.rect(0, i * stepHeight, 210, stepHeight, 'F');
+      }
+      
+      // Try to load and add logo with Promise
+      console.log('Loading MBYC logo...');
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            console.log('Logo load timeout');
+            resolve(); // Don't reject, just continue without logo
+          }, 2000);
+          
+          img.onload = () => {
+            clearTimeout(timeout);
+            try {
+              console.log('Adding logo to PDF');
+              doc.addImage(img, 'PNG', 85, 15, 40, 20);
+              resolve();
+            } catch (error) {
+              console.error('Error adding logo:', error);
+              resolve(); // Continue without logo
+            }
+          };
+          
+          img.onerror = () => {
+            clearTimeout(timeout);
+            console.error('Logo failed to load');
+            resolve(); // Continue without logo
+          };
+          
+          img.src = mbycLogoWhite;
+        });
+      } catch (logoError) {
+        console.error('Logo loading error:', logoError);
+        // Continue without logo
+      }
+      
+      // Always add header text (whether logo loaded or not)
+      doc.setTextColor(white[0], white[1], white[2]);
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MIAMI BEACH YACHT CLUB', 105, 35, { align: 'center' });
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Event Ticket', 105, 60, { align: 'center' });
+      
+      // Main content
+      const contentStartY = 100;
+      const leftMargin = 30;
+      const sectionSpacing = 40;
+      let currentY = contentStartY;
+      
+      // Event Details Section
+      doc.setTextColor(black[0], black[1], black[2]);
       doc.setFontSize(20);
-      doc.text('MIAMI BEACH YACHT CLUB', 105, 30, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.text('Event Details', leftMargin, currentY);
+      currentY += 20;
+      
+      // Event name
       doc.setFontSize(16);
-      doc.text('Event Ticket', 105, 45, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.text(event.title, leftMargin, currentY);
+      currentY += 20;
       
+      // Date and time info - Apple style
       doc.setFontSize(14);
-      doc.text(`Event: ${event.title}`, 20, 70);
-      doc.text(`Confirmation: ${getConfirmationCode(registration)}`, 20, 85);
-      doc.text(`Date: ${event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA'}`, 20, 100);
-      doc.text(`Location: ${event.location}`, 20, 115);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
       
-      // Try to save
-      const filename = `MBYC_Event_Ticket_${registration.id}.pdf`;
-      doc.save(filename);
-      console.log('Simple PDF saved successfully');
+      const dateText = event.startTime ? format(new Date(event.startTime), 'MMMM dd, yyyy') : 'TBA';
+      doc.text(dateText, leftMargin, currentY);
+      currentY += 12;
+      
+      const timeText = event.startTime ? format(new Date(event.startTime), 'h:mm a') : 'TBA';
+      const endTimeText = event.endTime ? ` - ${format(new Date(event.endTime), 'h:mm a')}` : '';
+      doc.text(timeText + endTimeText, leftMargin, currentY);
+      currentY += 12;
+      
+      doc.text(event.location, leftMargin, currentY);
+      currentY += sectionSpacing;
+      
+      // Registration Details Section
+      doc.setTextColor(black[0], black[1], black[2]);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Registration Details', leftMargin, currentY);
+      currentY += 20;
+      
+      // Registration info - clean Apple style
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+      
+      doc.text(`${registration.ticketCount} Ticket${registration.ticketCount > 1 ? 's' : ''}`, leftMargin, currentY);
+      currentY += 12;
+      
+      doc.text(`Total: $${registration.totalPrice}`, leftMargin, currentY);
+      currentY += 12;
+      
+      doc.text(`ID: ${registration.id}`, leftMargin, currentY);
+      currentY += 20;
+      
+      // Confirmation code - prominent purple styling
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(purple[0], purple[1], purple[2]);
+      doc.text(confirmationCode, leftMargin, currentY);
+      currentY += 30;
+      
+      // Try to add QR code
+      try {
+        const qrCodeUrl = generateQRCode(confirmationCode);
+        console.log('Loading QR code...');
+        
+        const qrImg = new Image();
+        qrImg.crossOrigin = 'anonymous';
+        
+        await new Promise<void>((resolve) => {
+          const timeout = setTimeout(() => {
+            console.log('QR code load timeout');
+            resolve();
+          }, 2000);
+          
+          qrImg.onload = () => {
+            clearTimeout(timeout);
+            try {
+              console.log('Adding QR code to PDF');
+              doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
+              doc.setFontSize(12);
+              doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+              doc.setFont('helvetica', 'normal');
+              doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
+            } catch (error) {
+              console.error('Error adding QR code:', error);
+            }
+            resolve();
+          };
+          
+          qrImg.onerror = () => {
+            clearTimeout(timeout);
+            console.error('QR code failed to load');
+            resolve();
+          };
+          
+          qrImg.src = qrCodeUrl;
+        });
+      } catch (qrError) {
+        console.error('QR code error:', qrError);
+        // Continue without QR code
+      }
+      
+      // Footer
+      doc.setFontSize(11);
+      doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
+      doc.text('Please present this ticket at the event entrance', leftMargin, 260);
+      doc.text('We look forward to seeing you at the event!', leftMargin, 275);
+      doc.text('- MBYC Team', leftMargin, 290);
+      
+      // Save PDF
+      console.log('Saving Apple-style PDF...');
+      doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
+      console.log('Apple-style PDF saved successfully');
       
     } catch (error) {
       console.error('Error generating PDF:', error);
+      console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      
+      // Show alert to user
       alert('Error generating PDF. Please try again.');
     } finally {
       // Always clear downloading state
