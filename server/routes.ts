@@ -1515,13 +1515,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const {
         serviceId,
-        bookingDate,
-        bookingTime,
+        date,
+        time,
+        duration,
+        location,
+        customLocation,
         guestCount,
-        serviceAddress,
-        deliveryNotes,
         specialRequests,
-        yachtBookingId
+        preferredYacht,
+        occasion,
+        totalPrice,
+        status
       } = req.body;
 
       const service = await dbStorage.getService(serviceId);
@@ -1530,23 +1534,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Combine date and time for the booking
-      const combinedDateTime = new Date(bookingDate);
-      const [hours, minutes] = bookingTime.split(':').map(Number);
+      const combinedDateTime = new Date(date);
+      const [hours, minutes] = time.split(':').map(Number);
       combinedDateTime.setHours(hours, minutes, 0, 0);
 
       const bookingData = {
         userId: req.user!.id,
         serviceId,
         bookingDate: combinedDateTime,
-        location: service.deliveryType === 'marina' ? service.marinaLocation : 
-                 service.deliveryType === 'external_location' ? service.businessAddress : null,
-        serviceAddress: service.requiresAddress ? serviceAddress : null,
-        deliveryNotes,
+        time,
+        duration: duration || service.duration || 60,
+        location,
+        customLocation: location === 'custom_location' ? customLocation : null,
+        serviceAddress: null, // To be used if needed later
+        deliveryNotes: null, // To be used if needed later
         specialRequests,
         guestCount: guestCount || 1,
-        yachtBookingId,
-        totalPrice: service.pricePerSession,
-        status: 'pending'
+        occasion,
+        preferredYacht,
+        yachtBookingId: null, // This booking is independent from yacht booking
+        totalPrice: totalPrice || service.pricePerSession,
+        status: status || 'pending'
       };
 
       const booking = await dbStorage.createServiceBooking(bookingData);

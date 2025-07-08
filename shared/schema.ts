@@ -195,11 +195,16 @@ export const serviceBookings = pgTable("service_bookings", {
   serviceId: integer("service_id").references(() => services.id).notNull(),
   yachtBookingId: integer("yacht_booking_id").references(() => bookings.id), // for yacht-specific services
   bookingDate: timestamp("booking_date").notNull(),
+  time: text("time"), // Time slot for the service
+  duration: integer("duration"), // Service duration in minutes
   location: text("location"), // for location-based services
+  customLocation: text("custom_location"), // Custom location address
   serviceAddress: text("service_address"), // Member's chosen address for location services
   deliveryNotes: text("delivery_notes"), // Special delivery instructions
   specialRequests: text("special_requests"),
   guestCount: integer("guest_count").default(1),
+  occasion: text("occasion"), // leisure, romantic, celebration, business
+  preferredYacht: text("preferred_yacht"), // Preferred yacht name for service
   status: text("status").notNull().default("pending"),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),

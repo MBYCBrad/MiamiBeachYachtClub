@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { Heart } from "lucide-react";
 import type { Service, Favorite } from "@shared/schema";
+import ServiceBookingModal from "./service-booking-modal";
 
 interface ServiceCardProps {
   service: Service;
@@ -16,6 +18,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Get user favorites
   const { data: userFavorites = [] } = useQuery<Favorite[]>({
@@ -134,11 +137,19 @@ export default function ServiceCard({ service }: ServiceCardProps) {
             <span className="text-lg font-bold text-white">${service.pricePerSession}</span>
             <span className="text-sm text-gray-400">/ session</span>
           </div>
-          <Button 
-            onClick={() => setLocation(`/services/${service.id}`)}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
-            Book Now
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setLocation(`/services/${service.id}`)}
+              variant="outline"
+              className="border-purple-600/50 text-purple-400 hover:bg-purple-600/20 px-3 py-1.5 text-sm">
+              Details
+            </Button>
+            <Button 
+              onClick={() => setShowBookingModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-1.5 text-sm font-medium hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-300">
+              Begin Experience
+            </Button>
+          </div>
         </div>
         {service.duration && (
           <div className="mt-3 pt-3 border-t border-gray-700/30">
@@ -146,6 +157,15 @@ export default function ServiceCard({ service }: ServiceCardProps) {
           </div>
         )}
       </div>
+      
+      {/* Service Booking Modal */}
+      {showBookingModal && (
+        <ServiceBookingModal
+          service={service}
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+        />
+      )}
     </div>
   );
 }
