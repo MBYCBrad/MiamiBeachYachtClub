@@ -459,13 +459,59 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                 </div>
                               </div>
                             </div>
-                            <Button
-                              onClick={() => startOnboarding(booking)}
-                              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg"
-                            >
-                              <PlayCircle size={16} className="mr-2" />
-                              Begin Experience
-                            </Button>
+                            {/* Dynamic Phase Button */}
+                            {(() => {
+                              const phase = getYachtExperiencePhase(booking);
+                              
+                              if (phase === 'before') {
+                                return (
+                                  <Button
+                                    onClick={() => {
+                                      // Move to Step 2: Active adventure phase
+                                      setCurrentTime(new Date(booking.startTime));
+                                      setSelectedAdventureBooking(booking);
+                                      setShowAdventureDetails(true);
+                                      toast({
+                                        title: "The Adventure has begun!",
+                                        description: "Your luxury yacht experience is now active.",
+                                      });
+                                    }}
+                                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center gap-2"
+                                  >
+                                    <Sailboat className="w-4 h-4" />
+                                    Begin Experience
+                                  </Button>
+                                );
+                              } else if (phase === 'during') {
+                                return (
+                                  <Button
+                                    onClick={() => {
+                                      setSelectedAdventureBooking(booking);
+                                      setShowAdventureDetails(true);
+                                    }}
+                                    className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white flex items-center gap-2"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                    Adventure Details
+                                  </Button>
+                                );
+                              } else if (phase === 'after') {
+                                return (
+                                  <Button
+                                    onClick={() => {
+                                      setSelectedAdventureBooking(booking);
+                                      setShowEndTripForm(true);
+                                      setEndTripStep(1);
+                                    }}
+                                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white flex items-center gap-2"
+                                  >
+                                    <Star className="w-4 h-4" />
+                                    End Trip
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
 
                           {/* Yacht Experience Timeline */}
@@ -490,29 +536,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">Pre-Charter Preparation</h5>
                                   <p className="text-gray-400 text-sm">Yacht preparation and final arrangements</p>
                                   {getYachtExperiencePhase(booking) === 'before' && (
-                                    <div className="mt-2 space-y-2">
+                                    <div className="mt-2">
                                       <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
                                         <Timer className="w-3 h-3 mr-1" />
                                         Current Phase
                                       </Badge>
-                                      {/* Begin Experience button for Step 1 */}
-                                      <Button
-                                        onClick={() => {
-                                          // Move to Step 2: Active adventure phase
-                                          setCurrentTime(new Date(booking.startTime));
-                                          setSelectedAdventureBooking(booking);
-                                          setShowAdventureDetails(true);
-                                          toast({
-                                            title: "The Adventure has begun!",
-                                            description: "Your luxury yacht experience is now active.",
-                                          });
-                                        }}
-                                        size="sm"
-                                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                                      >
-                                        <Sailboat className="w-3 h-3 mr-1" />
-                                        Begin Experience
-                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -531,23 +559,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">The Adventure has begun</h5>
                                   <p className="text-gray-400 text-sm">Your luxury yacht experience is now active</p>
                                   {getYachtExperiencePhase(booking) === 'during' && (
-                                    <div className="mt-2 space-y-2">
+                                    <div className="mt-2">
                                       <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 animate-pulse">
                                         <Activity className="w-3 h-3 mr-1" />
                                         In Progress
                                       </Badge>
-                                      {/* Adventure Details button for Step 2 */}
-                                      <Button
-                                        onClick={() => {
-                                          setSelectedAdventureBooking(booking);
-                                          setShowAdventureDetails(true);
-                                        }}
-                                        size="sm"
-                                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                                      >
-                                        <Eye className="w-3 h-3 mr-1" />
-                                        Adventure Details
-                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -566,24 +582,11 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">Post-Charter Review</h5>
                                   <p className="text-gray-400 text-sm">Rate your yacht experience</p>
                                   {getYachtExperiencePhase(booking) === 'after' && (
-                                    <div className="mt-2 space-y-2">
+                                    <div className="mt-2">
                                       <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                                         <CheckCircle className="w-3 h-3 mr-1" />
                                         Complete
                                       </Badge>
-                                      {/* End Trip button for Step 3 */}
-                                      <Button
-                                        onClick={() => {
-                                          setSelectedAdventureBooking(booking);
-                                          setShowEndTripForm(true);
-                                          setEndTripStep(1);
-                                        }}
-                                        size="sm"
-                                        className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
-                                      >
-                                        <Star className="w-3 h-3 mr-1" />
-                                        End Trip
-                                      </Button>
                                     </div>
                                   )}
                                 </div>
