@@ -283,6 +283,9 @@ export function setupFastAdminRoutes(app: Express) {
           registrationDate: row.registrationDate,
           specialRequests: row.specialRequests,
           guestDetails: row.guestDetails,
+          confirmationCode: row.confirmationCode,
+          status: row.status,
+          createdAt: row.createdAt,
           event: {
             id: row.eventId,
             title: row['event.title'],

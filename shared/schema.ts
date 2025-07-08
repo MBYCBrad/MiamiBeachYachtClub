@@ -213,6 +213,7 @@ export const eventRegistrations = pgTable("event_registrations", {
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   status: text("status").notNull().default("confirmed"),
+  confirmationCode: text("confirmation_code"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

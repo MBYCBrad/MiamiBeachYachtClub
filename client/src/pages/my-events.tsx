@@ -17,6 +17,9 @@ interface EventRegistration {
   totalPrice: string;
   registrationDate: string;
   specialRequests?: string;
+  confirmationCode?: string;
+  status: string;
+  createdAt: string;
   guestDetails: {
     name: string;
     email: string;
@@ -68,9 +71,33 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
   console.log("Processed registrations:", registrations);
   console.log("Events data:", events);
 
+  // Generate unique confirmation code (fallback if not in database)
+  const generateConfirmationCode = (registrationId: number, eventId: number) => {
+    const prefix = "MBYC";
+    const timestamp = Date.now().toString().slice(-6);
+    const regId = registrationId.toString().padStart(3, '0');
+    const evId = eventId.toString().padStart(2, '0');
+    return `${prefix}-${evId}${regId}-${timestamp}`;
+  };
+
+  // Get confirmation code from database or generate fallback
+  const getConfirmationCode = (registration: EventRegistration) => {
+    return registration.confirmationCode || generateConfirmationCode(registration.id, registration.eventId);
+  };
+
+  // Generate QR code data URL
+  const generateQRCode = (data: string) => {
+    // Simple QR code generation using a library-free approach
+    // For production, you'd use a proper QR code library
+    const qrData = encodeURIComponent(data);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+  };
+
   // Ticket download functionality
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
     if (!event) return;
+    
+    const confirmationCode = getConfirmationCode(registration);
     
     // Create ticket data
     const ticketData = {
@@ -81,7 +108,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       ticketCount: registration.ticketCount,
       totalPrice: registration.totalPrice,
       registrationId: registration.id,
-      registrationDate: format(new Date(registration.createdAt), 'MMMM dd, yyyy')
+      registrationDate: format(new Date(registration.createdAt), 'MMMM dd, yyyy'),
+      confirmationCode: confirmationCode
     };
 
     // Create ticket content
@@ -101,10 +129,12 @@ Total Price: $${ticketData.totalPrice}
 
 Registration ID: ${ticketData.registrationId}
 Registration Date: ${ticketData.registrationDate}
+Confirmation Code: ${ticketData.confirmationCode}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Please present this ticket at the event entrance.
+Please present this ticket and confirmation code at the event entrance.
+Staff will verify your confirmation code: ${ticketData.confirmationCode}
 For questions, contact Miami Beach Yacht Club.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -465,13 +495,27 @@ For questions, contact Miami Beach Yacht Club.
                                       
                                       <div className="border-t border-gray-700 pt-4">
                                         <div className="flex items-center justify-between">
-                                          <div>
-                                            <label className="text-sm text-gray-400">Registration ID</label>
-                                            <p className="text-white font-mono">{registration.id}</p>
+                                          <div className="flex-1">
+                                            <div className="grid grid-cols-1 gap-2">
+                                              <div>
+                                                <label className="text-sm text-gray-400">Registration ID</label>
+                                                <p className="text-white font-mono">{registration.id}</p>
+                                              </div>
+                                              <div>
+                                                <label className="text-sm text-gray-400">Confirmation Code</label>
+                                                <p className="text-white font-mono text-lg bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                                  {getConfirmationCode(registration)}
+                                                </p>
+                                              </div>
+                                            </div>
                                           </div>
-                                          <div className="flex items-center gap-2">
-                                            <QrCode className="w-8 h-8 text-purple-400" />
-                                            <span className="text-sm text-gray-400">Present at entrance</span>
+                                          <div className="flex flex-col items-center gap-2">
+                                            <img 
+                                              src={generateQRCode(getConfirmationCode(registration))}
+                                              alt="QR Code" 
+                                              className="w-20 h-20 border border-gray-600 rounded"
+                                            />
+                                            <span className="text-xs text-gray-400">Scan at entrance</span>
                                           </div>
                                         </div>
                                       </div>

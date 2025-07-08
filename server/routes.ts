@@ -1456,10 +1456,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? (parseFloat(event.ticketPrice) * validatedData.ticketCount!).toFixed(2)
         : "0.00";
 
+      // Generate unique confirmation code
+      const generateConfirmationCode = (eventId: number, userId: number) => {
+        const prefix = "MBYC";
+        const timestamp = Date.now().toString().slice(-6);
+        const evId = eventId.toString().padStart(2, '0');
+        const usrId = userId.toString().padStart(3, '0');
+        return `${prefix}-${evId}${usrId}-${timestamp}`;
+      };
+
+      const confirmationCode = generateConfirmationCode(validatedData.eventId!, req.user!.id);
+
       const registrationData = {
         ...validatedData,
         userId: req.user!.id, // Always use authenticated user's ID
-        totalPrice
+        totalPrice,
+        confirmationCode
       };
 
       const registration = await dbStorage.createEventRegistration(registrationData);
