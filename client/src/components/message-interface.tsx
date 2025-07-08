@@ -103,7 +103,7 @@ export function MessageInterface({
     }) => {
       return await apiRequest("POST", "/api/phone-calls", callData);
     },
-    onSuccess: (newCall: any) => {
+    onSuccess: (newCall: any, callData: any) => {
       toast({
         title: "Call Initiated",
         description: `Connecting you to ${recipientName}. Call ID: ${newCall.id}`,
