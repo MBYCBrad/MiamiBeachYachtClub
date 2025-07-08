@@ -617,6 +617,43 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedBooking || undefined;
   }
+  
+  async getServiceBookingById(id: number): Promise<ServiceBooking | undefined> {
+    const [booking] = await db.select().from(serviceBookings).where(eq(serviceBookings.id, id));
+    if (!booking) return undefined;
+    
+    // Get service details
+    const [service] = await db.select().from(services).where(eq(services.id, booking.serviceId));
+    
+    // Get provider details if service exists
+    let provider = null;
+    if (service) {
+      const [providerData] = await db.select().from(users).where(eq(users.id, service.providerId));
+      provider = providerData ? {
+        id: providerData.id,
+        username: providerData.username,
+        email: providerData.email,
+        phone: providerData.phone,
+      } : null;
+    }
+    
+    return {
+      ...booking,
+      scheduledDate: booking.bookingDate,
+      notes: booking.specialRequests,
+      service: service ? {
+        id: service.id,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        duration: service.duration,
+        imageUrl: service.imageUrl,
+        category: service.category,
+        providerId: service.providerId,
+        provider
+      } : null
+    };
+  }
 
   // Event Registration methods
   async getEventRegistrations(filters?: { userId?: number, eventId?: number }): Promise<EventRegistration[]> {

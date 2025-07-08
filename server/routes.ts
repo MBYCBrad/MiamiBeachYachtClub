@@ -27,8 +27,9 @@ import { canBookYacht, getMembershipBenefits, MEMBERSHIP_BENEFITS } from "@share
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { pool, db } from "./db";
-import { sql, desc } from "drizzle-orm";
+import { sql, desc, eq } from "drizzle-orm";
 import * as dbSchema from "@shared/schema";
+const { reviews } = dbSchema;
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -1603,6 +1604,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update service booking experience progress
+  app.patch("/api/service-bookings/:id/experience", requireAuth, async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { stage, step, timestamp } = req.body;
+      
+      const booking = await dbStorage.getServiceBookingById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      // Verify user owns this booking
+      if (req.user!.role === UserRole.MEMBER && booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // Update booking with experience progress (using specialRequests field to store JSON data)
+      const experienceData = {
+        stage,
+        step,
+        lastUpdated: timestamp
+      };
+      
+      await dbStorage.updateServiceBooking(bookingId, {
+        specialRequests: JSON.stringify(experienceData)
+      });
+      
+      res.json({ success: true, stage, step });
+    } catch (error) {
+      console.error("Error updating service experience:", error);
+      res.status(500).json({ message: "Failed to update experience progress" });
+    }
+  });
+  
+  // Update service booking status and complete
+  app.patch("/api/service-bookings/:id", requireAuth, async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const booking = await dbStorage.getServiceBookingById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      // Verify user owns this booking
+      if (req.user!.role === UserRole.MEMBER && booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const updated = await dbStorage.updateServiceBooking(bookingId, updates);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating service booking:", error);
+      res.status(500).json({ message: "Failed to update booking" });
+    }
+  });
+
   // Rate a service booking
   app.post("/api/service-bookings/:id/rate", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
     try {
@@ -1680,6 +1739,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error('Service rating error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Service reviews
+  app.post("/api/service-reviews", requireAuth, async (req, res) => {
+    try {
+      const { bookingId, serviceId, userId, serviceRating, providerRating, overallRating, writtenReview } = req.body;
+      
+      // Create the review
+      const reviewData = {
+        userId: req.user!.id,
+        serviceId: serviceId,
+        rating: overallRating,
+        comment: writtenReview
+      };
+      
+      const [review] = await db.insert(reviews).values(reviewData).returning();
+      
+      // Update service average rating
+      const service = await dbStorage.getService(serviceId);
+      if (service) {
+        const allReviews = await db.select().from(reviews).where(eq(reviews.serviceId, serviceId));
+        const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+        await dbStorage.updateService(serviceId, { 
+          rating: averageRating.toFixed(2),
+          reviewCount: allReviews.length
+        });
+      }
+      
+      res.json(review);
+    } catch (error: any) {
+      console.error('Error creating service review:', error);
       res.status(500).json({ message: error.message });
     }
   });
