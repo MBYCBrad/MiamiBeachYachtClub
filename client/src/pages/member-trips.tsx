@@ -1740,8 +1740,8 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
       {/* Phase 3: End Trip Dialog - World-Class Review Experience */}
       <Dialog open={showEndTripForm} onOpenChange={setShowEndTripForm}>
-        <DialogContent className="max-w-4xl bg-black border-gray-800 p-0 overflow-hidden">
-          <div className="relative">
+        <DialogContent className="max-w-4xl bg-gray-900/50 border-gray-800 p-0 overflow-hidden max-h-[85vh] flex flex-col">
+          <div className="relative flex-shrink-0">
             {/* Header with gradient */}
             <div className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 backdrop-blur-xl p-6 border-b border-gray-800">
               <h2 className="text-3xl font-bold text-white">Complete Your Journey</h2>
@@ -1755,9 +1755,10 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               </div>
               <Progress value={(endTripStep / 5) * 100} className="h-2 bg-gray-700" />
             </div>
+          </div>
 
-            {/* Content area */}
-            <div className="p-6">
+            {/* Content area - scrollable */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-900/50">
               <AnimatePresence mode="wait">
                 {endTripStep === 1 && (
                   <motion.div
@@ -2084,91 +2085,90 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               </AnimatePresence>
             </div>
 
-            {/* Footer with navigation */}
-            <div className="px-6 py-4 bg-gray-900/50 border-t border-gray-800 flex justify-between items-center">
-              <Button
-                variant="ghost"
-                onClick={() => setEndTripStep(Math.max(1, endTripStep - 1))}
-                disabled={endTripStep === 1}
-                className="text-gray-400 hover:text-white"
-              >
-                Previous
-              </Button>
+          {/* Footer with navigation - fixed at bottom */}
+          <div className="flex-shrink-0 px-6 py-4 bg-gray-900/50 border-t border-gray-800 flex justify-between items-center">
+            <Button
+              variant="ghost"
+              onClick={() => setEndTripStep(Math.max(1, endTripStep - 1))}
+              disabled={endTripStep === 1}
+              className="text-gray-400 hover:text-white"
+            >
+              Previous
+            </Button>
 
-              {endTripStep < 5 ? (
-                <Button
-                  onClick={() => setEndTripStep(endTripStep + 1)}
-                  disabled={endTripStep === 1 && endTripRating === 0}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                >
-                  Continue
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    // Submit complete review data
-                    if (selectedAdventureBooking && endTripRating > 0) {
-                      const reviewData = {
-                        bookingId: selectedAdventureBooking.id,
-                        overallRating: endTripRating,
-                        overallNote: step1Note,
-                        captainRating,
-                        captainNote,
-                        firstMateRating,
-                        firstMateNote,
-                        conciergeRating,
-                        conciergeNote,
-                        cleanlinessRating,
-                        comfortRating,
-                        equipmentRating,
-                        amenitiesRating,
-                        yachtConditionNote: step3Note,
-                        highlightNote: endTripNotes,
-                        finalNote: step4Note,
-                        completedAt: new Date().toISOString()
-                      };
-                      
-                      // Submit rating - update to use comprehensive review data
-                      rateYachtMutation.mutate({
-                        bookingId: selectedAdventureBooking.id,
-                        rating: endTripRating,
-                        review: JSON.stringify(reviewData)
-                      });
-                    }
+            {endTripStep < 5 ? (
+              <Button
+                onClick={() => setEndTripStep(endTripStep + 1)}
+                disabled={endTripStep === 1 && endTripRating === 0}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              >
+                Continue
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  // Submit complete review data
+                  if (selectedAdventureBooking && endTripRating > 0) {
+                    const reviewData = {
+                      bookingId: selectedAdventureBooking.id,
+                      overallRating: endTripRating,
+                      overallNote: step1Note,
+                      captainRating,
+                      captainNote,
+                      firstMateRating,
+                      firstMateNote,
+                      conciergeRating,
+                      conciergeNote,
+                      cleanlinessRating,
+                      comfortRating,
+                      equipmentRating,
+                      amenitiesRating,
+                      yachtConditionNote: step3Note,
+                      highlightNote: endTripNotes,
+                      finalNote: step4Note,
+                      completedAt: new Date().toISOString()
+                    };
                     
-                    // Reset all form states
-                    setShowEndTripForm(false);
-                    setEndTripStep(1);
-                    setEndTripRating(0);
-                    setEndTripNotes('');
-                    setStep1Note('');
-                    setCaptainRating(0);
-                    setCaptainNote('');
-                    setFirstMateRating(0);
-                    setFirstMateNote('');
-                    setConciergeRating(0);
-                    setConciergeNote('');
-                    setCleanlinessRating(0);
-                    setComfortRating(0);
-                    setEquipmentRating(0);
-                    setAmenitiesRating(0);
-                    setStep3Note('');
-                    setStep4Note('');
-                    setSelectedAdventureBooking(null);
-                    
-                    toast({
-                      title: "Trip Completed!",
-                      description: "Thank you for sailing with Miami Beach Yacht Club.",
+                    // Submit rating - update to use comprehensive review data
+                    rateYachtMutation.mutate({
+                      bookingId: selectedAdventureBooking.id,
+                      rating: endTripRating,
+                      review: JSON.stringify(reviewData)
                     });
-                  }}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                >
-                  Complete Journey
-                  <CheckCircle className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
+                  }
+                  
+                  // Reset all form states
+                  setShowEndTripForm(false);
+                  setEndTripStep(1);
+                  setEndTripRating(0);
+                  setEndTripNotes('');
+                  setStep1Note('');
+                  setCaptainRating(0);
+                  setCaptainNote('');
+                  setFirstMateRating(0);
+                  setFirstMateNote('');
+                  setConciergeRating(0);
+                  setConciergeNote('');
+                  setCleanlinessRating(0);
+                  setComfortRating(0);
+                  setEquipmentRating(0);
+                  setAmenitiesRating(0);
+                  setStep3Note('');
+                  setStep4Note('');
+                  setSelectedAdventureBooking(null);
+                  
+                  toast({
+                    title: "Trip Completed!",
+                    description: "Thank you for sailing with Miami Beach Yacht Club.",
+                  });
+                }}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              >
+                Complete Journey
+                <CheckCircle className="w-4 h-4 ml-2" />
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
