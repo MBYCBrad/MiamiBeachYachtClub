@@ -97,8 +97,12 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
 
   // Apple-style PDF ticket generation with QR code
   const downloadTicket = (registration: EventRegistration, event: Event | undefined) => {
-    if (!event) return;
+    if (!event) {
+      console.error('No event data available for ticket download');
+      return;
+    }
     
+    console.log('Starting ticket download for:', event.title);
     const confirmationCode = getConfirmationCode(registration);
     
     // Create new PDF document
@@ -130,7 +134,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
     
     // Add MBYC logo to the header
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
+      console.log('MBYC logo loaded successfully');
       // Large centered logo
       doc.addImage(img, 'PNG', 85, 15, 40, 20); // x, y, width, height - larger and centered
       
@@ -207,8 +213,12 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       
       // Add QR code
       const qrCodeUrl = generateQRCode(registration, event);
+      console.log('QR code URL:', qrCodeUrl);
+      
       const qrImg = new Image();
+      qrImg.crossOrigin = 'anonymous';
       qrImg.onload = () => {
+        console.log('QR code image loaded successfully');
         // Position QR code on the right side
         doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
         
@@ -225,23 +235,28 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
         
         // Save the PDF
+        console.log('Saving PDF with QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
       };
       
-      qrImg.onerror = () => {
+      qrImg.onerror = (error) => {
+        console.error('QR code loading failed:', error);
         // Continue without QR code if it fails
         doc.setFontSize(11);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
         doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
         doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
         
+        console.log('Saving PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
       };
       
+      console.log('Loading QR code image...');
       qrImg.src = qrCodeUrl;
     };
     
-    img.onerror = () => {
+    img.onerror = (error) => {
+      console.error('MBYC logo loading failed:', error);
       // Fallback without logo but maintain Apple design
       doc.setFillColor(purple[0], purple[1], purple[2]);
       doc.rect(0, 0, 210, 80, 'F');
@@ -313,8 +328,11 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       
       // Add QR code to fallback version too
       const qrCodeUrl = generateQRCode(registration, event);
+      console.log('Fallback QR code URL:', qrCodeUrl);
       const qrImg = new Image();
+      qrImg.crossOrigin = 'anonymous';
       qrImg.onload = () => {
+        console.log('Fallback QR code image loaded successfully');
         doc.addImage(qrImg, 'PNG', 140, contentStartY + 40, 50, 50);
         doc.setFontSize(12);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
@@ -325,22 +343,27 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
         doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
         
+        console.log('Saving fallback PDF with QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
       };
       
-      qrImg.onerror = () => {
+      qrImg.onerror = (error) => {
+        console.error('Fallback QR code loading failed:', error);
         doc.setFontSize(11);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
         doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
         doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
         
+        console.log('Saving fallback PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
       };
       
+      console.log('Loading fallback QR code image...');
       qrImg.src = qrCodeUrl;
     };
     
     // Load the MBYC logo
+    console.log('Loading MBYC logo from:', mbycLogoWhite);
     img.src = mbycLogoWhite;
   };
 
