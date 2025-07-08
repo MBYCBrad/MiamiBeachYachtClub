@@ -317,7 +317,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.15 }}
                     >
-                      <Card className="bg-gradient-to-br from-gray-900/95 to-gray-800/80 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-500 backdrop-blur-xl overflow-hidden">
+                      <Card className="bg-black/95 border border-gray-700/50 hover:border-gray-600/70 transition-all duration-500 backdrop-blur-xl overflow-hidden">
                         <CardContent className="p-8">
                           {/* Trip Header with Yacht Image */}
                           <div className="flex justify-between items-start mb-6">
