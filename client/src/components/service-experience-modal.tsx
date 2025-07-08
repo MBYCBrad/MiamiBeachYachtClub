@@ -207,14 +207,14 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <Calendar className="w-5 h-5 text-purple-400" />
                     <div>
                       <p className="text-sm text-gray-400">Service Date</p>
-                      <p className="text-white font-medium">{format(new Date(booking.scheduledDate), 'PPP')}</p>
+                      <p className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'PPP') : 'Today'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-purple-400" />
                     <div>
                       <p className="text-sm text-gray-400">Service Time</p>
-                      <p className="text-white font-medium">{format(new Date(booking.scheduledDate), 'h:mm a')}</p>
+                      <p className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'h:mm a') : '9:00 AM'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -499,7 +499,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Service Provider</span>
-                    <span className="text-white font-medium">{booking.service.provider?.username || 'Professional Provider'}</span>
+                    <span className="text-white font-medium">{booking.service?.provider?.username || 'Professional Provider'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Started At</span>
@@ -684,7 +684,7 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Service Provider</span>
-                    <span className="text-white font-medium">{booking.service.provider?.username || 'Professional Provider'}</span>
+                    <span className="text-white font-medium">{booking.service?.provider?.username || 'Professional Provider'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -743,15 +743,15 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Service:</span>
-                        <span className="text-white">{booking.service.name}</span>
+                        <span className="text-white">{booking.service?.name || 'Premium Service'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Duration:</span>
-                        <span className="text-white">{booking.service.duration}h</span>
+                        <span className="text-white">{booking.service?.duration || 2}h</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Date:</span>
-                        <span className="text-white">{format(new Date(booking.scheduledDate), 'MMM d')}</span>
+                        <span className="text-white">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'MMM d') : 'Today'}</span>
                       </div>
                     </div>
                   </div>
@@ -869,19 +869,19 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Service Name</span>
-                    <span className="text-white font-medium">{booking.service.name}</span>
+                    <span className="text-white font-medium">{booking.service?.name || 'Premium Service'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Category</span>
-                    <span className="text-white font-medium">{booking.service.category}</span>
+                    <span className="text-white font-medium">{booking.service?.category || 'Premium'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Duration</span>
-                    <span className="text-white font-medium">{booking.service.duration} hours</span>
+                    <span className="text-white font-medium">{booking.service?.duration || 2} hours</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-300">Date</span>
-                    <span className="text-white font-medium">{format(new Date(booking.scheduledDate), 'PPP')}</span>
+                    <span className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'PPP') : 'Today'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -1153,15 +1153,15 @@ export default function ServiceExperienceModal({ booking, isOpen, onClose }: Ser
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-300">Service</span>
-                        <span className="text-white font-medium">{booking.service.name}</span>
+                        <span className="text-white font-medium">{booking.service?.name || 'Premium Service'}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-300">Provider</span>
-                        <span className="text-white font-medium">{booking.service.provider?.username || 'Professional Provider'}</span>
+                        <span className="text-white font-medium">{booking.service?.provider?.username || 'Professional Provider'}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-300">Date</span>
-                        <span className="text-white font-medium">{format(new Date(booking.scheduledDate), 'MMM d, yyyy')}</span>
+                        <span className="text-white font-medium">{booking.scheduledDate ? format(new Date(booking.scheduledDate), 'MMM d, yyyy') : 'Today'}</span>
                       </div>
                     </div>
                   </div>
