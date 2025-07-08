@@ -37,6 +37,12 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [selectedTripForRating, setSelectedTripForRating] = useState<Booking | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showAdventureDetails, setShowAdventureDetails] = useState(false);
+  const [showEndTripForm, setShowEndTripForm] = useState(false);
+  const [selectedAdventureBooking, setSelectedAdventureBooking] = useState<Booking | null>(null);
+  const [endTripStep, setEndTripStep] = useState(1);
+  const [endTripRating, setEndTripRating] = useState(0);
+  const [endTripNotes, setEndTripNotes] = useState('');
   const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
@@ -489,11 +495,13 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                         <Timer className="w-3 h-3 mr-1" />
                                         Current Phase
                                       </Badge>
-                                      {/* Begin Adventure button for immediate experience */}
+                                      {/* Begin Experience button for Step 1 */}
                                       <Button
                                         onClick={() => {
-                                          // Temporarily set current time to start time for demo
+                                          // Move to Step 2: Active adventure phase
                                           setCurrentTime(new Date(booking.startTime));
+                                          setSelectedAdventureBooking(booking);
+                                          setShowAdventureDetails(true);
                                           toast({
                                             title: "The Adventure has begun!",
                                             description: "Your luxury yacht experience is now active.",
@@ -503,7 +511,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                         className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
                                       >
                                         <Sailboat className="w-3 h-3 mr-1" />
-                                        Begin Adventure Now
+                                        Begin Experience
                                       </Button>
                                     </div>
                                   )}
@@ -523,11 +531,23 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">The Adventure has begun</h5>
                                   <p className="text-gray-400 text-sm">Your luxury yacht experience is now active</p>
                                   {getYachtExperiencePhase(booking) === 'during' && (
-                                    <div className="mt-2">
+                                    <div className="mt-2 space-y-2">
                                       <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 animate-pulse">
                                         <Activity className="w-3 h-3 mr-1" />
                                         In Progress
                                       </Badge>
+                                      {/* Adventure Details button for Step 2 */}
+                                      <Button
+                                        onClick={() => {
+                                          setSelectedAdventureBooking(booking);
+                                          setShowAdventureDetails(true);
+                                        }}
+                                        size="sm"
+                                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                                      >
+                                        <Eye className="w-3 h-3 mr-1" />
+                                        Adventure Details
+                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -546,21 +566,24 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">Post-Charter Review</h5>
                                   <p className="text-gray-400 text-sm">Rate your yacht experience</p>
                                   {getYachtExperiencePhase(booking) === 'after' && (
-                                    <div className="mt-2 flex items-center gap-2">
+                                    <div className="mt-2 space-y-2">
                                       <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                                         <CheckCircle className="w-3 h-3 mr-1" />
                                         Complete
                                       </Badge>
-                                      {!booking.rating && (
-                                        <Button
-                                          onClick={() => startYachtRating(booking)}
-                                          size="sm"
-                                          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-xs"
-                                        >
-                                          <Star className="w-3 h-3 mr-1" />
-                                          Rate Experience
-                                        </Button>
-                                      )}
+                                      {/* End Trip button for Step 3 */}
+                                      <Button
+                                        onClick={() => {
+                                          setSelectedAdventureBooking(booking);
+                                          setShowEndTripForm(true);
+                                          setEndTripStep(1);
+                                        }}
+                                        size="sm"
+                                        className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                                      >
+                                        <Star className="w-3 h-3 mr-1" />
+                                        End Trip
+                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -1372,6 +1395,272 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Adventure Details Dialog - Step 2 */}
+      <Dialog open={showAdventureDetails} onOpenChange={setShowAdventureDetails}>
+        <DialogContent className="max-w-4xl bg-gray-900 border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <DialogTitle className="text-2xl font-bold text-white">
+              Adventure Details
+            </DialogTitle>
+            <Button
+              onClick={() => {
+                if (selectedAdventureBooking) {
+                  setCurrentTime(new Date(selectedAdventureBooking.endTime));
+                  setShowAdventureDetails(false);
+                  setShowEndTripForm(true);
+                  setEndTripStep(1);
+                }
+              }}
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+            >
+              <Star className="w-4 h-4 mr-2" />
+              End Trip
+            </Button>
+          </div>
+          
+          {selectedAdventureBooking && (
+            <div className="space-y-6">
+              {/* 5-6 Step Experience Timeline */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">1</span>
+                    </div>
+                    <h4 className="text-white font-medium">Welcome Aboard</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Captain greeting and safety briefing completed</p>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">2</span>
+                    </div>
+                    <h4 className="text-white font-medium">Departure</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Setting sail from Miami Marina</p>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">3</span>
+                    </div>
+                    <h4 className="text-white font-medium">Open Waters</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Cruising through beautiful Miami waters</p>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">4</span>
+                    </div>
+                    <h4 className="text-white font-medium">Activities</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Swimming, dining, and entertainment</p>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">5</span>
+                    </div>
+                    <h4 className="text-white font-medium">Sunset Views</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Enjoying spectacular Miami sunset</p>
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">6</span>
+                    </div>
+                    <h4 className="text-white font-medium">Return Journey</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Heading back to marina</p>
+                </div>
+              </div>
+
+              {/* Time Remaining */}
+              <div className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/30">
+                <h4 className="text-white font-medium mb-2">Time Remaining</h4>
+                <div className="text-3xl font-bold text-white">
+                  {(() => {
+                    const now = currentTime;
+                    const end = new Date(selectedAdventureBooking.endTime);
+                    const hoursRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60)));
+                    const minutesRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60)) % 60);
+                    return `${hoursRemaining}h ${minutesRemaining}m`;
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* End Trip Form Dialog - Step 3 */}
+      <Dialog open={showEndTripForm} onOpenChange={setShowEndTripForm}>
+        <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
+          <DialogTitle className="text-2xl font-bold text-white mb-4">
+            End Trip Experience
+          </DialogTitle>
+          
+          {selectedAdventureBooking && (
+            <div className="space-y-6">
+              {/* 5-Step Form */}
+              {endTripStep === 1 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-white">Step 1: Overall Experience</h3>
+                  <p className="text-gray-400">How would you rate your overall yacht experience?</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button
+                        key={star}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEndTripRating(star)}
+                        className={`p-2 ${star <= endTripRating ? 'text-yellow-400' : 'text-gray-400'}`}
+                      >
+                        <Star className={`w-8 h-8 ${star <= endTripRating ? 'fill-current' : ''}`} />
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => setEndTripStep(2)}
+                    disabled={endTripRating === 0}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  >
+                    Next Step
+                  </Button>
+                </div>
+              )}
+
+              {endTripStep === 2 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-white">Step 2: Captain & Crew</h3>
+                  <p className="text-gray-400">Rate the captain and crew service</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button
+                        key={star}
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 text-yellow-400"
+                      >
+                        <Star className="w-8 h-8 fill-current" />
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => setEndTripStep(3)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  >
+                    Next Step
+                  </Button>
+                </div>
+              )}
+
+              {endTripStep === 3 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-white">Step 3: Yacht Condition</h3>
+                  <p className="text-gray-400">Rate the yacht's condition and amenities</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button
+                        key={star}
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 text-yellow-400"
+                      >
+                        <Star className="w-8 h-8 fill-current" />
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => setEndTripStep(4)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  >
+                    Next Step
+                  </Button>
+                </div>
+              )}
+
+              {endTripStep === 4 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-white">Step 4: Value for Experience</h3>
+                  <p className="text-gray-400">Rate the overall value of your yacht experience</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button
+                        key={star}
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 text-yellow-400"
+                      >
+                        <Star className="w-8 h-8 fill-current" />
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    onClick={() => setEndTripStep(5)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                  >
+                    Final Step
+                  </Button>
+                </div>
+              )}
+
+              {endTripStep === 5 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-white">Step 5: Additional Notes</h3>
+                  <p className="text-gray-400">Share any additional feedback about your experience</p>
+                  <Textarea
+                    value={endTripNotes}
+                    onChange={(e) => setEndTripNotes(e.target.value)}
+                    placeholder="Tell us about your yacht experience..."
+                    className="bg-gray-800 border-gray-700 text-white min-h-24"
+                  />
+                  <Button
+                    onClick={async () => {
+                      // Submit the rating
+                      try {
+                        await rateYachtMutation.mutateAsync({
+                          bookingId: selectedAdventureBooking.id,
+                          rating: endTripRating,
+                          review: endTripNotes
+                        });
+                        
+                        toast({
+                          title: "Thank you for your feedback!",
+                          description: "Your yacht experience rating has been submitted.",
+                        });
+                        
+                        setShowEndTripForm(false);
+                        setEndTripStep(1);
+                        setEndTripRating(0);
+                        setEndTripNotes('');
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to submit rating. Please try again.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  >
+                    Submit Rating
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
