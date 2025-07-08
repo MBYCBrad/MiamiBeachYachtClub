@@ -8,8 +8,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useMessages } from "@/hooks/use-messages";
 import { useAuth } from "@/hooks/use-auth";
 import { useMessageWebSocket } from "@/hooks/use-message-websocket";
-import { Send, Phone, MessageCircle, Clock } from "lucide-react";
+import { Send, Phone, MessageCircle, Clock, PhoneCall } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import type { Message } from "@shared/schema";
 
 interface MessageInterfaceProps {
@@ -26,7 +29,10 @@ export function MessageInterface({
   className = "" 
 }: MessageInterfaceProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [messageText, setMessageText] = useState("");
+  const [isInitiatingCall, setIsInitiatingCall] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Initialize real-time message WebSocket
@@ -88,6 +94,69 @@ export function MessageInterface({
     }
   };
 
+  // Phone call mutation
+  const phoneCallMutation = useMutation({
+    mutationFn: async (callData: {
+      reason: string;
+      callType: string;
+      memberPhone: string;
+    }) => {
+      return await apiRequest("POST", "/api/phone-calls", callData);
+    },
+    onSuccess: (newCall: any) => {
+      toast({
+        title: "Call Initiated",
+        description: `Connecting you to ${recipientName}. Call ID: ${newCall.id}`,
+      });
+      
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      
+      // Create a notification message about the call
+      sendMessageMutation.mutate({
+        content: `📞 Phone call initiated to ${recipientName}`,
+        messageType: "system",
+        metadata: {
+          callId: newCall.id,
+          phoneNumber: callData.memberPhone,
+          callStatus: "initiated"
+        }
+      });
+    },
+    onError: (error: any) => {
+      console.error("Phone call error:", error);
+      toast({
+        title: "Call Failed",
+        description: error.message || "Unable to initiate call. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleInitiateCall = async () => {
+    if (!user?.phone) {
+      toast({
+        title: "Phone Number Required",
+        description: "Please add your phone number in your profile to make calls.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsInitiatingCall(true);
+    
+    try {
+      await phoneCallMutation.mutateAsync({
+        reason: "Member Support Request",
+        callType: "support",
+        memberPhone: user.phone,
+      });
+    } finally {
+      setIsInitiatingCall(false);
+    }
+  };
+
   const getMessageAlignment = (message: Message) => {
     return message.senderId === user?.id ? "justify-end" : "justify-start";
   };
@@ -128,9 +197,19 @@ export function MessageInterface({
                   <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                   Online
                 </Badge>
-                <Button variant="outline" size="sm" className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900">
-                  <Phone className="h-4 w-4 mr-1" />
-                  Call
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleInitiateCall}
+                  disabled={isInitiatingCall || phoneCallMutation.isPending}
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-600 dark:hover:bg-purple-900"
+                >
+                  {isInitiatingCall || phoneCallMutation.isPending ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full mr-1" />
+                  ) : (
+                    <Phone className="h-4 w-4 mr-1" />
+                  )}
+                  {isInitiatingCall || phoneCallMutation.isPending ? "Calling..." : "Call"}
                 </Button>
               </div>
             </div>

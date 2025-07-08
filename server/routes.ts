@@ -6342,6 +6342,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PHONE CALL SYSTEM - Real-time calling with Twilio integration
+  app.get("/api/phone-calls", requireAuth, async (req, res) => {
+    try {
+      let phoneCalls;
+      
+      if (req.user!.role === UserRole.ADMIN) {
+        // Admin can see all phone calls
+        phoneCalls = await dbStorage.getPhoneCalls();
+      } else {
+        // Members can only see their own calls
+        phoneCalls = await dbStorage.getPhoneCallsByMember(req.user!.id);
+      }
+      
+      res.json(phoneCalls);
+    } catch (error: any) {
+      console.error('Error fetching phone calls:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/phone-calls", requireAuth, async (req, res) => {
+    try {
+      const { reason, callType, memberPhone } = req.body;
+      const member = req.user!;
+      
+      // Generate unique call ID
+      const callId = `call_${member.id}_${Date.now()}`;
+      
+      // Create phone call record
+      const phoneCallData = {
+        id: callId,
+        memberId: member.id,
+        memberName: member.username,
+        memberPhone: memberPhone || member.phone || "305-892-4567",
+        agentId: 60, // Simon Librati admin user ID
+        callType,
+        status: "initiating",
+        direction: "outbound",
+        reason,
+        startTime: new Date(),
+        metadata: {
+          twilioStatus: "initiated",
+          callerName: member.username,
+          location: "Miami Beach Yacht Club",
+          emergencyLevel: callType === "emergency" ? "high" : "normal"
+        }
+      };
+
+      const phoneCall = await dbStorage.createPhoneCall(phoneCallData);
+
+      // Real-time WebSocket notification to admin
+      if (wss) {
+        const adminNotification = JSON.stringify({
+          type: 'phone_call_initiated',
+          data: {
+            callId: phoneCall.id,
+            memberName: phoneCall.memberName,
+            memberPhone: phoneCall.memberPhone,
+            reason: phoneCall.reason,
+            callType: phoneCall.callType,
+            timestamp: phoneCall.startTime
+          }
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(adminNotification);
+          }
+        });
+      }
+
+      // Send Twilio SMS notification to admin (Simon Librati)
+      try {
+        await twilioClient.messages.create({
+          body: `🚨 NEW CALL REQUEST\nMember: ${phoneCall.memberName}\nPhone: ${phoneCall.memberPhone}\nReason: ${phoneCall.reason}\nCall ID: ${phoneCall.id}\n\nCall member now: ${phoneCall.memberPhone}`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: "+13058924567" // Simon Librati's admin phone
+        });
+        console.log(`📱 SMS sent to admin for call ${phoneCall.id}`);
+      } catch (smsError) {
+        console.error('SMS notification failed:', smsError);
+      }
+
+      // Create high-priority notification for admin dashboard
+      await dbStorage.createNotification({
+        userId: 60, // Simon Librati admin
+        title: "Urgent Call Request",
+        message: `${phoneCall.memberName} is requesting immediate phone support. Reason: ${phoneCall.reason}`,
+        type: "phone_call",
+        priority: "high",
+        metadata: {
+          callId: phoneCall.id,
+          memberPhone: phoneCall.memberPhone,
+          actionRequired: true
+        },
+        actionUrl: `/admin/customer-service?call=${phoneCall.id}`
+      });
+
+      // Update call status to "ringing" after notifications sent
+      await dbStorage.updatePhoneCall(phoneCall.id, {
+        status: "ringing",
+        metadata: {
+          ...phoneCall.metadata,
+          twilioStatus: "ringing",
+          notificationsSent: true
+        }
+      });
+
+      res.status(201).json(phoneCall);
+    } catch (error: any) {
+      console.error('Error creating phone call:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/phone-calls/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const callId = req.params.id;
+      const { status, duration, notes, endTime } = req.body;
+      
+      const updateData: any = { status };
+      
+      if (duration !== undefined) updateData.duration = duration;
+      if (notes !== undefined) updateData.notes = notes;
+      if (endTime !== undefined) updateData.endTime = new Date(endTime);
+      
+      const updatedCall = await dbStorage.updatePhoneCall(callId, updateData);
+      
+      if (!updatedCall) {
+        return res.status(404).json({ message: "Phone call not found" });
+      }
+
+      // Real-time WebSocket update
+      if (wss) {
+        const callUpdate = JSON.stringify({
+          type: 'phone_call_updated',
+          data: {
+            callId: updatedCall.id,
+            status: updatedCall.status,
+            duration: updatedCall.duration,
+            notes: updatedCall.notes
+          }
+        });
+        
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(callUpdate);
+          }
+        });
+      }
+
+      res.json(updatedCall);
+    } catch (error: any) {
+      console.error('Error updating phone call:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Staff assignment endpoints
   app.get('/api/staff/assignments', requireAuth, async (req, res) => {
     try {
