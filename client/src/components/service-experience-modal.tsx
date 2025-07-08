@@ -38,9 +38,9 @@ interface ExperienceData {
 }
 
 const PROCESS_TITLES = [
-  "Service Preparation",
-  "Experience Journey", 
-  "Review & Rating"
+  "Before Experience",
+  "During Experience", 
+  "After Experience"
 ];
 
 const STEP_TITLES = {

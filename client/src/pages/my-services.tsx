@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import jsPDF from 'jspdf';
 import type { MediaAsset } from '@shared/schema';
-import ServiceExperienceModal from "@/components/service-experience-modal";
+import ServiceExperienceModal from "@/components/service-experience-modal-new";
 
 interface ServiceBooking {
   id: number;
