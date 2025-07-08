@@ -383,49 +383,48 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         </div>
         
         <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
-          <motion.div
+          <motion.h1 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl font-bold text-gradient-animate mb-4"
           >
-            <PlayCircle className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-80" />
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              My Events
-            </h1>
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-              Track your event registrations and upcoming experiences
-            </p>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Stats Cards - positioned below video */}
-      <div className="relative -mt-16 z-30 px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="container mx-auto"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
-              <div className="text-xl font-bold text-purple-400">{registrations.length}</div>
-              <div className="text-xs text-gray-300">Events</div>
+            My Events
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-gray-200 max-w-2xl leading-relaxed"
+          >
+            Track your event registrations and upcoming experiences
+          </motion.p>
+          
+          {/* Stats overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex space-x-6 text-center"
+          >
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">{registrations.length}</div>
+              <div className="text-sm text-gray-300">Events</div>
             </div>
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20">
-              <div className="text-xl font-bold text-purple-400">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">
                 {registrations.reduce((sum, reg) => sum + (reg.ticketCount || 0), 0)}
               </div>
-              <div className="text-xs text-gray-300">Tickets</div>
+              <div className="text-sm text-gray-300">Tickets</div>
             </div>
-            <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 text-center border border-purple-500/20 col-span-2 md:col-span-1">
-              <div className="text-xl font-bold text-purple-400">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="text-2xl font-bold text-white">
                 ${registrations.reduce((sum, reg) => sum + parseFloat(reg.totalPrice || '0'), 0).toFixed(0)}
               </div>
-              <div className="text-xs text-gray-300">Total Spent</div>
+              <div className="text-sm text-gray-300">Total Spent</div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Content */}
