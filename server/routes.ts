@@ -2921,13 +2921,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", requireAuth, async (req, res) => {
     try {
-      const messageData = insertMessageSchema.parse({
-        ...req.body,
-        senderId: req.user!.id
+      const { conversationId, content, messageType = 'text', recipientId } = req.body;
+      
+      // Validate required fields
+      if (!conversationId || !content) {
+        return res.status(400).json({ message: "conversationId and content are required" });
+      }
+
+      const message = await dbStorage.createMessage({
+        senderId: req.user!.id,
+        recipientId,
+        conversationId,
+        content,
+        messageType,
+        status: 'sent'
       });
 
-      const message = await dbStorage.createMessage(messageData);
-      
+      // Update conversation with latest message
+      await dbStorage.updateConversation(conversationId, {
+        lastMessage: content,
+        lastMessageTime: new Date(),
+        unreadCount: messageType === 'text' ? 1 : 0
+      });
+
       // Send real-time notification (if notification service supports it)
       try {
         if (notificationService && typeof notificationService.broadcast === 'function') {
@@ -2942,6 +2958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json(message);
     } catch (error: any) {
+      console.error('Message creation error:', error);
       res.status(400).json({ message: error.message });
     }
   });
@@ -5078,45 +5095,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Send a new message
-  app.post("/api/messages", requireAuth, async (req, res) => {
-    try {
-      const { conversationId, content, messageType = 'text', recipientId } = req.body;
-      
-      const message = await dbStorage.createMessage({
-        senderId: req.user!.id,
-        recipientId,
-        conversationId,
-        content,
-        messageType,
-        status: 'sent'
-      });
 
-      // Update conversation with latest message
-      await dbStorage.updateConversation(conversationId, {
-        lastMessage: content,
-        lastMessageTime: new Date(),
-        unreadCount: messageType === 'text' ? 1 : 0
-      });
-
-      // Send real-time notification via WebSocket
-      if (wss) {
-        wss.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              type: 'new_message',
-              conversationId,
-              message
-            }));
-          }
-        });
-      }
-
-      res.json(message);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
 
   // Get all conversations - Ultra-fast memory cache
   app.get("/api/conversations", async (req, res) => {
