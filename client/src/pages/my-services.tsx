@@ -1,10 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, Users, Star, Download, Phone, MessageSquare } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar, MapPin, Clock, Users, Star, Download, Phone, MessageSquare, Eye, StarIcon, AlertCircle, CheckCircle, Timer, Coffee, Sparkles, Heart, Crown, Zap } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import jsPDF from 'jspdf';
 import type { MediaAsset } from '@shared/schema';
 
 interface ServiceBooking {
@@ -40,13 +46,112 @@ interface MyServicesProps {
 }
 
 export default function MyServices({ currentView, setCurrentView }: MyServicesProps) {
+  const queryClient = useQueryClient();
+  
   const { data: heroVideo } = useQuery<MediaAsset>({
     queryKey: ['/api/media/hero/active']
   });
 
   const { data: serviceBookings, isLoading } = useQuery({
     queryKey: ["/api/service-bookings"],
+    refetchInterval: 30000, // Real-time sync every 30 seconds
+    staleTime: 15000, // Consider stale after 15 seconds
   });
+
+  // Rating mutation
+  const rateServiceMutation = useMutation({
+    mutationFn: async ({ bookingId, rating, review }: { bookingId: number; rating: number; review: string }) => {
+      return await apiRequest('POST', `/api/service-bookings/${bookingId}/rate`, {
+        rating,
+        review
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/service-bookings'] });
+      toast({
+        title: "Service Rated",
+        description: "Thank you for your feedback!",
+      });
+    }
+  });
+
+  // PDF Receipt Generation
+  const generatePDFReceipt = (booking: ServiceBooking) => {
+    try {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(139, 92, 246); // Purple
+      doc.text('Miami Beach Yacht Club', 20, 20);
+      doc.setFontSize(16);
+      doc.text('Service Receipt', 20, 30);
+      
+      // Booking Details
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Receipt #: ${booking.id}`, 20, 50);
+      doc.text(`Service: ${booking.service.name}`, 20, 60);
+      doc.text(`Provider: ${booking.service.provider?.username || 'MBYC Staff'}`, 20, 70);
+      doc.text(`Date: ${format(new Date(booking.scheduledDate), 'PPP')}`, 20, 80);
+      doc.text(`Status: ${booking.status.toUpperCase()}`, 20, 90);
+      doc.text(`Total: $${booking.totalPrice}`, 20, 100);
+      
+      // Service Details
+      doc.text('Service Details:', 20, 120);
+      doc.text(`Category: ${booking.service.category}`, 20, 130);
+      doc.text(`Duration: ${booking.service.duration} minutes`, 20, 140);
+      if (booking.notes) {
+        doc.text(`Notes: ${booking.notes}`, 20, 150);
+      }
+      
+      // Footer
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Miami Beach Yacht Club - Premium Concierge Services', 20, 270);
+      doc.text(`Generated on: ${format(new Date(), 'PPP')}`, 20, 280);
+      
+      doc.save(`MBYC-Service-Receipt-${booking.id}.pdf`);
+      
+      toast({
+        title: "Receipt Downloaded",
+        description: "Your service receipt has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: "Download Error",
+        description: "Failed to generate receipt. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Get status styling
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'confirmed': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'in_progress': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+      case 'completed': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'cancelled': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    }
+  };
+
+  // Get category icon
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Beauty & Grooming': return <Sparkles className="w-5 h-5 text-purple-400" />;
+      case 'Culinary': return <Coffee className="w-5 h-5 text-purple-400" />;
+      case 'Wellness & Spa': return <Heart className="w-5 h-5 text-purple-400" />;
+      case 'Photography & Media': return <Eye className="w-5 h-5 text-purple-400" />;
+      case 'Entertainment': return <Crown className="w-5 h-5 text-purple-400" />;
+      case 'Water Sports': return <Zap className="w-5 h-5 text-purple-400" />;
+      case 'Concierge & Lifestyle': return <Star className="w-5 h-5 text-purple-400" />;
+      default: return <Star className="w-5 h-5 text-purple-400" />;
+    }
+  };
 
   const bookings = serviceBookings as ServiceBooking[] || [];
 
@@ -67,40 +172,105 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-gradient-to-r from-green-600 to-green-500';
-      case 'pending':
-        return 'bg-gradient-to-r from-yellow-600 to-yellow-500';
-      case 'completed':
-        return 'bg-gradient-to-r from-purple-600 to-indigo-600';
-      case 'cancelled':
-        return 'bg-gradient-to-r from-red-600 to-red-500';
-      default:
-        return 'bg-gradient-to-r from-gray-600 to-gray-500';
-    }
-  };
+  // Service Experience Rating Component
+  const ServiceRatingDialog = ({ booking }: { booking: ServiceBooking }) => {
+    const [rating, setRating] = useState(0);
+    const [review, setReview] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'beauty & grooming':
-        return '💄';
-      case 'culinary':
-        return '🍽️';
-      case 'wellness & spa':
-        return '🧘';
-      case 'photography & media':
-        return '📸';
-      case 'entertainment':
-        return '🎵';
-      case 'water sports':
-        return '🏄';
-      case 'concierge & lifestyle':
-        return '🎩';
-      default:
-        return '⭐';
-    }
+    const handleSubmitRating = () => {
+      if (rating > 0) {
+        rateServiceMutation.mutate({
+          bookingId: booking.id,
+          rating,
+          review
+        });
+        setIsOpen(false);
+        setRating(0);
+        setReview("");
+      }
+    };
+
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-purple-600/20 border-purple-500/30 hover:bg-purple-600/30 text-purple-400"
+          >
+            <Star className="w-4 h-4 mr-1" />
+            Rate Service
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-gradient-animate">Rate Your Service Experience</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Service Info */}
+            <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+              <h3 className="font-semibold text-purple-400 mb-2">{booking.service.name}</h3>
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                {getCategoryIcon(booking.service.category)}
+                <span>{booking.service.category}</span>
+                <span>•</span>
+                <span>{booking.service.provider?.username || 'MBYC Staff'}</span>
+              </div>
+            </div>
+
+            {/* Star Rating */}
+            <div className="text-center">
+              <h4 className="text-lg font-semibold mb-4">How was your experience?</h4>
+              <div className="flex justify-center gap-2 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className={`p-2 rounded-full transition-all ${
+                      star <= rating 
+                        ? 'text-yellow-400 scale-110' 
+                        : 'text-gray-400 hover:text-yellow-300'
+                    }`}
+                  >
+                    <StarIcon className="w-8 h-8" fill={star <= rating ? 'currentColor' : 'none'} />
+                  </button>
+                ))}
+              </div>
+              <p className="text-sm text-gray-400">
+                {rating === 0 && "Click to rate"}
+                {rating === 1 && "Poor"}
+                {rating === 2 && "Fair"}
+                {rating === 3 && "Good"}
+                {rating === 4 && "Very Good"}
+                {rating === 5 && "Excellent"}
+              </p>
+            </div>
+
+            {/* Review Notes */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Share your experience (optional)</label>
+              <Textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                placeholder="Tell us about your service experience..."
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 resize-none h-24"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button 
+              onClick={handleSubmitRating}
+              disabled={rating === 0 || rateServiceMutation.isPending}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            >
+              {rateServiceMutation.isPending ? 'Submitting...' : 'Submit Rating'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (
@@ -423,23 +593,152 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                 </>
                               )}
                               {booking.status === 'completed' && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
-                                >
-                                  <Star className="w-4 h-4 mr-2" />
-                                  Rate Service
-                                </Button>
+                                <ServiceRatingDialog booking={booking} />
                               )}
+                              
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
+                                onClick={() => generatePDFReceipt(booking)}
+                                className="border-green-600 text-green-400 hover:bg-gradient-to-r hover:from-green-600/20 hover:to-emerald-600/20"
                               >
                                 <Download className="w-4 h-4 mr-2" />
-                                Download Receipt
+                                Receipt
                               </Button>
+
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-blue-600 text-blue-400 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-indigo-600/20"
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    View Details
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-gradient-animate">Service Experience</DialogTitle>
+                                  </DialogHeader>
+                                  
+                                  <div className="space-y-6">
+                                    {/* Service Info */}
+                                    <div className="flex items-center gap-4">
+                                      <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
+                                        {getCategoryIcon(booking.service.category)}
+                                      </div>
+                                      <div>
+                                        <h3 className="text-xl font-semibold text-white">{booking.service.name}</h3>
+                                        <p className="text-gray-400">{booking.service.category}</p>
+                                      </div>
+                                    </div>
+
+                                    {/* Experience Timeline */}
+                                    <div className="space-y-4">
+                                      <h4 className="font-semibold text-purple-400">Service Experience Timeline</h4>
+                                      
+                                      {/* Before Service */}
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mt-1">
+                                          <AlertCircle className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <h5 className="font-semibold text-white">Before Service</h5>
+                                          <p className="text-gray-300 text-sm mb-2">Service confirmed and scheduled</p>
+                                          <div className="text-xs text-gray-400">
+                                            Booked: {format(new Date(booking.bookingDate), 'PPP')}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* During Service */}
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mt-1">
+                                          <Timer className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <h5 className="font-semibold text-white">During Service</h5>
+                                          <p className="text-gray-300 text-sm mb-2">Service in progress</p>
+                                          <div className="text-xs text-gray-400">
+                                            Duration: {booking.service.duration} hours
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* After Service */}
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mt-1">
+                                          <CheckCircle className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <h5 className="font-semibold text-white">After Service</h5>
+                                          <p className="text-gray-300 text-sm mb-2">
+                                            {booking.status === 'completed' ? 'Service completed successfully' : 'Service pending completion'}
+                                          </p>
+                                          {booking.status === 'completed' && (
+                                            <div className="text-xs text-gray-400">
+                                              Rate your experience to help other members
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Provider Information */}
+                                    {booking.service.provider && (
+                                      <div className="bg-gray-800/50 rounded-lg p-4">
+                                        <h4 className="font-semibold text-purple-400 mb-3">Service Provider Details</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                          <div>
+                                            <span className="text-gray-400 text-sm">Provider:</span>
+                                            <p className="text-white font-medium">{booking.service.provider.username}</p>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 text-sm">Contact:</span>
+                                            <p className="text-white font-medium">{booking.service.provider.email}</p>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 text-sm">Phone:</span>
+                                            <p className="text-white font-medium">{booking.service.provider.phone}</p>
+                                          </div>
+                                          <div>
+                                            <span className="text-gray-400 text-sm">Provider Type:</span>
+                                            <p className="text-white font-medium">
+                                              {booking.service.provider.id === 60 ? 'MBYC Staff' : '3rd Party Provider'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Service Details */}
+                                    <div className="bg-gray-800/50 rounded-lg p-4">
+                                      <h4 className="font-semibold text-purple-400 mb-3">Service Details</h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-400">Service Price:</span>
+                                          <span className="text-white">${booking.service.price}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-400">Total Paid:</span>
+                                          <span className="text-white font-semibold">${booking.totalPrice}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-400">Duration:</span>
+                                          <span className="text-white">{booking.service.duration} hours</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-gray-400">Status:</span>
+                                          <Badge className={`${getStatusColor(booking.status)} text-white capitalize`}>
+                                            {booking.status}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
                             </div>
                           </div>
                         </div>

@@ -938,6 +938,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin service booking management endpoints
+  app.get("/api/admin/service-bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const allServiceBookings = await dbStorage.getServiceBookings();
+      
+      // Enhance bookings with service, user, and provider info
+      const enhancedBookings = await Promise.all(
+        allServiceBookings.map(async (booking) => {
+          const service = await dbStorage.getService(booking.serviceId);
+          const user = await dbStorage.getUser(booking.userId);
+          
+          let provider = null;
+          if (service && service.providerId) {
+            provider = await dbStorage.getUser(service.providerId);
+          }
+          
+          return {
+            ...booking,
+            service: service ? {
+              ...service,
+              provider
+            } : null,
+            member: user
+          };
+        })
+      );
+      
+      res.json(enhancedBookings);
+    } catch (error: any) {
+      console.error('Error fetching admin service bookings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update service booking status (admin)
+  app.put("/api/admin/service-bookings/:id/status", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      const updatedBooking = await dbStorage.updateServiceBooking(bookingId, { status });
+      
+      if (!updatedBooking) {
+        return res.status(404).json({ message: "Service booking not found" });
+      }
+      
+      // Create admin notification for status change
+      await notificationService.createNotification({
+        userId: 60, // Simon Librati admin
+        type: 'service_status_update',
+        title: 'Service Status Updated',
+        message: `Service booking ${bookingId} status changed to ${status}`,
+        priority: 'medium'
+      });
+      
+      res.json(updatedBooking);
+    } catch (error: any) {
+      console.error('Error updating service booking status:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin intervention on service booking
+  app.post("/api/admin/service-bookings/:id/intervention", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { action, notes } = req.body;
+      
+      // Log the intervention
+      await auditService.logAction({
+        userId: req.user!.id,
+        action: `admin_intervention_${action}`,
+        target: 'service_booking',
+        targetId: bookingId,
+        metadata: { notes }
+      });
+      
+      // Create notification for intervention
+      await notificationService.createNotification({
+        userId: 60, // Simon Librati admin
+        type: 'admin_intervention',
+        title: 'Admin Intervention',
+        message: `Admin intervention: ${action} on service booking ${bookingId}`,
+        priority: 'high'
+      });
+      
+      res.json({ success: true, message: 'Intervention logged' });
+    } catch (error: any) {
+      console.error('Error logging admin intervention:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Service provider booking status update
+  app.put("/api/service-provider/bookings/:id/status", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { status, notes } = req.body;
+      
+      // Verify provider owns this booking
+      const booking = await dbStorage.getServiceBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Service booking not found" });
+      }
+      
+      const service = await dbStorage.getService(booking.serviceId);
+      if (!service || (service.providerId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+        return res.status(403).json({ message: "Unauthorized to update this booking" });
+      }
+      
+      const updatedBooking = await dbStorage.updateServiceBooking(bookingId, { status });
+      
+      // Create notification for member
+      await notificationService.createNotification({
+        userId: booking.userId,
+        type: 'service_status_update',
+        title: 'Service Status Updated',
+        message: `Your ${service.name} booking status has been updated to ${status}`,
+        priority: 'medium'
+      });
+      
+      res.json(updatedBooking);
+    } catch (error: any) {
+      console.error('Error updating service booking status:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Service provider delivery update
+  app.post("/api/service-provider/bookings/:id/delivery", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { phase, notes, deliveryDetails } = req.body;
+      
+      // Verify provider owns this booking
+      const booking = await dbStorage.getServiceBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Service booking not found" });
+      }
+      
+      const service = await dbStorage.getService(booking.serviceId);
+      if (!service || (service.providerId !== req.user!.id && req.user!.role !== UserRole.ADMIN)) {
+        return res.status(403).json({ message: "Unauthorized to update this booking" });
+      }
+      
+      // Log the delivery update
+      await auditService.logAction({
+        userId: req.user!.id,
+        action: `service_delivery_${phase}`,
+        target: 'service_booking',
+        targetId: bookingId,
+        metadata: { notes, deliveryDetails, phase }
+      });
+      
+      // Create notification for member
+      await notificationService.createNotification({
+        userId: booking.userId,
+        type: 'service_delivery_update',
+        title: 'Service Delivery Update',
+        message: `Your ${service.name} service has been updated: ${phase}`,
+        priority: 'medium'
+      });
+      
+      res.json({ success: true, message: 'Delivery update logged' });
+    } catch (error: any) {
+      console.error('Error updating service delivery:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // BOOKING ROUTES
   app.get("/api/bookings", requireAuth, async (req, res) => {
     try {
@@ -1304,6 +1474,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(booking);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Rate a service booking
+  app.post("/api/service-bookings/:id/rate", requireAuth, requireRole([UserRole.MEMBER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.id);
+      const { rating, review } = req.body;
+
+      // Validate input
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: "Rating must be between 1 and 5" });
+      }
+
+      // Get the service booking
+      const booking = await dbStorage.getServiceBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Service booking not found" });
+      }
+
+      // Check if user owns this booking
+      if (req.user!.role === UserRole.MEMBER && booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if service is completed
+      if (booking.status !== 'completed') {
+        return res.status(400).json({ message: "Can only rate completed services" });
+      }
+
+      // Create the rating/review
+      const reviewData = {
+        userId: req.user!.id,
+        serviceId: booking.serviceId,
+        bookingId: bookingId,
+        rating: rating,
+        review: review || null,
+        createdAt: new Date()
+      };
+
+      const createdReview = await dbStorage.createReview(reviewData);
+
+      // Update service average rating
+      const service = await dbStorage.getService(booking.serviceId);
+      if (service) {
+        const allReviews = await dbStorage.getReviews({ serviceId: booking.serviceId });
+        const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+        await dbStorage.updateService(booking.serviceId, { 
+          rating: averageRating.toFixed(1),
+          reviewCount: allReviews.length
+        });
+      }
+
+      // Notify service provider about new rating
+      if (service && service.providerId) {
+        await dbStorage.createNotification({
+          userId: service.providerId,
+          type: "service_rated",
+          title: "Service Rated",
+          message: `Your ${service.name} service received a ${rating}-star rating from ${req.user!.username}`,
+          priority: "medium",
+          read: false,
+          actionUrl: "/service-provider/services",
+          data: {
+            serviceId: service.id,
+            serviceName: service.name,
+            rating: rating,
+            review: review,
+            memberName: req.user!.username
+          }
+        });
+      }
+
+      res.json({ 
+        message: "Rating submitted successfully",
+        review: createdReview,
+        serviceRating: service ? parseFloat(service.rating || '0') : 0
+      });
+    } catch (error: any) {
+      console.error('Service rating error:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 
