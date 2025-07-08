@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -36,6 +36,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const [reviewText, setReviewText] = useState('');
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [selectedTripForRating, setSelectedTripForRating] = useState<Booking | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
@@ -61,6 +62,15 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const { data: services = [] } = useQuery<Service[]>({
     queryKey: ['/api/services']
   });
+
+  // Update current time every 30 seconds to check phase transitions
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Yacht rating mutation
   const rateYachtMutation = useMutation({
@@ -100,7 +110,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
   // Yacht experience phase helper
   const getYachtExperiencePhase = (booking: Booking) => {
-    const now = new Date();
+    const now = currentTime; // Use currentTime state for real-time updates
     const startTime = new Date(booking.startTime);
     const endTime = new Date(booking.endTime);
 
@@ -292,10 +302,9 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
     setShowRatingDialog(true);
   };
 
-  // Separate upcoming and past bookings
-  const now = new Date();
-  const upcomingYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) > now);
-  const pastYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) <= now);
+  // Separate upcoming and past bookings using currentTime for real-time updates
+  const upcomingYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) > currentTime);
+  const pastYachtBookings = yachtBookings.filter(booking => new Date(booking.startTime) <= currentTime);
 
   return (
     <div className="min-h-screen bg-black text-white pb-32">
@@ -475,11 +484,27 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                   <h5 className="text-white font-medium">Pre-Charter Preparation</h5>
                                   <p className="text-gray-400 text-sm">Yacht preparation and final arrangements</p>
                                   {getYachtExperiencePhase(booking) === 'before' && (
-                                    <div className="mt-2">
+                                    <div className="mt-2 space-y-2">
                                       <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">
                                         <Timer className="w-3 h-3 mr-1" />
                                         Current Phase
                                       </Badge>
+                                      {/* Begin Adventure button for immediate experience */}
+                                      <Button
+                                        onClick={() => {
+                                          // Temporarily set current time to start time for demo
+                                          setCurrentTime(new Date(booking.startTime));
+                                          toast({
+                                            title: "The Adventure has begun!",
+                                            description: "Your luxury yacht experience is now active.",
+                                          });
+                                        }}
+                                        size="sm"
+                                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                                      >
+                                        <Sailboat className="w-3 h-3 mr-1" />
+                                        Begin Adventure Now
+                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -621,7 +646,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                                       <Timer className="w-6 h-6 text-yellow-400 mb-2" />
                                       <div className="text-2xl font-bold text-white">
                                         {(() => {
-                                          const now = new Date();
+                                          const now = currentTime;
                                           const end = new Date(booking.endTime);
                                           const hoursRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60)));
                                           const minutesRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60)) % 60);
