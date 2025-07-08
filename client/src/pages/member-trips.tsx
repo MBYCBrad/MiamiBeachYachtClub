@@ -43,6 +43,12 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   const [endTripStep, setEndTripStep] = useState(1);
   const [endTripRating, setEndTripRating] = useState(0);
   const [endTripNotes, setEndTripNotes] = useState('');
+  
+  // New states for 3-phase experience
+  const [showBeginExperience, setShowBeginExperience] = useState(false);
+  const [beginExperienceStep, setBeginExperienceStep] = useState(1);
+  const [adventureStep, setAdventureStep] = useState(1);
+  
   const { toast } = useToast();
 
   const { data: heroVideo } = useQuery<MediaAsset>({
@@ -126,6 +132,56 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
       return 'during'; // Active charter phase
     } else {
       return 'after'; // Post-charter phase
+    }
+  };
+  
+  // Get the dynamic button for current phase
+  const getDynamicButton = (booking: Booking) => {
+    const phase = getYachtExperiencePhase(booking);
+    
+    switch(phase) {
+      case 'before':
+        return (
+          <Button
+            onClick={() => {
+              setSelectedAdventureBooking(booking);
+              setShowBeginExperience(true);
+            }}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+          >
+            <Anchor className="w-4 h-4 mr-2" />
+            Begin Experience
+          </Button>
+        );
+      case 'during':
+        return (
+          <Button
+            onClick={() => {
+              setSelectedAdventureBooking(booking);
+              setShowAdventureDetails(true);
+            }}
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
+          >
+            <Compass className="w-4 h-4 mr-2" />
+            Adventure Details
+          </Button>
+        );
+      case 'after':
+        return (
+          <Button
+            onClick={() => {
+              setSelectedAdventureBooking(booking);
+              setShowEndTripForm(true);
+              setEndTripStep(1);
+            }}
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+          >
+            <Star className="w-4 h-4 mr-2" />
+            End Trip
+          </Button>
+        );
+      default:
+        return null;
     }
   };
 
@@ -460,58 +516,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                               </div>
                             </div>
                             {/* Dynamic Phase Button */}
-                            {(() => {
-                              const phase = getYachtExperiencePhase(booking);
-                              
-                              if (phase === 'before') {
-                                return (
-                                  <Button
-                                    onClick={() => {
-                                      // Move to Step 2: Active adventure phase
-                                      setCurrentTime(new Date(booking.startTime));
-                                      setSelectedAdventureBooking(booking);
-                                      setShowAdventureDetails(true);
-                                      toast({
-                                        title: "The Adventure has begun!",
-                                        description: "Your luxury yacht experience is now active.",
-                                      });
-                                    }}
-                                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white flex items-center gap-2"
-                                  >
-                                    <Sailboat className="w-4 h-4" />
-                                    Begin Experience
-                                  </Button>
-                                );
-                              } else if (phase === 'during') {
-                                return (
-                                  <Button
-                                    onClick={() => {
-                                      setSelectedAdventureBooking(booking);
-                                      setShowAdventureDetails(true);
-                                    }}
-                                    className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white flex items-center gap-2"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                    Adventure Details
-                                  </Button>
-                                );
-                              } else if (phase === 'after') {
-                                return (
-                                  <Button
-                                    onClick={() => {
-                                      setSelectedAdventureBooking(booking);
-                                      setShowEndTripForm(true);
-                                      setEndTripStep(1);
-                                    }}
-                                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white flex items-center gap-2"
-                                  >
-                                    <Star className="w-4 h-4" />
-                                    End Trip
-                                  </Button>
-                                );
-                              }
-                              return null;
-                            })()}
+                            {getDynamicButton(booking)}
                           </div>
 
                           {/* Yacht Experience Timeline */}
@@ -1401,269 +1406,636 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
         </DialogContent>
       </Dialog>
 
-      {/* Adventure Details Dialog - Step 2 */}
-      <Dialog open={showAdventureDetails} onOpenChange={setShowAdventureDetails}>
-        <DialogContent className="max-w-4xl bg-gray-900 border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <DialogTitle className="text-2xl font-bold text-white">
-              Adventure Details
-            </DialogTitle>
-            <Button
-              onClick={() => {
-                if (selectedAdventureBooking) {
-                  setCurrentTime(new Date(selectedAdventureBooking.endTime));
-                  setShowAdventureDetails(false);
-                  setShowEndTripForm(true);
-                  setEndTripStep(1);
-                }
-              }}
-              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
-            >
-              <Star className="w-4 h-4 mr-2" />
-              End Trip
-            </Button>
-          </div>
-          
-          {selectedAdventureBooking && (
-            <div className="space-y-6">
-              {/* 5-6 Step Experience Timeline */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">1</span>
-                    </div>
-                    <h4 className="text-white font-medium">Welcome Aboard</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Captain greeting and safety briefing completed</p>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">2</span>
-                    </div>
-                    <h4 className="text-white font-medium">Departure</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Setting sail from Miami Marina</p>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">3</span>
-                    </div>
-                    <h4 className="text-white font-medium">Open Waters</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Cruising through beautiful Miami waters</p>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">4</span>
-                    </div>
-                    <h4 className="text-white font-medium">Activities</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Swimming, dining, and entertainment</p>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">5</span>
-                    </div>
-                    <h4 className="text-white font-medium">Sunset Views</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Enjoying spectacular Miami sunset</p>
-                </div>
-
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">6</span>
-                    </div>
-                    <h4 className="text-white font-medium">Return Journey</h4>
-                  </div>
-                  <p className="text-gray-400 text-sm">Heading back to marina</p>
-                </div>
-              </div>
-
-              {/* Time Remaining */}
-              <div className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/30">
-                <h4 className="text-white font-medium mb-2">Time Remaining</h4>
-                <div className="text-3xl font-bold text-white">
-                  {(() => {
-                    const now = currentTime;
-                    const end = new Date(selectedAdventureBooking.endTime);
-                    const hoursRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60)));
-                    const minutesRemaining = Math.max(0, Math.floor((end.getTime() - now.getTime()) / (1000 * 60)) % 60);
-                    return `${hoursRemaining}h ${minutesRemaining}m`;
-                  })()}
-                </div>
-              </div>
+      {/* Phase 1: Begin Experience Dialog - World-Class Onboarding */}
+      <Dialog open={showBeginExperience} onOpenChange={setShowBeginExperience}>
+        <DialogContent className="max-w-4xl bg-slate-900 border-slate-700 p-0 overflow-hidden">
+          <div className="relative">
+            {/* Header with gradient */}
+            <div className="bg-gradient-to-r from-purple-900/50 to-indigo-900/50 backdrop-blur-xl p-6 border-b border-slate-700">
+              <h2 className="text-3xl font-bold text-white">Begin Your Yacht Experience</h2>
+              <p className="text-gray-300 mt-2">Complete these steps to start your luxury adventure</p>
             </div>
-          )}
+
+            {/* Progress bar */}
+            <div className="px-6 py-4 bg-slate-800/50">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Step {beginExperienceStep} of 5</span>
+                <span className="text-sm text-purple-400">{Math.round((beginExperienceStep / 5) * 100)}% Complete</span>
+              </div>
+              <Progress value={(beginExperienceStep / 5) * 100} className="h-2 bg-slate-700" />
+            </div>
+
+            {/* Content area */}
+            <div className="p-6">
+              <AnimatePresence mode="wait">
+                {beginExperienceStep === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Anchor className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Welcome Aboard!</h3>
+                      <p className="text-gray-400 max-w-2xl mx-auto">
+                        Your luxury yacht adventure is about to begin. Let's make sure everything is perfect for your journey.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mt-8">
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <CheckCircle className="w-6 h-6 text-green-400 mb-2" />
+                        <h4 className="text-white font-medium">Booking Confirmed</h4>
+                        <p className="text-gray-400 text-sm mt-1">Your yacht is reserved and ready</p>
+                      </div>
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <Users className="w-6 h-6 text-blue-400 mb-2" />
+                        <h4 className="text-white font-medium">Crew Assigned</h4>
+                        <p className="text-gray-400 text-sm mt-1">Professional captain and crew selected</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {beginExperienceStep === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Meeting Location</h3>
+                      <p className="text-gray-400">Miami Marina - Gate 3</p>
+                    </div>
+
+                    <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Navigation className="w-6 h-6 text-purple-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-medium mb-2">Marina Address</h4>
+                          <p className="text-gray-400">400 Alton Rd, Miami Beach, FL 33139</p>
+                          <p className="text-gray-400 text-sm mt-2">Parking available at the marina - $15/day</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {beginExperienceStep === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Shield className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Safety Information</h3>
+                      <p className="text-gray-400">Important guidelines for your journey</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {[
+                        { icon: LifeBuoy, text: "Life jackets provided for all guests" },
+                        { icon: Shield, text: "Safety briefing by certified captain" },
+                        { icon: Phone, text: "Emergency contacts programmed in yacht systems" },
+                        { icon: Heart, text: "First aid kit and medical supplies onboard" }
+                      ].map((item, index) => (
+                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700 flex items-center gap-3">
+                          <item.icon className="w-5 h-5 text-purple-400" />
+                          <span className="text-gray-300">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {beginExperienceStep === 4 && (
+                  <motion.div
+                    key="step4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Package className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">What to Bring</h3>
+                      <p className="text-gray-400">Essentials for your yacht experience</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { icon: Sun, text: "Sunscreen & sunglasses" },
+                        { icon: Camera, text: "Camera for memories" },
+                        { icon: Wine, text: "Your favorite beverages" },
+                        { icon: Music, text: "Music playlist (Bluetooth ready)" }
+                      ].map((item, index) => (
+                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700 flex items-center gap-3">
+                          <item.icon className="w-5 h-5 text-purple-400" />
+                          <span className="text-gray-300 text-sm">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {beginExperienceStep === 5 && (
+                  <motion.div
+                    key="step5"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">All Set!</h3>
+                      <p className="text-gray-400">You're ready to begin your luxury yacht experience</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-600/20 to-indigo-600/20 rounded-lg p-6 border border-purple-500/30">
+                      <h4 className="text-white font-medium mb-3">Quick Checklist</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                          <span className="text-gray-300">Arrival time confirmed</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                          <span className="text-gray-300">Meeting location saved</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                          <span className="text-gray-300">Safety guidelines reviewed</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                          <span className="text-gray-300">Essentials packed</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Footer with navigation */}
+            <div className="px-6 py-4 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
+              <Button
+                variant="ghost"
+                onClick={() => setBeginExperienceStep(Math.max(1, beginExperienceStep - 1))}
+                disabled={beginExperienceStep === 1}
+                className="text-gray-400 hover:text-white"
+              >
+                Previous
+              </Button>
+
+              {beginExperienceStep < 5 ? (
+                <Button
+                  onClick={() => setBeginExperienceStep(beginExperienceStep + 1)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                >
+                  Continue
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setShowBeginExperience(false);
+                    setBeginExperienceStep(1);
+                    // Move to phase 2
+                    if (selectedAdventureBooking) {
+                      setCurrentTime(new Date(selectedAdventureBooking.startTime));
+                      setShowAdventureDetails(true);
+                    }
+                    toast({
+                      title: "Experience Started!",
+                      description: "Your yacht adventure has officially begun.",
+                    });
+                  }}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                >
+                  Start Adventure
+                  <Sailboat className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* End Trip Form Dialog - Step 3 */}
+      {/* Phase 2: Adventure Details Dialog - Live Experience */}
+      <Dialog open={showAdventureDetails} onOpenChange={setShowAdventureDetails}>
+        <DialogContent className="max-w-4xl bg-slate-900/95 border-slate-700 p-0 overflow-hidden backdrop-blur-xl">
+          <div className="relative">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-700">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Adventure Details</h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-gray-400">Upcoming Adventures</span>
+                  <span className="text-sm text-gray-400">•</span>
+                  <span className="text-sm text-gray-400">Memories Created</span>
+                </div>
+              </div>
+              <Button
+                onClick={() => {
+                  setShowAdventureDetails(false);
+                  setShowEndTripForm(true);
+                  setEndTripStep(1);
+                }}
+                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white flex items-center gap-2"
+              >
+                <Star className="w-4 h-4" />
+                End Trip
+              </Button>
+            </div>
+
+            {/* Adventure Timeline */}
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[
+                  { step: 1, title: "Welcome Aboard", desc: "Captain greeting and safety briefing completed", icon: Anchor },
+                  { step: 2, title: "Departure", desc: "Setting sail from Miami Marina", icon: Navigation },
+                  { step: 3, title: "Open Waters", desc: "Cruising through beautiful Miami waters", icon: Waves },
+                  { step: 4, title: "Activities", desc: "Swimming, dining, and entertainment", icon: Activity },
+                  { step: 5, title: "Sunset Views", desc: "Enjoying spectacular Miami sunset", icon: Sun },
+                  { step: 6, title: "Return Journey", desc: "Heading back to marina", icon: MapPin }
+                ].map((item) => (
+                  <motion.div
+                    key={item.step}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: item.step * 0.1 }}
+                    className="bg-slate-800/50 rounded-lg p-4 border border-slate-700 hover:border-purple-500/50 transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-sm">{item.step}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-medium">{item.title}</h4>
+                        <p className="text-gray-400 text-sm mt-1">{item.desc}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Time Remaining */}
+              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg p-6 border border-purple-500/30">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-gray-300 mb-2">Time Remaining</h3>
+                  <div className="text-5xl font-bold text-white">
+                    {selectedAdventureBooking && (() => {
+                      const now = currentTime;
+                      const end = new Date(selectedAdventureBooking.endTime);
+                      const totalMs = end.getTime() - now.getTime();
+                      const hours = Math.max(0, Math.floor(totalMs / (1000 * 60 * 60)));
+                      const minutes = Math.max(0, Math.floor((totalMs % (1000 * 60 * 60)) / (1000 * 60)));
+                      return `${hours}h ${minutes}m`;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Phase 3: End Trip Dialog - World-Class Review Experience */}
       <Dialog open={showEndTripForm} onOpenChange={setShowEndTripForm}>
-        <DialogContent className="max-w-2xl bg-gray-900 border-gray-700">
-          <DialogTitle className="text-2xl font-bold text-white mb-4">
-            End Trip Experience
-          </DialogTitle>
-          
-          {selectedAdventureBooking && (
-            <div className="space-y-6">
-              {/* 5-Step Form */}
-              {endTripStep === 1 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">Step 1: Overall Experience</h3>
-                  <p className="text-gray-400">How would you rate your overall yacht experience?</p>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button
-                        key={star}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEndTripRating(star)}
-                        className={`p-2 ${star <= endTripRating ? 'text-yellow-400' : 'text-gray-400'}`}
-                      >
-                        <Star className={`w-8 h-8 ${star <= endTripRating ? 'fill-current' : ''}`} />
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    onClick={() => setEndTripStep(2)}
-                    disabled={endTripRating === 0}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                  >
-                    Next Step
-                  </Button>
-                </div>
-              )}
+        <DialogContent className="max-w-4xl bg-slate-900 border-slate-700 p-0 overflow-hidden">
+          <div className="relative">
+            {/* Header with gradient */}
+            <div className="bg-gradient-to-r from-orange-900/50 to-red-900/50 backdrop-blur-xl p-6 border-b border-slate-700">
+              <h2 className="text-3xl font-bold text-white">Complete Your Journey</h2>
+              <p className="text-gray-300 mt-2">Share your experience and help us improve</p>
+            </div>
+            {/* Progress bar */}
+            <div className="px-6 py-4 bg-slate-800/50">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-400">Step {endTripStep} of 5</span>
+                <span className="text-sm text-orange-400">{Math.round((endTripStep / 5) * 100)}% Complete</span>
+              </div>
+              <Progress value={(endTripStep / 5) * 100} className="h-2 bg-slate-700" />
+            </div>
 
-              {endTripStep === 2 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">Step 2: Captain & Crew</h3>
-                  <p className="text-gray-400">Rate the captain and crew service</p>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button
-                        key={star}
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 text-yellow-400"
-                      >
-                        <Star className="w-8 h-8 fill-current" />
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    onClick={() => setEndTripStep(3)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            {/* Content area */}
+            <div className="p-6">
+              <AnimatePresence mode="wait">
+                {endTripStep === 1 && (
+                  <motion.div
+                    key="endstep1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
                   >
-                    Next Step
-                  </Button>
-                </div>
-              )}
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Star className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Overall Experience</h3>
+                      <p className="text-gray-400">How was your yacht adventure today?</p>
+                    </div>
 
-              {endTripStep === 3 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">Step 3: Yacht Condition</h3>
-                  <p className="text-gray-400">Rate the yacht's condition and amenities</p>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button
-                        key={star}
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 text-yellow-400"
-                      >
-                        <Star className="w-8 h-8 fill-current" />
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    onClick={() => setEndTripStep(4)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-                  >
-                    Next Step
-                  </Button>
-                </div>
-              )}
+                    <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                      <p className="text-gray-300 text-center mb-4">Rate your overall experience</p>
+                      <div className="flex justify-center gap-3">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <motion.button
+                            key={star}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setEndTripRating(star)}
+                            className="relative"
+                          >
+                            <Star 
+                              className={`w-12 h-12 transition-all ${
+                                star <= endTripRating 
+                                  ? 'text-yellow-400 fill-current' 
+                                  : 'text-gray-600 hover:text-gray-500'
+                              }`} 
+                            />
+                          </motion.button>
+                        ))}
+                      </div>
+                      {endTripRating > 0 && (
+                        <p className="text-center mt-4 text-gray-300">
+                          {endTripRating === 5 && "Exceptional! We're thrilled you had an amazing time!"}
+                          {endTripRating === 4 && "Great! We're glad you enjoyed your experience!"}
+                          {endTripRating === 3 && "Good! Thank you for your feedback."}
+                          {endTripRating <= 2 && "We appreciate your honesty and will work to improve."}
+                        </p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
 
-              {endTripStep === 4 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">Step 4: Value for Experience</h3>
-                  <p className="text-gray-400">Rate the overall value of your yacht experience</p>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button
-                        key={star}
-                        variant="ghost"
-                        size="sm"
-                        className="p-2 text-yellow-400"
-                      >
-                        <Star className="w-8 h-8 fill-current" />
-                      </Button>
-                    ))}
-                  </div>
-                  <Button
-                    onClick={() => setEndTripStep(5)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                {endTripStep === 2 && (
+                  <motion.div
+                    key="endstep2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
                   >
-                    Final Step
-                  </Button>
-                </div>
-              )}
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Captain & Crew</h3>
+                      <p className="text-gray-400">How was the service from your captain and crew?</p>
+                    </div>
 
-              {endTripStep === 5 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-white">Step 5: Additional Notes</h3>
-                  <p className="text-gray-400">Share any additional feedback about your experience</p>
-                  <Textarea
-                    value={endTripNotes}
-                    onChange={(e) => setEndTripNotes(e.target.value)}
-                    placeholder="Tell us about your yacht experience..."
-                    className="bg-gray-800 border-gray-700 text-white min-h-24"
-                  />
-                  <Button
-                    onClick={async () => {
-                      // Submit the rating
-                      try {
-                        await rateYachtMutation.mutateAsync({
-                          bookingId: selectedAdventureBooking.id,
-                          rating: endTripRating,
-                          review: endTripNotes
-                        });
-                        
-                        toast({
-                          title: "Thank you for your feedback!",
-                          description: "Your yacht experience rating has been submitted.",
-                        });
-                        
-                        setShowEndTripForm(false);
-                        setEndTripStep(1);
-                        setEndTripRating(0);
-                        setEndTripNotes('');
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: "Failed to submit rating. Please try again.",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                    <div className="space-y-4">
+                      {[
+                        { role: "Captain", name: "Captain Rodriguez", desc: "Professional navigation and leadership" },
+                        { role: "First Mate", name: "Sarah Johnson", desc: "Safety and guest assistance" },
+                        { role: "Concierge", name: "Michael Chen", desc: "Service and hospitality" }
+                      ].map((crew, index) => (
+                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-white font-medium">{crew.role}</h4>
+                              <p className="text-gray-400 text-sm">{crew.name}</p>
+                              <p className="text-gray-500 text-xs mt-1">{crew.desc}</p>
+                            </div>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star key={star} className="w-5 h-5 text-yellow-400 fill-current" />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {endTripStep === 3 && (
+                  <motion.div
+                    key="endstep3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
                   >
-                    Submit Rating
-                  </Button>
-                </div>
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Sailboat className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Yacht Condition</h3>
+                      <p className="text-gray-400">Rate the yacht's condition and amenities</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {[
+                        { aspect: "Cleanliness", icon: Sparkles },
+                        { aspect: "Comfort", icon: Heart },
+                        { aspect: "Equipment", icon: Anchor },
+                        { aspect: "Amenities", icon: Wine }
+                      ].map((item, index) => (
+                        <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                          <div className="flex items-center gap-3 mb-3">
+                            <item.icon className="w-6 h-6 text-purple-400" />
+                            <h4 className="text-white font-medium">{item.aspect}</h4>
+                          </div>
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star key={star} className="w-4 h-4 text-yellow-400 fill-current" />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {endTripStep === 4 && (
+                  <motion.div
+                    key="endstep4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MessageCircle className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Share Your Experience</h3>
+                      <p className="text-gray-400">Tell us about your journey</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <h4 className="text-white font-medium mb-3">What was the highlight of your trip?</h4>
+                        <Textarea
+                          value={endTripNotes}
+                          onChange={(e) => setEndTripNotes(e.target.value)}
+                          placeholder="The sunset view was absolutely breathtaking..."
+                          className="min-h-[100px] bg-slate-800 border-slate-600 text-white placeholder:text-gray-500"
+                        />
+                      </div>
+
+                      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <h4 className="text-white font-medium mb-3">Quick feedback options</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            "Amazing crew", "Beautiful yacht", "Great service", "Perfect weather",
+                            "Excellent food", "Memorable experience", "Will book again"
+                          ].map((tag) => (
+                            <button
+                              key={tag}
+                              className="px-3 py-1 bg-purple-600/20 text-purple-300 rounded-full text-sm hover:bg-purple-600/30 transition-colors"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {endTripStep === 5 && (
+                  <motion.div
+                    key="endstep5"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.2, type: "spring" }}
+                        className="w-24 h-24 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4"
+                      >
+                        <CheckCircle className="w-12 h-12 text-white" />
+                      </motion.div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Thank You!</h3>
+                      <p className="text-gray-400">Your trip has been successfully completed</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-lg p-6 border border-green-500/30">
+                      <h4 className="text-white font-medium mb-3">Trip Summary</h4>
+                      <div className="space-y-2 text-gray-300">
+                        <div className="flex justify-between">
+                          <span>Overall Rating</span>
+                          <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < endTripRating ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Duration</span>
+                          <span>4 hours</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Distance Traveled</span>
+                          <span>32 nautical miles</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-center">
+                      <p className="text-gray-400 mb-4">Book your next adventure and get 10% off!</p>
+                      <div className="flex gap-3 justify-center">
+                        <Button
+                          variant="outline"
+                          onClick={() => setCurrentView('explore')}
+                          className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                        >
+                          Browse Yachts
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                        >
+                          Share Experience
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Footer with navigation */}
+            <div className="px-6 py-4 bg-slate-800/50 border-t border-slate-700 flex justify-between items-center">
+              <Button
+                variant="ghost"
+                onClick={() => setEndTripStep(Math.max(1, endTripStep - 1))}
+                disabled={endTripStep === 1}
+                className="text-gray-400 hover:text-white"
+              >
+                Previous
+              </Button>
+
+              {endTripStep < 5 ? (
+                <Button
+                  onClick={() => setEndTripStep(endTripStep + 1)}
+                  disabled={endTripStep === 1 && endTripRating === 0}
+                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                >
+                  Continue
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setShowEndTripForm(false);
+                    setEndTripStep(1);
+                    setEndTripRating(0);
+                    setEndTripNotes('');
+                    setSelectedAdventureBooking(null);
+                    
+                    // Submit rating
+                    if (selectedAdventureBooking && endTripRating > 0) {
+                      rateYachtMutation.mutate({
+                        bookingId: selectedAdventureBooking.id,
+                        rating: endTripRating,
+                        review: endTripNotes || 'Great experience!'
+                      });
+                    }
+                    
+                    toast({
+                      title: "Trip Completed!",
+                      description: "Thank you for sailing with Miami Beach Yacht Club.",
+                    });
+                  }}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                >
+                  Complete Journey
+                  <CheckCircle className="w-4 h-4 ml-2" />
+                </Button>
               )}
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
