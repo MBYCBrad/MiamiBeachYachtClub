@@ -341,9 +341,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
               <source src={heroVideo.url} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
-          {/* Bottom blur transition */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90" />
+          {/* Enhanced bottom blur transition */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm" />
         </div>
         
         <div className="relative z-10 flex flex-col justify-center items-center h-full text-center px-4">
@@ -364,7 +364,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       </div>
 
       {/* Stats Cards - positioned below video */}
-      <div className="relative -mt-16 z-20 px-4">
+      <div className="relative -mt-16 z-30 px-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -393,7 +393,7 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-12 pb-24">
+      <div className="container mx-auto px-4 py-12 pb-24 relative z-10">
         {registrations.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -435,15 +435,15 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 * index }}
                   >
-                  <Card className="bg-gray-900/50 border-gray-700 hover:border-purple-600/50 transition-all duration-300">
+                  <Card className="bg-gray-900/50 border-gray-700 hover:border-purple-600/50 transition-all duration-300 rounded-lg overflow-hidden">
                     <CardContent className="p-0">
-                      <div className="flex flex-col lg:flex-row">
+                      <div className="flex flex-col lg:flex-row h-full">
                         {/* Event Image */}
                         <div className="lg:w-1/3">
                           <img
                             src={event?.imageUrl || '/api/media/pexels-mali-42092_1750537277229.jpg'}
                             alt={event?.title || 'Event'}
-                            className="w-full h-48 lg:h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-t-none"
+                            className="w-full h-48 lg:h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-tr-none"
                           />
                         </div>
 
