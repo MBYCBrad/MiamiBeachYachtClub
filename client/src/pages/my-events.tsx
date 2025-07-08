@@ -231,8 +231,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         // Footer - minimal Apple style
         doc.setFontSize(11);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
-        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
+        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
+        doc.text('- MBYC Team', leftMargin, 290);
         
         // Save the PDF
         console.log('Saving PDF with QR code...');
@@ -244,8 +245,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         // Continue without QR code if it fails
         doc.setFontSize(11);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
-        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
+        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
+        doc.text('- MBYC Team', leftMargin, 290);
         
         console.log('Saving PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
@@ -340,8 +342,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         doc.text('Scan for verification', 165, contentStartY + 100, { align: 'center' });
         
         doc.setFontSize(11);
-        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
-        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
+        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
+        doc.text('- MBYC Team', leftMargin, 290);
         
         console.log('Saving fallback PDF with QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
@@ -351,8 +354,9 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
         console.error('Fallback QR code loading failed:', error);
         doc.setFontSize(11);
         doc.setTextColor(mediumGray[0], mediumGray[1], mediumGray[2]);
-        doc.text('Please present this ticket at the event entrance', 105, 260, { align: 'center' });
-        doc.text('Miami Beach Yacht Club', 105, 275, { align: 'center' });
+        doc.text('Please present this ticket at the event entrance', leftMargin, 260);
+        doc.text('We look forward to seeing you at the event!', leftMargin, 275);
+        doc.text('- MBYC Team', leftMargin, 290);
         
         console.log('Saving fallback PDF without QR code...');
         doc.save(`MBYC_Event_Ticket_${event.title.replace(/\s+/g, '_')}_${registration.id}.pdf`);
