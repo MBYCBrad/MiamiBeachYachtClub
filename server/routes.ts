@@ -1422,12 +1422,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update yacht average rating based on reviews
       if (yacht) {
+        console.log('Getting reviews for yacht:', booking.yachtId);
         const allReviews = await dbStorage.getReviews({ yachtId: booking.yachtId });
+        console.log('Reviews retrieved:', allReviews.length);
         if (allReviews.length > 0) {
           const averageRating = allReviews.reduce((sum, review) => sum + review.rating, 0) / allReviews.length;
+          console.log('Updating yacht rating to:', averageRating.toFixed(1));
           await dbStorage.updateYacht(booking.yachtId, { 
             rating: averageRating.toFixed(1)
           });
+          console.log('Yacht rating updated successfully');
         }
       }
 

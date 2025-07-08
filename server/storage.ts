@@ -643,33 +643,36 @@ export class DatabaseStorage implements IStorage {
   async getReviews(filters?: { targetType?: string, targetId?: number, userId?: number, yachtId?: number }): Promise<Review[]> {
     try {
       // If no filters, return all reviews
-      if (!filters || Object.keys(filters).length === 0) {
+      if (!filters) {
         return await db.select().from(reviews);
       }
       
-      // Build conditions array
-      const conditions = [];
+      // Check if filters object has any actual values
+      const hasYachtId = filters.yachtId !== undefined && filters.yachtId !== null;
+      const hasUserId = filters.userId !== undefined && filters.userId !== null;
+      const hasTargetId = filters.targetId !== undefined && filters.targetId !== null;
       
-      if (filters.yachtId !== undefined && filters.yachtId !== null) {
-        conditions.push(eq(reviews.yachtId, filters.yachtId));
-      }
-      
-      if (filters.userId !== undefined && filters.userId !== null) {
-        conditions.push(eq(reviews.userId, filters.userId));
-      }
-      
-      if (filters.targetId !== undefined && filters.targetId !== null) {
-        conditions.push(eq(reviews.serviceId, filters.targetId));
-      }
-      
-      // Apply conditions
-      if (conditions.length === 0) {
+      // If no actual filter values, return all reviews
+      if (!hasYachtId && !hasUserId && !hasTargetId) {
         return await db.select().from(reviews);
-      } else if (conditions.length === 1) {
-        return await db.select().from(reviews).where(conditions[0]);
-      } else {
-        return await db.select().from(reviews).where(and(...conditions));
       }
+      
+      // Build and execute query with proper conditions
+      if (hasYachtId && hasUserId) {
+        return await db.select().from(reviews).where(and(
+          eq(reviews.yachtId, filters.yachtId!),
+          eq(reviews.userId, filters.userId!)
+        ));
+      } else if (hasYachtId) {
+        return await db.select().from(reviews).where(eq(reviews.yachtId, filters.yachtId!));
+      } else if (hasUserId) {
+        return await db.select().from(reviews).where(eq(reviews.userId, filters.userId!));
+      } else if (hasTargetId) {
+        return await db.select().from(reviews).where(eq(reviews.serviceId, filters.targetId!));
+      }
+      
+      // This should never be reached due to the check above, but just in case
+      return await db.select().from(reviews);
     } catch (error) {
       console.error('getReviews SQL error:', error);
       console.error('Filters:', filters);
