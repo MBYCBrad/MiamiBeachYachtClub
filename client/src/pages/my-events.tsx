@@ -417,7 +417,7 @@ For questions, contact Miami Beach Yacht Club.
                                     View Ticket
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+                                <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[80vh] overflow-y-auto">
                                   <DialogHeader>
                                     <DialogTitle className="text-white text-2xl">Event Ticket</DialogTitle>
                                   </DialogHeader>
@@ -502,7 +502,7 @@ For questions, contact Miami Beach Yacht Club.
                                     View Event
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl">
+                                <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[80vh] overflow-y-auto">
                                   <DialogHeader>
                                     <DialogTitle className="text-white text-2xl">Event Details</DialogTitle>
                                   </DialogHeader>
