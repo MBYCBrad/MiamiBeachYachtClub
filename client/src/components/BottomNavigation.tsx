@@ -93,7 +93,7 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null },
     { id: 'events', icon: Calendar, label: 'My Events', badge: null },
-    { id: 'my-services', icon: Star, label: 'My Services', badge: null, action: () => window.location.href = '/my-services' },
+    { id: 'services', icon: Star, label: 'My Services', badge: null },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: unreadCount, action: () => setIsNotificationOpen(true) },
     { id: 'messages', icon: MessageCircle, label: 'Messages', badge: null, action: () => setCurrentView('messages') },
   ];

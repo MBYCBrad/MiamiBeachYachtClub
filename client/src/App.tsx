@@ -80,7 +80,7 @@ function Router() {
       <ProtectedRoute path="/messages" component={MessagesPage} />
       <ProtectedRoute path="/calendar" component={CalendarPage} />
       <ProtectedRoute path="/my-events" component={MyEvents} />
-      <ProtectedRoute path="/my-services" component={MyServices} />
+
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <ProtectedRoute path="/admin-dashboard" component={AdminDashboard} />
       <ProtectedRoute path="/admin/applications" component={AdminApplications} />
