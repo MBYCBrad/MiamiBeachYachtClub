@@ -5777,10 +5777,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     twiml.say({
       voice: 'alice',
       language: 'en-US'
-    }, 'Hello! You are being connected to Miami Beach Yacht Club customer service. Please hold while we connect you to our support team.');
-
-    // Add hold music or connect to conference
-    twiml.play('http://com.twilio.music.classical.s3.amazonaws.com/BusyStrings.wav');
+    }, 'Hello! This is Miami Beach Yacht Club. Connecting you to our customer service team. Please hold.');
+    
+    // Connect to admin's phone (Simon Librati)
+    twiml.dial({
+      callerId: process.env.TWILIO_PHONE_NUMBER,
+      timeout: 30,
+      action: '/api/twilio/dial-status',
+      method: 'POST'
+    }, '+13058924567'); // Simon Librati's admin phone
+    
+    // If admin doesn't answer, leave a voicemail option
+    twiml.say('Sorry, our team is unavailable at the moment. Please try again later or send us a message through the app.');
     
     res.type('text/xml');
     res.send(twiml.toString());
@@ -6440,15 +6448,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         actionUrl: `/admin/customer-service?call=${phoneCall.id}`
       });
 
-      // Update call status to "ringing" after notifications sent
-      await dbStorage.updatePhoneCall(phoneCall.id, {
-        status: "ringing",
-        metadata: {
-          ...phoneCall.metadata,
-          twilioStatus: "ringing",
-          notificationsSent: true
+      // Initiate actual Twilio call to connect member with admin
+      if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER) {
+        try {
+          const twilioCall = await twilioClient.calls.create({
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: memberPhone || member.phone || "+13058924567", // Call the member
+            url: `${process.env.BASE_URL || 'https://miami-beach-yacht-club-full-stack-application.replit.app'}/api/twilio/call-response`,
+            statusCallback: `${process.env.BASE_URL || 'https://miami-beach-yacht-club-full-stack-application.replit.app'}/api/twilio/call-status/${phoneCall.id}`,
+            statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+            record: true
+          });
+          
+          console.log(`📞 Twilio call initiated: ${twilioCall.sid}`);
+          
+          // Update call with Twilio SID
+          await dbStorage.updatePhoneCall(phoneCall.id, {
+            status: "ringing",
+            metadata: {
+              ...phoneCall.metadata,
+              twilioCallSid: twilioCall.sid,
+              twilioStatus: twilioCall.status,
+              notificationsSent: true
+            }
+          });
+        } catch (twilioError: any) {
+          console.error('Twilio call failed:', twilioError);
+          // Still update status even if Twilio fails
+          await dbStorage.updatePhoneCall(phoneCall.id, {
+            status: "failed",
+            metadata: {
+              ...phoneCall.metadata,
+              twilioError: twilioError.message,
+              notificationsSent: true
+            }
+          });
         }
-      });
+      } else {
+        // No Twilio configured, just update status
+        await dbStorage.updatePhoneCall(phoneCall.id, {
+          status: "ringing",
+          metadata: {
+            ...phoneCall.metadata,
+            twilioStatus: "simulated",
+            notificationsSent: true
+          }
+        });
+      }
 
       res.status(201).json(phoneCall);
     } catch (error: any) {

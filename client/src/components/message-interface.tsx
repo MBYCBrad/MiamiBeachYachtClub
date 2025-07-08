@@ -103,14 +103,16 @@ export function MessageInterface({
     }) => {
       return await apiRequest("POST", "/api/phone-calls", callData);
     },
-    onSuccess: (newCall: any, callData: any) => {
+    onSuccess: (response: any, callData: any) => {
+      console.log("Phone call response:", response);
       toast({
         title: "Call Initiated",
-        description: `Call connecting to ${recipientName}. You will receive a call back shortly.`,
+        description: `Connecting your call to ${recipientName}. Please wait for the call to ring.`,
       });
       
       // Invalidate related queries to show real-time updates
       queryClient.invalidateQueries({ queryKey: ["/api/phone-calls"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },
     onError: (error: any) => {
       console.error("Phone call error:", error);
