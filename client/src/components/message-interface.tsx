@@ -114,8 +114,8 @@ export function MessageInterface({
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
       
       // Create a notification message about the call
-      sendMessageMutation.mutate({
-        content: `📞 Phone call initiated to ${recipientName}`,
+      sendMessage({
+        content: `📞 Phone call initiated to ${recipientName}. Call ID: ${newCall.id}`,
         messageType: "system",
         metadata: {
           callId: newCall.id,
