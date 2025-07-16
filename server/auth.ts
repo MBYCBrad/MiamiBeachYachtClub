@@ -228,7 +228,29 @@ export function setupAuth(app: Express) {
       // Get fresh user data from database to ensure profile image is current
       const freshUser = await storage.getUser(req.user!.id);
       if (freshUser) {
-        res.json(freshUser);
+        // Log the fresh user data to debug profile image issue
+        console.log('Fresh user data from database:', { 
+          id: freshUser.id, 
+          username: freshUser.username, 
+          profileImage: freshUser.profileImage,
+          hasProfileImage: !!freshUser.profileImage
+        });
+        
+        // Map database field names to frontend field names
+        const userResponse = {
+          ...freshUser,
+          profileImage: freshUser.profileImage || null,
+          fullName: freshUser.fullName || null
+        };
+        
+        console.log('User response being sent:', {
+          id: userResponse.id,
+          username: userResponse.username,
+          profileImage: userResponse.profileImage,
+          hasProfileImage: !!userResponse.profileImage
+        });
+        
+        res.json(userResponse);
       } else {
         // If not found in users table, try staff table
         const staffUser = await storage.getStaffByUsername(req.user!.username);
@@ -237,6 +259,7 @@ export function setupAuth(app: Express) {
             ...staffUser,
             role: 'staff',
             staffRole: staffUser.role,
+            profileImage: null // Staff users don't have profile images yet
           };
           res.json(staffAsUser);
         } else {
