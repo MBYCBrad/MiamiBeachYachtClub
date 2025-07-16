@@ -71,6 +71,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const [showBillingDialog, setShowBillingDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
+  const [showAllTransactionsDialog, setShowAllTransactionsDialog] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -177,6 +178,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const { data: events = [] } = useQuery({ queryKey: ['/api/events'] }) as { data: any[] };
   const { data: yachts = [] } = useQuery({ queryKey: ['/api/yachts'] }) as { data: any[] };
   const { data: services = [] } = useQuery({ queryKey: ['/api/services'] }) as { data: any[] };
+  const { data: transactions = [] } = useQuery({ queryKey: ['/api/transactions'] }) as { data: any[] };
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -1570,29 +1572,35 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             <div className="bg-gray-800/50 rounded-lg p-4">
               <h3 className="font-semibold text-white mb-3">Recent Transactions</h3>
               <div className="space-y-2">
-                <div className="flex items-center justify-between p-2 border-b border-gray-700">
-                  <div>
-                    <p className="text-white text-sm">Premium Concierge Service</p>
-                    <p className="text-xs text-gray-400">July 15, 2025</p>
+                {transactions.length > 0 ? (
+                  transactions.slice(0, 3).map((transaction: any, index: number) => (
+                    <div key={index} className={`flex items-center justify-between p-2 ${index < 2 ? 'border-b border-gray-700' : ''}`}>
+                      <div>
+                        <p className="text-white text-sm">{transaction.description || transaction.type}</p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(transaction.createdAt || transaction.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      <span className="text-green-400 font-medium">
+                        ${parseFloat(transaction.amount || transaction.total || 0).toFixed(2)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-400">
+                    <p>No transactions yet</p>
                   </div>
-                  <span className="text-green-400 font-medium">$485.00</span>
-                </div>
-                <div className="flex items-center justify-between p-2 border-b border-gray-700">
-                  <div>
-                    <p className="text-white text-sm">Yacht Club Membership</p>
-                    <p className="text-xs text-gray-400">July 1, 2025</p>
-                  </div>
-                  <span className="text-green-400 font-medium">$5,000.00</span>
-                </div>
-                <div className="flex items-center justify-between p-2">
-                  <div>
-                    <p className="text-white text-sm">Service Booking Fee</p>
-                    <p className="text-xs text-gray-400">June 28, 2025</p>
-                  </div>
-                  <span className="text-green-400 font-medium">$125.00</span>
-                </div>
+                )}
               </div>
-              <Button variant="outline" className="w-full mt-3 border-gray-600 text-gray-300 hover:bg-gray-800">
+              <Button 
+                variant="outline" 
+                className="w-full mt-3 border-gray-600 text-gray-300 hover:bg-gray-800"
+                onClick={() => setShowAllTransactionsDialog(true)}
+              >
                 View All Transactions
               </Button>
             </div>
@@ -1862,6 +1870,78 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               }
             >
               {addPaymentMutation.isPending ? 'Adding...' : 'Add Payment Method'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View All Transactions Dialog */}
+      <Dialog open={showAllTransactionsDialog} onOpenChange={setShowAllTransactionsDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <DollarSign className="h-6 w-6 text-green-400" />
+              All Transactions
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Complete history of your transactions and payments
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto pr-2">
+            {transactions.length > 0 ? (
+              <div className="space-y-2">
+                {transactions.map((transaction: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-gray-700/50 rounded-full">
+                        <DollarSign className="h-4 w-4 text-green-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium">{transaction.description || transaction.type}</p>
+                        <p className="text-sm text-gray-400">
+                          {new Date(transaction.createdAt || transaction.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                        {transaction.paymentMethod && (
+                          <p className="text-xs text-gray-500">
+                            {transaction.paymentMethod}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-green-400 font-semibold text-lg">
+                        ${parseFloat(transaction.amount || transaction.total || 0).toFixed(2)}
+                      </span>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {transaction.status || 'Completed'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+                <p className="text-lg mb-2">No transactions yet</p>
+                <p className="text-sm">Your payment history will appear here</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowAllTransactionsDialog(false)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
