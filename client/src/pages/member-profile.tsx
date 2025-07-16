@@ -1547,9 +1547,6 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 </div>
               </div>
               <div className="space-y-2">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white w-full">
-                  Download My Data
-                </Button>
                 <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600/10 w-full">
                   Delete Account
                 </Button>
