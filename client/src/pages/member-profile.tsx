@@ -1485,7 +1485,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
       {/* Privacy & Security Dialog */}
       <Dialog open={showSecurityDialog} onOpenChange={setShowSecurityDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+        <DialogContent className="bg-black border-gray-700 text-white max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <Shield className="h-6 w-6 text-emerald-400" />
@@ -1509,7 +1509,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   <span className="text-sm text-green-400">Enabled</span>
                 </div>
               </div>
-              <Button variant="outline" className="border-emerald-600 text-emerald-400 hover:bg-emerald-600/10">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
                 Configure 2FA
               </Button>
             </div>
@@ -1527,8 +1527,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 </div>
               </div>
               <Button 
-                variant="outline" 
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                 onClick={() => setShowPasswordDialog(true)}
               >
                 Change Password
@@ -1548,7 +1547,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 </div>
               </div>
               <div className="space-y-2">
-                <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 w-full">
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white w-full">
                   Download My Data
                 </Button>
                 <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600/10 w-full">
