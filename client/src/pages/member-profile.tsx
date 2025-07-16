@@ -74,11 +74,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
     newPassword: '',
     confirmPassword: ''
   });
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
-  // Stable avatar seed that only updates when editing is complete
-  const [stableAvatarSeed, setStableAvatarSeed] = useState(user?.username || 'default');
   
   // Form state management with real user data
   const [formData, setFormData] = useState({
@@ -228,6 +226,69 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
     passwordChangeMutation.mutate(passwordData);
   };
 
+  // Avatar upload handler
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Image size must be less than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('/api/upload/avatar', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // Include cookies for session
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully.",
+      });
+
+      // Refresh user data
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload image.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const MembershipIcon = membershipIcons[user?.membershipTier as keyof typeof membershipIcons] || Crown;
 
   // Calculate real savings analytics
@@ -338,10 +399,11 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             transition={{ duration: 1, delay: 0.3 }}
             className="flex items-center gap-8"
           >
-            {/* Avatar with Advanced Styling */}
+            {/* Avatar with Upload Functionality */}
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="relative group"
+              className="relative group cursor-pointer"
+              onClick={() => document.getElementById('avatar-upload')?.click()}
             >
               {/* Glowing Ring */}
               <motion.div
@@ -354,9 +416,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               />
               
               <Avatar className="relative h-24 w-24 border-3 border-white/30 shadow-2xl group-hover:border-white/50 transition-all duration-300">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${stableAvatarSeed}`} />
+                <AvatarImage src={user?.profileImage || undefined} />
                 <AvatarFallback className="bg-gradient-to-br from-purple-700 to-blue-700 text-white text-2xl font-bold">
-                  {stableAvatarSeed?.charAt(0).toUpperCase()}
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               
@@ -376,14 +438,27 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 <div className="w-2 h-2 bg-white rounded-full" />
               </motion.div>
               
-              {/* Edit Button Overlay */}
+              {/* Upload Button Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
                 className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center cursor-pointer backdrop-blur-sm"
               >
-                <Edit className="h-6 w-6 text-white" />
+                {isUploadingAvatar ? (
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent" />
+                ) : (
+                  <Camera className="h-6 w-6 text-white" />
+                )}
               </motion.div>
+              
+              {/* Hidden file input */}
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+              />
             </motion.div>
             
             {/* Simplified Avatar Info for Hero */}
