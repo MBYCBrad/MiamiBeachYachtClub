@@ -863,38 +863,6 @@ html, body {
   margin-bottom: 1.5rem;
 }
 
-/* Member Experience Dynamic Theme Variables */
-.member-experience-container {
-  /* Default theme (Ocean Blue) */
-  --member-primary: #3B82F6;
-  --member-secondary: #1E40AF;
-  --member-accent: #60A5FA;
-  --member-background: #0F172A;
-  --member-card: #1E293B;
-  --member-text: #F1F5F9;
-  --member-border: #334155;
-  --member-gradient-from: #8B5CF6;
-  --member-gradient-to: #3B82F6;
-}
-
-/* Member Theme Utility Classes */
-.member-bg-primary { background-color: var(--member-primary); }
-.member-bg-secondary { background-color: var(--member-secondary); }
-.member-bg-accent { background-color: var(--member-accent); }
-.member-bg-background { background-color: var(--member-background); }
-.member-bg-card { background-color: var(--member-card); }
-.member-text { color: var(--member-text); }
-.member-border { border-color: var(--member-border); }
-.member-gradient {
-  background: linear-gradient(135deg, var(--member-gradient-from), var(--member-gradient-to));
-}
-.member-gradient-light {
-  background: linear-gradient(135deg, 
-    color-mix(in srgb, var(--member-gradient-from) 20%, transparent),
-    color-mix(in srgb, var(--member-gradient-to) 20%, transparent)
-  );
-}
-
 /* Comprehensive Admin Interface Dropdown Styling - Purple to Blue Gradient */
 /* Select component styling */
 [data-radix-select-content] {

@@ -3,7 +3,6 @@ import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import BottomNavigation from '@/components/BottomNavigation';
 import { motion } from 'framer-motion';
-import { MemberThemeProvider } from '@/contexts/MemberThemeContext';
 
 // Import original member pages
 import MemberHome from '@/pages/member-home';
@@ -38,11 +37,7 @@ export default function HomePage() {
   const renderContent = () => {
     switch (user.role) {
       case 'member':
-        return (
-          <MemberThemeProvider>
-            {renderMemberContent()}
-          </MemberThemeProvider>
-        );
+        return renderMemberContent();
       case 'yacht_owner':
         // Instant client-side navigation to yacht owner dashboard
         setLocation('/yacht-owner');
@@ -56,11 +51,7 @@ export default function HomePage() {
         setLocation('/admin');
         return null;
       default:
-        return (
-          <MemberThemeProvider>
-            {renderMemberContent()}
-          </MemberThemeProvider>
-        );
+        return renderMemberContent();
     }
   };
 

@@ -105,8 +105,6 @@ export const users: any = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   permissions: jsonb("permissions").$type<string[]>().default([]),
-  themePreference: text("theme_preference").default("ocean"),
-  customTheme: jsonb("custom_theme"),
   createdBy: integer("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -2030,10 +2030,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const updates = req.body;
       
-      console.log('Profile update request:', userId, JSON.stringify(updates));
-      
       // Only allow certain fields to be updated by the user themselves
-      const allowedFields = ['username', 'email', 'phone', 'location', 'language', 'notifications', 'bio', 'avatarUrl', 'themePreference', 'customTheme'];
+      const allowedFields = ['username', 'email', 'phone', 'location', 'language', 'notifications', 'bio', 'avatarUrl'];
       const filteredUpdates: any = {};
       
       allowedFields.forEach(field => {
@@ -2042,12 +2040,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      console.log('Filtered updates:', JSON.stringify(filteredUpdates));
-      
-      if (Object.keys(filteredUpdates).length === 0) {
-        return res.status(400).json({ message: "No values to set" });
-      }
-      
       const updatedUser = await dbStorage.updateUser(userId, filteredUpdates);
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
@@ -2055,7 +2047,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updatedUser);
     } catch (error: any) {
-      console.error('Profile update error:', error);
       res.status(400).json({ message: error.message });
     }
   });
