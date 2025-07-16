@@ -43,6 +43,7 @@ import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { MemberThemeModal } from '@/components/member-theme-modal';
 
 interface MemberProfileProps {
   currentView: string;
@@ -70,6 +71,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const [showSecurityDialog, setShowSecurityDialog] = useState(false);
   const [showBillingDialog, setShowBillingDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -1047,6 +1049,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
             whileHover={{ scale: 1.03, y: -5 }}
+            onClick={() => setShowThemeModal(true)}
           >
             <Card className="bg-gray-900/60 border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 overflow-hidden relative group cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1726,6 +1729,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Theme & UI Modal */}
+      <MemberThemeModal 
+        open={showThemeModal} 
+        onOpenChange={setShowThemeModal} 
+      />
     </div>
   );
 }
