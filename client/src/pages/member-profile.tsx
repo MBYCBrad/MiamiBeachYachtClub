@@ -64,6 +64,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const { user, logoutMutation } = useAuth();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showSecurityDialog, setShowSecurityDialog] = useState(false);
+  const [showBillingDialog, setShowBillingDialog] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -918,83 +920,6 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Profile Customization */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.3 }}
-            whileHover={{ scale: 1.03, y: -5 }}
-          >
-            <Card className="bg-gray-900/60 border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 overflow-hidden relative group cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start gap-4">
-                  <div className="relative">
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, 5, -5, 0],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="p-3 bg-blue-600/20 rounded-xl"
-                    >
-                      <User className="h-6 w-6 text-blue-400" />
-                    </motion.div>
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.2, 1],
-                        opacity: [0.5, 1, 0.5]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full"
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg mb-2">Profile & Avatar</h3>
-                    <p className="text-gray-400 mb-4">Customize your profile with photos, bio, and preferences</p>
-                    
-                    {/* Mini Gallery Preview */}
-                    <div className="flex gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg overflow-hidden">
-                        <img 
-                          src="/api/media/pexels-mali-42091_1750537294323.jpg"
-                          alt="Profile option"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="w-8 h-8 rounded-lg overflow-hidden">
-                        <img 
-                          src="/api/media/pexels-mikebirdy-144634_1750537277230.jpg"
-                          alt="Profile option"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="w-8 h-8 rounded-lg overflow-hidden">
-                        <img 
-                          src="/api/media/pexels-pixabay-163236_1750537277230.jpg"
-                          alt="Profile option"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center">
-                        <Plus className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-                    
-                    <motion.div
-                      whileHover={{ x: 5 }}
-                      className="flex items-center gap-2 text-blue-400"
-                    >
-                      <span className="text-sm font-medium">Customize Now</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </motion.div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
           {/* Theme & Appearance */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
@@ -1069,6 +994,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
             whileHover={{ scale: 1.03, y: -5 }}
+            onClick={() => setShowSecurityDialog(true)}
           >
             <Card className="bg-gray-900/60 border-gray-700/50 hover:border-emerald-500/50 transition-all duration-300 overflow-hidden relative group cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-green-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1130,6 +1056,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1.6 }}
             whileHover={{ scale: 1.03, y: -5 }}
+            onClick={() => setShowBillingDialog(true)}
           >
             <Card className="bg-gray-900/60 border-gray-700/50 hover:border-yellow-500/50 transition-all duration-300 overflow-hidden relative group cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-600/10 to-amber-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1402,6 +1329,179 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               {logoutMutation.isPending ? 'Signing Out...' : 'Sign Out'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Privacy & Security Dialog */}
+      <Dialog open={showSecurityDialog} onOpenChange={setShowSecurityDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-emerald-400" />
+              Privacy & Security Settings
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Manage your account security and privacy preferences
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Two-Factor Authentication */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-white">Two-Factor Authentication</h3>
+                  <p className="text-sm text-gray-400">Add an extra layer of security to your account</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-sm text-green-400">Enabled</span>
+                </div>
+              </div>
+              <Button variant="outline" className="border-emerald-600 text-emerald-400 hover:bg-emerald-600/10">
+                Configure 2FA
+              </Button>
+            </div>
+
+            {/* Password Security */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-white">Password Security</h3>
+                  <p className="text-sm text-gray-400">Change your password and security settings</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-sm text-gray-400">Strong</span>
+                </div>
+              </div>
+              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                Change Password
+              </Button>
+            </div>
+
+            {/* Data Privacy */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-white">Data Privacy</h3>
+                  <p className="text-sm text-gray-400">Control how your data is used and shared</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-sm text-gray-400">Protected</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 w-full">
+                  Download My Data
+                </Button>
+                <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600/10 w-full">
+                  Delete Account
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment & Billing Dialog */}
+      <Dialog open={showBillingDialog} onOpenChange={setShowBillingDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <CreditCard className="h-6 w-6 text-yellow-400" />
+              Payment & Billing
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Manage your payment methods and billing information
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Payment Methods */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h3 className="font-semibold text-white mb-3">Payment Methods</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-blue-400" />
+                    <div>
+                      <p className="text-white font-medium">Visa •••• 4242</p>
+                      <p className="text-sm text-gray-400">Expires 12/25</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-600/20 text-green-400">Primary</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-purple-400" />
+                    <div>
+                      <p className="text-white font-medium">Mastercard •••• 8888</p>
+                      <p className="text-sm text-gray-400">Expires 06/26</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                    Remove
+                  </Button>
+                </div>
+              </div>
+              <Button className="w-full mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                + Add Payment Method
+              </Button>
+            </div>
+
+            {/* Billing History */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h3 className="font-semibold text-white mb-3">Recent Transactions</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 border-b border-gray-700">
+                  <div>
+                    <p className="text-white text-sm">Premium Concierge Service</p>
+                    <p className="text-xs text-gray-400">July 15, 2025</p>
+                  </div>
+                  <span className="text-green-400 font-medium">$485.00</span>
+                </div>
+                <div className="flex items-center justify-between p-2 border-b border-gray-700">
+                  <div>
+                    <p className="text-white text-sm">Yacht Club Membership</p>
+                    <p className="text-xs text-gray-400">July 1, 2025</p>
+                  </div>
+                  <span className="text-green-400 font-medium">$5,000.00</span>
+                </div>
+                <div className="flex items-center justify-between p-2">
+                  <div>
+                    <p className="text-white text-sm">Service Booking Fee</p>
+                    <p className="text-xs text-gray-400">June 28, 2025</p>
+                  </div>
+                  <span className="text-green-400 font-medium">$125.00</span>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full mt-3 border-gray-600 text-gray-300 hover:bg-gray-800">
+                View All Transactions
+              </Button>
+            </div>
+
+            {/* Membership */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h3 className="font-semibold text-white mb-3">Membership Status</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white font-medium">Gold Membership</p>
+                  <p className="text-sm text-gray-400">Next billing: August 1, 2025</p>
+                </div>
+                <Badge className="bg-yellow-600/20 text-yellow-400">Active</Badge>
+              </div>
+              <div className="mt-3 space-y-2">
+                <Button variant="outline" className="w-full border-yellow-600 text-yellow-400 hover:bg-yellow-600/10">
+                  Upgrade to Platinum
+                </Button>
+                <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
+                  Manage Subscription
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
