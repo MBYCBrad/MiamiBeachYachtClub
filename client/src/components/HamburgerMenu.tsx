@@ -77,8 +77,20 @@ export default function HamburgerMenu({ currentView, setCurrentView }: Hamburger
               {/* Menu Header */}
               <div className="p-6 border-b border-gray-800">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-                    <User size={20} className="text-white" />
+                  <div className="w-12 h-12 rounded-full overflow-hidden">
+                    {user?.profileImage ? (
+                      <img
+                        src={user.profileImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                        <span className="text-white text-lg font-semibold">
+                          {user?.username?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">{user?.username}</h3>

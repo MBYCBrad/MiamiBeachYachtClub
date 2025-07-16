@@ -221,9 +221,32 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req, res) => {
+  app.get("/api/user", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+    
+    try {
+      // Get fresh user data from database to ensure profile image is current
+      const freshUser = await storage.getUser(req.user!.id);
+      if (freshUser) {
+        res.json(freshUser);
+      } else {
+        // If not found in users table, try staff table
+        const staffUser = await storage.getStaffByUsername(req.user!.username);
+        if (staffUser) {
+          const staffAsUser = {
+            ...staffUser,
+            role: 'staff',
+            staffRole: staffUser.role,
+          };
+          res.json(staffAsUser);
+        } else {
+          res.sendStatus(404);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      res.json(req.user); // Fallback to session user
+    }
   });
 
   app.post("/api/auth/change-password", async (req, res) => {

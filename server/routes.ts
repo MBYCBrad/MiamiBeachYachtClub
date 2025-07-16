@@ -2134,6 +2134,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // First try to update regular user
       try {
         updatedUser = await dbStorage.updateUser(req.user!.id, { profileImage: avatarUrl });
+        
+        // Update session user object with new profile image
+        if (updatedUser && req.user) {
+          req.user.profileImage = avatarUrl;
+        }
       } catch (err) {
         console.log('User not found in users table, trying staff table');
       }
@@ -2146,6 +2151,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // For now, we can't store avatar in staff table, but we'll return success
             // In the future, we could add profileImage field to staff table
             console.log('Avatar upload successful for staff user:', avatarUrl);
+            
+            // Update session user object with new profile image
+            if (req.user) {
+              req.user.profileImage = avatarUrl;
+            }
             
             // Return staff user profile format
             updatedUser = {
