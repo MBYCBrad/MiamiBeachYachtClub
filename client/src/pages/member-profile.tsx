@@ -279,6 +279,28 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
     }
   });
 
+  // Remove payment method mutation
+  const removePaymentMutation = useMutation({
+    mutationFn: async (paymentMethodId: number) => {
+      return await apiRequest('DELETE', `/api/payment-methods/${paymentMethodId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Payment Method Removed",
+        description: "Your payment method has been removed successfully.",
+      });
+      // Refresh payment methods
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-methods'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove payment method. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleAddPayment = () => {
     // Basic validation
     if (!paymentData.cardNumber || !paymentData.expiryDate || !paymentData.cvv || !paymentData.cardholderName) {
@@ -1574,8 +1596,14 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                       {method.isPrimary ? (
                         <Badge className="bg-green-600/20 text-green-400">Primary</Badge>
                       ) : (
-                        <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800">
-                          Remove
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          onClick={() => removePaymentMutation.mutate(method.id)}
+                          disabled={removePaymentMutation.isPending}
+                        >
+                          {removePaymentMutation.isPending ? 'Removing...' : 'Remove'}
                         </Button>
                       )}
                     </div>
