@@ -58,10 +58,10 @@ export default function HamburgerMenu({ currentView, setCurrentView }: Hamburger
         className="p-2 text-white hover:bg-white/10 rounded-full"
       >
         <motion.div
-          animate={{ rotate: isOpen ? 90 : 0 }}
-          transition={{ duration: 0.2 }}
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          <Menu size={24} />
         </motion.div>
       </Button>
 

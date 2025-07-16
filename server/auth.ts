@@ -241,7 +241,7 @@ export function setupAuth(app: Express) {
         // Map database field names to frontend field names
         const userResponse = {
           ...freshUser,
-          profileImage: freshUser.profileImage || freshUser.profileImageUrl || null,
+          profileImage: freshUser.profileImage || freshUser.profile_image_url || freshUser.profileImageUrl || null,
           fullName: freshUser.fullName || null
         };
         
