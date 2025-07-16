@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   User, 
   Crown, 
@@ -66,6 +68,12 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showSecurityDialog, setShowSecurityDialog] = useState(false);
   const [showBillingDialog, setShowBillingDialog] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -172,6 +180,52 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const handleLogout = () => {
     logoutMutation.mutate();
     setShowLogoutDialog(false);
+  };
+
+  // Password change mutation
+  const passwordChangeMutation = useMutation({
+    mutationFn: async (data: typeof passwordData) => {
+      return await apiRequest('POST', '/api/auth/change-password', data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Password Changed",
+        description: "Your password has been successfully updated.",
+      });
+      setShowPasswordDialog(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handlePasswordChange = () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (passwordData.newPassword.length < 8) {
+      toast({
+        title: "Error", 
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+    passwordChangeMutation.mutate(passwordData);
   };
 
   const MembershipIcon = membershipIcons[user?.membershipTier as keyof typeof membershipIcons] || Crown;
@@ -1375,7 +1429,11 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   <span className="text-sm text-gray-400">Strong</span>
                 </div>
               </div>
-              <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+              <Button 
+                variant="outline" 
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                onClick={() => setShowPasswordDialog(true)}
+              >
                 Change Password
               </Button>
             </div>
@@ -1502,6 +1560,103 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               </div>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password Change Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <Shield className="h-6 w-6 text-emerald-400" />
+              Change Password
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Enter your current password and choose a new one
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="currentPassword" className="text-white">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="bg-gray-800 border-gray-700 text-white mt-1"
+                placeholder="Enter current password"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="newPassword" className="text-white">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="bg-gray-800 border-gray-700 text-white mt-1"
+                placeholder="Enter new password (min 8 characters)"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="confirmPassword" className="text-white">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="bg-gray-800 border-gray-700 text-white mt-1"
+                placeholder="Confirm new password"
+              />
+            </div>
+            
+            {/* Password requirements */}
+            <div className="text-sm text-gray-400 space-y-1">
+              <p>Password requirements:</p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li className={passwordData.newPassword.length >= 8 ? 'text-green-400' : 'text-gray-400'}>
+                  At least 8 characters
+                </li>
+                <li className={passwordData.newPassword === passwordData.confirmPassword && passwordData.newPassword.length > 0 ? 'text-green-400' : 'text-gray-400'}>
+                  Passwords match
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPasswordDialog(false);
+                setPasswordData({
+                  currentPassword: '',
+                  newPassword: '',
+                  confirmPassword: ''
+                });
+              }}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePasswordChange}
+              className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white"
+              disabled={
+                passwordChangeMutation.isPending ||
+                !passwordData.currentPassword ||
+                !passwordData.newPassword ||
+                !passwordData.confirmPassword ||
+                passwordData.newPassword !== passwordData.confirmPassword ||
+                passwordData.newPassword.length < 8
+              }
+            >
+              {passwordChangeMutation.isPending ? 'Changing...' : 'Change Password'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
