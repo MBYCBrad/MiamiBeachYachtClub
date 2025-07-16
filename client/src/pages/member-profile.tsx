@@ -1464,7 +1464,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
       {/* Payment & Billing Dialog */}
       <Dialog open={showBillingDialog} onOpenChange={setShowBillingDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <CreditCard className="h-6 w-6 text-yellow-400" />
@@ -1475,7 +1475,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2">
             {/* Payment Methods */}
             <div className="bg-gray-800/50 rounded-lg p-4">
               <h3 className="font-semibold text-white mb-3">Payment Methods</h3>
