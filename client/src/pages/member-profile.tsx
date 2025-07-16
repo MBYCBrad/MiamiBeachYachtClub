@@ -1534,20 +1534,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               </Button>
             </div>
 
-            {/* Data Privacy */}
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold text-white">Data Privacy</h3>
-                  <p className="text-sm text-gray-400">Control how your data is used and shared</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-sm text-gray-400">Protected</span>
-                </div>
-              </div>
 
-            </div>
           </div>
         </DialogContent>
       </Dialog>
