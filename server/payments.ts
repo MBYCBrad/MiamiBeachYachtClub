@@ -22,6 +22,32 @@ export async function setupPaymentRoutes(app: Express) {
     console.error("❌ Stripe platform verification failed:", error.message);
   });
 
+  // Get membership pricing from database
+  app.get("/api/membership/pricing", async (req, res) => {
+    try {
+      const pricing = await storage.getMembershipPricing();
+      res.json(pricing);
+    } catch (error: any) {
+      console.error("Pricing fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch pricing" });
+    }
+  });
+
+  // Get specific tier pricing (e.g., Platinum)
+  app.get("/api/membership/pricing/:tier", async (req, res) => {
+    try {
+      const { tier } = req.params;
+      const pricing = await storage.getMembershipPricingByTier(tier);
+      if (!pricing) {
+        return res.status(404).json({ message: "Pricing not found for this tier" });
+      }
+      res.json(pricing);
+    } catch (error: any) {
+      console.error("Tier pricing fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch tier pricing" });
+    }
+  });
+
   // Create Stripe Connect account for service providers and yacht owners
   app.post("/api/payments/create-connect-account", async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -422,7 +448,7 @@ export async function setupPaymentRoutes(app: Express) {
       }
 
       // Create subscription for Platinum membership
-      // Monthly subscription: $500/month for Platinum
+      // Monthly subscription: $10,000/month for Platinum + $25,000 initiation fee
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
@@ -432,10 +458,21 @@ export async function setupPaymentRoutes(app: Express) {
               name: 'MBYC Platinum Membership',
               description: 'Miami Beach Yacht Club Platinum Membership - Access to premium yachts and exclusive services'
             },
-            unit_amount: 50000, // $500.00 in cents
+            unit_amount: 1000000, // $10,000.00 in cents
             recurring: {
               interval: 'month'
             }
+          }
+        }],
+        // Add one-time initiation fee
+        add_invoice_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Platinum Membership Initiation Fee',
+              description: 'One-time initiation fee for Platinum membership upgrade'
+            },
+            unit_amount: 2500000, // $25,000.00 in cents
           }
         }],
         payment_behavior: 'default_incomplete',
@@ -443,7 +480,9 @@ export async function setupPaymentRoutes(app: Express) {
         metadata: {
           userId: user.id.toString(),
           membershipTier: 'platinum',
-          upgradeFrom: user.membershipTier || 'bronze'
+          upgradeFrom: user.membershipTier || 'bronze',
+          monthlyAmount: '10000',
+          initiationFee: '25000'
         }
       });
 

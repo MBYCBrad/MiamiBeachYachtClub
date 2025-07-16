@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Crown, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
@@ -96,7 +96,7 @@ const CheckoutForm = ({ onSuccess, onError }: { onSuccess: () => void; onError: 
         disabled={!stripe || isProcessing}
         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-3"
       >
-        {isProcessing ? 'Processing...' : 'Upgrade to Platinum - $500/month'}
+        {isProcessing ? 'Processing...' : 'Complete Platinum Upgrade'}
       </Button>
     </form>
   );
@@ -105,6 +105,13 @@ const CheckoutForm = ({ onSuccess, onError }: { onSuccess: () => void; onError: 
 export default function MembershipUpgradeModal({ isOpen, onClose, currentTier }: MembershipUpgradeModalProps) {
   const [showPayment, setShowPayment] = useState(false);
   const { toast } = useToast();
+
+  // Fetch Platinum pricing from database
+  const { data: platinumPricing, isLoading: isPricingLoading } = useQuery({
+    queryKey: ['/api/membership/pricing/platinum'],
+    enabled: isOpen,
+    staleTime: 15 * 60 * 1000, // 15 minutes
+  });
 
   const handlePaymentSuccess = () => {
     setShowPayment(false);
@@ -147,7 +154,24 @@ export default function MembershipUpgradeModal({ isOpen, onClose, currentTier }:
                 <p className="text-gray-300">
                   Current Tier: <span className="font-semibold text-white capitalize">{currentTier}</span>
                 </p>
-                <p className="text-4xl font-bold text-white">$500<span className="text-lg text-gray-400">/month</span></p>
+                {isPricingLoading ? (
+                  <div className="animate-pulse space-y-2">
+                    <div className="h-12 bg-gray-700 rounded w-48 mx-auto"></div>
+                    <div className="h-6 bg-gray-700 rounded w-32 mx-auto"></div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-4xl font-bold text-white">
+                      ${platinumPricing?.monthlyPrice?.toLocaleString() || '10,000'}
+                      <span className="text-lg text-gray-400">/month</span>
+                    </p>
+                    {platinumPricing?.initiationFee && (
+                      <p className="text-lg text-yellow-400 font-semibold">
+                        + ${platinumPricing.initiationFee.toLocaleString()} initiation fee
+                      </p>
+                    )}
+                  </>
+                )}
                 <p className="text-gray-400">Unlock premium yacht access and exclusive benefits</p>
               </div>
 
@@ -157,7 +181,7 @@ export default function MembershipUpgradeModal({ isOpen, onClose, currentTier }:
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 gap-3">
-                    {platinumBenefits.map((benefit, index) => (
+                    {(platinumPricing?.benefits || platinumBenefits).map((benefit: string, index: number) => (
                       <div key={index} className="flex items-center gap-3">
                         <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
                         <span className="text-gray-300">{benefit}</span>
