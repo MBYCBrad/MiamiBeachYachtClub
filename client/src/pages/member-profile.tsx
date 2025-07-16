@@ -180,6 +180,88 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const { data: services = [] } = useQuery({ queryKey: ['/api/services'] }) as { data: any[] };
   const { data: transactions = [] } = useQuery({ queryKey: ['/api/transactions'] }) as { data: any[] };
   const { data: paymentMethods = [] } = useQuery({ queryKey: ['/api/payment-methods'] }) as { data: any[] };
+  const { data: favorites = [] } = useQuery({ queryKey: ['/api/favorites'] }) as { data: any[] };
+
+  // Create real-time activity feed from actual data
+  const createActivityFeed = () => {
+    const activities = [];
+    
+    // Add recent bookings
+    bookings.slice(0, 2).forEach((booking: any) => {
+      const yacht = yachts.find(y => y.id === booking.yachtId);
+      if (yacht) {
+        activities.push({
+          type: 'booking',
+          id: booking.id,
+          title: `Booked ${yacht.name}`,
+          description: `${yacht.length}ft ${yacht.type} • ${booking.guestCount} guests • ${yacht.location}`,
+          timestamp: booking.startTime,
+          status: booking.status || 'confirmed',
+          image: yacht.imageUrl || '/api/media/pexels-mali-42091_1750537294323.jpg',
+          icon: Calendar,
+          color: 'blue'
+        });
+      }
+    });
+    
+    // Add recent favorites
+    favorites.slice(0, 1).forEach((favorite: any) => {
+      const yacht = yachts.find(y => y.id === favorite.yachtId);
+      if (yacht) {
+        activities.push({
+          type: 'favorite',
+          id: favorite.id,
+          title: `Added ${yacht.name} to favorites`,
+          description: `${yacht.length}ft ${yacht.type} • ${yacht.capacity} guests • ${yacht.location}`,
+          timestamp: favorite.createdAt,
+          status: 'wishlist',
+          image: yacht.imageUrl || '/api/media/pexels-mikebirdy-144634_1750537277230.jpg',
+          icon: Heart,
+          color: 'purple'
+        });
+      }
+    });
+    
+    // Add recent transactions (services/events)
+    transactions.slice(0, 1).forEach((transaction: any) => {
+      if (transaction.type === 'Service Booking') {
+        const service = services.find(s => s.id === transaction.serviceId);
+        if (service) {
+          activities.push({
+            type: 'service',
+            id: transaction.id,
+            title: `Booked ${service.name}`,
+            description: `${service.category} • ${service.duration} • Professional service`,
+            timestamp: transaction.createdAt,
+            status: 'completed',
+            image: service.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg',
+            icon: PartyPopper,
+            color: 'emerald'
+          });
+        }
+      } else if (transaction.type === 'Event Registration') {
+        const event = events.find(e => e.id === transaction.eventId);
+        if (event) {
+          activities.push({
+            type: 'event',
+            id: transaction.id,
+            title: `Attended ${event.title}`,
+            description: `${event.description} • ${event.location}`,
+            timestamp: transaction.createdAt,
+            status: 'completed',
+            image: event.imageUrl || '/api/media/pexels-pixabay-163236_1750537277230.jpg',
+            icon: PartyPopper,
+            color: 'emerald'
+          });
+        }
+      }
+    });
+    
+    // Sort by timestamp (most recent first)
+    return activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 3);
+  };
+
+  const recentActivities = createActivityFeed();
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -943,170 +1025,117 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
         
         <div className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
-            whileHover={{ scale: 1.02, x: 10 }}
-          >
-            <Card className="bg-gray-900/60 border-gray-700/50 hover:border-blue-500/40 transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-              <CardContent className="p-6">
-                <div className="flex items-center gap-6">
-                  {/* Yacht Thumbnail */}
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                    <img 
-                      src="/api/media/pexels-mali-42091_1750537294323.jpg"
-                      alt="Marina Breeze"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 to-transparent" />
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, 0]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute bottom-1 right-1"
-                    >
-                      <Calendar className="h-4 w-4 text-blue-400" />
-                    </motion.div>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg mb-1">Booked Marina Breeze</h3>
-                    <p className="text-gray-400 mb-2">85ft Luxury Yacht • 10 guests • Miami Marina</p>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-400">Yesterday at 3:30 PM</span>
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity, index) => {
+              const Icon = activity.icon;
+              const colorClasses = {
+                blue: {
+                  border: 'hover:border-blue-500/40',
+                  gradient: 'from-blue-600/5',
+                  iconBg: 'from-blue-900/80',
+                  iconColor: 'text-blue-400',
+                  badgeColor: activity.status === 'confirmed' ? 'bg-green-600/20 text-green-400 border-green-600/30' : 'bg-blue-600/20 text-blue-400 border-blue-600/30',
+                  actionColor: 'text-blue-400'
+                },
+                purple: {
+                  border: 'hover:border-purple-500/40',
+                  gradient: 'from-purple-600/5',
+                  iconBg: 'from-purple-900/80',
+                  iconColor: 'text-purple-400',
+                  badgeColor: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
+                  actionColor: 'text-purple-400'
+                },
+                emerald: {
+                  border: 'hover:border-emerald-500/40',
+                  gradient: 'from-emerald-600/5',
+                  iconBg: 'from-emerald-900/80',
+                  iconColor: 'text-emerald-400',
+                  badgeColor: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
+                  actionColor: 'text-emerald-400'
+                }
+              };
+              
+              const colors = colorClasses[activity.color as keyof typeof colorClasses] || colorClasses.blue;
+              
+              return (
+                <motion.div
+                  key={activity.id}
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.9 + index * 0.1 }}
+                  whileHover={{ scale: 1.02, x: 10 }}
+                >
+                  <Card className={`bg-gray-900/60 border-gray-700/50 ${colors.border} transition-all duration-300 overflow-hidden relative`}>
+                    <div className={`absolute inset-0 bg-gradient-to-r ${colors.gradient} to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300`} />
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-6">
+                        {/* Thumbnail */}
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                          <img 
+                            src={activity.image}
+                            alt={activity.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className={`absolute inset-0 bg-gradient-to-t ${colors.iconBg} to-transparent`} />
+                          <motion.div
+                            animate={{ 
+                              scale: [1, 1.1, 1],
+                              rotate: [0, 5, 0]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
+                            className="absolute bottom-1 right-1"
+                          >
+                            <Icon className={`h-4 w-4 ${colors.iconColor} ${activity.type === 'favorite' ? 'fill-current' : ''}`} />
+                          </motion.div>
+                        </div>
+                        
+                        <div className="flex-1">
+                          <h3 className="font-bold text-white text-lg mb-1">{activity.title}</h3>
+                          <p className="text-gray-400 mb-2">{activity.description}</p>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm text-gray-400">
+                                {new Date(activity.timestamp).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                            <Badge className={colors.badgeColor}>
+                              {activity.status === 'confirmed' ? 'Confirmed' : 
+                               activity.status === 'wishlist' ? 'Wishlist' : 
+                               activity.status === 'completed' ? 'Completed' : 
+                               activity.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <motion.div
+                          whileHover={{ scale: 1.1, rotate: activity.type === 'favorite' ? 0 : 15 }}
+                          className={colors.actionColor}
+                        >
+                          {activity.type === 'favorite' ? (
+                            <Heart className="h-5 w-5 fill-current" />
+                          ) : (
+                            <ArrowRight className="h-5 w-5" />
+                          )}
+                        </motion.div>
                       </div>
-                      <Badge className="bg-green-600/20 text-green-400 border-green-600/30">
-                        Confirmed
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="text-blue-400"
-                  >
-                    <ArrowRight className="h-5 w-5" />
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.0 }}
-            whileHover={{ scale: 1.02, x: 10 }}
-          >
-            <Card className="bg-gray-900/60 border-gray-700/50 hover:border-purple-500/40 transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-              <CardContent className="p-6">
-                <div className="flex items-center gap-6">
-                  {/* Yacht Thumbnail */}
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                    <img 
-                      src="/api/media/pexels-mikebirdy-144634_1750537277230.jpg"
-                      alt="Ocean Majesty"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent" />
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.2, 1],
-                        rotate: [0, -5, 0]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="absolute bottom-1 right-1"
-                    >
-                      <Heart className="h-4 w-4 text-purple-400 fill-current" />
-                    </motion.div>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg mb-1">Added Ocean Majesty to favorites</h3>
-                    <p className="text-gray-400 mb-2">120ft Super Yacht • 15 guests • Premium Fleet</p>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-400">2 days ago</span>
-                      </div>
-                      <Badge className="bg-purple-600/20 text-purple-400 border-purple-600/30">
-                        Wishlist
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="text-purple-400"
-                  >
-                    <Heart className="h-5 w-5 fill-current" />
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.1 }}
-            whileHover={{ scale: 1.02, x: 10 }}
-          >
-            <Card className="bg-gray-900/60 border-gray-700/50 hover:border-emerald-500/40 transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-              <CardContent className="p-6">
-                <div className="flex items-center gap-6">
-                  {/* Event Thumbnail */}
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                    <img 
-                      src="/api/media/pexels-pixabay-163236_1750537277230.jpg"
-                      alt="VIP Marina Party"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 to-transparent" />
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 10, 0]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                      className="absolute bottom-1 right-1"
-                    >
-                      <PartyPopper className="h-4 w-4 text-emerald-400" />
-                    </motion.div>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg mb-1">Attended VIP Marina Party</h3>
-                    <p className="text-gray-400 mb-2">Exclusive member event • Sunset cruise with live music</p>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-400">1 week ago</span>
-                      </div>
-                      <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">
-                        Completed
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 15 }}
-                    className="text-emerald-400"
-                  >
-                    <PartyPopper className="h-5 w-5" />
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              <History className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+              <p className="text-lg mb-2">No recent activity</p>
+              <p className="text-sm">Your yacht club adventures will appear here</p>
+            </div>
+          )}
         </div>
       </motion.div>
 
