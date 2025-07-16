@@ -233,13 +233,15 @@ export function setupAuth(app: Express) {
           id: freshUser.id, 
           username: freshUser.username, 
           profileImage: freshUser.profileImage,
-          hasProfileImage: !!freshUser.profileImage
+          profileImageUrl: freshUser.profileImageUrl,
+          hasProfileImage: !!freshUser.profileImage,
+          hasProfileImageUrl: !!freshUser.profileImageUrl
         });
         
         // Map database field names to frontend field names
         const userResponse = {
           ...freshUser,
-          profileImage: freshUser.profileImage || null,
+          profileImage: freshUser.profileImage || freshUser.profileImageUrl || null,
           fullName: freshUser.fullName || null
         };
         
