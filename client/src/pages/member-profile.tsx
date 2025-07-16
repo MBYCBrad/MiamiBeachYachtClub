@@ -1877,8 +1877,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
       {/* View All Transactions Dialog */}
       <Dialog open={showAllTransactionsDialog} onOpenChange={setShowAllTransactionsDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-4xl max-h-[90vh]">
-          <DialogHeader>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-4xl h-[80vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-3">
               <DollarSign className="h-6 w-6 text-green-400" />
               All Transactions
@@ -1888,9 +1888,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="flex-1 overflow-y-auto pr-2 min-h-0">
             {transactions.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2 pb-4">
                 {transactions.map((transaction: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors">
                     <div className="flex items-center gap-4">
@@ -1935,7 +1935,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             )}
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0 mt-4">
             <Button
               variant="outline"
               onClick={() => setShowAllTransactionsDialog(false)}
