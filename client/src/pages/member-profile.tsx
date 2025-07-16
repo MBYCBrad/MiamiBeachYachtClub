@@ -70,10 +70,21 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const [showSecurityDialog, setShowSecurityDialog] = useState(false);
   const [showBillingDialog, setShowBillingDialog] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
+  });
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardholderName: '',
+    billingAddress: '',
+    city: '',
+    state: '',
+    zipCode: ''
   });
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const queryClient = useQueryClient();
@@ -216,6 +227,50 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
       return;
     }
     passwordChangeMutation.mutate(passwordData);
+  };
+
+  // Add payment method mutation
+  const addPaymentMutation = useMutation({
+    mutationFn: async (data: typeof paymentData) => {
+      return await apiRequest('POST', '/api/payments/add-method', data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Payment Method Added",
+        description: "Your payment method has been added successfully.",
+      });
+      setShowAddPaymentDialog(false);
+      setPaymentData({
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        cardholderName: '',
+        billingAddress: '',
+        city: '',
+        state: '',
+        zipCode: ''
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add payment method. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAddPayment = () => {
+    // Basic validation
+    if (!paymentData.cardNumber || !paymentData.expiryDate || !paymentData.cvv || !paymentData.cardholderName) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    addPaymentMutation.mutate(paymentData);
   };
 
   // Avatar upload handler
@@ -1503,7 +1558,10 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   </Button>
                 </div>
               </div>
-              <Button className="w-full mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+              <Button 
+                className="w-full mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                onClick={() => setShowAddPaymentDialog(true)}
+              >
                 + Add Payment Method
               </Button>
             </div>
@@ -1647,6 +1705,163 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               }
             >
               {passwordChangeMutation.isPending ? 'Changing...' : 'Change Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Payment Method Dialog */}
+      <Dialog open={showAddPaymentDialog} onOpenChange={setShowAddPaymentDialog}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <Plus className="h-6 w-6 text-purple-400" />
+              Add Payment Method
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Add a new payment method to your account
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Card Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="cardholderName" className="text-white">Cardholder Name</Label>
+                <Input
+                  id="cardholderName"
+                  type="text"
+                  value={paymentData.cardholderName}
+                  onChange={(e) => setPaymentData(prev => ({ ...prev, cardholderName: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white mt-1"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cardNumber" className="text-white">Card Number</Label>
+                <Input
+                  id="cardNumber"
+                  type="text"
+                  value={paymentData.cardNumber}
+                  onChange={(e) => setPaymentData(prev => ({ ...prev, cardNumber: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white mt-1"
+                  placeholder="1234 5678 9012 3456"
+                  maxLength={19}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="expiryDate" className="text-white">Expiry Date</Label>
+                <Input
+                  id="expiryDate"
+                  type="text"
+                  value={paymentData.expiryDate}
+                  onChange={(e) => setPaymentData(prev => ({ ...prev, expiryDate: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white mt-1"
+                  placeholder="MM/YY"
+                  maxLength={5}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cvv" className="text-white">CVV</Label>
+                <Input
+                  id="cvv"
+                  type="text"
+                  value={paymentData.cvv}
+                  onChange={(e) => setPaymentData(prev => ({ ...prev, cvv: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white mt-1"
+                  placeholder="123"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+
+            {/* Billing Address */}
+            <div className="space-y-3">
+              <h3 className="text-white font-medium">Billing Address</h3>
+              <div>
+                <Label htmlFor="billingAddress" className="text-white">Address</Label>
+                <Input
+                  id="billingAddress"
+                  type="text"
+                  value={paymentData.billingAddress}
+                  onChange={(e) => setPaymentData(prev => ({ ...prev, billingAddress: e.target.value }))}
+                  className="bg-gray-800 border-gray-700 text-white mt-1"
+                  placeholder="123 Main Street"
+                />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="city" className="text-white">City</Label>
+                  <Input
+                    id="city"
+                    type="text"
+                    value={paymentData.city}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, city: e.target.value }))}
+                    className="bg-gray-800 border-gray-700 text-white mt-1"
+                    placeholder="Miami"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state" className="text-white">State</Label>
+                  <Input
+                    id="state"
+                    type="text"
+                    value={paymentData.state}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, state: e.target.value }))}
+                    className="bg-gray-800 border-gray-700 text-white mt-1"
+                    placeholder="FL"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zipCode" className="text-white">ZIP Code</Label>
+                  <Input
+                    id="zipCode"
+                    type="text"
+                    value={paymentData.zipCode}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, zipCode: e.target.value }))}
+                    className="bg-gray-800 border-gray-700 text-white mt-1"
+                    placeholder="33139"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddPaymentDialog(false);
+                setPaymentData({
+                  cardNumber: '',
+                  expiryDate: '',
+                  cvv: '',
+                  cardholderName: '',
+                  billingAddress: '',
+                  city: '',
+                  state: '',
+                  zipCode: ''
+                });
+              }}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddPayment}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              disabled={
+                addPaymentMutation.isPending ||
+                !paymentData.cardNumber ||
+                !paymentData.expiryDate ||
+                !paymentData.cvv ||
+                !paymentData.cardholderName
+              }
+            >
+              {addPaymentMutation.isPending ? 'Adding...' : 'Add Payment Method'}
             </Button>
           </DialogFooter>
         </DialogContent>
