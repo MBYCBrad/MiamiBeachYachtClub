@@ -104,8 +104,6 @@ export const users: any = pgTable("users", {
   bio: text("bio"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
-  stripeAccountId: text("stripe_account_id"),
-  stripeAccountStatus: text("stripe_account_status"),
   permissions: jsonb("permissions").$type<string[]>().default([]),
   createdBy: integer("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
@@ -1059,27 +1057,3 @@ export const insertSystemSettingSchema = createInsertSchema(systemSettings).omit
 
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type InsertSystemSetting = z.infer<typeof insertSystemSettingSchema>;
-
-// Membership pricing configuration
-export const membershipPricing = pgTable("membership_pricing", {
-  id: serial("id").primaryKey(),
-  tier: text("tier").notNull().unique(),
-  monthlyPrice: decimal("monthly_price", { precision: 10, scale: 2 }).notNull(),
-  initiationFee: decimal("initiation_fee", { precision: 10, scale: 2 }).default("0"),
-  stripePriceId: text("stripe_price_id"),
-  stripeInitiationPriceId: text("stripe_initiation_price_id"),
-  benefits: jsonb("benefits").$type<string[]>().default([]),
-  description: text("description"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertMembershipPricingSchema = createInsertSchema(membershipPricing).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type MembershipPricing = typeof membershipPricing.$inferSelect;
-export type InsertMembershipPricing = z.infer<typeof insertMembershipPricingSchema>;

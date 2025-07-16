@@ -22,32 +22,6 @@ export async function setupPaymentRoutes(app: Express) {
     console.error("❌ Stripe platform verification failed:", error.message);
   });
 
-  // Get membership pricing from database
-  app.get("/api/membership/pricing", async (req, res) => {
-    try {
-      const pricing = await storage.getMembershipPricing();
-      res.json(pricing);
-    } catch (error: any) {
-      console.error("Pricing fetch error:", error);
-      res.status(500).json({ message: "Failed to fetch pricing" });
-    }
-  });
-
-  // Get specific tier pricing (e.g., Platinum)
-  app.get("/api/membership/pricing/:tier", async (req, res) => {
-    try {
-      const { tier } = req.params;
-      const pricing = await storage.getMembershipPricingByTier(tier);
-      if (!pricing) {
-        return res.status(404).json({ message: "Pricing not found for this tier" });
-      }
-      res.json(pricing);
-    } catch (error: any) {
-      console.error("Tier pricing fetch error:", error);
-      res.status(500).json({ message: "Failed to fetch tier pricing" });
-    }
-  });
-
   // Create Stripe Connect account for service providers and yacht owners
   app.post("/api/payments/create-connect-account", async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -410,95 +384,6 @@ export async function setupPaymentRoutes(app: Express) {
     } catch (error: any) {
       console.error("Refund processing failed:", error);
       res.status(500).json({ error: "Refund failed: " + error.message });
-    }
-  });
-
-  // Membership upgrade to Platinum
-  app.post("/api/membership/upgrade-to-platinum", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.sendStatus(401);
-    }
-
-    try {
-      const user = await storage.getUser(req.user.id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      // Check if user is already Platinum or higher
-      if (user.membershipTier === 'platinum' || user.membershipTier === 'diamond') {
-        return res.status(400).json({ error: "User is already Platinum or higher tier" });
-      }
-
-      // Create or get Stripe customer
-      let customerId = user.stripeCustomerId;
-      if (!customerId) {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          name: user.username,
-          metadata: {
-            userId: user.id.toString(),
-            previousTier: user.membershipTier || 'bronze'
-          }
-        });
-        customerId = customer.id;
-        
-        // Update user with Stripe customer ID
-        await storage.updateUser(user.id, { stripeCustomerId: customerId });
-      }
-
-      // Create subscription for Platinum membership
-      // Monthly subscription: $10,000/month for Platinum + $25,000 initiation fee
-      const subscription = await stripe.subscriptions.create({
-        customer: customerId,
-        items: [{
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'MBYC Platinum Membership',
-              description: 'Miami Beach Yacht Club Platinum Membership - Access to premium yachts and exclusive services'
-            },
-            unit_amount: 1000000, // $10,000.00 in cents
-            recurring: {
-              interval: 'month'
-            }
-          }
-        }],
-        // Add one-time initiation fee
-        add_invoice_items: [{
-          price_data: {
-            currency: 'usd',
-            product: 'Platinum Membership Initiation Fee',
-            unit_amount: 2500000, // $25,000.00 in cents
-          }
-        }],
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice.payment_intent'],
-        metadata: {
-          userId: user.id.toString(),
-          membershipTier: 'platinum',
-          upgradeFrom: user.membershipTier || 'bronze',
-          monthlyAmount: '10000',
-          initiationFee: '25000'
-        }
-      });
-
-      // Update user membership tier
-      await storage.updateUser(user.id, { 
-        membershipTier: 'platinum',
-        stripeSubscriptionId: subscription.id
-      });
-
-      const paymentIntent = subscription.latest_invoice?.payment_intent;
-      
-      res.json({
-        subscriptionId: subscription.id,
-        clientSecret: paymentIntent?.client_secret,
-        status: subscription.status
-      });
-    } catch (error: any) {
-      console.error("Membership upgrade failed:", error);
-      res.status(500).json({ error: "Upgrade failed: " + error.message });
     }
   });
 

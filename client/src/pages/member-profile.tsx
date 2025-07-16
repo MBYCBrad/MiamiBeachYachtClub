@@ -43,7 +43,6 @@ import { cn } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import MembershipUpgradeModal from '@/components/membership-upgrade-modal';
 
 interface MemberProfileProps {
   currentView: string;
@@ -77,8 +76,6 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
     confirmPassword: ''
   });
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -219,10 +216,6 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
       return;
     }
     passwordChangeMutation.mutate(passwordData);
-  };
-
-  const handleUpgradeToPlatinum = () => {
-    setShowUpgradeModal(true);
   };
 
   // Avatar upload handler
@@ -1557,11 +1550,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 <Badge className="bg-yellow-600/20 text-yellow-400">Active</Badge>
               </div>
               <div className="mt-3 space-y-2">
-                <Button 
-                  onClick={handleUpgradeToPlatinum}
-                  variant="outline" 
-                  className="w-full border-yellow-600 text-yellow-400 hover:bg-yellow-600/10"
-                >
+                <Button variant="outline" className="w-full border-yellow-600 text-yellow-400 hover:bg-yellow-600/10">
                   Upgrade to Platinum
                 </Button>
                 <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
@@ -1669,13 +1658,6 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Membership Upgrade Modal */}
-      <MembershipUpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        currentTier={user?.membershipTier || 'bronze'}
-      />
     </div>
   );
 }

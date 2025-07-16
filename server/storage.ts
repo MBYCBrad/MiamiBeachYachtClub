@@ -2,7 +2,7 @@ import {
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
   conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications, tourRequests, contactMessages,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
-  systemSettings, membershipPricing,
+  systemSettings,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
@@ -17,7 +17,6 @@ import {
   type MaintenanceRecord, type InsertMaintenanceRecord, type UsageMetric, type InsertUsageMetric,
   type ConditionAssessment, type InsertConditionAssessment, type MaintenanceSchedule, type InsertMaintenanceSchedule,
   type YachtValuation, type InsertYachtValuation, type SystemSetting, type InsertSystemSetting,
-  type MembershipPricing, type InsertMembershipPricing,
   UserRole, MembershipTier
 } from "@shared/schema";
 import session from "express-session";
@@ -221,12 +220,6 @@ export interface IStorage {
   createContactMessage(contactMessage: InsertContactMessage): Promise<ContactMessage>;
   updateContactMessage(id: number, contactMessage: Partial<InsertContactMessage>): Promise<ContactMessage | undefined>;
   deleteContactMessage(id: number): Promise<boolean>;
-
-  // Membership Pricing methods
-  getMembershipPricing(): Promise<any[]>;
-  getMembershipPricingByTier(tier: string): Promise<any | undefined>;
-  createMembershipPricing(pricing: any): Promise<any>;
-  updateMembershipPricing(tier: string, pricing: any): Promise<any | undefined>;
 
   sessionStore: session.SessionStore;
 }
@@ -2037,66 +2030,6 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error deleting contact message:', error);
       return false;
-    }
-  }
-
-  // Membership Pricing methods
-  async getMembershipPricing(): Promise<MembershipPricing[]> {
-    try {
-      const results = await db
-        .select()
-        .from(membershipPricing)
-        .where(eq(membershipPricing.isActive, true))
-        .orderBy(asc(membershipPricing.monthlyPrice));
-      return results;
-    } catch (error) {
-      console.error('Error fetching membership pricing:', error);
-      return [];
-    }
-  }
-
-  async getMembershipPricingByTier(tier: string): Promise<MembershipPricing | undefined> {
-    try {
-      const [result] = await db
-        .select()
-        .from(membershipPricing)
-        .where(and(
-          eq(membershipPricing.tier, tier),
-          eq(membershipPricing.isActive, true)
-        ));
-      return result;
-    } catch (error) {
-      console.error('Error fetching membership pricing by tier:', error);
-      return undefined;
-    }
-  }
-
-  async createMembershipPricing(pricing: InsertMembershipPricing): Promise<MembershipPricing> {
-    const [result] = await db
-      .insert(membershipPricing)
-      .values({
-        ...pricing,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning();
-    return result;
-  }
-
-  async updateMembershipPricing(tier: string, pricing: Partial<InsertMembershipPricing>): Promise<MembershipPricing | undefined> {
-    try {
-      const [result] = await db
-        .update(membershipPricing)
-        .set({ 
-          ...pricing, 
-          updatedAt: new Date() 
-        })
-        .where(eq(membershipPricing.tier, tier))
-        .returning();
-      return result;
-    } catch (error) {
-      console.error('Error updating membership pricing:', error);
-      return undefined;
     }
   }
 }
