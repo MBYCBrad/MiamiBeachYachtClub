@@ -95,6 +95,13 @@ export default function HamburgerMenu({ currentView, setCurrentView }: Hamburger
                         src={user.profileImage}
                         alt="Profile"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error('Profile image failed to load:', user.profileImage);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                          console.log('Profile image loaded successfully:', user.profileImage);
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
