@@ -1546,11 +1546,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   <span className="text-sm text-gray-400">Protected</span>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Button variant="outline" className="border-red-600 text-red-400 hover:bg-red-600/10 w-full">
-                  Delete Account
-                </Button>
-              </div>
+
             </div>
           </div>
         </DialogContent>
