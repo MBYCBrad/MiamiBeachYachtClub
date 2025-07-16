@@ -12,6 +12,18 @@ interface HamburgerMenuProps {
 export default function HamburgerMenu({ currentView, setCurrentView }: HamburgerMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logoutMutation } = useAuth();
+  
+  // Debug log to see what user data is being received
+  React.useEffect(() => {
+    if (user) {
+      console.log('HamburgerMenu user data:', {
+        id: user.id,
+        username: user.username,
+        profileImage: user.profileImage,
+        hasProfileImage: !!user.profileImage
+      });
+    }
+  }, [user]);
 
   const menuItems = [
     { id: 'profile', icon: User, label: 'Profile', badge: null, route: null },
