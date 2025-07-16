@@ -1562,7 +1562,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
 
       {/* Payment & Billing Dialog */}
       <Dialog open={showBillingDialog} onOpenChange={setShowBillingDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogContent className="bg-black border-gray-700 text-white max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <CreditCard className="h-6 w-6 text-yellow-400" />
@@ -1597,9 +1597,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                         <Badge className="bg-green-600/20 text-green-400">Primary</Badge>
                       ) : (
                         <Button 
-                          variant="outline" 
                           size="sm" 
-                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                           onClick={() => removePaymentMutation.mutate(method.id)}
                           disabled={removePaymentMutation.isPending}
                         >
@@ -1647,8 +1646,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 )}
               </div>
               <Button 
-                variant="outline" 
-                className="w-full mt-3 border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="w-full mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                 onClick={() => setShowAllTransactionsDialog(true)}
               >
                 View All Transactions
