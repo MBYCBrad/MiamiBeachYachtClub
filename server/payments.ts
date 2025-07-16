@@ -468,10 +468,7 @@ export async function setupPaymentRoutes(app: Express) {
         add_invoice_items: [{
           price_data: {
             currency: 'usd',
-            product_data: {
-              name: 'Platinum Membership Initiation Fee',
-              description: 'One-time initiation fee for Platinum membership upgrade'
-            },
+            product: 'Platinum Membership Initiation Fee',
             unit_amount: 2500000, // $25,000.00 in cents
           }
         }],
