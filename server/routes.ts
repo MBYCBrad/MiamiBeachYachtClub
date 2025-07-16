@@ -646,6 +646,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // TRANSACTIONS ROUTES
+  app.get("/api/transactions", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const transactions = [];
+      
+      // Get user's service bookings (main source of transactions)
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const userServiceBookings = serviceBookings.filter(booking => booking.userId === userId);
+      
+      // Get services for transaction details
+      const services = await dbStorage.getServices();
+      
+      // Convert service bookings to transactions
+      for (const booking of userServiceBookings) {
+        const service = services.find(s => s.id === booking.serviceId);
+        
+        transactions.push({
+          id: `service-${booking.id}`,
+          type: 'Service Booking',
+          description: service?.name || 'Unknown Service',
+          amount: parseFloat(booking.totalPrice || '0'),
+          status: booking.status === 'completed' ? 'Completed' : 'Pending',
+          date: booking.bookingDate || booking.createdAt,
+          createdAt: booking.createdAt,
+          paymentMethod: 'Credit Card',
+          serviceId: booking.serviceId,
+          bookingId: booking.id
+        });
+      }
+      
+      // Get user's yacht bookings (free but show as transactions)
+      const yachtBookings = await dbStorage.getBookings();
+      const userYachtBookings = yachtBookings.filter(booking => booking.userId === userId);
+      
+      // Get yachts for transaction details
+      const yachts = await dbStorage.getYachts();
+      
+      // Convert yacht bookings to transactions (free bookings)
+      for (const booking of userYachtBookings) {
+        const yacht = yachts.find(y => y.id === booking.yachtId);
+        
+        transactions.push({
+          id: `yacht-${booking.id}`,
+          type: 'Yacht Booking',
+          description: yacht?.name || 'Unknown Yacht',
+          amount: 0, // Yacht bookings are free for members
+          status: 'Completed',
+          date: booking.startTime || booking.createdAt,
+          createdAt: booking.createdAt,
+          paymentMethod: 'Complimentary',
+          yachtId: booking.yachtId,
+          bookingId: booking.id
+        });
+      }
+      
+      // Sort transactions by date (newest first)
+      transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      res.json(transactions);
+    } catch (error: any) {
+      console.error('Error fetching transactions:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // EVENT ROUTES
   app.get("/api/events", async (req, res) => {
     try {
