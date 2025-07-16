@@ -753,6 +753,21 @@ export const contactMessages = pgTable("contact_messages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  stripePaymentMethodId: text("stripe_payment_method_id").notNull(),
+  cardType: text("card_type").notNull(),
+  lastFour: text("last_four").notNull(),
+  expiryMonth: integer("expiry_month").notNull(),
+  expiryYear: integer("expiry_year").notNull(),
+  cardholderName: text("cardholder_name").notNull(),
+  isPrimary: boolean("is_primary").default(false),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas and types
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -910,6 +925,12 @@ export const insertTourRequestSchema = createInsertSchema(tourRequests).omit({
 });
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

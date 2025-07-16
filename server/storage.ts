@@ -2,7 +2,7 @@ import {
   users, yachts, services, events, bookings, serviceBookings, eventRegistrations, reviews, mediaAssets, favorites, messages, notifications,
   conversations, phoneCalls, messageAnalytics, crewMembers, crewAssignments, staff, applications, tourRequests, contactMessages,
   yachtComponents, tripLogs, maintenanceRecords, usageMetrics, conditionAssessments, maintenanceSchedules, yachtValuations,
-  systemSettings,
+  systemSettings, paymentMethods,
   type User, type InsertUser, type Yacht, type InsertYacht, type Service, type InsertService,
   type Event, type InsertEvent, type Booking, type InsertBooking, type ServiceBooking, 
   type InsertServiceBooking, type EventRegistration, type InsertEventRegistration,
@@ -220,6 +220,12 @@ export interface IStorage {
   createContactMessage(contactMessage: InsertContactMessage): Promise<ContactMessage>;
   updateContactMessage(id: number, contactMessage: Partial<InsertContactMessage>): Promise<ContactMessage | undefined>;
   deleteContactMessage(id: number): Promise<boolean>;
+
+  // Payment Methods
+  getPaymentMethods(userId: number): Promise<any[]>;
+  createPaymentMethod(paymentMethod: any): Promise<any>;
+  deletePaymentMethod(id: number): Promise<boolean>;
+  setPrimaryPaymentMethod(userId: number, paymentMethodId: number): Promise<boolean>;
 
   sessionStore: session.SessionStore;
 }
@@ -2029,6 +2035,74 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error('Error deleting contact message:', error);
+      return false;
+    }
+  }
+
+  // Payment Methods
+  async getPaymentMethods(userId: number): Promise<any[]> {
+    try {
+      const methods = await db
+        .select()
+        .from(paymentMethods)
+        .where(and(
+          eq(paymentMethods.userId, userId),
+          eq(paymentMethods.isActive, true)
+        ))
+        .orderBy(desc(paymentMethods.isPrimary), desc(paymentMethods.createdAt));
+      return methods;
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+      return [];
+    }
+  }
+
+  async createPaymentMethod(paymentMethod: any): Promise<any> {
+    try {
+      const [created] = await db
+        .insert(paymentMethods)
+        .values(paymentMethod)
+        .returning();
+      return created;
+    } catch (error) {
+      console.error('Error creating payment method:', error);
+      throw error;
+    }
+  }
+
+  async deletePaymentMethod(id: number): Promise<boolean> {
+    try {
+      await db
+        .update(paymentMethods)
+        .set({ isActive: false, updatedAt: new Date() })
+        .where(eq(paymentMethods.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting payment method:', error);
+      return false;
+    }
+  }
+
+  async setPrimaryPaymentMethod(userId: number, paymentMethodId: number): Promise<boolean> {
+    try {
+      // First, remove primary status from all user's payment methods
+      await db
+        .update(paymentMethods)
+        .set({ isPrimary: false, updatedAt: new Date() })
+        .where(eq(paymentMethods.userId, userId));
+      
+      // Then set the selected method as primary
+      await db
+        .update(paymentMethods)
+        .set({ isPrimary: true, updatedAt: new Date() })
+        .where(and(
+          eq(paymentMethods.id, paymentMethodId),
+          eq(paymentMethods.userId, userId)
+        ));
+      
+      return true;
+    } catch (error) {
+      console.error('Error setting primary payment method:', error);
       return false;
     }
   }

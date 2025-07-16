@@ -179,6 +179,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   const { data: yachts = [] } = useQuery({ queryKey: ['/api/yachts'] }) as { data: any[] };
   const { data: services = [] } = useQuery({ queryKey: ['/api/services'] }) as { data: any[] };
   const { data: transactions = [] } = useQuery({ queryKey: ['/api/transactions'] }) as { data: any[] };
+  const { data: paymentMethods = [] } = useQuery({ queryKey: ['/api/payment-methods'] }) as { data: any[] };
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -234,7 +235,21 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
   // Add payment method mutation
   const addPaymentMutation = useMutation({
     mutationFn: async (data: typeof paymentData) => {
-      return await apiRequest('POST', '/api/payments/add-method', data);
+      // Extract card info from the form data
+      const [expiryMonth, expiryYear] = data.expiryDate.split('/').map(str => parseInt(str));
+      const lastFour = data.cardNumber.slice(-4);
+      const cardType = data.cardNumber.startsWith('4') ? 'Visa' : 
+                       data.cardNumber.startsWith('5') ? 'Mastercard' : 'Unknown';
+      
+      return await apiRequest('POST', '/api/payment-methods', {
+        stripePaymentMethodId: `pm_${Date.now()}`, // Mock Stripe PM ID
+        cardType,
+        lastFour,
+        expiryMonth,
+        expiryYear: expiryYear < 50 ? 2000 + expiryYear : 1900 + expiryYear,
+        cardholderName: data.cardholderName,
+        isPrimary: false
+      });
     },
     onSuccess: () => {
       toast({
@@ -252,6 +267,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         state: '',
         zipCode: ''
       });
+      // Refresh payment methods
+      queryClient.invalidateQueries({ queryKey: ['/api/payment-methods'] });
     },
     onError: (error: any) => {
       toast({
@@ -1201,13 +1218,15 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                     
                     {/* Payment Methods Preview */}
                     <div className="flex gap-2 mb-4">
-                      <div className="px-2 py-1 bg-blue-600/20 rounded text-xs text-blue-400">
-                        •••• 4242
-                      </div>
-                      <div className="px-2 py-1 bg-purple-600/20 rounded text-xs text-purple-400">
-                        •••• 8888
-                      </div>
-                      <div className="px-2 py-1 bg-gray-700 rounded text-xs text-gray-400">
+                      {paymentMethods.slice(0, 2).map((method: any) => (
+                        <div key={method.id} className="px-2 py-1 bg-blue-600/20 rounded text-xs text-blue-400">
+                          •••• {method.lastFour}
+                        </div>
+                      ))}
+                      <div 
+                        className="px-2 py-1 bg-gray-700 rounded text-xs text-gray-400 cursor-pointer hover:bg-gray-600"
+                        onClick={() => setShowAddPaymentDialog(true)}
+                      >
                         + Add
                       </div>
                     </div>
@@ -1537,28 +1556,31 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
             <div className="bg-gray-800/50 rounded-lg p-4">
               <h3 className="font-semibold text-white mb-3">Payment Methods</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-blue-400" />
-                    <div>
-                      <p className="text-white font-medium">Visa •••• 4242</p>
-                      <p className="text-sm text-gray-400">Expires 12/25</p>
-                    </div>
+                {paymentMethods.length === 0 ? (
+                  <div className="text-center py-6 text-gray-400">
+                    <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No payment methods added yet</p>
                   </div>
-                  <Badge className="bg-green-600/20 text-green-400">Primary</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-purple-400" />
-                    <div>
-                      <p className="text-white font-medium">Mastercard •••• 8888</p>
-                      <p className="text-sm text-gray-400">Expires 06/26</p>
+                ) : (
+                  paymentMethods.map((method: any) => (
+                    <div key={method.id} className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className={`h-5 w-5 ${method.cardType === 'Visa' ? 'text-blue-400' : 'text-purple-400'}`} />
+                        <div>
+                          <p className="text-white font-medium">{method.cardType} •••• {method.lastFour}</p>
+                          <p className="text-sm text-gray-400">Expires {method.expiryMonth.toString().padStart(2, '0')}/{method.expiryYear.toString().slice(-2)}</p>
+                        </div>
+                      </div>
+                      {method.isPrimary ? (
+                        <Badge className="bg-green-600/20 text-green-400">Primary</Badge>
+                      ) : (
+                        <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                          Remove
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-800">
-                    Remove
-                  </Button>
-                </div>
+                  ))
+                )}
               </div>
               <Button 
                 className="w-full mt-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"

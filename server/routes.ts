@@ -2372,6 +2372,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment Methods API endpoints
+  app.get('/api/payment-methods', requireAuth, async (req, res) => {
+    try {
+      const paymentMethods = await dbStorage.getPaymentMethods(req.user!.id);
+      res.json(paymentMethods);
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+      res.status(500).json({ error: 'Failed to fetch payment methods' });
+    }
+  });
+
+  app.post('/api/payment-methods', requireAuth, async (req, res) => {
+    try {
+      const { stripePaymentMethodId, cardType, lastFour, expiryMonth, expiryYear, cardholderName, isPrimary } = req.body;
+      
+      if (!stripePaymentMethodId || !cardType || !lastFour || !expiryMonth || !expiryYear || !cardholderName) {
+        return res.status(400).json({ error: 'All card details are required' });
+      }
+
+      const paymentMethod = {
+        userId: req.user!.id,
+        stripePaymentMethodId,
+        cardType,
+        lastFour,
+        expiryMonth,
+        expiryYear,
+        cardholderName,
+        isPrimary: isPrimary || false,
+        isActive: true
+      };
+
+      const createdMethod = await dbStorage.createPaymentMethod(paymentMethod);
+      res.json(createdMethod);
+    } catch (error) {
+      console.error('Error creating payment method:', error);
+      res.status(500).json({ error: 'Failed to create payment method' });
+    }
+  });
+
+  app.delete('/api/payment-methods/:id', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await dbStorage.deletePaymentMethod(id);
+      
+      if (success) {
+        res.json({ message: 'Payment method deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'Payment method not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting payment method:', error);
+      res.status(500).json({ error: 'Failed to delete payment method' });
+    }
+  });
+
+  app.post('/api/payment-methods/:id/set-primary', requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await dbStorage.setPrimaryPaymentMethod(req.user!.id, id);
+      
+      if (success) {
+        res.json({ message: 'Primary payment method updated successfully' });
+      } else {
+        res.status(404).json({ error: 'Payment method not found' });
+      }
+    } catch (error) {
+      console.error('Error setting primary payment method:', error);
+      res.status(500).json({ error: 'Failed to set primary payment method' });
+    }
+  });
+
   // Service Provider Routes
   app.get("/api/service-provider/stats", requireAuth, requireRole([UserRole.SERVICE_PROVIDER, UserRole.ADMIN]), async (req, res) => {
     try {
