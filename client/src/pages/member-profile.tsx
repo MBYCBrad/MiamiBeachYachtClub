@@ -1041,79 +1041,11 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Theme & Appearance */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-            whileHover={{ scale: 1.03, y: -5 }}
-          >
-            <Card className="bg-gray-900/60 border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 overflow-hidden relative group cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start gap-4">
-                  <div className="relative">
-                    <motion.div
-                      animate={{ 
-                        rotate: [0, -5, 5, 0],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-                      className="p-3 bg-purple-600/20 rounded-xl"
-                    >
-                      <Eye className="h-6 w-6 text-purple-400" />
-                    </motion.div>
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.2, 1],
-                        opacity: [0.5, 1, 0.5]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-purple-400 rounded-full"
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg mb-2">Theme & UI</h3>
-                    <p className="text-gray-400 mb-4">Choose your visual style and interface preferences</p>
-                    
-                    {/* Theme Preview Dots */}
-                    <div className="flex gap-2 mb-4">
-                      <motion.div 
-                        whileHover={{ scale: 1.2 }}
-                        className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 cursor-pointer"
-                      />
-                      <motion.div 
-                        whileHover={{ scale: 1.2 }}
-                        className="w-6 h-6 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 cursor-pointer"
-                      />
-                      <motion.div 
-                        whileHover={{ scale: 1.2 }}
-                        className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-red-500 cursor-pointer"
-                      />
-                      <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center">
-                        <Plus className="h-3 w-3 text-gray-400" />
-                      </div>
-                    </div>
-                    
-                    <motion.div
-                      whileHover={{ x: 5 }}
-                      className="flex items-center gap-2 text-purple-400"
-                    >
-                      <span className="text-sm font-medium">Customize Theme</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </motion.div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
           {/* Privacy & Security */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.5 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
             whileHover={{ scale: 1.03, y: -5 }}
             onClick={() => setShowSecurityDialog(true)}
           >
@@ -1175,7 +1107,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.6 }}
+            transition={{ duration: 0.8, delay: 1.5 }}
             whileHover={{ scale: 1.03, y: -5 }}
             onClick={() => setShowBillingDialog(true)}
           >
