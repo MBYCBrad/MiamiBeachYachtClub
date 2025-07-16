@@ -387,6 +387,85 @@ export async function setupPaymentRoutes(app: Express) {
     }
   });
 
+  // Membership upgrade to Platinum
+  app.post("/api/membership/upgrade-to-platinum", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Check if user is already Platinum or higher
+      if (user.membershipTier === 'platinum' || user.membershipTier === 'diamond') {
+        return res.status(400).json({ error: "User is already Platinum or higher tier" });
+      }
+
+      // Create or get Stripe customer
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.username,
+          metadata: {
+            userId: user.id.toString(),
+            previousTier: user.membershipTier || 'bronze'
+          }
+        });
+        customerId = customer.id;
+        
+        // Update user with Stripe customer ID
+        await storage.updateUser(user.id, { stripeCustomerId: customerId });
+      }
+
+      // Create subscription for Platinum membership
+      // Monthly subscription: $500/month for Platinum
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'MBYC Platinum Membership',
+              description: 'Miami Beach Yacht Club Platinum Membership - Access to premium yachts and exclusive services'
+            },
+            unit_amount: 50000, // $500.00 in cents
+            recurring: {
+              interval: 'month'
+            }
+          }
+        }],
+        payment_behavior: 'default_incomplete',
+        expand: ['latest_invoice.payment_intent'],
+        metadata: {
+          userId: user.id.toString(),
+          membershipTier: 'platinum',
+          upgradeFrom: user.membershipTier || 'bronze'
+        }
+      });
+
+      // Update user membership tier
+      await storage.updateUser(user.id, { 
+        membershipTier: 'platinum',
+        stripeSubscriptionId: subscription.id
+      });
+
+      const paymentIntent = subscription.latest_invoice?.payment_intent;
+      
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: paymentIntent?.client_secret,
+        status: subscription.status
+      });
+    } catch (error: any) {
+      console.error("Membership upgrade failed:", error);
+      res.status(500).json({ error: "Upgrade failed: " + error.message });
+    }
+  });
+
   // Create account onboarding link for Connect accounts
   app.post("/api/payments/create-account-link", async (req, res) => {
     if (!req.isAuthenticated()) {
