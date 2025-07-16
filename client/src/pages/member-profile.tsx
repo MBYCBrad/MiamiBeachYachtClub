@@ -108,17 +108,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
           marketing: false
         }
       });
-      // Set initial stable avatar seed
-      setStableAvatarSeed(user.username || 'default');
     }
   }, [user]);
-
-  // Update avatar seed only when editing mode is toggled off (save)
-  React.useEffect(() => {
-    if (!isEditingProfile && formData.username) {
-      setStableAvatarSeed(formData.username);
-    }
-  }, [isEditingProfile, formData.username]);
 
   // Real-time profile update mutation
   const updateProfileMutation = useMutation({
