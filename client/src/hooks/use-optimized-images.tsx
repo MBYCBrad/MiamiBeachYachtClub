@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 
 const imageCache = new Map<string, string>();
 
+// Clear image cache when yacht data is invalidated
+export function clearImageCache() {
+  imageCache.clear();
+}
+
+// Clear specific image from cache
+export function clearImageFromCache(src: string) {
+  imageCache.delete(src);
+}
+
 export function useOptimizedImage(src: string) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);

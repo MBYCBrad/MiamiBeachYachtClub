@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
+import { clearImageCache } from '@/hooks/use-optimized-images';
 
 
 
@@ -60,9 +61,28 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     setCurrentView('search-results');
   };
 
-  const { data: yachts = [] } = useQuery<Yacht[]>({ queryKey: ['/api/yachts'] });
-  const { data: services = [] } = useQuery<Service[]>({ queryKey: ['/api/services'] });
-  const { data: events = [] } = useQuery<EventType[]>({ queryKey: ['/api/events'] });
+  const { data: yachts = [] } = useQuery<Yacht[]>({ 
+    queryKey: ['/api/yachts'],
+    refetchOnWindowFocus: true, // Enable real-time sync when tab regains focus
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    onSuccess: () => {
+      // Clear image cache to ensure fresh thumbnails from admin updates
+      clearImageCache();
+    }
+  });
+  const { data: services = [] } = useQuery<Service[]>({ 
+    queryKey: ['/api/services'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+    onSuccess: () => {
+      clearImageCache();
+    }
+  });
+  const { data: events = [] } = useQuery<EventType[]>({ 
+    queryKey: ['/api/events'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000
+  });
 
   const toggleLike = (id: number) => {
     setLikedItems(prev => {

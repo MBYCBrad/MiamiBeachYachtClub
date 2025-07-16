@@ -25,8 +25,10 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
   const queryClient = useQueryClient();
   
   // Use real yacht images from database - imageUrl for main image or first image from images array
+  // Add timestamp to bust browser cache and ensure real-time updates
   const yachtImage = yacht.imageUrl || (yacht.images && yacht.images.length > 0 ? yacht.images[0] : undefined);
-  const { imageSrc, isLoading } = useOptimizedImage(yachtImage || "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg");
+  const imageWithTimestamp = yachtImage ? `${yachtImage}?t=${Date.now()}` : undefined;
+  const { imageSrc, isLoading } = useOptimizedImage(imageWithTimestamp || "/api/media/pexels-diego-f-parra-33199-843633 (1)_1750537277228.jpg");
 
   // Get user's favorites
   const { data: userFavorites = [] } = useQuery({
