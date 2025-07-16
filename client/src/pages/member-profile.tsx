@@ -1549,10 +1549,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                 </div>
                 <Badge className="bg-yellow-600/20 text-yellow-400">Active</Badge>
               </div>
-              <div className="mt-3 space-y-2">
-                <Button variant="outline" className="w-full border-yellow-600 text-yellow-400 hover:bg-yellow-600/10">
-                  Upgrade to Platinum
-                </Button>
+              <div className="mt-3">
                 <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800">
                   Manage Subscription
                 </Button>
