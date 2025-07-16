@@ -25,6 +25,7 @@ import {
   Phone,
   Mail,
   Edit,
+  Camera,
   DollarSign,
   Zap,
   Target,
