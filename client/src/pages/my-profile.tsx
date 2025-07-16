@@ -108,6 +108,7 @@ export default function MyProfile() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
       toast({

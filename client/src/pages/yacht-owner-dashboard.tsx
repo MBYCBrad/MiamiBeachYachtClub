@@ -3376,6 +3376,9 @@ export default function YachtOwnerDashboard() {
       setProfileData(prev => ({ ...prev, avatarUrl: data.url }));
       updateProfileMutation.mutate({ avatarUrl: data.url });
       setUploading(false);
+      // Force refresh user data to ensure avatar updates everywhere
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: any) => {
       toast({ title: "Avatar upload failed", description: error.message, variant: "destructive" });

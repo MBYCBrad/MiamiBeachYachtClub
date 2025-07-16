@@ -34,10 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: 0, // No retries for instant response
-    staleTime: 5 * 60 * 1000, // 5 minutes for stable session
+    staleTime: 0, // Always fresh data to ensure profile image updates
     gcTime: 10 * 60 * 1000, // 10 minutes cache
     refetchOnMount: true,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Refetch on window focus to get latest data
   });
 
   const loginMutation = useMutation({

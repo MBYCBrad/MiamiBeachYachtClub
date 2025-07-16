@@ -445,8 +445,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
         description: "Profile picture updated successfully.",
       });
 
-      // Refresh user data
+      // Force refresh user data to ensure avatar updates everywhere
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/user'] });
       
     } catch (error: any) {
       toast({
