@@ -377,7 +377,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                 <Card className="bg-gray-900/50 border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full flex items-center justify-center">
                         <Star className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -465,7 +465,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 * index }}
                 >
-                  <Card className="bg-gray-900/50 border-gray-700 hover:border-purple-600/50 transition-all duration-300">
+                  <Card className="bg-gray-900/50 border-gray-700 hover:border-indigo-600/50 transition-all duration-300">
                     <CardContent className="p-0">
                       <div className="flex flex-col lg:flex-row">
                         {/* Service Image */}
@@ -496,7 +496,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   <div className="flex items-center gap-2 mb-3">
                                     <Badge 
                                       variant="outline" 
-                                      className="border-purple-600 text-purple-400 bg-gradient-to-r from-purple-600/10 to-indigo-600/10"
+                                      className="border-indigo-600 text-indigo-400 bg-gradient-to-r from-indigo-600/10 to-indigo-600/10"
                                     >
                                       {booking.service.category}
                                     </Badge>
@@ -567,7 +567,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                 <div className="text-sm text-gray-400">
                                   Service Price: ${booking.service.price}
                                 </div>
-                                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                                <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-400 bg-clip-text text-transparent">
                                   ${booking.totalPrice}
                                 </div>
                               </div>
@@ -580,7 +580,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-purple-600 text-purple-400 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-indigo-600/20"
+                                    className="border-indigo-600 text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-600/20 hover:to-indigo-600/20"
                                   >
                                     <Phone className="w-4 h-4 mr-2" />
                                     Contact Provider
@@ -588,7 +588,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="border-indigo-600 text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-600/20 hover:to-purple-600/20"
+                                    className="border-indigo-600 text-indigo-400 hover:bg-gradient-to-r hover:from-indigo-600/20 hover:to-indigo-600/20"
                                   >
                                     <MessageSquare className="w-4 h-4 mr-2" />
                                     Message
@@ -628,7 +628,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                   <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-6">
                                     {/* Service Info */}
                                     <div className="flex items-center gap-4">
-                                      <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
+                                      <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl">
                                         {getCategoryIcon(booking.service.category)}
                                       </div>
                                       <div>
@@ -639,7 +639,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
 
                                     {/* Experience Timeline */}
                                     <div className="space-y-4">
-                                      <h4 className="font-semibold text-purple-400">Service Experience Timeline</h4>
+                                      <h4 className="font-semibold text-indigo-400">Service Experience Timeline</h4>
                                       
                                       {/* Before Service */}
                                       <div className="flex items-start gap-3">
@@ -691,7 +691,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                     {/* Provider Information */}
                                     {booking.service.provider && (
                                       <div className="bg-gray-800/50 rounded-lg p-4">
-                                        <h4 className="font-semibold text-purple-400 mb-3">Service Provider Details</h4>
+                                        <h4 className="font-semibold text-indigo-400 mb-3">Service Provider Details</h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                           <div>
                                             <span className="text-gray-400 text-sm">Provider:</span>
@@ -717,7 +717,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
 
                                     {/* Service Details */}
                                     <div className="bg-gray-800/50 rounded-lg p-4">
-                                      <h4 className="font-semibold text-purple-400 mb-3">Service Details</h4>
+                                      <h4 className="font-semibold text-indigo-400 mb-3">Service Details</h4>
                                       <div className="space-y-2 text-sm">
                                         <div className="flex justify-between">
                                           <span className="text-gray-400">Service Price:</span>
@@ -752,7 +752,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                 className={`${
                                   booking.status === 'completed' 
                                     ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
-                                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                                    : 'bg-gradient-to-r from-indigo-600 to-indigo-600 hover:from-indigo-700 hover:to-indigo-700'
                                 } text-white`}
                                 disabled={booking.status === 'completed'}
                               >
