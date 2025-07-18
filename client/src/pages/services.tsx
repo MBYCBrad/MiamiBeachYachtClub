@@ -130,6 +130,9 @@ export default function ServicesPage() {
 
   const toggleFavorite = (e: React.MouseEvent, serviceId: number) => {
     e.stopPropagation();
+    e.preventDefault();
+    console.log('Service heart clicked:', serviceId, user);
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -140,6 +143,7 @@ export default function ServicesPage() {
     }
 
     const isFavorite = userFavorites.some((fav: any) => fav.serviceId === serviceId);
+    console.log('Service is favorite?', isFavorite);
     
     if (isFavorite) {
       removeFavoriteMutation.mutate(serviceId);
@@ -222,13 +226,8 @@ export default function ServicesPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     
-                    {/* Lock Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-                      <Lock className="w-16 h-16 text-white" />
-                    </div>
-                    
                     {/* Category Badge */}
-                    <div className="absolute top-4 left-4 flex gap-2">
+                    <div className="absolute top-4 left-4 flex gap-2 z-30">
                       <Badge className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
                         {service.category}
                       </Badge>
@@ -239,7 +238,7 @@ export default function ServicesPage() {
                       onClick={(e) => toggleFavorite(e, service.id)}
                       variant="ghost"
                       size="sm"
-                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-30"
                     >
                       <Heart 
                         className={`w-4 h-4 transition-colors ${

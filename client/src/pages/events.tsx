@@ -76,6 +76,9 @@ export default function EventsPage() {
 
   const toggleFavorite = (e: React.MouseEvent, eventId: number) => {
     e.stopPropagation();
+    e.preventDefault();
+    console.log('Event heart clicked:', eventId, user);
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -86,6 +89,7 @@ export default function EventsPage() {
     }
 
     const isFavorite = userFavorites.some((fav: any) => fav.eventId === eventId);
+    console.log('Event is favorite?', isFavorite);
     
     if (isFavorite) {
       removeFavoriteMutation.mutate(eventId);
@@ -134,17 +138,12 @@ export default function EventsPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                     
-                    {/* Lock Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 to-blue-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
-                      <Lock className="w-16 h-16 text-white" />
-                    </div>
-                    
                     {/* Heart Button */}
                     <Button
                       onClick={(e) => toggleFavorite(e, event.id)}
                       variant="ghost"
                       size="sm"
-                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-30"
                     >
                       <Heart 
                         className={`w-4 h-4 transition-colors ${
