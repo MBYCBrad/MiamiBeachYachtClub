@@ -3,12 +3,15 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Users, Sparkles, MapPin, Lock } from "lucide-react";
+import { Calendar, Users, Sparkles, MapPin, Lock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ApplicationModal } from "@/components/application-modal";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function EventsPage() {
   const { data: events } = useQuery({
@@ -17,6 +20,79 @@ export default function EventsPage() {
 
   const upcomingEvents = events || [];
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Get user favorites
+  const { data: userFavorites = [] } = useQuery({
+    queryKey: ['/api/favorites'],
+    enabled: !!user
+  });
+
+  // Add favorite mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      const response = await apiRequest('POST', '/api/favorites', { eventId });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: "Event has been added to your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add event to favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Remove favorite mutation
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      const response = await apiRequest('DELETE', `/api/favorites?eventId=${eventId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: "Event has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove event from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const toggleFavorite = (e: React.MouseEvent, eventId: number) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const isFavorite = userFavorites.some((fav: any) => fav.eventId === eventId);
+    
+    if (isFavorite) {
+      removeFavoriteMutation.mutate(eventId);
+    } else {
+      addFavoriteMutation.mutate(eventId);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -59,11 +135,27 @@ export default function EventsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                     
                     {/* Lock Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 to-blue-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
                       <Lock className="w-16 h-16 text-white" />
                     </div>
                     
-                    <div className="absolute top-4 right-4 bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    {/* Heart Button */}
+                    <Button
+                      onClick={(e) => toggleFavorite(e, event.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                    >
+                      <Heart 
+                        className={`w-4 h-4 transition-colors ${
+                          userFavorites.some((fav: any) => fav.eventId === event.id)
+                            ? 'text-red-500 fill-current' 
+                            : 'text-white'
+                        }`} 
+                      />
+                    </Button>
+                    
+                    <div className="absolute bottom-4 right-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
                       ${event.ticketPrice}
                     </div>
                   </div>
@@ -106,7 +198,7 @@ export default function EventsPage() {
                     
                     <Button 
                       onClick={() => setIsApplicationModalOpen(true)}
-                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700"
                     >
                       Register Now
                     </Button>

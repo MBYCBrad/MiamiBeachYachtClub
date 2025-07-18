@@ -229,24 +229,9 @@ export default function ServicesPage() {
                     
                     {/* Category Badge */}
                     <div className="absolute top-4 left-4 flex gap-2">
-                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                      <Badge className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
                         {service.category}
                       </Badge>
-                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                        {service.deliveryType === 'yacht' && 'Yacht Add-On'}
-                        {service.deliveryType === 'location' && 'Your Location'}
-                        {service.deliveryType === 'marina' && 'Marina Service'}
-                        {service.deliveryType === 'external_location' && 'External Location'}
-                        {!service.deliveryType && 'Location Service'}
-                      </Badge>
-                    </div>
-
-                    {/* Rating */}
-                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-white text-sm">
-                        {service.rating || 4.8}
-                      </span>
                     </div>
 
                     {/* Heart Button */}
@@ -254,7 +239,7 @@ export default function ServicesPage() {
                       onClick={(e) => toggleFavorite(e, service.id)}
                       variant="ghost"
                       size="sm"
-                      className="absolute top-4 left-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                      className="absolute top-4 right-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
                     >
                       <Heart 
                         className={`w-4 h-4 transition-colors ${
@@ -264,6 +249,14 @@ export default function ServicesPage() {
                         }`} 
                       />
                     </Button>
+
+                    {/* Rating */}
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-white text-sm">
+                        {service.rating || 4.8}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Service Content */}
