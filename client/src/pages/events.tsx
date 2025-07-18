@@ -76,7 +76,6 @@ export default function EventsPage() {
 
   const toggleFavorite = (e: React.MouseEvent, eventId: number) => {
     e.stopPropagation();
-    e.preventDefault();
     console.log('Event heart clicked:', eventId, user);
     
     if (!user) {
@@ -129,22 +128,7 @@ export default function EventsPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group"
               >
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all relative">
-                  {/* Heart Button - Outside of overflow container */}
-                  <button
-                    onClick={(e) => toggleFavorite(e, event.id)}
-                    className="absolute top-4 right-4 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full z-50 flex items-center justify-center"
-                    type="button"
-                  >
-                    <Heart 
-                      className={`w-4 h-4 transition-colors ${
-                        userFavorites.some((fav: any) => fav.eventId === event.id)
-                          ? 'text-red-500 fill-current' 
-                          : 'text-white'
-                      }`} 
-                    />
-                  </button>
-
+                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all">
                   <div className="relative h-64 overflow-hidden">
                     <img 
                       src={event.imageUrl || '/api/media/pexels-goumbik-296278_1750537277229.jpg'}
@@ -152,6 +136,23 @@ export default function EventsPage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    
+                    {/* Heart Button */}
+                    <motion.button
+                      onClick={(e) => toggleFavorite(e, event.id)}
+                      className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        size={16}
+                        className={`transition-colors ${
+                          userFavorites.some((fav: any) => fav.eventId === event.id)
+                            ? 'text-red-500 fill-current' 
+                            : 'text-gray-600 hover:text-red-400'
+                        }`} 
+                      />
+                    </motion.button>
                     
                     <div className="absolute bottom-4 right-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
                       ${event.ticketPrice}

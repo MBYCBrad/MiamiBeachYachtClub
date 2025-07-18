@@ -130,7 +130,6 @@ export default function ServicesPage() {
 
   const toggleFavorite = (e: React.MouseEvent, serviceId: number) => {
     e.stopPropagation();
-    e.preventDefault();
     console.log('Service heart clicked:', serviceId, user);
     
     if (!user) {
@@ -216,22 +215,7 @@ export default function ServicesPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 border border-white/10 relative">
-                  {/* Heart Button - Outside of overflow container */}
-                  <button
-                    onClick={(e) => toggleFavorite(e, service.id)}
-                    className="absolute top-4 right-4 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full z-50 flex items-center justify-center"
-                    type="button"
-                  >
-                    <Heart 
-                      className={`w-4 h-4 transition-colors ${
-                        userFavorites.some((fav: any) => fav.serviceId === service.id)
-                          ? 'text-red-500 fill-current' 
-                          : 'text-white'
-                      }`} 
-                    />
-                  </button>
-
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 border border-white/10">
                   {/* Service Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -240,6 +224,23 @@ export default function ServicesPage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    
+                    {/* Heart Button */}
+                    <motion.button
+                      onClick={(e) => toggleFavorite(e, service.id)}
+                      className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Heart 
+                        size={16}
+                        className={`transition-colors ${
+                          userFavorites.some((fav: any) => fav.serviceId === service.id)
+                            ? 'text-red-500 fill-current' 
+                            : 'text-gray-600 hover:text-red-400'
+                        }`} 
+                      />
+                    </motion.button>
                     
                     {/* Category Badge */}
                     <div className="absolute top-4 left-4 flex gap-2">
