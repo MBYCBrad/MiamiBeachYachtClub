@@ -46,8 +46,11 @@ export default function ServicesPage() {
   // Add favorite mutation
   const addFavoriteMutation = useMutation({
     mutationFn: async (serviceId: number) => {
+      console.log('Adding favorite for serviceId:', serviceId);
       const response = await apiRequest('POST', '/api/favorites', { serviceId });
-      return await response.json();
+      const result = await response.json();
+      console.log('Add favorite response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -56,7 +59,8 @@ export default function ServicesPage() {
         description: "Service has been added to your favorites",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Add favorite error:', error);
       toast({
         title: "Error",
         description: "Failed to add service to favorites",
@@ -68,8 +72,11 @@ export default function ServicesPage() {
   // Remove favorite mutation
   const removeFavoriteMutation = useMutation({
     mutationFn: async (serviceId: number) => {
+      console.log('Removing favorite for serviceId:', serviceId);
       const response = await apiRequest('DELETE', `/api/favorites?serviceId=${serviceId}`);
-      return await response.json();
+      const result = await response.json();
+      console.log('Remove favorite response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -78,7 +85,8 @@ export default function ServicesPage() {
         description: "Service has been removed from your favorites",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Remove favorite error:', error);
       toast({
         title: "Error",
         description: "Failed to remove service from favorites",
@@ -205,21 +213,6 @@ export default function ServicesPage() {
               Professional services to enhance your yacht experience
             </p>
           </motion.div>
-
-          {/* Test Button */}
-          <div className="mb-4">
-            <button 
-              onClick={(e) => {
-                console.log('TEST BUTTON CLICKED');
-                if (filteredServices[0]) {
-                  toggleFavorite(e, filteredServices[0].id);
-                }
-              }}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-              TEST FAVORITES
-            </button>
-          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service: any, index: number) => (

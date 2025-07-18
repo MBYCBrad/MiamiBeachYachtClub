@@ -33,8 +33,11 @@ export default function EventsPage() {
   // Add favorite mutation
   const addFavoriteMutation = useMutation({
     mutationFn: async (eventId: number) => {
+      console.log('Adding favorite for eventId:', eventId);
       const response = await apiRequest('POST', '/api/favorites', { eventId });
-      return await response.json();
+      const result = await response.json();
+      console.log('Add favorite response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -43,7 +46,8 @@ export default function EventsPage() {
         description: "Event has been added to your favorites",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Add favorite error:', error);
       toast({
         title: "Error",
         description: "Failed to add event to favorites",
@@ -55,8 +59,11 @@ export default function EventsPage() {
   // Remove favorite mutation
   const removeFavoriteMutation = useMutation({
     mutationFn: async (eventId: number) => {
+      console.log('Removing favorite for eventId:', eventId);
       const response = await apiRequest('DELETE', `/api/favorites?eventId=${eventId}`);
-      return await response.json();
+      const result = await response.json();
+      console.log('Remove favorite response:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -65,7 +72,8 @@ export default function EventsPage() {
         description: "Event has been removed from your favorites",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Remove favorite error:', error);
       toast({
         title: "Error",
         description: "Failed to remove event from favorites",
