@@ -206,6 +206,21 @@ export default function ServicesPage() {
             </p>
           </motion.div>
 
+          {/* Test Button */}
+          <div className="mb-4">
+            <button 
+              onClick={(e) => {
+                console.log('TEST BUTTON CLICKED');
+                if (filteredServices[0]) {
+                  toggleFavorite(e, filteredServices[0].id);
+                }
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded"
+            >
+              TEST FAVORITES
+            </button>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service: any, index: number) => (
               <motion.div
