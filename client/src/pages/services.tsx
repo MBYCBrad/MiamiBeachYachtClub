@@ -227,8 +227,12 @@ export default function ServicesPage() {
                     
                     {/* Heart Button */}
                     <motion.button
-                      onClick={(e) => toggleFavorite(e, service.id)}
-                      className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('Service heart button clicked - TEST', service.id);
+                        toggleFavorite(e, service.id);
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-20 group/heart"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                     >
@@ -237,7 +241,7 @@ export default function ServicesPage() {
                         className={`transition-colors ${
                           userFavorites.some((fav: any) => fav.serviceId === service.id)
                             ? 'text-red-500 fill-current' 
-                            : 'text-gray-600 hover:text-red-400'
+                            : 'text-gray-600 group-hover/heart:text-red-400'
                         }`} 
                       />
                     </motion.button>
