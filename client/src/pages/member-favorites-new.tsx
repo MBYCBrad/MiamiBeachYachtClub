@@ -52,20 +52,28 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   });
 
   const { data: yachts = [], isLoading: yachtsLoading } = useQuery<Yacht[]>({
-    queryKey: ['/api/yachts']
+    queryKey: ['/api/yachts'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: services = [], isLoading: servicesLoading } = useQuery<Service[]>({
-    queryKey: ['/api/services']
+    queryKey: ['/api/services'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
 
   const { data: events = [], isLoading: eventsLoading } = useQuery<EventType[]>({
-    queryKey: ['/api/events']
+    queryKey: ['/api/events'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
 
   // Real-time favorites data from database
   const { data: userFavorites = [], isLoading: favoritesLoading } = useQuery<Favorite[]>({
-    queryKey: ['/api/favorites']
+    queryKey: ['/api/favorites'],
+    refetchOnWindowFocus: true,
+    refetchInterval: 15000, // Refresh favorites more frequently
   });
 
   // Extract favorite items based on database favorites
@@ -77,6 +85,17 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
   const favoriteServices = services.filter(service => favoriteServiceIds.includes(service.id));
   const favoriteEvents = events.filter(event => favoriteEventIds.includes(event.id));
 
+  // Debug logging for real-time sync
+  console.log('Favorites debug:', {
+    totalFavorites: userFavorites.length,
+    yachtIds: favoriteYachtIds,
+    serviceIds: favoriteServiceIds,
+    eventIds: favoriteEventIds,
+    favoriteYachts: favoriteYachts.length,
+    favoriteServices: favoriteServices.length,
+    favoriteEvents: favoriteEvents.length
+  });
+
   // Add favorite mutation
   const addFavoriteMutation = useMutation({
     mutationFn: async ({ yachtId, serviceId, eventId }: { yachtId?: number; serviceId?: number; eventId?: number }) => {
@@ -85,6 +104,9 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
       toast({
         title: "Added to Favorites",
         description: "Item has been added to your favorites",
@@ -112,6 +134,9 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/yachts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
       toast({
         title: "Removed from Favorites",
         description: "Item has been removed from your favorites",
@@ -216,7 +241,7 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
             </span>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 rounded-xl"
+              className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white border-0 rounded-xl"
             >
               Book
             </Button>
