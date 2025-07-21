@@ -101,9 +101,9 @@ export default function AdminNotificationCenter() {
   });
 
   const getNotificationIcon = (type: string, priority: string) => {
-    const iconClass = priority === 'urgent' ? 'h-5 w-5 text-red-400' : 
-                     priority === 'high' ? 'h-5 w-5 text-orange-400' :
-                     priority === 'medium' ? 'h-5 w-5 text-yellow-400' : 'h-5 w-5 text-blue-400';
+    const iconClass = priority === 'urgent' ? 'h-5 w-5 text-purple-400' : 
+                     priority === 'high' ? 'h-5 w-5 text-purple-300' :
+                     priority === 'medium' ? 'h-5 w-5 text-indigo-400' : 'h-5 w-5 text-blue-400';
 
     switch (type) {
       case 'booking_created':
@@ -139,13 +139,13 @@ export default function AdminNotificationCenter() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return 'border-l-red-500 bg-red-500/5';
+        return 'border-l-purple-500 bg-gradient-to-r from-purple-500/10 to-indigo-500/10';
       case 'high':
-        return 'border-l-orange-500 bg-orange-500/5';
+        return 'border-l-purple-400 bg-gradient-to-r from-purple-400/10 to-blue-400/10';
       case 'medium':
-        return 'border-l-yellow-500 bg-yellow-500/5';
+        return 'border-l-indigo-400 bg-gradient-to-r from-indigo-400/10 to-purple-400/10';
       default:
-        return 'border-l-blue-500 bg-blue-500/5';
+        return 'border-l-blue-500 bg-gradient-to-r from-blue-500/10 to-indigo-500/10';
     }
   };
 
@@ -236,7 +236,7 @@ export default function AdminNotificationCenter() {
       </PopoverTrigger>
 
       <PopoverContent 
-        className="w-96 p-0 bg-gray-900/95 backdrop-blur-xl border-gray-700/50" 
+        className="w-96 p-0 bg-gray-950 backdrop-blur-xl border-gray-700/50" 
         align="end"
         sideOffset={10}
       >
@@ -292,7 +292,7 @@ export default function AdminNotificationCenter() {
                 </span>
               </div>
               {urgentCount > 0 && (
-                <Badge variant="destructive" className="text-xs">
+                <Badge className="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-0">
                   {urgentCount} Urgent
                 </Badge>
               )}
