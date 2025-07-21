@@ -1157,57 +1157,24 @@ export class DatabaseStorage implements IStorage {
 
 
 
-  // Get messages for a conversation (generated from booking data)
+  // Get messages for a conversation - query actual messages table
   async getMessagesByConversation(conversationId: string): Promise<any[]> {
-    const messages = [];
-    
-    if (conversationId.startsWith('booking_conv_')) {
-      const bookingId = parseInt(conversationId.replace('booking_conv_', ''));
-      const booking = await this.getBooking(bookingId);
-      const yacht = booking ? await this.getYacht(booking.yachtId!) : null;
+    try {
+      console.log('Getting messages for conversation:', conversationId);
       
-      if (booking && yacht) {
-        messages.push({
-          id: 1,
-          senderId: booking.userId,
-          conversationId,
-          content: `Hi, I have a yacht booking for ${yacht.name} on ${new Date(booking.startTime).toLocaleDateString()}. Can you confirm the details?`,
-          messageType: 'text',
-          status: 'delivered',
-          createdAt: new Date(Date.now() - 30 * 60 * 1000)
-        });
-        
-        messages.push({
-          id: 2,
-          senderId: 60, // admin user
-          conversationId,
-          content: `Hello! Your booking for ${yacht.name} is confirmed. The yacht will be ready at ${new Date(booking.startTime).toLocaleTimeString()}.`,
-          messageType: 'text',
-          status: 'read',
-          createdAt: new Date(Date.now() - 15 * 60 * 1000)
-        });
-      }
-    }
-    
-    if (conversationId.startsWith('service_conv_')) {
-      const serviceBookingId = parseInt(conversationId.replace('service_conv_', ''));
-      const serviceBooking = await this.getServiceBooking(serviceBookingId);
-      const service = serviceBooking ? await this.getService(serviceBooking.serviceId) : null;
+      // Query actual messages from database
+      const messagesResult = await db
+        .select()
+        .from(messages)
+        .where(eq(messages.conversationId, conversationId))
+        .orderBy(messages.createdAt);
       
-      if (serviceBooking && service) {
-        messages.push({
-          id: 1,
-          senderId: serviceBooking.userId,
-          conversationId,
-          content: `I need assistance with my ${service.name} booking. Current status shows as ${serviceBooking.status}.`,
-          messageType: 'text',
-          status: 'delivered',
-          createdAt: serviceBooking.createdAt
-        });
-      }
+      console.log('Found messages:', messagesResult.length);
+      return messagesResult;
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      return [];
     }
-    
-    return messages;
   }
 
   // Get recent phone calls based on real booking activity
