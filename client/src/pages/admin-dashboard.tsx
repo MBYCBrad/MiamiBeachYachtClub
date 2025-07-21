@@ -566,7 +566,10 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
   const serviceName = String(booking?.service?.name || 'N/A');
   const serviceCategory = String(booking?.service?.category || 'N/A');
   const servicePrice = Number(booking?.service?.price || booking?.totalPrice || 0);
-  const serviceDuration = booking?.service?.duration ? `${Math.round(Number(booking.service.duration) / 60)} hour${Math.round(Number(booking.service.duration) / 60) !== 1 ? 's' : ''}` : '1 hour';
+  const serviceDuration = booking?.service?.duration ? 
+    (Number(booking.service.duration) >= 60 ? 
+      `${Math.round(Number(booking.service.duration) / 60)} hour${Math.round(Number(booking.service.duration) / 60) !== 1 ? 's' : ''}` : 
+      `${booking.service.duration} minutes`) : '1 hour';
   const serviceDescription = String(booking?.service?.description || 'No description available');
   const serviceImage = String(booking?.service?.imageUrl || '');
   
@@ -606,11 +609,11 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
         
         {/* Service Image Header */}
         {serviceImage && serviceImage !== '' && (
-          <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-gray-900">
+          <div className="w-full h-80 rounded-lg overflow-hidden mb-6 bg-gray-900">
             <img 
               src={serviceImage}
               alt={serviceName}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
