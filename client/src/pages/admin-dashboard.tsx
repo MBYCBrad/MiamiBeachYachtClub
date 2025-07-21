@@ -3744,7 +3744,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
+                    className="p-6 rounded-xl bg-transparent hover:bg-transparent transition-all duration-300 border-transparent"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -3759,24 +3759,24 @@ export default function AdminDashboard() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                          <div className="bg-transparent p-4 rounded-lg">
                             <p className="text-sm text-gray-400 mb-1">Preferred Date</p>
                             <p className="text-white font-medium">
                               {request.preferredDate ? new Date(request.preferredDate).toLocaleDateString() : 'Not specified'}
                             </p>
                           </div>
-                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                          <div className="bg-transparent p-4 rounded-lg">
                             <p className="text-sm text-gray-400 mb-1">Preferred Time</p>
                             <p className="text-white font-medium">{request.preferredTime || 'Not specified'}</p>
                           </div>
-                          <div className="bg-gray-900/50 p-4 rounded-lg">
+                          <div className="bg-transparent p-4 rounded-lg">
                             <p className="text-sm text-gray-400 mb-1">Guest Count</p>
                             <p className="text-white font-medium">{request.guestCount || 1} guests</p>
                           </div>
                         </div>
 
                         {request.specialRequests && (
-                          <div className="bg-gray-900/50 p-4 rounded-lg mb-4">
+                          <div className="bg-transparent p-4 rounded-lg mb-4">
                             <p className="text-sm text-gray-400 mb-2">Special Requests</p>
                             <p className="text-white">{request.specialRequests}</p>
                           </div>
