@@ -567,9 +567,22 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
   const serviceCategory = String(booking?.service?.category || 'N/A');
   const servicePrice = Number(booking?.service?.price || booking?.totalPrice || 0);
   const serviceDuration = booking?.service?.duration ? 
-    (Number(booking.service.duration) >= 60 ? 
-      `${Math.round(Number(booking.service.duration) / 60)} hour${Math.round(Number(booking.service.duration) / 60) !== 1 ? 's' : ''}` : 
-      `${booking.service.duration} minutes`) : '1 hour';
+    (() => {
+      const duration = Number(booking.service.duration);
+      // Check if duration is likely in hours (1-24) or minutes (60+)
+      if (duration <= 24) {
+        // Duration is in hours
+        return `${duration} hour${duration !== 1 ? 's' : ''}`;
+      } else {
+        // Duration is in minutes, convert to hours if >= 60
+        if (duration >= 60) {
+          const hours = Math.round(duration / 60);
+          return `${hours} hour${hours !== 1 ? 's' : ''}`;
+        } else {
+          return `${duration} minutes`;
+        }
+      }
+    })() : '1 hour';
   const serviceDescription = String(booking?.service?.description || 'No description available');
   const serviceImage = String(booking?.service?.imageUrl || '');
   
