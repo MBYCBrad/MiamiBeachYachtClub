@@ -6241,7 +6241,7 @@ export default function AdminDashboard() {
           className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <DollarSign className="h-6 w-6 text-white" />
             </div>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30">+12%</Badge>
@@ -6260,7 +6260,7 @@ export default function AdminDashboard() {
           className="p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <CreditCard className="h-6 w-6 text-white" />
             </div>
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Live</Badge>
@@ -6277,7 +6277,7 @@ export default function AdminDashboard() {
           className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">20%</Badge>
@@ -6296,7 +6296,7 @@ export default function AdminDashboard() {
           className="p-6 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+            <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">+8%</Badge>
