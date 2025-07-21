@@ -576,6 +576,12 @@ export default function YachtOwnerDashboard() {
     timeRange: "all",
     yacht: "all"
   });
+
+  const [calendarFilters, setCalendarFilters] = useState({
+    status: "all",
+    dateRange: "all",
+    yacht: "all"
+  });
   
   // Maintenance page state
   const [selectedMaintenanceYacht, setSelectedMaintenanceYacht] = useState<number | null>(null);
@@ -654,7 +660,46 @@ export default function YachtOwnerDashboard() {
     });
   }, [yachts, yachtFilters]);
 
-
+  // Filter bookings based on calendar filter settings
+  const calendarFilteredBookings = useMemo(() => {
+    if (!bookings) return [];
+    
+    return bookings.filter((booking: any) => {
+      // Filter by status
+      if (calendarFilters.status !== 'all') {
+        if (booking.status !== calendarFilters.status) return false;
+      }
+      
+      // Filter by date range
+      if (calendarFilters.dateRange !== 'all') {
+        const bookingDate = new Date(booking.startTime);
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        if (calendarFilters.dateRange === 'today') {
+          const isToday = bookingDate.toDateString() === new Date().toDateString();
+          if (!isToday) return false;
+        }
+        if (calendarFilters.dateRange === 'week') {
+          if (bookingDate < startOfWeek) return false;
+        }
+        if (calendarFilters.dateRange === 'month') {
+          if (bookingDate < startOfMonth) return false;
+        }
+        if (calendarFilters.dateRange === 'upcoming') {
+          if (bookingDate < new Date()) return false;
+        }
+      }
+      
+      // Filter by yacht
+      if (calendarFilters.yacht !== 'all') {
+        if (booking.yachtId.toString() !== calendarFilters.yacht) return false;
+      }
+      
+      return true;
+    });
+  }, [bookings, calendarFilters]);
 
   // Maintenance records data fetching
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
@@ -2876,10 +2921,98 @@ export default function YachtOwnerDashboard() {
             <Plus className="h-4 w-4 mr-2" />
             Add Event
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Calendar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 bg-gray-900 border-gray-700">
+              <div className="p-4 space-y-4">
+                {/* Status Filter */}
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Booking Status
+                  </label>
+                  <Select
+                    value={calendarFilters.status}
+                    onValueChange={(value) => setCalendarFilters(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Date Range Filter */}
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Date Range
+                  </label>
+                  <Select
+                    value={calendarFilters.dateRange}
+                    onValueChange={(value) => setCalendarFilters(prev => ({ ...prev, dateRange: value }))}
+                  >
+                    <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                      <SelectValue placeholder="All Dates" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Dates</SelectItem>
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="month">This Month</SelectItem>
+                      <SelectItem value="upcoming">Upcoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Yacht Filter */}
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">
+                    Yacht
+                  </label>
+                  <Select
+                    value={calendarFilters.yacht}
+                    onValueChange={(value) => setCalendarFilters(prev => ({ ...prev, yacht: value }))}
+                  >
+                    <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                      <SelectValue placeholder="All Yachts" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Yachts</SelectItem>
+                      {yachts?.map((yacht: any) => (
+                        <SelectItem key={yacht.id} value={yacht.id.toString()}>
+                          {yacht.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Clear Filters Button */}
+                <Button
+                  onClick={() => {
+                    setCalendarFilters({
+                      status: "all",
+                      dateRange: "all",
+                      yacht: "all"
+                    });
+                  }}
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 
@@ -2955,7 +3088,8 @@ export default function YachtOwnerDashboard() {
             <div className="space-y-4">
               <h4 className="text-white font-semibold">Upcoming Bookings</h4>
               <div className="space-y-3">
-                {bookings && bookings.length > 0 ? bookings.slice(0, 3).map((booking: any, index: number) => (
+                {calendarFilteredBookings && calendarFilteredBookings.length > 0 ? (
+                  calendarFilteredBookings.slice(0, 3).map((booking: any, index: number) => (
                   <motion.div
                     key={booking.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -2977,12 +3111,29 @@ export default function YachtOwnerDashboard() {
                       <p className="text-gray-400 text-sm">{new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </motion.div>
-                )) : (
-                  <div className="text-center py-8">
-                    <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-                    <div className="text-gray-400 text-lg mb-2">No upcoming bookings</div>
-                    <div className="text-gray-500 text-sm">Your yacht booking schedule will appear here</div>
-                  </div>
+                ))
+                ) : (
+                  bookings && bookings.length > 0 ? (
+                    // No results after filtering
+                    <div className="text-center py-8">
+                      <Filter className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                      <div className="text-gray-400 text-lg mb-2">No bookings match your filters</div>
+                      <div className="text-gray-500 text-sm mb-4">Try adjusting your filter criteria to see more results</div>
+                      <Button 
+                        onClick={() => setCalendarFilters({ status: "all", dateRange: "all", yacht: "all" })}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                      >
+                        Clear All Filters
+                      </Button>
+                    </div>
+                  ) : (
+                    // No bookings in database
+                    <div className="text-center py-8">
+                      <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                      <div className="text-gray-400 text-lg mb-2">No upcoming bookings</div>
+                      <div className="text-gray-500 text-sm">Your yacht booking schedule will appear here</div>
+                    </div>
+                  )
                 )}
               </div>
             </div>
