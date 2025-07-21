@@ -467,14 +467,14 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                 >
                   <Card className="bg-gray-900/50 border-gray-700 hover:border-indigo-600/50 transition-all duration-300">
                     <CardContent className="p-0">
-                      <div className="flex flex-col lg:flex-row">
+                      <div className="flex flex-col lg:flex-row lg:h-80">
                         {/* Service Image */}
-                        <div className="lg:w-1/3">
-                          <div className="relative">
+                        <div className="lg:w-1/3 lg:h-full">
+                          <div className="relative h-48 lg:h-full">
                             <img
                               src={booking.service.imageUrl || '/api/media/pexels-mali-42092_1750537277229.jpg'}
                               alt={booking.service.name}
-                              className="w-full h-48 lg:h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-t-none"
+                              className="w-full h-full object-cover rounded-t-lg lg:rounded-l-lg lg:rounded-t-none"
                             />
                             <div className="absolute top-4 left-4">
                               <div className="text-2xl bg-black/50 backdrop-blur-sm rounded-full w-12 h-12 flex items-center justify-center">
