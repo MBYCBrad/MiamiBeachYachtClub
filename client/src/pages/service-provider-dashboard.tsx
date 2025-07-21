@@ -1534,7 +1534,7 @@ export default function ServiceProviderDashboard() {
                       <p className="text-green-400 text-sm">+15.3%</p>
                     </div>
                   </div>
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                     <DollarSign className="h-6 w-6 text-white" />
                   </div>
                 </div>
@@ -1558,7 +1558,7 @@ export default function ServiceProviderDashboard() {
                       <p className="text-blue-400 text-sm">+8.7%</p>
                     </div>
                   </div>
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                     <Target className="h-6 w-6 text-white" />
                   </div>
                 </div>
@@ -1582,7 +1582,7 @@ export default function ServiceProviderDashboard() {
                       <p className="text-yellow-400 text-sm">Excellent</p>
                     </div>
                   </div>
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                     <Star className="h-6 w-6 text-white" />
                   </div>
                 </div>
@@ -1634,7 +1634,7 @@ export default function ServiceProviderDashboard() {
               <CardContent>
                 <div className="h-64 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                       <TrendingUp className="h-8 w-8 text-white" />
                     </div>
                     <p className="text-gray-400 text-sm">Revenue trending upward</p>
