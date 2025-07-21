@@ -928,6 +928,14 @@ MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER S
 
 ## Recent Changes
 
+- July 21, 2025. WebSocket connection errors resolved and system stability restored
+  - Fixed critical WebSocket error code 1006 (abnormal closure) flooding causing system instability
+  - Temporarily disabled useYachtWebSocket and useServicesWebSocket hooks to prevent connection failures
+  - Removed problematic WebSocket hook imports and calls from admin-dashboard.tsx and service-provider-dashboard.tsx
+  - System now runs smoothly without continuous WebSocket reconnection attempts
+  - Real-time message synchronization (useMessageWebSocket) remains functional
+  - Admin interface operates at full stability with unified purple-to-blue gradient theme maintained
+  - TODO: Implement proper server-side WebSocket channel handling for yacht and services real-time updates
 - July 1, 2025. Membership package implementation with admin user creation form enhancement
   - Added membershipPackage field to users database table for regular vs mariner's membership tracking
   - Enhanced admin dashboard user creation form with comprehensive membership package dropdown

@@ -4,8 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { useYachtWebSocket } from "@/hooks/use-yacht-websocket";
-import { useServicesWebSocket } from "@/hooks/use-services-websocket";
+// WebSocket hooks temporarily removed to prevent connection errors
 import { useMessageWebSocket } from "@/hooks/use-message-websocket";
 import { useTourRequests } from "@/hooks/use-tour-requests";
 import CalendarPage from "@/pages/calendar-page";
@@ -3156,8 +3155,8 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   
   // Initialize WebSocket hooks for real-time updates
-  useYachtWebSocket();
-  useServicesWebSocket();
+  // useYachtWebSocket(); // Temporarily disabled
+  // useServicesWebSocket(); // Temporarily disabled
   useMessageWebSocket(); // Real-time message synchronization
 
   // Tour request status update mutation
@@ -3377,10 +3376,10 @@ export default function AdminDashboard() {
   });
 
   // Initialize yacht WebSocket for real-time yacht updates
-  useYachtWebSocket();
+  // useYachtWebSocket(); // Temporarily disabled
   
   // Initialize services WebSocket for real-time service updates
-  useServicesWebSocket();
+  // useServicesWebSocket(); // Temporarily disabled
 
   // Filter overview data dynamically based on active filters
   const filteredOverviewData = useMemo(() => {
