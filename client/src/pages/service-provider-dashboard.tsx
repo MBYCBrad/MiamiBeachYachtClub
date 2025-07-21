@@ -856,10 +856,14 @@ export default function ServiceProviderDashboard() {
 
   const { data: stats } = useQuery<ServiceProviderStats>({
     queryKey: ['/api/service-provider/stats'],
+    refetchInterval: 15000, // Real-time stats updates every 15 seconds for service providers
+    staleTime: 0, // Always refetch to ensure latest statistics
   });
 
   const { data: services } = useQuery({
     queryKey: ['/api/service-provider/services'],
+    refetchInterval: 30000, // Service provider services update every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest service availability
   });
 
   const { data: bookings } = useQuery({
@@ -870,6 +874,8 @@ export default function ServiceProviderDashboard() {
 
   const { data: paymentHistory } = useQuery({
     queryKey: ['/api/service-provider/payments'],
+    refetchInterval: 15000, // Real-time payment updates every 15 seconds for service providers
+    staleTime: 0, // Always refetch to ensure latest payment data
   });
 
   const serviceCategories = ["Beauty & Grooming", "Culinary", "Wellness & Spa", "Photography & Media", "Entertainment", "Water Sports", "Concierge & Lifestyle"];

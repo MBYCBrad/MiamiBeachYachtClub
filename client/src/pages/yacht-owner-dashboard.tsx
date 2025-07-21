@@ -631,6 +631,8 @@ export default function YachtOwnerDashboard() {
 
   const { data: revenueData = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/revenue'],
+    refetchInterval: 15000, // Real-time revenue updates every 15 seconds for yacht owners
+    staleTime: 0, // Always refetch to ensure latest revenue calculations
   });
 
   // Filter yachts based on current filter settings
