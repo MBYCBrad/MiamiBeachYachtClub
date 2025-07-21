@@ -1155,7 +1155,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                           ) : (
                             <Button
                               onClick={() => startYachtRating(booking)}
-                              className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                             >
                               <Star size={16} className="mr-2" />
                               Rate Experience
@@ -1226,15 +1226,14 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
                           {!booking.rating && (
                             <Button
                               onClick={() => startYachtRating(booking)}
-                              className="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 hover:from-yellow-600/30 hover:to-orange-600/30 text-yellow-400 border border-yellow-600/30 rounded-xl"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl"
                             >
                               <Star size={16} className="mr-2" />
                               Share Review
                             </Button>
                           )}
                           <Button
-                            variant="outline"
-                            className="border-gray-600 text-gray-300 hover:bg-gray-800 rounded-xl"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl"
                             onClick={() => setCurrentView('explore')}
                           >
                             <Plus size={16} className="mr-2" />
