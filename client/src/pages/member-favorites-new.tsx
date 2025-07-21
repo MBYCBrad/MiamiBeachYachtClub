@@ -234,7 +234,12 @@ export default function MemberFavorites({ currentView, setCurrentView }: MemberF
       transition={{ delay: index * 0.1 }}
     >
       <Card className="bg-gray-900/50 border-gray-800 hover-lift overflow-hidden">
-        <div className="relative h-40 bg-gradient-to-br from-purple-900/30 to-pink-900/30">
+        <div className="relative h-40">
+          <img
+            src={event.imageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&h=600&fit=crop'}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute top-3 left-3">
             <Badge className="bg-purple-600/80 text-white border-0">
