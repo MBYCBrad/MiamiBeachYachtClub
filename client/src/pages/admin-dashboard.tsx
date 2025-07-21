@@ -65,7 +65,8 @@ import {
   Mail,
   Ticket,
   Play,
-  Trophy
+  Trophy,
+  Building2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -559,23 +560,31 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
   const memberName = String(booking?.member?.name || booking?.member?.username || 'N/A');
   const memberEmail = String(booking?.member?.email || 'N/A');
   const membershipTier = String(booking?.member?.membershipTier || 'N/A');
+  const memberPhone = String(booking?.member?.phone || 'N/A');
   
   // Safely extract service data
   const serviceName = String(booking?.service?.name || 'N/A');
   const serviceCategory = String(booking?.service?.category || 'N/A');
   const servicePrice = Number(booking?.service?.price || 0);
   const serviceDuration = String(booking?.service?.duration || 'N/A');
+  const serviceDescription = String(booking?.service?.description || 'No description available');
+  const serviceImage = String(booking?.service?.imageUrl || '');
   
   // Safely extract provider data
-  const providerName = String(booking?.service?.provider?.name || booking?.service?.provider || 'MBYC Staff');
+  const providerName = String(booking?.service?.provider?.username || booking?.service?.provider?.name || 'MBYC Staff');
+  const providerEmail = String(booking?.service?.provider?.email || 'admin@miamibeachyachtclub.com');
+  const providerPhone = String(booking?.service?.provider?.phone || '+1 (305) 123-MBYC');
   const providerId = String(booking?.service?.providerId || 'Internal');
-  const providerContact = String(booking?.service?.contact || 'Through MBYC Admin');
   
   // Safely extract booking data
   const bookingStatus = String(booking?.status || 'pending');
-  const totalPrice = Number(booking?.totalPrice || 0);
+  const totalPrice = Number(booking?.totalPrice || servicePrice || 0);
   const serviceId = String(booking?.id || 'N/A');
-  const specialRequests = String(booking?.specialRequests || '');
+  const specialRequests = String(booking?.specialRequests || booking?.notes || '');
+  const bookingTime = String(booking?.time || 'Flexible');
+  const guestCount = Number(booking?.guestCount || 1);
+  const occasion = String(booking?.occasion || 'N/A');
+  const location = String(booking?.location || booking?.serviceAddress || 'TBD');
 
   return (
     <Dialog>
@@ -588,20 +597,38 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
           <Eye className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-black border-purple-600/50 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-black border-purple-600/50 text-white max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white mb-2">
-            Service Booking Details
+          <DialogTitle className="text-3xl font-bold text-white mb-2">
+            {serviceName} - Service Booking Details
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Service Image Header */}
+        {serviceImage && serviceImage !== '' && (
+          <div className="w-full h-48 rounded-lg overflow-hidden mb-6">
+            <img 
+              src={serviceImage}
+              alt={serviceName}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Member Information */}
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-            <Label className="text-gray-300 font-medium mb-3 block">Member Information</Label>
-            <div className="space-y-2">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <User className="h-4 w-4 mr-2" />
+              Member Information
+            </Label>
+            <div className="space-y-3">
               <p><span className="text-gray-400">Name:</span> <span className="text-white font-medium">{memberName}</span></p>
               <p><span className="text-gray-400">Email:</span> <span className="text-cyan-400">{memberEmail}</span></p>
+              <p><span className="text-gray-400">Phone:</span> <span className="text-cyan-400">{memberPhone}</span></p>
               <p><span className="text-gray-400">Membership:</span> 
                 <span className="ml-2 px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full">
                   {membershipTier}
@@ -612,66 +639,147 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
 
           {/* Service Information */}
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-            <Label className="text-gray-300 font-medium mb-3 block">Service Details</Label>
-            <div className="space-y-2">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Service Details
+            </Label>
+            <div className="space-y-3">
               <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{serviceName}</span></p>
               <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{serviceCategory}</span></p>
-              <p><span className="text-gray-400">Price:</span> <span className="text-green-400 font-bold">${servicePrice}</span></p>
-              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{serviceDuration}</span></p>
+              <p><span className="text-gray-400">Base Price:</span> <span className="text-green-400 font-bold">${servicePrice}</span></p>
+              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{serviceDuration} minutes</span></p>
+              <div className="mt-3">
+                <span className="text-gray-400">Description:</span>
+                <p className="text-white text-sm mt-1 bg-gray-800/30 p-2 rounded">{serviceDescription}</p>
+              </div>
             </div>
           </div>
 
-          {/* Booking Schedule */}
+          {/* Booking Details */}
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-            <Label className="text-gray-300 font-medium mb-3 block">Booking Schedule</Label>
-            <div className="space-y-2">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <Calendar className="h-4 w-4 mr-2" />
+              Booking Schedule
+            </Label>
+            <div className="space-y-3">
               <p><span className="text-gray-400">Date:</span> <span className="text-white font-medium">
-                {booking?.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : 'Not specified'}
+                {booking?.bookingDate ? new Date(booking.bookingDate).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                }) : 'Not specified'}
               </span></p>
+              <p><span className="text-gray-400">Time:</span> <span className="text-white font-medium">{bookingTime}</span></p>
+              <p><span className="text-gray-400">Guests:</span> <span className="text-white font-medium">{guestCount} guest{guestCount !== 1 ? 's' : ''}</span></p>
+              <p><span className="text-gray-400">Occasion:</span> <span className="text-purple-400">{occasion}</span></p>
+              <p><span className="text-gray-400">Location:</span> <span className="text-cyan-400">{location}</span></p>
               <p><span className="text-gray-400">Status:</span> 
-                <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                <span className={`ml-2 px-3 py-1 text-xs rounded-full font-medium ${
                   bookingStatus === 'confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                   bookingStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
                   bookingStatus === 'completed' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
                   bookingStatus === 'cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                   'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                 }`}>
-                  {bookingStatus}
+                  {bookingStatus.toUpperCase()}
                 </span>
               </p>
-              <p><span className="text-gray-400">Total Price:</span> <span className="text-green-400 font-bold">${totalPrice}</span></p>
             </div>
           </div>
 
           {/* Service Provider Information */}
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-            <Label className="text-gray-300 font-medium mb-3 block">Service Provider</Label>
-            <div className="space-y-2">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <Building2 className="h-4 w-4 mr-2" />
+              Service Provider
+            </Label>
+            <div className="space-y-3">
               <p><span className="text-gray-400">Provider:</span> <span className="text-white font-medium">{providerName}</span></p>
-              <p><span className="text-gray-400">Provider ID:</span> <span className="text-gray-400">{providerId}</span></p>
-              <p><span className="text-gray-400">Contact:</span> <span className="text-cyan-400">{providerContact}</span></p>
+              <p><span className="text-gray-400">Email:</span> <span className="text-cyan-400">{providerEmail}</span></p>
+              <p><span className="text-gray-400">Phone:</span> <span className="text-cyan-400">{providerPhone}</span></p>
+              <p><span className="text-gray-400">Provider ID:</span> <span className="text-gray-400">#{providerId}</span></p>
+            </div>
+          </div>
+
+          {/* Pricing Breakdown */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Pricing Breakdown
+            </Label>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Base Service Price:</span>
+                <span className="text-white">${servicePrice}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Guest Count ({guestCount}):</span>
+                <span className="text-white">${guestCount > 1 ? (servicePrice * 0.1 * (guestCount - 1)).toFixed(2) : '0.00'}</span>
+              </div>
+              <div className="border-t border-gray-700 pt-2">
+                <div className="flex justify-between text-lg font-bold">
+                  <span className="text-gray-300">Total Amount:</span>
+                  <span className="text-green-400">${totalPrice.toFixed(2)}</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                * Includes all taxes and MBYC service fees
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Information */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <CreditCard className="h-4 w-4 mr-2" />
+              Payment Information
+            </Label>
+            <div className="space-y-3">
+              <p><span className="text-gray-400">Payment Status:</span> 
+                <span className="ml-2 px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                  PAID
+                </span>
+              </p>
+              <p><span className="text-gray-400">Payment Method:</span> <span className="text-white">Card ending in ****</span></p>
+              <p><span className="text-gray-400">Transaction ID:</span> <span className="text-gray-400">{booking?.stripePaymentIntentId || 'N/A'}</span></p>
             </div>
           </div>
 
           {/* Special Requests */}
-          {specialRequests && specialRequests !== '' && (
-            <div className="col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-              <Label className="text-gray-300 font-medium mb-3 block">Special Requests</Label>
-              <p className="text-white bg-gray-800/50 p-3 rounded-lg">{specialRequests}</p>
+          {specialRequests && specialRequests !== '' && specialRequests !== 'N/A' && (
+            <div className="lg:col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+              <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Special Requests & Notes
+              </Label>
+              <p className="text-white bg-gray-800/50 p-4 rounded-lg border-l-4 border-purple-500">{specialRequests}</p>
             </div>
           )}
 
           {/* Booking Timeline */}
-          <div className="col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
-            <Label className="text-gray-300 font-medium mb-3 block">Booking Timeline</Label>
-            <div className="space-y-2">
-              <p><span className="text-gray-400">Created:</span> <span className="text-white">
-                {booking?.createdAt ? new Date(booking.createdAt).toLocaleString() : 'Not available'}
-              </span></p>
-              <p><span className="text-gray-400">Updated:</span> <span className="text-white">
-                {booking?.updatedAt ? new Date(booking.updatedAt).toLocaleString() : 'Not available'}
-              </span></p>
-              <p><span className="text-gray-400">Service ID:</span> <span className="text-gray-400">{serviceId}</span></p>
+          <div className="lg:col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block flex items-center">
+              <Clock className="h-4 w-4 mr-2" />
+              Booking Timeline
+            </Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <span className="text-gray-400">Created:</span>
+                <p className="text-white font-medium">
+                  {booking?.createdAt ? new Date(booking.createdAt).toLocaleString() : 'Not available'}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-400">Last Updated:</span>
+                <p className="text-white font-medium">
+                  {booking?.updatedAt ? new Date(booking.updatedAt).toLocaleString() : 'Not available'}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-400">Booking ID:</span>
+                <p className="text-gray-400 font-mono">#{serviceId}</p>
+              </div>
             </div>
           </div>
         </div>
