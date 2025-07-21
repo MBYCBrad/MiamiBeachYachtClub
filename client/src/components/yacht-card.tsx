@@ -124,7 +124,14 @@ const YachtCard = memo(function YachtCard({ yacht, index = 0 }: YachtCardProps) 
         }
       }}
       whileTap={{ scale: 0.98 }}
-      onClick={() => setIsDetailsModalOpen(true)}
+      onClick={(e) => {
+        // Don't open modal if clicking on interactive elements
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('a')) {
+          return;
+        }
+        setIsDetailsModalOpen(true);
+      }}
       className="group relative cursor-pointer bg-gray-900/50 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-700/50 transition-all duration-500 overflow-hidden
         hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] 
         hover:border-purple-400/60

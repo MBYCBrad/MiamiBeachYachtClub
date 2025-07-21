@@ -94,10 +94,33 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white" aria-describedby="yacht-description">
+        <DialogContent 
+          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white" 
+          aria-describedby="yacht-description"
+          onPointerDownOutside={(e) => {
+            e.preventDefault();
+            onClose();
+          }}
+          onEscapeKeyDown={(e) => {
+            e.preventDefault();
+            onClose();
+          }}
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+          }}
+        >
           <DialogHeader className="sr-only">
             <DialogTitle>{yacht.name} Details</DialogTitle>
           </DialogHeader>
+
+          {/* Manual close button as fallback */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
+            aria-label="Close dialog"
+          >
+            <X size={20} className="text-gray-400" />
+          </button>
 
           <div className="space-y-6">
             {/* Image Gallery */}
