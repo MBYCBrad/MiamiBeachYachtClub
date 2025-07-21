@@ -3715,10 +3715,10 @@ export default function YachtOwnerDashboard() {
             opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-40 flex flex-col"
+          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
         >
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gray-950 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
           
           {/* Close button (X) when sidebar is open */}
           <AnimatePresence>
@@ -3737,7 +3737,7 @@ export default function YachtOwnerDashboard() {
           </AnimatePresence>
           
           {/* Logo */}
-          <div className="p-8 border-b border-gray-700/50 relative z-20">
+          <div className="p-8 border-b border-gray-700/50">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -3759,7 +3759,7 @@ export default function YachtOwnerDashboard() {
           </div>
 
           {/* Search */}
-          <div className="p-6 flex-shrink-0 relative z-20">
+          <div className="p-6 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -3772,7 +3772,7 @@ export default function YachtOwnerDashboard() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto relative z-20">
+          <nav className="flex-1 overflow-y-auto">
             <div className="px-6 pb-24 space-y-2">
               {sidebarItems.map((item, index) => {
                 const Icon = item.icon;
@@ -3824,7 +3824,7 @@ export default function YachtOwnerDashboard() {
           </nav>
 
           {/* User Profile - moved to bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900 z-20">
+          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700/50 bg-gray-900">
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Avatar className="h-12 w-12 ring-2 ring-gradient-to-br ring-purple-500/30">
@@ -3972,13 +3972,13 @@ export default function YachtOwnerDashboard() {
             width: sidebarCollapsed ? "100%" : "calc(100% - 320px)"
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="flex-1 min-h-screen bg-black overflow-hidden isolate"
+          className="flex-1 min-h-screen bg-black overflow-hidden"
         >
           {/* Animated background */}
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
           
           {/* Main Content */}
-          <div className="relative z-[60] p-8 pt-16">
+          <div className="relative z-10 p-8">
             {renderCurrentSection()}
           </div>
         </motion.div>
