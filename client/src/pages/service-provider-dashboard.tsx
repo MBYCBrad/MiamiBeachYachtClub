@@ -1465,17 +1465,7 @@ export default function ServiceProviderDashboard() {
             </motion.p>
           </div>
           
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center space-x-4"
-          >
-            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Export Analytics
-            </Button>
-          </motion.div>
+
         </div>
 
         {/* Performance Overview Cards */}
