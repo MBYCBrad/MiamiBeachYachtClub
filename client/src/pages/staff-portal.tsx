@@ -483,7 +483,7 @@ export default function StaffPortal() {
     queryKey: ['/api/staff/bookings'],
   });
 
-  const { data: analytics = {} } = useQuery({
+  const { data: analytics } = useQuery<any>({
     queryKey: ['/api/staff/analytics'],
   });
 
@@ -497,12 +497,12 @@ export default function StaffPortal() {
 
   // Process analytics data to match admin dashboard structure
   const adminStats = analytics ? {
-    totalUsers: analytics.totalUsers || 0,
-    totalBookings: analytics.totalBookings || 0,
-    totalRevenue: analytics.totalRevenue || 0,
-    activeServices: analytics.totalServices || 0,
-    monthlyGrowth: analytics.monthlyGrowth || 0,
-    membershipBreakdown: analytics.membershipBreakdown || []
+    totalUsers: (analytics as any)?.totalUsers || 0,
+    totalBookings: (analytics as any)?.totalBookings || 0,
+    totalRevenue: (analytics as any)?.totalRevenue || 0,
+    activeServices: (analytics as any)?.totalServices || 0,
+    monthlyGrowth: (analytics as any)?.monthlyGrowth || 0,
+    membershipBreakdown: (analytics as any)?.membershipBreakdown || []
   } : {
     totalUsers: 0,
     totalBookings: 0,
@@ -958,15 +958,15 @@ export default function StaffPortal() {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Total Revenue</span>
-              <span className="text-white font-bold">${(analytics.totalRevenue || 0).toFixed(2)}</span>
+              <span className="text-white font-bold">${((analytics as any)?.totalRevenue || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Today's Revenue</span>
-              <span className="text-green-400 font-bold">${(analytics.todayRevenue || 0).toFixed(2)}</span>
+              <span className="text-green-400 font-bold">${((analytics as any)?.todayRevenue || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Average Booking Value</span>
-              <span className="text-blue-400 font-bold">${(analytics.averageBookingValue || 0).toFixed(2)}</span>
+              <span className="text-blue-400 font-bold">${((analytics as any)?.averageBookingValue || 0).toFixed(2)}</span>
             </div>
           </CardContent>
         </Card>
@@ -981,15 +981,15 @@ export default function StaffPortal() {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Confirmed Bookings</span>
-              <span className="text-green-400 font-bold">{analytics.bookingStatus?.confirmed || 0}</span>
+              <span className="text-green-400 font-bold">{(analytics as any)?.bookingStatus?.confirmed || 0}</span>
             </div>
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Pending Bookings</span>
-              <span className="text-yellow-400 font-bold">{analytics.bookingStatus?.pending || 0}</span>
+              <span className="text-yellow-400 font-bold">{(analytics as any)?.bookingStatus?.pending || 0}</span>
             </div>
             <div className="flex justify-between items-center p-3 rounded-lg bg-gray-800/50">
               <span className="text-gray-400">Today's Bookings</span>
-              <span className="text-blue-400 font-bold">{analytics.todayBookings || 0}</span>
+              <span className="text-blue-400 font-bold">{(analytics as any)?.todayBookings || 0}</span>
             </div>
           </CardContent>
         </Card>
@@ -1016,7 +1016,7 @@ export default function StaffPortal() {
                 transition={{ delay: 0.7 }}
                 className="text-center p-4 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30"
               >
-                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.bronze || 0}</div>
+                <div className="text-2xl font-bold text-white mb-1">{(analytics as any)?.memberTiers?.bronze || 0}</div>
                 <div className="text-sm text-amber-400 mb-2">Bronze</div>
                 <div className="text-xs text-amber-300 font-medium">Entry Level</div>
               </motion.div>
@@ -1027,7 +1027,7 @@ export default function StaffPortal() {
                 transition={{ delay: 0.8 }}
                 className="text-center p-4 rounded-lg bg-gradient-to-br from-gray-400/20 to-gray-500/20 border border-gray-400/30"
               >
-                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.silver || 0}</div>
+                <div className="text-2xl font-bold text-white mb-1">{(analytics as any)?.memberTiers?.silver || 0}</div>
                 <div className="text-sm text-gray-300 mb-2">Silver</div>
                 <div className="text-xs text-gray-400 font-medium">Premium</div>
               </motion.div>
@@ -1038,7 +1038,7 @@ export default function StaffPortal() {
                 transition={{ delay: 0.9 }}
                 className="text-center p-4 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30"
               >
-                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.gold || 0}</div>
+                <div className="text-2xl font-bold text-white mb-1">{(analytics as any)?.memberTiers?.gold || 0}</div>
                 <div className="text-sm text-yellow-400 mb-2">Gold</div>
                 <div className="text-xs text-yellow-300 font-medium">VIP</div>
               </motion.div>
@@ -1049,7 +1049,7 @@ export default function StaffPortal() {
                 transition={{ delay: 1.0 }}
                 className="text-center p-4 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30"
               >
-                <div className="text-2xl font-bold text-white mb-1">{analytics.memberTiers?.platinum || 0}</div>
+                <div className="text-2xl font-bold text-white mb-1">{(analytics as any)?.memberTiers?.platinum || 0}</div>
                 <div className="text-sm text-purple-400 mb-2">Platinum</div>
                 <div className="text-xs text-purple-300 font-medium">Elite</div>
               </motion.div>
@@ -4006,7 +4006,7 @@ export default function StaffPortal() {
               value={`$${Number((analytics as any)?.totalRevenue || 0).toFixed(2)}`}
               change={12.5}
               icon={TrendingUp}
-              gradient="from-green-500 to-emerald-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0}
             />
             <StatCard
@@ -4014,7 +4014,7 @@ export default function StaffPortal() {
               value={((analytics as any)?.totalBookings || 0).toString()}
               change={(analytics as any)?.trends?.memberGrowth || 0}
               icon={Activity}
-              gradient="from-blue-500 to-cyan-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.1}
             />
             <StatCard
@@ -4022,7 +4022,7 @@ export default function StaffPortal() {
               value={((analytics as any)?.totalUsers || 0).toString()}
               change={(analytics as any)?.trends?.memberGrowth || 0}
               icon={Users}
-              gradient="from-purple-500 to-pink-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.2}
             />
             <StatCard
@@ -4030,7 +4030,7 @@ export default function StaffPortal() {
               value={`${(analytics as any)?.realTimeMetrics?.customerSatisfaction || 4.5}/5`}
               change={12}
               icon={Star}
-              gradient="from-yellow-500 to-orange-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.3}
             />
           </div>

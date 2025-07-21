@@ -100,7 +100,7 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
               <div key={i} className="bg-gray-800 rounded-2xl h-56 sm:h-64 animate-pulse" />
             ))}
           </div>
-        ) : (
+        ) : filteredServices.length > 0 ? (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -201,14 +201,16 @@ export default function ServicesPage({ currentView, setCurrentView }: ServicesPa
                   </div>
                 </div>
               </motion.div>
-            ))
-          ) : (
+            ))}
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             <div className="col-span-full text-center py-12">
               <Settings className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <p className="text-gray-400 text-lg">No services available</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       
       {/* Service Details Modal */}

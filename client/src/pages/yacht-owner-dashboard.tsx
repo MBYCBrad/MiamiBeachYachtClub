@@ -988,7 +988,7 @@ export default function YachtOwnerDashboard() {
           value={stats?.totalYachts || '3'}
           change={null}
           icon={Anchor}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -996,7 +996,7 @@ export default function YachtOwnerDashboard() {
           value={`$${(stats?.monthlyRevenue || 45000).toLocaleString()}`}
           change={18}
           icon={DollarSign}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -1004,7 +1004,7 @@ export default function YachtOwnerDashboard() {
           value={stats?.totalBookings || '27'}
           change={23}
           icon={CalendarDays}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -1012,7 +1012,7 @@ export default function YachtOwnerDashboard() {
           value={`${stats?.avgRating || 4.8}/5`}
           change={5}
           icon={Star}
-          gradient="from-yellow-500 to-orange-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
@@ -1146,7 +1146,7 @@ export default function YachtOwnerDashboard() {
           value="3"
           change={null}
           icon={Anchor}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -1154,7 +1154,7 @@ export default function YachtOwnerDashboard() {
           value="2"
           change={null}
           icon={Activity}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -1162,7 +1162,7 @@ export default function YachtOwnerDashboard() {
           value="1"
           change={null}
           icon={Wrench}
-          gradient="from-orange-500 to-red-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -1170,7 +1170,7 @@ export default function YachtOwnerDashboard() {
           value="87%"
           change={12}
           icon={TrendingUp}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
@@ -1329,7 +1329,7 @@ export default function YachtOwnerDashboard() {
           value={bookings?.length.toString() || '0'}
           change={null}
           icon={Anchor}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -1337,7 +1337,7 @@ export default function YachtOwnerDashboard() {
           value={bookings?.filter((b: any) => b.status === 'confirmed')?.length.toString() || '0'}
           change={null}
           icon={Activity}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -1345,7 +1345,7 @@ export default function YachtOwnerDashboard() {
           value={bookings?.filter((b: any) => b.status === 'pending')?.length.toString() || '0'}
           change={null}
           icon={Clock}
-          gradient="from-orange-500 to-red-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -1353,7 +1353,7 @@ export default function YachtOwnerDashboard() {
           value="$12,840"
           change={18}
           icon={DollarSign}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
@@ -1477,7 +1477,7 @@ export default function YachtOwnerDashboard() {
           value={`$${stats?.monthlyRevenue.toFixed(2) || '0.00'}`}
           change={18}
           icon={DollarSign}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -1485,7 +1485,7 @@ export default function YachtOwnerDashboard() {
           value={`$${(stats?.monthlyRevenue || 0).toFixed(2)}`}
           change={12}
           icon={TrendingUp}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -1493,7 +1493,7 @@ export default function YachtOwnerDashboard() {
           value="$2,140"
           change={8}
           icon={Calculator}
-          gradient="from-blue-500 to-cyan-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -1501,7 +1501,7 @@ export default function YachtOwnerDashboard() {
           value={`${stats?.occupancyRate || 0}%`}
           change={stats?.occupancyRate ? stats.occupancyRate - 75 : 0}
           icon={Activity}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
@@ -1646,7 +1646,7 @@ export default function YachtOwnerDashboard() {
                   value="In 45 days"
                   change={null}
                   icon={Calendar}
-                  gradient="from-purple-500 to-indigo-500"
+                  gradient="from-purple-600 to-indigo-600"
                   delay={0.2}
                 />
                 <StatCard
@@ -1654,7 +1654,7 @@ export default function YachtOwnerDashboard() {
                   value="94%"
                   change={3}
                   icon={Heart}
-                  gradient="from-purple-500 to-blue-500"
+                  gradient="from-purple-600 to-indigo-600"
                   delay={0.3}
                 />
               </div>
@@ -2279,7 +2279,7 @@ export default function YachtOwnerDashboard() {
           value={stats?.totalBookings.toString() || '0'}
           change={15}
           icon={TrendingUp}
-          gradient="from-purple-500 to-indigo-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -2287,7 +2287,7 @@ export default function YachtOwnerDashboard() {
           value="24%"
           change={18}
           icon={DollarSign}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -2295,7 +2295,7 @@ export default function YachtOwnerDashboard() {
           value="4.8/5"
           change={5}
           icon={Star}
-          gradient="from-yellow-500 to-orange-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -2303,7 +2303,7 @@ export default function YachtOwnerDashboard() {
           value={`${stats?.occupancyRate || 0}%`}
           change={stats?.occupancyRate ? stats.occupancyRate - 75 : 0}
           icon={Activity}
-          gradient="from-blue-500 to-cyan-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>

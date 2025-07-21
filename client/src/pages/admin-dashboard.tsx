@@ -4140,7 +4140,7 @@ export default function AdminDashboard() {
           value={stats?.totalUsers || '0'}
           change={stats?.monthlyGrowth || 0}
           icon={Users}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -4151,7 +4151,7 @@ export default function AdminDashboard() {
           }
           change={stats?.bookingGrowth || 0}
           icon={Anchor}
-          gradient="from-blue-500 to-cyan-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -4162,7 +4162,7 @@ export default function AdminDashboard() {
           ).toLocaleString()}`}
           change={stats?.revenueGrowth || 0}
           icon={CreditCard}
-          gradient="from-green-500 to-emerald-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -4375,21 +4375,21 @@ export default function AdminDashboard() {
                   category: 'Premium Services',
                   amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Service Booking').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
                   adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Service Booking').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
-                  color: 'from-purple-500 to-pink-500',
+                  color: 'from-purple-600 to-indigo-600',
                   icon: Sparkles
                 },
                 {
                   category: 'Event Registrations',
                   amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Event Registration').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
                   adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Event Registration').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
-                  color: 'from-green-500 to-emerald-500',
+                  color: 'from-purple-600 to-indigo-600',
                   icon: CalendarDays
                 },
                 {
                   category: 'Yacht Bookings',
                   amount: filteredOverviewData.payments?.filter((p: any) => p.type === 'Yacht Booking').reduce((sum: number, p: any) => sum + p.amount, 0) || 0,
                   adminRevenue: filteredOverviewData.payments?.filter((p: any) => p.type === 'Yacht Booking').reduce((sum: number, p: any) => sum + p.adminRevenue, 0) || 0,
-                  color: 'from-blue-500 to-cyan-500',
+                  color: 'from-purple-600 to-indigo-600',
                   icon: Anchor
                 }
               ].map((item, index) => (
@@ -4948,7 +4948,7 @@ export default function AdminDashboard() {
               value={`$${analytics.overview.totalRevenue.toFixed(2)}`}
               change={analytics.trends.revenueGrowth}
               icon={TrendingUp}
-              gradient="from-green-500 to-emerald-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0}
             />
             <StatCard
@@ -4956,7 +4956,7 @@ export default function AdminDashboard() {
               value={analytics.overview.totalBookings.toString()}
               change={analytics.trends.memberGrowth}
               icon={Activity}
-              gradient="from-blue-500 to-cyan-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.1}
             />
             <StatCard
@@ -4964,7 +4964,7 @@ export default function AdminDashboard() {
               value={analytics.overview.activeMembers.toString()}
               change={analytics.trends.memberGrowth}
               icon={Users}
-              gradient="from-purple-500 to-pink-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.2}
             />
             <StatCard
@@ -4972,7 +4972,7 @@ export default function AdminDashboard() {
               value={`${analytics.realTimeMetrics.customerSatisfaction}/5`}
               change={12}
               icon={Star}
-              gradient="from-yellow-500 to-orange-500"
+              gradient="from-purple-600 to-indigo-600"
               delay={0.3}
             />
           </div>

@@ -696,7 +696,20 @@ const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any
   </motion.div>
 );
 
-// Duplicate function removed - using the proper implementation below
+// Create Service Component
+function CreateServiceDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'Beauty & Grooming',
+    description: '',
+    pricePerSession: '',
+    duration: '',
+    isAvailable: true,
+    images: []
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const createServiceMutation = useMutation({
     mutationFn: async (data: any) => {
