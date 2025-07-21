@@ -555,6 +555,286 @@ const YachtCard = ({ yacht, index }: any) => (
   </motion.div>
 );
 
+// Real-time maintenance overview component with authentic database data
+const MaintenanceOverview = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: maintenanceOverview } = useQuery<any>({
+    queryKey: ['/api/maintenance/overview', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000, // Real-time maintenance overview updates every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest maintenance data
+  });
+
+  // Show loading or empty state if no data
+  if (!maintenanceOverview) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard
+          title="Engine Hours"
+          value="Loading..."
+          change={null}
+          icon={Wrench}
+          gradient="from-purple-600 to-indigo-600"
+          delay={0}
+        />
+        <StatCard
+          title="Last Service"
+          value="Loading..."
+          change={null}
+          icon={CheckCircle}
+          gradient="from-purple-600 to-blue-600"
+          delay={0.1}
+        />
+        <StatCard
+          title="Next Service"
+          value="Loading..."
+          change={null}
+          icon={Calendar}
+          gradient="from-purple-600 to-indigo-600"
+          delay={0.2}
+        />
+        <StatCard
+          title="Health Score"
+          value="Loading..."
+          change={null}
+          icon={Heart}
+          gradient="from-purple-600 to-indigo-600"
+          delay={0.3}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <StatCard
+        title="Engine Hours"
+        value={maintenanceOverview.engineHours || '0'}
+        change={null}
+        icon={Wrench}
+        gradient="from-purple-600 to-indigo-600"
+        delay={0}
+      />
+      <StatCard
+        title="Last Service"
+        value={maintenanceOverview.lastService || 'No service records'}
+        change={null}
+        icon={CheckCircle}
+        gradient="from-purple-600 to-blue-600"
+        delay={0.1}
+      />
+      <StatCard
+        title="Next Service"
+        value={maintenanceOverview.nextService || 'Schedule upcoming'}
+        change={null}
+        icon={Calendar}
+        gradient="from-purple-600 to-indigo-600"
+        delay={0.2}
+      />
+      <StatCard
+        title="Health Score"
+        value={maintenanceOverview.healthScore ? `${maintenanceOverview.healthScore}%` : 'N/A'}
+        change={maintenanceOverview.healthScoreChange || null}
+        icon={Heart}
+        gradient="from-purple-600 to-indigo-600"
+        delay={0.3}
+      />
+    </div>
+  );
+};
+
+// Real-time maintenance schedule component
+const MaintenanceSchedule = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: scheduleData = [] } = useQuery<any[]>({
+    queryKey: ['/api/maintenance/schedules', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  return (
+    <div className="space-y-4">
+      {scheduleData.length === 0 ? (
+        <div className="text-center py-8">
+          <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-400">No maintenance scheduled</p>
+          <p className="text-gray-500 text-sm">Schedule upcoming maintenance tasks</p>
+        </div>
+      ) : (
+        scheduleData.map((task: any, index: number) => (
+          <div key={task.id || index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-medium">{task.taskDescription}</p>
+                <p className="text-gray-400 text-sm">
+                  {task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString() : 'Date pending'}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-white font-medium">{task.estimatedCost ? `$${task.estimatedCost}` : 'Cost TBD'}</p>
+              <Badge className={`${
+                task.priority === 'high' ? 'bg-gradient-to-r from-red-600 to-red-700' :
+                task.priority === 'medium' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
+                'bg-gradient-to-r from-purple-600 to-blue-600'
+              } text-white`}>
+                {task.priority || 'medium'} priority
+              </Badge>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
+// Real-time maintenance cost analysis component
+const MaintenanceCostAnalysis = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: costData } = useQuery<any>({
+    queryKey: ['/api/maintenance/cost-analysis', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">This Year</span>
+        <span className="text-white font-bold">${costData?.thisYear || '0'}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Last Year</span>
+        <span className="text-white font-bold">${costData?.lastYear || '0'}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Average Monthly</span>
+        <span className="text-white font-bold">${costData?.averageMonthly || '0'}</span>
+      </div>
+    </>
+  );
+};
+
+// Real-time maintenance performance metrics component
+const MaintenancePerformanceMetrics = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: performanceData } = useQuery<any>({
+    queryKey: ['/api/maintenance/performance-metrics', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Efficiency</span>
+        <span className="text-white font-bold">{performanceData?.efficiency || '0'}%</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Health Score</span>
+        <span className="text-white font-bold">{performanceData?.healthScore || '0'}%</span>
+      </div>
+      <div className="mt-4 pt-4 border-t border-gray-700">
+        <div className="flex justify-between items-center">
+          <span className="text-blue-400">Utilization Rate</span>
+          <span className="text-blue-400 font-bold">{performanceData?.utilizationRate || '0'}%</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// Real-time maintenance trends component
+const MaintenanceTrends = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: trendsData } = useQuery<any>({
+    queryKey: ['/api/maintenance/trends', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  return (
+    <>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Work Orders</span>
+        <span className="text-white font-bold">{trendsData?.workOrders || '0'}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Avg Response Time</span>
+        <span className="text-white font-bold">{trendsData?.avgResponseTime || '0 hrs'}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400">Completion Rate</span>
+        <span className="text-white font-bold">{trendsData?.completionRate || '0'}%</span>
+      </div>
+      <div className="mt-4 pt-4 border-t border-gray-700">
+        <div className="flex justify-between items-center">
+          <span className="text-yellow-400">Preventive %</span>
+          <span className="text-yellow-400 font-bold">{trendsData?.preventivePercent || '0'}%</span>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// Real-time component health overview component
+const ComponentHealthOverview = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: componentData = [] } = useQuery<any[]>({
+    queryKey: ['/api/maintenance/components', selectedYacht],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  if (!componentData || componentData.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <Target className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+        <p className="text-gray-400">No component data available</p>
+        <p className="text-gray-500 text-sm">Component health monitoring requires maintenance records</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {componentData.map((component: any, index: number) => (
+        <div key={index} className="text-center">
+          <div className="relative w-16 h-16 mx-auto mb-2">
+            <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
+              <circle
+                cx="50" cy="50" r="40"
+                stroke="currentColor" strokeWidth="8" fill="none"
+                className="text-gray-700"
+              />
+              <circle
+                cx="50" cy="50" r="40"
+                stroke="url(#gradient-${index})" strokeWidth="8" fill="none"
+                strokeDasharray={`${2 * Math.PI * 40}`}
+                strokeDashoffset={`${2 * Math.PI * 40 * (1 - (component.health || 0) / 100)}`}
+                className="transition-all duration-1000 ease-in-out"
+                strokeLinecap="round"
+              />
+              <defs>
+                <linearGradient id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">{component.health || 0}%</span>
+            </div>
+          </div>
+          <p className="text-gray-400 text-sm font-medium">{component.name || 'Unknown'}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function YachtOwnerDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -707,8 +987,10 @@ export default function YachtOwnerDashboard() {
 
   // Maintenance records data fetching
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
-    queryKey: ['/api/yacht-maintenance', selectedMaintenanceYacht],
+    queryKey: ['/api/maintenance/records', selectedMaintenanceYacht],
     enabled: !!selectedMaintenanceYacht,
+    refetchInterval: 30000, // Real-time maintenance records updates every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest maintenance data
   });
 
   // Real-time profile data fetching
@@ -2056,42 +2338,7 @@ export default function YachtOwnerDashboard() {
 
           {/* Tab Content */}
           <div className="py-6">
-            {activeMaintenanceTab === 'overview' && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <StatCard
-                  title="Engine Hours"
-                  value="2,450"
-                  change={null}
-                  icon={Wrench}
-                  gradient="from-purple-600 to-indigo-600"
-                  delay={0}
-                />
-                <StatCard
-                  title="Last Service"
-                  value="15 days ago"
-                  change={null}
-                  icon={CheckCircle}
-                  gradient="from-purple-600 to-blue-600"
-                  delay={0.1}
-                />
-                <StatCard
-                  title="Next Service"
-                  value="In 45 days"
-                  change={null}
-                  icon={Calendar}
-                  gradient="from-purple-600 to-indigo-600"
-                  delay={0.2}
-                />
-                <StatCard
-                  title="Health Score"
-                  value="94%"
-                  change={3}
-                  icon={Heart}
-                  gradient="from-purple-600 to-indigo-600"
-                  delay={0.3}
-                />
-              </div>
-            )}
+            {activeMaintenanceTab === 'overview' && <MaintenanceOverview selectedYacht={selectedMaintenanceYacht} />}
             
             {activeMaintenanceTab === 'records' && (
               <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
@@ -2266,35 +2513,7 @@ export default function YachtOwnerDashboard() {
                   <CardDescription>Scheduled maintenance tasks</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { task: 'Annual Inspection', date: '2024-08-15', priority: 'high', estimated: '$1,200' },
-                      { task: 'Engine Service', date: '2024-07-30', priority: 'medium', estimated: '$800' },
-                      { task: 'Electronics Check', date: '2024-09-01', priority: 'low', estimated: '$400' }
-                    ].map((task, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
-                            <Calendar className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-white font-medium">{task.task}</p>
-                            <p className="text-gray-400 text-sm">{task.date}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-white font-medium">{task.estimated}</p>
-                          <Badge className={`${
-                            task.priority === 'high' ? 'bg-gradient-to-r from-red-600 to-red-700' :
-                            task.priority === 'medium' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
-                            'bg-gradient-to-r from-purple-600 to-blue-600'
-                          } text-white`}>
-                            {task.priority} priority
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <MaintenanceSchedule selectedYacht={selectedMaintenanceYacht} />
                 </CardContent>
               </Card>
             )}
@@ -2418,24 +2637,7 @@ export default function YachtOwnerDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">This Year</span>
-                          <span className="text-white font-bold">$4,750</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Last Year</span>
-                          <span className="text-white font-bold">$3,200</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Average Monthly</span>
-                          <span className="text-white font-bold">$396</span>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-gray-700">
-                          <div className="flex justify-between items-center">
-                            <span className="text-green-400">Cost Savings</span>
-                            <span className="text-green-400 font-bold">+$1,550</span>
-                          </div>
-                        </div>
+                        <MaintenanceCostAnalysis selectedYacht={selectedMaintenanceYacht} />
                       </div>
                     </CardContent>
                   </Card>
@@ -2449,24 +2651,7 @@ export default function YachtOwnerDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Uptime</span>
-                          <span className="text-white font-bold">96.8%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Efficiency</span>
-                          <span className="text-white font-bold">92.3%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Health Score</span>
-                          <span className="text-white font-bold">94.0%</span>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-gray-700">
-                          <div className="flex justify-between items-center">
-                            <span className="text-blue-400">Utilization Rate</span>
-                            <span className="text-blue-400 font-bold">87.2%</span>
-                          </div>
-                        </div>
+                        <MaintenancePerformanceMetrics selectedYacht={selectedMaintenanceYacht} />
                       </div>
                     </CardContent>
                   </Card>
@@ -2480,24 +2665,7 @@ export default function YachtOwnerDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Work Orders</span>
-                          <span className="text-white font-bold">24</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Avg Response Time</span>
-                          <span className="text-white font-bold">2.3 hrs</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Completion Rate</span>
-                          <span className="text-white font-bold">98.5%</span>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-gray-700">
-                          <div className="flex justify-between items-center">
-                            <span className="text-yellow-400">Preventive %</span>
-                            <span className="text-yellow-400 font-bold">78%</span>
-                          </div>
-                        </div>
+                        <MaintenanceTrends selectedYacht={selectedMaintenanceYacht} />
                       </div>
                     </CardContent>
                   </Card>
@@ -2512,48 +2680,7 @@ export default function YachtOwnerDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      {[
-                        { name: 'Engine', health: 94, color: 'from-purple-600 to-blue-600' },
-                        { name: 'Hull', health: 88, color: 'from-blue-600 to-indigo-600' },
-                        { name: 'Electronics', health: 92, color: 'from-indigo-600 to-purple-600' },
-                        { name: 'Navigation', health: 96, color: 'from-purple-600 to-pink-600' },
-                        { name: 'Safety', health: 98, color: 'from-green-600 to-emerald-600' },
-                        { name: 'Electrical', health: 85, color: 'from-yellow-600 to-orange-600' },
-                        { name: 'Plumbing', health: 90, color: 'from-blue-600 to-cyan-600' },
-                        { name: 'HVAC', health: 87, color: 'from-purple-600 to-blue-600' }
-                      ].map((item, index) => (
-                        <div key={index} className="text-center">
-                          <div className="relative w-16 h-16 mx-auto mb-2">
-                            <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
-                              <circle
-                                cx="50" cy="50" r="40"
-                                stroke="currentColor" strokeWidth="8" fill="none"
-                                className="text-gray-700"
-                              />
-                              <circle
-                                cx="50" cy="50" r="40"
-                                stroke="url(#gradient-{index})" strokeWidth="8" fill="none"
-                                strokeDasharray={`${2 * Math.PI * 40}`}
-                                strokeDashoffset={`${2 * Math.PI * 40 * (1 - item.health / 100)}`}
-                                className="transition-all duration-1000 ease-in-out"
-                                strokeLinecap="round"
-                              />
-                              <defs>
-                                <linearGradient id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                                  <stop offset="0%" className={`stop-color-gradient-start ${item.color.split(' ')[0].replace('from-', '')}`} />
-                                  <stop offset="100%" className={`stop-color-gradient-end ${item.color.split(' ')[2].replace('to-', '')}`} />
-                                </linearGradient>
-                              </defs>
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">{item.health}%</span>
-                            </div>
-                          </div>
-                          <p className="text-gray-400 text-sm font-medium">{item.name}</p>
-                        </div>
-                      ))}
-                    </div>
+                    <ComponentHealthOverview selectedYacht={selectedMaintenanceYacht} />
                   </CardContent>
                 </Card>
               </div>
