@@ -2097,11 +2097,12 @@ export default function ServiceProviderDashboard() {
           {/* Top section with navigation */}
           <div className="flex-1 p-6">
             <div className="flex items-center space-x-3 mb-8">
-              {user?.profileImage ? (
+              {console.log('User data in sidebar:', user, 'hasProfileImage:', user?.hasProfileImage, 'profileImage:', user?.profileImage) || (user?.hasProfileImage && user?.profileImage) ? (
                 <img 
                   src={user.profileImage} 
                   alt="Profile" 
                   className="w-10 h-10 rounded-xl object-cover ring-2 ring-purple-600/20"
+                  onError={() => console.log('Profile image failed to load:', user.profileImage)}
                 />
               ) : (
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
