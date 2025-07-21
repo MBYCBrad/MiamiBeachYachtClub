@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Users, Anchor, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+// Dialog components removed - using custom modal implementation
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Yacht } from '@shared/schema';
@@ -93,20 +93,28 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent 
-          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
-          onPointerDownOutside={(e) => {
-            onClose();
-          }}
-          onEscapeKeyDown={() => {
-            onClose();
-          }}>
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white">{yacht.name}</DialogTitle>
-          </DialogHeader>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm" 
+            onClick={onClose}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative max-w-4xl max-h-[90vh] w-full mx-4 bg-black border border-gray-700/50 rounded-lg overflow-y-auto z-50">
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute right-4 top-4 p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-all duration-200 z-50"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">{yacht.name}</h2>
 
-          <div className="space-y-6">
+              <div className="space-y-6">
             {/* Image Gallery */}
             {yachtImages.length > 0 && (
               <div className="relative w-full h-80 bg-gray-800 rounded-lg overflow-hidden">
@@ -252,8 +260,8 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
       {/* Booking Modal */}
       {yacht && (
