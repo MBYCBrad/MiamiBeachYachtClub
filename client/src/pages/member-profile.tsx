@@ -856,7 +856,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               className="p-2 md:p-3 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
             >
-              <Trophy className="h-5 w-5 md:h-6 md:w-6 text-purple-600" style={{ background: 'linear-gradient(to right, #9333ea, #2563eb)', WebkitBackgroundClip: 'text', color: 'transparent' }} />
+              <Trophy className="h-5 w-5 md:h-6 md:w-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" />
             </motion.div>
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-white">Member Analytics</h2>
@@ -941,7 +941,8 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                                       stat.color === 'text-yellow-400' ? '#facc15' : '#a855f7'}40, transparent)`
                         }}
                       />
-                      <Icon className={cn("h-8 w-8 md:h-10 md:w-10 mx-auto relative z-10 text-purple-600")} style={{ background: 'linear-gradient(to right, #9333ea, #2563eb)', WebkitBackgroundClip: 'text', color: 'transparent' }} />
+                      <Icon className={cn("h-8 w-8 md:h-10 md:w-10 mx-auto relative z-10", 
+                        'bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent')} />
                     </motion.div>
                     
                     {/* Value with Counting Animation */}
@@ -1157,7 +1158,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               className="p-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl backdrop-blur-sm"
             >
-              <Settings className="h-6 w-6 text-purple-600" style={{ background: 'linear-gradient(to right, #9333ea, #2563eb)', WebkitBackgroundClip: 'text', color: 'transparent' }} />
+              <Settings className="h-6 w-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" />
             </motion.div>
             <div>
               <h2 className="text-2xl font-bold text-white">Customization Hub</h2>
