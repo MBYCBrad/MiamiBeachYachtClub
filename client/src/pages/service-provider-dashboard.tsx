@@ -1064,7 +1064,7 @@ export default function ServiceProviderDashboard() {
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</p>
               <p className="text-sm text-gray-400">Lifetime Earnings</p>
-              <p className="text-xs text-green-400">+{stats?.completedBookings || 0} completed bookings</p>
+              <p className="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">+{stats?.completedBookings || 0} completed bookings</p>
             </div>
           </CardContent>
         </Card>
@@ -1080,7 +1080,7 @@ export default function ServiceProviderDashboard() {
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">${stats?.pendingPayouts?.toFixed(2) || "0.00"}</p>
               <p className="text-sm text-gray-400">Pending Payouts</p>
-              <p className="text-xs text-yellow-400">Next payout: {stats?.nextPayoutDate || "TBD"}</p>
+              <p className="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Next payout: {stats?.nextPayoutDate || "TBD"}</p>
             </div>
           </CardContent>
         </Card>
