@@ -6244,13 +6244,13 @@ export default function AdminDashboard() {
             <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <DollarSign className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">+12%</Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">+12%</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
           <p className="text-2xl font-bold text-white">
             ${paymentsData?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
           </p>
-          <p className="text-green-400 text-sm mt-1">All-time earnings</p>
+          <p className="text-white text-sm mt-1">All-time earnings</p>
         </motion.div>
 
         <motion.div
@@ -6263,11 +6263,11 @@ export default function AdminDashboard() {
             <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <CreditCard className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Live</Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">Live</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Transactions</h3>
           <p className="text-2xl font-bold text-white">{paymentsData?.length || 0}</p>
-          <p className="text-blue-400 text-sm mt-1">Total payments</p>
+          <p className="text-white text-sm mt-1">Total payments</p>
         </motion.div>
 
         <motion.div
@@ -6280,13 +6280,13 @@ export default function AdminDashboard() {
             <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">20%</Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">20%</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Platform Revenue</h3>
           <p className="text-2xl font-bold text-white">
             ${paymentsData?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
           </p>
-          <p className="text-purple-400 text-sm mt-1">Platform fees</p>
+          <p className="text-white text-sm mt-1">Platform fees</p>
         </motion.div>
 
         <motion.div
@@ -6299,13 +6299,13 @@ export default function AdminDashboard() {
             <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">+8%</Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">+8%</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Avg Transaction</h3>
           <p className="text-2xl font-bold text-white">
             ${paymentsData?.length > 0 ? (paymentsData.reduce((sum: number, p: any) => sum + p.amount, 0) / paymentsData.length).toFixed(2) : '0.00'}
           </p>
-          <p className="text-orange-400 text-sm mt-1">Per transaction</p>
+          <p className="text-white text-sm mt-1">Per transaction</p>
         </motion.div>
       </div>
 
