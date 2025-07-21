@@ -3136,6 +3136,7 @@ export default function AdminDashboard() {
   // Contact message dialog state
   const [selectedContactMessage, setSelectedContactMessage] = useState<any>(null);
   const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
+  const [analyticsTimePeriod, setAnalyticsTimePeriod] = useState("30d");
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
@@ -3292,7 +3293,16 @@ export default function AdminDashboard() {
   });
 
   const { data: analytics } = useQuery<any>({
-    queryKey: ['/api/admin/analytics'],
+    queryKey: ['/api/admin/analytics', analyticsTimePeriod],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/analytics?timePeriod=${analyticsTimePeriod}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
     staleTime: 30000, // Refresh every 30 seconds for real-time data
     refetchInterval: 30000
   });
@@ -4823,10 +4833,50 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Time Period
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Time Period: {analyticsTimePeriod === '7d' ? 'Last 7 Days' : 
+                            analyticsTimePeriod === '30d' ? 'Last 30 Days' : 
+                            analyticsTimePeriod === '90d' ? 'Last 90 Days' : 
+                            analyticsTimePeriod === '1y' ? 'Last Year' : 'All Time'}
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-gray-900 border-gray-700">
+              <DropdownMenuItem 
+                onClick={() => setAnalyticsTimePeriod('7d')}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800"
+              >
+                Last 7 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setAnalyticsTimePeriod('30d')}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800"
+              >
+                Last 30 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setAnalyticsTimePeriod('90d')}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800"
+              >
+                Last 90 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setAnalyticsTimePeriod('1y')}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800"
+              >
+                Last Year
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setAnalyticsTimePeriod('all')}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800"
+              >
+                All Time
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 

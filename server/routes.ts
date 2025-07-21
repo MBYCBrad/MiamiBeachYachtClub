@@ -4332,6 +4332,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Advanced Analytics API endpoint
   app.get("/api/admin/analytics", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
+      // Get time period from query parameters
+      const timePeriod = req.query.timePeriod as string || '30d';
       const [
         bookings,
         serviceBookings,
@@ -4350,8 +4352,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dbStorage.getEvents()
       ]);
 
-      // Calculate time-based metrics
+      // Calculate time-based metrics based on selected period
       const now = new Date();
+      let cutoffDate: Date;
+      let monthsBack = 6; // Default for chart data
+      
+      switch (timePeriod) {
+        case '7d':
+          cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          monthsBack = 2;
+          break;
+        case '30d':
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          monthsBack = 3;
+          break;
+        case '90d':
+          cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          monthsBack = 6;
+          break;
+        case '1y':
+          cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          monthsBack = 12;
+          break;
+        case 'all':
+        default:
+          cutoffDate = new Date(0); // Beginning of time
+          monthsBack = 12;
+          break;
+      }
+      
       const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -4362,12 +4391,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ].reduce((sum, amount) => sum + amount, 0);
 
       const recentRevenue = [
-        ...serviceBookings.filter(sb => new Date(sb.createdAt || 0) >= thirtyDaysAgo),
-        ...eventRegistrations.filter(er => new Date(er.createdAt || 0) >= thirtyDaysAgo)
+        ...serviceBookings.filter(sb => new Date(sb.createdAt || 0) >= cutoffDate),
+        ...eventRegistrations.filter(er => new Date(er.createdAt || 0) >= cutoffDate)
       ].reduce((sum, item) => sum + parseFloat(item.totalPrice || '0'), 0);
 
       // Booking trends
-      const monthlyBookings = Array.from({ length: 6 }, (_, i) => {
+      const monthlyBookings = Array.from({ length: monthsBack }, (_, i) => {
         const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
         
