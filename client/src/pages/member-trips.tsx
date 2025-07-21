@@ -1062,7 +1062,7 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
 
                           {/* Special Requests */}
                           {booking.specialRequests && booking.specialRequests.trim() && (
-                            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-5 mb-6 border border-blue-500/20">
+                            <div className="bg-gray-800/50 rounded-xl p-5 mb-6 border border-gray-700/50">
                               <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
                                 <FileText size={18} className="mr-2 text-blue-400" />
                                 Special Requests
