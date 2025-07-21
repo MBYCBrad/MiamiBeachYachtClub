@@ -665,18 +665,7 @@ export default function AdminEventRegistrations() {
                 </>
               )}
 
-              <div className="flex justify-between items-center pt-3 border-t border-gray-700/50 mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/50 hover:from-purple-700 hover:to-indigo-700"
-                  onClick={() => {
-                    window.location.href = `mailto:${selectedRegistration.member?.email}?subject=Event Registration: ${selectedRegistration.event?.title}`;
-                  }}
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Contact Member
-                </Button>
+              <div className="flex justify-end pt-3 border-t border-gray-700/50 mt-4">
                 <Button
                   variant="outline"
                   onClick={() => setViewDialogOpen(false)}
