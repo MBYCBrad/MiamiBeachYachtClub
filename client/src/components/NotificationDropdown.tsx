@@ -152,7 +152,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
         transition={{ duration: 0.2, ease: "easeOut" }}
         className="fixed bottom-20 right-4 left-4 max-w-md mx-auto z-[60] md:right-6 md:left-auto"
       >
-        <Card className="bg-black/95 backdrop-blur-xl border-gray-700/50 shadow-2xl">
+        <Card className="bg-black backdrop-blur-xl border-gray-700/50 shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
             <div className="flex items-center gap-3">
