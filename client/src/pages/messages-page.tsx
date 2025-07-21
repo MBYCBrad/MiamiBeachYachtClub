@@ -103,29 +103,41 @@ export default function MessagesPage() {
     enabled: !!user,
   });
 
-  // Fetch conversations with real-time updates
+  // Fetch conversations with real-time updates - service providers get dedicated admin conversations
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
-    queryKey: ['/api/conversations'],
+    queryKey: user?.role === 'service_provider' ? ['/api/service-provider/conversations'] : ['/api/conversations'],
     enabled: !!user,
     refetchInterval: 3000, // Real-time updates every 3 seconds
   });
 
   // Fetch messages for selected conversation
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
-    queryKey: ['/api/messages', selectedConversation],
+    queryKey: user?.role === 'service_provider' 
+      ? ['/api/service-provider/messages', selectedConversation]
+      : ['/api/messages', selectedConversation],
     enabled: !!selectedConversation,
     refetchInterval: 2000, // Real-time message updates
   });
 
-  // Send message mutation
+  // Send message mutation - service providers use dedicated endpoint to message Simon Librati
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: { conversationId: string; content: string; recipientId?: number }) => {
-      const response = await apiRequest('POST', '/api/messages', messageData);
+      const endpoint = user?.role === 'service_provider' 
+        ? '/api/service-provider/messages' 
+        : '/api/messages';
+      const response = await apiRequest('POST', endpoint, messageData);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/messages', selectedConversation] });
-      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      const conversationKey = user?.role === 'service_provider' 
+        ? ['/api/service-provider/messages', selectedConversation]
+        : ['/api/messages', selectedConversation];
+      const conversationsKey = user?.role === 'service_provider' 
+        ? ['/api/service-provider/conversations']
+        : ['/api/conversations'];
+        
+      queryClient.invalidateQueries({ queryKey: conversationKey });
+      queryClient.invalidateQueries({ queryKey: conversationsKey });
       setNewMessage("");
     },
   });
@@ -304,7 +316,7 @@ export default function MessagesPage() {
                               <Avatar className="h-12 w-12">
                                 <AvatarImage src={conversation.avatar} />
                                 <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                                  {conversation.memberName.charAt(0).toUpperCase()}
+                                  {user?.role === 'service_provider' ? 'SL' : conversation.memberName.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               {conversation.isOnline && (
@@ -314,7 +326,9 @@ export default function MessagesPage() {
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
-                                <h4 className="text-white font-medium truncate">{conversation.memberName}</h4>
+                                <h4 className="text-white font-medium truncate">
+                                  {user?.role === 'service_provider' ? 'Simon Librati - MBYC Admin' : conversation.memberName}
+                                </h4>
                                 <div className="flex items-center space-x-2">
                                   {conversation.unreadCount > 0 && (
                                     <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs px-2 py-1">
@@ -334,7 +348,9 @@ export default function MessagesPage() {
                                 </div>
                               </div>
                               
-                              <p className="text-sm text-gray-400 truncate mt-1">{conversation.lastMessage}</p>
+                              <p className="text-sm text-gray-400 truncate mt-1">
+                                {user?.role === 'service_provider' ? 'Direct line to MBYC Administration' : conversation.lastMessage}
+                              </p>
                               
                               <div className="flex items-center justify-between mt-2">
                                 <Badge 
@@ -345,10 +361,13 @@ export default function MessagesPage() {
                                     'border-gray-500 text-gray-400'
                                   }`}
                                 >
-                                  {conversation.status}
+                                  {user?.role === 'service_provider' ? 'Admin Support' : conversation.status}
                                 </Badge>
-                                {conversation.memberRole && (
+                                {conversation.memberRole && user?.role !== 'service_provider' && (
                                   <span className="text-xs text-gray-500">{conversation.memberRole}</span>
+                                )}
+                                {user?.role === 'service_provider' && (
+                                  <span className="text-xs text-purple-400">Executive Support</span>
                                 )}
                               </div>
                             </div>
@@ -374,17 +393,21 @@ export default function MessagesPage() {
                         <Avatar className="h-12 w-12">
                           <AvatarImage src={selectedConversationData.avatar} />
                           <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                            {selectedConversationData.memberName.charAt(0).toUpperCase()}
+                            {user?.role === 'service_provider' ? 'SL' : selectedConversationData.memberName.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="text-white font-semibold">{selectedConversationData.memberName}</h3>
+                          <h3 className="text-white font-semibold">
+                            {user?.role === 'service_provider' ? 'Simon Librati' : selectedConversationData.memberName}
+                          </h3>
                           <div className="flex items-center space-x-2 mt-1">
                             <Badge variant="outline" className="text-xs bg-green-50/10 text-green-400 border-green-500/30">
                               <div className="h-2 w-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                               Online
                             </Badge>
-                            {selectedConversationData.memberRole && (
+                            {user?.role === 'service_provider' ? (
+                              <span className="text-sm text-purple-400">MBYC Administrator</span>
+                            ) : selectedConversationData.memberRole && (
                               <span className="text-sm text-gray-400">{selectedConversationData.memberRole}</span>
                             )}
                           </div>
@@ -417,7 +440,10 @@ export default function MessagesPage() {
                           <MessageCircle className="h-16 w-16 text-gray-400 mb-4" />
                           <h3 className="text-lg font-medium text-white mb-2">Start the conversation</h3>
                           <p className="text-gray-400 max-w-sm">
-                            Send a message to begin your conversation with {selectedConversationData.memberName}.
+                            {user?.role === 'service_provider' 
+                              ? "Send a message to Simon Librati for administrative support, account questions, or service guidance."
+                              : `Send a message to begin your conversation with ${selectedConversationData.memberName}.`
+                            }
                           </p>
                         </div>
                       ) : (

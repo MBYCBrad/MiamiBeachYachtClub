@@ -3698,6 +3698,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SERVICE PROVIDER-ADMIN MESSAGING ROUTES
+  app.get("/api/service-provider/conversations", requireAuth, requireRole([UserRole.SERVICE_PROVIDER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      // Get or create conversation between service provider and admin (Simon Librati)
+      const conversationId = `provider-admin-${userId}`;
+      
+      // Check if conversation exists, if not create it
+      let conversation = await dbStorage.getConversationById(conversationId);
+      if (!conversation) {
+        conversation = await dbStorage.createConversation({
+          id: conversationId,
+          participant1Id: userId,
+          participant2Id: 60, // Simon Librati admin ID
+          type: 'service_provider_admin',
+          title: `Service Provider Support - ${req.user!.username}`,
+          participants: [userId, 60],
+          lastMessageAt: new Date(),
+          unreadCount: 0,
+          metadata: {
+            serviceProviderId: userId,
+            serviceProviderName: req.user!.username,
+            adminId: 60,
+            adminName: 'Simon Librati'
+          }
+        });
+      }
+      
+      res.json([conversation]);
+    } catch (error: any) {
+      console.error('Error fetching service provider conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/service-provider/messages/:conversationId", requireAuth, requireRole([UserRole.SERVICE_PROVIDER]), async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify this service provider has access to this conversation
+      if (!conversationId.includes(`provider-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const messages = await dbStorage.getMessagesByConversation(conversationId);
+      res.json(messages);
+    } catch (error: any) {
+      console.error('Error fetching service provider messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/service-provider/messages", requireAuth, requireRole([UserRole.SERVICE_PROVIDER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { conversationId, content, messageType = 'text' } = req.body;
+      
+      // Verify this service provider has access to this conversation
+      if (!conversationId.includes(`provider-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const message = await dbStorage.createMessage({
+        senderId: userId,
+        recipientId: 60, // Simon Librati admin ID
+        conversationId,
+        content,
+        messageType,
+        status: 'sent',
+        metadata: {
+          senderRole: 'service_provider',
+          recipientRole: 'admin',
+          senderName: req.user!.username
+        }
+      });
+      
+      // Create real-time notification for Simon Librati (admin)
+      await dbStorage.createNotification({
+        userId: 60, // Simon Librati
+        type: 'service_provider_message',
+        title: 'Service Provider Message',
+        message: `${req.user!.username} sent you a message: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+        priority: 'high',
+        data: {
+          messageId: message.id,
+          conversationId,
+          senderName: req.user!.username,
+          senderId: userId,
+          senderRole: 'service_provider'
+        },
+        actionUrl: `/admin/messages`
+      });
+
+      // Send real-time WebSocket notification to admin
+      if (wss) {
+        const notificationData = {
+          type: 'notification',
+          notification: {
+            id: Date.now(),
+            userId: 60,
+            type: 'new_message',
+            title: 'New Service Provider Message',
+            message: content,
+            priority: 'high',
+            data: {
+              conversationId,
+              senderName: req.user!.username,
+              senderId: userId,
+              messageId: message.id
+            }
+          }
+        };
+        
+        wss.clients.forEach((client: any) => {
+          if (client.readyState === WebSocket.OPEN) {
+            // Send to admin users only
+            if (client.userId === 60 || client.role === 'admin') {
+              client.send(JSON.stringify(notificationData));
+            }
+          }
+        });
+      }
+      
+      res.status(201).json(message);
+    } catch (error: any) {
+      console.error('Error creating service provider message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // MESSAGES ROUTES - Real-time messaging with Twilio integration
   app.get("/api/messages/conversations", requireAuth, async (req, res) => {
     try {

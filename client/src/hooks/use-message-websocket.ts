@@ -42,8 +42,26 @@ export function useMessageWebSocket() {
           if (data.type === 'notification' && data.notification?.type === 'new_message') {
             const notificationData = data.notification;
             
+            // If this is an admin receiving a service provider message
+            if (user.role === 'admin' && notificationData.data?.conversationId && notificationData.data?.senderRole === 'service_provider') {
+              console.log('💬 Admin received new service provider message:', notificationData.data.senderName);
+              
+              // Invalidate conversation and message queries for real-time updates
+              queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+              queryClient.invalidateQueries({ 
+                queryKey: ['/api/messages', notificationData.data.conversationId] 
+              });
+              
+              // Show toast notification to admin about service provider message
+              toast({
+                title: "New Service Provider Message",
+                description: `${notificationData.data.senderName}: ${notificationData.message}`,
+                duration: 5000,
+              });
+            }
+            
             // If this is an admin receiving a member message
-            if (user.role === 'admin' && notificationData.data?.conversationId) {
+            if (user.role === 'admin' && notificationData.data?.conversationId && notificationData.data?.senderRole !== 'service_provider') {
               console.log('💬 Admin received new member message:', notificationData.data.senderName);
               
               // Invalidate conversation and message queries for real-time updates
@@ -56,6 +74,24 @@ export function useMessageWebSocket() {
               toast({
                 title: "New Member Message",
                 description: `${notificationData.data.senderName}: ${notificationData.message}`,
+                duration: 5000,
+              });
+            }
+            
+            // If this is a service provider receiving an admin response
+            if (user.role === 'service_provider' && notificationData.data?.conversationId && notificationData.data?.senderRole === 'admin') {
+              console.log('💬 Service provider received admin response:', notificationData.data.senderName);
+              
+              // Invalidate service provider conversation queries for real-time updates
+              queryClient.invalidateQueries({ queryKey: ['/api/service-provider/conversations'] });
+              queryClient.invalidateQueries({ 
+                queryKey: ['/api/service-provider/messages', notificationData.data.conversationId] 
+              });
+              
+              // Show toast notification to service provider
+              toast({
+                title: "Admin Response",
+                description: `Simon Librati: ${notificationData.message}`,
                 duration: 5000,
               });
             }
