@@ -822,6 +822,53 @@ export default function YachtOwnerDashboard() {
     });
   }, [bookings, bookingFilters]);
 
+  // Real-time messaging hooks for yacht owner - moved to top level
+  const [ownerSelectedConversation, setOwnerSelectedConversation] = useState<string | null>(null);
+  const [ownerNewMessage, setOwnerNewMessage] = useState("");
+  
+  // Fetch yacht owner conversations with admin
+  const { data: ownerConversations = [], isLoading: ownerConversationsLoading } = useQuery({
+    queryKey: ['/api/yacht-owner/conversations'],
+    enabled: !!user,
+    refetchInterval: 3000, // Real-time updates every 3 seconds
+  });
+  
+  // Fetch messages for selected conversation
+  const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery({
+    queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation],
+    enabled: !!ownerSelectedConversation,
+    refetchInterval: 2000, // Real-time message updates
+  });
+  
+  // Send message mutation
+  const ownerSendMessageMutation = useMutation({
+    mutationFn: async (messageData: { conversationId: string; content: string }) => {
+      const response = await apiRequest('POST', '/api/yacht-owner/messages', messageData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation] });
+      queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/conversations'] });
+      setOwnerNewMessage("");
+    },
+  });
+  
+  // Auto-select first conversation when available
+  useEffect(() => {
+    if (ownerConversations.length > 0 && !ownerSelectedConversation) {
+      setOwnerSelectedConversation(ownerConversations[0].id);
+    }
+  }, [ownerConversations, ownerSelectedConversation]);
+  
+  const handleOwnerSendMessage = () => {
+    if (!ownerNewMessage.trim() || !ownerSelectedConversation) return;
+    
+    ownerSendMessageMutation.mutate({
+      conversationId: ownerSelectedConversation,
+      content: ownerNewMessage.trim()
+    });
+  };
+
   // Handle window resize for mobile responsiveness - exact copy from admin dashboard
   useEffect(() => {
     const handleResize = () => {
@@ -3424,52 +3471,6 @@ export default function YachtOwnerDashboard() {
   };
 
   const renderMessages = () => {
-    // Real-time messaging hooks for yacht owner
-    const [ownerSelectedConversation, setOwnerSelectedConversation] = useState<string | null>(null);
-    const [ownerNewMessage, setOwnerNewMessage] = useState("");
-    
-    // Fetch yacht owner conversations with admin
-    const { data: ownerConversations = [], isLoading: ownerConversationsLoading } = useQuery({
-      queryKey: ['/api/yacht-owner/conversations'],
-      enabled: !!user,
-      refetchInterval: 3000, // Real-time updates every 3 seconds
-    });
-    
-    // Fetch messages for selected conversation
-    const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery({
-      queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation],
-      enabled: !!ownerSelectedConversation,
-      refetchInterval: 2000, // Real-time message updates
-    });
-    
-    // Send message mutation
-    const ownerSendMessageMutation = useMutation({
-      mutationFn: async (messageData: { conversationId: string; content: string }) => {
-        const response = await apiRequest('POST', '/api/yacht-owner/messages', messageData);
-        return response.json();
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation] });
-        queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/conversations'] });
-        setOwnerNewMessage("");
-      },
-    });
-    
-    // Auto-select first conversation when available
-    useEffect(() => {
-      if (ownerConversations.length > 0 && !ownerSelectedConversation) {
-        setOwnerSelectedConversation(ownerConversations[0].id);
-      }
-    }, [ownerConversations, ownerSelectedConversation]);
-    
-    const handleOwnerSendMessage = () => {
-      if (!ownerNewMessage.trim() || !ownerSelectedConversation) return;
-      
-      ownerSendMessageMutation.mutate({
-        conversationId: ownerSelectedConversation,
-        content: ownerNewMessage.trim()
-      });
-    };
     
     return (
       <motion.div
