@@ -119,7 +119,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50"
+          className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50"
         >
           {/* Search and Actions */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -129,7 +129,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
+                className="pl-10 bg-black/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
               />
             </div>
             <Button
@@ -170,7 +170,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card 
-                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-900/90 backdrop-blur-sm border-gray-800"
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-purple-500 hover:border-l-purple-600 bg-gray-950/90 backdrop-blur-sm border-gray-800"
                     onClick={() => setSelectedConversation(conversation.id)}
                   >
                     <CardContent className="p-4">
