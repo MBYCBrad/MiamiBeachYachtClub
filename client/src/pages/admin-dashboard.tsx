@@ -83,7 +83,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -3138,6 +3145,13 @@ export default function AdminDashboard() {
   const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
   const [analyticsTimePeriod, setAnalyticsTimePeriod] = useState("30d");
   
+  // State for payment filters
+  const [paymentFilter, setPaymentFilter] = useState({
+    status: 'all',
+    type: 'all',
+    dateRange: '30d'
+  });
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
@@ -3291,6 +3305,53 @@ export default function AdminDashboard() {
   const { data: allPayments = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/payments'],
   });
+
+  // Filter payments based on selected filters
+  const filteredPayments = useMemo(() => {
+    if (!allPayments) return [];
+    
+    return allPayments.filter(payment => {
+      // Filter by status
+      if (paymentFilter.status !== 'all' && payment.status !== paymentFilter.status) {
+        return false;
+      }
+      
+      // Filter by type
+      if (paymentFilter.type !== 'all' && payment.type !== paymentFilter.type) {
+        return false;
+      }
+      
+      // Filter by date range
+      if (paymentFilter.dateRange !== 'all') {
+        const paymentDate = new Date(payment.createdAt);
+        const now = new Date();
+        let cutoffDate: Date;
+        
+        switch (paymentFilter.dateRange) {
+          case '7d':
+            cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case '30d':
+            cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case '90d':
+            cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            return true;
+        }
+        
+        if (paymentDate < cutoffDate) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }, [allPayments, paymentFilter]);
+
+  // Use filtered payments for display (renaming to avoid conflict)
+  const paymentsData = filteredPayments;
 
   const { data: analytics } = useQuery<any>({
     queryKey: ['/api/admin/analytics', analyticsTimePeriod],
@@ -6078,10 +6139,98 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-green-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-gray-900 border-gray-700" align="end">
+              <DropdownMenuLabel className="text-gray-300">Filter Payments</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-gray-700" />
+              
+              <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wide">Status</DropdownMenuLabel>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, status: 'all' }))}
+                className={`${paymentFilter.status === 'all' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                All Status
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, status: 'succeeded' }))}
+                className={`${paymentFilter.status === 'succeeded' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Succeeded
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, status: 'pending' }))}
+                className={`${paymentFilter.status === 'pending' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Pending
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, status: 'confirmed' }))}
+                className={`${paymentFilter.status === 'confirmed' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Confirmed
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wide">Type</DropdownMenuLabel>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, type: 'all' }))}
+                className={`${paymentFilter.type === 'all' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                All Types
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, type: 'Service Booking' }))}
+                className={`${paymentFilter.type === 'Service Booking' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Service Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, type: 'Event Registration' }))}
+                className={`${paymentFilter.type === 'Event Registration' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Event Registrations
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, type: 'Yacht Booking' }))}
+                className={`${paymentFilter.type === 'Yacht Booking' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Yacht Bookings
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-gray-700" />
+              <DropdownMenuLabel className="text-xs text-gray-500 uppercase tracking-wide">Date Range</DropdownMenuLabel>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, dateRange: '7d' }))}
+                className={`${paymentFilter.dateRange === '7d' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Last 7 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, dateRange: '30d' }))}
+                className={`${paymentFilter.dateRange === '30d' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Last 30 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, dateRange: '90d' }))}
+                className={`${paymentFilter.dateRange === '90d' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                Last 90 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setPaymentFilter(prev => ({ ...prev, dateRange: 'all' }))}
+                className={`${paymentFilter.dateRange === 'all' ? 'bg-purple-600/20 text-purple-400' : 'text-gray-300'} hover:bg-gray-800`}
+              >
+                All Time
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 
@@ -6101,7 +6250,7 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
+            ${paymentsData?.reduce((sum: number, p: any) => sum + p.amount, 0).toFixed(2) || '0.00'}
           </p>
           <p className="text-green-400 text-sm mt-1">All-time earnings</p>
         </motion.div>
@@ -6119,7 +6268,7 @@ export default function AdminDashboard() {
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Live</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Transactions</h3>
-          <p className="text-2xl font-bold text-white">{payments?.length || 0}</p>
+          <p className="text-2xl font-bold text-white">{paymentsData?.length || 0}</p>
           <p className="text-blue-400 text-sm mt-1">Total payments</p>
         </motion.div>
 
@@ -6137,7 +6286,7 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Platform Revenue</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
+            ${paymentsData?.reduce((sum: number, p: any) => sum + p.adminRevenue, 0).toFixed(2) || '0.00'}
           </p>
           <p className="text-purple-400 text-sm mt-1">Platform fees</p>
         </motion.div>
@@ -6156,7 +6305,7 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Avg Transaction</h3>
           <p className="text-2xl font-bold text-white">
-            ${payments?.length > 0 ? (payments.reduce((sum: number, p: any) => sum + (p.amount / 100), 0) / payments.length).toFixed(2) : '0.00'}
+            ${paymentsData?.length > 0 ? (paymentsData.reduce((sum: number, p: any) => sum + p.amount, 0) / paymentsData.length).toFixed(2) : '0.00'}
           </p>
           <p className="text-orange-400 text-sm mt-1">Per transaction</p>
         </motion.div>
@@ -6187,7 +6336,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {payments?.map((payment: any, index: number) => (
+                {paymentsData?.map((payment: any, index: number) => (
                   <motion.tr
                     key={payment.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -6319,7 +6468,7 @@ export default function AdminDashboard() {
               </tbody>
             </table>
             
-            {(!payments || payments.length === 0) && (
+            {(!paymentsData || paymentsData.length === 0) && (
               <div className="text-center py-12">
                 <CreditCard className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-400 text-lg">No transactions found</p>
