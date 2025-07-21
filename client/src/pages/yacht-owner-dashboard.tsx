@@ -592,12 +592,6 @@ export default function YachtOwnerDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   
-  // Clear modal state when component mounts to prevent blocking
-  useEffect(() => {
-    setShowBookingModal(false);
-    setSelectedBooking(null);
-  }, []);
-  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   
@@ -844,8 +838,6 @@ export default function YachtOwnerDashboard() {
 
   // Auto-collapse sidebar when navigating on mobile - exact copy from admin dashboard
   const handleSectionChange = (sectionId: string) => {
-    console.log('Navigation clicked:', sectionId);
-    
     if (sectionId === 'logout') {
       logoutMutation.mutate();
       return;
@@ -4317,7 +4309,7 @@ export default function YachtOwnerDashboard() {
             opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed left-0 top-0 w-80 h-full bg-black border-r border-gray-700/50 backdrop-blur-xl z-[1000] flex flex-col"
+          className="fixed left-0 top-0 w-80 h-full bg-black border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
         >
           {/* Close button (X) when sidebar is open */}
           <AnimatePresence>
@@ -4575,8 +4567,7 @@ export default function YachtOwnerDashboard() {
         </motion.div>
       </div>
 
-      {/* Booking Detail Modal - TEMPORARILY DISABLED */}
-      {false && (
+      {/* Booking Detail Modal */}
       <AnimatePresence>
         {showBookingModal && selectedBooking && (
           <motion.div
@@ -4722,7 +4713,6 @@ export default function YachtOwnerDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
-      )}
     </motion.div>
   );
 }
