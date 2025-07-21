@@ -66,7 +66,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -570,12 +570,11 @@ export default function YachtOwnerDashboard() {
     location: "all",
     priceRange: "all"
   });
+
   const [bookingFilters, setBookingFilters] = useState({
-    status: 'all',
-    timeRange: 'all',
-    membershipTier: 'all',
-    yachtSize: 'all',
-    sortBy: 'date'
+    status: "all",
+    timeRange: "all",
+    yacht: "all"
   });
   
   // Maintenance page state
@@ -618,6 +617,14 @@ export default function YachtOwnerDashboard() {
     enabled: !!user && user.role === 'yacht_owner'
   });
 
+  const { data: bookings = [] } = useQuery<any[]>({
+    queryKey: ['/api/yacht-owner/bookings'],
+  });
+
+  const { data: revenueData = [] } = useQuery<any[]>({
+    queryKey: ['/api/yacht-owner/revenue'],
+  });
+
   // Filter yachts based on current filter settings
   const filteredYachts = useMemo(() => {
     if (!yachts) return [];
@@ -646,6 +653,8 @@ export default function YachtOwnerDashboard() {
       return true;
     });
   }, [yachts, yachtFilters]);
+
+
 
   // Maintenance records data fetching
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
@@ -737,13 +746,36 @@ export default function YachtOwnerDashboard() {
     addMaintenanceRecordMutation.mutate(data);
   };
 
-  const { data: bookings = [] } = useQuery<any[]>({
-    queryKey: ['/api/yacht-owner/bookings'],
-  });
-
-  const { data: revenueData = [] } = useQuery<any[]>({
-    queryKey: ['/api/yacht-owner/revenue'],
-  });
+  // Filter bookings based on current filter settings
+  const filteredBookings = useMemo(() => {
+    if (!bookings) return [];
+    
+    return bookings.filter((booking: any) => {
+      // Filter by status
+      if (bookingFilters.status !== 'all') {
+        if (booking.status !== bookingFilters.status) return false;
+      }
+      
+      // Filter by time range
+      if (bookingFilters.timeRange !== 'all') {
+        const bookingDate = new Date(booking.startTime);
+        const now = new Date();
+        const daysDiff = Math.floor((now.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (bookingFilters.timeRange === 'today' && daysDiff !== 0) return false;
+        if (bookingFilters.timeRange === 'week' && daysDiff > 7) return false;
+        if (bookingFilters.timeRange === 'month' && daysDiff > 30) return false;
+        if (bookingFilters.timeRange === 'upcoming' && daysDiff >= 0) return false;
+      }
+      
+      // Filter by yacht
+      if (bookingFilters.yacht !== 'all') {
+        if (booking.yachtId !== parseInt(bookingFilters.yacht)) return false;
+      }
+      
+      return true;
+    });
+  }, [bookings, bookingFilters]);
 
   // Handle window resize for mobile responsiveness - exact copy from admin dashboard
   useEffect(() => {
@@ -1526,10 +1558,83 @@ export default function YachtOwnerDashboard() {
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Overview
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter Bookings
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter Bookings
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 bg-gray-950 border-gray-700 text-white">
+              <div className="p-4 space-y-4">
+                <div>
+                  <DropdownMenuLabel className="text-white font-medium">Status</DropdownMenuLabel>
+                  <Select value={bookingFilters.status} onValueChange={(value) => setBookingFilters({...bookingFilters, status: value})}>
+                    <SelectTrigger className="w-full bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-950 border-gray-700">
+                      <SelectItem value="all" className="text-white hover:bg-gray-800">All Statuses</SelectItem>
+                      <SelectItem value="confirmed" className="text-white hover:bg-gray-800">Confirmed</SelectItem>
+                      <SelectItem value="pending" className="text-white hover:bg-gray-800">Pending</SelectItem>
+                      <SelectItem value="completed" className="text-white hover:bg-gray-800">Completed</SelectItem>
+                      <SelectItem value="cancelled" className="text-white hover:bg-gray-800">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <DropdownMenuLabel className="text-white font-medium">Time Range</DropdownMenuLabel>
+                  <Select value={bookingFilters.timeRange} onValueChange={(value) => setBookingFilters({...bookingFilters, timeRange: value})}>
+                    <SelectTrigger className="w-full bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-950 border-gray-700">
+                      <SelectItem value="all" className="text-white hover:bg-gray-800">All Time</SelectItem>
+                      <SelectItem value="today" className="text-white hover:bg-gray-800">Today</SelectItem>
+                      <SelectItem value="week" className="text-white hover:bg-gray-800">This Week</SelectItem>
+                      <SelectItem value="month" className="text-white hover:bg-gray-800">This Month</SelectItem>
+                      <SelectItem value="upcoming" className="text-white hover:bg-gray-800">Upcoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <DropdownMenuLabel className="text-white font-medium">Yacht</DropdownMenuLabel>
+                  <Select value={bookingFilters.yacht} onValueChange={(value) => setBookingFilters({...bookingFilters, yacht: value})}>
+                    <SelectTrigger className="w-full bg-gray-800 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-950 border-gray-700">
+                      <SelectItem value="all" className="text-white hover:bg-gray-800">All Yachts</SelectItem>
+                      {yachts?.map((yacht: any) => (
+                        <SelectItem key={yacht.id} value={yacht.id.toString()} className="text-white hover:bg-gray-800">
+                          {yacht.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <DropdownMenuSeparator className="bg-gray-700" />
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setBookingFilters({
+                      status: "all",
+                      timeRange: "all",
+                      yacht: "all"
+                    });
+                  }}
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 
@@ -1537,7 +1642,7 @@ export default function YachtOwnerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
           title="Total Bookings"
-          value={bookings?.length.toString() || '0'}
+          value={filteredBookings?.length.toString() || '0'}
           change={null}
           icon={Anchor}
           gradient="from-purple-600 to-indigo-600"
@@ -1545,7 +1650,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Active Bookings"
-          value={bookings?.filter((b: any) => b.status === 'confirmed')?.length.toString() || '0'}
+          value={filteredBookings?.filter((b: any) => b.status === 'confirmed')?.length.toString() || '0'}
           change={null}
           icon={Activity}
           gradient="from-purple-600 to-indigo-600"
@@ -1553,7 +1658,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Pending Review"
-          value={bookings?.filter((b: any) => b.status === 'pending')?.length.toString() || '0'}
+          value={filteredBookings?.filter((b: any) => b.status === 'pending')?.length.toString() || '0'}
           change={null}
           icon={Clock}
           gradient="from-purple-600 to-indigo-600"
@@ -1590,15 +1695,39 @@ export default function YachtOwnerDashboard() {
                 ))}
               </div>
             </div>
-          ) : bookings.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-              <div className="text-gray-400 text-lg mb-4">No bookings yet</div>
-              <div className="text-gray-500 text-sm">Your yacht bookings will appear here once members make reservations</div>
-            </div>
+          ) : filteredBookings.length === 0 ? (
+            bookings && bookings.length > 0 ? (
+              // No results after filtering
+              <div className="text-center py-12">
+                <Filter className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <div className="text-gray-400 text-lg mb-4">No bookings match your filters</div>
+                <div className="text-gray-500 text-sm mb-4">Try adjusting your filter criteria to see more results</div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => {
+                    setBookingFilters({
+                      status: "all",
+                      timeRange: "all",
+                      yacht: "all"
+                    });
+                  }}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Clear All Filters
+                </Button>
+              </div>
+            ) : (
+              // Empty state - no bookings at all
+              <div className="text-center py-12">
+                <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <div className="text-gray-400 text-lg mb-4">No bookings yet</div>
+                <div className="text-gray-500 text-sm">Your yacht bookings will appear here once members make reservations</div>
+              </div>
+            )
           ) : (
             <div className="space-y-4">
-              {bookings.map((booking: any, index: number) => (
+              {filteredBookings.map((booking: any, index: number) => (
                 <motion.div
                   key={booking.id}
                   initial={{ opacity: 0, y: 20 }}
