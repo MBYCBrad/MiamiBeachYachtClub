@@ -27,7 +27,6 @@ import {
   Wallet,
   Activity,
   Bell,
-  Search,
   Filter,
   MoreVertical,
   MapPin,
@@ -3109,7 +3108,6 @@ function DeleteEventDialog({ event }: { event: any }) {
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
-  const [searchTerm, setSearchTerm] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -6896,18 +6894,7 @@ export default function AdminDashboard() {
             </motion.div>
           </div>
 
-          {/* Search */}
-          <div className="p-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-900/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
-              />
-            </div>
-          </div>
+
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-6">
