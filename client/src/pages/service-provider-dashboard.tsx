@@ -1482,8 +1482,8 @@ export default function ServiceProviderDashboard() {
                     <p className="text-gray-400 text-sm">Total Revenue</p>
                     <p className="text-2xl font-bold text-white mt-1">${totalRevenue.toFixed(2)}</p>
                     <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                      <p className="text-green-400 text-sm">+15.3%</p>
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <p className="text-purple-400 text-sm">+15.3%</p>
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -1506,8 +1506,8 @@ export default function ServiceProviderDashboard() {
                     <p className="text-gray-400 text-sm">Avg Booking Value</p>
                     <p className="text-2xl font-bold text-white mt-1">${avgBookingValue.toFixed(2)}</p>
                     <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
-                      <p className="text-blue-400 text-sm">+8.7%</p>
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <p className="text-purple-400 text-sm">+8.7%</p>
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
