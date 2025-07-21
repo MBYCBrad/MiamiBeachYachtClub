@@ -692,8 +692,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           setSelectedServiceForDetails(null);
           setSelectedService(service);
         }}
-        isFavorite={selectedServiceForDetails ? likedItems.has(selectedServiceForDetails.id) : false}
-        onToggleFavorite={(serviceId) => toggleLike(serviceId)}
+        isFavorite={selectedServiceForDetails ? isServiceFavorite(selectedServiceForDetails.id) : false}
+        onToggleFavorite={(serviceId) => toggleServiceFavorite({ stopPropagation: () => {} } as React.MouseEvent, serviceId)}
       />
 
       {/* Event Booking Modal */}
@@ -712,8 +712,8 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
           setSelectedEventForDetails(null);
           setSelectedEvent(event);
         }}
-        isFavorite={selectedEventForDetails ? likedItems.has(selectedEventForDetails.id) : false}
-        onToggleFavorite={(eventId) => toggleLike(eventId)}
+        isFavorite={selectedEventForDetails ? isEventFavorite(selectedEventForDetails.id) : false}
+        onToggleFavorite={(eventId) => toggleEventFavorite({ stopPropagation: () => {} } as React.MouseEvent, eventId)}
       />
     </div>
   );
