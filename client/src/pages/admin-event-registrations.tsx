@@ -21,7 +21,8 @@ import {
   UserPlus,
   Ticket,
   Sparkles,
-  Star
+  Star,
+  Mail
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -505,15 +506,15 @@ export default function AdminEventRegistrations() {
                   <div>
                     <Label className="text-sm text-gray-400">Registration Date</Label>
                     <p className="text-white font-medium">
-                      {selectedRegistration.registrationDate ? 
-                        new Date(selectedRegistration.registrationDate).toLocaleDateString() : 
+                      {selectedRegistration.createdAt ? 
+                        new Date(selectedRegistration.createdAt).toLocaleDateString() : 
                         'N/A'
                       }
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-400">Tickets</Label>
-                    <p className="text-white font-medium">{selectedRegistration.tickets || 1}</p>
+                    <p className="text-white font-medium">{selectedRegistration.guestCount || 1}</p>
                   </div>
                 </div>
               </div>
@@ -542,7 +543,7 @@ export default function AdminEventRegistrations() {
                   <div>
                     <Label className="text-sm text-gray-400">Membership Type</Label>
                     <p className="text-white font-medium capitalize">
-                      {selectedRegistration.member?.membershipType || 'N/A'}
+                      {selectedRegistration.member?.membershipTier || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -624,61 +625,64 @@ export default function AdminEventRegistrations() {
                   <div>
                     <Label className="text-sm text-gray-400">Total Amount</Label>
                     <p className="text-white font-medium">
-                      ${((selectedRegistration.event?.price || 0) * (selectedRegistration.tickets || 1)).toFixed(2)}
+                      ${selectedRegistration.totalPrice || '0.00'}
                     </p>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-400">Payment Status</Label>
                     <Badge className={`${
-                      selectedRegistration.paymentStatus === 'completed' ? 
+                      selectedRegistration.status === 'confirmed' ? 
                         'bg-green-500/20 text-green-400 border-green-500/30' :
-                      selectedRegistration.paymentStatus === 'pending' ?
+                      selectedRegistration.status === 'pending' ?
                         'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                         'bg-gray-500/20 text-gray-400 border-gray-500/30'
                     }`}>
-                      {selectedRegistration.paymentStatus || 'Unknown'}
+                      {selectedRegistration.status === 'confirmed' ? 'Paid' : 
+                       selectedRegistration.status === 'pending' ? 'Pending' : 'Unknown'}
                     </Badge>
                   </div>
                   <div>
                     <Label className="text-sm text-gray-400">Payment Method</Label>
                     <p className="text-white font-medium">
-                      {selectedRegistration.paymentMethod || 'N/A'}
+                      {selectedRegistration.status === 'confirmed' ? 'Credit Card' : 'N/A'}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Special Requests */}
-              {selectedRegistration.specialRequests && (
+              {selectedRegistration.notes && (
                 <>
                   <Separator className="bg-gray-700/50" />
                   <div>
                     <h3 className="text-base font-semibold text-white mb-2">Special Requests</h3>
                     <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
                       <p className="text-white text-sm leading-relaxed">
-                        {selectedRegistration.specialRequests}
+                        {selectedRegistration.notes}
                       </p>
                     </div>
                   </div>
                 </>
               )}
 
-              <div className="flex justify-end space-x-3 pt-3 border-t border-gray-700/50 mt-4">
+              <div className="flex justify-between items-center pt-3 border-t border-gray-700/50 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/50 hover:from-purple-700 hover:to-indigo-700"
+                  onClick={() => {
+                    window.location.href = `mailto:${selectedRegistration.member?.email}?subject=Event Registration: ${selectedRegistration.event?.title}`;
+                  }}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Contact Member
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => setViewDialogOpen(false)}
                   className="border-gray-600 text-gray-300 hover:bg-gray-700"
                 >
                   Close
-                </Button>
-                <Button
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                  onClick={() => {
-                    // Contact member functionality could be added here
-                    setViewDialogOpen(false);
-                  }}
-                >
-                  Contact Member
                 </Button>
               </div>
             </div>
