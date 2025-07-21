@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -582,6 +582,9 @@ export default function YachtOwnerDashboard() {
   const [selectedMaintenanceYacht, setSelectedMaintenanceYacht] = useState<number | null>(null);
   const [activeMaintenanceTab, setActiveMaintenanceTab] = useState('overview');
   
+  // Fleet filter dropdown state
+  const [showFleetFilter, setShowFleetFilter] = useState(false);
+  
   // Booking detail modal state
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -614,6 +617,35 @@ export default function YachtOwnerDashboard() {
     queryKey: ['/api/yacht-owner/yachts'],
     enabled: !!user && user.role === 'yacht_owner'
   });
+
+  // Filter yachts based on current filter settings
+  const filteredYachts = useMemo(() => {
+    if (!yachts) return [];
+    
+    return yachts.filter((yacht: any) => {
+      // Filter by availability
+      if (yachtFilters.availability !== 'all') {
+        const isAvailable = yacht.isAvailable;
+        if (yachtFilters.availability === 'available' && !isAvailable) return false;
+        if (yachtFilters.availability === 'unavailable' && isAvailable) return false;
+      }
+      
+      // Filter by size
+      if (yachtFilters.size !== 'all') {
+        const size = parseInt(yacht.size) || 0;
+        if (yachtFilters.size === 'small' && size >= 50) return false;
+        if (yachtFilters.size === 'medium' && (size < 50 || size > 80)) return false;
+        if (yachtFilters.size === 'large' && size <= 80) return false;
+      }
+      
+      // Filter by location
+      if (yachtFilters.location !== 'all') {
+        if (yacht.location !== yachtFilters.location) return false;
+      }
+      
+      return true;
+    });
+  }, [yachts, yachtFilters]);
 
   // Maintenance records data fetching
   const { data: maintenanceRecords = [] } = useQuery<any[]>({
@@ -1200,10 +1232,99 @@ export default function YachtOwnerDashboard() {
           className="flex items-center space-x-4"
         >
           <AddYachtDialog />
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <DropdownMenu open={showFleetFilter} onOpenChange={setShowFleetFilter}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              className="w-80 bg-gray-950 border-gray-700 text-white p-4"
+              align="end"
+            >
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">Availability Status</label>
+                  <Select 
+                    value={yachtFilters.availability} 
+                    onValueChange={(value) => setYachtFilters(prev => ({ ...prev, availability: value }))}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-600">
+                      <SelectItem value="all">All Yachts</SelectItem>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="unavailable">Unavailable</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">Yacht Size</label>
+                  <Select 
+                    value={yachtFilters.size} 
+                    onValueChange={(value) => setYachtFilters(prev => ({ ...prev, size: value }))}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-600">
+                      <SelectItem value="all">All Sizes</SelectItem>
+                      <SelectItem value="small">Small (Under 50ft)</SelectItem>
+                      <SelectItem value="medium">Medium (50-80ft)</SelectItem>
+                      <SelectItem value="large">Large (Over 80ft)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-300 mb-2 block">Location</label>
+                  <Select 
+                    value={yachtFilters.location} 
+                    onValueChange={(value) => setYachtFilters(prev => ({ ...prev, location: value }))}
+                  >
+                    <SelectTrigger className="bg-gray-900 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-600">
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="Miami Marina">Miami Marina</SelectItem>
+                      <SelectItem value="Port of Miami">Port of Miami</SelectItem>
+                      <SelectItem value="Bayfront Park">Bayfront Park</SelectItem>
+                      <SelectItem value="Star Island">Star Island</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex justify-between pt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setYachtFilters({
+                        availability: "all",
+                        size: "all", 
+                        location: "all",
+                        priceRange: "all"
+                      });
+                    }}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Clear Filters
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={() => setShowFleetFilter(false)}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </motion.div>
       </div>
 
@@ -1211,7 +1332,7 @@ export default function YachtOwnerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
           title="Total Yachts"
-          value={(stats?.totalYachts || 0).toString()}
+          value={filteredYachts?.length?.toString() || (stats?.totalYachts || 0).toString()}
           change={null}
           icon={Anchor}
           gradient="from-purple-600 to-indigo-600"
@@ -1219,7 +1340,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Available Now"
-          value={(yachts?.filter((y: any) => y.isAvailable)?.length || 0).toString()}
+          value={(filteredYachts?.filter((y: any) => y.isAvailable)?.length || 0).toString()}
           change={null}
           icon={Activity}
           gradient="from-purple-600 to-indigo-600"
@@ -1261,9 +1382,9 @@ export default function YachtOwnerDashboard() {
               </CardContent>
             </Card>
           ))
-        ) : yachts && yachts.length > 0 ? (
-          // Real yachts owned by this user
-          (yachts || []).map((yacht: any, index: number) => (
+        ) : filteredYachts && filteredYachts.length > 0 ? (
+          // Real yachts owned by this user (filtered)
+          filteredYachts.map((yacht: any, index: number) => (
             <motion.div
               key={yacht.id}
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -1327,6 +1448,28 @@ export default function YachtOwnerDashboard() {
               </Card>
             </motion.div>
           ))
+        ) : yachts && yachts.length > 0 ? (
+          // No results after filtering
+          <div className="col-span-full text-center py-12">
+            <Filter className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <div className="text-gray-400 text-lg mb-4">No yachts match your filters</div>
+            <div className="text-gray-500 text-sm mb-4">Try adjusting your filter criteria to see more results</div>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                setYachtFilters({
+                  availability: "all",
+                  size: "all", 
+                  location: "all",
+                  priceRange: "all"
+                });
+              }}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Clear All Filters
+            </Button>
+          </div>
         ) : (
           // Empty state - no yachts owned
           <div className="col-span-full text-center py-12">
