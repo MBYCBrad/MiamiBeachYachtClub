@@ -154,8 +154,10 @@ export default function MessagesPage() {
 
   // Filter conversations based on search and status
   const filteredConversations = conversations.filter(conv => {
-    const matchesSearch = conv.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+    const memberName = conv.memberName || '';
+    const lastMessage = conv.lastMessage || '';
+    const matchesSearch = memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || conv.status === filterStatus;
     return matchesSearch && matchesStatus;
   });

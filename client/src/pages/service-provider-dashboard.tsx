@@ -1530,8 +1530,8 @@ export default function ServiceProviderDashboard() {
                     <p className="text-gray-400 text-sm">Client Satisfaction</p>
                     <p className="text-2xl font-bold text-white mt-1">{stats?.avgRating || '4.8'}/5</p>
                     <div className="flex items-center mt-2">
-                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                      <p className="text-yellow-400 text-sm">Excellent</p>
+                      <Star className="h-4 w-4 text-purple-400 mr-1" />
+                      <p className="text-purple-400 text-sm">Excellent</p>
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -1798,7 +1798,7 @@ export default function ServiceProviderDashboard() {
                 <div>
                   <p className="text-gray-400 text-sm">Monthly Revenue</p>
                   <p className="text-2xl font-bold text-white mt-1">${stats?.monthlyRevenue || '0'}</p>
-                  <p className="text-green-400 text-sm mt-2">+12% from last month</p>
+                  <p className="text-purple-400 text-sm mt-2">+12% from last month</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-white" />
@@ -1830,7 +1830,7 @@ export default function ServiceProviderDashboard() {
                   <p className="text-2xl font-bold text-white mt-1">{stats?.avgRating || '4.8'}</p>
                   <div className="flex items-center mt-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                      <Star key={i} className="h-3 w-3 text-purple-400 fill-current" />
                     ))}
                   </div>
                 </div>
@@ -1847,7 +1847,7 @@ export default function ServiceProviderDashboard() {
                 <div>
                   <p className="text-gray-400 text-sm">Active Clients</p>
                   <p className="text-2xl font-bold text-white mt-1">{stats?.activeClients || '0'}</p>
-                  <p className="text-blue-400 text-sm mt-2">Unique members</p>
+                  <p className="text-purple-400 text-sm mt-2">Unique members</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <Users className="h-6 w-6 text-white" />
@@ -1973,7 +1973,7 @@ export default function ServiceProviderDashboard() {
                 onClick={testStripeConnection}
                 disabled={isTestingStripe}
                 variant="outline"
-                className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
+                className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white hover:border-transparent flex-1"
               >
                 {isTestingStripe ? (
                   <>
