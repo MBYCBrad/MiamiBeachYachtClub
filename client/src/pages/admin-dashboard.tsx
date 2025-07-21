@@ -553,6 +553,111 @@ function ViewBookingDialog({ booking }: { booking: any }) {
   );
 }
 
+// Service Booking Dialog Component
+function ViewServiceBookingDialog({ booking }: { booking: any }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-gray-400 hover:text-white transition-all"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-black border-purple-600/50 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-white mb-2">
+            Service Booking Details
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Member Information */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block">Member Information</Label>
+            <div className="space-y-2">
+              <p><span className="text-gray-400">Name:</span> <span className="text-white font-medium">{booking.member?.name}</span></p>
+              <p><span className="text-gray-400">Email:</span> <span className="text-cyan-400">{booking.member?.email}</span></p>
+              <p><span className="text-gray-400">Membership:</span> 
+                <span className="ml-2 px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full">
+                  {booking.member?.membershipTier}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Service Information */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block">Service Details</Label>
+            <div className="space-y-2">
+              <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{booking.service?.name}</span></p>
+              <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{booking.service?.category}</span></p>
+              <p><span className="text-gray-400">Price:</span> <span className="text-green-400 font-bold">${booking.service?.price || 0}</span></p>
+              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{booking.service?.duration || 'N/A'}</span></p>
+            </div>
+          </div>
+
+          {/* Booking Schedule */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block">Booking Schedule</Label>
+            <div className="space-y-2">
+              <p><span className="text-gray-400">Date:</span> <span className="text-white font-medium">
+                {booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : 'Not specified'}
+              </span></p>
+              <p><span className="text-gray-400">Status:</span> 
+                <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                  booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                  booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                  booking.status === 'completed' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                  booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                  'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                }`}>
+                  {booking.status}
+                </span>
+              </p>
+              <p><span className="text-gray-400">Total Price:</span> <span className="text-green-400 font-bold">${booking.totalPrice || 0}</span></p>
+            </div>
+          </div>
+
+          {/* Service Provider Information */}
+          <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block">Service Provider</Label>
+            <div className="space-y-2">
+              <p><span className="text-gray-400">Provider:</span> <span className="text-white font-medium">{booking.service?.provider || 'MBYC Staff'}</span></p>
+              <p><span className="text-gray-400">Provider ID:</span> <span className="text-gray-400">{booking.service?.providerId || 'Internal'}</span></p>
+              <p><span className="text-gray-400">Contact:</span> <span className="text-cyan-400">{booking.service?.contact || 'Through MBYC Admin'}</span></p>
+            </div>
+          </div>
+
+          {/* Special Requests */}
+          {booking.specialRequests && (
+            <div className="col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+              <Label className="text-gray-300 font-medium mb-3 block">Special Requests</Label>
+              <p className="text-white bg-gray-800/50 p-3 rounded-lg">{booking.specialRequests}</p>
+            </div>
+          )}
+
+          {/* Booking Timeline */}
+          <div className="col-span-2 p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
+            <Label className="text-gray-300 font-medium mb-3 block">Booking Timeline</Label>
+            <div className="space-y-2">
+              <p><span className="text-gray-400">Created:</span> <span className="text-white">
+                {booking.createdAt ? new Date(booking.createdAt).toLocaleString() : 'Not available'}
+              </span></p>
+              <p><span className="text-gray-400">Updated:</span> <span className="text-white">
+                {booking.updatedAt ? new Date(booking.updatedAt).toLocaleString() : 'Not available'}
+              </span></p>
+              <p><span className="text-gray-400">Service ID:</span> <span className="text-gray-400">{booking.id}</span></p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Quick Action Button Component for Real-Time MBYC Actions
 const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
   booking: any;
@@ -589,9 +694,16 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
     }
   };
 
-  // For view action, return the dialog component directly
+  // For view action, return the appropriate dialog component
   if (action === 'view') {
-    return <ViewBookingDialog booking={booking} />;
+    // Check if this is a service booking or yacht booking
+    const isServiceBooking = booking.service || booking.serviceId;
+    
+    if (isServiceBooking) {
+      return <ViewServiceBookingDialog booking={booking} />;
+    } else {
+      return <ViewBookingDialog booking={booking} />;
+    }
   }
 
   return (
