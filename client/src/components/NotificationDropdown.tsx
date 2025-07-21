@@ -154,7 +154,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
       >
         <Card className="bg-black border-gray-700/50 shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
+          <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-black">
             <div className="flex items-center gap-3">
               <Bell className="h-5 w-5 text-purple-400" />
               <div>
@@ -183,7 +183,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 p-4 border-b border-gray-700/50">
+          <div className="flex gap-2 p-4 border-b border-gray-700/50 bg-black">
             {['all', 'unread', 'important'].map((filterType) => (
               <Button
                 key={filterType}
@@ -201,7 +201,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto bg-black">
             {isLoading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto"></div>
@@ -277,7 +277,7 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-4 border-t border-gray-700/50">
+            <div className="p-4 border-t border-gray-700/50 bg-black">
               <Button
                 variant="ghost"
                 size="sm"
