@@ -3727,7 +3727,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <Card className="bg-black border-gray-700/50">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <MapPin className="h-5 w-5 mr-2 text-purple-500" />
@@ -3857,7 +3857,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="bg-black border-gray-700/50">
+        <Card className="bg-transparent border-transparent">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Mail className="h-5 w-5 mr-2 text-purple-500" />
@@ -3874,7 +3874,7 @@ export default function AdminDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-6 rounded-xl transition-all duration-300 border border-gray-700/50"
+                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -3912,7 +3912,7 @@ export default function AdminDashboard() {
 
                         <div className="mb-4">
                           <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">Message</p>
-                          <p className="text-gray-300 p-4 rounded-lg border border-gray-700/50">
+                          <p className="text-gray-300 bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
                             {message.message}
                           </p>
                         </div>
