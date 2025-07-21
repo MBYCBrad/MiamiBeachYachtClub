@@ -600,10 +600,9 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                               )}
                               
                               <Button
-                                variant="outline"
                                 size="sm"
                                 onClick={() => generatePDFReceipt(booking)}
-                                className="border-green-600 text-green-400 hover:bg-gradient-to-r hover:from-green-600/20 hover:to-emerald-600/20"
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Receipt
@@ -612,9 +611,8 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
-                                    variant="outline"
                                     size="sm"
-                                    className="border-blue-600 text-blue-400 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-indigo-600/20"
+                                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                                   >
                                     <Eye className="w-4 h-4 mr-2" />
                                     View Details
@@ -752,7 +750,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                 className={`${
                                   booking.status === 'completed' 
                                     ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
-                                    : 'bg-gradient-to-r from-indigo-600 to-indigo-600 hover:from-indigo-700 hover:to-indigo-700'
+                                    : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700'
                                 } text-white`}
                                 disabled={booking.status === 'completed'}
                               >
