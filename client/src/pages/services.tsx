@@ -46,11 +46,8 @@ export default function ServicesPage() {
   // Add favorite mutation
   const addFavoriteMutation = useMutation({
     mutationFn: async (serviceId: number) => {
-      console.log('Adding favorite for serviceId:', serviceId);
       const response = await apiRequest('POST', '/api/favorites', { serviceId });
-      const result = await response.json();
-      console.log('Add favorite response:', result);
-      return result;
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -59,8 +56,7 @@ export default function ServicesPage() {
         description: "Service has been added to your favorites",
       });
     },
-    onError: (error) => {
-      console.error('Add favorite error:', error);
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to add service to favorites",
@@ -72,11 +68,8 @@ export default function ServicesPage() {
   // Remove favorite mutation
   const removeFavoriteMutation = useMutation({
     mutationFn: async (serviceId: number) => {
-      console.log('Removing favorite for serviceId:', serviceId);
       const response = await apiRequest('DELETE', `/api/favorites?serviceId=${serviceId}`);
-      const result = await response.json();
-      console.log('Remove favorite response:', result);
-      return result;
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
@@ -85,8 +78,7 @@ export default function ServicesPage() {
         description: "Service has been removed from your favorites",
       });
     },
-    onError: (error) => {
-      console.error('Remove favorite error:', error);
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to remove service from favorites",
@@ -138,8 +130,6 @@ export default function ServicesPage() {
 
   const toggleFavorite = (e: React.MouseEvent, serviceId: number) => {
     e.stopPropagation();
-    console.log('Service heart clicked:', serviceId, user);
-    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -150,7 +140,6 @@ export default function ServicesPage() {
     }
 
     const isFavorite = userFavorites.some((fav: any) => fav.serviceId === serviceId);
-    console.log('Service is favorite?', isFavorite);
     
     if (isFavorite) {
       removeFavoriteMutation.mutate(serviceId);
@@ -223,30 +212,9 @@ export default function ServicesPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 border border-white/10 relative">
-                  {/* Heart Button - Positioned absolutely to the card, not the image container */}
-                  <motion.button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Service heart button clicked - TEST', service.id);
-                      toggleFavorite(e, service.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-50"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Heart 
-                      size={16}
-                      className={`transition-colors ${
-                        userFavorites.some((fav: any) => fav.serviceId === service.id)
-                          ? 'text-red-500 fill-current' 
-                          : 'text-gray-600 hover:text-red-400'
-                      }`} 
-                    />
-                  </motion.button>
-                  
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 border border-white/10">
                   {/* Service Image */}
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-48 overflow-hidden group">
                     <img
                       src={service.imageUrl || '/api/placeholder/400/300'}
                       alt={service.name}
@@ -254,20 +222,48 @@ export default function ServicesPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     
+                    {/* Lock Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                      <Lock className="w-16 h-16 text-white" />
+                    </div>
+                    
                     {/* Category Badge */}
                     <div className="absolute top-4 left-4 flex gap-2">
-                      <Badge className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                         {service.category}
+                      </Badge>
+                      <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        {service.deliveryType === 'yacht' && 'Yacht Add-On'}
+                        {service.deliveryType === 'location' && 'Your Location'}
+                        {service.deliveryType === 'marina' && 'Marina Service'}
+                        {service.deliveryType === 'external_location' && 'External Location'}
+                        {!service.deliveryType && 'Location Service'}
                       </Badge>
                     </div>
 
                     {/* Rating */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full">
+                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="text-white text-sm">
                         {service.rating || 4.8}
                       </span>
                     </div>
+
+                    {/* Heart Button */}
+                    <Button
+                      onClick={(e) => toggleFavorite(e, service.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-4 left-4 w-8 h-8 p-0 bg-black/50 hover:bg-black/70 rounded-full z-20"
+                    >
+                      <Heart 
+                        className={`w-4 h-4 transition-colors ${
+                          userFavorites.some((fav: any) => fav.serviceId === service.id)
+                            ? 'text-red-500 fill-current' 
+                            : 'text-white'
+                        }`} 
+                      />
+                    </Button>
                   </div>
 
                   {/* Service Content */}

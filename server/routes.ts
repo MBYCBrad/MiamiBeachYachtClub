@@ -3449,10 +3449,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/favorites", requireAuth, async (req, res) => {
     try {
       const userFavorites = await dbStorage.getUserFavorites(req.user!.id);
-      console.log(`Fetched ${userFavorites.length} favorites for user ${req.user!.id}`);
       res.json(userFavorites);
     } catch (error: any) {
-      console.error('Error fetching favorites:', error);
       res.status(500).json({ message: error.message });
     }
   });
@@ -3487,16 +3485,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Must specify yachtId, serviceId, or eventId" });
       }
 
-      // Delete the favorite directly using the provided parameters
-      let success = false;
-      
-      if (yachtId) {
-        success = await dbStorage.deleteFavorite(req.user!.id, 'yacht', parseInt(yachtId as string));
-      } else if (serviceId) {
-        success = await dbStorage.deleteFavorite(req.user!.id, 'service', parseInt(serviceId as string));
-      } else if (eventId) {
-        success = await dbStorage.deleteFavorite(req.user!.id, 'event', parseInt(eventId as string));
+      // Find and delete the favorite
+      const userFavorites = await dbStorage.getUserFavorites(req.user!.id);
+      const favoriteToDelete = userFavorites.find(fav => 
+        (yachtId && fav.yachtId === parseInt(yachtId as string)) ||
+        (serviceId && fav.serviceId === parseInt(serviceId as string)) ||
+        (eventId && fav.eventId === parseInt(eventId as string))
+      );
+
+      if (!favoriteToDelete) {
+        return res.status(404).json({ message: "Favorite not found" });
       }
+
+      const success = await dbStorage.deleteFavorite(favoriteToDelete.id);
 
       if (success) {
         res.json({ message: "Favorite removed successfully" });

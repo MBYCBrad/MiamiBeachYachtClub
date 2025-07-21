@@ -800,21 +800,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFavorite(userId: number, targetType: string, targetId: number): Promise<Favorite | undefined> {
-    let condition;
-    if (targetType === 'yacht') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.yachtId, targetId));
-    } else if (targetType === 'service') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.serviceId, targetId));
-    } else if (targetType === 'event') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.eventId, targetId));
-    } else {
-      return undefined;
-    }
-    
     const [favorite] = await db
       .select()
       .from(favorites)
-      .where(condition);
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.targetType, targetType),
+        eq(favorites.targetId, targetId)
+      ));
     return favorite || undefined;
   }
 
@@ -824,20 +817,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteFavorite(userId: number, targetType: string, targetId: number): Promise<boolean> {
-    let condition;
-    if (targetType === 'yacht') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.yachtId, targetId));
-    } else if (targetType === 'service') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.serviceId, targetId));
-    } else if (targetType === 'event') {
-      condition = and(eq(favorites.userId, userId), eq(favorites.eventId, targetId));
-    } else {
-      return false;
-    }
-    
     const result = await db
       .delete(favorites)
-      .where(condition);
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.targetType, targetType),
+        eq(favorites.targetId, targetId)
+      ));
     return (result.rowCount || 0) > 0;
   }
 

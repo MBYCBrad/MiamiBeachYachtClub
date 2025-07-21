@@ -3,15 +3,12 @@ import { VideoHeader } from "@/components/video-header";
 import { VideoCTA } from "@/components/video-cta";
 import { Footer } from "@/components/footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Users, Sparkles, MapPin, Lock, Heart } from "lucide-react";
+import { Calendar, Users, Sparkles, MapPin, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ApplicationModal } from "@/components/application-modal";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
 
 export default function EventsPage() {
   const { data: events } = useQuery({
@@ -20,90 +17,6 @@ export default function EventsPage() {
 
   const upcomingEvents = events || [];
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Get user favorites
-  const { data: userFavorites = [] } = useQuery({
-    queryKey: ['/api/favorites'],
-    enabled: !!user
-  });
-
-  // Add favorite mutation
-  const addFavoriteMutation = useMutation({
-    mutationFn: async (eventId: number) => {
-      console.log('Adding favorite for eventId:', eventId);
-      const response = await apiRequest('POST', '/api/favorites', { eventId });
-      const result = await response.json();
-      console.log('Add favorite response:', result);
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
-      toast({
-        title: "Added to Favorites",
-        description: "Event has been added to your favorites",
-      });
-    },
-    onError: (error) => {
-      console.error('Add favorite error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add event to favorites",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Remove favorite mutation
-  const removeFavoriteMutation = useMutation({
-    mutationFn: async (eventId: number) => {
-      console.log('Removing favorite for eventId:', eventId);
-      const response = await apiRequest('DELETE', `/api/favorites?eventId=${eventId}`);
-      const result = await response.json();
-      console.log('Remove favorite response:', result);
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
-      toast({
-        title: "Removed from Favorites",
-        description: "Event has been removed from your favorites",
-      });
-    },
-    onError: (error) => {
-      console.error('Remove favorite error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove event from favorites",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const toggleFavorite = (e: React.MouseEvent, eventId: number) => {
-    e.stopPropagation();
-    console.log('Event heart clicked:', eventId, user);
-    
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to save favorites",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const isFavorite = userFavorites.some((fav: any) => fav.eventId === eventId);
-    console.log('Event is favorite?', isFavorite);
-    
-    if (isFavorite) {
-      removeFavoriteMutation.mutate(eventId);
-    } else {
-      addFavoriteMutation.mutate(eventId);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -136,29 +49,8 @@ export default function EventsPage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group"
               >
-                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all relative">
-                  {/* Heart Button - Positioned absolutely to the card, not the image container */}
-                  <motion.button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Event heart button clicked - TEST', event.id);
-                      toggleFavorite(e, event.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full backdrop-blur-sm shadow-lg z-50"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Heart 
-                      size={16}
-                      className={`transition-colors ${
-                        userFavorites.some((fav: any) => fav.eventId === event.id)
-                          ? 'text-red-500 fill-current' 
-                          : 'text-gray-600 hover:text-red-400'
-                      }`} 
-                    />
-                  </motion.button>
-                  
-                  <div className="relative h-64 overflow-hidden">
+                <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all">
+                  <div className="relative h-64 overflow-hidden group">
                     <img 
                       src={event.imageUrl || '/api/media/pexels-goumbik-296278_1750537277229.jpg'}
                       alt={event.title}
@@ -166,7 +58,12 @@ export default function EventsPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                     
-                    <div className="absolute bottom-4 right-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    {/* Lock Overlay on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-indigo-600/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+                      <Lock className="w-16 h-16 text-white" />
+                    </div>
+                    
+                    <div className="absolute top-4 right-4 bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
                       ${event.ticketPrice}
                     </div>
                   </div>
@@ -209,7 +106,7 @@ export default function EventsPage() {
                     
                     <Button 
                       onClick={() => setIsApplicationModalOpen(true)}
-                      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700"
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
                     >
                       Register Now
                     </Button>
