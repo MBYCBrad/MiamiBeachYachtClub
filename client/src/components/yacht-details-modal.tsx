@@ -98,14 +98,6 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
           <DialogHeader className="sr-only">
             <DialogTitle>{yacht.name} Details</DialogTitle>
           </DialogHeader>
-          
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
-          >
-            <X size={20} className="text-gray-400" />
-          </button>
 
           <div className="space-y-6">
             {/* Image Gallery */}
