@@ -96,11 +96,6 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
           className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
-          onPointerDownOutside={(e) => {
-            e.preventDefault();
-            onClose();
-          }}
-          onEscapeKeyDown={onClose}
         >
           <DialogHeader className="sr-only">
             <DialogTitle>{yacht.name} Details</DialogTitle>
