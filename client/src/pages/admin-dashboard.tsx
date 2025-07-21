@@ -565,8 +565,8 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
   // Safely extract service data
   const serviceName = String(booking?.service?.name || 'N/A');
   const serviceCategory = String(booking?.service?.category || 'N/A');
-  const servicePrice = Number(booking?.service?.price || 0);
-  const serviceDuration = String(booking?.service?.duration || 'N/A');
+  const servicePrice = Number(booking?.service?.price || booking?.totalPrice || 0);
+  const serviceDuration = booking?.service?.duration ? `${Math.round(Number(booking.service.duration) / 60)} hour${Math.round(Number(booking.service.duration) / 60) !== 1 ? 's' : ''}` : '1 hour';
   const serviceDescription = String(booking?.service?.description || 'No description available');
   const serviceImage = String(booking?.service?.imageUrl || '');
   
@@ -606,7 +606,7 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
         
         {/* Service Image Header */}
         {serviceImage && serviceImage !== '' && (
-          <div className="w-full h-48 rounded-lg overflow-hidden mb-6">
+          <div className="w-full h-64 rounded-lg overflow-hidden mb-6 bg-gray-900">
             <img 
               src={serviceImage}
               alt={serviceName}
@@ -647,7 +647,7 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
               <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{serviceName}</span></p>
               <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{serviceCategory}</span></p>
               <p><span className="text-gray-400">Base Price:</span> <span className="text-green-400 font-bold">${servicePrice}</span></p>
-              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{serviceDuration} minutes</span></p>
+              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{serviceDuration}</span></p>
               <div className="mt-3">
                 <span className="text-gray-400">Description:</span>
                 <p className="text-white text-sm mt-1 bg-gray-800/30 p-2 rounded">{serviceDescription}</p>
