@@ -13,7 +13,6 @@ import {
   TrendingUp,
   Activity,
   Bell,
-  Search,
   Filter,
   MoreVertical,
   ChevronRight,
@@ -556,7 +555,6 @@ const YachtCard = ({ yacht, index }: any) => (
 
 export default function YachtOwnerDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
-  const [searchTerm, setSearchTerm] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -4350,17 +4348,9 @@ export default function YachtOwnerDashboard() {
             </motion.div>
           </div>
 
-          {/* Search */}
+          {/* Spacer to prevent Overview from being squished */}
           <div className="p-6 flex-shrink-0">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search fleet features..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-900/50 border-gray-700/50 text-white placeholder-gray-400 focus:border-purple-500"
-              />
-            </div>
+            {/* Empty space for proper spacing */}
           </div>
 
           {/* Navigation */}
