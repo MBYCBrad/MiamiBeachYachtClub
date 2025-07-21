@@ -948,9 +948,10 @@ MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER S
   - Updated crew management page StatCard icons: Active Crew, Active Assignments, Pending Bookings, Captains Available
   - Updated payment management page StatCard icons: Total Revenue, Transactions, Platform Revenue, Avg Transaction
   - Converted all icon backgrounds from individual colors (green, blue, purple/pink, orange) to unified purple-to-blue gradient with white icons
+  - Updated payment management StatCard backgrounds from colorful gradients to consistent bg-gray-950 with border-gray-700/50
   - Complete visual consistency across admin interface: overview, bookings, crew management, and payment management sections
-  - All StatCard components now display consistent "from-purple-600 to-indigo-600" gradient with white icons
-  - Maintained existing LSP diagnostic status - no new compilation errors introduced by gradient theme updates
+  - All StatCard components now display consistent dark theme backgrounds with purple-to-blue gradient icons and white icons
+  - Maintained existing LSP diagnostic status - no new compilation errors introduced by theme updates
 - July 21, 2025. Admin notifications UI updated with purple-to-blue gradient theme consistency
   - Changed notification panel background from bg-gray-900/95 to bg-gray-950 for darker appearance
   - Updated priority color indicators from red/orange system to purple-to-blue gradients (urgent: purple-500, high: purple-400, medium: indigo-400)
