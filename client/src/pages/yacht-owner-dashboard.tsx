@@ -200,7 +200,7 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="bg-blue-600/20 border-blue-500/30 text-blue-400 hover:bg-blue-600/30">
+        <Button size="sm" variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -432,7 +432,7 @@ function DeleteYachtDialog({ yacht }: { yacht: any }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600/30">
+        <Button size="sm" variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
           <Trash2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -1484,16 +1484,16 @@ export default function YachtOwnerDashboard() {
                     </Badge>
                   </div>
                   
-                  {/* Action Buttons */}
-                  <div className="absolute top-4 left-4 flex space-x-2">
-                    <EditYachtDialog yacht={yacht} />
-                    <DeleteYachtDialog yacht={yacht} />
-                  </div>
-                  
                   {/* Yacht Info */}
                   <div className="absolute bottom-4 left-4">
                     <h3 className="text-white font-bold text-xl mb-1">{yacht.name}</h3>
                     <p className="text-white/80 text-sm">{yacht.location}</p>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="absolute bottom-4 right-4 flex space-x-2">
+                    <EditYachtDialog yacht={yacht} />
+                    <DeleteYachtDialog yacht={yacht} />
                   </div>
                 </div>
                 
