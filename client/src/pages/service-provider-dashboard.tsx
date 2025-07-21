@@ -404,7 +404,7 @@ function DeleteServiceButton({ service }: { service: any }) {
     <Button 
       size="sm" 
       variant="outline" 
-      className="bg-red-600/20 border-red-500/30 text-red-400 hover:bg-red-600/30"
+      className="bg-purple-600/20 border-purple-500/30 text-purple-400 hover:bg-purple-600/30"
       onClick={() => deleteMutation.mutate()}
       disabled={deleteMutation.isPending}
     >
@@ -490,7 +490,7 @@ function ViewServiceDialog({ service }: { service: any }) {
             <div>
               <Label className="text-gray-300 text-sm font-medium">Availability</Label>
               <div className="mt-1 p-3 bg-gray-800/50 rounded-lg">
-                <Badge className={service.isAvailable ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}>
+                <Badge className={service.isAvailable ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white opacity-60'}>
                   {service.isAvailable ? 'Available' : 'Unavailable'}
                 </Badge>
               </div>
@@ -956,7 +956,7 @@ export default function ServiceProviderDashboard() {
                 Filter Services
                 {(serviceFilters.category !== "all" || serviceFilters.availability !== "all" || 
                   serviceFilters.priceRange !== "all") && (
-                  <Badge className="ml-2 bg-orange-500 text-white text-xs">
+                  <Badge className="ml-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs">
                     {Object.values(serviceFilters).filter(v => v !== "all").length}
                   </Badge>
                 )}
@@ -1626,7 +1626,7 @@ export default function ServiceProviderDashboard() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  <TrendingUp className="h-5 w-5 mr-2 text-purple-500" />
                   Revenue Trend
                 </CardTitle>
                 <CardDescription>Monthly revenue performance over time</CardDescription>
@@ -1638,7 +1638,7 @@ export default function ServiceProviderDashboard() {
                       <TrendingUp className="h-8 w-8 text-white" />
                     </div>
                     <p className="text-gray-400 text-sm">Revenue trending upward</p>
-                    <p className="text-green-400 font-semibold mt-2">+15.3% this month</p>
+                    <p className="text-purple-400 font-semibold mt-2">+15.3% this month</p>
                   </div>
                 </div>
               </CardContent>
@@ -1705,7 +1705,7 @@ export default function ServiceProviderDashboard() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-blue-500" />
+                  <Users className="h-5 w-5 mr-2 text-purple-500" />
                   Client Demographics
                 </CardTitle>
                 <CardDescription>Membership tier breakdown</CardDescription>
@@ -1719,22 +1719,14 @@ export default function ServiceProviderDashboard() {
                     return (
                       <div key={tier} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-3 h-3 rounded-full ${
-                            tier === 'Platinum' ? 'bg-purple-500' :
-                            tier === 'Gold' ? 'bg-yellow-500' :
-                            tier === 'Silver' ? 'bg-gray-400' : 'bg-orange-500'
-                          }`} />
+                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600" />
                           <span className="text-white text-sm">{tier}</span>
                         </div>
                         <div className="text-right">
                           <span className="text-white font-semibold">{percentage.toFixed(1)}%</span>
                           <div className="w-12 h-2 bg-gray-700 rounded-full mt-1">
                             <div 
-                              className={`h-2 rounded-full ${
-                                tier === 'Platinum' ? 'bg-purple-500' :
-                                tier === 'Gold' ? 'bg-yellow-500' :
-                                tier === 'Silver' ? 'bg-gray-400' : 'bg-orange-500'
-                              }`}
+                              className="h-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -1756,7 +1748,7 @@ export default function ServiceProviderDashboard() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <Star className="h-5 w-5 mr-2 text-yellow-500" />
+                  <Star className="h-5 w-5 mr-2 text-purple-500" />
                   Top Performer
                 </CardTitle>
                 <CardDescription>Your best performing service</CardDescription>
@@ -1773,7 +1765,7 @@ export default function ServiceProviderDashboard() {
                   <div>
                     <p className="text-white font-semibold">{topService?.name || 'No services yet'}</p>
                     <p className="text-gray-400 text-sm">{topService?.category || 'Category'}</p>
-                    <p className="text-yellow-400 font-bold mt-2">{topService?.bookings || 0} bookings</p>
+                    <p className="text-purple-400 font-bold mt-2">{topService?.bookings || 0} bookings</p>
                   </div>
                 </div>
               </CardContent>
@@ -1789,7 +1781,7 @@ export default function ServiceProviderDashboard() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2 text-green-500" />
+                  <TrendingUp className="h-5 w-5 mr-2 text-purple-500" />
                   Growth Metrics
                 </CardTitle>
                 <CardDescription>Key performance indicators</CardDescription>
@@ -1799,29 +1791,29 @@ export default function ServiceProviderDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 text-sm">New Clients</span>
                     <div className="flex items-center space-x-2">
-                      <ArrowUpRight className="h-4 w-4 text-green-400" />
-                      <span className="text-green-400 font-semibold">+23%</span>
+                      <ArrowUpRight className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-400 font-semibold">+23%</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 text-sm">Repeat Bookings</span>
                     <div className="flex items-center space-x-2">
-                      <ArrowUpRight className="h-4 w-4 text-green-400" />
-                      <span className="text-green-400 font-semibold">+18%</span>
+                      <ArrowUpRight className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-400 font-semibold">+18%</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 text-sm">Avg Session</span>
                     <div className="flex items-center space-x-2">
-                      <ArrowUpRight className="h-4 w-4 text-blue-400" />
-                      <span className="text-blue-400 font-semibold">2.4h</span>
+                      <ArrowUpRight className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-400 font-semibold">2.4h</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-400 text-sm">Response Time</span>
                     <div className="flex items-center space-x-2">
-                      <ArrowDownRight className="h-4 w-4 text-green-400" />
-                      <span className="text-green-400 font-semibold">-15min</span>
+                      <ArrowDownRight className="h-4 w-4 text-purple-400" />
+                      <span className="text-purple-400 font-semibold">-15min</span>
                     </div>
                   </div>
                 </div>
