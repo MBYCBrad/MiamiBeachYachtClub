@@ -51,7 +51,8 @@ import {
   Inbox,
   Send,
   Timer,
-  TrendingDown
+  TrendingDown,
+  Target
 } from "lucide-react";
 import type { PanInfo } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -601,6 +602,7 @@ export default function YachtOwnerDashboard() {
   });
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -620,7 +622,7 @@ export default function YachtOwnerDashboard() {
   });
 
   // Real-time profile data fetching
-  const { data: profileDataReal, refetch: refetchProfile } = useQuery({
+  const { data: profileDataReal = {}, refetch: refetchProfile } = useQuery<any>({
     queryKey: ['/api/user/profile'],
     staleTime: 0,
     refetchOnMount: true
@@ -703,11 +705,11 @@ export default function YachtOwnerDashboard() {
     addMaintenanceRecordMutation.mutate(data);
   };
 
-  const { data: bookings } = useQuery({
+  const { data: bookings = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/bookings'],
   });
 
-  const { data: revenueData } = useQuery({
+  const { data: revenueData = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/revenue'],
   });
 
@@ -1034,23 +1036,56 @@ export default function YachtOwnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {["Marina Breeze", "Ocean Dreams", "Sunset Voyager"].map((yacht, index) => (
-                <div key={yacht} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
-                      <Anchor className="h-5 w-5 text-white" />
+              {!yachts ? (
+                <div className="animate-pulse space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-gray-800/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gray-700 rounded-lg"></div>
+                          <div className="space-y-2">
+                            <div className="h-4 bg-gray-700 rounded w-24"></div>
+                            <div className="h-3 bg-gray-700 rounded w-16"></div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-700 rounded w-16"></div>
+                          <div className="h-3 bg-gray-700 rounded w-10"></div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white font-medium">{yacht}</p>
-                      <p className="text-sm text-gray-400">{85 + index * 5}% occupancy</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold">${(15 + index * 5).toLocaleString()}k</p>
-                    <p className="text-xs text-green-400">+{12 + index * 3}%</p>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : yachts.length === 0 ? (
+                <div className="text-center py-8">
+                  <Anchor className="h-12 w-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No yachts in your fleet yet</p>
+                </div>
+              ) : (
+                yachts.slice(0, 3).map((yacht: any, index: number) => {
+                  const yachtBookings = bookings?.filter((b: any) => b.yachtId === yacht.id) || [];
+                  const occupancyRate = yachtBookings.length > 0 ? Math.round((yachtBookings.filter((b: any) => b.status === 'confirmed').length / yachtBookings.length) * 100) : 0;
+                  const revenue = yachtBookings.reduce((sum: number, b: any) => sum + (parseFloat(b.totalPrice) || 0), 0);
+                  
+                  return (
+                    <div key={yacht.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500">
+                          <Anchor className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">{yacht.name}</p>
+                          <p className="text-sm text-gray-400">{occupancyRate}% occupancy</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white font-bold">${revenue.toFixed(2)}</p>
+                        <p className="text-xs text-gray-400">{yachtBookings.length} bookings</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </CardContent>
         </Card>
@@ -1065,33 +1100,66 @@ export default function YachtOwnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1,2,3].map((booking, index) => (
-                <motion.div
-                  key={booking}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300"
-                >
-                  <div className="flex items-center space-x-4">
-                    <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
-                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
-                        M{booking}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-white font-medium">Member {booking}</p>
-                      <p className="text-sm text-gray-400">Marina Breeze • 3 days</p>
+              {!bookings ? (
+                <div className="animate-pulse space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-gray-700 rounded-full"></div>
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-700 rounded w-24"></div>
+                          <div className="h-3 bg-gray-700 rounded w-32"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-700 rounded w-16"></div>
+                        <div className="h-6 bg-gray-700 rounded w-20"></div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold">${1200 + booking * 300}</p>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                      Confirmed
-                    </Badge>
-                  </div>
-                </motion.div>
-              ))}
+                  ))}
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="text-center py-8">
+                  <CalendarDays className="h-12 w-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400">No bookings yet</p>
+                </div>
+              ) : (
+                bookings.slice(0, 3).map((booking: any, index: number) => (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 + index * 0.1 }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 cursor-pointer"
+                    onClick={() => {
+                      setSelectedBooking(booking);
+                      setShowBookingModal(true);
+                    }}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-blue-500 text-white font-semibold">
+                          {booking.user?.username?.charAt(0)?.toUpperCase() || 'G'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-white font-medium">{booking.user?.username || booking.user?.fullName || 'Guest'}</p>
+                        <p className="text-sm text-gray-400">{booking.yacht?.name || 'Unknown Yacht'} • {booking.guestCount || 0} guests</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-bold">{booking.totalPrice ? `$${booking.totalPrice}` : 'Free'}</p>
+                      <Badge className={
+                        booking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        booking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                      }>
+                        {booking.status}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -1143,7 +1211,7 @@ export default function YachtOwnerDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
           title="Total Yachts"
-          value="3"
+          value={(stats?.totalYachts || 0).toString()}
           change={null}
           icon={Anchor}
           gradient="from-purple-600 to-indigo-600"
@@ -1151,7 +1219,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Available Now"
-          value="2"
+          value={(yachts?.filter((y: any) => y.isAvailable)?.length || 0).toString()}
           change={null}
           icon={Activity}
           gradient="from-purple-600 to-indigo-600"
@@ -1159,7 +1227,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="In Maintenance"
-          value="1"
+          value={(stats?.pendingMaintenance || 0).toString()}
           change={null}
           icon={Wrench}
           gradient="from-purple-600 to-indigo-600"
@@ -1167,8 +1235,8 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Avg Occupancy"
-          value="87%"
-          change={12}
+          value={`${stats?.occupancyRate || 0}%`}
+          change={null}
           icon={TrendingUp}
           gradient="from-purple-600 to-indigo-600"
           delay={0.3}
@@ -1350,8 +1418,8 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Total Revenue"
-          value="$12,840"
-          change={18}
+          value={`$${revenueData?.reduce((sum: number, item: any) => sum + (item.revenue || 0), 0).toFixed(2) || '0.00'}`}
+          change={null}
           icon={DollarSign}
           gradient="from-purple-600 to-indigo-600"
           delay={0.3}
@@ -3390,8 +3458,10 @@ export default function YachtOwnerDashboard() {
     setProfileData(prev => ({ ...prev, [field]: value }));
     
     // Auto-save after 1 second of no changes
-    clearTimeout(window.profileSaveTimeout);
-    window.profileSaveTimeout = setTimeout(() => {
+    if (profileSaveTimeoutRef.current) {
+      clearTimeout(profileSaveTimeoutRef.current);
+    }
+    profileSaveTimeoutRef.current = setTimeout(() => {
       updateProfileMutation.mutate({ [field]: value });
     }, 1000);
   };
