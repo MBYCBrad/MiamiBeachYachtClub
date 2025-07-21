@@ -607,19 +607,7 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
           </DialogTitle>
         </DialogHeader>
         
-        {/* Service Image Header */}
-        {serviceImage && serviceImage !== '' && (
-          <div className="w-full h-80 rounded-lg overflow-hidden mb-6 bg-gray-900">
-            <img 
-              src={serviceImage}
-              alt={serviceName}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
-        )}
+        {/* Remove large cover image header */}
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Member Information */}
@@ -647,6 +635,22 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
               Service Details
             </Label>
             <div className="space-y-3">
+              {/* Service Image Thumbnail */}
+              {serviceImage && serviceImage !== '' && (
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-400">Image:</span>
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-800/50 border border-gray-700">
+                    <img 
+                      src={serviceImage}
+                      alt={serviceName}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{serviceName}</span></p>
               <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{serviceCategory}</span></p>
               <p><span className="text-gray-400">Base Price:</span> <span className="text-green-400 font-bold">${servicePrice}</span></p>
