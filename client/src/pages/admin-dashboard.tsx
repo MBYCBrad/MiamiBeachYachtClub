@@ -3727,7 +3727,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+        <Card className="bg-black border-gray-700/50">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <MapPin className="h-5 w-5 mr-2 text-purple-500" />
