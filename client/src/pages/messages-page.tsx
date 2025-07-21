@@ -358,8 +358,8 @@ export default function MessagesPage() {
                                 <Badge 
                                   variant="outline" 
                                   className={`text-xs ${
-                                    conversation.status === 'active' ? 'border-green-500 text-green-400' :
-                                    conversation.status === 'pending' ? 'border-yellow-500 text-yellow-400' :
+                                    conversation.status === 'active' ? 'border-purple-500 text-purple-400' :
+                                    conversation.status === 'pending' ? 'border-indigo-500 text-indigo-400' :
                                     'border-gray-500 text-gray-400'
                                   }`}
                                 >
