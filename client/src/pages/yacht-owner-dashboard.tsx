@@ -2504,16 +2504,125 @@ export default function YachtOwnerDashboard() {
             transition={{ delay: 0.2 }}
             className="flex items-center space-x-4"
           >
-            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter Fleet
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter Fleet
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 bg-gray-900 border-gray-700">
+                <div className="p-4 space-y-4">
+                  {/* Availability Status Filter */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-300 mb-2 block">
+                      Availability Status
+                    </label>
+                    <Select
+                      value={yachtFilters.availability}
+                      onValueChange={(value) => setYachtFilters(prev => ({ ...prev, availability: value }))}
+                    >
+                      <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                        <SelectValue placeholder="All Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="unavailable">Unavailable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Yacht Size Filter */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-300 mb-2 block">
+                      Yacht Size
+                    </label>
+                    <Select
+                      value={yachtFilters.size}
+                      onValueChange={(value) => setYachtFilters(prev => ({ ...prev, size: value }))}
+                    >
+                      <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                        <SelectValue placeholder="All Sizes" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Sizes</SelectItem>
+                        <SelectItem value="small">Small (40-60ft)</SelectItem>
+                        <SelectItem value="medium">Medium (61-80ft)</SelectItem>
+                        <SelectItem value="large">Large (81-100ft)</SelectItem>
+                        <SelectItem value="mega">Mega (100ft+)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Location Filter */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-300 mb-2 block">
+                      Location
+                    </label>
+                    <Select
+                      value={yachtFilters.location}
+                      onValueChange={(value) => setYachtFilters(prev => ({ ...prev, location: value }))}
+                    >
+                      <SelectTrigger className="w-full border-gray-600 text-gray-300 bg-gray-800">
+                        <SelectValue placeholder="All Locations" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-600">
+                        <SelectItem value="all">All Locations</SelectItem>
+                        <SelectItem value="Miami Beach Marina">Miami Beach Marina</SelectItem>
+                        <SelectItem value="Sunset Harbor">Sunset Harbor</SelectItem>
+                        <SelectItem value="South Beach Marina">South Beach Marina</SelectItem>
+                        <SelectItem value="Key Biscayne">Key Biscayne</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  <Button
+                    onClick={() => {
+                      setYachtFilters({
+                        availability: "all",
+                        size: "all",
+                        location: "all",
+                        priceRange: "all"
+                      });
+                    }}
+                    className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </motion.div>
         </div>
 
         {/* Yachts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {yachts?.map((yacht: any, index: number) => (
+          {filteredYachts && filteredYachts.length === 0 ? (
+            yachts && yachts.length > 0 ? (
+              // No results after filtering
+              <div className="col-span-full text-center py-12">
+                <Filter className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <div className="text-gray-400 text-lg mb-4">No yachts match your filters</div>
+                <div className="text-gray-500 text-sm mb-4">Try adjusting your filter criteria to see more results</div>
+                <Button 
+                  onClick={() => setYachtFilters({ availability: "all", size: "all", location: "all", priceRange: "all" })}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                >
+                  Clear All Filters
+                </Button>
+              </div>
+            ) : (
+              // No yachts in database
+              <div className="col-span-full text-center py-12">
+                <Anchor className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <div className="text-gray-400 text-lg mb-2">No yachts in your fleet</div>
+                <div className="text-gray-500 text-sm">Add yachts to your fleet to get started</div>
+              </div>
+            )
+          ) : (
+            filteredYachts?.map((yacht: any, index: number) => (
             <motion.div
               key={yacht.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -2562,7 +2671,8 @@ export default function YachtOwnerDashboard() {
                 </CardContent>
               </Card>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
       </motion.div>
     );
