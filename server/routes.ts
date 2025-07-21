@@ -503,6 +503,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PROFILE ROUTES
+  app.get('/api/profile', requireAuth, async (req, res) => {
+    try {
+      const profile = await dbStorage.getUser(req.user!.id);
+      if (!profile) {
+        return res.status(404).json({ message: 'Profile not found' });
+      }
+
+      res.json({
+        id: profile.id,
+        username: profile.username,
+        email: profile.email,
+        fullName: profile.fullName,
+        phone: profile.phone,
+        location: profile.location,
+        bio: profile.bio,
+        profileImage: profile.profileImage,
+        language: profile.language || 'en',
+        role: profile.role,
+        membershipTier: profile.membershipTier,
+        createdAt: profile.createdAt,
+        // Add stats for performance overview
+        rating: 4.8, // Mock rating for now
+        totalBookings: 12,
+        specialties: ['Luxury Services', 'Yacht Experience'],
+        joinedDate: profile.createdAt,
+        verificationStatus: 'verified'
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      res.status(500).json({ message: 'Failed to fetch profile' });
+    }
+  });
+
+  app.patch('/api/profile', requireAuth, async (req, res) => {
+    try {
+      const { fullName, email, phone, location, bio, language } = req.body;
+      
+      const updatedProfile = await dbStorage.updateUserProfile(req.user!.id, {
+        fullName,
+        email,
+        phone,
+        location,
+        bio,
+        language: language || 'en'
+      });
+
+      res.json(updatedProfile);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      res.status(500).json({ message: 'Failed to update profile' });
+    }
+  });
+
+  app.post('/api/profile/image', requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No image file provided' });
+      }
+
+      const imageUrl = `/api/media/${req.file.filename}`;
+      
+      // Update user profile with new image
+      await dbStorage.updateUserProfile(req.user!.id, {
+        profileImage: imageUrl
+      });
+
+      res.json({ 
+        imageUrl,
+        message: 'Profile image updated successfully'
+      });
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      res.status(500).json({ message: 'Failed to upload image' });
+    }
+  });
+
   // SERVICE ROUTES
   app.get("/api/services", async (req, res) => {
     try {

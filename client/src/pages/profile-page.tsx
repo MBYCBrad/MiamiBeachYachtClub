@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -25,7 +25,8 @@ import {
   Edit,
   Save,
   X,
-  Upload
+  Upload,
+  Loader2
 } from "lucide-react";
 import {
   Select,
@@ -72,43 +73,92 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<ServiceProvider>>({});
-  const [profileImage, setProfileImage] = useState<string>('');
-  const [imageUploading, setImageUploading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch provider profile data
-  const { data: profile, isLoading } = useQuery<ServiceProvider>({
-    queryKey: ['/api/service-provider/profile'],
+  // Fetch profile data from API
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['/api/profile'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Initialize form data when profile loads
   useEffect(() => {
     if (profile) {
-      setFormData(profile);
-      setProfileImage(profile.profileImage || '');
+      setFormData({
+        fullName: profile.fullName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        location: profile.location || '',
+        bio: profile.bio || '',
+        language: profile.language || 'en',
+        notifications: {
+          emailNotifications: true,
+          smsNotifications: false,
+          bookingReminders: true,
+          promotionalEmails: false
+        }
+      });
     }
   }, [profile]);
 
-  // Update profile mutation
+  // Real-time profile update mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: Partial<ServiceProvider>) => {
-      return await apiRequest("PUT", "/api/service-provider/profile", data);
+    mutationFn: async (updates: Partial<ServiceProvider>) => {
+      return await apiRequest('/api/profile', {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+        headers: { 'Content-Type': 'application/json' }
+      });
     },
-    onSuccess: () => {
+    onSuccess: (updatedProfile) => {
+      queryClient.setQueryData(['/api/profile'], updatedProfile);
       toast({
         title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
+        description: "Your profile has been updated successfully."
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/service-provider/profile'] });
       setIsEditing(false);
     },
-    onError: (error: Error) => {
+    onError: () => {
       toast({
         title: "Update Failed",
-        description: error.message,
-        variant: "destructive",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Image upload mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      return await apiRequest('/api/profile/image', {
+        method: 'POST',
+        body: formData
       });
     },
+    onSuccess: (response) => {
+      const imageUrl = response.imageUrl;
+      // Update profile in cache
+      queryClient.setQueryData(['/api/profile'], (old: any) => ({
+        ...old,
+        profileImage: imageUrl
+      }));
+      toast({
+        title: "Image Uploaded",
+        description: "Profile image updated successfully."
+      });
+      setIsUploadingImage(false);
+    },
+    onError: () => {
+      toast({
+        title: "Upload Failed", 
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive"
+      });
+      setIsUploadingImage(false);
+    }
   });
 
   const handleSave = () => {
@@ -116,7 +166,22 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
-    setFormData(profile || {});
+    if (profile) {
+      setFormData({
+        fullName: profile.fullName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        location: profile.location || '',
+        bio: profile.bio || '',
+        language: profile.language || 'en',
+        notifications: formData.notifications || {
+          emailNotifications: true,
+          smsNotifications: false,
+          bookingReminders: true,
+          promotionalEmails: false
+        }
+      });
+    }
     setIsEditing(false);
   };
 
@@ -124,7 +189,21 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (isLoading) {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setIsUploadingImage(true);
+      uploadImageMutation.mutate(file);
+    }
+  };
+
+  const handleCameraClick = () => {
+    if (isEditing) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  if (profileLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full" />
@@ -215,18 +294,34 @@ export default function ProfilePage() {
               <div className="flex items-start space-x-6">
                 <div className="relative">
                   <Avatar className="h-24 w-24">
+                    {profile?.profileImage ? (
+                      <AvatarImage src={profile.profileImage} alt={profile.fullName || profile.username} />
+                    ) : null}
                     <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-2xl font-semibold">
-                      {profile?.username?.charAt(0).toUpperCase() || 'S'}
+                      {profile?.fullName?.charAt(0).toUpperCase() || profile?.username?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
                     <Button
                       size="sm"
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600"
+                      onClick={handleCameraClick}
+                      disabled={isUploadingImage}
+                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                     >
-                      <Camera className="h-4 w-4" />
+                      {isUploadingImage ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
                     </Button>
                   )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
                 </div>
                 
                 <div className="flex-1 space-y-4">

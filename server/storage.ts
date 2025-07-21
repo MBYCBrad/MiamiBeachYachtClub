@@ -37,6 +37,7 @@ export interface IStorage {
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   updateUserPassword(id: number, hashedPassword: string): Promise<void>;
   updateUserStripeInfo(userId: number, stripeCustomerId: string, stripeSubscriptionId?: string): Promise<User>;
+  updateUserProfile(userId: number, profileData: { fullName?: string; email?: string; phone?: string; location?: string; bio?: string; language?: string; profileImage?: string; }): Promise<User>;
 
   // Staff methods - completely separate from user methods
   getStaff(id: number): Promise<Staff | undefined>;
@@ -359,6 +360,27 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  async updateUserProfile(userId: number, profileData: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    bio?: string;
+    language?: string;
+    profileImage?: string;
+  }): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        ...profileData,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    
+    return updatedUser;
   }
 
   // Yacht methods
