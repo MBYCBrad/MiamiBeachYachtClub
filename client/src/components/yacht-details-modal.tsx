@@ -34,7 +34,7 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
     : [];
 
   // Get user's favorites
-  const { data: userFavorites = [] } = useQuery({
+  const { data: userFavorites = [] } = useQuery<any[]>({
     queryKey: ['/api/favorites'],
     staleTime: 5 * 60 * 1000,
   });
@@ -95,8 +95,10 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
-          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white" 
-          aria-describedby="yacht-description"
+          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
+          onInteractOutside={(e) => {
+            onClose();
+          }}
         >
           <DialogHeader className="sr-only">
             <DialogTitle>{yacht.name} Details</DialogTitle>
