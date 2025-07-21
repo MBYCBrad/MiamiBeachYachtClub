@@ -4022,6 +4022,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // YACHT OWNER-ADMIN MESSAGING ROUTES (Same pattern as service provider messaging)
+  app.get("/api/yacht-owner/conversations", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      // Get or create conversation between yacht owner and admin (Simon Librati)
+      const conversationId = `owner-admin-${userId}`;
+      
+      // Check if conversation exists, if not create it
+      let conversation = await dbStorage.getConversationById(conversationId);
+      if (!conversation) {
+        conversation = await dbStorage.createConversation({
+          id: conversationId,
+          serviceProviderId: userId,
+          memberName: null,
+          memberPhone: null,
+          membershipTier: null,
+          lastMessage: null,
+          lastMessageTime: new Date(),
+          unreadCount: 0,
+          status: 'active',
+          priority: 'medium',
+          tags: [],
+          assignedAgent: null,
+          currentTripId: null,
+          metadata: {
+            yachtOwnerId: userId,
+            yachtOwnerName: req.user!.username,
+            adminId: 60,
+            adminName: 'Simon Librati'
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+      
+      res.json([conversation]);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner conversations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/yacht-owner/messages/:conversationId", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify this yacht owner has access to this conversation
+      if (!conversationId.includes(`owner-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const messages = await dbStorage.getMessagesByConversation(conversationId);
+      res.json(messages);
+    } catch (error: any) {
+      console.error('Error fetching yacht owner messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/yacht-owner/messages", requireAuth, requireRole([UserRole.YACHT_OWNER]), async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { conversationId, content, messageType = 'text' } = req.body;
+      
+      // Verify this yacht owner has access to this conversation
+      if (!conversationId.includes(`owner-admin-${userId}`)) {
+        return res.status(403).json({ message: "Access denied to this conversation" });
+      }
+      
+      const message = await dbStorage.createMessage({
+        senderId: userId,
+        recipientId: 60, // Simon Librati admin ID
+        conversationId,
+        content,
+        messageType,
+        status: 'sent',
+        metadata: {
+          senderRole: 'yacht_owner',
+          recipientRole: 'admin',
+          senderName: req.user!.username
+        }
+      });
+      
+      // Create real-time notification for Simon Librati (admin)
+      await dbStorage.createNotification({
+        userId: 60, // Simon Librati
+        type: 'yacht_owner_message',
+        title: 'Yacht Owner Message',
+        message: `${req.user!.username} sent you a message: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+        priority: 'high',
+        data: {
+          messageId: message.id,
+          conversationId,
+          senderName: req.user!.username,
+          senderId: userId,
+          senderRole: 'yacht_owner'
+        },
+        actionUrl: `/admin/messages`
+      });
+
+      // Send real-time WebSocket notification to admin
+      if (wss) {
+        const notificationData = {
+          type: 'notification',
+          notification: {
+            id: Date.now(),
+            userId: 60,
+            type: 'new_message',
+            title: 'New Yacht Owner Message',
+            message: content,
+            priority: 'high',
+            data: {
+              conversationId,
+              senderName: req.user!.username,
+              senderId: userId,
+              messageId: message.id
+            }
+          }
+        };
+        
+        wss.clients.forEach((client: any) => {
+          if (client.readyState === WebSocket.OPEN) {
+            // Send to admin users only
+            if (client.userId === 60 || client.role === 'admin') {
+              client.send(JSON.stringify(notificationData));
+            }
+          }
+        });
+      }
+      
+      res.status(201).json(message);
+    } catch (error: any) {
+      console.error('Error creating yacht owner message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // MESSAGES ROUTES - Real-time messaging with Twilio integration
   app.get("/api/messages/conversations", requireAuth, async (req, res) => {
     try {

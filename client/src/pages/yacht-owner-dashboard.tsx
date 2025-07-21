@@ -73,6 +73,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { MultiImageUpload } from "@/components/multi-image-upload";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 
 interface YachtOwnerStats {
   totalYachts: number;
@@ -3421,344 +3423,182 @@ export default function YachtOwnerDashboard() {
     );
   };
 
-  const renderMessages = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mt-16">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+  const renderMessages = () => {
+    // Real-time messaging hooks for yacht owner
+    const [ownerSelectedConversation, setOwnerSelectedConversation] = useState<string | null>(null);
+    const [ownerNewMessage, setOwnerNewMessage] = useState("");
+    
+    // Fetch yacht owner conversations with admin
+    const { data: ownerConversations = [], isLoading: ownerConversationsLoading } = useQuery({
+      queryKey: ['/api/yacht-owner/conversations'],
+      enabled: !!user,
+      refetchInterval: 3000, // Real-time updates every 3 seconds
+    });
+    
+    // Fetch messages for selected conversation
+    const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery({
+      queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation],
+      enabled: !!ownerSelectedConversation,
+      refetchInterval: 2000, // Real-time message updates
+    });
+    
+    // Send message mutation
+    const ownerSendMessageMutation = useMutation({
+      mutationFn: async (messageData: { conversationId: string; content: string }) => {
+        const response = await apiRequest('POST', '/api/yacht-owner/messages', messageData);
+        return response.json();
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation] });
+        queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/conversations'] });
+        setOwnerNewMessage("");
+      },
+    });
+    
+    // Auto-select first conversation when available
+    useEffect(() => {
+      if (ownerConversations.length > 0 && !ownerSelectedConversation) {
+        setOwnerSelectedConversation(ownerConversations[0].id);
+      }
+    }, [ownerConversations, ownerSelectedConversation]);
+    
+    const handleOwnerSendMessage = () => {
+      if (!ownerNewMessage.trim() || !ownerSelectedConversation) return;
+      
+      ownerSendMessageMutation.mutate({
+        conversationId: ownerSelectedConversation,
+        content: ownerNewMessage.trim()
+      });
+    };
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Messages
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Direct communication with Miami Beach Yacht Club Admin
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center space-x-4"
           >
-            Messages & Communication
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Manage yacht communications, member messages, and support requests
-          </motion.p>
+            <div className="flex items-center space-x-2 bg-gray-900/50 rounded-lg px-3 py-2 border border-gray-700/50">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-sm text-gray-300">Real-time messaging</span>
+            </div>
+          </motion.div>
         </div>
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4"
-        >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-            <MessageSquare className="h-4 w-4 mr-2" />
-            New Message
-          </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-        </motion.div>
-      </div>
 
-      {/* Messages Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Messages */}
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader>
+        {/* Real-time Chat Interface */}
+        <div className="space-y-6">
+          <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl h-[600px] flex flex-col">
+          <CardHeader className="pb-4">
             <CardTitle className="text-white flex items-center">
-              <Inbox className="h-5 w-5 mr-2 text-purple-500" />
-              Recent Messages
+              <MessageSquare className="h-5 w-5 mr-2 text-purple-500" />
+              Chat with MBYC Admin
+              <div className="ml-auto flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-sm text-gray-300">Simon Librati</span>
+              </div>
             </CardTitle>
-            <CardDescription>Latest communications and admin messages</CardDescription>
+            <CardDescription>Direct real-time messaging with Miami Beach Yacht Club administration</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              {
-                id: 1,
-                from: "MBYC Admin",
-                subject: "Fleet Maintenance Update",
-                message: "Your yacht Azure Elegance maintenance has been scheduled for next week.",
-                time: "2 hours ago",
-                priority: "high",
-                read: false
-              },
-              {
-                id: 2,
-                from: "Marina Manager",
-                subject: "Dock Assignment Change",
-                message: "Your yacht has been moved to dock 15 for better access during the event.",
-                time: "5 hours ago",
-                priority: "medium",
-                read: true
-              },
-              {
-                id: 3,
-                from: "Concierge Service",
-                subject: "Booking Confirmation",
-                message: "Your premium catering service for tomorrow's charter has been confirmed.",
-                time: "1 day ago",
-                priority: "low",
-                read: true
-              }
-            ].map((message, index) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-xl border transition-all duration-300 hover:border-purple-500/30 ${
-                  message.read ? 'bg-gray-800/30 border-gray-700' : 'bg-purple-900/20 border-purple-500/30'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-white font-medium">{message.from}</span>
-                      <Badge className={`text-xs ${
-                        message.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                        message.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                        'bg-green-500/20 text-green-400 border-green-500/30'
-                      }`}>
-                        {message.priority}
-                      </Badge>
-                      {!message.read && (
-                        <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full" />
-                      )}
-                    </div>
-                    <p className="text-white font-medium mb-1">{message.subject}</p>
-                    <p className="text-gray-400 text-sm mb-2">{message.message}</p>
-                    <p className="text-xs text-gray-500">{message.time}</p>
+          
+          <CardContent className="flex-1 flex flex-col p-0">
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-4">
+                {ownerMessagesLoading ? (
+                  <div className="flex items-center justify-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
                   </div>
-                  
-                  {/* Message Action Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-80">
-                      <div className="space-y-4">
-                        <div className="border-b border-gray-700 pb-2">
-                          <h4 className="text-white font-medium">Message Actions</h4>
-                          <p className="text-sm text-gray-400">Manage this conversation</p>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="flex flex-col space-y-2">
-                            <label className="text-sm text-gray-300">Quick Actions</label>
-                            <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                              <option value="">Select Action...</option>
-                              <option value="reply">Reply to Message</option>
-                              <option value="forward">Forward Message</option>
-                              <option value="archive">Archive Message</option>
-                              <option value="mark_important">Mark as Important</option>
-                            </select>
-                          </div>
-                          
-                          <div className="flex flex-col space-y-2">
-                            <label className="text-sm text-gray-300">Reply Message</label>
-                            <textarea 
-                              className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
-                              rows={3}
-                              placeholder="Type your reply here..."
-                            />
-                          </div>
-                          
-                          <div className="flex flex-col space-y-2">
-                            <label className="text-sm text-gray-300">Priority Level</label>
-                            <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                              <option value="low">Low Priority</option>
-                              <option value="medium">Medium Priority</option>
-                              <option value="high">High Priority</option>
-                              <option value="urgent">Urgent</option>
-                            </select>
-                          </div>
-                          
-                          <div className="flex space-x-2 pt-2">
-                            <Button 
-                              size="sm" 
-                              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
-                              onClick={() => toast({ title: "Reply sent successfully" })}
-                            >
-                              Send Reply
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="border-gray-600 text-gray-300 hover:border-purple-500"
-                            >
-                              Archive
-                            </Button>
-                          </div>
-                        </div>
+                ) : ownerMessages.length === 0 ? (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400">No messages yet. Start a conversation with MBYC Admin!</p>
+                  </div>
+                ) : (
+                  ownerMessages.map((message: any, index: number) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`flex ${message.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                        message.senderId === user?.id 
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' 
+                          : 'bg-gray-800 text-gray-100'
+                      }`}>
+                        <p className="text-sm">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {format(new Date(message.createdAt), 'MMM d, HH:mm')}
+                        </p>
                       </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Compose New Message */}
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Send className="h-5 w-5 mr-2 text-purple-500" />
-              Compose Message
-            </CardTitle>
-            <CardDescription>Send messages to admin, staff, or support teams</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Recipient</label>
-                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                  <option value="">Select Recipient...</option>
-                  <option value="admin">MBYC Admin</option>
-                  <option value="marina_manager">Marina Manager</option>
-                  <option value="concierge">Concierge Service</option>
-                  <option value="maintenance">Maintenance Team</option>
-                  <option value="customer_service">Customer Service</option>
-                </select>
+                    </motion.div>
+                  ))
+                )}
               </div>
-              
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Message Type</label>
-                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                  <option value="">Select Type...</option>
-                  <option value="general">General Inquiry</option>
-                  <option value="maintenance">Maintenance Request</option>
-                  <option value="booking">Booking Issue</option>
-                  <option value="complaint">Complaint</option>
-                  <option value="suggestion">Suggestion</option>
-                </select>
-              </div>
-              
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Subject</label>
-                <input 
-                  type="text"
-                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
-                  placeholder="Enter message subject..."
+            </ScrollArea>
+            
+            {/* Message Input */}
+            <div className="border-t border-gray-700 p-4">
+              <div className="flex space-x-2">
+                <Input
+                  value={ownerNewMessage}
+                  onChange={(e) => setOwnerNewMessage(e.target.value)}
+                  placeholder="Type your message to MBYC Admin..."
+                  className="flex-1 bg-gray-800 border-gray-600 text-white"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleOwnerSendMessage();
+                    }
+                  }}
                 />
-              </div>
-              
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Message</label>
-                <textarea 
-                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
-                  rows={5}
-                  placeholder="Type your message here..."
-                />
-              </div>
-              
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Priority</label>
-                <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
-              
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-300">Attachments (Optional)</label>
-                <input 
-                  type="file"
-                  className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
-                  multiple
-                />
-              </div>
-              
-              <div className="flex space-x-2 pt-4">
-                <Button 
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
-                  onClick={() => toast({ title: "Message sent successfully" })}
+                <Button
+                  onClick={handleOwnerSendMessage}
+                  disabled={!ownerNewMessage.trim() || ownerSendMessageMutation.isPending}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 >
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Message
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:border-purple-500"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Draft
+                  {ownerSendMessageMutation.isPending ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      {/* Communication Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Total Messages</p>
-                <p className="text-2xl font-bold text-white">47</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <MessageSquare className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-              <span className="text-green-400">+12%</span>
-              <span className="text-gray-400 ml-1">this month</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Unread Messages</p>
-                <p className="text-2xl font-bold text-white">3</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <Bell className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <Clock className="h-4 w-4 text-yellow-400 mr-1" />
-              <span className="text-yellow-400">Requires attention</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm mb-1">Response Time</p>
-                <p className="text-2xl font-bold text-white">2.4h</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <Timer className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingDown className="h-4 w-4 text-red-400 mr-1" />
-              <span className="text-red-400">-15%</span>
-              <span className="text-gray-400 ml-1">faster response</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    );
+  };
 
   const renderSettings = () => (
     <motion.div

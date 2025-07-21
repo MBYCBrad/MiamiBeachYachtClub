@@ -85,13 +85,13 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'pending' | 'resolved'>('all');
   
-  // Only allow service providers and admins access
-  if (!user || (user.role !== 'service_provider' && user.role !== 'admin')) {
+  // Allow service providers, yacht owners, and admins access
+  if (!user || (user.role !== 'service_provider' && user.role !== 'yacht_owner' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-400 mb-4">Access Denied</h1>
-          <p className="text-gray-400">This messaging system is only available to service providers and administrators.</p>
+          <p className="text-gray-400">This messaging system is only available to service providers, yacht owners, and administrators.</p>
         </div>
       </div>
     );
@@ -103,9 +103,13 @@ export default function MessagesPage() {
     enabled: !!user,
   });
 
-  // Fetch conversations with real-time updates - service providers get dedicated admin conversations
+  // Fetch conversations with real-time updates - service providers and yacht owners get dedicated admin conversations
   const { data: conversations = [], isLoading: conversationsLoading } = useQuery<Conversation[]>({
-    queryKey: user?.role === 'service_provider' ? ['/api/service-provider/conversations'] : ['/api/conversations'],
+    queryKey: user?.role === 'service_provider' 
+      ? ['/api/service-provider/conversations'] 
+      : user?.role === 'yacht_owner' 
+        ? ['/api/yacht-owner/conversations']
+        : ['/api/conversations'],
     enabled: !!user,
     refetchInterval: 3000, // Real-time updates every 3 seconds
   });
@@ -114,27 +118,35 @@ export default function MessagesPage() {
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: user?.role === 'service_provider' 
       ? ['/api/service-provider/messages', selectedConversation]
-      : ['/api/messages', selectedConversation],
+      : user?.role === 'yacht_owner'
+        ? ['/api/yacht-owner/messages', selectedConversation]
+        : ['/api/messages', selectedConversation],
     enabled: !!selectedConversation,
     refetchInterval: 2000, // Real-time message updates
   });
 
-  // Send message mutation - service providers use dedicated endpoint to message Simon Librati
+  // Send message mutation - service providers and yacht owners use dedicated endpoints to message Simon Librati
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: { conversationId: string; content: string; recipientId?: number }) => {
-      const endpoint = user?.role === 'service_provider' 
-        ? '/api/service-provider/messages' 
-        : '/api/messages';
+      const endpoint = user?.role === 'service_provider'
+        ? '/api/service-provider/messages'
+        : user?.role === 'yacht_owner'
+          ? '/api/yacht-owner/messages'
+          : '/api/messages';
       const response = await apiRequest('POST', endpoint, messageData);
       return response.json();
     },
     onSuccess: () => {
       const conversationKey = user?.role === 'service_provider' 
         ? ['/api/service-provider/messages', selectedConversation]
-        : ['/api/messages', selectedConversation];
+        : user?.role === 'yacht_owner'
+          ? ['/api/yacht-owner/messages', selectedConversation]
+          : ['/api/messages', selectedConversation];
       const conversationsKey = user?.role === 'service_provider' 
         ? ['/api/service-provider/conversations']
-        : ['/api/conversations'];
+        : user?.role === 'yacht_owner'
+          ? ['/api/yacht-owner/conversations']
+          : ['/api/conversations'];
         
       queryClient.invalidateQueries({ queryKey: conversationKey });
       queryClient.invalidateQueries({ queryKey: conversationsKey });
