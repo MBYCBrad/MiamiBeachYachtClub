@@ -2097,9 +2097,19 @@ export default function ServiceProviderDashboard() {
           {/* Top section with navigation */}
           <div className="flex-1 p-6">
             <div className="flex items-center space-x-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                <User className="h-6 w-6 text-white" />
-              </div>
+              {user?.profileImage ? (
+                <img 
+                  src={user.profileImage} 
+                  alt="Profile" 
+                  className="w-10 h-10 rounded-xl object-cover ring-2 ring-purple-600/20"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-semibold text-lg">
+                    {user?.username?.charAt(0).toUpperCase() || 'D'}
+                  </span>
+                </div>
+              )}
               <div>
                 <h2 className="text-white font-bold">Service Provider</h2>
                 <p className="text-gray-400 text-sm">{user?.username}</p>
