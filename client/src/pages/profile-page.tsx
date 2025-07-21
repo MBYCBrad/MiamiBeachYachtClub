@@ -36,6 +36,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Service Provider Stats Interface
+interface ServiceProviderStats {
+  totalServices: number;
+  totalBookings: number;
+  monthlyRevenue: number;
+  avgRating: number;
+  completionRate: number;
+  activeClients: number;
+}
+
 interface ServiceProvider {
   id: number;
   username: string;
@@ -80,6 +90,14 @@ export default function ProfilePage() {
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['/api/profile'],
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Fetch real-time service provider stats for Performance Overview
+  const { data: stats, isLoading: statsLoading } = useQuery<ServiceProviderStats>({
+    queryKey: ['/api/service-provider/stats'],
+    staleTime: 30 * 1000, // 30 seconds for real-time updates
+    gcTime: 5 * 60 * 1000, // 5 minutes memory cache
+    refetchInterval: 30000 // Auto-refetch every 30 seconds for real-time sync
   });
 
   // Initialize form data when profile loads
@@ -479,47 +497,54 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {(profile as any)?.rating ? (profile as any).rating.toFixed(1) : '0.0'}
+              {statsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
+                  <span className="ml-2 text-gray-400">Loading performance data...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {stats?.avgRating ? stats.avgRating.toFixed(1) : '0.0'}
+                    </div>
+                    <div className="text-sm text-gray-400">Average Rating</div>
+                    <div className="flex justify-center mt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${
+                            i < Math.floor(stats?.avgRating || 0)
+                              ? 'text-yellow-500 fill-current'
+                              : 'text-gray-600'
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-400">Average Rating</div>
-                  <div className="flex justify-center mt-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor((profile as any)?.rating || 0)
-                            ? 'text-yellow-500 fill-current'
-                            : 'text-gray-600'
-                        }`}
-                      />
-                    ))}
+                  
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {stats?.totalBookings || 0}
+                    </div>
+                    <div className="text-sm text-gray-400">Total Bookings</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {stats?.totalServices || 0}
+                    </div>
+                    <div className="text-sm text-gray-400">Active Services</div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      ${stats?.monthlyRevenue ? stats.monthlyRevenue.toLocaleString() : '0'}
+                    </div>
+                    <div className="text-sm text-gray-400">Monthly Revenue</div>
                   </div>
                 </div>
-                
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {(profile as any)?.totalBookings || 0}
-                  </div>
-                  <div className="text-sm text-gray-400">Total Bookings</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {(profile as any)?.specialties?.length || 0}
-                  </div>
-                  <div className="text-sm text-gray-400">Specialties</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {(profile as any)?.joinedDate ? new Date((profile as any).joinedDate).getFullYear() : '2024'}
-                  </div>
-                  <div className="text-sm text-gray-400">Member Since</div>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
