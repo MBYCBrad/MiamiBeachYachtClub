@@ -115,12 +115,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
       {/* Messages Content */}
       <div className="container mx-auto px-4 py-8 -mt-16 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50"
-        >
+        <div className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
           {/* Search and Actions */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
@@ -219,7 +214,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
               ))}
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );
