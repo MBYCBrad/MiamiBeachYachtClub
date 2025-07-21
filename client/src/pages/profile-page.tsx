@@ -84,32 +84,39 @@ export default function ProfilePage() {
 
   // Initialize form data when profile loads
   useEffect(() => {
-    if (profile) {
+    if (profile && typeof profile === 'object') {
       setFormData({
-        fullName: profile.fullName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        location: profile.location || '',
-        bio: profile.bio || '',
-        language: profile.language || 'en',
+        fullName: (profile as any).fullName || '',
+        email: (profile as any).email || '',
+        phone: (profile as any).phone || '',
+        location: (profile as any).location || '',
+        bio: (profile as any).bio || '',
         notifications: {
           emailNotifications: true,
           smsNotifications: false,
           bookingReminders: true,
           promotionalEmails: false
         }
-      });
+      } as any);
     }
   }, [profile]);
 
   // Real-time profile update mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: Partial<ServiceProvider>) => {
-      return await apiRequest('/api/profile', {
+      const response = await fetch('/api/profile', {
         method: 'PATCH',
         body: JSON.stringify(updates),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: (updatedProfile) => {
       queryClient.setQueryData(['/api/profile'], updatedProfile);
@@ -183,21 +190,20 @@ export default function ProfilePage() {
   };
 
   const handleCancel = () => {
-    if (profile) {
+    if (profile && typeof profile === 'object') {
       setFormData({
-        fullName: profile.fullName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        location: profile.location || '',
-        bio: profile.bio || '',
-        language: profile.language || 'en',
+        fullName: (profile as any).fullName || '',
+        email: (profile as any).email || '',
+        phone: (profile as any).phone || '',
+        location: (profile as any).location || '',
+        bio: (profile as any).bio || '',
         notifications: formData.notifications || {
           emailNotifications: true,
           smsNotifications: false,
           bookingReminders: true,
           promotionalEmails: false
         }
-      });
+      } as any);
     }
     setIsEditing(false);
   };
@@ -271,7 +277,7 @@ export default function ProfilePage() {
               <div className="text-right">
                 <p className="text-sm text-gray-400">Profile Status</p>
                 <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                  {profile?.verificationStatus || 'Active'}
+                  {(profile as any)?.verificationStatus || 'verified'}
                 </Badge>
               </div>
             </div>
@@ -333,11 +339,11 @@ export default function ProfilePage() {
               <div className="flex items-start space-x-6">
                 <div className="relative">
                   <Avatar className="h-24 w-24">
-                    {profile?.profileImage ? (
-                      <AvatarImage src={profile.profileImage} alt={profile.fullName || profile.username} />
+                    {(profile as any)?.profileImage ? (
+                      <AvatarImage src={(profile as any).profileImage} alt={(profile as any).fullName || (profile as any).username} />
                     ) : null}
                     <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-2xl font-semibold">
-                      {profile?.fullName?.charAt(0).toUpperCase() || profile?.username?.charAt(0).toUpperCase() || 'U'}
+                      {(profile as any)?.fullName?.charAt(0).toUpperCase() || (profile as any)?.username?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
@@ -375,13 +381,13 @@ export default function ProfilePage() {
                           className="bg-gray-800 border-gray-700 text-white mt-1"
                         />
                       ) : (
-                        <p className="text-white mt-1">{profile?.fullName || 'Not provided'}</p>
+                        <p className="text-white mt-1">{(profile as any)?.fullName || 'Not provided'}</p>
                       )}
                     </div>
                     
                     <div>
                       <Label htmlFor="username" className="text-gray-300">Username</Label>
-                      <p className="text-white mt-1">{profile?.username}</p>
+                      <p className="text-white mt-1">{(profile as any)?.username}</p>
                     </div>
                     
                     <div>
@@ -397,7 +403,7 @@ export default function ProfilePage() {
                       ) : (
                         <p className="text-white mt-1 flex items-center gap-2">
                           <Mail className="h-4 w-4 text-gray-400" />
-                          {profile?.email}
+                          {(profile as any)?.email}
                         </p>
                       )}
                     </div>
@@ -414,7 +420,7 @@ export default function ProfilePage() {
                       ) : (
                         <p className="text-white mt-1 flex items-center gap-2">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          {profile?.phone || 'Not provided'}
+                          {(profile as any)?.phone || 'Not provided'}
                         </p>
                       )}
                     </div>
@@ -431,7 +437,7 @@ export default function ProfilePage() {
                       ) : (
                         <p className="text-white mt-1 flex items-center gap-2">
                           <MapPin className="h-4 w-4 text-gray-400" />
-                          {profile?.location || 'Not provided'}
+                          {(profile as any)?.location || 'Not provided'}
                         </p>
                       )}
                     </div>
@@ -452,7 +458,7 @@ export default function ProfilePage() {
                     placeholder="Tell us about yourself and your services..."
                   />
                 ) : (
-                  <p className="text-white mt-1">{profile?.bio || 'No bio provided yet.'}</p>
+                  <p className="text-white mt-1">{(profile as any)?.bio || 'No bio provided yet.'}</p>
                 )}
               </div>
             </CardContent>
@@ -476,7 +482,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {profile?.rating ? profile.rating.toFixed(1) : '0.0'}
+                    {(profile as any)?.rating ? (profile as any).rating.toFixed(1) : '0.0'}
                   </div>
                   <div className="text-sm text-gray-400">Average Rating</div>
                   <div className="flex justify-center mt-2">
@@ -484,7 +490,7 @@ export default function ProfilePage() {
                       <Star
                         key={i}
                         className={`h-4 w-4 ${
-                          i < Math.floor(profile?.rating || 0)
+                          i < Math.floor((profile as any)?.rating || 0)
                             ? 'text-yellow-500 fill-current'
                             : 'text-gray-600'
                         }`}
@@ -495,21 +501,21 @@ export default function ProfilePage() {
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {profile?.totalBookings || 0}
+                    {(profile as any)?.totalBookings || 0}
                   </div>
                   <div className="text-sm text-gray-400">Total Bookings</div>
                 </div>
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {profile?.specialties?.length || 0}
+                    {(profile as any)?.specialties?.length || 0}
                   </div>
                   <div className="text-sm text-gray-400">Specialties</div>
                 </div>
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-white mb-1">
-                    {profile?.joinedDate ? new Date(profile.joinedDate).getFullYear() : '2024'}
+                    {(profile as any)?.joinedDate ? new Date((profile as any).joinedDate).getFullYear() : '2024'}
                   </div>
                   <div className="text-sm text-gray-400">Member Since</div>
                 </div>
