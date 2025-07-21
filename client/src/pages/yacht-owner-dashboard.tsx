@@ -3715,7 +3715,7 @@ export default function YachtOwnerDashboard() {
             opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
+          className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-40 flex flex-col"
         >
           {/* Animated background */}
           <div className="absolute inset-0 bg-gray-950" />
@@ -3972,7 +3972,7 @@ export default function YachtOwnerDashboard() {
             width: sidebarCollapsed ? "100%" : "calc(100% - 320px)"
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="flex-1 min-h-screen bg-black overflow-hidden"
+          className="flex-1 min-h-screen bg-black overflow-hidden isolate"
         >
           {/* Animated background */}
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
