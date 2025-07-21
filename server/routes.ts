@@ -3711,19 +3711,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!conversation) {
         conversation = await dbStorage.createConversation({
           id: conversationId,
-          participant1Id: userId,
-          participant2Id: 60, // Simon Librati admin ID
-          type: 'service_provider_admin',
-          title: `Service Provider Support - ${req.user!.username}`,
-          participants: [userId, 60],
-          lastMessageAt: new Date(),
+          serviceProviderId: userId,
+          memberName: null,
+          memberPhone: null,
+          membershipTier: null,
+          lastMessage: null,
+          lastMessageTime: new Date(),
           unreadCount: 0,
+          status: 'active',
+          priority: 'medium',
+          tags: [],
+          assignedAgent: null,
+          currentTripId: null,
           metadata: {
             serviceProviderId: userId,
             serviceProviderName: req.user!.username,
             adminId: 60,
             adminName: 'Simon Librati'
-          }
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
       }
       

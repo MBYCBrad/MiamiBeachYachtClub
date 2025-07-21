@@ -552,10 +552,11 @@ export const notifications = pgTable("notifications", {
 
 export const conversations = pgTable("conversations", {
   id: text("id").primaryKey(),
-  memberId: integer("member_id").references(() => users.id).notNull(),
-  memberName: text("member_name").notNull(),
+  memberId: integer("member_id").references(() => users.id),
+  serviceProviderId: integer("service_provider_id").references(() => users.id),
+  memberName: text("member_name"),
   memberPhone: text("member_phone"),
-  membershipTier: text("membership_tier").notNull(),
+  membershipTier: text("membership_tier"),
   lastMessage: text("last_message"),
   lastMessageTime: timestamp("last_message_time").defaultNow(),
   unreadCount: integer("unread_count").default(0),
