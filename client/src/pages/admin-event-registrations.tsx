@@ -671,9 +671,7 @@ export default function AdminEventRegistrations() {
                   size="sm"
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/50 hover:from-purple-700 hover:to-indigo-700"
                   onClick={() => {
-                    // Navigate to messages with the member
-                    window.location.href = `/messages?member=${selectedRegistration.member?.id}&name=${encodeURIComponent(selectedRegistration.member?.name || 'Member')}`;
-                    setViewDialogOpen(false);
+                    window.location.href = `mailto:${selectedRegistration.member?.email}?subject=Event Registration: ${selectedRegistration.event?.title}`;
                   }}
                 >
                   <Mail className="h-4 w-4 mr-2" />
