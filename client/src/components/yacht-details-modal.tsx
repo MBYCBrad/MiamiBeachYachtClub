@@ -94,9 +94,9 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white" aria-describedby="yacht-description">
           <DialogHeader className="sr-only">
-            <h2>{yacht.name} Details</h2>
+            <DialogTitle>{yacht.name} Details</DialogTitle>
           </DialogHeader>
           
           {/* Close Button */}
@@ -205,7 +205,7 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
 
               {/* Description */}
               {yacht.description && (
-                <div>
+                <div id="yacht-description">
                   <h3 className="text-lg font-semibold mb-2">Description</h3>
                   <p className="text-gray-300 leading-relaxed">{yacht.description}</p>
                 </div>

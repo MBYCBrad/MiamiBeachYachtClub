@@ -25,8 +25,7 @@ import {
   Calendar,
   Filter,
   Volume2,
-  VolumeX,
-  X
+  VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -51,9 +50,9 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<Service | null>(null);
+
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<any>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
   const [selectedEventForDetails, setSelectedEventForDetails] = useState<EventType | null>(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -68,19 +67,12 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const { data: yachts = [] } = useQuery<Yacht[]>({ 
     queryKey: ['/api/yachts'],
     refetchOnWindowFocus: true, // Enable real-time sync when tab regains focus
-    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
-    onSuccess: () => {
-      // Clear image cache to ensure fresh thumbnails from admin updates
-      clearImageCache();
-    }
+    refetchInterval: 30000 // Refetch every 30 seconds for real-time updates
   });
   const { data: services = [] } = useQuery<Service[]>({ 
     queryKey: ['/api/services'],
     refetchOnWindowFocus: true,
-    refetchInterval: 30000,
-    onSuccess: () => {
-      clearImageCache();
-    }
+    refetchInterval: 30000
   });
   const { data: events = [] } = useQuery<EventType[]>({ 
     queryKey: ['/api/events'],
@@ -258,15 +250,15 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
 
   // Removed getServiceImage function - now using real-time database images
 
-  const filteredYachts = yachts.filter(yacht => 
+  const filteredYachts = Array.isArray(yachts) ? yachts.filter((yacht: any) => 
     yacht.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     yacht.location?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) : [];
 
-  const filteredServices = services.filter(service =>
+  const filteredServices = Array.isArray(services) ? services.filter((service: any) =>
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     service.category?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) : [];
 
   const filteredEvents = events.filter(event =>
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -617,72 +609,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         </AnimatePresence>
       </div>
 
-      {/* Yacht Detail Modal */}
-      <Dialog open={!!selectedYacht} onOpenChange={(open) => !open && setSelectedYacht(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
-          {selectedYacht && (
-            <div className="space-y-6">
-              {/* Close Button */}
-              <button
-                onClick={() => setSelectedYacht(null)}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
-              >
-                <X size={20} className="text-gray-400" />
-              </button>
-              
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-white">
-                  {selectedYacht.name}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <div className="relative">
-                <img
-                  src={selectedYacht.imageUrl || `https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&h=600&fit=crop&crop=center`}
-                  alt={selectedYacht.name}
-                  className="w-full h-80 object-cover rounded-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-lg" />
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-white">Specifications</h3>
-                  <div className="space-y-2 text-gray-300">
-                    <p><span className="font-medium">Length:</span> {selectedYacht.size}ft</p>
-                    <p><span className="font-medium">Capacity:</span> {selectedYacht.capacity} guests</p>
-                    <p><span className="font-medium">Location:</span> {selectedYacht.location}</p>
-                    <p><span className="font-medium">Description:</span> {selectedYacht.description || 'Luxury yacht experience'}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-white">Pricing</h3>
-                  <div className="text-3xl font-bold text-white">
-                    ${selectedYacht.pricePerHour}<span className="text-lg text-gray-400">/hour</span>
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-none shadow-lg">
-                    Book This Yacht
-                  </Button>
-                </div>
-              </div>
-
-              {selectedYacht.amenities && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-white">Amenities</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedYacht.amenities.map((amenity, index) => (
-                      <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-200">
-                        {amenity}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Service Booking Modal */}
       <ServiceBookingModal
@@ -697,7 +624,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
         service={selectedServiceForDetails}
         isOpen={!!selectedServiceForDetails}
         onClose={() => setSelectedServiceForDetails(null)}
-        onBookService={(service) => {
+        onBookService={(service: any) => {
           setSelectedServiceForDetails(null);
           setSelectedService(service);
         }}
