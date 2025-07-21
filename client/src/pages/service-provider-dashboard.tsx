@@ -74,7 +74,8 @@ import {
   Target,
   ArrowUpRight,
   ArrowDownRight,
-  Loader2
+  Loader2,
+  Shield
 } from "lucide-react";
 import MessagesPage from './messages-page';
 import NotificationsPage from './notifications-page';
@@ -810,9 +811,19 @@ interface ServiceProviderStats {
   totalServices: number;
   totalBookings: number;
   monthlyRevenue: number;
+  monthlyGrossRevenue: number;
+  lifetimeRevenue: number;
+  lifetimeGrossRevenue: number;
+  pendingPayouts: number;
+  platformFeesDeducted: number;
   avgRating: number;
+  totalReviews: number;
   completionRate: number;
   activeClients: number;
+  completedBookings: number;
+  pendingBookings: number;
+  nextPayoutDate: string;
+  payoutFrequency: string;
 }
 
 // Category icons mapping
@@ -855,6 +866,10 @@ export default function ServiceProviderDashboard() {
     queryKey: ['/api/service-provider/bookings'],
   });
 
+  const { data: paymentHistory } = useQuery({
+    queryKey: ['/api/service-provider/payments'],
+  });
+
   const serviceCategories = ["Beauty & Grooming", "Culinary", "Wellness & Spa", "Photography & Media", "Entertainment", "Water Sports", "Concierge & Lifestyle"];
 
   const filteredServices = services?.filter((service: any) => {
@@ -883,13 +898,36 @@ export default function ServiceProviderDashboard() {
           <p className="text-lg text-gray-400">Welcome back, {user?.username}</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Enhanced Stats Grid with Real-time Payment Tracking */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { title: "Total Services", value: stats?.totalServices || 0, icon: Package },
-            { title: "Active Bookings", value: stats?.totalBookings || 0, icon: Calendar },
-            { title: "Monthly Revenue", value: `$${stats?.monthlyRevenue?.toFixed(2) || "0.00"}`, icon: DollarSign },
-            { title: "Average Rating", value: stats?.avgRating?.toFixed(1) || "0.0", icon: Star },
+            { 
+              title: "Total Services", 
+              value: stats?.totalServices || 0, 
+              icon: Package,
+              subtitle: "Active services" 
+            },
+            { 
+              title: "Net Revenue (30 days)", 
+              value: `$${stats?.monthlyRevenue?.toFixed(2) || "0.00"}`, 
+              icon: DollarSign,
+              subtitle: `Gross: $${stats?.monthlyGrossRevenue?.toFixed(2) || "0.00"}`,
+              trend: "up"
+            },
+            { 
+              title: "Pending Payouts", 
+              value: `$${stats?.pendingPayouts?.toFixed(2) || "0.00"}`, 
+              icon: Clock,
+              subtitle: stats?.nextPayoutDate || "Next payout: TBD",
+              trend: "neutral"
+            },
+            { 
+              title: "Lifetime Earnings", 
+              value: `$${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}`, 
+              icon: Target,
+              subtitle: `${stats?.completedBookings || 0} completed`,
+              trend: "up"
+            },
           ].map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -897,23 +935,317 @@ export default function ServiceProviderDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300">
+              <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300 overflow-hidden">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                       <stat.icon className="h-5 w-5 text-white" />
                     </div>
-                    <div className={`text-2xl font-bold text-white`}>{stat.value}</div>
+                    {stat.trend && (
+                      <div className={`p-1 rounded ${
+                        stat.trend === 'up' ? 'bg-green-500/20' : 
+                        stat.trend === 'down' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                      }`}>
+                        {stat.trend === 'up' && <ArrowUpRight className="h-3 w-3 text-green-400" />}
+                        {stat.trend === 'down' && <ArrowDownRight className="h-3 w-3 text-red-400" />}
+                        {stat.trend === 'neutral' && <Clock className="h-3 w-3 text-gray-400" />}
+                      </div>
+                    )}
                   </div>
-                  <p className="text-gray-400 text-sm">{stat.title}</p>
+                  <div className="mb-1">
+                    <div className="text-2xl font-bold text-white">{stat.value}</div>
+                    <p className="text-gray-400 text-sm font-medium">{stat.title}</p>
+                  </div>
+                  {stat.subtitle && (
+                    <p className="text-xs text-gray-500 truncate">{stat.subtitle}</p>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
+
+        {/* Payment Performance Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-gray-950 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Revenue Breakdown</h3>
+                <Shield className="h-5 w-5 text-purple-400" />
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Gross Revenue (30 days)</span>
+                  <span className="text-white font-semibold">${stats?.monthlyGrossRevenue?.toFixed(2) || "0.00"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Platform Fees (15%)</span>
+                  <span className="text-red-400 font-semibold">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
+                </div>
+                <div className="border-t border-gray-700 pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white font-semibold">Net Revenue</span>
+                    <span className="text-green-400 font-bold text-lg">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-950 border-gray-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Service Performance</h3>
+                <Star className="h-5 w-5 text-yellow-400" />
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Average Rating</span>
+                  <span className="text-yellow-400 font-semibold">{stats?.avgRating?.toFixed(1) || "0.0"} ⭐</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Total Reviews</span>
+                  <span className="text-white font-semibold">{stats?.totalReviews || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Completion Rate</span>
+                  <span className="text-green-400 font-semibold">{stats?.completionRate || 0}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Active Clients</span>
+                  <span className="text-blue-400 font-semibold">{stats?.activeClients || 0}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   };
+
+  const renderRevenue = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div>
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-5xl font-bold text-white mb-2 tracking-tight"
+          style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+        >
+          Revenue & Payments
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-lg text-gray-400"
+        >
+          Track your earnings, payouts, and payment history
+        </motion.p>
+      </div>
+
+      {/* Revenue Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-gray-950 border-gray-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-green-400" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-white">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</p>
+              <p className="text-sm text-gray-400">Lifetime Earnings</p>
+              <p className="text-xs text-green-400">+{stats?.completedBookings || 0} completed bookings</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-950 border-gray-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+              <Clock className="h-4 w-4 text-yellow-400" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-white">${stats?.pendingPayouts?.toFixed(2) || "0.00"}</p>
+              <p className="text-sm text-gray-400">Pending Payouts</p>
+              <p className="text-xs text-yellow-400">Next payout: {stats?.nextPayoutDate || "TBD"}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-950 border-gray-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-purple-400" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-white">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</p>
+              <p className="text-sm text-gray-400">This Month (Net)</p>
+              <p className="text-xs text-purple-400">After 15% platform fee</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Payment History Table */}
+      <Card className="bg-gray-950 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center space-x-2">
+            <History className="h-5 w-5" />
+            <span>Payment History</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {paymentHistory && paymentHistory.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-700">
+                    <th className="text-left text-gray-400 font-medium p-3">Service</th>
+                    <th className="text-left text-gray-400 font-medium p-3">Date</th>
+                    <th className="text-left text-gray-400 font-medium p-3">Gross Amount</th>
+                    <th className="text-left text-gray-400 font-medium p-3">Platform Fee</th>
+                    <th className="text-left text-gray-400 font-medium p-3">Net Payout</th>
+                    <th className="text-left text-gray-400 font-medium p-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentHistory.map((payment: any) => (
+                    <tr key={payment.id} className="border-b border-gray-800 hover:bg-gray-900/50">
+                      <td className="p-3">
+                        <div>
+                          <p className="text-white font-medium">{payment.serviceName}</p>
+                          <p className="text-gray-400 text-sm">Booking #{payment.bookingId}</p>
+                        </div>
+                      </td>
+                      <td className="p-3 text-gray-300">
+                        {new Date(payment.date).toLocaleDateString()}
+                      </td>
+                      <td className="p-3 text-white font-semibold">
+                        ${payment.grossAmount?.toFixed(2)}
+                      </td>
+                      <td className="p-3 text-red-400 font-medium">
+                        -${payment.platformFee?.toFixed(2)}
+                      </td>
+                      <td className="p-3 text-green-400 font-bold">
+                        ${payment.netAmount?.toFixed(2)}
+                      </td>
+                      <td className="p-3">
+                        <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400 border border-green-500/30">
+                          Paid
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <CreditCard className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-400">No payment history yet</p>
+              <p className="text-gray-500 text-sm">Complete your first booking to see payments here</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Revenue Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-gray-950 border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white">Revenue Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Gross Revenue (All Time)</span>
+              <span className="text-white font-semibold">${stats?.lifetimeGrossRevenue?.toFixed(2) || "0.00"}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Platform Fees Deducted</span>
+              <span className="text-red-400 font-semibold">-$${((stats?.lifetimeGrossRevenue || 0) * 0.15).toFixed(2)}</span>
+            </div>
+            <div className="border-t border-gray-700 pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-white font-semibold">Net Lifetime Earnings</span>
+                <span className="text-green-400 font-bold text-lg">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</span>
+              </div>
+            </div>
+            
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <h4 className="text-white font-medium mb-3">This Month</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Gross Revenue</span>
+                  <span className="text-white">${stats?.monthlyGrossRevenue?.toFixed(2) || "0.00"}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Platform Fees</span>
+                  <span className="text-red-400">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
+                </div>
+                <div className="flex justify-between text-sm font-semibold">
+                  <span className="text-white">Net Revenue</span>
+                  <span className="text-green-400">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-950 border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-white">Payout Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-800/30 rounded-lg">
+              <div>
+                <p className="text-white font-medium">Weekly Payouts</p>
+                <p className="text-gray-400 text-sm">Automatic payouts every Friday</p>
+              </div>
+              <div className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs border border-green-500/30">
+                Active
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Next Payout Date</span>
+                <span className="text-white font-medium">{stats?.nextPayoutDate || "Friday, July 25, 2025"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Payout Method</span>
+                <span className="text-white font-medium">Bank Transfer</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Processing Time</span>
+                <span className="text-white font-medium">1-2 business days</span>
+              </div>
+            </div>
+
+            <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 mt-4">
+              <Settings className="h-4 w-4 mr-2" />
+              Update Payout Settings
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </motion.div>
+  );
 
   const renderServices = () => (
     <motion.div
@@ -1777,152 +2109,9 @@ export default function ServiceProviderDashboard() {
     );
   };
 
-  const renderRevenue = () => {
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    return (
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
-            Revenue Analytics
-          </h1>
-          <p className="text-lg text-gray-400">Track your earnings and financial performance</p>
-        </div>
 
-        {/* Revenue Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Monthly Revenue</p>
-                  <p className="text-2xl font-bold text-white mt-1">${stats?.monthlyRevenue || '0'}</p>
-                  <p className="text-purple-400 text-sm mt-2">+12% from last month</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Total Bookings</p>
-                  <p className="text-2xl font-bold text-white mt-1">{stats?.totalBookings || '0'}</p>
-                  <p className="text-purple-400 text-sm mt-2">This month</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Average Rating</p>
-                  <p className="text-2xl font-bold text-white mt-1">{stats?.avgRating || '4.8'}</p>
-                  <div className="flex items-center mt-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-3 w-3 text-purple-400 fill-current" />
-                    ))}
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Star className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gray-900/50 border-gray-700/50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-400 text-sm">Active Clients</p>
-                  <p className="text-2xl font-bold text-white mt-1">{stats?.activeClients || '0'}</p>
-                  <p className="text-purple-400 text-sm mt-2">Unique members</p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Revenue Chart */}
-        <Card className="bg-gray-900/50 border-gray-700/50">
-          <CardHeader>
-            <CardTitle className="text-white">Revenue Trend</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="h-64 flex items-center justify-center">
-              <p className="text-gray-500">Revenue chart visualization coming soon...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-
-  const [stripeSecretKey, setStripeSecretKey] = useState('');
-  const [stripePublishableKey, setStripePublishableKey] = useState('');
-  const [isTestingStripe, setIsTestingStripe] = useState(false);
-  const [stripeConnectStatus, setStripeConnectStatus] = useState('not_connected');
-
-  const testStripeConnection = async () => {
-    if (!stripeSecretKey.trim()) {
-      toast({ title: "Error", description: "Please enter Stripe Secret Key", variant: "destructive" });
-      return;
-    }
-
-    setIsTestingStripe(true);
-    try {
-      const response = await apiRequest("POST", "/api/admin/test-stripe", { apiKey: stripeSecretKey });
-      const result = await response.json();
-      
-      if (result.success) {
-        toast({ 
-          title: "Stripe Connected", 
-          description: `Account: ${result.data.email} (${result.data.country})` 
-        });
-      } else {
-        toast({ 
-          title: "Stripe Error", 
-          description: result.error || "Connection failed", 
-          variant: "destructive" 
-        });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to test Stripe connection", variant: "destructive" });
-    } finally {
-      setIsTestingStripe(false);
-    }
-  };
-
-  const createConnectAccount = async () => {
-    try {
-      const response = await apiRequest("POST", "/api/payments/create-connect-account");
-      const result = await response.json();
-      
-      if (result.accountId) {
-        toast({ 
-          title: "Connect Account Created", 
-          description: "Your Stripe Connect account has been created successfully" 
-        });
-        setStripeConnectStatus('pending');
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to create Connect account", variant: "destructive" });
-    }
-  };
 
   const renderSettings = () => (
     <div className="space-y-8">
@@ -1943,98 +2132,24 @@ export default function ServiceProviderDashboard() {
           <CardDescription>Configure payment processing for your services</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 mb-2 block">
-                Stripe Secret Key
-              </label>
-              <Input
-                type="password"
-                placeholder="sk_test_..."
-                value={stripeSecretKey}
-                onChange={(e) => setStripeSecretKey(e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 mb-2 block">
-                Stripe Publishable Key
-              </label>
-              <Input
-                type="text"
-                placeholder="pk_test_..."
-                value={stripePublishableKey}
-                onChange={(e) => setStripePublishableKey(e.target.value)}
-                className="bg-gray-800 border-gray-600 text-white"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                onClick={testStripeConnection}
-                disabled={isTestingStripe}
-                variant="outline"
-                className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:text-white hover:border-transparent flex-1"
-              >
-                {isTestingStripe ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Testing...
-                  </>
-                ) : (
-                  "Test Connection"
-                )}
-              </Button>
-              <Button 
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex-1"
-              >
-                Save Configuration
-              </Button>
-            </div>
-          </div>
-
-          {/* Connect Account Status */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-white font-medium mb-4">Connect Account Status</h3>
-            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${stripeConnectStatus === 'connected' ? 'bg-green-500' : stripeConnectStatus === 'pending' ? 'bg-yellow-500' : 'bg-red-500'}`} />
-                <div>
-                  <p className="text-white font-medium">
-                    {stripeConnectStatus === 'connected' ? 'Connected' : stripeConnectStatus === 'pending' ? 'Pending Setup' : 'Not Connected'}
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    {stripeConnectStatus === 'connected' 
-                      ? 'Your account is ready to receive payments' 
-                      : stripeConnectStatus === 'pending' 
-                      ? 'Complete your account setup to receive payments'
-                      : 'Create a Connect account to receive payments directly'
-                    }
-                  </p>
-                </div>
+          {/* Stripe Connection Status */}
+          <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+              <div>
+                <p className="text-white font-medium">Platform Connected</p>
+                <p className="text-gray-400 text-sm">Using Miami Beach Yacht Club payment processing</p>
               </div>
-              {stripeConnectStatus === 'not_connected' && (
-                <Button 
-                  onClick={createConnectAccount}
-                  variant="outline" 
-                  className="border-purple-500 text-purple-400 hover:bg-purple-600/20"
-                >
-                  Create Account
-                </Button>
-              )}
-              {stripeConnectStatus === 'pending' && (
-                <Button 
-                  variant="outline" 
-                  className="border-yellow-500 text-yellow-400 hover:bg-yellow-600/20"
-                >
-                  Complete Setup
-                </Button>
-              )}
+            </div>
+            <div className="flex items-center space-x-2 text-green-400">
+              <Shield className="h-4 w-4" />
+              <span className="text-sm font-medium">Verified</span>
             </div>
           </div>
 
           {/* Payout Information */}
           <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-white font-medium mb-4">Payout Information</h3>
+            <h3 className="text-white font-medium mb-4">Payment & Payout Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="p-3 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400 mb-1">Platform Fee</p>
@@ -2042,16 +2157,83 @@ export default function ServiceProviderDashboard() {
               </div>
               <div className="p-3 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400 mb-1">Payout Schedule</p>
-                <p className="text-white font-medium">Daily (2-day rolling)</p>
+                <p className="text-white font-medium">Weekly (Every Friday)</p>
               </div>
               <div className="p-3 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400 mb-1">Minimum Payout</p>
-                <p className="text-white font-medium">$1.00</p>
+                <p className="text-white font-medium">$50.00</p>
               </div>
               <div className="p-3 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400 mb-1">Payment Methods</p>
-                <p className="text-white font-medium">Bank Transfer, Debit Card</p>
+                <p className="text-white font-medium">Bank Transfer, PayPal</p>
               </div>
+            </div>
+          </div>
+
+          {/* Payment Integration Info */}
+          <div className="border-t border-gray-700 pt-6">
+            <h3 className="text-white font-medium mb-4">How It Works</h3>
+            <div className="space-y-3 text-sm text-gray-300">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">1</div>
+                <p>Members book your services through the MBYC platform</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">2</div>
+                <p>Payments are processed securely through our Stripe integration</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">3</div>
+                <p>Your earnings (minus platform fee) are tracked in real-time</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">4</div>
+                <p>Weekly payouts are sent directly to your registered payment method</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bank Details Form */}
+          <div className="border-t border-gray-700 pt-6">
+            <h3 className="text-white font-medium mb-4">Payout Details</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Bank Name</label>
+                  <Input
+                    placeholder="Enter bank name"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Account Holder Name</label>
+                  <Input
+                    placeholder="Enter account holder name"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Account Number</label>
+                  <Input
+                    type="password"
+                    placeholder="Enter account number"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300">Routing Number</label>
+                  <Input
+                    placeholder="Enter routing number"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+              </div>
+              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                <Shield className="h-4 w-4 mr-2" />
+                Save Payout Information
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -2097,12 +2279,11 @@ export default function ServiceProviderDashboard() {
           {/* Top section with navigation */}
           <div className="flex-1 p-6">
             <div className="flex items-center space-x-3 mb-8">
-              {console.log('User data in sidebar:', user, 'hasProfileImage:', user?.hasProfileImage, 'profileImage:', user?.profileImage) || (user?.hasProfileImage && user?.profileImage) ? (
+              {user?.profileImage ? (
                 <img 
                   src={user.profileImage} 
                   alt="Profile" 
                   className="w-10 h-10 rounded-xl object-cover ring-2 ring-purple-600/20"
-                  onError={() => console.log('Profile image failed to load:', user.profileImage)}
                 />
               ) : (
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
@@ -2122,6 +2303,7 @@ export default function ServiceProviderDashboard() {
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
                 { id: 'services', label: 'Services', icon: Package },
                 { id: 'bookings', label: 'Bookings', icon: Calendar },
+                { id: 'revenue', label: 'Revenue', icon: CreditCard },
                 { id: 'analytics', label: 'Analytics', icon: TrendingUp },
                 { id: 'messages', label: 'Messages', icon: MessageSquare },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -2150,11 +2332,19 @@ export default function ServiceProviderDashboard() {
           {/* User Profile - Bottom Section */}
           <div className="p-4 border-t border-gray-700/50 bg-gray-900/50">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-semibold">
-                  {user?.username?.charAt(0).toUpperCase() || 'S'}
-                </AvatarFallback>
-              </Avatar>
+              {user?.profileImage ? (
+                <img 
+                  src={user.profileImage} 
+                  alt="Profile" 
+                  className="h-10 w-10 rounded-full object-cover ring-2 ring-purple-600/20"
+                />
+              ) : (
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-semibold">
+                    {user?.username?.charAt(0).toUpperCase() || 'S'}
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user?.username || 'Service Provider'}</p>
                 <p className="text-xs text-gray-400">Concierge Specialist</p>
