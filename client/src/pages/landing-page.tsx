@@ -242,9 +242,9 @@ function FeaturesSection() {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-3 gap-4 lg:gap-6 items-center max-w-6xl mx-auto">
           {/* Left Features - Desktop Only */}
-          <div className="hidden lg:block space-y-8">
+          <div className="hidden lg:block space-y-6 pr-4">
             {leftFeatures.map((feature, index) => (
               <motion.div
                 key={index}
@@ -274,7 +274,7 @@ function FeaturesSection() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="relative w-[200px] sm:w-[220px] lg:w-[240px] h-[400px] sm:h-[440px] lg:h-[480px]">
+              <div className="relative w-[260px] sm:w-[300px] lg:w-[320px] h-[520px] sm:h-[600px] lg:h-[640px]">
               {/* iPhone Frame Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751028888126.png"
@@ -397,7 +397,7 @@ function FeaturesSection() {
           </div>
 
           {/* Right Features - Desktop Only */}
-          <div className="hidden lg:block space-y-8">
+          <div className="hidden lg:block space-y-6 pl-4">
             {rightFeatures.map((feature, index) => (
               <motion.div
                 key={index}
