@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useHeroVideo } from '@/hooks/use-hero-video';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +32,8 @@ import { cn } from '@/lib/utils';
 import YachtCard from '@/components/yacht-card';
 import type { Yacht, Service, Event as EventType } from '@shared/schema';
 import { clearImageCache } from '@/hooks/use-optimized-images';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 
 
@@ -48,13 +50,14 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('yachts');
   const [showFilters, setShowFilters] = useState(false);
-  const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [selectedYacht, setSelectedYacht] = useState<Yacht | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedServiceForDetails, setSelectedServiceForDetails] = useState<Service | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventType | null>(null);
   const [selectedEventForDetails, setSelectedEventForDetails] = useState<EventType | null>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSearch = (criteria: any) => {
     // Navigate to search results with criteria
@@ -84,16 +87,148 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
     refetchInterval: 30000
   });
 
-  const toggleLike = (id: number) => {
-    setLikedItems(prev => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(id)) {
-        newLiked.delete(id);
-      } else {
-        newLiked.add(id);
-      }
-      return newLiked;
-    });
+  // Get user's favorites from database - real-time persistence
+  const { data: userFavorites = [] } = useQuery({
+    queryKey: ['/api/favorites'],
+    enabled: !!user,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000
+  });
+
+  // Check if service is favorite
+  const isServiceFavorite = (serviceId: number) => {
+    return Array.isArray(userFavorites) && userFavorites.some((fav: any) => fav.serviceId === serviceId);
+  };
+
+  // Check if event is favorite
+  const isEventFavorite = (eventId: number) => {
+    return Array.isArray(userFavorites) && userFavorites.some((fav: any) => fav.eventId === eventId);
+  };
+
+  // Add service favorite mutation
+  const addServiceFavoriteMutation = useMutation({
+    mutationFn: async (serviceId: number) => {
+      const response = await apiRequest('POST', '/api/favorites', { serviceId });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: "Service has been added to your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add service to favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Remove service favorite mutation
+  const removeServiceFavoriteMutation = useMutation({
+    mutationFn: async (serviceId: number) => {
+      const response = await apiRequest('DELETE', `/api/favorites?serviceId=${serviceId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: "Service has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove service from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Add event favorite mutation
+  const addEventFavoriteMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      const response = await apiRequest('POST', '/api/favorites', { eventId });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Added to Favorites",
+        description: "Event has been added to your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add event to favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Remove event favorite mutation
+  const removeEventFavoriteMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      const response = await apiRequest('DELETE', `/api/favorites?eventId=${eventId}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+      toast({
+        title: "Removed from Favorites",
+        description: "Event has been removed from your favorites",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove event from favorites",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Toggle service favorite
+  const toggleServiceFavorite = (e: React.MouseEvent, serviceId: number) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isServiceFavorite(serviceId)) {
+      removeServiceFavoriteMutation.mutate(serviceId);
+    } else {
+      addServiceFavoriteMutation.mutate(serviceId);
+    }
+  };
+
+  // Toggle event favorite
+  const toggleEventFavorite = (e: React.MouseEvent, eventId: number) => {
+    e.stopPropagation();
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isEventFavorite(eventId)) {
+      removeEventFavoriteMutation.mutate(eventId);
+    } else {
+      addEventFavoriteMutation.mutate(eventId);
+    }
   };
 
   const handleServiceBooking = async (bookingData: any) => {
@@ -299,10 +434,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
                       <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(service.id);
-                        }}
+                        onClick={(e) => toggleServiceFavorite(e, service.id)}
                         className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -310,7 +442,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                         <Heart 
                           className={cn(
                             "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(service.id) ? "fill-red-500 text-red-500" : "text-white"
+                            isServiceFavorite(service.id) ? "fill-red-500 text-red-500" : "text-white"
                           )}
                         />
                       </motion.button>
@@ -422,10 +554,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
                       <motion.button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLike(event.id);
-                        }}
+                        onClick={(e) => toggleEventFavorite(e, event.id)}
                         className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-all duration-200"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -433,7 +562,7 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
                         <Heart 
                           className={cn(
                             "h-5 w-5 transition-colors duration-200",
-                            likedItems.has(event.id) ? "fill-red-500 text-red-500" : "text-white"
+                            isEventFavorite(event.id) ? "fill-red-500 text-red-500" : "text-white"
                           )}
                         />
                       </motion.button>
