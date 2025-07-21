@@ -473,25 +473,25 @@ export default function AdminEventRegistrations() {
 
       {/* View Registration Details Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-black border-purple-500/20 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+        <DialogContent className="bg-black border-purple-500/20 text-white max-w-2xl max-h-[80vh] overflow-hidden">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-lg font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               Event Registration Details
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-gray-400 text-sm">
               Complete registration information and event details
             </DialogDescription>
           </DialogHeader>
 
           {selectedRegistration && (
-            <div className="space-y-6">
+            <div className="space-y-3 overflow-y-auto max-h-[calc(80vh-100px)] pr-2">
               {/* Registration Info */}
               <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                  <Ticket className="h-5 w-5 mr-2 text-purple-400" />
+                <h3 className="text-base font-semibold text-white mb-2 flex items-center">
+                  <Ticket className="h-4 w-4 mr-2 text-purple-400" />
                   Registration Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
                   <div>
                     <Label className="text-sm text-gray-400">Registration ID</Label>
                     <p className="text-white font-medium">#{selectedRegistration.id}</p>
@@ -522,11 +522,11 @@ export default function AdminEventRegistrations() {
 
               {/* Member Information */}
               <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-purple-400" />
+                <h3 className="text-base font-semibold text-white mb-2 flex items-center">
+                  <Users className="h-4 w-4 mr-2 text-purple-400" />
                   Member Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
                   <div>
                     <Label className="text-sm text-gray-400">Member Name</Label>
                     <p className="text-white font-medium">{selectedRegistration.member?.name || 'N/A'}</p>
@@ -552,12 +552,12 @@ export default function AdminEventRegistrations() {
 
               {/* Event Information */}
               <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-purple-400" />
+                <h3 className="text-base font-semibold text-white mb-2 flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-purple-400" />
                   Event Information
                 </h3>
-                <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
                       <Label className="text-sm text-gray-400">Event Name</Label>
                       <p className="text-white font-medium">{selectedRegistration.event?.title || 'N/A'}</p>
@@ -610,11 +610,11 @@ export default function AdminEventRegistrations() {
 
               {/* Payment Information */}
               <div>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2 text-purple-400" />
+                <h3 className="text-base font-semibold text-white mb-2 flex items-center">
+                  <DollarSign className="h-4 w-4 mr-2 text-purple-400" />
                   Payment Information
                 </h3>
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
                   <div>
                     <Label className="text-sm text-gray-400">Ticket Price</Label>
                     <p className="text-white font-medium">
@@ -653,9 +653,9 @@ export default function AdminEventRegistrations() {
                 <>
                   <Separator className="bg-gray-700/50" />
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Special Requests</h3>
-                    <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
-                      <p className="text-white leading-relaxed">
+                    <h3 className="text-base font-semibold text-white mb-2">Special Requests</h3>
+                    <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                      <p className="text-white text-sm leading-relaxed">
                         {selectedRegistration.specialRequests}
                       </p>
                     </div>
@@ -663,7 +663,7 @@ export default function AdminEventRegistrations() {
                 </>
               )}
 
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-3 pt-3 border-t border-gray-700/50 mt-4">
                 <Button
                   variant="outline"
                   onClick={() => setViewDialogOpen(false)}
