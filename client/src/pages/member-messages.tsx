@@ -74,6 +74,9 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
 
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90" />
+        
+        {/* Bottom blur transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/80 to-transparent backdrop-blur-sm" />
 
         {/* Header Content */}
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
