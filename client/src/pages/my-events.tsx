@@ -608,9 +608,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                             {/* Action Buttons */}
                             <div className="flex lg:flex-col gap-2">
                               <Button
-                                variant="outline"
                                 size="sm"
-                                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                                 onClick={() => downloadTicket(registration, event)}
                                 disabled={downloadingTickets.has(registration.id)}
                               >
@@ -622,9 +621,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
-                                    variant="outline"
                                     size="sm"
-                                    className="border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                                   >
                                     <FileText className="w-4 h-4 mr-2" />
                                     View Ticket
@@ -722,9 +720,8 @@ export default function MyEvents({ currentView, setCurrentView }: MyEventsProps)
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button
-                                    variant="outline"
                                     size="sm"
-                                    className="border-purple-600 text-purple-400 hover:bg-purple-600/20"
+                                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                                   >
                                     <Eye className="w-4 h-4 mr-2" />
                                     View Event
