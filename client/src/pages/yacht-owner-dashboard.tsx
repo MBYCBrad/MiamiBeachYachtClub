@@ -115,7 +115,7 @@ const getUnreadNotificationCount = (notificationsData: any[]) => {
 };
 
 // StatCard component - copied exactly from admin dashboard
-const StatCard = ({ title, value, change, icon: Icon, gradient, delay = 0 }: any) => (
+const StatCard = ({ title, value, change, icon: Icon, gradient = "from-purple-600 to-indigo-600", delay = 0 }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20, scale: 0.9 }}
     animate={{ opacity: 1, y: 0, scale: 1 }}
