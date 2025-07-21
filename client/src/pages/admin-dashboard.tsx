@@ -334,6 +334,234 @@ const CrewStatusIndicator = ({ booking }: { booking: any }) => {
   );
 };
 
+// View Booking Details Dialog
+function ViewBookingDialog({ booking }: { booking: any }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-white flex items-center">
+            <Calendar className="h-5 w-5 mr-2 text-cyan-500" />
+            Booking Details
+          </DialogTitle>
+          <DialogDescription className="text-gray-400">
+            View comprehensive booking information and status
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Member Information */}
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Member Information</Label>
+              <div className="flex items-center space-x-3 mb-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white">
+                    {booking.member?.name?.charAt(0)?.toUpperCase() || 'M'}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-white font-semibold">{booking.member?.name}</p>
+                  <p className="text-gray-400 text-sm">{booking.member?.email}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Membership Tier</Label>
+                  <Badge className={`${
+                    booking.member?.membershipTier === 'PLATINUM' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                    booking.member?.membershipTier === 'GOLD' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    booking.member?.membershipTier === 'SILVER' ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' :
+                    'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                  }`}>
+                    {booking.member?.membershipTier}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Guest Count</Label>
+                  <p className="text-white">{booking.guestCount} guests</p>
+                </div>
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Booking ID</Label>
+                  <p className="text-white font-mono">#{booking.id}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Yacht Information */}
+            <div className="p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Yacht Information</Label>
+              <div className="flex items-center space-x-3 mb-3">
+                {booking.yacht?.imageUrl && (
+                  <img 
+                    src={booking.yacht.imageUrl} 
+                    alt={booking.yacht.name}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                )}
+                <div>
+                  <p className="text-white font-semibold">{booking.yacht?.name}</p>
+                  <p className="text-gray-400 text-sm">{booking.yacht?.size}ft • {booking.yacht?.capacity} max guests</p>
+                  <p className="text-gray-500 text-xs">{booking.yacht?.location}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Yacht Type</Label>
+                  <p className="text-white">{booking.yacht?.type || 'Luxury Yacht'}</p>
+                </div>
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Status</Label>
+                  <Badge className={`${booking.yacht?.isAvailable ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white border-purple-500/30' : 'bg-gradient-to-r from-red-600 to-red-700 text-white border-red-500/30'}`}>
+                    {booking.yacht?.isAvailable ? 'Available' : 'Unavailable'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Booking Details */}
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Booking Schedule</Label>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-gray-400 text-sm">Date & Time</Label>
+                  <p className="text-white font-medium">
+                    {new Date(booking.startTime).toLocaleDateString('en-US', { 
+                      weekday: 'long',
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                  <p className="text-cyan-400 text-sm">
+                    {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                    {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Time Slot</Label>
+                  <p className="text-white">{booking.timeSlot}</p>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Duration</Label>
+                  <p className="text-white">{booking.duration}h Experience</p>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Experience Type</Label>
+                  <p className="text-white">{booking.experienceType || 'Leisure Tour'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Status & Crew */}
+            <div className="p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Status & Crew</Label>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-gray-400 text-sm">Booking Status</Label>
+                  <div className="mt-1">
+                    <AutomatedBookingStatus booking={booking} />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-gray-400 text-sm">Crew Assignment</Label>
+                  <div className="mt-1">
+                    <CrewStatusIndicator booking={booking} />
+                  </div>
+                </div>
+                {booking.assignedCaptain && (
+                  <div>
+                    <Label className="text-gray-400 text-sm">Captain</Label>
+                    <p className="text-white">{booking.assignedCaptain}</p>
+                  </div>
+                )}
+                {booking.assignedFirstMate && (
+                  <div>
+                    <Label className="text-gray-400 text-sm">First Mate</Label>
+                    <p className="text-white">{booking.assignedFirstMate}</p>
+                  </div>
+                )}
+                {booking.assignedCrew && booking.assignedCrew.length > 0 && (
+                  <div>
+                    <Label className="text-gray-400 text-sm">Additional Crew</Label>
+                    <p className="text-white">{booking.assignedCrew.join(', ')}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Additional Details */}
+            <div className="p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Additional Information</Label>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Created</Label>
+                  <p className="text-white text-sm">
+                    {new Date(booking.createdAt).toLocaleDateString()} at {new Date(booking.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </p>
+                </div>
+                <div className="flex justify-between">
+                  <Label className="text-gray-400 text-sm">Payment Status</Label>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                    Complimentary
+                  </Badge>
+                </div>
+                {booking.specialRequests && (
+                  <div>
+                    <Label className="text-gray-400 text-sm">Special Requests</Label>
+                    <p className="text-white text-sm bg-gray-900 p-2 rounded mt-1">
+                      {booking.specialRequests}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Concierge Services */}
+          {booking.services && booking.services.length > 0 && (
+            <div className="col-span-2 p-4 bg-gray-800/50 rounded-lg">
+              <Label className="text-gray-300 font-medium mb-3 block">Concierge Services</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {booking.services.map((service: any, index: number) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-900/50 rounded-lg">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{service.name}</p>
+                      <p className="text-gray-400 text-sm">{service.category}</p>
+                      <p className="text-cyan-400 text-sm">${service.price}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button 
+            onClick={() => setIsOpen(false)}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Quick Action Button Component for Real-Time MBYC Actions
 const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
   booking: any;
@@ -358,12 +586,6 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
           description: `Starting conversation with ${booking.member?.name}`,
           className: "border-purple-500/30 bg-purple-950/50"
         });
-      } else if (action === 'view') {
-        // Trigger custom event to open booking details dialog
-        const event = new CustomEvent('openBookingDetailsDialog', { 
-          detail: booking 
-        });
-        window.dispatchEvent(event);
       }
     } catch (error) {
       toast({
@@ -375,6 +597,11 @@ const QuickActionButton = ({ booking, action, icon: Icon, tooltip }: {
       setTimeout(() => setActionProcessing(false), 500);
     }
   };
+
+  // For view action, return the dialog component directly
+  if (action === 'view') {
+    return <ViewBookingDialog booking={booking} />;
+  }
 
   return (
     <div className="relative">
