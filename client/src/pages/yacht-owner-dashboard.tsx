@@ -3717,9 +3717,6 @@ export default function YachtOwnerDashboard() {
           transition={{ duration: 0.4, ease: "easeInOut" }}
           className="fixed left-0 top-0 w-80 h-full bg-black border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
         >
-          {/* Animated background */}
-          <div className="absolute inset-0 bg-black" />
-          
           {/* Close button (X) when sidebar is open */}
           <AnimatePresence>
             {!sidebarCollapsed && (
