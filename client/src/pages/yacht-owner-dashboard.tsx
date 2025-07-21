@@ -592,6 +592,12 @@ export default function YachtOwnerDashboard() {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   
+  // Clear modal state when component mounts to prevent blocking
+  useEffect(() => {
+    setShowBookingModal(false);
+    setSelectedBooking(null);
+  }, []);
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
   
@@ -838,6 +844,8 @@ export default function YachtOwnerDashboard() {
 
   // Auto-collapse sidebar when navigating on mobile - exact copy from admin dashboard
   const handleSectionChange = (sectionId: string) => {
+    console.log('Navigation clicked:', sectionId);
+    
     if (sectionId === 'logout') {
       logoutMutation.mutate();
       return;
