@@ -856,7 +856,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               className="p-2 md:p-3 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl backdrop-blur-sm"
             >
-              <Trophy className="h-5 w-5 md:h-6 md:w-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" />
+              <Trophy className="h-5 w-5 md:h-6 md:w-6 text-indigo-400" />
             </motion.div>
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-white">Member Analytics</h2>
@@ -941,8 +941,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                                       stat.color === 'text-yellow-400' ? '#facc15' : '#a855f7'}40, transparent)`
                         }}
                       />
-                      <Icon className={cn("h-8 w-8 md:h-10 md:w-10 mx-auto relative z-10", 
-                        'bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent')} />
+                      <Icon className={cn("h-8 w-8 md:h-10 md:w-10 mx-auto relative z-10", stat.color)} />
                     </motion.div>
                     
                     {/* Value with Counting Animation */}
@@ -1043,9 +1042,9 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
                   border: 'hover:border-purple-500/40',
                   gradient: 'from-purple-600/5',
                   iconBg: 'from-purple-900/80',
-                  iconColor: 'bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent',
+                  iconColor: 'text-purple-400',
                   badgeColor: 'bg-purple-600/20 text-purple-400 border-purple-600/30',
-                  actionColor: 'bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent'
+                  actionColor: 'text-purple-400'
                 },
                 emerald: {
                   border: 'hover:border-emerald-500/40',
@@ -1158,7 +1157,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               className="p-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl backdrop-blur-sm"
             >
-              <Settings className="h-6 w-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent" />
+              <Settings className="h-6 w-6 text-purple-400" />
             </motion.div>
             <div>
               <h2 className="text-2xl font-bold text-white">Customization Hub</h2>
