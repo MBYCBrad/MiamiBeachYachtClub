@@ -1056,10 +1056,10 @@ export default function ServiceProviderDashboard() {
         <Card className="bg-gray-950 border-gray-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
-              <ArrowUpRight className="h-4 w-4 text-green-400" />
+              <ArrowUpRight className="h-4 w-4 text-purple-400" />
             </div>
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</p>
@@ -1072,10 +1072,10 @@ export default function ServiceProviderDashboard() {
         <Card className="bg-gray-950 border-gray-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Clock className="h-6 w-6 text-white" />
               </div>
-              <Clock className="h-4 w-4 text-yellow-400" />
+              <Clock className="h-4 w-4 text-purple-400" />
             </div>
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">${stats?.pendingPayouts?.toFixed(2) || "0.00"}</p>
