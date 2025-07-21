@@ -665,15 +665,7 @@ export default function AdminEventRegistrations() {
                 </>
               )}
 
-              <div className="flex justify-end pt-3 border-t border-gray-700/50 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setViewDialogOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                >
-                  Close
-                </Button>
-              </div>
+
             </div>
           )}
         </DialogContent>
