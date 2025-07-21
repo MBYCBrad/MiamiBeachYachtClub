@@ -625,6 +625,8 @@ export default function YachtOwnerDashboard() {
 
   const { data: bookings = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/bookings'],
+    refetchInterval: 15000, // Yacht owners get faster updates (15 seconds) for booking management
+    staleTime: 0, // Always refetch to ensure latest booking data
   });
 
   const { data: revenueData = [] } = useQuery<any[]>({

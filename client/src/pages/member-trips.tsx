@@ -71,11 +71,15 @@ export default function MemberTrips({ currentView, setCurrentView }: MemberTrips
   });
 
   const { data: yachtBookings = [], isLoading: yachtLoading } = useQuery<Booking[]>({
-    queryKey: ['/api/bookings']
+    queryKey: ['/api/bookings'],
+    refetchInterval: 30000, // Real-time updates every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest booking data
   });
 
   const { data: serviceBookings = [], error: serviceBookingsError } = useQuery<ServiceBooking[]>({
     queryKey: ['/api/service-bookings'],
+    refetchInterval: 30000, // Real-time updates every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest service bookings
     retry: false,
     onError: (error) => {
       console.log('Service bookings temporarily unavailable:', error);

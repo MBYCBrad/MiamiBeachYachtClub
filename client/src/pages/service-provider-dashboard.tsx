@@ -864,6 +864,8 @@ export default function ServiceProviderDashboard() {
 
   const { data: bookings } = useQuery({
     queryKey: ['/api/service-provider/bookings'],
+    refetchInterval: 15000, // Service providers get faster updates (15 seconds) for booking management
+    staleTime: 0, // Always refetch to ensure latest booking data
   });
 
   const { data: paymentHistory } = useQuery({
