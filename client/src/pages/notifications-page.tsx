@@ -81,13 +81,7 @@ export default function NotificationsPage() {
   });
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'bg-red-500';
-      case 'high': return 'bg-orange-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-blue-500';
-      default: return 'bg-gray-500';
-    }
+    return 'bg-gradient-to-r from-purple-600 to-indigo-600';
   };
 
   const getTypeIcon = (type: string) => {
