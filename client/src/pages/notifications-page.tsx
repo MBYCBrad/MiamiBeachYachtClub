@@ -151,15 +151,15 @@ export default function NotificationsPage() {
                   <p className="text-xl font-bold text-white">{stats?.total || notifications.length}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-6 py-3">
-                <AlertCircle className="h-6 w-6 text-orange-400" />
+              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl px-6 py-3">
+                <AlertCircle className="h-6 w-6 text-purple-400" />
                 <div>
                   <p className="text-sm text-gray-400">Unread</p>
                   <p className="text-xl font-bold text-white">{stats?.unread || 0}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-red-500/30 rounded-2xl px-6 py-3">
-                <Clock className="h-6 w-6 text-red-400" />
+              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl px-6 py-3">
+                <Clock className="h-6 w-6 text-purple-400" />
                 <div>
                   <p className="text-sm text-gray-400">High Priority</p>
                   <p className="text-xl font-bold text-white">{stats?.highPriority || 0}</p>
