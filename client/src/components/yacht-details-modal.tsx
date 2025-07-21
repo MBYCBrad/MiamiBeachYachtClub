@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Users, Anchor, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Yacht } from '@shared/schema';
@@ -93,30 +93,23 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
 
   return (
     <>
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" 
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              onClose();
-            }
-          }}
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent 
+          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
         >
-          <div className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white rounded-lg p-6 relative">
-            {/* Close button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 rounded-sm opacity-70 hover:opacity-100 focus:outline-none disabled:pointer-events-none"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </button>
-            
-            {/* Header */}
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold">{yacht.name} Details</h2>
-              <p className="text-sm text-gray-400">View detailed information about {yacht.name}</p>
-            </div>
+          <DialogHeader className="sr-only">
+            <DialogTitle>{yacht.name} Details</DialogTitle>
+            <DialogDescription>View detailed information about {yacht.name}</DialogDescription>
+          </DialogHeader>
+
+          {/* Manual close button as fallback */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
+            aria-label="Close dialog"
+          >
+            <X size={20} className="text-gray-400" />
+          </button>
 
           <div className="space-y-6">
             {/* Image Gallery */}
@@ -264,8 +257,8 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Booking Modal */}
       {yacht && (
