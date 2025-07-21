@@ -1490,11 +1490,6 @@ export default function YachtOwnerDashboard() {
                     <p className="text-white/80 text-sm">{yacht.location}</p>
                   </div>
                   
-                  {/* Action Buttons */}
-                  <div className="absolute bottom-4 right-4 flex space-x-2">
-                    <EditYachtDialog yacht={yacht} />
-                    <DeleteYachtDialog yacht={yacht} />
-                  </div>
                 </div>
                 
                 <CardContent className="p-6">
@@ -1518,6 +1513,12 @@ export default function YachtOwnerDashboard() {
                         <div className="text-gray-400 text-sm">Rental Rate</div>
                       </div>
                     )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex justify-center space-x-2 pt-4 border-t border-gray-700">
+                      <EditYachtDialog yacht={yacht} />
+                      <DeleteYachtDialog yacht={yacht} />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
