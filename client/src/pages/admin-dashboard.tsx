@@ -63,6 +63,7 @@ import {
   Wrench,
   User,
   Mail,
+  Ticket,
   Play,
   Trophy
 } from "lucide-react";
@@ -91,6 +92,7 @@ import CrewManagementPage from "./crew-management";
 import StaffManagement from "./staff-management";
 import YachtMaintenancePage from "./yacht-maintenance";
 import MyProfile from "./my-profile";
+import AdminEventRegistrations from "./admin-event-registrations";
 import { Overview3DIcon, Users3DIcon, Yacht3DIcon, Services3DIcon, Events3DIcon, Bookings3DIcon, Analytics3DIcon, Payments3DIcon } from '@/components/Animated3DAdminIcons';
 
 interface AdminStats {
@@ -115,6 +117,7 @@ const sidebarItems = [
   { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-emerald-500 to-teal-500' },
   { id: 'contact-messages', label: 'Contact Inquiries', icon: Mail, color: 'from-pink-500 to-purple-500' },
   { id: 'bookings', label: 'Bookings', icon: Calendar, color: 'from-cyan-500 to-teal-500' },
+  { id: 'event-registrations', label: 'Event Registrations', icon: Ticket, color: 'from-purple-500 to-pink-500' },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, color: 'from-indigo-500 to-purple-500' },
   { id: 'customer-service', label: 'Customer Service', icon: MessageSquare, color: 'from-green-500 to-emerald-500' },
   { id: 'yacht-maintenance', label: 'Yacht Maintenance', icon: Wrench, color: 'from-amber-500 to-orange-500' },
@@ -2921,6 +2924,14 @@ export default function AdminDashboard() {
     refetchOnMount: true // Always fetch fresh data on mount
   });
 
+  const { data: allServiceBookings = [] } = useQuery<any[]>({
+    queryKey: ['/api/admin/service-bookings'],
+    staleTime: 15000, // Refresh every 15 seconds for real-time service bookings
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true, // Refresh when window gains focus
+    refetchOnMount: true // Always fetch fresh data on mount
+  });
+
   // Filter and sort bookings based on active filters
   const filteredBookings = useMemo(() => {
     if (activeSection !== 'bookings') return allBookings;
@@ -3863,32 +3874,35 @@ export default function AdminDashboard() {
     </motion.div>
   );
 
-  const renderBookings = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between mt-16">
-        <div>
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl font-bold text-white mb-2 tracking-tight"
-            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
-          >
-            Bookings Management
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Complete yacht experience oversight - crew coordination, amenities, and guest services
-          </motion.p>
-        </div>
+  const renderBookings = () => {
+    const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-8"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mt-16">
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-5xl font-bold text-white mb-2 tracking-tight"
+              style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+            >
+              Bookings Management
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg text-gray-400"
+            >
+              Complete booking oversight - yacht experiences and concierge services
+            </motion.p>
+          </div>
         
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -3937,6 +3951,30 @@ export default function AdminDashboard() {
             )}
           </Button>
         </motion.div>
+      </div>
+
+      {/* Tabs for Yacht and Service Bookings */}
+      <div className="flex space-x-6 border-b border-gray-700 mb-6">
+        <button
+          onClick={() => setBookingTab('yacht')}
+          className={`pb-3 px-1 text-sm font-medium transition-all ${
+            bookingTab === 'yacht'
+              ? 'text-white border-b-2 border-gradient-to-r from-purple-600 to-indigo-600'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Yacht Bookings
+        </button>
+        <button
+          onClick={() => setBookingTab('service')}
+          className={`pb-3 px-1 text-sm font-medium transition-all ${
+            bookingTab === 'service'
+              ? 'text-white border-b-2 border-gradient-to-r from-purple-600 to-indigo-600'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Service Bookings
+        </button>
       </div>
 
       {/* Advanced Filter Panel for Bookings */}
@@ -4129,9 +4167,13 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Calendar className="h-5 w-5 mr-2 text-cyan-500" />
-              Live Yacht Experience Management
+              {bookingTab === 'yacht' ? 'Live Yacht Experience Management' : 'Service Bookings Management'}
             </CardTitle>
-            <CardDescription>Real-time booking oversight with crew coordination and amenities management</CardDescription>
+            <CardDescription>
+              {bookingTab === 'yacht' 
+                ? 'Real-time booking oversight with crew coordination and amenities management'
+                : 'Manage premium concierge service bookings and coordination'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -4139,15 +4181,15 @@ export default function AdminDashboard() {
                 <thead>
                   <tr className="border-b border-gray-700">
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Member</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Yacht</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Experience</th>
-                    <th className="text-left py-4 px-4 text-gray-300 font-medium">Guests</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Yacht' : 'Service'}</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Experience' : 'Booking Date'}</th>
+                    <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Guests' : 'Price'}</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
                     <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings?.map((booking: any, index: number) => (
+                  {(bookingTab === 'yacht' ? bookings : allServiceBookings)?.map((booking: any, index: number) => (
                     <motion.tr
                       key={booking.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -4163,40 +4205,73 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="flex items-center space-x-3">
-                          {booking.yacht?.imageUrl && (
-                            <img 
-                              src={booking.yacht.imageUrl} 
-                              alt={booking.yacht.name}
-                              className="w-12 h-12 rounded-lg object-cover"
-                            />
-                          )}
+                        {bookingTab === 'yacht' ? (
+                          <div className="flex items-center space-x-3">
+                            {booking.yacht?.imageUrl && (
+                              <img 
+                                src={booking.yacht.imageUrl} 
+                                alt={booking.yacht.name}
+                                className="w-12 h-12 rounded-lg object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="text-white font-medium">{booking.yacht?.name}</p>
+                              <p className="text-gray-400 text-sm">{booking.yacht?.size}ft • {booking.yacht?.capacity} guests</p>
+                              <p className="text-gray-500 text-xs">{booking.yacht?.location}</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-3">
+                            {booking.service?.imageUrl && (
+                              <img 
+                                src={booking.service.imageUrl} 
+                                alt={booking.service.name}
+                                className="w-12 h-12 rounded-lg object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="text-white font-medium">{booking.service?.name}</p>
+                              <p className="text-gray-400 text-sm">{booking.service?.category}</p>
+                              <p className="text-gray-500 text-xs">${booking.service?.price || 0}</p>
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        {bookingTab === 'yacht' ? (
                           <div>
-                            <p className="text-white font-medium">{booking.yacht?.name}</p>
-                            <p className="text-gray-400 text-sm">{booking.yacht?.size}ft • {booking.yacht?.capacity} guests</p>
-                            <p className="text-gray-500 text-xs">{booking.yacht?.location}</p>
+                            <p className="text-white font-medium">
+                              {new Date(booking.startTime).toLocaleDateString()} • {booking.timeSlot}
+                            </p>
+                            <p className="text-gray-400 text-sm">
+                              {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                              {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </p>
+                            <p className="text-cyan-400 text-sm">{booking.duration}h Experience</p>
                           </div>
-                        </div>
+                        ) : (
+                          <div>
+                            <p className="text-white font-medium">
+                              {new Date(booking.bookingDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-400 text-sm">Service Booking</p>
+                          </div>
+                        )}
                       </td>
                       <td className="py-4 px-4">
-                        <div>
-                          <p className="text-white font-medium">
-                            {new Date(booking.startTime).toLocaleDateString()} • {booking.timeSlot}
-                          </p>
-                          <p className="text-gray-400 text-sm">
-                            {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
-                            {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </p>
-                          <p className="text-cyan-400 text-sm">{booking.duration}h Experience</p>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="text-center">
-                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm">
-                            {booking.guestCount}
+                        {bookingTab === 'yacht' ? (
+                          <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm">
+                              {booking.guestCount}
+                            </div>
+                            <p className="text-gray-400 text-xs mt-1">Guests</p>
                           </div>
-                          <p className="text-gray-400 text-xs mt-1">Guests</p>
-                        </div>
+                        ) : (
+                          <div className="text-center">
+                            <p className="text-white font-medium">${booking.totalPrice || 0}</p>
+                            <p className="text-gray-400 text-xs mt-1">Total</p>
+                          </div>
+                        )}
                       </td>
                       <td className="py-4 px-4">
                         <AutomatedBookingStatus booking={booking} />
@@ -4216,11 +4291,17 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
               
-              {(!bookings || bookings.length === 0) && (
+              {((bookingTab === 'yacht' ? (!bookings || bookings.length === 0) : (!allServiceBookings || allServiceBookings.length === 0))) && (
                 <div className="text-center py-12">
                   <Calendar className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400 text-lg">No yacht bookings found</p>
-                  <p className="text-gray-500 text-sm">Experience bookings will appear here for crew coordination</p>
+                  <p className="text-gray-400 text-lg">
+                    {bookingTab === 'yacht' ? 'No yacht bookings found' : 'No service bookings found'}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    {bookingTab === 'yacht' 
+                      ? 'Experience bookings will appear here for crew coordination' 
+                      : 'Service bookings will appear here when members book premium services'}
+                  </p>
                 </div>
               )}
             </div>
@@ -4228,7 +4309,8 @@ export default function AdminDashboard() {
         </Card>
       </motion.div>
     </motion.div>
-  );
+    );
+  };
 
   const renderAnalytics = () => (
     <motion.div
@@ -6262,6 +6344,7 @@ export default function AdminDashboard() {
             {activeSection === 'my-profile' && <MyProfile />}
             {activeSection === 'settings' && renderSettings()}
             {activeSection === 'bookings' && renderBookings()}
+            {activeSection === 'event-registrations' && <AdminEventRegistrations />}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'yacht-maintenance' && <YachtMaintenancePage />}
             {activeSection === 'crew-management' && <CrewManagementPage />}

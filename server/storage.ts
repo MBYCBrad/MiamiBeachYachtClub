@@ -690,6 +690,20 @@ export class DatabaseStorage implements IStorage {
     return registration;
   }
 
+  async getEventRegistrationById(id: number): Promise<EventRegistration | undefined> {
+    const [registration] = await db.select().from(eventRegistrations).where(eq(eventRegistrations.id, id));
+    return registration || undefined;
+  }
+
+  async updateEventRegistrationStatus(id: number, status: string): Promise<EventRegistration | undefined> {
+    const [updated] = await db
+      .update(eventRegistrations)
+      .set({ status })
+      .where(eq(eventRegistrations.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
   // Review methods
   async getReviews(filters?: { targetType?: string, targetId?: number, userId?: number, yachtId?: number }): Promise<Review[]> {
     try {

@@ -3759,6 +3759,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all event registrations for admin
+  app.get("/api/admin/event-registrations", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const registrations = await dbStorage.getEventRegistrations();
+      const users = await dbStorage.getAllUsers();
+      const events = await dbStorage.getEvents();
+
+      // Helper function to get user info
+      const getUserInfo = (userId: number | null) => {
+        if (!userId) return { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+        const user = users.find(u => u.id === userId);
+        return user ? {
+          id: user.id,
+          name: user.username,
+          email: user.email,
+          membershipTier: user.membershipTier || 'Bronze'
+        } : { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+      };
+
+      // Helper function to get event info
+      const getEventInfo = (eventId: number | null) => {
+        if (!eventId) return { title: 'Unknown Event', date: new Date(), location: 'Unknown' };
+        const event = events.find(e => e.id === eventId);
+        return event ? {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+          imageUrl: event.imageUrl,
+          price: event.price
+        } : { title: 'Unknown Event', date: new Date(), location: 'Unknown' };
+      };
+
+      // Transform registrations with complete information
+      const detailedRegistrations = registrations.map(registration => {
+        const member = getUserInfo(registration.userId);
+        const event = getEventInfo(registration.eventId);
+        
+        return {
+          id: registration.id,
+          member,
+          event,
+          status: registration.status,
+          guestCount: registration.guestCount || 1,
+          totalPrice: registration.totalPrice || event.price || 0,
+          notes: registration.notes,
+          createdAt: registration.createdAt
+        };
+      });
+
+      // Sort by event date (upcoming first)
+      detailedRegistrations.sort((a, b) => 
+        new Date(a.event.date).getTime() - new Date(b.event.date).getTime()
+      );
+
+      res.json(detailedRegistrations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Update event registration status
+  app.patch("/api/admin/event-registrations/:id/status", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const updated = await dbStorage.updateEventRegistrationStatus(parseInt(id), status);
+      
+      // Send notification to member about status change
+      const registration = await dbStorage.getEventRegistrationById(parseInt(id));
+      if (registration) {
+        await dbStorage.createNotification({
+          userId: registration.userId!,
+          type: 'event_status_update',
+          title: 'Event Registration Update',
+          message: `Your registration status has been updated to: ${status}`,
+          priority: 'medium',
+          data: {
+            registrationId: registration.id,
+            eventId: registration.eventId,
+            status
+          }
+        });
+      }
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/admin/bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const bookings = await dbStorage.getBookings();
@@ -3819,6 +3911,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       detailedBookings.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
 
       res.json(detailedBookings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get all service bookings for admin
+  app.get("/api/admin/service-bookings", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
+    try {
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const users = await dbStorage.getAllUsers();
+      const services = await dbStorage.getServices();
+
+      // Helper function to get user info
+      const getUserInfo = (userId: number | null) => {
+        if (!userId) return { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+        const user = users.find(u => u.id === userId);
+        return user ? {
+          name: user.username,
+          email: user.email,
+          membershipTier: user.membershipTier || 'Bronze'
+        } : { name: 'Unknown', email: 'No email', membershipTier: 'Unknown' };
+      };
+
+      // Helper function to get service info
+      const getServiceInfo = (serviceId: number | null) => {
+        if (!serviceId) return { name: 'Unknown Service', price: 0, category: 'Unknown' };
+        const service = services.find(s => s.id === serviceId);
+        return service ? {
+          name: service.name,
+          price: service.price,
+          category: service.category,
+          providerId: service.providerId,
+          description: service.description,
+          imageUrl: service.imageUrl
+        } : { name: 'Unknown Service', price: 0, category: 'Unknown' };
+      };
+
+      // Transform service bookings with complete information
+      const detailedServiceBookings = serviceBookings.map(booking => {
+        const member = getUserInfo(booking.userId);
+        const service = getServiceInfo(booking.serviceId);
+        
+        return {
+          id: booking.id,
+          member,
+          service,
+          bookingDate: booking.bookingDate,
+          status: booking.status,
+          notes: booking.notes || '',
+          totalPrice: booking.totalPrice || service.price || 0,
+          createdAt: booking.createdAt
+        };
+      });
+
+      // Sort by creation date (newest first)
+      detailedServiceBookings.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      res.json(detailedServiceBookings);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
