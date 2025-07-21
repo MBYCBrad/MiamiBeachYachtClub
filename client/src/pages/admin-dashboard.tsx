@@ -4823,10 +4823,6 @@ export default function AdminDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Generate Report
-          </Button>
           <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
             <Filter className="h-4 w-4 mr-2" />
             Time Period
