@@ -242,9 +242,9 @@ function FeaturesSection() {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4 lg:gap-6 items-center max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-2 lg:gap-4 items-center max-w-5xl mx-auto">
           {/* Left Features - Desktop Only */}
-          <div className="hidden lg:block space-y-6 pr-4">
+          <div className="hidden lg:block space-y-6 pr-2">
             {leftFeatures.map((feature, index) => (
               <motion.div
                 key={index}
@@ -397,7 +397,7 @@ function FeaturesSection() {
           </div>
 
           {/* Right Features - Desktop Only */}
-          <div className="hidden lg:block space-y-6 pl-4">
+          <div className="hidden lg:block space-y-6 pl-2">
             {rightFeatures.map((feature, index) => (
               <motion.div
                 key={index}
