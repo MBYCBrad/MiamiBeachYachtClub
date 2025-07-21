@@ -1179,45 +1179,7 @@ export default function ServiceProviderDashboard() {
           </motion.p>
         </div>
         
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex items-center space-x-4 relative z-10"
-        >
-          <Button 
-            size="sm" 
-            onClick={() => {
-              // Export bookings functionality
-              const csvData = bookings?.map(booking => ({
-                member: booking.user?.username || booking.user?.fullName || 'Unknown',
-                service: booking.service?.name || 'Unknown Service',
-                date: new Date(booking.createdAt || booking.bookingDate).toLocaleDateString(),
-                price: booking.amount || booking.totalAmount || booking.price || '0',
-                status: booking.status
-              })) || [];
-              
-              const csvContent = "data:text/csv;charset=utf-8," 
-                + "Member,Service,Date,Price,Status\n"
-                + csvData.map(row => `${row.member},${row.service},${row.date},$${row.price},${row.status}`).join("\n");
-              
-              const encodedUri = encodeURI(csvContent);
-              const link = document.createElement("a");
-              link.setAttribute("href", encodedUri);
-              link.setAttribute("download", `service-bookings-${new Date().toISOString().split('T')[0]}.csv`);
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              
-              console.log('Exported', csvData.length, 'bookings to CSV');
-            }}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer"
-            title="Export bookings as CSV file"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Export Bookings
-          </Button>
-        </motion.div>
+
       </div>
 
       {/* Dynamic Stats Overview */}
