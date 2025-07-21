@@ -276,8 +276,8 @@ export default function CrewManagementPage() {
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="bg-blue-600/20 p-3 rounded-lg">
-                  <Users className="h-6 w-6 text-blue-400" />
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg">
+                  <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{crewMembers.length || 0}</p>
@@ -290,8 +290,8 @@ export default function CrewManagementPage() {
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="bg-green-600/20 p-3 rounded-lg">
-                  <CheckCircle className="h-6 w-6 text-green-400" />
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg">
+                  <CheckCircle className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{assignments.length || 0}</p>
@@ -304,8 +304,8 @@ export default function CrewManagementPage() {
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="bg-orange-600/20 p-3 rounded-lg">
-                  <Ship className="h-6 w-6 text-orange-400" />
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg">
+                  <Ship className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{prioritizedBookings.length || 0}</p>
@@ -318,8 +318,8 @@ export default function CrewManagementPage() {
           <Card className="bg-gray-900/50 border-gray-700/50">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="bg-purple-600/20 p-3 rounded-lg">
-                  <Crown className="h-6 w-6 text-purple-400" />
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg">
+                  <Crown className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">{captains.length || 0}</p>
