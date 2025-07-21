@@ -3975,7 +3975,7 @@ export default function YachtOwnerDashboard() {
           className="flex-1 min-h-screen bg-black overflow-hidden"
         >
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
+          <div className="absolute inset-0 bg-black" />
           
           {/* Main Content */}
           <div className="relative z-10 p-8">
