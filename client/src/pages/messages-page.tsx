@@ -117,10 +117,10 @@ export default function MessagesPage() {
   // Fetch messages for selected conversation
   const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: user?.role === 'service_provider' 
-      ? ['/api/service-provider/messages', selectedConversation]
+      ? [`/api/service-provider/messages/${selectedConversation}`]
       : user?.role === 'yacht_owner'
-        ? ['/api/yacht-owner/messages', selectedConversation]
-        : ['/api/messages', selectedConversation],
+        ? [`/api/yacht-owner/messages/${selectedConversation}`]
+        : [`/api/messages/${selectedConversation}`],
     enabled: !!selectedConversation,
     refetchInterval: 2000, // Real-time message updates
   });
@@ -138,10 +138,10 @@ export default function MessagesPage() {
     },
     onSuccess: () => {
       const conversationKey = user?.role === 'service_provider' 
-        ? ['/api/service-provider/messages', selectedConversation]
+        ? [`/api/service-provider/messages/${selectedConversation}`]
         : user?.role === 'yacht_owner'
-          ? ['/api/yacht-owner/messages', selectedConversation]
-          : ['/api/messages', selectedConversation];
+          ? [`/api/yacht-owner/messages/${selectedConversation}`]
+          : [`/api/messages/${selectedConversation}`];
       const conversationsKey = user?.role === 'service_provider' 
         ? ['/api/service-provider/conversations']
         : user?.role === 'yacht_owner'
