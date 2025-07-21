@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Users, Anchor, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Yacht } from '@shared/schema';
@@ -96,12 +96,10 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
           className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
-          onInteractOutside={(e) => {
-            onClose();
-          }}
         >
           <DialogHeader className="sr-only">
             <DialogTitle>{yacht.name} Details</DialogTitle>
+            <DialogDescription>View detailed information about {yacht.name}</DialogDescription>
           </DialogHeader>
 
           {/* Manual close button as fallback */}
