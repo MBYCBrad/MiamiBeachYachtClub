@@ -3978,7 +3978,7 @@ export default function YachtOwnerDashboard() {
           <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
           
           {/* Main Content */}
-          <div className="relative z-[60] p-8">
+          <div className="relative z-[60] p-8 pt-16">
             {renderCurrentSection()}
           </div>
         </motion.div>
