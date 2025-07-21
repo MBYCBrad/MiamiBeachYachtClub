@@ -19,22 +19,19 @@ export default function AdminApplications() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: applications = [], isLoading } = useQuery({
+  const { data: applications = [], isLoading } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
   });
 
   // Filter applications based on type
   const filteredApplications = useMemo(() => {
     if (typeFilter === "all") return applications;
-    return applications.filter(app => app.applicationType === typeFilter);
+    return applications.filter((app: Application) => app.applicationType === typeFilter);
   }, [applications, typeFilter]);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      await apiRequest(`/api/admin/applications/${id}`, {
-        method: "PATCH",
-        body: { status },
-      });
+      return apiRequest("PATCH", `/api/admin/applications/${id}`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/applications"] });
