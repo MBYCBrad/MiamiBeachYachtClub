@@ -3857,7 +3857,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <Card className="border-gray-700/50 backdrop-blur-xl">
+        <Card className="bg-black border-gray-700/50">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Mail className="h-5 w-5 mr-2 text-purple-500" />
