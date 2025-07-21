@@ -122,10 +122,10 @@ export default function NotificationDropdown({ isOpen, onClose }: NotificationDr
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'border-red-500/50 bg-red-500/10';
-      case 'high': return 'border-orange-500/50 bg-orange-500/10';
-      case 'medium': return 'border-yellow-500/50 bg-yellow-500/10';
-      default: return 'border-gray-500/50 bg-gray-500/10';
+      case 'urgent': return 'border-red-500/50 bg-black';
+      case 'high': return 'border-orange-500/50 bg-black';
+      case 'medium': return 'border-yellow-500/50 bg-black';
+      default: return 'border-gray-500/50 bg-black';
     }
   };
 
