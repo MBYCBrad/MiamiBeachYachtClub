@@ -835,7 +835,7 @@ export default function YachtOwnerDashboard() {
   
   // Fetch messages for selected conversation
   const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery({
-    queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation],
+    queryKey: [`/api/yacht-owner/messages/${ownerSelectedConversation}`],
     enabled: !!ownerSelectedConversation,
     refetchInterval: 2000, // Real-time message updates
   });
@@ -847,7 +847,7 @@ export default function YachtOwnerDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/messages', ownerSelectedConversation] });
+      queryClient.invalidateQueries({ queryKey: [`/api/yacht-owner/messages/${ownerSelectedConversation}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/conversations'] });
       setOwnerNewMessage("");
     },
