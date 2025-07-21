@@ -886,10 +886,10 @@ export default function ServiceProviderDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { title: "Total Services", value: stats?.totalServices || 0, icon: Package, color: "text-purple-400" },
-            { title: "Active Bookings", value: stats?.totalBookings || 0, icon: Calendar, color: "text-blue-400" },
-            { title: "Monthly Revenue", value: `$${stats?.monthlyRevenue?.toFixed(2) || "0.00"}`, icon: DollarSign, color: "text-green-400" },
-            { title: "Average Rating", value: stats?.avgRating?.toFixed(1) || "0.0", icon: Star, color: "text-yellow-400" },
+            { title: "Total Services", value: stats?.totalServices || 0, icon: Package },
+            { title: "Active Bookings", value: stats?.totalBookings || 0, icon: Calendar },
+            { title: "Monthly Revenue", value: `$${stats?.monthlyRevenue?.toFixed(2) || "0.00"}`, icon: DollarSign },
+            { title: "Average Rating", value: stats?.avgRating?.toFixed(1) || "0.0", icon: Star },
           ].map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -900,7 +900,9 @@ export default function ServiceProviderDashboard() {
               <Card className="bg-gray-950 border-gray-800 hover:bg-gray-900 transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <stat.icon className="h-5 w-5 text-white" />
+                    </div>
                     <div className={`text-2xl font-bold text-white`}>{stat.value}</div>
                   </div>
                   <p className="text-gray-400 text-sm">{stat.title}</p>
