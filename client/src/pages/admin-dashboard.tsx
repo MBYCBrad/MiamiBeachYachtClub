@@ -6417,7 +6417,7 @@ export default function AdminDashboard() {
                     onClick={testStripeConnection}
                     disabled={isTestingStripe}
                     variant="outline"
-                    className="border-gray-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 hover:text-white hover:border-transparent flex-1"
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
                   >
                     {isTestingStripe ? (
                       <>
@@ -6445,7 +6445,7 @@ export default function AdminDashboard() {
                       }
                     }}
                     disabled={saveSettings.isPending}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   >
                     Save
                   </Button>
@@ -6503,7 +6503,7 @@ export default function AdminDashboard() {
                     onClick={testTwilioConnection}
                     disabled={isTestingTwilio}
                     variant="outline"
-                    className="border-gray-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 hover:text-white hover:border-transparent flex-1"
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent flex-1"
                   >
                     {isTestingTwilio ? (
                       <>
@@ -6522,7 +6522,7 @@ export default function AdminDashboard() {
                       phoneNumber: twilioPhone
                     })}
                     disabled={saveSettings.isPending}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                   >
                     Save
                   </Button>
@@ -6582,7 +6582,7 @@ export default function AdminDashboard() {
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="border-gray-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 hover:text-white hover:border-transparent"
+                    className="border-gray-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:border-transparent"
                     onClick={() => {
                       toast({ title: "Backup Created", description: "Database backup created successfully" });
                     }}
