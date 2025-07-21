@@ -981,12 +981,12 @@ export default function ServiceProviderDashboard() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Platform Fees (15%)</span>
-                  <span className="text-red-400 font-semibold">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
+                  <span className="text-white font-semibold">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
                 </div>
                 <div className="border-t border-gray-700 pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-white font-semibold">Net Revenue</span>
-                    <span className="text-green-400 font-bold text-lg">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
+                    <span className="text-white font-bold text-lg">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
                   </div>
                 </div>
               </div>
@@ -1003,7 +1003,7 @@ export default function ServiceProviderDashboard() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Average Rating</span>
-                  <span className="text-yellow-400 font-semibold">{stats?.avgRating?.toFixed(1) || "0.0"} ⭐</span>
+                  <span className="text-white font-semibold">{stats?.avgRating?.toFixed(1) || "0.0"} ⭐</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Total Reviews</span>
@@ -1011,11 +1011,11 @@ export default function ServiceProviderDashboard() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Completion Rate</span>
-                  <span className="text-green-400 font-semibold">{stats?.completionRate || 0}%</span>
+                  <span className="text-white font-semibold">{stats?.completionRate || 0}%</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Active Clients</span>
-                  <span className="text-blue-400 font-semibold">{stats?.activeClients || 0}</span>
+                  <span className="text-white font-semibold">{stats?.activeClients || 0}</span>
                 </div>
               </div>
             </CardContent>
@@ -1178,12 +1178,12 @@ export default function ServiceProviderDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">Platform Fees Deducted</span>
-              <span className="text-red-400 font-semibold">-$${((stats?.lifetimeGrossRevenue || 0) * 0.15).toFixed(2)}</span>
+              <span className="text-white font-semibold">-$${((stats?.lifetimeGrossRevenue || 0) * 0.15).toFixed(2)}</span>
             </div>
             <div className="border-t border-gray-700 pt-4">
               <div className="flex justify-between items-center">
                 <span className="text-white font-semibold">Net Lifetime Earnings</span>
-                <span className="text-green-400 font-bold text-lg">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</span>
+                <span className="text-white font-bold text-lg">${stats?.lifetimeRevenue?.toFixed(2) || "0.00"}</span>
               </div>
             </div>
             
@@ -1196,11 +1196,11 @@ export default function ServiceProviderDashboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Platform Fees</span>
-                  <span className="text-red-400">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
+                  <span className="text-white">-${stats?.platformFeesDeducted?.toFixed(2) || "0.00"}</span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-white">Net Revenue</span>
-                  <span className="text-green-400">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
+                  <span className="text-white">${stats?.monthlyRevenue?.toFixed(2) || "0.00"}</span>
                 </div>
               </div>
             </div>
