@@ -318,7 +318,7 @@ export default function AdminApplications() {
 
       {/* Application Detail Modal */}
       <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-4xl max-h-[90vh]">
+        <DialogContent className="bg-gray-950 border-gray-700 text-white max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               Application Details - {selectedApplication?.firstName} {selectedApplication?.lastName}
