@@ -131,9 +131,11 @@ export default function ProfilePage() {
   // Image upload mutation
   const uploadImageMutation = useMutation({
     mutationFn: async (file: File) => {
+      console.log('Upload mutation called with file:', file.name);
       const formData = new FormData();
       formData.append('image', file);
       
+      console.log('Making POST request to /api/profile/image');
       // Use fetch directly for file uploads since apiRequest doesn't handle FormData properly
       const response = await fetch('/api/profile/image', {
         method: 'POST',
@@ -141,12 +143,17 @@ export default function ProfilePage() {
         credentials: 'include'
       });
       
+      console.log('Response received:', response.status, response.statusText);
+      
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('Upload error response:', errorText);
         throw new Error(`${response.status}: ${errorText}`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log('Upload successful, result:', result);
+      return result;
     },
     onSuccess: (response) => {
       const imageUrl = response.imageUrl;
@@ -201,8 +208,30 @@ export default function ProfilePage() {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log('File selected:', file?.name, file?.size, file?.type);
+    
     if (file) {
+      // Validate file type and size
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file (JPG, PNG, etc.)",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 10MB",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       setIsUploadingImage(true);
+      console.log('Starting image upload...');
       uploadImageMutation.mutate(file);
     }
   };
