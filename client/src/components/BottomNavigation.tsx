@@ -214,9 +214,9 @@ export default function BottomNavigation({ currentView, setCurrentView }: Bottom
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
-                    {user?.avatar ? (
+                    {user?.profileImage ? (
                       <img 
-                        src={user.avatar} 
+                        src={user.profileImage} 
                         alt="Profile" 
                         className="w-full h-full object-cover"
                       />
