@@ -3718,7 +3718,7 @@ export default function YachtOwnerDashboard() {
           className="fixed left-0 top-0 w-80 h-full bg-gray-900/50 border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
         >
           {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/20" />
+          <div className="absolute inset-0 bg-gray-950" />
           
           {/* Close button (X) when sidebar is open */}
           <AnimatePresence>
