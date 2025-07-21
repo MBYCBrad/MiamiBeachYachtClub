@@ -1515,7 +1515,7 @@ export default function YachtOwnerDashboard() {
                     )}
                     
                     {/* Action Buttons */}
-                    <div className="flex justify-center space-x-2 pt-4 border-t border-gray-700">
+                    <div className="flex justify-end space-x-2 pt-4 border-t border-gray-700">
                       <EditYachtDialog yacht={yacht} />
                       <DeleteYachtDialog yacht={yacht} />
                     </div>
