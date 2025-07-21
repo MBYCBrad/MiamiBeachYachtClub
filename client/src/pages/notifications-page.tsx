@@ -292,13 +292,6 @@ export default function NotificationsPage() {
                               >
                                 <X className="h-4 w-4" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-gray-400 hover:text-gray-300"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
                             </div>
                           </div>
                         </div>
