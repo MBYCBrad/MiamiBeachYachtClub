@@ -2655,6 +2655,7 @@ export default function AdminDashboard() {
   
   // Contact message dialog state
   const [selectedContactMessage, setSelectedContactMessage] = useState<any>(null);
+  const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
@@ -3875,8 +3876,6 @@ export default function AdminDashboard() {
   );
 
   const renderBookings = () => {
-    const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
-    
     return (
       <motion.div
         initial={{ opacity: 0 }}
