@@ -4317,7 +4317,7 @@ export default function YachtOwnerDashboard() {
             opacity: sidebarCollapsed ? 0 : 1
           }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed left-0 top-0 w-80 h-full bg-black border-r border-gray-700/50 backdrop-blur-xl z-50 flex flex-col"
+          className="fixed left-0 top-0 w-80 h-full bg-black border-r border-gray-700/50 backdrop-blur-xl z-[1000] flex flex-col"
         >
           {/* Close button (X) when sidebar is open */}
           <AnimatePresence>
@@ -4575,7 +4575,8 @@ export default function YachtOwnerDashboard() {
         </motion.div>
       </div>
 
-      {/* Booking Detail Modal */}
+      {/* Booking Detail Modal - TEMPORARILY DISABLED */}
+      {false && (
       <AnimatePresence>
         {showBookingModal && selectedBooking && (
           <motion.div
@@ -4721,6 +4722,7 @@ export default function YachtOwnerDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
     </motion.div>
   );
 }
