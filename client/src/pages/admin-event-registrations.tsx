@@ -473,115 +473,132 @@ export default function AdminEventRegistrations() {
 
       {/* View Registration Details Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-black border-purple-500/20 text-white max-w-lg max-h-[90vh]">
-          <DialogHeader className="pb-3">
-            <DialogTitle className="text-lg font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Registration Details
+        <DialogContent className="bg-black border-purple-500/20 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Event Registration Details
             </DialogTitle>
-            <DialogDescription className="text-gray-400 text-sm">
-              Event registration information
+            <DialogDescription className="text-gray-400">
+              Complete registration information and event details
             </DialogDescription>
           </DialogHeader>
 
           {selectedRegistration && (
-            <div className="space-y-4 overflow-y-auto max-h-[calc(90vh-120px)] pr-2">
+            <div className="space-y-6">
               {/* Registration Info */}
               <div>
-                <h3 className="text-sm font-semibold text-white mb-2 flex items-center">
-                  <Ticket className="h-4 w-4 mr-1 text-purple-400" />
-                  Registration
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <Ticket className="h-5 w-5 mr-2 text-purple-400" />
+                  Registration Information
                 </h3>
-                <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50 space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">ID</Label>
-                    <p className="text-white text-sm">#{selectedRegistration.id}</p>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <div>
+                    <Label className="text-sm text-gray-400">Registration ID</Label>
+                    <p className="text-white font-medium">#{selectedRegistration.id}</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xs text-gray-400">Status</Label>
-                    <EventRegistrationStatus registration={selectedRegistration} />
+                  <div>
+                    <Label className="text-sm text-gray-400">Status</Label>
+                    <div className="mt-1">
+                      <EventRegistrationStatus registration={selectedRegistration} />
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Date</Label>
-                    <p className="text-white text-sm">
+                  <div>
+                    <Label className="text-sm text-gray-400">Registration Date</Label>
+                    <p className="text-white font-medium">
                       {selectedRegistration.registrationDate ? 
                         new Date(selectedRegistration.registrationDate).toLocaleDateString() : 
                         'N/A'
                       }
                     </p>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Tickets</Label>
-                    <p className="text-white text-sm">{selectedRegistration.tickets || 1}</p>
+                  <div>
+                    <Label className="text-sm text-gray-400">Tickets</Label>
+                    <p className="text-white font-medium">{selectedRegistration.tickets || 1}</p>
                   </div>
                 </div>
               </div>
 
+              <Separator className="bg-gray-700/50" />
+
               {/* Member Information */}
               <div>
-                <h3 className="text-sm font-semibold text-white mb-2 flex items-center">
-                  <Users className="h-4 w-4 mr-1 text-purple-400" />
-                  Member
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-purple-400" />
+                  Member Information
                 </h3>
-                <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50 space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Name</Label>
-                    <p className="text-white text-sm">{selectedRegistration.member?.name || 'N/A'}</p>
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <div>
+                    <Label className="text-sm text-gray-400">Member Name</Label>
+                    <p className="text-white font-medium">{selectedRegistration.member?.name || 'N/A'}</p>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Email</Label>
-                    <p className="text-white text-sm">{selectedRegistration.member?.email || 'N/A'}</p>
+                  <div>
+                    <Label className="text-sm text-gray-400">Email</Label>
+                    <p className="text-white font-medium">{selectedRegistration.member?.email || 'N/A'}</p>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">ID</Label>
-                    <p className="text-white text-sm">#{selectedRegistration.member?.id || 'N/A'}</p>
+                  <div>
+                    <Label className="text-sm text-gray-400">Member ID</Label>
+                    <p className="text-white font-medium">#{selectedRegistration.member?.id || 'N/A'}</p>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Type</Label>
-                    <p className="text-white text-sm capitalize">
+                  <div>
+                    <Label className="text-sm text-gray-400">Membership Type</Label>
+                    <p className="text-white font-medium capitalize">
                       {selectedRegistration.member?.membershipType || 'N/A'}
                     </p>
                   </div>
                 </div>
               </div>
 
+              <Separator className="bg-gray-700/50" />
+
               {/* Event Information */}
               <div>
-                <h3 className="text-sm font-semibold text-white mb-2 flex items-center">
-                  <Calendar className="h-4 w-4 mr-1 text-purple-400" />
-                  Event
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-purple-400" />
+                  Event Information
                 </h3>
-                <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50 space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Name</Label>
-                    <p className="text-white text-sm">{selectedRegistration.event?.title || 'N/A'}</p>
+                <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <Label className="text-sm text-gray-400">Event Name</Label>
+                      <p className="text-white font-medium">{selectedRegistration.event?.title || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-400">Event Type</Label>
+                      <p className="text-white font-medium capitalize">
+                        {selectedRegistration.event?.type || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-400">Date & Time</Label>
+                      <div className="flex items-center space-x-2 text-white font-medium">
+                        <Calendar className="h-4 w-4 text-purple-400" />
+                        <span>
+                          {selectedRegistration.event?.date ? 
+                            new Date(selectedRegistration.event.date).toLocaleDateString() : 
+                            'N/A'
+                          }
+                        </span>
+                        {selectedRegistration.event?.time && (
+                          <>
+                            <Clock className="h-4 w-4 text-purple-400 ml-2" />
+                            <span>{selectedRegistration.event.time}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-400">Location</Label>
+                      <div className="flex items-center space-x-2 text-white font-medium">
+                        <MapPin className="h-4 w-4 text-purple-400" />
+                        <span>{selectedRegistration.event?.location || 'N/A'}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Type</Label>
-                    <p className="text-white text-sm capitalize">
-                      {selectedRegistration.event?.type || 'N/A'}
-                    </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Date</Label>
-                    <p className="text-white text-sm">
-                      {selectedRegistration.event?.date ? 
-                        new Date(selectedRegistration.event.date).toLocaleDateString() : 
-                        'N/A'
-                      }
-                    </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Time</Label>
-                    <p className="text-white text-sm">{selectedRegistration.event?.time || 'N/A'}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Location</Label>
-                    <p className="text-white text-sm">{selectedRegistration.event?.location || 'N/A'}</p>
-                  </div>
+                  
                   {selectedRegistration.event?.description && (
                     <div>
-                      <Label className="text-xs text-gray-400">Description</Label>
-                      <p className="text-white text-sm mt-1 leading-relaxed">
+                      <Label className="text-sm text-gray-400">Description</Label>
+                      <p className="text-white mt-1 leading-relaxed">
                         {selectedRegistration.event.description}
                       </p>
                     </div>
@@ -589,40 +606,42 @@ export default function AdminEventRegistrations() {
                 </div>
               </div>
 
+              <Separator className="bg-gray-700/50" />
+
               {/* Payment Information */}
               <div>
-                <h3 className="text-sm font-semibold text-white mb-2 flex items-center">
-                  <DollarSign className="h-4 w-4 mr-1 text-purple-400" />
-                  Payment
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2 text-purple-400" />
+                  Payment Information
                 </h3>
-                <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50 space-y-2">
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Price</Label>
-                    <p className="text-white text-sm">
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                  <div>
+                    <Label className="text-sm text-gray-400">Ticket Price</Label>
+                    <p className="text-white font-medium">
                       ${selectedRegistration.event?.price || 0}
                     </p>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Total</Label>
-                    <p className="text-white text-sm">
+                  <div>
+                    <Label className="text-sm text-gray-400">Total Amount</Label>
+                    <p className="text-white font-medium">
                       ${((selectedRegistration.event?.price || 0) * (selectedRegistration.tickets || 1)).toFixed(2)}
                     </p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <Label className="text-xs text-gray-400">Status</Label>
+                  <div>
+                    <Label className="text-sm text-gray-400">Payment Status</Label>
                     <Badge className={`${
                       selectedRegistration.paymentStatus === 'completed' ? 
                         'bg-green-500/20 text-green-400 border-green-500/30' :
                       selectedRegistration.paymentStatus === 'pending' ?
                         'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                         'bg-gray-500/20 text-gray-400 border-gray-500/30'
-                    } text-xs`}>
+                    }`}>
                       {selectedRegistration.paymentStatus || 'Unknown'}
                     </Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <Label className="text-xs text-gray-400">Method</Label>
-                    <p className="text-white text-sm">
+                  <div>
+                    <Label className="text-sm text-gray-400">Payment Method</Label>
+                    <p className="text-white font-medium">
                       {selectedRegistration.paymentMethod || 'N/A'}
                     </p>
                   </div>
@@ -631,19 +650,21 @@ export default function AdminEventRegistrations() {
 
               {/* Special Requests */}
               {selectedRegistration.specialRequests && (
-                <div>
-                  <h3 className="text-sm font-semibold text-white mb-2">Special Requests</h3>
-                  <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
-                    <p className="text-white text-sm leading-relaxed">
-                      {selectedRegistration.specialRequests}
-                    </p>
+                <>
+                  <Separator className="bg-gray-700/50" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">Special Requests</h3>
+                    <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                      <p className="text-white leading-relaxed">
+                        {selectedRegistration.specialRequests}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-gray-700/50">
+              <div className="flex justify-end space-x-3 pt-4">
                 <Button
-                  size="sm"
                   variant="outline"
                   onClick={() => setViewDialogOpen(false)}
                   className="border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -651,7 +672,6 @@ export default function AdminEventRegistrations() {
                   Close
                 </Button>
                 <Button
-                  size="sm"
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                   onClick={() => {
                     // Contact member functionality could be added here
