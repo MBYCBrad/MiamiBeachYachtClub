@@ -91,16 +91,17 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
     toggleFavoriteMutation.mutate();
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      onClose();
-    }
-  };
-
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white">
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent 
+          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
+          onPointerDownOutside={(e) => {
+            onClose();
+          }}
+          onEscapeKeyDown={() => {
+            onClose();
+          }}>
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">{yacht.name}</DialogTitle>
           </DialogHeader>
