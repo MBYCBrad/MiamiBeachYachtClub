@@ -618,7 +618,7 @@ export default function MyServices({ currentView, setCurrentView }: MyServicesPr
                                     View Details
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+                                <DialogContent className="bg-black border-gray-700 text-white max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
                                   <DialogHeader className="flex-shrink-0 pb-4">
                                     <DialogTitle className="text-gradient-animate">Service Experience</DialogTitle>
                                   </DialogHeader>
