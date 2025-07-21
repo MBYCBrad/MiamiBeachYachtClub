@@ -119,7 +119,7 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50"
+          className="backdrop-blur-sm rounded-2xl p-6"
         >
           {/* Search and Actions */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
