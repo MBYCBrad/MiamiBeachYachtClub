@@ -156,7 +156,7 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
                 <button
                   onClick={handleToggleFavorite}
                   disabled={toggleFavoriteMutation.isPending}
-                  className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
+                  className="absolute top-4 left-4 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
                 >
                   <Heart
                     size={20}

@@ -25,7 +25,8 @@ import {
   Calendar,
   Filter,
   Volume2,
-  VolumeX
+  VolumeX,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -617,10 +618,18 @@ export default function MemberHome({ currentView, setCurrentView }: MemberHomePr
       </div>
 
       {/* Yacht Detail Modal */}
-      <Dialog open={!!selectedYacht} onOpenChange={() => setSelectedYacht(null)}>
+      <Dialog open={!!selectedYacht} onOpenChange={(open) => !open && setSelectedYacht(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
           {selectedYacht && (
             <div className="space-y-6">
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedYacht(null)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-800/80 hover:bg-gray-700/80 transition-colors"
+              >
+                <X size={20} className="text-gray-400" />
+              </button>
+              
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-white">
                   {selectedYacht.name}
