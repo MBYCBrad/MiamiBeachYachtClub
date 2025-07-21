@@ -268,12 +268,7 @@ export default function NotificationsPage() {
                                 </Badge>
                                 <Badge 
                                   variant="outline" 
-                                  className={`text-xs ${
-                                    notification.priority === 'urgent' ? 'border-red-500 text-red-400' :
-                                    notification.priority === 'high' ? 'border-orange-500 text-orange-400' :
-                                    notification.priority === 'medium' ? 'border-yellow-500 text-yellow-400' :
-                                    'border-blue-500 text-blue-400'
-                                  }`}
+                                  className="text-xs border-purple-500 text-purple-400"
                                 >
                                   {notification.priority}
                                 </Badge>
