@@ -4173,7 +4173,7 @@ export default function AdminDashboard() {
           }
           change={stats?.serviceGrowth || 0}
           icon={Filter}
-          gradient="from-orange-500 to-red-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
