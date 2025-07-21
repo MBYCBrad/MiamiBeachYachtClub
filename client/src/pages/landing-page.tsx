@@ -265,15 +265,15 @@ function FeaturesSection() {
             ))}
           </div>
 
-          {/* Phone Mockup */}
+          {/* Phone Mockup - Centered */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative mx-auto lg:order-2"
+            className="flex justify-center items-center lg:order-2"
           >
-            <div className="relative w-[240px] sm:w-[280px] lg:w-[300px] h-[520px] sm:h-[600px] lg:h-[650px] mx-auto">
+            <div className="relative w-[240px] sm:w-[280px] lg:w-[300px] h-[520px] sm:h-[600px] lg:h-[650px]">
               {/* iPhone Frame Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751028888126.png"
@@ -281,9 +281,9 @@ function FeaturesSection() {
                 className="absolute inset-0 w-full h-full z-20 pointer-events-none"
               />
               
-              {/* Screen Content - properly sized to fit within phone frame */}
-              <div className="absolute inset-0 flex items-center justify-center p-[12%]">
-                <div className="relative w-full h-full rounded-[12%] overflow-hidden">
+              {/* Screen Content - tight to phone edges */}
+              <div className="absolute inset-0 flex items-center justify-center p-[4%]">
+                <div className="relative w-full h-full rounded-[6%] overflow-hidden">
                   {heroVideo && (
                     <video
                       autoPlay
