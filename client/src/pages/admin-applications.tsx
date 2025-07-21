@@ -64,31 +64,13 @@ export default function AdminApplications() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "from-green-600 to-emerald-600";
-      case "rejected":
-        return "from-red-600 to-rose-600";
-      case "under_review":
-        return "from-yellow-600 to-orange-600";
-      default:
-        return "from-purple-600 to-indigo-600";
-    }
+    // All status badges use unified purple-to-blue gradient
+    return "from-purple-600 to-indigo-600";
   };
 
   const getApplicationTypeColor = (applicationType: string) => {
-    switch (applicationType) {
-      case "member":
-        return "from-blue-600 to-cyan-600";
-      case "yacht_partner":
-        return "from-indigo-600 to-purple-600";
-      case "service_provider":
-        return "from-pink-600 to-rose-600";
-      case "event_provider":
-        return "from-emerald-600 to-teal-600";
-      default:
-        return "from-gray-600 to-slate-600";
-    }
+    // All application type badges use unified purple-to-blue gradient
+    return "from-purple-600 to-indigo-600";
   };
 
   const getApplicationTypeLabel = (applicationType: string) => {
@@ -289,7 +271,7 @@ export default function AdminApplications() {
                     >
                       {getApplicationTypeLabel(application.applicationType)}
                     </Badge>
-                    <Badge variant="outline" className="border-purple-500 text-purple-400">
+                    <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none">
                       {application.membershipTier?.toUpperCase()}
                     </Badge>
                     <Eye className="w-5 h-5 text-gray-400 hover:text-purple-400 transition-colors cursor-pointer" />

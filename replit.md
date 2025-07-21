@@ -952,7 +952,11 @@ MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER S
   - Converted all payment management badges from colored variants to unified purple-to-blue gradients with white text
   - Updated all payment management bottom text from colored (green/blue/purple/orange) to consistent white text
   - Fixed crew management "Needs Crew" badge from yellow-to-orange gradient to purple-to-blue gradient for complete consistency
-  - Complete visual consistency across admin interface: overview, bookings, crew management, and payment management sections
+  - Updated admin applications page to use unified purple-to-blue gradient for all badge components:
+    * Status badges: All statuses (approved, rejected, under_review, pending) now use purple-to-blue gradient
+    * Application type badges: All types (member, yacht_partner, service_provider, event_provider) now use purple-to-blue gradient  
+    * Membership tier badges: All tiers now use purple-to-blue gradient with white text
+  - Complete visual consistency across admin interface: overview, bookings, crew management, payment management, and applications sections
   - All StatCard components and badge elements now display consistent dark theme backgrounds with purple-to-blue gradient styling and white text
   - Maintained existing LSP diagnostic status - no new compilation errors introduced by comprehensive theme updates
 - July 21, 2025. Admin notifications UI updated with purple-to-blue gradient theme consistency
