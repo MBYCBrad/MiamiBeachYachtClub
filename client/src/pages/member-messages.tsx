@@ -135,13 +135,6 @@ export default function MemberMessages({ currentView, setCurrentView }: MemberMe
                 className="pl-10 bg-black/50 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500"
               />
             </div>
-            <Button
-              onClick={handleNewConversation}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Message
-            </Button>
           </div>
 
           {/* Conversations List */}
