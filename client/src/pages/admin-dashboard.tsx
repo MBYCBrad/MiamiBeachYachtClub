@@ -4676,7 +4676,7 @@ export default function AdminDashboard() {
           value={bookings?.length.toString() || '0'}
           change={null}
           icon={Filter}
-          gradient="from-cyan-500 to-teal-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0}
         />
         <StatCard
@@ -4684,7 +4684,7 @@ export default function AdminDashboard() {
           value={bookings?.filter(b => b.status === 'confirmed')?.length.toString() || '0'}
           change={null}
           icon={Anchor}
-          gradient="from-blue-500 to-cyan-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
@@ -4692,7 +4692,7 @@ export default function AdminDashboard() {
           value={bookings?.filter(b => b.status === 'pending')?.length.toString() || '0'}
           change={null}
           icon={Clock}
-          gradient="from-orange-500 to-red-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.2}
         />
         <StatCard
@@ -4700,7 +4700,7 @@ export default function AdminDashboard() {
           value={bookings?.reduce((sum, b) => sum + (b.guestCount || 0), 0).toString() || '0'}
           change={null}
           icon={Users}
-          gradient="from-purple-500 to-pink-500"
+          gradient="from-purple-600 to-indigo-600"
           delay={0.3}
         />
       </div>
