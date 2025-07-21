@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Users, Anchor, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Yacht } from '@shared/schema';
@@ -93,16 +93,30 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent 
-          className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white"
-          onInteractOutside={(e) => {
-            onClose();
-          }}
-        >
-          <DialogHeader className="sr-only">
-            <DialogTitle>{yacht.name} Details</DialogTitle>
-          </DialogHeader>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+              className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm"
+            />
+            
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              onClick={onClose}
+            >
+              <div 
+                className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-black border border-gray-700/50 text-white rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              >
 
           {/* Manual close button as fallback */}
           <button
@@ -259,8 +273,11 @@ export default function YachtDetailsModal({ yacht, isOpen, onClose }: YachtDetai
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Booking Modal */}
       {yacht && (
