@@ -1060,7 +1060,7 @@ export default function MemberProfile({ currentView, setCurrentView }: MemberPro
               
               return (
                 <motion.div
-                  key={activity.id}
+                  key={`${activity.type}-${activity.id}-${index}`}
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.9 + index * 0.1 }}
