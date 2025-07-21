@@ -227,8 +227,8 @@ export default function MessagesPage() {
                   <p className="text-xl font-bold text-white">{stats?.totalConversations || conversations.length}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-2xl px-6 py-3">
-                <Headphones className="h-6 w-6 text-blue-400" />
+              <div className="flex items-center space-x-3 bg-black/30 backdrop-blur-sm border border-purple-500/30 rounded-2xl px-6 py-3">
+                <Headphones className="h-6 w-6 text-purple-400" />
                 <div>
                   <p className="text-sm text-gray-400">24/7 Support</p>
                   <p className="text-base font-semibold text-white">Available</p>
@@ -420,7 +420,7 @@ export default function MessagesPage() {
                         <Button variant="outline" size="sm" className="text-purple-400 border-purple-500/30">
                           <Phone className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-blue-400 border-blue-500/30">
+                        <Button variant="outline" size="sm" className="text-purple-400 border-purple-500/30">
                           <Video className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm" className="text-gray-400 border-gray-600">
@@ -461,7 +461,7 @@ export default function MessagesPage() {
                               <div
                                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                                   message.senderId === user?.id
-                                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white ml-12"
+                                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white ml-12"
                                     : "bg-gray-800 text-white mr-12"
                                 }`}
                               >
@@ -474,7 +474,7 @@ export default function MessagesPage() {
                                     <div className="flex items-center space-x-1">
                                       {message.status === 'sent' && <Check className="h-3 w-3 opacity-70" />}
                                       {message.status === 'delivered' && <CheckCheck className="h-3 w-3 opacity-70" />}
-                                      {message.status === 'read' && <CheckCheck className="h-3 w-3 text-blue-400" />}
+                                      {message.status === 'read' && <CheckCheck className="h-3 w-3 text-purple-400" />}
                                     </div>
                                   )}
                                 </div>
@@ -505,7 +505,7 @@ export default function MessagesPage() {
                       <Button
                         onClick={handleSendMessage}
                         disabled={!newMessage.trim() || sendMessageMutation.isPending}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white self-end"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white self-end"
                       >
                         {sendMessageMutation.isPending ? (
                           <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
