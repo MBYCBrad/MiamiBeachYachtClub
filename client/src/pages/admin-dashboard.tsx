@@ -578,11 +578,11 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
             <Label className="text-gray-300 font-medium mb-3 block">Member Information</Label>
             <div className="space-y-2">
-              <p><span className="text-gray-400">Name:</span> <span className="text-white font-medium">{booking.member?.name}</span></p>
-              <p><span className="text-gray-400">Email:</span> <span className="text-cyan-400">{booking.member?.email}</span></p>
+              <p><span className="text-gray-400">Name:</span> <span className="text-white font-medium">{booking.member?.name || booking.member?.username || 'N/A'}</span></p>
+              <p><span className="text-gray-400">Email:</span> <span className="text-cyan-400">{booking.member?.email || 'N/A'}</span></p>
               <p><span className="text-gray-400">Membership:</span> 
                 <span className="ml-2 px-2 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs rounded-full">
-                  {booking.member?.membershipTier}
+                  {booking.member?.membershipTier || 'N/A'}
                 </span>
               </p>
             </div>
@@ -592,10 +592,10 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
             <Label className="text-gray-300 font-medium mb-3 block">Service Details</Label>
             <div className="space-y-2">
-              <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{booking.service?.name}</span></p>
-              <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{booking.service?.category}</span></p>
-              <p><span className="text-gray-400">Price:</span> <span className="text-green-400 font-bold">${booking.service?.price || 0}</span></p>
-              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{booking.service?.duration || 'N/A'}</span></p>
+              <p><span className="text-gray-400">Service:</span> <span className="text-white font-medium">{String(booking.service?.name || 'N/A')}</span></p>
+              <p><span className="text-gray-400">Category:</span> <span className="text-purple-400">{String(booking.service?.category || 'N/A')}</span></p>
+              <p><span className="text-gray-400">Price:</span> <span className="text-green-400 font-bold">${Number(booking.service?.price || 0)}</span></p>
+              <p><span className="text-gray-400">Duration:</span> <span className="text-cyan-400">{String(booking.service?.duration || 'N/A')}</span></p>
             </div>
           </div>
 
@@ -614,7 +614,7 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
                   booking.status === 'cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                   'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                 }`}>
-                  {booking.status}
+                  {String(booking.status || 'pending')}
                 </span>
               </p>
               <p><span className="text-gray-400">Total Price:</span> <span className="text-green-400 font-bold">${booking.totalPrice || 0}</span></p>
@@ -625,8 +625,8 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
           <div className="p-4 bg-gray-900/50 rounded-lg border border-purple-600/20">
             <Label className="text-gray-300 font-medium mb-3 block">Service Provider</Label>
             <div className="space-y-2">
-              <p><span className="text-gray-400">Provider:</span> <span className="text-white font-medium">{booking.service?.provider || 'MBYC Staff'}</span></p>
-              <p><span className="text-gray-400">Provider ID:</span> <span className="text-gray-400">{booking.service?.providerId || 'Internal'}</span></p>
+              <p><span className="text-gray-400">Provider:</span> <span className="text-white font-medium">{booking.service?.provider?.name || booking.service?.provider || 'MBYC Staff'}</span></p>
+              <p><span className="text-gray-400">Provider ID:</span> <span className="text-gray-400">{String(booking.service?.providerId) || 'Internal'}</span></p>
               <p><span className="text-gray-400">Contact:</span> <span className="text-cyan-400">{booking.service?.contact || 'Through MBYC Admin'}</span></p>
             </div>
           </div>
@@ -649,7 +649,7 @@ function ViewServiceBookingDialog({ booking }: { booking: any }) {
               <p><span className="text-gray-400">Updated:</span> <span className="text-white">
                 {booking.updatedAt ? new Date(booking.updatedAt).toLocaleString() : 'Not available'}
               </span></p>
-              <p><span className="text-gray-400">Service ID:</span> <span className="text-gray-400">{booking.id}</span></p>
+              <p><span className="text-gray-400">Service ID:</span> <span className="text-gray-400">{String(booking.id || 'N/A')}</span></p>
             </div>
           </div>
         </div>
