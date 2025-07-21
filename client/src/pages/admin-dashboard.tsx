@@ -6897,7 +6897,7 @@ export default function AdminDashboard() {
 
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto px-6">
+          <nav className="flex-1 overflow-y-auto px-6 pt-3">
             <div className="space-y-2 pb-4">
               {sidebarItems.map((item, index) => {
                 const Icon = item.icon;
