@@ -1254,7 +1254,7 @@ export default function ServiceProviderDashboard() {
                   <p className="text-gray-400 text-sm">Active Services</p>
                   <p className="text-2xl font-bold text-white mt-1">{bookings?.filter(b => b.status === 'confirmed')?.length || 0}</p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <Package className="h-6 w-6 text-white" />
                 </div>
               </div>
@@ -1274,7 +1274,7 @@ export default function ServiceProviderDashboard() {
                   <p className="text-gray-400 text-sm">Pending Review</p>
                   <p className="text-2xl font-bold text-white mt-1">{bookings?.filter(b => b.status === 'pending')?.length || 0}</p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <Clock className="h-6 w-6 text-white" />
                 </div>
               </div>
@@ -1294,7 +1294,7 @@ export default function ServiceProviderDashboard() {
                   <p className="text-gray-400 text-sm">Total Revenue</p>
                   <p className="text-2xl font-bold text-white mt-1">${bookings?.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || 0), 0) || 0}</p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-white" />
                 </div>
               </div>
@@ -1314,7 +1314,7 @@ export default function ServiceProviderDashboard() {
                   <p className="text-gray-400 text-sm">Average Rating</p>
                   <p className="text-2xl font-bold text-white mt-1">4.9/5</p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-yellow-600 to-amber-600 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
                   <Star className="h-6 w-6 text-white" />
                 </div>
               </div>
