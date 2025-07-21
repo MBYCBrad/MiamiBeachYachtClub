@@ -113,7 +113,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-black border-b border-gray-800">
+      <div className="border-b border-gray-800">
         <div className="container mx-auto px-6 py-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
