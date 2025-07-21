@@ -6545,7 +6545,7 @@ export default function AdminDashboard() {
                     <p className="text-white font-medium">Two-Factor Authentication</p>
                     <p className="text-sm text-gray-400">Enhanced security for admin access</p>
                   </div>
-                  <div className="w-12 h-6 bg-purple-500 rounded-full p-1">
+                  <div className="w-12 h-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full p-1">
                     <div className="w-4 h-4 bg-white rounded-full ml-auto" />
                   </div>
                 </div>
