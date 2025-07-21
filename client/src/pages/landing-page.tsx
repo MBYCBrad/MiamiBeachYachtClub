@@ -242,7 +242,7 @@ function FeaturesSection() {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center justify-items-center">
+        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
           {/* Left Features - Desktop Only */}
           <div className="hidden lg:block space-y-8">
             {leftFeatures.map((feature, index) => (
@@ -266,14 +266,15 @@ function FeaturesSection() {
           </div>
 
           {/* Phone Mockup - Centered */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="flex justify-center items-center w-full lg:order-2"
-          >
-            <div className="relative w-[320px] sm:w-[360px] lg:w-[380px] h-[680px] sm:h-[760px] lg:h-[800px]">
+          <div className="flex justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="relative w-[200px] sm:w-[220px] lg:w-[240px] h-[400px] sm:h-[440px] lg:h-[480px]">
               {/* iPhone Frame Image */}
               <img 
                 src="/api/media/apple-intelligence_hw__b7r46krxys9y_large_1751028888126.png"
@@ -393,6 +394,7 @@ function FeaturesSection() {
               </motion.a>
             </div>
           </motion.div>
+          </div>
 
           {/* Right Features - Desktop Only */}
           <div className="hidden lg:block space-y-8">
