@@ -371,7 +371,7 @@ export default function CrewManagementPage() {
                           <div className="flex items-center gap-4">
                             <Badge 
                               variant="outline" 
-                              className="border-gray-600 bg-gradient-to-r from-yellow-600 to-orange-600 text-white"
+                              className="border-gray-600 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
                             >
                               <AlertCircle className="h-4 w-4 mr-1" />
                               Needs Crew

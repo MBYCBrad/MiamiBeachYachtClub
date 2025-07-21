@@ -951,8 +951,9 @@ MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER S
   - Updated payment management StatCard backgrounds from colorful gradients to consistent bg-gray-950 with border-gray-700/50
   - Converted all payment management badges from colored variants to unified purple-to-blue gradients with white text
   - Updated all payment management bottom text from colored (green/blue/purple/orange) to consistent white text
+  - Fixed crew management "Needs Crew" badge from yellow-to-orange gradient to purple-to-blue gradient for complete consistency
   - Complete visual consistency across admin interface: overview, bookings, crew management, and payment management sections
-  - All StatCard components now display consistent dark theme backgrounds with purple-to-blue gradient icons, badges, and white text
+  - All StatCard components and badge elements now display consistent dark theme backgrounds with purple-to-blue gradient styling and white text
   - Maintained existing LSP diagnostic status - no new compilation errors introduced by comprehensive theme updates
 - July 21, 2025. Admin notifications UI updated with purple-to-blue gradient theme consistency
   - Changed notification panel background from bg-gray-900/95 to bg-gray-950 for darker appearance
