@@ -559,24 +559,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/profile/image', requireAuth, upload.single('image'), async (req, res) => {
     try {
+      console.log('Profile image upload request received');
+      console.log('File:', req.file);
+      console.log('User:', req.user?.username);
+      
       if (!req.file) {
+        console.log('No file provided in request');
         return res.status(400).json({ message: 'No image file provided' });
       }
 
       const imageUrl = `/api/media/${req.file.filename}`;
+      console.log('Generated image URL:', imageUrl);
       
       // Update user profile with new image
-      await dbStorage.updateUserProfile(req.user!.id, {
+      const updatedProfile = await dbStorage.updateUserProfile(req.user!.id, {
         profileImage: imageUrl
       });
 
+      console.log('Profile updated with image URL');
+
       res.json({ 
         imageUrl,
+        profileImage: imageUrl,
         message: 'Profile image updated successfully'
       });
     } catch (error) {
       console.error('Error uploading profile image:', error);
-      res.status(500).json({ message: 'Failed to upload image' });
+      res.status(500).json({ message: 'Failed to upload image: ' + (error as Error).message });
     }
   });
 

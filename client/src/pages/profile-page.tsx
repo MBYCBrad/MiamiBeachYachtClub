@@ -133,10 +133,20 @@ export default function ProfilePage() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('image', file);
-      return await apiRequest('/api/profile/image', {
+      
+      // Use fetch directly for file uploads since apiRequest doesn't handle FormData properly
+      const response = await fetch('/api/profile/image', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: (response) => {
       const imageUrl = response.imageUrl;
