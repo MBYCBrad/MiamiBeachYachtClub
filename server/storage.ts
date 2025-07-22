@@ -1825,14 +1825,88 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Application methods
-  async getApplications(): Promise<Application[]> {
+  // Application methods - enhanced to show complete lead information
+  async getApplications(): Promise<any[]> {
     try {
-      const result = await db
+      const applicationResults = await db
         .select()
         .from(applications)
         .orderBy(desc(applications.createdAt));
-      return result;
+
+      // Enrich applications with complete data structure for staff view
+      const enrichedApplications = applicationResults.map(app => ({
+        id: app.id,
+        applicationType: app.applicationType,
+        // Personal Information
+        personalInfo: {
+          firstName: app.firstName,
+          lastName: app.lastName,
+          fullName: app.fullName || `${app.firstName} ${app.lastName}`,
+          email: app.email,
+          phone: app.phone,
+          dateOfBirth: app.dateOfBirth,
+          address: app.address,
+          city: app.city,
+          state: app.state,
+          zipCode: app.zipCode,
+          country: app.country,
+          occupation: app.occupation,
+          employer: app.employer
+        },
+        // Membership Information
+        membershipInfo: {
+          membershipTier: app.membershipTier,
+          membershipPackage: app.membershipPackage,
+          preferredLocation: app.preferredLocation,
+          expectedUsageFrequency: app.expectedUsageFrequency,
+          primaryUseCase: app.primaryUseCase,
+          groupSize: app.groupSize,
+          preferredStartDate: app.preferredStartDate
+        },
+        // Financial Information
+        financialInfo: {
+          annualIncome: app.annualIncome,
+          netWorth: app.netWorth,
+          liquidAssets: app.liquidAssets,
+          creditScore: app.creditScore,
+          bankName: app.bankName
+        },
+        // Experience & References
+        experienceInfo: {
+          hasBoatingExperience: app.hasBoatingExperience,
+          boatingExperienceYears: app.boatingExperienceYears,
+          boatingLicenseNumber: app.boatingLicenseNumber,
+          referenceSource: app.referenceSource,
+          referralName: app.referralName
+        },
+        // Emergency & Special Information
+        additionalInfo: {
+          emergencyContactName: app.emergencyContactName,
+          emergencyContactPhone: app.emergencyContactPhone,
+          emergencyContactRelation: app.emergencyContactRelation,
+          specialRequests: app.specialRequests,
+          agreeToTerms: app.agreeToTerms,
+          agreeToBackground: app.agreeToBackground,
+          marketingOptIn: app.marketingOptIn
+        },
+        // Partner-specific details (for non-member applications)
+        partnerInfo: {
+          company: app.company,
+          message: app.message,
+          details: app.details // JSON object with yacht/service/event specific data
+        },
+        // System status
+        status: app.status,
+        submittedAt: app.submittedAt,
+        reviewedAt: app.reviewedAt,
+        reviewedBy: app.reviewedBy,
+        reviewNotes: app.reviewNotes,
+        approvalScore: app.approvalScore,
+        createdAt: app.createdAt,
+        updatedAt: app.updatedAt
+      }));
+
+      return enrichedApplications;
     } catch (error) {
       console.error('Error fetching applications:', error);
       return [];
