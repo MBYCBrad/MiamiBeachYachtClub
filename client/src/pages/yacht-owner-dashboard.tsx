@@ -3646,14 +3646,14 @@ export default function YachtOwnerDashboard() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
                         <div className={`p-2 rounded-lg ${
-                          notification.priority === 'urgent' ? 'bg-red-500/20' :
-                          notification.priority === 'high' ? 'bg-red-500/20' :
+                          notification.priority === 'urgent' ? 'bg-gradient-to-br from-purple-600/20 to-indigo-600/20' :
+                          notification.priority === 'high' ? 'bg-gradient-to-br from-purple-600/20 to-indigo-600/20' :
                           notification.priority === 'medium' ? 'bg-gradient-to-br from-purple-600/20 to-indigo-600/20' :
                           'bg-gradient-to-br from-purple-600/20 to-indigo-600/20'
                         }`}>
                           <Bell className={`h-5 w-5 ${
-                            notification.priority === 'urgent' ? 'text-red-400' :
-                            notification.priority === 'high' ? 'text-red-400' :
+                            notification.priority === 'urgent' ? 'text-purple-400' :
+                            notification.priority === 'high' ? 'text-purple-400' :
                             notification.priority === 'medium' ? 'text-purple-400' :
                             'text-purple-400'
                           }`} />
@@ -3665,8 +3665,8 @@ export default function YachtOwnerDashboard() {
                             <span>{new Date(notification.createdAt || notification.created_at).toLocaleDateString()}</span>
                             <span>{new Date(notification.createdAt || notification.created_at).toLocaleTimeString()}</span>
                             <Badge className={`text-xs ${
-                              notification.priority === 'urgent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              notification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              notification.priority === 'urgent' ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30' :
+                              notification.priority === 'high' ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30' :
                               notification.priority === 'medium' ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30' :
                               'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30'
                             }`}>
