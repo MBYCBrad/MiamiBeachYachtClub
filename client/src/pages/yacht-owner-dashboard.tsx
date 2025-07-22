@@ -1176,6 +1176,7 @@ export default function YachtOwnerDashboard() {
   // Booking detail modal state
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showBookingDetails, setShowBookingDetails] = useState(false);
   
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { user, logoutMutation } = useAuth();
@@ -3483,13 +3484,19 @@ export default function YachtOwnerDashboard() {
                   <motion.div
                     key={index}
                     whileHover={{ scale: 1.05 }}
+                    onClick={() => {
+                      if (hasBooking && dateBookings.length > 0) {
+                        setSelectedBooking(dateBookings[0]);
+                        setShowBookingDetails(true);
+                      }
+                    }}
                     className={`p-3 h-20 border border-gray-800 rounded-lg cursor-pointer transition-all relative ${
                       isCurrentMonth 
                         ? isToday 
                           ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white' 
                           : 'bg-gray-800/30 hover:bg-gray-700/50 text-white'
                         : 'bg-gray-900/20 text-gray-600'
-                    }`}
+                    } ${hasBooking ? 'hover:border-purple-500' : ''}`}
                   >
                     <div className="text-sm font-medium">
                       {day}
@@ -3516,7 +3523,11 @@ export default function YachtOwnerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all"
+                    onClick={() => {
+                      setSelectedBooking(booking);
+                      setShowBookingDetails(true);
+                    }}
+                    className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all cursor-pointer hover:border hover:border-purple-500"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
@@ -3562,6 +3573,129 @@ export default function YachtOwnerDashboard() {
         </CardContent>
       </Card>
     </motion.div>
+  );
+
+  // Booking Details Modal Component
+  const BookingDetailsModal = () => (
+    <Dialog open={showBookingDetails} onOpenChange={setShowBookingDetails}>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-white">Booking Details</DialogTitle>
+          <DialogDescription className="text-gray-400">
+            View comprehensive booking information
+          </DialogDescription>
+        </DialogHeader>
+        
+        {selectedBooking && (
+          <div className="space-y-6">
+            {/* Booking Overview */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Booking ID</label>
+                <p className="text-white font-mono">{selectedBooking.id}</p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Status</label>
+                <Badge className={
+                  selectedBooking.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                  selectedBooking.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                  selectedBooking.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                  'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                }>
+                  {selectedBooking.status}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Yacht and Guest Information */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Yacht Information</h4>
+                <div className="space-y-2">
+                  <p className="text-white font-medium">{selectedBooking.yachtName}</p>
+                  <p className="text-gray-400 text-sm">Size: {selectedBooking.yachtSize || 'N/A'}ft</p>
+                  <p className="text-gray-400 text-sm">Capacity: {selectedBooking.yachtCapacity || 'N/A'} guests</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Guest Information</h4>
+                <div className="space-y-2">
+                  <p className="text-white font-medium">{selectedBooking.memberName || 'Guest'}</p>
+                  <p className="text-gray-400 text-sm">Guests: {selectedBooking.guestCount || 1}</p>
+                  <p className="text-gray-400 text-sm">Contact: {selectedBooking.memberEmail || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Booking Timeline */}
+            <div className="space-y-4">
+              <h4 className="text-white font-semibold">Booking Timeline</h4>
+              <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Start Time:</span>
+                  <span className="text-white">{new Date(selectedBooking.startTime).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">End Time:</span>
+                  <span className="text-white">{new Date(selectedBooking.endTime || selectedBooking.startTime).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Duration:</span>
+                  <span className="text-white">4 hours</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Special Requests */}
+            {selectedBooking.specialRequests && (
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Special Requests</h4>
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <p className="text-gray-300">{selectedBooking.specialRequests}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4 border-t border-gray-700">
+              <Button 
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                onClick={() => {
+                  // Navigate to messages or contact guest
+                  setActiveSection('messages');
+                  setShowBookingDetails(false);
+                }}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Contact Guest
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                onClick={() => {
+                  // Navigate to yacht maintenance if needed
+                  setActiveSection('maintenance');
+                  setShowBookingDetails(false);
+                }}
+              >
+                <Wrench className="h-4 w-4 mr-2" />
+                Yacht Status
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                onClick={() => setShowBookingDetails(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 
   // Helper functions for notifications
@@ -5055,6 +5189,9 @@ export default function YachtOwnerDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Booking Details Modal */}
+      <BookingDetailsModal />
       
       {/* Add Yacht Dialog - Rendered at root level to prevent re-render issues */}
       <AddYachtDialog 
