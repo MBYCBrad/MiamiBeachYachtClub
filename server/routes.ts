@@ -3648,34 +3648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Staff messages API endpoints
-  app.get("/api/staff/conversations", async (req, res) => {
-    if (!req.isAuthenticated() || req.user.role !== 'staff') {
-      return res.sendStatus(401);
-    }
-
-    try {
-      console.log('Fetching staff conversations from database...');
-      const result = await pool.query(`
-        SELECT c.id, c.participant1_id, c.participant2_id, 
-               c.last_message_at, c.created_at,
-               u1.username as participant1_name, u1.email as participant1_email,
-               u2.username as participant2_name, u2.email as participant2_email,
-               'Sample message' as last_message, 
-               c.participant1_id as last_sender_id
-        FROM conversations c
-        LEFT JOIN users u1 ON c.participant1_id = u1.id
-        LEFT JOIN users u2 ON c.participant2_id = u2.id
-        ORDER BY c.last_message_at DESC NULLS LAST
-        LIMIT 20
-      `);
-      console.log('Staff conversations result:', result.rows.length, 'conversations found');
-      res.json(result.rows);
-    } catch (error: any) {
-      console.error('Error fetching staff conversations:', error);
-      res.status(500).json({ message: error.message });
-    }
-  });
+  // This endpoint is replaced by the newer /api/staff/conversations endpoint below
 
   app.get("/api/staff/messages/:conversationId", async (req, res) => {
     if (!req.isAuthenticated() || req.user.role !== 'staff') {
