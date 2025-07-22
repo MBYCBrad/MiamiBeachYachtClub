@@ -776,13 +776,22 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
-export const insertYachtSchema = createInsertSchema(yachts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  pricePerHour: z.union([z.string(), z.number()]).optional().transform(val => val ? val.toString() : undefined),
-  totalCost: z.union([z.string(), z.number()]).optional().transform(val => val ? val.toString() : undefined),
+// Manual yacht creation schema to handle decimal field validation properly
+export const insertYachtSchema = z.object({
+  name: z.string().min(1),
+  location: z.string().min(1),
+  size: z.number().int().positive(),
+  capacity: z.number().int().positive(),
+  ownerId: z.number().int().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).optional(),
+  pricePerHour: z.union([z.string(), z.number()]).optional().transform(val => val !== undefined && val !== null && val !== '' ? val.toString() : undefined),
+  isAvailable: z.boolean().default(true),
+  rating: z.string().optional(),
+  yearMade: z.number().int().optional(),
+  totalCost: z.union([z.string(), z.number()]).optional().transform(val => val !== undefined && val !== null && val !== '' ? val.toString() : undefined),
 });
 
 export const insertServiceSchema = createInsertSchema(services).omit({
