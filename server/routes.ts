@@ -8461,6 +8461,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff contact messages endpoint - allows staff with customer service permission to access contact messages
+  app.get("/api/staff/contact-messages", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has customer service permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('customer_service')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const contactMessages = await dbStorage.getContactMessages();
+      res.json(contactMessages);
+    } catch (error: any) {
+      console.error('Error fetching staff contact messages:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff contact message update endpoint
+  app.patch("/api/staff/contact-messages/:id", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has customer service permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('customer_service')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const { id } = req.params;
+      const { status, priority } = req.body;
+      
+      const updatedMessage = await dbStorage.updateContactMessage(parseInt(id), { status, priority });
+      
+      if (!updatedMessage) {
+        return res.status(404).json({ message: "Contact message not found" });
+      }
+
+      res.json(updatedMessage);
+    } catch (error: any) {
+      console.error('Error updating staff contact message:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/admin/applications/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
