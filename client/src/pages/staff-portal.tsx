@@ -3213,7 +3213,7 @@ export default function StaffPortal() {
                 </tr>
               </thead>
               <tbody>
-                {(bookingTab === 'yacht' ? bookings : allServiceBookings)?.map((booking: any, index: number) => (
+                {(bookingTab === 'yacht' ? bookings?.filter((b: any) => b.type === 'Yacht Booking') : bookings?.filter((b: any) => b.type === 'Service Booking'))?.map((booking: any, index: number) => (
                   <motion.tr
                     key={booking.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -3327,7 +3327,7 @@ export default function StaffPortal() {
               </tbody>
             </table>
             
-            {((bookingTab === 'yacht' ? (!bookings || bookings.length === 0) : (!allServiceBookings || allServiceBookings.length === 0))) && (
+            {((bookingTab === 'yacht' ? (!bookings || bookings.filter((b: any) => b.type === 'Yacht Booking').length === 0) : (!bookings || bookings.filter((b: any) => b.type === 'Service Booking').length === 0))) && (
               <div className="text-center py-12">
                 <Calendar className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-400 text-lg">
