@@ -3746,23 +3746,6 @@ export default function YachtOwnerDashboard() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('Yacht Status clicked');
-                  handleCloseModal();
-                  setTimeout(() => {
-                    setActiveSection('maintenance');
-                  }, 100);
-                }}
-              >
-                <Wrench className="h-4 w-4 mr-2" />
-                Yacht Status
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
                   console.log('Close button clicked');
                   handleCloseModal();
                 }}
