@@ -26,10 +26,13 @@ export default function MyProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
 
-  // Fetch user profile data
+  // Fetch user profile data with real-time refresh
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['/api/user/profile'],
     enabled: !!user,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   const [formData, setFormData] = useState({
@@ -38,6 +41,7 @@ export default function MyProfile() {
     phone: '',
     location: '',
     bio: '',
+    fullName: '',
     notifications: {
       email: true,
       sms: false,
@@ -59,8 +63,17 @@ export default function MyProfile() {
         phone: profileData.phone || '',
         location: profileData.location || '',
         bio: profileData.bio || '',
-        notifications: prev.notifications,
-        privacy: prev.privacy
+        fullName: profileData.fullName || '',
+        notifications: {
+          email: profileData.notifications?.email ?? prev.notifications.email,
+          sms: profileData.notifications?.sms ?? prev.notifications.sms,
+          push: profileData.notifications?.push ?? prev.notifications.push
+        },
+        privacy: {
+          showEmail: profileData.privacy?.showEmail ?? prev.privacy.showEmail,
+          showPhone: profileData.privacy?.showPhone ?? prev.privacy.showPhone,
+          showLocation: profileData.privacy?.showLocation ?? prev.privacy.showLocation
+        }
       }));
     }
   }, [profileData]);
@@ -87,27 +100,22 @@ export default function MyProfile() {
     },
   });
 
-  const uploadAvatarMutation = useMutation({
+  const uploadProfileImageMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
-      formData.append('avatar', file);
-      
-      const response = await fetch('/api/upload/avatar', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) throw new Error('Failed to upload avatar');
-      return response.json();
+      formData.append('image', file);
+      return apiRequest('POST', '/api/user/profile/image', formData);
     },
     onSuccess: (data) => {
       setAvatarDialogOpen(false);
       toast({
-        title: "Avatar Updated",
-        description: "Your profile picture has been updated.",
+        title: "Profile Picture Updated",
+        description: "Your profile picture has been updated successfully.",
       });
+      // Invalidate all user-related queries for immediate sync across all components
       queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/user/profile'] });
       queryClient.refetchQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
@@ -136,7 +144,7 @@ export default function MyProfile() {
         });
         return;
       }
-      uploadAvatarMutation.mutate(file);
+      uploadProfileImageMutation.mutate(file);
     }
   };
 
@@ -211,16 +219,16 @@ export default function MyProfile() {
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <div className="profile-picture-outline w-24 h-24">
                     <div className="profile-picture-inner w-full h-full">
-                      {user.profileImage ? (
+                      {(profileData?.profileImage || user.profileImage) ? (
                         <img
-                          src={user.profileImage}
+                          src={profileData?.profileImage || user.profileImage}
                           alt="Profile"
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
                           <span className="text-white text-2xl font-semibold">
-                            {user.username?.charAt(0).toUpperCase()}
+                            {(profileData?.username || user.username)?.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
@@ -236,23 +244,23 @@ export default function MyProfile() {
                     </Button>
                   )}
                 </div>
-                <CardTitle className="text-white">{user.username}</CardTitle>
-                <CardDescription className="text-gray-400">{user.email}</CardDescription>
+                <CardTitle className="text-white">{profileData?.username || user.username}</CardTitle>
+                <CardDescription className="text-gray-400">{profileData?.email || user.email}</CardDescription>
                 <div className="flex justify-center mt-3">
-                  <Badge className={getRoleBadgeColor(user.role)}>
-                    {formatRole(user.role)}
+                  <Badge className={getRoleBadgeColor(profileData?.role || user.role)}>
+                    {formatRole(profileData?.role || user.role)}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3 text-gray-300">
                   <Calendar className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm">Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                  <span className="text-sm">Joined {new Date(profileData?.createdAt || user.createdAt).toLocaleDateString()}</span>
                 </div>
-                {user.membershipTier && (
+                {(profileData?.membershipTier || user.membershipTier) && (
                   <div className="flex items-center gap-3 text-gray-300">
                     <Shield className="h-4 w-4 text-purple-400" />
-                    <span className="text-sm">{user.membershipTier} Member</span>
+                    <span className="text-sm">{profileData?.membershipTier || user.membershipTier} Member</span>
                   </div>
                 )}
               </CardContent>
@@ -274,8 +282,18 @@ export default function MyProfile() {
                   <Label htmlFor="username" className="text-gray-300">Username</Label>
                   <Input
                     id="username"
-                    value={isEditing ? formData.username : (user?.username || '')}
+                    value={isEditing ? formData.username : (profileData?.username || user?.username || '')}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    disabled={!isEditing}
+                    className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fullName" className="text-gray-300">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    value={isEditing ? formData.fullName : (profileData?.fullName || '')}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
                   />
@@ -285,7 +303,7 @@ export default function MyProfile() {
                   <Input
                     id="email"
                     type="email"
-                    value={isEditing ? formData.email : (user?.email || '')}
+                    value={isEditing ? formData.email : (profileData?.email || user?.email || '')}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -295,7 +313,7 @@ export default function MyProfile() {
                   <Label htmlFor="phone" className="text-gray-300">Phone</Label>
                   <Input
                     id="phone"
-                    value={isEditing ? formData.phone : (user?.phone || '')}
+                    value={isEditing ? formData.phone : (profileData?.phone || user?.phone || '')}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -305,7 +323,7 @@ export default function MyProfile() {
                   <Label htmlFor="location" className="text-gray-300">Location</Label>
                   <Input
                     id="location"
-                    value={isEditing ? formData.location : (user?.location || '')}
+                    value={isEditing ? formData.location : (profileData?.location || user?.location || '')}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -315,7 +333,7 @@ export default function MyProfile() {
                   <Label htmlFor="bio" className="text-gray-300">Bio</Label>
                   <Textarea
                     id="bio"
-                    value={isEditing ? formData.bio : (user?.bio || '')}
+                    value={isEditing ? formData.bio : (profileData?.bio || user?.bio || '')}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     disabled={!isEditing}
                     placeholder="Tell us about yourself..."
@@ -462,9 +480,9 @@ export default function MyProfile() {
                 <Button 
                   onClick={() => fileInputRef.current?.click()}
                   className="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600"
-                  disabled={uploadAvatarMutation.isPending}
+                  disabled={uploadProfileImageMutation.isPending}
                 >
-                  {uploadAvatarMutation.isPending ? "Uploading..." : "Choose File"}
+                  {uploadProfileImageMutation.isPending ? "Uploading..." : "Choose File"}
                 </Button>
               </div>
             </div>

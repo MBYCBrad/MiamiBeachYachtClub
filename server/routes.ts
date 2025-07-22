@@ -2471,6 +2471,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile image upload endpoint
+  app.post('/api/user/profile/image', requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No image file provided' });
+      }
+
+      console.log('Profile image upload request from user:', req.user!.id, req.user!.username, req.user!.role);
+
+      // Create unique filename
+      const fileName = `profile_${req.user!.id}_${Date.now()}.${req.file.originalname.split('.').pop()}`;
+      const imageUrl = `/api/media/${fileName}`;
+      
+      // Save file to media storage
+      const savedImage = await mediaStorage.saveImage(fileName, req.file.buffer);
+      console.log('Profile image saved to media storage:', savedImage.filename);
+
+      let updatedUser = null;
+      
+      // First try to update regular user
+      try {
+        updatedUser = await dbStorage.updateUser(req.user!.id, { 
+          profileImage: imageUrl 
+        });
+        
+        if (updatedUser) {
+          console.log('Updated regular user profile image:', imageUrl);
+        }
+      } catch (err) {
+        console.log('User not found in users table, trying staff table for profile image update');
+      }
+      
+      // If not found in users table, try updating staff user
+      if (!updatedUser) {
+        try {
+          const staffUser = await dbStorage.getStaffByUsername(req.user!.username);
+          if (staffUser) {
+            await dbStorage.updateStaff(staffUser.id, { 
+              profileImageUrl: imageUrl 
+            });
+            
+            // Return updated staff user in profile format
+            const updatedStaffUser = await dbStorage.getStaffByUsername(req.user!.username);
+            if (updatedStaffUser) {
+              updatedUser = {
+                id: updatedStaffUser.id,
+                username: updatedStaffUser.username,
+                email: updatedStaffUser.email,
+                fullName: updatedStaffUser.fullName,
+                phone: updatedStaffUser.phone,
+                location: updatedStaffUser.location,
+                role: updatedStaffUser.role,
+                department: updatedStaffUser.department,
+                profileImage: updatedStaffUser.profileImageUrl,
+                membershipTier: 'staff',
+                isStaff: true
+              };
+              
+              console.log('Updated staff user profile image:', imageUrl);
+            }
+          }
+        } catch (staffErr) {
+          console.log('Staff user profile image update failed:', staffErr);
+        }
+      }
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      console.log('Profile image upload successful:', imageUrl);
+
+      res.json({ 
+        url: imageUrl,
+        user: updatedUser
+      });
+    } catch (error: any) {
+      console.error('Profile image upload error:', error);
+      res.status(500).json({ message: 'Profile image upload failed: ' + error.message });
+    }
+  });
+
   // User profile endpoint
   app.get('/api/user/profile', requireAuth, async (req, res) => {
     try {
@@ -2504,7 +2586,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               location: staffUser.location,
               role: staffUser.role,
               department: staffUser.department,
-              profileImage: null, // Staff users don't have profile images yet
+              profileImage: staffUser.profileImageUrl, // Include staff profile image
               membershipTier: 'staff',
               isStaff: true
             };
@@ -2577,7 +2659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 location: updatedStaffUser.location,
                 role: updatedStaffUser.role,
                 department: updatedStaffUser.department,
-                profileImage: null,
+                profileImage: updatedStaffUser.profileImageUrl,
                 membershipTier: 'staff',
                 isStaff: true
               };

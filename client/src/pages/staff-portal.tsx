@@ -4825,6 +4825,16 @@ export default function StaffPortal() {
                     <span className="text-xs text-white font-bold">5</span>
                   </div>
                 </motion.button>
+                {/* Profile Button */}
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setActiveSection('my-profile')}
+                  className="relative p-2 rounded-lg bg-gray-800/50 hover:bg-purple-500/20 border border-gray-600/50 hover:border-purple-500/50 transition-all duration-300 group"
+                  title="My Profile"
+                >
+                  <User className="h-4 w-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
