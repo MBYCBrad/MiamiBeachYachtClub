@@ -8,6 +8,7 @@ import CalendarPage from "@/pages/calendar-page";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffApplications from "@/pages/staff-applications";
 import StaffContactInquiries from "@/pages/staff-contact-inquiries";
+import StaffEventRegistrations from "@/pages/staff-event-registrations";
 import AdminEventRegistrations from "@/pages/admin-event-registrations";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
@@ -4822,7 +4823,7 @@ export default function StaffPortal() {
             {activeSection === 'applications' && <StaffApplications />}
             {activeSection === 'tour-requests' && renderTourRequests()}
             {activeSection === 'contact-inquiries' && <StaffContactInquiries />}
-            {activeSection === 'event-registrations' && <AdminEventRegistrations />}
+            {activeSection === 'event-registrations' && <StaffEventRegistrations />}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'messages' && renderMessages()}
             {activeSection === 'notifications' && renderNotifications()}

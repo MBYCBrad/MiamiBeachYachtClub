@@ -8511,6 +8511,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff event registrations endpoint - allows staff with events permission to access event registrations
+  app.get("/api/staff/event-registrations", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has events permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('events')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const eventRegistrations = await dbStorage.getEventRegistrations();
+      res.json(eventRegistrations);
+    } catch (error: any) {
+      console.error('Error fetching staff event registrations:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff event registration update endpoint
+  app.patch("/api/staff/event-registrations/:id", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has events permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('events')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedRegistration = await dbStorage.updateEventRegistration(parseInt(id), { status });
+      
+      if (!updatedRegistration) {
+        return res.status(404).json({ message: "Event registration not found" });
+      }
+
+      res.json(updatedRegistration);
+    } catch (error: any) {
+      console.error('Error updating staff event registration:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/admin/applications/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
