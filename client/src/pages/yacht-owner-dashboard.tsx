@@ -924,6 +924,7 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
         ownerId: user?.id || (data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined),
         amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
         images: data.images || [],
+        imageUrl: data.images && data.images.length > 0 ? data.images[0] : data.imageUrl || undefined,
         pricePerHour: data.pricePerHour && data.pricePerHour !== '' ? parseFloat(data.pricePerHour) : undefined,
         isAvailable: data.isAvailable,
         yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
