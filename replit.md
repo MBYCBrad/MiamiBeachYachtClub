@@ -325,6 +325,11 @@ Changelog:
   - Notifications system now displays live database data with millisecond response times and automatic refresh functionality
   - Fixed all TypeScript errors in messaging interface with proper type guards and array validation
   - Complete notification management with read/unread status tracking and instant UI synchronization
+- July 22, 2025. Fixed yacht owner dashboard "Add New Yacht" dialog auto-closing issue
+  - Extracted AddYachtDialog component outside YachtOwnerDashboard to prevent re-render issues
+  - Dialog now properly stays open until user explicitly closes via X button, Cancel button, or successful creation
+  - Disabled backdrop click closing to ensure form stability
+  - Maintained all yacht creation functionality with proper database integration and real-time updates
 - July 22, 2025. Complete calendar section real-time data transformation with removal of all hardcoded dates
   - Replaced static "June 2025" with dynamic current month/year display using JavaScript Date methods
   - Removed hardcoded calendar day calculations and replaced with proper date arithmetic using actual current month
