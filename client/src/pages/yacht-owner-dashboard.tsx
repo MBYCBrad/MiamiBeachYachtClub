@@ -2097,7 +2097,7 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Total Revenue"
-          value={`$${revenueData?.reduce((sum: number, item: any) => sum + (item.revenue || 0), 0).toFixed(2) || '0.00'}`}
+          value={`$${(revenueData || []).reduce((sum: number, item: any) => sum + (item.revenue || 0), 0).toFixed(2)}`}
           change={null}
           icon={DollarSign}
           gradient="from-purple-600 to-indigo-600"
@@ -3043,8 +3043,8 @@ export default function YachtOwnerDashboard() {
                 { month: 'May', bookings: 22 },
                 { month: 'Jun', bookings: 25 }
               ].map((month, index) => {
-                const maxBookings = Math.max(...(revenue?.map(r => r.bookings || 0) || []), 25);
-                const monthData = revenue?.find(r => r.month === month.month) || month;
+                const maxBookings = Math.max(...((revenueData || []).map(r => r.bookings || 0) || []), 25);
+                const monthData = (revenueData || []).find(r => r.month === month.month) || month;
                 const percentage = ((monthData.bookings || month.bookings) / maxBookings) * 100;
                 
                 return (
