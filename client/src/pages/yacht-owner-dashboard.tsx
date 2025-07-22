@@ -4857,99 +4857,16 @@ export default function YachtOwnerDashboard() {
                   })()}
                 </Button>
                 
-                {/* Messages Icon with Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-purple-400 hover:text-white relative"
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-gray-950 border-gray-700 p-4 w-96">
-                    <div className="space-y-4">
-                      <div className="border-b border-gray-700 pb-2">
-                        <h4 className="text-white font-medium">Messages & Communication</h4>
-                        <p className="text-sm text-gray-400">Send messages and manage communications</p>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-sm text-gray-300">Message Type</label>
-                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                            <option value="">Select Message Type...</option>
-                            <option value="admin">Message Admin</option>
-                            <option value="member">Message Member</option>
-                            <option value="staff">Message Staff</option>
-                            <option value="support">Contact Support</option>
-                          </select>
-                        </div>
-                        
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-sm text-gray-300">Recipient</label>
-                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                            <option value="">Select Recipient...</option>
-                            <option value="admin">MBYC Admin</option>
-                            <option value="concierge">Concierge Service</option>
-                            <option value="maintenance">Maintenance Team</option>
-                            <option value="customer_service">Customer Service</option>
-                          </select>
-                        </div>
-                        
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-sm text-gray-300">Subject</label>
-                          <input 
-                            type="text"
-                            className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm"
-                            placeholder="Enter message subject..."
-                          />
-                        </div>
-                        
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-sm text-gray-300">Message</label>
-                          <textarea 
-                            className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm resize-none"
-                            rows={4}
-                            placeholder="Type your message here..."
-                          />
-                        </div>
-                        
-                        <div className="flex flex-col space-y-2">
-                          <label className="text-sm text-gray-300">Priority Level</label>
-                          <select className="bg-gray-800 border border-gray-600 text-white rounded px-3 py-2 text-sm">
-                            <option value="low">Low Priority</option>
-                            <option value="medium">Medium Priority</option>
-                            <option value="high">High Priority</option>
-                            <option value="urgent">Urgent</option>
-                          </select>
-                        </div>
-                        
-                        <div className="flex space-x-2 pt-2">
-                          <Button 
-                            size="sm" 
-                            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex-1"
-                            onClick={() => {
-                              toast({ title: "Message sent successfully" });
-                            }}
-                          >
-                            Send Message
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className="border-gray-600 text-gray-300 hover:border-purple-500"
-                            onClick={() => setActiveSection('messages')}
-                          >
-                            View All Messages
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Messages Icon */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setActiveSection('messages')}
+                  className="text-purple-400 hover:text-white relative"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full" />
+                </Button>
                 
                 {/* Logout Button */}
                 <Button 
