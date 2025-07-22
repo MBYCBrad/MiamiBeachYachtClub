@@ -8057,14 +8057,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/staff/conversations', requireAuth, async (req, res) => {
     try {
-      if (!req.user || !req.user.role?.startsWith('Staff') && req.user.role !== 'VIP Coordinator') {
+      console.log('Fetching staff conversations from database...');
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
+      // Use the exact same conversation data as admin interface
       const conversations = await dbStorage.getConversations();
+      console.log(`Staff conversations result: ${conversations.length} conversations found`);
       res.json(conversations);
     } catch (error) {
       console.error('Error fetching staff conversations:', error);
-      res.status(500).json({ message: 'Failed to fetch conversations' });
+      res.status(500).json({ message: error.message || 'Failed to fetch conversations' });
     }
   });
 

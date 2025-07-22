@@ -519,8 +519,9 @@ export default function StaffPortal() {
 
   const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
     queryKey: ['/api/staff/conversations'],
-    enabled: !!user && user.role === 'staff',
-    refetchInterval: 30000, // Refresh every 30 seconds
+    enabled: !!user, // Enable for all authenticated staff users
+    refetchInterval: 30000, // Real-time sync every 30 seconds
+    refetchOnWindowFocus: true, // Sync when window gains focus
   });
 
   const { data: tourRequests = [], isLoading: tourRequestsLoading } = useQuery({
@@ -2261,33 +2262,33 @@ export default function StaffPortal() {
                         </div>
                         <div>
                           <h3 className="text-white font-medium">
-                            {conversation.participant1_name || conversation.participant2_name || 'Unknown Member'}
+                            {conversation.memberName || conversation.userName || 'Unknown Member'}
                           </h3>
                           <p className="text-gray-400 text-sm">
-                            {conversation.last_message || 'No messages yet'}
+                            {conversation.lastMessage || conversation.last_message || 'No messages yet'}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                          Active
+                          {conversation.status === 'active' ? 'Active' : 'Booking'}
                         </Badge>
                         <p className="text-gray-500 text-xs mt-1">
-                          {conversation.last_message_at 
-                            ? new Date(conversation.last_message_at).toLocaleDateString('en-US', {
+                          {conversation.lastMessageTime 
+                            ? new Date(conversation.lastMessageTime).toLocaleDateString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })
-                            : conversation.created_at 
-                              ? new Date(conversation.created_at).toLocaleDateString('en-US', {
+                            : conversation.createdAt 
+                              ? new Date(conversation.createdAt).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
                                   hour: '2-digit',
                                   minute: '2-digit'
                                 })
-                              : 'No date'
+                              : 'Recent'
                           }
                         </p>
                       </div>
