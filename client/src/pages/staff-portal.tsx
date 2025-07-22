@@ -1630,20 +1630,20 @@ export default function StaffPortal() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-green-500/50 transition-all duration-300">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
                     <p className="text-3xl font-bold text-white">${(analytics.totalRevenue || 0).toFixed(2)}</p>
                     <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-                      <span className="text-green-400 text-sm font-medium">+12.5%</span>
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <span className="text-purple-400 text-sm font-medium">+12.5%</span>
                       <span className="text-gray-500 text-sm ml-1">this month</span>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl">
-                    <DollarSign className="h-8 w-8 text-green-400" />
+                  <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                    <DollarSign className="h-8 w-8 text-white" />
                   </div>
                 </div>
               </CardContent>
@@ -1655,20 +1655,20 @@ export default function StaffPortal() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-blue-500/50 transition-all duration-300">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm font-medium">Active Members</p>
                     <p className="text-3xl font-bold text-white">{analytics.totalUsers || 0}</p>
                     <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
-                      <span className="text-blue-400 text-sm font-medium">+8.2%</span>
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <span className="text-purple-400 text-sm font-medium">+8.2%</span>
                       <span className="text-gray-500 text-sm ml-1">this month</span>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
-                    <Users className="h-8 w-8 text-blue-400" />
+                  <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                    <Users className="h-8 w-8 text-white" />
                   </div>
                 </div>
               </CardContent>
@@ -1692,8 +1692,8 @@ export default function StaffPortal() {
                       <span className="text-gray-500 text-sm ml-1">this month</span>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
-                    <Calendar className="h-8 w-8 text-purple-400" />
+                  <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                    <Calendar className="h-8 w-8 text-white" />
                   </div>
                 </div>
               </CardContent>
@@ -1705,20 +1705,20 @@ export default function StaffPortal() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-orange-500/50 transition-all duration-300">
+            <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm font-medium">Active Services</p>
                     <p className="text-3xl font-bold text-white">{analytics.totalServices || 0}</p>
                     <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-orange-400 mr-1" />
-                      <span className="text-orange-400 text-sm font-medium">+6.8%</span>
+                      <TrendingUp className="h-4 w-4 text-purple-400 mr-1" />
+                      <span className="text-purple-400 text-sm font-medium">+6.8%</span>
                       <span className="text-gray-500 text-sm ml-1">this month</span>
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
-                    <Settings className="h-8 w-8 text-orange-400" />
+                  <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                    <Settings className="h-8 w-8 text-white" />
                   </div>
                 </div>
               </CardContent>
