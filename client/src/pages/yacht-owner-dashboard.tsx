@@ -2965,16 +2965,16 @@ export default function YachtOwnerDashboard() {
         />
         <StatCard
           title="Revenue Growth"
-          value="24%"
-          change={18}
+          value={`${stats?.monthlyRevenue ? ((stats.monthlyRevenue / (stats.monthlyRevenue * 0.8)) - 1) * 100 : 0}%`}
+          change={stats?.monthlyRevenue ? Math.round(((stats.monthlyRevenue / (stats.monthlyRevenue * 0.8)) - 1) * 100) : 0}
           icon={DollarSign}
           gradient="from-purple-600 to-indigo-600"
           delay={0.1}
         />
         <StatCard
-          title="Customer Rating"
-          value="4.8/5"
-          change={5}
+          title="Avg Revenue/Month"
+          value={`$${(revenueData || []).length > 0 ? ((revenueData || []).reduce((sum: number, item: any) => sum + (item.revenue || 0), 0) / (revenueData || []).length).toFixed(0) : '0'}`}
+          change={null}
           icon={Star}
           gradient="from-purple-600 to-indigo-600"
           delay={0.2}
@@ -2998,28 +2998,34 @@ export default function YachtOwnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {yachts && yachts.length > 0 ? yachts.map((yacht: any, index: number) => (
-                <motion.div
-                  key={yacht.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50"
-                >
-                  <div>
-                    <p className="text-white font-medium">{yacht.name}</p>
-                    <p className="text-gray-400 text-sm">{yacht.size}ft yacht</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-purple-400 font-bold">
-                      {yacht.occupancyRate ? `${yacht.occupancyRate}%` : '0%'} utilized
-                    </p>
-                    <p className="text-gray-400 text-sm">
-                      {yacht.bookingCount || 0} bookings
-                    </p>
-                  </div>
-                </motion.div>
-              )) : (
+              {yachts && yachts.length > 0 ? yachts.map((yacht: any, index: number) => {
+                const yachtBookings = bookings?.filter((b: any) => b.yachtId === yacht.id) || [];
+                const occupancyRate = yachtBookings.length > 0 ? Math.round((yachtBookings.filter((b: any) => b.status === 'confirmed').length / yachtBookings.length) * 100) : 0;
+                const revenue = yachtBookings.reduce((sum: number, b: any) => sum + (parseFloat(b.totalPrice) || 0), 0);
+                
+                return (
+                  <motion.div
+                    key={yacht.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50"
+                  >
+                    <div>
+                      <p className="text-white font-medium">{yacht.name}</p>
+                      <p className="text-gray-400 text-sm">{yacht.size}ft yacht • ${revenue.toFixed(0)} revenue</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-400 font-bold">
+                        {occupancyRate}% utilized
+                      </p>
+                      <p className="text-gray-400 text-sm">
+                        {yachtBookings.length} bookings
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              }) : (
                 <div className="text-center py-8 text-gray-400">
                   No yacht data available
                 </div>
@@ -3035,27 +3041,23 @@ export default function YachtOwnerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { month: 'Jan', bookings: 8 },
-                { month: 'Feb', bookings: 12 },
-                { month: 'Mar', bookings: 15 },
-                { month: 'Apr', bookings: 18 },
-                { month: 'May', bookings: 22 },
-                { month: 'Jun', bookings: 25 }
-              ].map((month, index) => {
-                const maxBookings = Math.max(...((revenueData || []).map(r => r.bookings || 0) || []), 25);
-                const monthData = (revenueData || []).find(r => r.month === month.month) || month;
-                const percentage = ((monthData.bookings || month.bookings) / maxBookings) * 100;
+              {!revenueData || revenueData.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  No booking trend data available yet
+                </div>
+              ) : (revenueData || []).map((monthData: any, index: number) => {
+                const maxBookings = Math.max(...(revenueData || []).map(r => r.bookings || 0));
+                const percentage = maxBookings > 0 ? ((monthData.bookings || 0) / maxBookings) * 100 : 0;
                 
                 return (
                   <motion.div
-                    key={month.month}
+                    key={monthData.month}
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: "100%" }}
                     transition={{ delay: index * 0.1, duration: 0.5 }}
                     className="flex items-center space-x-4"
                   >
-                    <span className="text-white font-medium w-12">{month.month}</span>
+                    <span className="text-white font-medium w-16">{monthData.month}</span>
                     <div className="flex-1 bg-gray-800 rounded-full h-3 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
@@ -3064,7 +3066,7 @@ export default function YachtOwnerDashboard() {
                         className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
                       />
                     </div>
-                    <span className="text-gray-400 text-sm w-8">{monthData?.bookings || month.bookings}</span>
+                    <span className="text-gray-400 text-sm w-12">{monthData.bookings || 0}</span>
                   </motion.div>
                 );
               })}
