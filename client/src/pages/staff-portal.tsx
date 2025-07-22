@@ -260,6 +260,9 @@ export default function StaffPortal() {
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [messageContent, setMessageContent] = useState('');
   
+  // Tour request view dialog state
+  const [selectedTourRequest, setSelectedTourRequest] = useState<any>(null);
+  
   // Notification view dialog states
   const [showViewNotificationDialog, setShowViewNotificationDialog] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
@@ -4458,6 +4461,14 @@ export default function StaffPortal() {
                         }`}>
                           {request.status?.charAt(0).toUpperCase() + request.status?.slice(1) || 'Pending'}
                         </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-gray-400 hover:text-white hover:bg-purple-500/20"
+                          onClick={() => setSelectedTourRequest(request)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </motion.div>
@@ -6600,6 +6611,108 @@ export default function StaffPortal() {
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 >
                   Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Tour Request View Dialog */}
+      <Dialog open={!!selectedTourRequest} onOpenChange={(open) => !open && setSelectedTourRequest(null)}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Tour Request Details</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Complete information for this private tour request
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTourRequest && (
+            <div className="space-y-6">
+              {/* Basic Information Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Name</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedTourRequest.name}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Email</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedTourRequest.email}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Phone</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedTourRequest.phone || 'Not provided'}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Status</label>
+                  <Badge className={`${
+                    selectedTourRequest.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    selectedTourRequest.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    selectedTourRequest.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                    'bg-red-500/20 text-red-400 border-red-500/30'
+                  } mt-1`}>
+                    {selectedTourRequest.status?.charAt(0).toUpperCase() + selectedTourRequest.status?.slice(1) || 'Pending'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Preferred Date</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedTourRequest.preferredDate ? 
+                      new Date(selectedTourRequest.preferredDate).toLocaleDateString() : 'Not specified'}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Group Size</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedTourRequest.groupSize || 'Not specified'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Message/Special Requests */}
+              {selectedTourRequest.message && (
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Message</label>
+                  <p className="text-white mt-2 leading-relaxed">
+                    {selectedTourRequest.message}
+                  </p>
+                </div>
+              )}
+
+              {/* Submit Date */}
+              <div className="bg-gray-900/50 rounded-lg p-4">
+                <label className="text-sm font-medium text-gray-400">Submitted</label>
+                <p className="text-white font-medium mt-1">
+                  {selectedTourRequest.createdAt ? 
+                    new Date(selectedTourRequest.createdAt).toLocaleString() : 'Unknown'}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedTourRequest(null)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Close
+                </Button>
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                  <Phone className="w-4 h-4 mr-2" />
+                  Contact Guest
                 </Button>
               </div>
             </div>
