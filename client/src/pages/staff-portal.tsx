@@ -889,8 +889,8 @@ export default function StaffPortal() {
                     <span className="text-gray-500 ml-1">this month</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
-                  <Users className="h-8 w-8 text-purple-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <Users className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -915,8 +915,8 @@ export default function StaffPortal() {
                     <span className="text-gray-400">Active reservations</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
-                  <CalendarDays className="h-8 w-8 text-blue-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <CalendarDays className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -941,8 +941,8 @@ export default function StaffPortal() {
                     <span className="text-emerald-400 font-medium">Revenue streams</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
-                  <TrendingUp className="h-8 w-8 text-emerald-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <TrendingUp className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -967,8 +967,8 @@ export default function StaffPortal() {
                     <span className="text-gray-400">Premium offerings</span>
                   </div>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl">
-                  <Sparkles className="h-8 w-8 text-orange-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <Sparkles className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
