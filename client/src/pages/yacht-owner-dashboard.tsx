@@ -925,7 +925,7 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
         yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
         totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
       };
-      const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
+      const response = await apiRequest("POST", "/api/yachts", yachtData);
       return response.json();
     },
     onSuccess: () => {
