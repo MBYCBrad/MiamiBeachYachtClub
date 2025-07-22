@@ -132,13 +132,23 @@ export function MultiImageUpload({
       e.preventDefault();
       e.stopPropagation();
     }
+    console.log('Triggering file input...', fileInputRef.current);
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
+  const handleUploadAreaClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!uploading && images.length < maxImages) {
+      console.log('Upload area clicked, triggering file input...');
+      triggerFileInput();
+    }
+  };
+
   return (
-    <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
+    <div className="space-y-4">
       <label className="text-sm font-medium text-gray-300">{label}</label>
       
       {/* Upload Area */}
@@ -155,7 +165,7 @@ export function MultiImageUpload({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={!uploading ? triggerFileInput : undefined}
+        onClick={handleUploadAreaClick}
       >
         <div className="flex flex-col items-center justify-center space-y-2">
           {uploading ? (

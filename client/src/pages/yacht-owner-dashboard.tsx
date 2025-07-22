@@ -206,7 +206,11 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-lg max-h-[80vh] overflow-hidden">
+      <DialogContent 
+        className="bg-gray-950 border-gray-700 max-w-lg max-h-[80vh] overflow-hidden" 
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
           <DialogDescription className="text-gray-400">
