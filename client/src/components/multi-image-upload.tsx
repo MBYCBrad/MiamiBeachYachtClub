@@ -132,7 +132,9 @@ export function MultiImageUpload({
       e.preventDefault();
       e.stopPropagation();
     }
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   return (

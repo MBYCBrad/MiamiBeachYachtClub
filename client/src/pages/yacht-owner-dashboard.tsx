@@ -916,15 +916,27 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
   const createYachtMutation = useMutation({
     mutationFn: async (data: any) => {
       const yachtData = {
-        ...data,
+        name: data.name,
+        location: data.location,
+        description: data.description,
         size: parseInt(data.size),
         capacity: parseInt(data.capacity),
         ownerId: user?.id || (data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined),
         amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
         images: data.images || [],
+        pricePerHour: data.pricePerHour && data.pricePerHour !== '' ? parseFloat(data.pricePerHour) : undefined,
+        isAvailable: data.isAvailable,
         yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
         totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
       };
+      
+      // Remove undefined values to avoid schema validation issues
+      Object.keys(yachtData).forEach(key => {
+        if (yachtData[key] === undefined) {
+          delete yachtData[key];
+        }
+      });
+      
       const response = await apiRequest("POST", "/api/yachts", yachtData);
       return response.json();
     },
