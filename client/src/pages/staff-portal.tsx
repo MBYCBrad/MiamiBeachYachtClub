@@ -3118,7 +3118,7 @@ export default function StaffPortal() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-cyan-500/10 to-teal-500/10 border border-cyan-500/20"
+          className="p-6 rounded-xl bg-gray-950 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
@@ -3135,7 +3135,7 @@ export default function StaffPortal() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
+          className="p-6 rounded-xl bg-gray-950 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
@@ -3154,7 +3154,7 @@ export default function StaffPortal() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20"
+          className="p-6 rounded-xl bg-gray-950 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
@@ -3173,7 +3173,7 @@ export default function StaffPortal() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20"
+          className="p-6 rounded-xl bg-gray-950 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
