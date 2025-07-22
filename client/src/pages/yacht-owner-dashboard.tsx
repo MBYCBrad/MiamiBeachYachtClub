@@ -3321,10 +3321,6 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Event
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
