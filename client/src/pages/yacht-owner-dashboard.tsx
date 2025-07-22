@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -1392,9 +1392,10 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Modified to prevent auto-close
-  function AddYachtDialog() {
-    const [isOpen, setIsOpen] = useState(false);
+  // Add Yacht Dialog - Using ref to persist state across re-renders
+  const AddYachtDialog = React.memo(() => {
+    const dialogOpenRef = useRef(false);
+    const [, forceUpdate] = useState({});
     const [formData, setFormData] = useState({
       name: '',
       location: '',
@@ -1432,7 +1433,7 @@ export default function YachtOwnerDashboard() {
         queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/stats"] });
         toast({ title: "Success", description: "Yacht created successfully" });
-        setIsOpen(false);
+        handleClose("Success");
         setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: user?.id?.toString() || '', amenities: '', yearMade: '', totalCost: '' });
       },
       onError: (error: any) => {
@@ -1440,197 +1441,194 @@ export default function YachtOwnerDashboard() {
       }
     });
 
-    // Add debug logging
-    console.log("AddYachtDialog render - isOpen:", isOpen);
+    // Force re-render function
+    const triggerUpdate = () => forceUpdate({});
 
-    // Handle opening with debug
-    const handleOpen = () => {
-      console.log("Opening yacht dialog");
-      setIsOpen(true);
-    };
+    // Handle opening with ref
+    const handleOpen = useCallback(() => {
+      console.log("Opening yacht dialog - setting ref to true");
+      dialogOpenRef.current = true;
+      triggerUpdate();
+    }, []);
 
-    // Handle closing with debug
-    const handleClose = (reason?: string) => {
+    // Handle closing with ref
+    const handleClose = useCallback((reason?: string) => {
       console.log("Closing yacht dialog, reason:", reason);
-      setIsOpen(false);
-    };
+      dialogOpenRef.current = false;
+      triggerUpdate();
+    }, []);
 
-    // Prevent automatic closing by overriding onOpenChange
-    const handleOpenChange = (open: boolean) => {
-      console.log("Dialog onOpenChange called with:", open);
-      // Only allow manual closing, not automatic
-      if (!open) {
-        console.log("Preventing automatic close");
-        return;
-      }
-      setIsOpen(open);
-    };
+    console.log("AddYachtDialog render - dialogOpenRef.current:", dialogOpenRef.current);
 
     return (
-      <Dialog open={isOpen} onOpenChange={() => {}}>
-        <DialogTrigger asChild>
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
-            onClick={handleOpen}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Yacht
-          </Button>
-        </DialogTrigger>
-        <DialogContent 
-          className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing"
-          onEscapeKeyDown={(e) => {
-            e.preventDefault();
-            console.log("ESC key pressed - preventing close");
-          }}
-          onPointerDownOutside={(e) => {
-            e.preventDefault();
-            console.log("Click outside - preventing close");
-          }}
+      <>
+        <Button 
+          size="sm" 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+          onClick={handleOpen}
         >
-          <DialogHeader>
-            <DialogTitle className="text-white">Add New Yacht</DialogTitle>
-          </DialogHeader>
-          <div className="dialog-form-spacing">
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="name" className="form-label text-gray-300">Yacht Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="Enter yacht name"
-                />
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Yacht
+        </Button>
+
+        {dialogOpenRef.current && (
+          <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleClose("X button")}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name" className="text-gray-300 mb-2 block">Yacht Name</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="Enter yacht name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="location" className="text-gray-300 mb-2 block">Location</Label>
+                      <Input
+                        id="location"
+                        value={formData.location}
+                        onChange={(e) => setFormData({...formData, location: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="Marina location"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="size" className="text-gray-300 mb-2 block">Size (ft)</Label>
+                      <Input
+                        id="size"
+                        type="number"
+                        value={formData.size}
+                        onChange={(e) => setFormData({...formData, size: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="40"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="capacity" className="text-gray-300 mb-2 block">Capacity</Label>
+                      <Input
+                        id="capacity"
+                        type="number"
+                        value={formData.capacity}
+                        onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="12"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="pricePerHour" className="text-gray-300 mb-2 block">Price per Hour</Label>
+                      <Input
+                        id="pricePerHour"
+                        value={formData.pricePerHour}
+                        onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="500"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="yearMade" className="text-gray-300 mb-2 block">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+                      <Input
+                        id="yearMade"
+                        type="number"
+                        value={formData.yearMade}
+                        onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="2020"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="description" className="text-gray-300 mb-2 block">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      className="bg-gray-900 border-gray-700 text-white"
+                      placeholder="Yacht description..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="amenities" className="text-gray-300 mb-2 block">Amenities (comma separated)</Label>
+                    <Input
+                      id="amenities"
+                      value={formData.amenities}
+                      onChange={(e) => setFormData({...formData, amenities: e.target.value})}
+                      className="bg-gray-900 border-gray-700 text-white"
+                      placeholder="WiFi, Air Conditioning, Sound System"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="totalCost" className="text-gray-300 mb-2 block">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+                    <Input
+                      id="totalCost"
+                      type="number"
+                      step="0.01"
+                      value={formData.totalCost}
+                      onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                      className="bg-gray-900 border-gray-700 text-white"
+                      placeholder="500000"
+                    />
+                  </div>
+                  
+                  <div>
+                    <MultiImageUpload
+                      label="Yacht Gallery"
+                      onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+                      currentImages={formData.images || []}
+                      maxImages={10}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-6">
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleClose("Cancel button")}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => createYachtMutation.mutate(formData)}
+                    disabled={createYachtMutation.isPending}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600"
+                  >
+                    {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+                  </Button>
+                </div>
               </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="location" className="form-label text-gray-300">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="Marina location"
-                />
-              </div>
-            </div>
-            
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="size" className="form-label text-gray-300">Size (ft)</Label>
-                <Input
-                  id="size"
-                  type="number"
-                  value={formData.size}
-                  onChange={(e) => setFormData({...formData, size: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="40"
-                />
-              </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="capacity" className="form-label text-gray-300">Capacity</Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="12"
-                />
-              </div>
-            </div>
-            
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="pricePerHour" className="form-label text-gray-300">Price per Hour</Label>
-                <Input
-                  id="pricePerHour"
-                  value={formData.pricePerHour}
-                  onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="500"
-                />
-              </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="yearMade" className="form-label text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-                <Input
-                  id="yearMade"
-                  type="number"
-                  value={formData.yearMade}
-                  onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="2020"
-                />
-              </div>
-            </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="form-textarea bg-gray-900 border-gray-700 text-white"
-                placeholder="Yacht description..."
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="amenities" className="form-label text-gray-300">Amenities (comma separated)</Label>
-              <Input
-                id="amenities"
-                value={formData.amenities}
-                onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-                className="form-input bg-gray-900 border-gray-700 text-white"
-                placeholder="WiFi, Air Conditioning, Sound System"
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="totalCost" className="form-label text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-              <Input
-                id="totalCost"
-                type="number"
-                step="0.01"
-                value={formData.totalCost}
-                onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
-                className="form-input bg-gray-900 border-gray-700 text-white"
-                placeholder="500000"
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <MultiImageUpload
-                label="Yacht Gallery"
-                onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
-                currentImages={formData.images || []}
-                maxImages={10}
-              />
             </div>
           </div>
-          
-          <div className="form-button-group flex gap-3">
-            <Button 
-              type="button"
-              variant="outline"
-              onClick={() => handleClose("Cancel button")}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => createYachtMutation.mutate(formData)}
-              disabled={createYachtMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600"
-            >
-              {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        )}
+      </>
     );
-  }
+  });
 
   const renderOverview = () => (
     <motion.div
