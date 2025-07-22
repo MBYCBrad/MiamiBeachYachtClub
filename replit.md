@@ -346,6 +346,11 @@ Changelog:
   - Fixed browse button functionality for multi-image upload with enhanced null checking
   - End-to-end yacht creation workflow now fully operational: image upload → form validation → database creation → cache invalidation
   - All LSP diagnostics cleared for yacht owner dashboard with no remaining TypeScript errors
+- July 22, 2025. Fixed yacht owner dashboard sidebar navigation gradient behavior
+  - Resolved issue where active menu items showed persistent purple-to-blue gradient background
+  - Updated sidebar navigation to only show gradient background on hover, not on active state
+  - Now consistent with admin dashboard pattern where active items have no background color
+  - Applied admin-nav-button class for uniform hover behavior across all dashboard types
 - July 1, 2025. Crew assignment system completely operational with full database integration and real-time functionality
   - Created missing `/api/staff/assignments` endpoints with proper CRUD operations and authentication
   - Fixed Active Assignments tab to display actual assignment data with captain, coordinator, crew members, and briefing times

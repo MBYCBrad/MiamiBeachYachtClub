@@ -4961,8 +4961,8 @@ export default function YachtOwnerDashboard() {
                     onClick={() => handleSectionChange(item.id)}
                     className={`w-full flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden admin-nav-button ${
                       isActive 
-                        ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30 text-white shadow-lg' 
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                        ? 'text-white' 
+                        : 'text-gray-400 hover:text-white'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
