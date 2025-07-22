@@ -3109,9 +3109,10 @@ export default function StaffPortal() {
         </button>
       </div>
 
-      {/* Booking Stats */}
+      {/* Real-time Context-Aware Booking Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
+          key={`total-${bookingTab}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -3124,11 +3125,19 @@ export default function StaffPortal() {
             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Total</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Bookings</h3>
-          <p className="text-2xl font-bold text-white">{((bookings as any[]) || []).length}</p>
-          <p className="text-cyan-400 text-sm mt-1">All time bookings</p>
+          <p className="text-2xl font-bold text-white">
+            {bookingTab === 'yacht' 
+              ? ((bookings as any[]) || []).filter((b: any) => b.type === 'Yacht Booking').length
+              : ((bookings as any[]) || []).filter((b: any) => b.type === 'Service Booking').length
+            }
+          </p>
+          <p className="text-cyan-400 text-sm mt-1">
+            {bookingTab === 'yacht' ? 'All yacht experiences' : 'All service bookings'}
+          </p>
         </motion.div>
 
         <motion.div
+          key={`confirmed-${bookingTab}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -3142,12 +3151,18 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Confirmed</h3>
           <p className="text-2xl font-bold text-white">
-            {((bookings as any[]) || []).filter((b: any) => b.status === 'confirmed').length}
+            {bookingTab === 'yacht' 
+              ? ((bookings as any[]) || []).filter((b: any) => b.type === 'Yacht Booking' && b.status === 'confirmed').length
+              : ((bookings as any[]) || []).filter((b: any) => b.type === 'Service Booking' && b.status === 'confirmed').length
+            }
           </p>
-          <p className="text-green-400 text-sm mt-1">Ready to sail</p>
+          <p className="text-green-400 text-sm mt-1">
+            {bookingTab === 'yacht' ? 'Ready to sail' : 'Service confirmed'}
+          </p>
         </motion.div>
 
         <motion.div
+          key={`pending-${bookingTab}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -3161,12 +3176,16 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Pending</h3>
           <p className="text-2xl font-bold text-white">
-            {((bookings as any[]) || []).filter((b: any) => b.status === 'pending').length}
+            {bookingTab === 'yacht' 
+              ? ((bookings as any[]) || []).filter((b: any) => b.type === 'Yacht Booking' && b.status === 'pending').length
+              : ((bookings as any[]) || []).filter((b: any) => b.type === 'Service Booking' && b.status === 'pending').length
+            }
           </p>
           <p className="text-purple-400 text-sm mt-1">Awaiting confirmation</p>
         </motion.div>
 
         <motion.div
+          key={`cancelled-${bookingTab}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -3180,7 +3199,10 @@ export default function StaffPortal() {
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Cancelled</h3>
           <p className="text-2xl font-bold text-white">
-            {((bookings as any[]) || []).filter((b: any) => b.status === 'cancelled').length}
+            {bookingTab === 'yacht' 
+              ? ((bookings as any[]) || []).filter((b: any) => b.type === 'Yacht Booking' && b.status === 'cancelled').length
+              : ((bookings as any[]) || []).filter((b: any) => b.type === 'Service Booking' && b.status === 'cancelled').length
+            }
           </p>
           <p className="text-purple-400 text-sm mt-1">Cancelled bookings</p>
         </motion.div>

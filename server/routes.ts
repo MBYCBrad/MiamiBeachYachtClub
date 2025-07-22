@@ -7862,11 +7862,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Staff access required' });
       }
       
-      // Get all yacht bookings from the database using the working method
+      // Get all yacht bookings from the database
       const yachtBookings = await dbStorage.getBookings();
       
-      // Transform the data to include member and yacht information
-      const bookingsWithDetails = await Promise.all(yachtBookings.map(async (booking: any) => {
+      // Get all service bookings from the database
+      const serviceBookings = await dbStorage.getServiceBookings();
+      const services = await dbStorage.getServices();
+      
+      // Transform yacht bookings to include member and yacht information
+      const yachtBookingsWithDetails = await Promise.all(yachtBookings.map(async (booking: any) => {
         // Get member details
         const member = await dbStorage.getUser(booking.userId);
         
@@ -7874,7 +7878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const yacht = await dbStorage.getYacht(booking.yachtId);
         
         return {
-          id: booking.id,
+          id: `yacht_${booking.id}`,
           type: 'Yacht Booking',
           status: booking.status || 'confirmed',
           startTime: booking.startTime,
@@ -7887,12 +7891,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
           yachtSize: yacht?.size || 'Unknown',
           createdAt: booking.createdAt || new Date(),
           specialRequests: booking.specialRequests || '',
-          user: member,
+          bookingDate: booking.startTime,
+          member: member,
           yacht: yacht
         };
       }));
       
-      res.json(bookingsWithDetails);
+      // Transform service bookings to include member and service information
+      const serviceBookingsWithDetails = await Promise.all(serviceBookings.map(async (booking: any) => {
+        // Get member details
+        const member = await dbStorage.getUser(booking.userId);
+        
+        // Get service details
+        const service = services.find(s => s.id === booking.serviceId);
+        
+        return {
+          id: `service_${booking.id}`,
+          type: 'Service Booking',
+          status: booking.status || 'confirmed',
+          startTime: booking.bookingDate,
+          endTime: booking.bookingDate,
+          guestCount: booking.guestCount || 1,
+          memberName: member?.username || 'Unknown Member',
+          memberTier: member?.membershipTier || 'Bronze',
+          memberEmail: member?.email || '',
+          serviceName: service?.name || 'Premium Service',
+          serviceCategory: service?.category || 'Concierge',
+          price: booking.totalPrice || 0,
+          createdAt: booking.createdAt || new Date(),
+          specialRequests: booking.specialRequests || '',
+          bookingDate: booking.bookingDate,
+          member: member,
+          service: service
+        };
+      }));
+      
+      // Combine both types of bookings and sort by creation date
+      const allBookings = [...yachtBookingsWithDetails, ...serviceBookingsWithDetails]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      res.json(allBookings);
     } catch (error) {
       console.error('Error fetching staff bookings:', error);
       res.status(500).json({ message: 'Failed to fetch bookings' });
