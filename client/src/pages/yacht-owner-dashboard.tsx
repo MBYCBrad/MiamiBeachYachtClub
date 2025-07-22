@@ -924,10 +924,10 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
         ownerId: user?.id || (data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined),
         amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
         images: data.images || [],
-        pricePerHour: data.pricePerHour && data.pricePerHour !== '' ? data.pricePerHour.toString() : undefined,
+        pricePerHour: data.pricePerHour && data.pricePerHour !== '' ? parseFloat(data.pricePerHour) : undefined,
         isAvailable: data.isAvailable,
         yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
-        totalCost: data.totalCost && data.totalCost !== '' ? data.totalCost.toString() : undefined
+        totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
       };
       
       // Remove undefined values to avoid schema validation issues

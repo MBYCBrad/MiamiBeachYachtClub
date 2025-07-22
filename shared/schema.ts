@@ -780,6 +780,9 @@ export const insertYachtSchema = createInsertSchema(yachts).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  pricePerHour: z.union([z.string(), z.number()]).optional().transform(val => val ? val.toString() : undefined),
+  totalCost: z.union([z.string(), z.number()]).optional().transform(val => val ? val.toString() : undefined),
 });
 
 export const insertServiceSchema = createInsertSchema(services).omit({

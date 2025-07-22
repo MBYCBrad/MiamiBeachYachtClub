@@ -339,6 +339,13 @@ Changelog:
   - Booking indicators show authentic booking counts (e.g., "2 bookings") based on database queries
   - Calendar displays true current month with proper date calculations and real booking data visualization
   - Complete removal of all static calendar content with 100% authentic real-time database integration
+- July 22, 2025. Yacht creation validation and TypeScript errors completely resolved
+  - Fixed critical decimal field validation in insertYachtSchema for pricePerHour and totalCost fields
+  - Enhanced schema to accept both numbers and strings with automatic transformation to PostgreSQL-compatible strings
+  - Resolved TypeScript errors in yacht creation form with proper type casting for object key access
+  - Fixed browse button functionality for multi-image upload with enhanced null checking
+  - End-to-end yacht creation workflow now fully operational: image upload → form validation → database creation → cache invalidation
+  - All LSP diagnostics cleared for yacht owner dashboard with no remaining TypeScript errors
 - July 1, 2025. Crew assignment system completely operational with full database integration and real-time functionality
   - Created missing `/api/staff/assignments` endpoints with proper CRUD operations and authentication
   - Fixed Active Assignments tab to display actual assignment data with captain, coordinator, crew members, and briefing times
