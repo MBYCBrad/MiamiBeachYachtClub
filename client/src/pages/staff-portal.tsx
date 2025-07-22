@@ -61,7 +61,8 @@ import {
   Plus,
   Phone,
   Send,
-  FileText
+  FileText,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -214,6 +215,7 @@ export default function StaffPortal() {
     type: "all",
     dateRange: "all"
   });
+  const [bookingTab, setBookingTab] = useState<'yacht' | 'service'>('yacht');
   const [paymentFilters, setPaymentFilters] = useState({
     type: "all",
     status: "all",
@@ -485,6 +487,10 @@ export default function StaffPortal() {
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['/api/staff/bookings'],
+  });
+
+  const { data: allServiceBookings = [] } = useQuery({
+    queryKey: ['/api/staff/service-bookings'],
   });
 
   const { data: analytics } = useQuery<any>({
@@ -2926,7 +2932,7 @@ export default function StaffPortal() {
             transition={{ delay: 0.1 }}
             className="text-lg text-gray-400"
           >
-            Monitor and manage all yacht bookings and reservations
+            Complete booking oversight - yacht experiences and concierge services
           </motion.p>
         </div>
         
@@ -3057,6 +3063,30 @@ export default function StaffPortal() {
         </motion.div>
       </div>
 
+      {/* Tabs for Yacht and Service Bookings */}
+      <div className="flex space-x-6 border-b border-gray-700 mb-6">
+        <button
+          onClick={() => setBookingTab('yacht')}
+          className={`pb-3 px-1 text-sm font-medium transition-all ${
+            bookingTab === 'yacht'
+              ? 'text-white border-b-2 border-gradient-to-r from-purple-600 to-indigo-600'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Yacht Bookings
+        </button>
+        <button
+          onClick={() => setBookingTab('service')}
+          className={`pb-3 px-1 text-sm font-medium transition-all ${
+            bookingTab === 'service'
+              ? 'text-white border-b-2 border-gradient-to-r from-purple-600 to-indigo-600'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Service Bookings
+        </button>
+      </div>
+
       {/* Booking Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
@@ -3139,26 +3169,29 @@ export default function StaffPortal() {
         <CardHeader>
           <CardTitle className="text-white flex items-center">
             <Calendar className="h-5 w-5 mr-2 text-cyan-500" />
-            Recent Bookings
+            {bookingTab === 'yacht' ? 'Live Yacht Experience Management' : 'Service Bookings Management'}
           </CardTitle>
-          <CardDescription>Live booking activity and reservations</CardDescription>
+          <CardDescription>
+            {bookingTab === 'yacht' 
+              ? 'Real-time booking oversight with crew coordination and amenities management'
+              : 'Manage premium concierge service bookings and coordination'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-700">
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Booking ID</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Customer</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Type</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Details</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Date</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Actions</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">Member</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Yacht' : 'Service'}</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Experience' : 'Booking Date'}</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">{bookingTab === 'yacht' ? 'Guests' : 'Price'}</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">Status</th>
+                  <th className="text-left py-4 px-4 text-gray-300 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredBookings.slice(0, 10).map((booking: any, index: number) => (
+                {(bookingTab === 'yacht' ? bookings : allServiceBookings)?.map((booking: any, index: number) => (
                   <motion.tr
                     key={booking.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -3167,63 +3200,80 @@ export default function StaffPortal() {
                     className="border-b border-gray-800 hover:bg-gray-900/30 transition-colors group"
                   >
                     <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-300 font-mono text-sm">#{booking.id}</span>
-                        <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">
-                          {booking.type?.split(' ')[0] || 'Booking'}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                          <span className="text-white text-xs font-semibold">
-                            {(booking.user?.username || booking.member?.name || 'U')[0].toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{booking.user?.username || booking.member?.name || 'Unknown'}</p>
-                          <p className="text-gray-400 text-xs">{booking.user?.email || booking.member?.email || 'No email'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center space-x-2">
-                        {booking.type === 'Service Booking' ? (
-                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-                            <Sparkles className="h-3 w-3 text-white" />
-                          </div>
-                        ) : booking.type === 'Event Registration' ? (
-                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
-                            <Calendar className="h-3 w-3 text-white" />
-                          </div>
-                        ) : (
-                          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                            <Anchor className="h-3 w-3 text-white" />
-                          </div>
-                        )}
-                        <span className="text-gray-300 text-sm">{booking.type || 'Yacht Booking'}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="max-w-xs">
-                        <p className="text-white font-medium truncate">
-                          {booking.yacht?.name || booking.service?.name || booking.event?.title || 'Booking Details'}
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          {booking.startTime ? new Date(booking.startTime).toLocaleDateString() : 'Date TBD'}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
                       <div>
-                        <p className="text-white text-sm">
-                          {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'Unknown'}
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          {booking.createdAt ? new Date(booking.createdAt).toLocaleTimeString() : 'Unknown time'}
-                        </p>
+                        <p className="text-white font-medium">{booking.member?.name}</p>
+                        <p className="text-gray-400 text-sm">{booking.member?.membershipTier} Member</p>
+                        <p className="text-gray-500 text-xs">{booking.member?.email}</p>
                       </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      {bookingTab === 'yacht' ? (
+                        <div className="flex items-center space-x-3">
+                          {booking.yacht?.imageUrl && (
+                            <img 
+                              src={booking.yacht.imageUrl} 
+                              alt={booking.yacht.name}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div>
+                            <p className="text-white font-medium">{booking.yacht?.name}</p>
+                            <p className="text-gray-400 text-sm">{booking.yacht?.size}ft • {booking.yacht?.capacity} guests</p>
+                            <p className="text-gray-500 text-xs">{booking.yacht?.location}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-3">
+                          {booking.service?.imageUrl && (
+                            <img 
+                              src={booking.service.imageUrl} 
+                              alt={booking.service.name}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div>
+                            <p className="text-white font-medium">{booking.service?.name}</p>
+                            <p className="text-gray-400 text-sm">{booking.service?.category}</p>
+                            <p className="text-gray-500 text-xs">${booking.service?.price || 0}</p>
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
+                      {bookingTab === 'yacht' ? (
+                        <div>
+                          <p className="text-white font-medium">
+                            {new Date(booking.startTime).toLocaleDateString()} • {booking.timeSlot}
+                          </p>
+                          <p className="text-gray-400 text-sm">
+                            {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                            {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </p>
+                          <p className="text-cyan-400 text-sm">{booking.duration}h Experience</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-white font-medium">
+                            {new Date(booking.bookingDate).toLocaleDateString()}
+                          </p>
+                          <p className="text-gray-400 text-sm">Service Booking</p>
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
+                      {bookingTab === 'yacht' ? (
+                        <div className="text-center">
+                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-sm">
+                            {booking.guestCount}
+                          </div>
+                          <p className="text-gray-400 text-xs mt-1">Guests</p>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <p className="text-white font-medium">${booking.totalPrice || 0}</p>
+                          <p className="text-gray-400 text-xs mt-1">Total</p>
+                        </div>
+                      )}
                     </td>
                     <td className="py-4 px-4">
                       <Badge className={`${
@@ -3254,6 +3304,20 @@ export default function StaffPortal() {
                 ))}
               </tbody>
             </table>
+            
+            {((bookingTab === 'yacht' ? (!bookings || bookings.length === 0) : (!allServiceBookings || allServiceBookings.length === 0))) && (
+              <div className="text-center py-12">
+                <Calendar className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">
+                  {bookingTab === 'yacht' ? 'No yacht bookings found' : 'No service bookings found'}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {bookingTab === 'yacht' 
+                    ? 'Experience bookings will appear here for crew coordination' 
+                    : 'Service bookings will appear here when members book premium services'}
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
