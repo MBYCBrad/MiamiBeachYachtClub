@@ -2197,8 +2197,8 @@ export default function StaffPortal() {
                   <p className="text-sm font-medium text-gray-400 mb-1">Active Conversations</p>
                   <p className="text-3xl font-bold text-white">{staffConversations.length}</p>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl">
-                  <MessageSquare className="h-8 w-8 text-purple-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <MessageSquare className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -2211,8 +2211,8 @@ export default function StaffPortal() {
                   <p className="text-sm font-medium text-gray-400 mb-1">Unread Messages</p>
                   <p className="text-3xl font-bold text-white">{staffConversations.filter((c: any) => c.unreadCount > 0).length}</p>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
-                  <Clock className="h-8 w-8 text-emerald-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <Clock className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -2225,8 +2225,8 @@ export default function StaffPortal() {
                   <p className="text-sm font-medium text-gray-400 mb-1">Avg Response</p>
                   <p className="text-3xl font-bold text-white">{staffConversations.length > 0 ? 'Active' : 'N/A'}</p>
                 </div>
-                <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
-                  <TrendingUp className="h-8 w-8 text-blue-400" />
+                <div className="p-4 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl">
+                  <TrendingUp className="h-8 w-8 text-white" />
                 </div>
               </div>
             </CardContent>
