@@ -2200,14 +2200,6 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button 
-            size="sm" 
-            className="bg-gradient-to-r from-purple-600 to-indigo-600"
-            onClick={() => setLocation('/yacht-owner-calendar')}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Schedule Overview
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
