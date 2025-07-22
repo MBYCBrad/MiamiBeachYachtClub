@@ -1045,11 +1045,18 @@ export default function YachtOwnerDashboard() {
     staleTime: 0, // Always refetch to ensure latest maintenance data
   });
 
-  // Real-time profile data fetching
-  const { data: profileDataReal = {}, refetch: refetchProfile } = useQuery<any>({
+  // Real-time profile data fetching with enhanced error handling
+  const { data: profileDataReal = {}, refetch: refetchProfile, isError: profileError, error: profileErrorDetails } = useQuery<any>({
     queryKey: ['/api/user/profile'],
     staleTime: 0,
-    refetchOnMount: true
+    refetchOnMount: true,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
+    onSuccess: (data) => {
+      console.log('Profile data loaded from API:', data);
+    },
+    onError: (error) => {
+      console.error('Profile data loading error:', error);
+    }
   });
 
   // Notifications data fetching - moved to top level to fix hooks issue
@@ -3921,39 +3928,84 @@ export default function YachtOwnerDashboard() {
 
   
   
-  // Update local state when real data loads
+  // Update local state when real data loads with comprehensive mapping
   useEffect(() => {
-    if (profileDataReal) {
+    console.log('Profile data effect triggered with:', profileDataReal);
+    if (profileDataReal && Object.keys(profileDataReal).length > 0) {
+      const updatedProfileData = {
+        username: profileDataReal.username || user?.username || '',
+        email: profileDataReal.email || user?.email || '',
+        fullName: profileDataReal.fullName || profileDataReal.full_name || user?.fullName || '',
+        phone: profileDataReal.phone || user?.phone || '',
+        location: profileDataReal.location || user?.location || '',
+        bio: profileDataReal.bio || user?.bio || '',
+        avatarUrl: profileDataReal.avatarUrl || profileDataReal.profileImage || user?.profileImage || ''
+      };
+      
+      console.log('Setting profile data to:', updatedProfileData);
+      setProfileData(updatedProfileData);
+    } else if (user) {
+      // Fallback to user data if profile API hasn't loaded yet
+      console.log('Using fallback user data:', user);
       setProfileData({
-        username: profileDataReal.username || '',
-        email: profileDataReal.email || '',
-        fullName: profileDataReal.fullName || '',
-        phone: profileDataReal.phone || '',
-        location: profileDataReal.location || '',
-        bio: profileDataReal.bio || '',
-        avatarUrl: profileDataReal.avatarUrl || ''
+        username: user.username || '',
+        email: user.email || '',
+        fullName: user.fullName || '',
+        phone: user.phone || '',
+        location: user.location || '',
+        bio: user.bio || '',
+        avatarUrl: user.profileImage || ''
       });
     }
-  }, [profileDataReal]);
+  }, [profileDataReal, user]);
   
-  // Real-time profile update mutation
+  // Real-time profile update mutation with comprehensive error handling
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log('Profile update mutation called with data:', data);
+      
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      if (!response.ok) throw new Error('Failed to update profile');
-      return response.json();
+      
+      console.log('Profile update response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Profile update failed:', errorData);
+        throw new Error(`Profile update failed: ${response.status} - ${errorData}`);
+      }
+      
+      const result = await response.json();
+      console.log('Profile update successful:', result);
+      return result;
     },
-    onSuccess: () => {
-      toast({ title: "Profile updated successfully" });
-      refetchProfile();
+    onSuccess: (data) => {
+      console.log('Profile update mutation succeeded:', data);
+      toast({ 
+        title: "Profile updated successfully",
+        description: "Your changes have been saved to the database"
+      });
+      
+      // Update local state immediately for instant UI feedback
+      setProfileData(prev => ({ ...prev, ...data }));
+      
+      // Invalidate all profile-related caches for real-time sync
+      queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      
+      // Refetch profile data to ensure synchronization
+      refetchProfile();
     },
     onError: (error: any) => {
-      toast({ title: "Error updating profile", description: error.message, variant: "destructive" });
+      console.error('Profile update mutation failed:', error);
+      toast({ 
+        title: "Error updating profile", 
+        description: error.message || "Failed to save changes. Please try again.",
+        variant: "destructive" 
+      });
     }
   });
   
@@ -3987,18 +4039,21 @@ export default function YachtOwnerDashboard() {
   });
   
   const handleInputChange = (field: string, value: string) => {
+    console.log(`Profile field '${field}' changing to:`, value);
     setProfileData(prev => ({ ...prev, [field]: value }));
     
-    // Auto-save after 1 second of no changes
+    // Auto-save after 1 second of no changes for real-time updates
     if (profileSaveTimeoutRef.current) {
       clearTimeout(profileSaveTimeoutRef.current);
     }
     profileSaveTimeoutRef.current = setTimeout(() => {
+      console.log(`Auto-saving profile field '${field}' with value:`, value);
       updateProfileMutation.mutate({ [field]: value });
     }, 1000);
   };
   
   const handleSave = () => {
+    console.log('Manual save triggered with profile data:', profileData);
     updateProfileMutation.mutate(profileData);
     setIsEditing(false);
   };
