@@ -206,15 +206,16 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="bg-gray-950 border-gray-700 max-w-lg max-h-[80vh] overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-white">Edit Yacht</DialogTitle>
           <DialogDescription className="text-gray-400">
             Update yacht information and settings
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2"  style={{ maxHeight: 'calc(80vh - 140px)' }}>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -386,12 +387,13 @@ function EditYachtDialog({ yacht }: { yacht: any }) {
                 </FormItem>
               )}
             />
+            </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex-shrink-0 mt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={editMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+              <Button type="submit" disabled={editMutation.isPending} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
                 {editMutation.isPending ? "Updating..." : "Update Yacht"}
               </Button>
             </DialogFooter>
