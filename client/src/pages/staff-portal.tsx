@@ -3121,10 +3121,10 @@ export default function StaffPortal() {
           className="p-6 rounded-xl bg-gradient-to-br from-cyan-500/10 to-teal-500/10 border border-cyan-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
               <Calendar className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">Total</Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Total</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Total Bookings</h3>
           <p className="text-2xl font-bold text-white">{((bookings as any[]) || []).length}</p>
@@ -3138,10 +3138,10 @@ export default function StaffPortal() {
           className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
               <CheckCircle className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Active</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Confirmed</h3>
           <p className="text-2xl font-bold text-white">
@@ -3154,38 +3154,38 @@ export default function StaffPortal() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20"
+          className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
               <Clock className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pending</Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Pending</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Pending</h3>
           <p className="text-2xl font-bold text-white">
             {((bookings as any[]) || []).filter((b: any) => b.status === 'pending').length}
           </p>
-          <p className="text-yellow-400 text-sm mt-1">Awaiting confirmation</p>
+          <p className="text-purple-400 text-sm mt-1">Awaiting confirmation</p>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="p-6 rounded-xl bg-gradient-to-br from-red-500/10 to-pink-500/10 border border-red-500/20"
+          className="p-6 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/20"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-red-500 to-pink-500">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
               <XCircle className="h-6 w-6 text-white" />
             </div>
-            <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Cancelled</Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Cancelled</Badge>
           </div>
           <h3 className="text-white font-semibold text-lg mb-1">Cancelled</h3>
           <p className="text-2xl font-bold text-white">
             {((bookings as any[]) || []).filter((b: any) => b.status === 'cancelled').length}
           </p>
-          <p className="text-red-400 text-sm mt-1">Cancelled bookings</p>
+          <p className="text-purple-400 text-sm mt-1">Cancelled bookings</p>
         </motion.div>
       </div>
 
