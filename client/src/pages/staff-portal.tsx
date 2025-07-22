@@ -3632,7 +3632,7 @@ export default function StaffPortal() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-purple-400 hover:text-white hover:bg-purple-500/20 transition-all duration-200"
+                        className="text-indigo-400 hover:text-white hover:bg-indigo-500/20 transition-all duration-200"
                         onClick={() => handleEditEvent(event)}
                       >
                         <Edit className="h-4 w-4" />

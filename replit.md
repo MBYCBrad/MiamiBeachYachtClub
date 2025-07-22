@@ -325,6 +325,10 @@ Changelog:
   - Fixed "Choose File" button click handlers and drag-and-drop event handlers for reliable file selection
   - Real-time avatar synchronization across all application components with immediate cache invalidation
   - Profile button successfully integrated in staff portal navigation with consistent purple hover effects
+- July 22, 2025. Color scheme update from purple to indigo gradient in staff portal
+  - Updated Button component color scheme from purple to indigo gradient as requested
+  - Changed text-purple-400 to text-indigo-400 and hover:bg-purple-500/20 to hover:bg-indigo-500/20
+  - Maintains consistency with overall indigo gradient design theme throughout the application
 - July 22, 2025. Complete real-time notifications system implemented for yacht owner dashboard
   - Enhanced notifications query with 30-second refresh intervals and refetchOnWindowFocus for optimal real-time synchronization
   - Added immediate cache invalidation on notification mutations (mark as read, delete) with forced refetch for instant updates
