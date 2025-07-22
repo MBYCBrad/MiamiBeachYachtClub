@@ -1173,6 +1173,9 @@ export default function YachtOwnerDashboard() {
   // Fleet filter dropdown state
   const [showFleetFilter, setShowFleetFilter] = useState(false);
   
+  // Calendar navigation state
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
+  
   // Booking detail modal state
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -3435,11 +3438,31 @@ export default function YachtOwnerDashboard() {
             {/* Calendar Navigation */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-gray-600 hover:border-purple-500"
+                  onClick={() => {
+                    const newDate = new Date(currentCalendarDate);
+                    newDate.setMonth(newDate.getMonth() - 1);
+                    setCurrentCalendarDate(newDate);
+                  }}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <h3 className="text-white font-semibold text-lg">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
-                <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+                <h3 className="text-white font-semibold text-lg">
+                  {currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-gray-600 hover:border-purple-500"
+                  onClick={() => {
+                    const newDate = new Date(currentCalendarDate);
+                    newDate.setMonth(newDate.getMonth() + 1);
+                    setCurrentCalendarDate(newDate);
+                  }}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -3462,7 +3485,7 @@ export default function YachtOwnerDashboard() {
               {/* Calendar Days */}
               {Array.from({ length: 35 }, (_, index) => {
                 const today = new Date();
-                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                const startOfMonth = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth(), 1);
                 const startOfCalendar = new Date(startOfMonth);
                 startOfCalendar.setDate(startOfCalendar.getDate() - startOfMonth.getDay());
                 
@@ -3470,7 +3493,7 @@ export default function YachtOwnerDashboard() {
                 currentDate.setDate(currentDate.getDate() + index);
                 
                 const day = currentDate.getDate();
-                const isCurrentMonth = currentDate.getMonth() === today.getMonth();
+                const isCurrentMonth = currentDate.getMonth() === currentCalendarDate.getMonth();
                 const isToday = currentDate.toDateString() === today.toDateString();
                 
                 // Check if this date has bookings from real data
