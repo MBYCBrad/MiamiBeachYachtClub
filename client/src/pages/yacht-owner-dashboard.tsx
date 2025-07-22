@@ -957,14 +957,14 @@ export default function YachtOwnerDashboard() {
 
   const { data: bookings = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/bookings'],
-    refetchInterval: 15000, // Yacht owners get faster updates (15 seconds) for booking management
-    staleTime: 0, // Always refetch to ensure latest booking data
+    refetchInterval: 30000, // Changed to 30 seconds to reduce re-renders
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const { data: revenueData = [] } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/revenue'],
-    refetchInterval: 15000, // Real-time revenue updates every 15 seconds for yacht owners
-    staleTime: 0, // Always refetch to ensure latest revenue calculations
+    refetchInterval: 30000, // Changed to 30 seconds to reduce re-renders
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Filter yachts based on current filter settings
@@ -1392,8 +1392,8 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Using exact admin dashboard implementation
-  function AddYachtDialog() {
+  // Add Yacht Dialog - Memoized to prevent re-renders
+  const AddYachtDialog = React.memo(function AddYachtDialog() {
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
       name: '',
@@ -1445,15 +1445,35 @@ export default function YachtOwnerDashboard() {
         <Button 
           size="sm" 
           className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
-          onClick={() => setIsOpen(true)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Opening Add Yacht Dialog');
+            setIsOpen(true);
+          }}
+          type="button"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add New Yacht
         </Button>
         
         {isOpen && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+          <div 
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            onClick={(e) => {
+              // Only close if clicking the backdrop, not the dialog content
+              if (e.target === e.currentTarget) {
+                // Do nothing - don't close on backdrop click
+              }
+            }}
+          >
+            <div 
+              className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+              onClick={(e) => {
+                // Stop any click events from bubbling up
+                e.stopPropagation();
+              }}
+            >
               <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-6 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
                 <button
@@ -1614,7 +1634,7 @@ export default function YachtOwnerDashboard() {
         )}
       </>
     );
-  }
+  });
 
   const renderOverview = () => (
     <motion.div
