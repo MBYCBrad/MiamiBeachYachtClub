@@ -3043,8 +3043,8 @@ export default function YachtOwnerDashboard() {
                 { month: 'May', bookings: 22 },
                 { month: 'Jun', bookings: 25 }
               ].map((month, index) => {
-                const maxBookings = Math.max(...revenue.map(r => r.bookings || 0), 25);
-                const monthData = revenue.find(r => r.month === month.month) || month;
+                const maxBookings = Math.max(...(revenue?.map(r => r.bookings || 0) || []), 25);
+                const monthData = revenue?.find(r => r.month === month.month) || month;
                 const percentage = ((monthData.bookings || month.bookings) / maxBookings) * 100;
                 
                 return (
@@ -3064,7 +3064,7 @@ export default function YachtOwnerDashboard() {
                         className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
                       />
                     </div>
-                    <span className="text-gray-400 text-sm w-8">{monthData.bookings || month.bookings}</span>
+                    <span className="text-gray-400 text-sm w-8">{monthData?.bookings || month.bookings}</span>
                   </motion.div>
                 );
               })}
