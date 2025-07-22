@@ -1392,7 +1392,7 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Exact copy from admin dashboard with yacht owner adaptations
+  // Add Yacht Dialog - Fixed auto-close issue with proper event handling
   function AddYachtDialog() {
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -1412,6 +1412,15 @@ export default function YachtOwnerDashboard() {
     });
     const { toast } = useToast();
     const queryClient = useQueryClient();
+
+    // Prevent auto-close by controlling dialog state manually
+    const handleOpenChange = (open: boolean) => {
+      // Only allow closing via button actions, not external events
+      if (!open && createYachtMutation.isPending) {
+        return; // Prevent closing during mutation
+      }
+      setIsOpen(open);
+    };
 
     const createYachtMutation = useMutation({
       mutationFn: async (data: any) => {
@@ -1441,18 +1450,21 @@ export default function YachtOwnerDashboard() {
     });
 
     return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
             <Plus className="h-4 w-4 mr-2" />
             Add New Yacht
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-gray-950 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
+        <DialogContent 
+          className="bg-gray-950 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing"
+          onInteractOutside={(e) => e.preventDefault()} // Prevent click-outside closing
+        >
           <DialogHeader>
             <DialogTitle className="text-white">Add New Yacht</DialogTitle>
           </DialogHeader>
-          <div className="dialog-form-spacing">
+          <div className="dialog-form-spacing" onClick={(e) => e.stopPropagation()}>
             <div className="form-grid-2">
               <div className="form-field-spacing">
                 <Label htmlFor="name" className="form-label text-gray-300">Yacht Name</Label>
@@ -1570,7 +1582,15 @@ export default function YachtOwnerDashboard() {
             </div>
           </div>
           
-          <div className="form-button-group">
+          <div className="form-button-group flex gap-3">
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Cancel
+            </Button>
             <Button 
               onClick={() => createYachtMutation.mutate(formData)}
               disabled={createYachtMutation.isPending}
