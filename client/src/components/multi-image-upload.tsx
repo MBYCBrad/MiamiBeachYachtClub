@@ -166,7 +166,7 @@ export function MultiImageUpload({
       <button
         type="button"
         className={`
-          w-full border-2 border-dashed rounded-lg p-6 transition-all duration-200 cursor-pointer bg-transparent
+          relative w-full border-2 border-dashed rounded-lg p-6 transition-all duration-200 cursor-pointer bg-transparent
           ${dragActive 
             ? 'border-purple-400 bg-purple-400/10' 
             : 'border-gray-600 hover:border-gray-500'
@@ -177,7 +177,6 @@ export function MultiImageUpload({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={handleUploadAreaClick}
         disabled={uploading || images.length >= maxImages}
       >
         <div className="flex flex-col items-center justify-center space-y-2">
@@ -204,7 +203,7 @@ export function MultiImageUpload({
           type="file"
           accept="image/*"
           multiple
-          className="hidden"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           onChange={(e) => handleFileSelect(e.target.files)}
           disabled={uploading || images.length >= maxImages}
         />
