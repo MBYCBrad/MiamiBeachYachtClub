@@ -1075,3 +1075,14 @@ MASTER PROMPT: DO NOT REDESIGN THE UI AND STAFF PORTAL OR MOVE ON TO ADD OTHER S
   - Enhanced yacht condition ratings with individual controls for Cleanliness, Comfort, Equipment, and Amenities
   - Fixed completion bug by updating API to allow ratings for bookings that have started (not just completed) for testing purposes
   - All review data now submitted as comprehensive JSON object containing all ratings and notes for complete experience tracking
+- July 22, 2025. Complete staff portal mirroring of Simon Librati admin functionality achieved
+  - Successfully integrated all admin pages into staff portal: Applications, Tour Requests, Contact Inquiries, Bookings, and Event Registrations
+  - Added Tour Requests section to staff portal with full listing and status display matching admin dashboard functionality
+  - Added Contact Inquiries section with complete message viewing capability identical to admin dashboard
+  - Event Registrations page imported and integrated for staff access
+  - All new sections added to staff portal navigation with consistent purple-to-blue gradient styling
+  - Data queries implemented with 30-second refresh intervals for real-time updates across all staff pages
+  - Render functions created for Tour Requests and Contact Inquiries matching exact admin dashboard patterns
+  - Staff user "john" now has complete access to all admin functionality as required
+  - Purple-to-blue gradient theme maintained throughout all new staff portal sections
+  - Real-time database connectivity operational across all integrated pages

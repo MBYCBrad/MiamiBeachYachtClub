@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import AdminApplications from "@/pages/admin-applications";
+import AdminEventRegistrations from "@/pages/admin-event-registrations";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
 import { 
@@ -132,6 +133,9 @@ interface AdminStats {
 const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: BarChart3, color: 'from-purple-500 to-blue-500' },
   { id: 'applications', label: 'Applications', icon: FileText, color: 'from-blue-500 to-indigo-500' },
+  { id: 'tour-requests', label: 'Tour Requests', icon: MapPin, color: 'from-purple-500 to-indigo-500' },
+  { id: 'contact-inquiries', label: 'Contact Inquiries', icon: MessageSquare, color: 'from-pink-500 to-purple-500' },
+  { id: 'event-registrations', label: 'Event Registrations', icon: Calendar, color: 'from-green-500 to-teal-500' },
   { id: 'users', label: 'Users', icon: Users, color: 'from-purple-500 to-pink-500' },
   { id: 'yachts', label: 'Yachts', icon: Anchor, color: 'from-blue-500 to-cyan-500' },
   { id: 'services', label: 'Services', icon: Star, color: 'from-orange-500 to-red-500' },
@@ -489,6 +493,18 @@ export default function StaffPortal() {
 
   const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
     queryKey: ['/api/staff/conversations'],
+    enabled: !!user && user.role === 'staff',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const { data: tourRequests = [], isLoading: tourRequestsLoading } = useQuery({
+    queryKey: ['/api/tour-requests'],
+    enabled: !!user && user.role === 'staff',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const { data: contactMessages = [], isLoading: contactMessagesLoading } = useQuery({
+    queryKey: ['/api/contact-messages'],
     enabled: !!user && user.role === 'staff',
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -4248,6 +4264,244 @@ export default function StaffPortal() {
     </motion.div>
   );
 
+  const renderTourRequests = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Tour Requests
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage private yacht tour requests and scheduling
+          </motion.p>
+        </div>
+      </div>
+
+      {/* Tour Requests Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <MapPin className="h-5 w-5 mr-2 text-purple-500" />
+              Private Tour Requests ({tourRequests?.length || 0})
+            </CardTitle>
+            <CardDescription>Manage and respond to tour booking requests</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {tourRequests && tourRequests.length > 0 ? (
+              <div className="space-y-4">
+                {tourRequests.map((request: any, index: number) => (
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600">
+                            <MapPin className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{request.name || 'N/A'}</h3>
+                            <p className="text-gray-400">{request.email || 'No email'}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                          <div>
+                            <p className="text-gray-400 text-sm">Phone</p>
+                            <p className="text-white">{request.phone || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Preferred Date</p>
+                            <p className="text-white">{request.preferredDate || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Preferred Time</p>
+                            <p className="text-white">{request.preferredTime || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Group Size</p>
+                            <p className="text-white">{request.groupSize || 'N/A'}</p>
+                          </div>
+                        </div>
+                        
+                        {request.message && (
+                          <div className="p-4 bg-gray-900/50 rounded-lg">
+                            <p className="text-gray-400 text-sm mb-1">Message</p>
+                            <p className="text-white">{request.message}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 ml-4">
+                        <Badge className={`${
+                          request.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          request.status === 'confirmed' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          request.status === 'completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                          'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}>
+                          {request.status?.charAt(0).toUpperCase() + request.status?.slice(1) || 'Pending'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MapPin className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-400 mb-2">No tour requests yet</p>
+                <p className="text-gray-500">Private tour requests will appear here when submitted</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
+  const renderContactInquiries = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mt-16">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white mb-2 tracking-tight"
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif', fontWeight: 700 }}
+          >
+            Contact Inquiries
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-gray-400"
+          >
+            Manage website contact form submissions and inquiries
+          </motion.p>
+        </div>
+      </div>
+
+      {/* Contact Messages Table */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="bg-gray-900/50 border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Mail className="h-5 w-5 mr-2 text-purple-500" />
+              Contact Inquiries ({contactMessages?.length || 0})
+            </CardTitle>
+            <CardDescription>Manage and respond to website contact form submissions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {contactMessages && contactMessages.length > 0 ? (
+              <div className="space-y-4">
+                {contactMessages.map((message: any, index: number) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-6 rounded-xl bg-gray-800/30 hover:bg-gray-700/40 transition-all duration-300 border border-gray-700/50"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600">
+                            <Mail className="h-6 w-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{message.firstName} {message.lastName}</h3>
+                            <p className="text-gray-400">{message.email}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                          <div>
+                            <p className="text-gray-400 text-sm">Phone</p>
+                            <p className="text-white">{message.phone || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Inquiry Type</p>
+                            <p className="text-white capitalize">{message.inquiryType?.replace(/_/g, ' ') || 'General'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-400 text-sm">Priority</p>
+                            <Badge className={`${
+                              message.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                              message.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                              'bg-green-500/20 text-green-400 border-green-500/30'
+                            }`}>
+                              {message.priority?.charAt(0).toUpperCase() + message.priority?.slice(1) || 'Normal'}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-gray-900/50 rounded-lg">
+                          <p className="text-gray-400 text-sm mb-1">Message</p>
+                          <p className="text-white">{message.message}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2 ml-4">
+                        <Badge className={`${
+                          message.status === 'new' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                          message.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          message.status === 'resolved' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                        }`}>
+                          {message.status?.charAt(0).toUpperCase() + message.status?.slice(1).replace(/_/g, ' ') || 'New'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Mail className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <p className="text-xl text-gray-400 mb-2">No contact inquiries yet</p>
+                <p className="text-gray-500">Contact form submissions will appear here</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile overlay */}
@@ -4480,6 +4734,9 @@ export default function StaffPortal() {
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'payments' && renderPayments()}
             {activeSection === 'applications' && <AdminApplications />}
+            {activeSection === 'tour-requests' && renderTourRequests()}
+            {activeSection === 'contact-inquiries' && renderContactInquiries()}
+            {activeSection === 'event-registrations' && <AdminEventRegistrations />}
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'messages' && renderMessages()}
             {activeSection === 'notifications' && renderNotifications()}
