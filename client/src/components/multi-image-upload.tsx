@@ -133,17 +133,28 @@ export function MultiImageUpload({
       e.stopPropagation();
     }
     console.log('Triggering file input...', fileInputRef.current);
+    console.log('File input disabled?', fileInputRef.current?.disabled);
+    console.log('File input style:', fileInputRef.current?.style.display);
     if (fileInputRef.current) {
-      fileInputRef.current.click();
+      try {
+        fileInputRef.current.click();
+        console.log('File input clicked successfully');
+      } catch (error) {
+        console.error('Error clicking file input:', error);
+      }
     }
   };
 
   const handleUploadAreaClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Upload area clicked - uploading:', uploading, 'images length:', images.length, 'maxImages:', maxImages);
     if (!uploading && images.length < maxImages) {
       console.log('Upload area clicked, triggering file input...');
-      triggerFileInput();
+      // Use setTimeout to ensure the click happens after the current event loop
+      setTimeout(() => {
+        triggerFileInput();
+      }, 0);
     }
   };
 
@@ -152,9 +163,10 @@ export function MultiImageUpload({
       <label className="text-sm font-medium text-gray-300">{label}</label>
       
       {/* Upload Area */}
-      <div
+      <button
+        type="button"
         className={`
-          border-2 border-dashed rounded-lg p-6 transition-all duration-200 cursor-pointer
+          w-full border-2 border-dashed rounded-lg p-6 transition-all duration-200 cursor-pointer bg-transparent
           ${dragActive 
             ? 'border-purple-400 bg-purple-400/10' 
             : 'border-gray-600 hover:border-gray-500'
@@ -166,6 +178,7 @@ export function MultiImageUpload({
         onDragOver={handleDrag}
         onDrop={handleDrop}
         onClick={handleUploadAreaClick}
+        disabled={uploading || images.length >= maxImages}
       >
         <div className="flex flex-col items-center justify-center space-y-2">
           {uploading ? (
@@ -195,7 +208,7 @@ export function MultiImageUpload({
           onChange={(e) => handleFileSelect(e.target.files)}
           disabled={uploading || images.length >= maxImages}
         />
-      </div>
+      </button>
 
       {/* Image Grid */}
       {images.length > 0 && (
