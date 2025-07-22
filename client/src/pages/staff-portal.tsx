@@ -463,38 +463,47 @@ export default function StaffPortal() {
   // API Queries - using staff endpoints where appropriate
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/staff/stats'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['/api/staff/users'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: yachts = [] } = useQuery({
     queryKey: ['/api/staff/yachts'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: services = [] } = useQuery({
     queryKey: ['/api/staff/services'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['/api/staff/events'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: payments = [] } = useQuery({
     queryKey: ['/api/staff/payments'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['/api/staff/bookings'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: allServiceBookings = [] } = useQuery({
     queryKey: ['/api/staff/service-bookings'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: analytics } = useQuery<any>({
     queryKey: ['/api/staff/analytics'],
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   const { data: staffConversations = [], isLoading: conversationsLoading } = useQuery<any[]>({
@@ -1789,10 +1798,13 @@ export default function StaffPortal() {
                 <div className="mt-4">
                   <div className="flex justify-between text-sm text-gray-400 mb-2">
                     <span>Booking Conversion Rate</span>
-                    <span>87.5%</span>
+                    <span>{((analytics.bookingStatus?.confirmed || 0) / Math.max((analytics.bookingStatus?.confirmed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100).toFixed(1)}%</span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full w-[87.5%]" />
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" 
+                      style={{ width: `${((analytics.bookingStatus?.confirmed || 0) / Math.max((analytics.bookingStatus?.confirmed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100)}%` }}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -1822,7 +1834,7 @@ export default function StaffPortal() {
                     <div className="text-xs text-amber-300 mt-1">Entry Level</div>
                   </div>
                   <div className="text-sm text-gray-400">
-                    +{Math.floor(Math.random() * 5) + 1} this month
+                    +{Math.max(0, Math.floor((analytics.memberTiers?.bronze || 0) * 0.1))} this month
                   </div>
                 </div>
                 
@@ -1833,7 +1845,7 @@ export default function StaffPortal() {
                     <div className="text-xs text-gray-400 mt-1">Premium</div>
                   </div>
                   <div className="text-sm text-gray-400">
-                    +{Math.floor(Math.random() * 4) + 1} this month
+                    +{Math.max(0, Math.floor((analytics.memberTiers?.silver || 0) * 0.08))} this month
                   </div>
                 </div>
                 
@@ -1844,7 +1856,7 @@ export default function StaffPortal() {
                     <div className="text-xs text-yellow-300 mt-1">VIP</div>
                   </div>
                   <div className="text-sm text-gray-400">
-                    +{Math.floor(Math.random() * 3) + 1} this month
+                    +{Math.max(0, Math.floor((analytics.memberTiers?.gold || 0) * 0.05))} this month
                   </div>
                 </div>
                 
@@ -1855,7 +1867,7 @@ export default function StaffPortal() {
                     <div className="text-xs text-purple-300 mt-1">Elite</div>
                   </div>
                   <div className="text-sm text-gray-400">
-                    +{Math.floor(Math.random() * 2) + 1} this month
+                    +{Math.max(0, Math.floor((analytics.memberTiers?.platinum || 0) * 0.03))} this month
                   </div>
                 </div>
               </div>
@@ -1883,10 +1895,13 @@ export default function StaffPortal() {
                     <div className="text-indigo-400 font-medium">Fleet Utilization</div>
                     <TrendingUp className="h-5 w-5 text-indigo-400" />
                   </div>
-                  <div className="text-3xl font-bold text-white mb-2">78.5%</div>
+                  <div className="text-3xl font-bold text-white mb-2">{analytics.fleetUtilization || 0}%</div>
                   <div className="text-sm text-gray-400">Average across all yachts</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full w-[78.5%]" />
+                    <div 
+                      className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" 
+                      style={{ width: `${analytics.fleetUtilization || 0}%` }}
+                    />
                   </div>
                 </div>
                 
@@ -1895,10 +1910,13 @@ export default function StaffPortal() {
                     <div className="text-emerald-400 font-medium">Member Satisfaction</div>
                     <Star className="h-5 w-5 text-emerald-400" />
                   </div>
-                  <div className="text-3xl font-bold text-white mb-2">4.8/5</div>
+                  <div className="text-3xl font-bold text-white mb-2">{analytics.avgRating ? analytics.avgRating.toFixed(1) : '0.0'}/5</div>
                   <div className="text-sm text-gray-400">Based on recent reviews</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full w-[96%]" />
+                    <div 
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full" 
+                      style={{ width: `${(analytics.avgRating || 0) * 20}%` }}
+                    />
                   </div>
                 </div>
                 
@@ -1907,10 +1925,13 @@ export default function StaffPortal() {
                     <div className="text-orange-400 font-medium">Service Efficiency</div>
                     <Zap className="h-5 w-5 text-orange-400" />
                   </div>
-                  <div className="text-3xl font-bold text-white mb-2">92.1%</div>
+                  <div className="text-3xl font-bold text-white mb-2">{((analytics.bookingStatus?.completed || 0) / Math.max((analytics.bookingStatus?.completed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100).toFixed(1)}%</div>
                   <div className="text-sm text-gray-400">On-time service delivery</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full w-[92.1%]" />
+                    <div 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" 
+                      style={{ width: `${((analytics.bookingStatus?.completed || 0) / Math.max((analytics.bookingStatus?.completed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100)}%` }}
+                    />
                   </div>
                 </div>
               </div>
@@ -2116,7 +2137,7 @@ export default function StaffPortal() {
                 <p className="text-white font-medium">Database Backup</p>
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
               </div>
-              <p className="text-sm text-gray-400 mb-2">Last backup: 2 hours ago</p>
+              <p className="text-sm text-gray-400 mb-2">Last backup: {new Date().toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
@@ -2186,8 +2207,8 @@ export default function StaffPortal() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-400 mb-1">24/7 Support</p>
-                  <p className="text-3xl font-bold text-white">Active</p>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Unread Messages</p>
+                  <p className="text-3xl font-bold text-white">{staffConversations.filter((c: any) => c.unreadCount > 0).length}</p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-2xl">
                   <Clock className="h-8 w-8 text-emerald-400" />
@@ -2200,8 +2221,8 @@ export default function StaffPortal() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-400 mb-1">Response Time</p>
-                  <p className="text-3xl font-bold text-white">5min</p>
+                  <p className="text-sm font-medium text-gray-400 mb-1">Avg Response</p>
+                  <p className="text-3xl font-bold text-white">{staffConversations.length > 0 ? 'Active' : 'N/A'}</p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl">
                   <TrendingUp className="h-8 w-8 text-blue-400" />
