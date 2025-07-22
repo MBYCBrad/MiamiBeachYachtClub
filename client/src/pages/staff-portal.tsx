@@ -263,6 +263,9 @@ export default function StaffPortal() {
   // Tour request view dialog state
   const [selectedTourRequest, setSelectedTourRequest] = useState<any>(null);
   
+  // Contact inquiry view dialog state
+  const [selectedContactInquiry, setSelectedContactInquiry] = useState<any>(null);
+  
   // Notification view dialog states
   const [showViewNotificationDialog, setShowViewNotificationDialog] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
@@ -4588,6 +4591,14 @@ export default function StaffPortal() {
                         }`}>
                           {message.status?.charAt(0).toUpperCase() + message.status?.slice(1).replace(/_/g, ' ') || 'New'}
                         </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-gray-400 hover:text-white hover:bg-purple-500/20"
+                          onClick={() => setSelectedContactInquiry(message)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </motion.div>
@@ -6713,6 +6724,122 @@ export default function StaffPortal() {
                 <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
                   <Phone className="w-4 h-4 mr-2" />
                   Contact Guest
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Inquiry View Dialog */}
+      <Dialog open={!!selectedContactInquiry} onOpenChange={(open) => !open && setSelectedContactInquiry(null)}>
+        <DialogContent className="bg-gray-950 border-gray-800 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white">Contact Inquiry Details</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Complete information for this contact form submission
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedContactInquiry && (
+            <div className="space-y-6">
+              {/* Basic Information Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">First Name</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedContactInquiry.firstName}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Last Name</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedContactInquiry.lastName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Email</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedContactInquiry.email}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Phone</label>
+                  <p className="text-white font-medium mt-1">
+                    {selectedContactInquiry.phone || 'Not provided'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Inquiry Type</label>
+                  <p className="text-white font-medium mt-1 capitalize">
+                    {selectedContactInquiry.inquiryType?.replace(/_/g, ' ') || 'General'}
+                  </p>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Priority</label>
+                  <Badge className={`${
+                    selectedContactInquiry.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                    selectedContactInquiry.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    'bg-green-500/20 text-green-400 border-green-500/30'
+                  } mt-1`}>
+                    {selectedContactInquiry.priority?.charAt(0).toUpperCase() + selectedContactInquiry.priority?.slice(1) || 'Normal'}
+                  </Badge>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-4">
+                  <label className="text-sm font-medium text-gray-400">Status</label>
+                  <Badge className={`${
+                    selectedContactInquiry.status === 'new' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                    selectedContactInquiry.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    selectedContactInquiry.status === 'resolved' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                  } mt-1`}>
+                    {selectedContactInquiry.status?.charAt(0).toUpperCase() + selectedContactInquiry.status?.slice(1).replace(/_/g, ' ') || 'New'}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="bg-gray-900/50 rounded-lg p-4">
+                <label className="text-sm font-medium text-gray-400">Message</label>
+                <p className="text-white mt-2 leading-relaxed">
+                  {selectedContactInquiry.message}
+                </p>
+              </div>
+
+              {/* Submit Date */}
+              <div className="bg-gray-900/50 rounded-lg p-4">
+                <label className="text-sm font-medium text-gray-400">Submitted</label>
+                <p className="text-white font-medium mt-1">
+                  {selectedContactInquiry.createdAt ? 
+                    new Date(selectedContactInquiry.createdAt).toLocaleString() : 'Unknown'}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedContactInquiry(null)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Close
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-yellow-600 text-yellow-400 hover:bg-yellow-800/20"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Update Status
+                </Button>
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Reply
                 </Button>
               </div>
             </div>
