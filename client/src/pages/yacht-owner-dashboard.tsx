@@ -1392,7 +1392,7 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Exact copy from admin dashboard (Simon Librati)
+  // Add Yacht Dialog - Modified to prevent auto-close
   function AddYachtDialog() {
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -1440,15 +1440,55 @@ export default function YachtOwnerDashboard() {
       }
     });
 
+    // Add debug logging
+    console.log("AddYachtDialog render - isOpen:", isOpen);
+
+    // Handle opening with debug
+    const handleOpen = () => {
+      console.log("Opening yacht dialog");
+      setIsOpen(true);
+    };
+
+    // Handle closing with debug
+    const handleClose = (reason?: string) => {
+      console.log("Closing yacht dialog, reason:", reason);
+      setIsOpen(false);
+    };
+
+    // Prevent automatic closing by overriding onOpenChange
+    const handleOpenChange = (open: boolean) => {
+      console.log("Dialog onOpenChange called with:", open);
+      // Only allow manual closing, not automatic
+      if (!open) {
+        console.log("Preventing automatic close");
+        return;
+      }
+      setIsOpen(open);
+    };
+
     return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={() => {}}>
         <DialogTrigger asChild>
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+            onClick={handleOpen}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add New Yacht
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
+        <DialogContent 
+          className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing"
+          onEscapeKeyDown={(e) => {
+            e.preventDefault();
+            console.log("ESC key pressed - preventing close");
+          }}
+          onPointerDownOutside={(e) => {
+            e.preventDefault();
+            console.log("Click outside - preventing close");
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-white">Add New Yacht</DialogTitle>
           </DialogHeader>
@@ -1574,7 +1614,7 @@ export default function YachtOwnerDashboard() {
             <Button 
               type="button"
               variant="outline"
-              onClick={() => setIsOpen(false)}
+              onClick={() => handleClose("Cancel button")}
               className="border-gray-600 text-gray-300 hover:bg-gray-800"
             >
               Cancel
