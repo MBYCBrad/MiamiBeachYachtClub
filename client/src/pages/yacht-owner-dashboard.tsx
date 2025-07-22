@@ -3608,26 +3608,51 @@ export default function YachtOwnerDashboard() {
     </motion.div>
   );
 
-  // Booking Details Modal Component
+  // Booking Details Modal Component - Custom implementation without Dialog
   const BookingDetailsModal = () => {
     if (!selectedBooking || !showBookingDetails) return null;
     
-    const handleCloseModal = () => {
+    const handleCloseModal = (e?: React.MouseEvent) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       console.log('Modal closing');
       setShowBookingDetails(false);
+      // Clear selected booking after a delay to prevent re-renders
+      setTimeout(() => {
+        setSelectedBooking(null);
+      }, 100);
     };
     
     return (
-      <Dialog open={true} onOpenChange={handleCloseModal}>
-        <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-white">Booking Details</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              View comprehensive booking information
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6">
+      <>
+        {/* Custom Overlay */}
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+          onClick={handleCloseModal}
+        />
+        
+        {/* Custom Modal Content */}
+        <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl">
+          <div 
+            className="bg-gray-950 border border-gray-700 rounded-lg shadow-xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-6">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-gray-800 pb-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Booking Details</h3>
+                  <p className="text-gray-400 text-sm mt-1">View comprehensive booking information</p>
+                </div>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             {/* Booking Overview */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -3746,8 +3771,9 @@ export default function YachtOwnerDashboard() {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
+      </>
     );
   };
 
