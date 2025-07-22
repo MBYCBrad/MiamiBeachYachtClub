@@ -3223,7 +3223,7 @@ export default function YachtOwnerDashboard() {
                 <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <h3 className="text-white font-semibold text-lg">June 2025</h3>
+                <h3 className="text-white font-semibold text-lg">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
                 <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -3246,10 +3246,24 @@ export default function YachtOwnerDashboard() {
               
               {/* Calendar Days */}
               {Array.from({ length: 35 }, (_, index) => {
-                const day = index - 5; // Start calendar from previous month
-                const isCurrentMonth = day > 0 && day <= 30;
-                const isToday = day === 26; // Today is June 26
-                const hasBooking = [12, 15, 23, 28].includes(day);
+                const today = new Date();
+                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                const startOfCalendar = new Date(startOfMonth);
+                startOfCalendar.setDate(startOfCalendar.getDate() - startOfMonth.getDay());
+                
+                const currentDate = new Date(startOfCalendar);
+                currentDate.setDate(currentDate.getDate() + index);
+                
+                const day = currentDate.getDate();
+                const isCurrentMonth = currentDate.getMonth() === today.getMonth();
+                const isToday = currentDate.toDateString() === today.toDateString();
+                
+                // Check if this date has bookings from real data
+                const dateBookings = bookings?.filter((booking: any) => {
+                  const bookingDate = new Date(booking.startTime);
+                  return bookingDate.toDateString() === currentDate.toDateString();
+                }) || [];
+                const hasBooking = dateBookings.length > 0;
                 
                 return (
                   <motion.div
@@ -3264,12 +3278,12 @@ export default function YachtOwnerDashboard() {
                     }`}
                   >
                     <div className="text-sm font-medium">
-                      {isCurrentMonth ? day : day <= 0 ? 30 + day : day - 30}
+                      {day}
                     </div>
-                    {hasBooking && isCurrentMonth && (
+                    {hasBooking && (
                       <div className="absolute bottom-1 left-1 right-1">
                         <div className="w-full h-1 bg-purple-400 rounded-full"></div>
-                        <div className="text-xs text-purple-400 mt-1">Booking</div>
+                        <div className="text-xs text-purple-400 mt-1">{dateBookings.length} booking{dateBookings.length > 1 ? 's' : ''}</div>
                       </div>
                     )}
                   </motion.div>

@@ -309,6 +309,15 @@ Changelog:
   - Yacht Performance section enhanced with real-time occupancy rate and revenue calculations per yacht
   - All analytics components display authentic data: total bookings, revenue metrics, fleet utilization from live database
   - Analytics dashboard completely free of placeholder content with millisecond real-time database synchronization
+- July 22, 2025. Complete calendar section real-time data transformation with removal of all hardcoded dates
+  - Replaced static "June 2025" with dynamic current month/year display using JavaScript Date methods
+  - Removed hardcoded calendar day calculations and replaced with proper date arithmetic using actual current month
+  - Updated calendar grid to show real current month dates instead of placeholder June dates  
+  - Replaced hardcoded booking indicators [12, 15, 23, 28] with real-time database booking queries
+  - Calendar now displays actual booking counts per day from live PostgreSQL data
+  - Booking indicators show authentic booking counts (e.g., "2 bookings") based on database queries
+  - Calendar displays true current month with proper date calculations and real booking data visualization
+  - Complete removal of all static calendar content with 100% authentic real-time database integration
 - July 1, 2025. Crew assignment system completely operational with full database integration and real-time functionality
   - Created missing `/api/staff/assignments` endpoints with proper CRUD operations and authentication
   - Fixed Active Assignments tab to display actual assignment data with captain, coordinator, crew members, and briefing times
