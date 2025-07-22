@@ -210,7 +210,7 @@ export default function StaffApplications() {
 
       {/* Application Details Dialog */}
       <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="max-w-4xl max-h-[80vh] bg-gray-950 border-gray-700 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               Application Details
@@ -447,14 +447,7 @@ export default function StaffApplications() {
                           <p className="text-white whitespace-pre-wrap">{selectedApplication.partnerInfo.message}</p>
                         </div>
                       )}
-                      {selectedApplication.partnerInfo.details && (
-                        <div>
-                          <label className="text-xs text-gray-400 uppercase">Specific Details</label>
-                          <div className="bg-gray-900/50 p-3 rounded text-sm">
-                            <pre className="text-gray-300 whitespace-pre-wrap">{JSON.stringify(selectedApplication.partnerInfo.details, null, 2)}</pre>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 )}
