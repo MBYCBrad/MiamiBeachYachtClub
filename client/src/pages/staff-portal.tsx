@@ -310,6 +310,7 @@ export default function StaffPortal() {
     size: z.string().transform(Number),
     capacity: z.string().transform(Number),
     location: z.string().min(1, "Location is required"),
+    images: z.array(z.string()).optional(),
   });
 
   const createServiceSchema = z.object({
@@ -318,6 +319,7 @@ export default function StaffPortal() {
     description: z.string().min(1, "Description is required"),
     pricePerSession: z.string().transform(Number),
     duration: z.string().transform(Number),
+    images: z.array(z.string()).optional(),
   });
 
   type CreateEventData = z.infer<typeof createEventSchema>;
@@ -361,7 +363,8 @@ export default function StaffPortal() {
       description: "",
       size: 0,
       capacity: 0,
-      location: ""
+      location: "",
+      images: []
     }
   });
 
@@ -372,7 +375,8 @@ export default function StaffPortal() {
       category: "",
       description: "",
       pricePerSession: 0,
-      duration: 0
+      duration: 0,
+      images: []
     }
   });
 
@@ -5377,6 +5381,21 @@ export default function StaffPortal() {
                 />
               </div>
 
+              {/* Image Upload Section */}
+              <div className="space-y-2">
+                <MultiImageUpload
+                  label="Yacht Images"
+                  onImagesUploaded={(imageUrls) => {
+                    yachtForm.setValue('images', imageUrls);
+                  }}
+                  currentImages={yachtForm.watch('images') || []}
+                  maxImages={8}
+                />
+                <p className="text-xs text-gray-500">
+                  Upload up to 8 high-quality images of the yacht (JPG, PNG, WebP)
+                </p>
+              </div>
+
               <DialogFooter>
                 <Button 
                   type="button" 
@@ -5514,6 +5533,21 @@ export default function StaffPortal() {
                     </FormItem>
                   )}
                 />
+              </div>
+
+              {/* Image Upload Section */}
+              <div className="space-y-2">
+                <MultiImageUpload
+                  label="Service Images"
+                  onImagesUploaded={(imageUrls) => {
+                    serviceForm.setValue('images', imageUrls);
+                  }}
+                  currentImages={serviceForm.watch('images') || []}
+                  maxImages={5}
+                />
+                <p className="text-xs text-gray-500">
+                  Upload up to 5 high-quality images showcasing the service (JPG, PNG, WebP)
+                </p>
               </div>
 
               <DialogFooter>
