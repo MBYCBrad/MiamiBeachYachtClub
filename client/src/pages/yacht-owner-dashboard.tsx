@@ -957,7 +957,7 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
           e.stopPropagation();
         }}
       >
-        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-gray-950 border-b border-gray-700 p-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
           <button
             onClick={handleCloseDialog}
@@ -1096,7 +1096,7 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
           </div>
         </div>
         
-        <div className="sticky bottom-0 bg-gray-900 border-t border-gray-700 p-6 flex justify-end gap-3">
+        <div className="sticky bottom-0 bg-gray-950 border-t border-gray-700 p-6 flex justify-end gap-3">
           <Button 
             variant="outline"
             onClick={handleCloseDialog}
