@@ -3507,10 +3507,15 @@ export default function YachtOwnerDashboard() {
                   <motion.div
                     key={index}
                     whileHover={{ scale: 1.05 }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       if (hasBooking && dateBookings.length > 0) {
+                        console.log('Calendar date clicked - setting booking:', dateBookings[0]);
                         setSelectedBooking(dateBookings[0]);
-                        setShowBookingDetails(true);
+                        setTimeout(() => {
+                          setShowBookingDetails(true);
+                        }, 50);
                       }
                     }}
                     className={`p-3 h-20 border border-gray-800 rounded-lg cursor-pointer transition-all relative ${
@@ -3546,9 +3551,14 @@ export default function YachtOwnerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Upcoming booking clicked - setting booking:', booking);
                       setSelectedBooking(booking);
-                      setShowBookingDetails(true);
+                      setTimeout(() => {
+                        setShowBookingDetails(true);
+                      }, 50);
                     }}
                     className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all cursor-pointer hover:border hover:border-purple-500"
                   >
@@ -3600,10 +3610,15 @@ export default function YachtOwnerDashboard() {
 
   // Booking Details Modal Component
   const BookingDetailsModal = () => {
-    if (!selectedBooking) return null;
+    if (!selectedBooking || !showBookingDetails) return null;
+    
+    const handleCloseModal = () => {
+      console.log('Modal closing');
+      setShowBookingDetails(false);
+    };
     
     return (
-      <Dialog open={showBookingDetails} onOpenChange={setShowBookingDetails}>
+      <Dialog open={true} onOpenChange={handleCloseModal}>
         <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-white">Booking Details</DialogTitle>
@@ -3686,9 +3701,11 @@ export default function YachtOwnerDashboard() {
             <div className="flex gap-3 pt-4 border-t border-gray-700">
               <Button 
                 className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                onClick={() => {
-                  // Close modal and navigate to messages
-                  setShowBookingDetails(false);
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Contact Guest clicked');
+                  handleCloseModal();
                   setTimeout(() => {
                     setActiveSection('messages');
                   }, 100);
@@ -3701,9 +3718,11 @@ export default function YachtOwnerDashboard() {
               <Button 
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                onClick={() => {
-                  // Close modal and navigate to maintenance
-                  setShowBookingDetails(false);
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Yacht Status clicked');
+                  handleCloseModal();
                   setTimeout(() => {
                     setActiveSection('maintenance');
                   }, 100);
@@ -3716,7 +3735,12 @@ export default function YachtOwnerDashboard() {
               <Button 
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                onClick={() => setShowBookingDetails(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Close button clicked');
+                  handleCloseModal();
+                }}
               >
                 Close
               </Button>
