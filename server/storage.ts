@@ -691,82 +691,63 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  // Event Registration methods
+  // Event Registration methods - matched to actual schema
   async getEventRegistrations(filters?: { userId?: number, eventId?: number }): Promise<any[]> {
     try {
-      // Enhanced query with joins to get complete event and member information
-      const baseQuery = db
-        .select({
-          id: eventRegistrations.id,
-          userId: eventRegistrations.userId,
-          eventId: eventRegistrations.eventId,
-          guestCount: eventRegistrations.guestCount,
-          totalPrice: eventRegistrations.totalPrice,
-          status: eventRegistrations.status,
-          notes: eventRegistrations.notes,
-          createdAt: eventRegistrations.createdAt,
-          // Event details
-          eventTitle: events.title,
-          eventType: events.type,
-          eventDate: events.date,
-          eventTime: events.time,
-          eventLocation: events.location,
-          eventDescription: events.description,
-          eventPrice: events.price,
-          eventImageUrl: events.imageUrl,
-          // Member details
-          memberUsername: users.username,
-          memberEmail: users.email,
-          membershipTier: users.membershipTier
-        })
-        .from(eventRegistrations)
-        .leftJoin(events, eq(eventRegistrations.eventId, events.id))
-        .leftJoin(users, eq(eventRegistrations.userId, users.id));
+      // Get basic event registrations first
+      let baseQuery = db.select().from(eventRegistrations);
       
-      let results;
       if (filters?.userId) {
-        results = await baseQuery.where(eq(eventRegistrations.userId, filters.userId));
-      } else {
-        results = await baseQuery;
+        baseQuery = baseQuery.where(eq(eventRegistrations.userId, filters.userId));
+      } else if (filters?.eventId) {
+        baseQuery = baseQuery.where(eq(eventRegistrations.eventId, filters.eventId));
       }
       
-      // Transform to match expected interface structure
-      return results.map(row => ({
-        id: row.id,
-        userId: row.userId,
-        eventId: row.eventId,
-        guestCount: row.guestCount,
-        totalPrice: row.totalPrice,
-        status: row.status,
-        notes: row.notes,
-        createdAt: row.createdAt,
-        member: {
-          id: row.userId,
-          name: row.memberUsername || 'Unknown Member',
-          email: row.memberEmail || 'No email',
-          membershipTier: row.membershipTier || 'Bronze'
-        },
-        event: {
-          id: row.eventId,
-          title: row.eventTitle || 'Unknown Event',
-          type: row.eventType || 'Event',
-          date: row.eventDate || new Date().toISOString(),
-          time: row.eventTime,
-          location: row.eventLocation || 'TBD',
-          description: row.eventDescription,
-          price: row.eventPrice || '0',
-          imageUrl: row.eventImageUrl
-        }
-      }));
+      const registrations = await baseQuery;
+      
+      // Enrich with member and event data using separate queries
+      const enrichedRegistrations = [];
+      for (const registration of registrations) {
+        // Get member details
+        const [member] = await db.select().from(users).where(eq(users.id, registration.userId));
+        
+        // Get event details
+        const [event] = await db.select().from(events).where(eq(events.id, registration.eventId));
+        
+        enrichedRegistrations.push({
+          id: registration.id,
+          userId: registration.userId,
+          eventId: registration.eventId,
+          guestCount: registration.ticketCount, // Use ticketCount from schema, map to guestCount for UI compatibility
+          totalPrice: registration.totalPrice,
+          status: registration.status,
+          notes: registration.confirmationCode, // Use confirmationCode as notes since no notes field exists
+          createdAt: registration.createdAt,
+          member: {
+            id: registration.userId,
+            name: member?.username || 'Unknown Member',
+            email: member?.email || 'No email',
+            membershipTier: member?.membershipTier || 'Bronze'
+          },
+          event: {
+            id: registration.eventId,
+            title: event?.title || 'Unknown Event',
+            type: event?.hostId ? 'Private Event' : 'Club Event',
+            date: event?.startTime || new Date().toISOString(),
+            time: event?.startTime ? new Date(event.startTime).toLocaleTimeString() : null,
+            location: event?.location || 'TBD',
+            description: event?.description,
+            price: event?.ticketPrice || '0',
+            imageUrl: event?.imageUrl
+          }
+        });
+      }
+      
+      return enrichedRegistrations;
     } catch (error) {
       console.error('Error in getEventRegistrations:', error);
-      // Fallback to basic query if join fails
-      const basicResults = await db.select().from(eventRegistrations);
-      return basicResults.map(row => ({
-        ...row,
-        member: { id: row.userId, name: 'Unknown Member', email: 'No email', membershipTier: 'Bronze' },
-        event: { id: row.eventId, title: 'Unknown Event', type: 'Event', date: new Date().toISOString(), time: null, location: 'TBD', description: null, price: '0', imageUrl: null }
-      }));
+      // Return empty array instead of fallback data
+      return [];
     }
   }
 
