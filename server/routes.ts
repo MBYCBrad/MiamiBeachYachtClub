@@ -8036,7 +8036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Staff access required' });
       }
       
-      // Direct SQL query to bypass Drizzle ORM issues
+      // Direct SQL query to bypass Drizzle ORM issues - removed non-existent columns
       const result = await pool.query(`
         SELECT 
           b.id as booking_id,
@@ -8045,7 +8045,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           b.start_time,
           b.guest_count,
           b.special_requests,
-          b.experience_type,
           b.created_at,
           u.username,
           u.phone,
@@ -8068,10 +8067,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         
         let message = `Hi! I'd like to book the ${booking.yacht_name || 'yacht'} for ${booking.guest_count || 2} guests on ${date} at ${time}`;
-        
-        if (booking.experience_type && booking.experience_type !== 'Leisure Tour') {
-          message += ` for a ${booking.experience_type}`;
-        }
         
         if (booking.special_requests) {
           message += `. Special requests: ${booking.special_requests}`;
