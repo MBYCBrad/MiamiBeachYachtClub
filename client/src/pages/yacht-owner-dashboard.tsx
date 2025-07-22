@@ -555,6 +555,56 @@ const YachtCard = ({ yacht, index }: any) => (
   </motion.div>
 );
 
+// Real-time maintenance condition assessments component
+const MaintenanceConditionAssessments = ({ selectedYacht }: { selectedYacht: number | null }) => {
+  const { data: assessments } = useQuery<any>({
+    queryKey: [`/api/maintenance/condition-assessments/${selectedYacht}`],
+    enabled: !!selectedYacht,
+    refetchInterval: 30000, // Real-time assessments updates
+    staleTime: 0,
+  });
+
+  if (!assessments || assessments.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <CheckCircle className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+        <div className="text-gray-400 text-lg mb-2">No condition assessments on record</div>
+        <div className="text-gray-500 text-sm">Assessment data will appear here as inspections are completed</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {assessments.map((assessment: any, index: number) => (
+        <div key={assessment.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+              <CheckCircle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-medium">Assessment #{assessment.id}</p>
+              <p className="text-gray-400 text-sm">
+                {assessment.assessmentDate ? new Date(assessment.assessmentDate).toLocaleDateString() : 'No date'} • 
+                {assessment.assessedBy || 'Marine Engineer'}
+              </p>
+              <p className="text-gray-500 text-xs mt-1">{assessment.notes || 'No notes available'}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white mb-2">
+              Condition: {assessment.overallCondition || 'Good'}
+            </Badge>
+            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+              {assessment.priority || 'medium'} priority
+            </Badge>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // Real-time maintenance overview component with authentic database data
 const MaintenanceOverview = ({ selectedYacht }: { selectedYacht: number | null }) => {
   const { data: maintenanceOverview, isLoading, error } = useQuery<any>({
@@ -2584,44 +2634,7 @@ export default function YachtOwnerDashboard() {
                   </Dialog>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { id: 1, condition: 'excellent', priority: 'low', notes: 'Engine running smoothly, all systems operational', date: '2024-06-15', assessor: 'Marine Engineer' },
-                      { id: 2, condition: 'good', priority: 'medium', notes: 'Minor wear on hull coating, recommend touch-up next season', date: '2024-05-20', assessor: 'Hull Specialist' },
-                      { id: 3, condition: 'fair', priority: 'high', notes: 'Navigation electronics need software updates', date: '2024-04-10', assessor: 'Electronics Technician' }
-                    ].map((assessment, index) => (
-                      <div key={assessment.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-                            <CheckCircle className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-white font-medium">Assessment #{assessment.id}</p>
-                            <p className="text-gray-400 text-sm">{assessment.date} • {assessment.assessor}</p>
-                            <p className="text-gray-500 text-xs mt-1">{assessment.notes}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <Badge className={`${
-                            assessment.condition === 'excellent' ? 'bg-gradient-to-r from-green-600 to-green-700' :
-                            assessment.condition === 'good' ? 'bg-gradient-to-r from-blue-600 to-blue-700' :
-                            assessment.condition === 'fair' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' :
-                            'bg-gradient-to-r from-red-600 to-red-700'
-                          } text-white mb-2`}>
-                            {assessment.condition}
-                          </Badge>
-                          <Badge className={`${
-                            assessment.priority === 'critical' ? 'bg-gradient-to-r from-red-600 to-red-700' :
-                            assessment.priority === 'high' ? 'bg-gradient-to-r from-orange-600 to-orange-700' :
-                            assessment.priority === 'medium' ? 'bg-gradient-to-r from-purple-600 to-indigo-600' :
-                            'bg-gradient-to-r from-purple-600 to-blue-600'
-                          } text-white`}>
-                            {assessment.priority} priority
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <MaintenanceConditionAssessments selectedYacht={selectedMaintenanceYacht} />
                 </CardContent>
               </Card>
             )}
@@ -2998,8 +3011,12 @@ export default function YachtOwnerDashboard() {
                     <p className="text-gray-400 text-sm">{yacht.size}ft yacht</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-purple-400 font-bold">85% utilized</p>
-                    <p className="text-gray-400 text-sm">12 bookings</p>
+                    <p className="text-purple-400 font-bold">
+                      {yacht.occupancyRate ? `${yacht.occupancyRate}%` : '0%'} utilized
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      {yacht.bookingCount || 0} bookings
+                    </p>
                   </div>
                 </motion.div>
               )) : (
@@ -3026,8 +3043,9 @@ export default function YachtOwnerDashboard() {
                 { month: 'May', bookings: 22 },
                 { month: 'Jun', bookings: 25 }
               ].map((month, index) => {
-                const maxBookings = 25;
-                const percentage = (month.bookings / maxBookings) * 100;
+                const maxBookings = Math.max(...revenue.map(r => r.bookings || 0), 25);
+                const monthData = revenue.find(r => r.month === month.month) || month;
+                const percentage = ((monthData.bookings || month.bookings) / maxBookings) * 100;
                 
                 return (
                   <motion.div
@@ -3046,7 +3064,7 @@ export default function YachtOwnerDashboard() {
                         className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
                       />
                     </div>
-                    <span className="text-gray-400 text-sm w-8">{month.bookings}</span>
+                    <span className="text-gray-400 text-sm w-8">{monthData.bookings || month.bookings}</span>
                   </motion.div>
                 );
               })}

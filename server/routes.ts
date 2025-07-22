@@ -3452,6 +3452,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Condition Assessments API endpoint
+  app.get("/api/maintenance/condition-assessments/:yachtId", requireAuth, requireYachtAccess, async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.yachtId);
+      const assessments = await dbStorage.getConditionAssessments(yachtId);
+      res.json(assessments);
+    } catch (error: any) {
+      console.error('Error fetching condition assessments:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Initialize notification service with WebSocket support
