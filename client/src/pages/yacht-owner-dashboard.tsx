@@ -3599,17 +3599,19 @@ export default function YachtOwnerDashboard() {
   );
 
   // Booking Details Modal Component
-  const BookingDetailsModal = () => (
-    <Dialog open={showBookingDetails} onOpenChange={setShowBookingDetails}>
-      <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-white">Booking Details</DialogTitle>
-          <DialogDescription className="text-gray-400">
-            View comprehensive booking information
-          </DialogDescription>
-        </DialogHeader>
-        
-        {selectedBooking && (
+  const BookingDetailsModal = () => {
+    if (!selectedBooking) return null;
+    
+    return (
+      <Dialog open={showBookingDetails} onOpenChange={setShowBookingDetails}>
+        <DialogContent className="bg-gray-950 border-gray-700 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-white">Booking Details</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              View comprehensive booking information
+            </DialogDescription>
+          </DialogHeader>
+          
           <div className="space-y-6">
             {/* Booking Overview */}
             <div className="grid grid-cols-2 gap-4">
@@ -3685,9 +3687,11 @@ export default function YachtOwnerDashboard() {
               <Button 
                 className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 onClick={() => {
-                  // Navigate to messages or contact guest
-                  setActiveSection('messages');
+                  // Close modal and navigate to messages
                   setShowBookingDetails(false);
+                  setTimeout(() => {
+                    setActiveSection('messages');
+                  }, 100);
                 }}
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
@@ -3698,9 +3702,11 @@ export default function YachtOwnerDashboard() {
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-800"
                 onClick={() => {
-                  // Navigate to yacht maintenance if needed
-                  setActiveSection('maintenance');
+                  // Close modal and navigate to maintenance
                   setShowBookingDetails(false);
+                  setTimeout(() => {
+                    setActiveSection('maintenance');
+                  }, 100);
                 }}
               >
                 <Wrench className="h-4 w-4 mr-2" />
@@ -3716,10 +3722,10 @@ export default function YachtOwnerDashboard() {
               </Button>
             </div>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   // Helper functions for notifications
   const getPriorityColor = (priority: string) => {
