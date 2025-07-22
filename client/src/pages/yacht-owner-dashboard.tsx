@@ -2390,14 +2390,26 @@ export default function YachtOwnerDashboard() {
                       <p className="text-gray-400 text-sm">{booking.yacht?.name || 'Unknown Yacht'}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white font-medium">{new Date(booking.startTime).toLocaleDateString()}</p>
-                    <Badge className={
-                      booking.status === 'confirmed' ? 'bg-green-600' : 
-                      booking.status === 'pending' ? 'bg-yellow-600' : 'bg-gray-600'
-                    }>
-                      {booking.status}
-                    </Badge>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <p className="text-white font-medium">{new Date(booking.startTime).toLocaleDateString()}</p>
+                      <Badge className={
+                        booking.status === 'confirmed' ? 'bg-green-600' : 
+                        booking.status === 'pending' ? 'bg-yellow-600' : 'bg-gray-600'
+                      }>
+                        {booking.status}
+                      </Badge>
+                    </div>
+                    <div 
+                      className="p-2 bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg hover:from-purple-600/30 hover:to-indigo-600/30 transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedBooking(booking);
+                        setShowBookingModal(true);
+                      }}
+                    >
+                      <Eye className="h-5 w-5 text-purple-400" />
+                    </div>
                   </div>
                 </motion.div>
               ))}
