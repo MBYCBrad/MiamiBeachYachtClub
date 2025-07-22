@@ -1737,18 +1737,18 @@ export default function StaffPortal() {
             <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2 text-green-400" />
+                  <DollarSign className="h-5 w-5 mr-2 text-purple-400" />
                   Revenue Analytics
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Today's Revenue</span>
-                  <span className="text-green-400 font-bold">${(analytics.todayRevenue || 0).toFixed(2)}</span>
+                  <span className="text-purple-400 font-bold">${(analytics.todayRevenue || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Average Booking Value</span>
-                  <span className="text-blue-400 font-bold">${(analytics.averageBookingValue || 0).toFixed(2)}</span>
+                  <span className="text-purple-400 font-bold">${(analytics.averageBookingValue || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Monthly Target</span>
@@ -1786,7 +1786,7 @@ export default function StaffPortal() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Confirmed Bookings</span>
-                  <span className="text-green-400 font-bold">{analytics.bookingStatus?.confirmed || 0}</span>
+                  <span className="text-purple-400 font-bold">{analytics.bookingStatus?.confirmed || 0}</span>
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Pending Bookings</span>
@@ -1794,7 +1794,7 @@ export default function StaffPortal() {
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-lg bg-gray-800/50">
                   <span className="text-gray-400">Today's Bookings</span>
-                  <span className="text-blue-400 font-bold">{analytics.todayBookings || 0}</span>
+                  <span className="text-purple-400 font-bold">{analytics.todayBookings || 0}</span>
                 </div>
                 <div className="mt-4">
                   <div className="flex justify-between text-sm text-gray-400 mb-2">
@@ -1803,7 +1803,7 @@ export default function StaffPortal() {
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" 
                       style={{ width: `${((analytics.bookingStatus?.confirmed || 0) / Math.max((analytics.bookingStatus?.confirmed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100)}%` }}
                     />
                   </div>
@@ -1822,7 +1822,7 @@ export default function StaffPortal() {
           <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <Crown className="h-5 w-5 mr-2 text-yellow-400" />
+                <Crown className="h-5 w-5 mr-2 text-purple-400" />
                 Membership Distribution & Growth
               </CardTitle>
             </CardHeader>
@@ -1885,52 +1885,52 @@ export default function StaffPortal() {
           <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <BarChart3 className="h-5 w-5 mr-2 text-indigo-400" />
+                <BarChart3 className="h-5 w-5 mr-2 text-purple-400" />
                 Key Performance Indicators
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
+                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-indigo-400 font-medium">Fleet Utilization</div>
-                    <TrendingUp className="h-5 w-5 text-indigo-400" />
+                    <div className="text-purple-400 font-medium">Fleet Utilization</div>
+                    <TrendingUp className="h-5 w-5 text-purple-400" />
                   </div>
                   <div className="text-3xl font-bold text-white mb-2">{analytics.fleetUtilization || 0}%</div>
                   <div className="text-sm text-gray-400">Average across all yachts</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" 
                       style={{ width: `${analytics.fleetUtilization || 0}%` }}
                     />
                   </div>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30">
+                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-emerald-400 font-medium">Member Satisfaction</div>
-                    <Star className="h-5 w-5 text-emerald-400" />
+                    <div className="text-purple-400 font-medium">Member Satisfaction</div>
+                    <Star className="h-5 w-5 text-purple-400" />
                   </div>
                   <div className="text-3xl font-bold text-white mb-2">{analytics.avgRating ? analytics.avgRating.toFixed(1) : '0.0'}/5</div>
                   <div className="text-sm text-gray-400">Based on recent reviews</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" 
                       style={{ width: `${(analytics.avgRating || 0) * 20}%` }}
                     />
                   </div>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30">
+                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-orange-400 font-medium">Service Efficiency</div>
-                    <Zap className="h-5 w-5 text-orange-400" />
+                    <div className="text-purple-400 font-medium">Service Efficiency</div>
+                    <Zap className="h-5 w-5 text-purple-400" />
                   </div>
                   <div className="text-3xl font-bold text-white mb-2">{((analytics.bookingStatus?.completed || 0) / Math.max((analytics.bookingStatus?.completed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100).toFixed(1)}%</div>
                   <div className="text-sm text-gray-400">On-time service delivery</div>
                   <div className="mt-3 w-full bg-gray-700 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" 
                       style={{ width: `${((analytics.bookingStatus?.completed || 0) / Math.max((analytics.bookingStatus?.completed || 0) + (analytics.bookingStatus?.cancelled || 0), 1) * 100)}%` }}
                     />
                   </div>
