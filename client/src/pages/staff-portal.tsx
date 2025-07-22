@@ -2909,10 +2909,10 @@ export default function StaffPortal() {
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="text-orange-400 hover:text-white"
+                      className="hover:text-white relative group"
                       onClick={() => handleViewService(service)}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 text-purple-400 group-hover:text-white transition-colors" />
                     </Button>
                     <Button 
                       size="sm" 
