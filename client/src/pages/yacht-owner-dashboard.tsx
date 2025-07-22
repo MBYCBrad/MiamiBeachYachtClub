@@ -1392,7 +1392,7 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Fixed auto-close issue with proper event handling
+  // Add Yacht Dialog - Custom modal to prevent auto-close issues
   function AddYachtDialog() {
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
@@ -1412,15 +1412,6 @@ export default function YachtOwnerDashboard() {
     });
     const { toast } = useToast();
     const queryClient = useQueryClient();
-
-    // Prevent auto-close by controlling dialog state manually
-    const handleOpenChange = (open: boolean) => {
-      // Only allow closing via button actions, not external events
-      if (!open && createYachtMutation.isPending) {
-        return; // Prevent closing during mutation
-      }
-      setIsOpen(open);
-    };
 
     const createYachtMutation = useMutation({
       mutationFn: async (data: any) => {
@@ -1449,158 +1440,191 @@ export default function YachtOwnerDashboard() {
       }
     });
 
-    return (
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Yacht
-          </Button>
-        </DialogTrigger>
-        <DialogContent 
-          className="bg-gray-950 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing"
-          onInteractOutside={(e) => e.preventDefault()} // Prevent click-outside closing
+    if (!isOpen) {
+      return (
+        <Button 
+          size="sm" 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+          onClick={() => setIsOpen(true)}
         >
-          <DialogHeader>
-            <DialogTitle className="text-white">Add New Yacht</DialogTitle>
-          </DialogHeader>
-          <div className="dialog-form-spacing" onClick={(e) => e.stopPropagation()}>
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="name" className="form-label text-gray-300">Yacht Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="Enter yacht name"
-                />
-              </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="location" className="form-label text-gray-300">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="Marina location"
-                />
-              </div>
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Yacht
+        </Button>
+      );
+    }
+
+    return (
+      <>
+        {/* Button when closed */}
+        <Button 
+          size="sm" 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+          onClick={() => setIsOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Yacht
+        </Button>
+
+        {/* Custom Modal Overlay */}
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div 
+            className="bg-gray-950 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="size" className="form-label text-gray-300">Size (ft)</Label>
+
+            {/* Form Content */}
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-gray-300">Yacht Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="Enter yacht name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-gray-300">Location</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="Marina location"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="size" className="text-gray-300">Size (ft)</Label>
+                  <Input
+                    id="size"
+                    type="number"
+                    value={formData.size}
+                    onChange={(e) => setFormData({...formData, size: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="40"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="capacity" className="text-gray-300">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    value={formData.capacity}
+                    onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="12"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pricePerHour" className="text-gray-300">Price per Hour</Label>
+                  <Input
+                    id="pricePerHour"
+                    value={formData.pricePerHour}
+                    onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="yearMade" className="text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+                  <Input
+                    id="yearMade"
+                    type="number"
+                    value={formData.yearMade}
+                    onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                    className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="2020"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-gray-300">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  className="bg-gray-900 border-gray-700 text-white"
+                  placeholder="Yacht description..."
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="amenities" className="text-gray-300">Amenities (comma separated)</Label>
                 <Input
-                  id="size"
+                  id="amenities"
+                  value={formData.amenities}
+                  onChange={(e) => setFormData({...formData, amenities: e.target.value})}
+                  className="bg-gray-900 border-gray-700 text-white"
+                  placeholder="WiFi, Air Conditioning, Sound System"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="totalCost" className="text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+                <Input
+                  id="totalCost"
                   type="number"
-                  value={formData.size}
-                  onChange={(e) => setFormData({...formData, size: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="40"
+                  step="0.01"
+                  value={formData.totalCost}
+                  onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+                  className="bg-gray-900 border-gray-700 text-white"
+                  placeholder="500000"
                 />
               </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="capacity" className="form-label text-gray-300">Capacity</Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="12"
-                />
-              </div>
-            </div>
-            
-            <div className="form-grid-2">
-              <div className="form-field-spacing">
-                <Label htmlFor="pricePerHour" className="form-label text-gray-300">Price per Hour</Label>
-                <Input
-                  id="pricePerHour"
-                  value={formData.pricePerHour}
-                  onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="500"
-                />
-              </div>
-              <div className="form-field-spacing">
-                <Label htmlFor="yearMade" className="form-label text-gray-300">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-                <Input
-                  id="yearMade"
-                  type="number"
-                  value={formData.yearMade}
-                  onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
-                  className="form-input bg-gray-900 border-gray-700 text-white"
-                  placeholder="2020"
+              
+              <div className="space-y-2">
+                <MultiImageUpload
+                  label="Yacht Gallery"
+                  onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+                  currentImages={formData.images || []}
+                  maxImages={10}
                 />
               </div>
             </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="description" className="form-label text-gray-300">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="form-textarea bg-gray-900 border-gray-700 text-white"
-                placeholder="Yacht description..."
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="amenities" className="form-label text-gray-300">Amenities (comma separated)</Label>
-              <Input
-                id="amenities"
-                value={formData.amenities}
-                onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-                className="form-input bg-gray-900 border-gray-700 text-white"
-                placeholder="WiFi, Air Conditioning, Sound System"
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <Label htmlFor="totalCost" className="form-label text-gray-300">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-              <Input
-                id="totalCost"
-                type="number"
-                step="0.01"
-                value={formData.totalCost}
-                onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
-                className="form-input bg-gray-900 border-gray-700 text-white"
-                placeholder="500000"
-              />
-            </div>
-            
-            <div className="form-field-spacing">
-              <MultiImageUpload
-                label="Yacht Gallery"
-                onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
-                currentImages={formData.images || []}
-                maxImages={10}
-              />
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-700">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                disabled={createYachtMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => createYachtMutation.mutate(formData)}
+                disabled={createYachtMutation.isPending}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600"
+              >
+                {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+              </Button>
             </div>
           </div>
-          
-          <div className="form-button-group flex gap-3">
-            <Button 
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => createYachtMutation.mutate(formData)}
-              disabled={createYachtMutation.isPending}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600"
-            >
-              {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </>
     );
   }
 

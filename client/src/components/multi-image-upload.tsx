@@ -127,12 +127,16 @@ export function MultiImageUpload({
     }
   };
 
-  const triggerFileInput = () => {
+  const triggerFileInput = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     fileInputRef.current?.click();
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
       <label className="text-sm font-medium text-gray-300">{label}</label>
       
       {/* Upload Area */}
