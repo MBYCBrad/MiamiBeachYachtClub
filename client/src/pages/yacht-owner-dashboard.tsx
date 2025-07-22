@@ -1066,13 +1066,16 @@ export default function YachtOwnerDashboard() {
     }
   }, [profileError, profileErrorDetails]);
 
-  // Notifications data fetching - moved to top level to fix hooks issue
-  const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
+  // Real-time notifications data fetching with enhanced performance
+  const { data: notifications = [], isLoading: notificationsLoading, refetch: refetchNotifications } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/notifications'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 30000, // Cache for 30 seconds for performance
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
-  // Notification mutations - moved to top level
+  // Real-time notification mutations with instant cache invalidation
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: number) => {
       const response = await fetch(`/api/yacht-owner/notifications/${notificationId}/read`, {
@@ -1082,7 +1085,9 @@ export default function YachtOwnerDashboard() {
       return response.json();
     },
     onSuccess: () => {
+      // Immediate cache invalidation for real-time sync
       queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/notifications'] });
+      refetchNotifications(); // Force immediate refetch
     }
   });
 
@@ -1095,9 +1100,18 @@ export default function YachtOwnerDashboard() {
       return response.json();
     },
     onSuccess: () => {
+      // Immediate cache invalidation for real-time sync
       queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/notifications'] });
+      refetchNotifications(); // Force immediate refetch
     }
   });
+
+  // Add real-time notifications logging for debugging
+  useEffect(() => {
+    if (notifications && notifications.length > 0) {
+      console.log(`Real-time notifications loaded: ${notifications.length} total, ${getUnreadNotificationCount(notifications)} unread`);
+    }
+  }, [notifications]);
 
   // Real-time settings data fetching and state management
   const { data: settingsData = {}, refetch: refetchSettings } = useQuery<any>({
@@ -1286,15 +1300,15 @@ export default function YachtOwnerDashboard() {
   const [ownerSelectedConversation, setOwnerSelectedConversation] = useState<string | null>(null);
   const [ownerNewMessage, setOwnerNewMessage] = useState("");
   
-  // Fetch yacht owner conversations with admin
-  const { data: ownerConversations = [], isLoading: ownerConversationsLoading } = useQuery({
+  // Fetch yacht owner conversations with admin with proper typing
+  const { data: ownerConversations = [], isLoading: ownerConversationsLoading } = useQuery<any[]>({
     queryKey: ['/api/yacht-owner/conversations'],
     enabled: !!user,
     refetchInterval: 3000, // Real-time updates every 3 seconds
   });
   
-  // Fetch messages for selected conversation
-  const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery({
+  // Fetch messages for selected conversation with proper typing
+  const { data: ownerMessages = [], isLoading: ownerMessagesLoading } = useQuery<any[]>({
     queryKey: [`/api/yacht-owner/messages/${ownerSelectedConversation}`],
     enabled: !!ownerSelectedConversation,
     refetchInterval: 2000, // Real-time message updates
@@ -1315,7 +1329,7 @@ export default function YachtOwnerDashboard() {
   
   // Auto-select first conversation when available
   useEffect(() => {
-    if (ownerConversations.length > 0 && !ownerSelectedConversation) {
+    if (Array.isArray(ownerConversations) && ownerConversations.length > 0 && !ownerSelectedConversation) {
       setOwnerSelectedConversation(ownerConversations[0].id);
     }
   }, [ownerConversations, ownerSelectedConversation]);
@@ -3824,13 +3838,13 @@ export default function YachtOwnerDashboard() {
                   <div className="flex items-center justify-center h-32">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
                   </div>
-                ) : ownerMessages.length === 0 ? (
+                ) : !Array.isArray(ownerMessages) || ownerMessages.length === 0 ? (
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-gray-600 mx-auto mb-4" />
                     <p className="text-gray-400">No messages yet. Start a conversation with MBYC Admin!</p>
                   </div>
                 ) : (
-                  ownerMessages.map((message: any, index: number) => (
+                  Array.isArray(ownerMessages) && ownerMessages.map((message: any, index: number) => (
                     <motion.div
                       key={message.id}
                       initial={{ opacity: 0, y: 10 }}
