@@ -692,14 +692,70 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Event Registration methods
-  async getEventRegistrations(filters?: { userId?: number, eventId?: number }): Promise<EventRegistration[]> {
-    let baseQuery = db.select().from(eventRegistrations);
+  async getEventRegistrations(filters?: { userId?: number, eventId?: number }): Promise<any[]> {
+    // Enhanced query with joins to get complete event and member information
+    const baseQuery = db
+      .select({
+        id: eventRegistrations.id,
+        userId: eventRegistrations.userId,
+        eventId: eventRegistrations.eventId,
+        guestCount: eventRegistrations.guestCount,
+        totalPrice: eventRegistrations.totalPrice,
+        status: eventRegistrations.status,
+        notes: eventRegistrations.notes,
+        createdAt: eventRegistrations.createdAt,
+        // Event details
+        eventTitle: events.title,
+        eventType: events.type,
+        eventDate: events.date,
+        eventTime: events.time,
+        eventLocation: events.location,
+        eventDescription: events.description,
+        eventPrice: events.price,
+        eventImageUrl: events.imageUrl,
+        // Member details
+        memberUsername: users.username,
+        memberEmail: users.email,
+        membershipTier: users.membershipTier
+      })
+      .from(eventRegistrations)
+      .leftJoin(events, eq(eventRegistrations.eventId, events.id))
+      .leftJoin(users, eq(eventRegistrations.userId, users.id));
     
     if (filters?.userId) {
       return await baseQuery.where(eq(eventRegistrations.userId, filters.userId));
     }
     
-    return await baseQuery;
+    const results = await baseQuery;
+    
+    // Transform to match expected interface structure
+    return results.map(row => ({
+      id: row.id,
+      userId: row.userId,
+      eventId: row.eventId,
+      guestCount: row.guestCount,
+      totalPrice: row.totalPrice,
+      status: row.status,
+      notes: row.notes,
+      createdAt: row.createdAt,
+      member: {
+        id: row.userId,
+        name: row.memberUsername || 'Unknown Member',
+        email: row.memberEmail || 'No email',
+        membershipTier: row.membershipTier || 'Bronze'
+      },
+      event: {
+        id: row.eventId,
+        title: row.eventTitle || 'Unknown Event',
+        type: row.eventType || 'Event',
+        date: row.eventDate || new Date().toISOString(),
+        time: row.eventTime,
+        location: row.eventLocation || 'TBD',
+        description: row.eventDescription,
+        price: row.eventPrice || '0',
+        imageUrl: row.eventImageUrl
+      }
+    }));
   }
 
   async getEventRegistration(id: number): Promise<EventRegistration | undefined> {
