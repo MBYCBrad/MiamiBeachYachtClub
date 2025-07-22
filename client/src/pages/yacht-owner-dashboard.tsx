@@ -1441,16 +1441,27 @@ export default function YachtOwnerDashboard() {
     });
 
     return (
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Yacht
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing">
+      <>
+        <Button 
+          size="sm" 
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+          onClick={() => setIsOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add New Yacht
+        </Button>
+        
+        <Dialog open={isOpen} onOpenChange={() => {/* Do nothing - we control closing manually */}}>
+          <DialogContent className="bg-gray-900 border-gray-700 max-w-3xl max-h-[90vh] overflow-y-auto dialog-content-spacing" onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-white">Add New Yacht</DialogTitle>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+            >
+              <X className="h-4 w-4 text-white" />
+              <span className="sr-only">Close</span>
+            </button>
           </DialogHeader>
           <div className="dialog-form-spacing">
             <div className="form-grid-2">
@@ -1584,6 +1595,13 @@ export default function YachtOwnerDashboard() {
           </div>
           <DialogFooter>
             <Button 
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            >
+              Cancel
+            </Button>
+            <Button 
               onClick={() => createYachtMutation.mutate(formData)} 
               disabled={createYachtMutation.isPending}
               className="bg-gradient-to-r from-purple-600 to-indigo-600"
@@ -1593,6 +1611,7 @@ export default function YachtOwnerDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </>
     );
   }
 
