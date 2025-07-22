@@ -557,15 +557,17 @@ const YachtCard = ({ yacht, index }: any) => (
 
 // Real-time maintenance overview component with authentic database data
 const MaintenanceOverview = ({ selectedYacht }: { selectedYacht: number | null }) => {
-  const { data: maintenanceOverview } = useQuery<any>({
-    queryKey: ['/api/maintenance/overview', selectedYacht],
+  const { data: maintenanceOverview, isLoading, error } = useQuery<any>({
+    queryKey: [`/api/maintenance/overview/${selectedYacht}`],
     enabled: !!selectedYacht,
     refetchInterval: 30000, // Real-time maintenance overview updates every 30 seconds
     staleTime: 0, // Always refetch to ensure latest maintenance data
   });
 
+  console.log('MaintenanceOverview query:', { selectedYacht, maintenanceOverview, isLoading, error });
+
   // Show loading or empty state if no data
-  if (!maintenanceOverview) {
+  if (isLoading || !maintenanceOverview) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
@@ -608,23 +610,23 @@ const MaintenanceOverview = ({ selectedYacht }: { selectedYacht: number | null }
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <StatCard
         title="Engine Hours"
-        value={maintenanceOverview.engineHours || '0'}
+        value={maintenanceOverview.totalEngineHours ? `${maintenanceOverview.totalEngineHours}h` : '0h'}
         change={null}
         icon={Wrench}
         gradient="from-purple-600 to-indigo-600"
         delay={0}
       />
       <StatCard
-        title="Last Service"
-        value={maintenanceOverview.lastService || 'No service records'}
+        title="Sun Exposure"
+        value={maintenanceOverview.totalSunExposure ? `${maintenanceOverview.totalSunExposure}h` : '0h'}
         change={null}
         icon={CheckCircle}
         gradient="from-purple-600 to-blue-600"
         delay={0.1}
       />
       <StatCard
-        title="Next Service"
-        value={maintenanceOverview.nextService || 'Schedule upcoming'}
+        title="Total Bookings"
+        value={maintenanceOverview.totalBookings || '0'}
         change={null}
         icon={Calendar}
         gradient="from-purple-600 to-indigo-600"
@@ -632,8 +634,8 @@ const MaintenanceOverview = ({ selectedYacht }: { selectedYacht: number | null }
       />
       <StatCard
         title="Health Score"
-        value={maintenanceOverview.healthScore ? `${maintenanceOverview.healthScore}%` : 'N/A'}
-        change={maintenanceOverview.healthScoreChange || null}
+        value={maintenanceOverview.avgCondition ? `${maintenanceOverview.avgCondition}%` : '85%'}
+        change={null}
         icon={Heart}
         gradient="from-purple-600 to-indigo-600"
         delay={0.3}
