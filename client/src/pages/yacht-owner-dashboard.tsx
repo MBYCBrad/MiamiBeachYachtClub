@@ -3120,12 +3120,7 @@ export default function YachtOwnerDashboard() {
                       <span className="text-sm">Capacity: {yacht.capacity}</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-semibold">Click for Maintenance</span>
-                    <div className="text-purple-400">
-                      <ArrowRight className="h-5 w-5" />
-                    </div>
-                  </div>
+
                 </CardContent>
               </Card>
             </motion.div>
