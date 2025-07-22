@@ -887,6 +887,238 @@ const ComponentHealthOverview = ({ selectedYacht }: { selectedYacht: number | nu
   );
 };
 
+// Add Yacht Dialog Component - Extracted outside to prevent re-renders
+interface AddYachtDialogProps {
+  user: any;
+  dialogOpen: boolean;
+  handleCloseDialog: () => void;
+}
+
+const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddYachtDialogProps) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    location: '',
+    size: '',
+    capacity: '',
+    description: '',
+    imageUrl: '',
+    images: [] as string[],
+    pricePerHour: '',
+    isAvailable: true,
+    ownerId: '',
+    amenities: '',
+    yearMade: '',
+    totalCost: ''
+  });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createYachtMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const yachtData = {
+        ...data,
+        size: parseInt(data.size),
+        capacity: parseInt(data.capacity),
+        ownerId: user?.id || (data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined),
+        amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
+        images: data.images || [],
+        yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
+        totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
+      };
+      const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/stats"] });
+      toast({ title: "Success", description: "Yacht created successfully" });
+      handleCloseDialog();
+      setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: user?.id?.toString() || '', amenities: '', yearMade: '', totalCost: '' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+
+  if (!dialogOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          // Do nothing - don't close on backdrop click
+        }
+      }}
+    >
+      <div 
+        className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
+          <button
+            onClick={handleCloseDialog}
+            className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-white"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+        </div>
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name" className="text-gray-300 mb-2 block">Yacht Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="Enter yacht name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="location" className="text-gray-300 mb-2 block">Location</Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="Marina location"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="size" className="text-gray-300 mb-2 block">Size (ft)</Label>
+              <Input
+                id="size"
+                type="number"
+                value={formData.size}
+                onChange={(e) => setFormData({...formData, size: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="40"
+              />
+            </div>
+            <div>
+              <Label htmlFor="capacity" className="text-gray-300 mb-2 block">Capacity</Label>
+              <Input
+                id="capacity"
+                type="number"
+                value={formData.capacity}
+                onChange={(e) => setFormData({...formData, capacity: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="12"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="pricePerHour" className="text-gray-300 mb-2 block">Price per Hour</Label>
+              <Input
+                id="pricePerHour"
+                value={formData.pricePerHour}
+                onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="500"
+              />
+            </div>
+            <div>
+              <Label htmlFor="yearMade" className="text-gray-300 mb-2 block">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+              <Input
+                id="yearMade"
+                type="number"
+                value={formData.yearMade}
+                onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
+                className="bg-gray-900 border-gray-700 text-white"
+                placeholder="2020"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="description" className="text-gray-300 mb-2 block">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="bg-gray-900 border-gray-700 text-white"
+              placeholder="Yacht description..."
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="amenities" className="text-gray-300 mb-2 block">Amenities (comma separated)</Label>
+            <Input
+              id="amenities"
+              value={formData.amenities}
+              onChange={(e) => setFormData({...formData, amenities: e.target.value})}
+              className="bg-gray-900 border-gray-700 text-white"
+              placeholder="WiFi, Air Conditioning, Sound System"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="totalCost" className="text-gray-300 mb-2 block">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
+            <Input
+              id="totalCost"
+              type="number"
+              step="0.01"
+              value={formData.totalCost}
+              onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
+              className="bg-gray-900 border-gray-700 text-white"
+              placeholder="500000"
+            />
+          </div>
+          
+          <div>
+            <MultiImageUpload
+              label="Yacht Gallery"
+              onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
+              currentImages={formData.images || []}
+              maxImages={10}
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isAvailable"
+              checked={formData.isAvailable}
+              onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
+              className="rounded border-gray-600"
+            />
+            <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
+          </div>
+        </div>
+        
+        <div className="sticky bottom-0 bg-gray-900 border-t border-gray-700 p-6 flex justify-end gap-3">
+          <Button 
+            variant="outline"
+            onClick={handleCloseDialog}
+            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => createYachtMutation.mutate(formData)} 
+            disabled={createYachtMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+          >
+            {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+AddYachtDialog.displayName = 'AddYachtDialog';
+
 export default function YachtOwnerDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -1392,249 +1624,21 @@ export default function YachtOwnerDashboard() {
     }
   };
 
-  // Add Yacht Dialog - Memoized to prevent re-renders
-  const AddYachtDialog = React.memo(function AddYachtDialog() {
-    const [isOpen, setIsOpen] = useState(false);
-    const [formData, setFormData] = useState({
-      name: '',
-      location: '',
-      size: '',
-      capacity: '',
-      description: '',
-      imageUrl: '',
-      images: [] as string[],
-      pricePerHour: '',
-      isAvailable: true,
-      ownerId: '',
-      amenities: '',
-      yearMade: '',
-      totalCost: ''
-    });
-    const { toast } = useToast();
-    const queryClient = useQueryClient();
-
-    const createYachtMutation = useMutation({
-      mutationFn: async (data: any) => {
-        const yachtData = {
-          ...data,
-          size: parseInt(data.size),
-          capacity: parseInt(data.capacity),
-          ownerId: user?.id || (data.ownerId && data.ownerId !== '' ? parseInt(data.ownerId) : undefined),
-          amenities: data.amenities ? data.amenities.split(',').map((a: string) => a.trim()) : [],
-          images: data.images || [],
-          yearMade: data.yearMade && data.yearMade !== '' ? parseInt(data.yearMade) : undefined,
-          totalCost: data.totalCost && data.totalCost !== '' ? parseFloat(data.totalCost) : undefined
-        };
-        const response = await apiRequest("POST", "/api/admin/yachts", yachtData);
-        return response.json();
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/yachts"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/yacht-owner/stats"] });
-        toast({ title: "Success", description: "Yacht created successfully" });
-        setIsOpen(false);
-        setFormData({ name: '', location: '', size: '', capacity: '', description: '', imageUrl: '', images: [], pricePerHour: '', isAvailable: true, ownerId: user?.id?.toString() || '', amenities: '', yearMade: '', totalCost: '' });
-      },
-      onError: (error: any) => {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      }
-    });
-
-    return (
-      <>
-        <Button 
-          size="sm" 
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Opening Add Yacht Dialog');
-            setIsOpen(true);
-          }}
-          type="button"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Yacht
-        </Button>
-        
-        {isOpen && (
-          <div 
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-            onClick={(e) => {
-              // Only close if clicking the backdrop, not the dialog content
-              if (e.target === e.currentTarget) {
-                // Do nothing - don't close on backdrop click
-              }
-            }}
-          >
-            <div 
-              className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
-              onClick={(e) => {
-                // Stop any click events from bubbling up
-                e.stopPropagation();
-              }}
-            >
-              <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-6 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">Add New Yacht</h2>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-white"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </button>
-              </div>
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name" className="text-gray-300 mb-2 block">Yacht Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="Enter yacht name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location" className="text-gray-300 mb-2 block">Location</Label>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="Marina location"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="size" className="text-gray-300 mb-2 block">Size (ft)</Label>
-                    <Input
-                      id="size"
-                      type="number"
-                      value={formData.size}
-                      onChange={(e) => setFormData({...formData, size: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="40"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="capacity" className="text-gray-300 mb-2 block">Capacity</Label>
-                    <Input
-                      id="capacity"
-                      type="number"
-                      value={formData.capacity}
-                      onChange={(e) => setFormData({...formData, capacity: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="12"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="pricePerHour" className="text-gray-300 mb-2 block">Price per Hour</Label>
-                    <Input
-                      id="pricePerHour"
-                      value={formData.pricePerHour}
-                      onChange={(e) => setFormData({...formData, pricePerHour: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="500"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="yearMade" className="text-gray-300 mb-2 block">Year Made <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-                    <Input
-                      id="yearMade"
-                      type="number"
-                      value={formData.yearMade}
-                      onChange={(e) => setFormData({...formData, yearMade: e.target.value})}
-                      className="bg-gray-900 border-gray-700 text-white"
-                      placeholder="2020"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="description" className="text-gray-300 mb-2 block">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                    placeholder="Yacht description..."
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="amenities" className="text-gray-300 mb-2 block">Amenities (comma separated)</Label>
-                  <Input
-                    id="amenities"
-                    value={formData.amenities}
-                    onChange={(e) => setFormData({...formData, amenities: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                    placeholder="WiFi, Air Conditioning, Sound System"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="totalCost" className="text-gray-300 mb-2 block">Total Value/Cost <span className="text-xs text-yellow-400">(Maintenance Only)</span></Label>
-                  <Input
-                    id="totalCost"
-                    type="number"
-                    step="0.01"
-                    value={formData.totalCost}
-                    onChange={(e) => setFormData({...formData, totalCost: e.target.value})}
-                    className="bg-gray-900 border-gray-700 text-white"
-                    placeholder="500000"
-                  />
-                </div>
-                
-                <div>
-                  <MultiImageUpload
-                    label="Yacht Gallery"
-                    onImagesUploaded={(images) => setFormData({...formData, images, imageUrl: images[0] || ''})}
-                    currentImages={formData.images || []}
-                    maxImages={10}
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="isAvailable"
-                    checked={formData.isAvailable}
-                    onChange={(e) => setFormData({...formData, isAvailable: e.target.checked})}
-                    className="rounded border-gray-600"
-                  />
-                  <Label htmlFor="isAvailable" className="text-gray-300">Available for booking</Label>
-                </div>
-              </div>
-              
-              <div className="sticky bottom-0 bg-gray-900 border-t border-gray-700 p-6 flex justify-end gap-3">
-                <Button 
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={() => createYachtMutation.mutate(formData)} 
-                  disabled={createYachtMutation.isPending}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-600"
-                >
-                  {createYachtMutation.isPending ? "Creating..." : "Create Yacht"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  });
+  // Add Yacht Dialog - Using useRef to maintain state
+  const dialogStateRef = useRef(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  const handleOpenDialog = useCallback(() => {
+    console.log('Opening dialog');
+    dialogStateRef.current = true;
+    setDialogOpen(true);
+  }, []);
+  
+  const handleCloseDialog = useCallback(() => {
+    console.log('Closing dialog');
+    dialogStateRef.current = false;
+    setDialogOpen(false);
+  }, []);
 
   const renderOverview = () => (
     <motion.div
@@ -1881,7 +1885,15 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <AddYachtDialog />
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:shadow-purple-600/30"
+            onClick={handleOpenDialog}
+            type="button"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Yacht
+          </Button>
           <DropdownMenu open={showFleetFilter} onOpenChange={setShowFleetFilter}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
@@ -5112,6 +5124,13 @@ export default function YachtOwnerDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Add Yacht Dialog - Rendered at root level to prevent re-render issues */}
+      <AddYachtDialog 
+        user={user}
+        dialogOpen={dialogOpen}
+        handleCloseDialog={handleCloseDialog}
+      />
     </motion.div>
   );
 }
