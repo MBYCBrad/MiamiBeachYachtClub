@@ -1389,7 +1389,7 @@ export default function StaffPortal() {
                         <Button 
                           size="sm" 
                           variant="ghost" 
-                          className="text-blue-400 hover:text-white"
+                          className="text-white hover:text-white"
                           onClick={() => handleViewUser(user)}
                         >
                           <Eye className="h-4 w-4" />

@@ -328,6 +328,8 @@ Changelog:
 - July 22, 2025. Color scheme update from purple to indigo gradient in staff portal
   - Updated Button component color scheme from purple to indigo gradient as requested
   - Changed text-purple-400 to text-indigo-400 and hover:bg-purple-500/20 to hover:bg-indigo-500/20
+  - Updated icon colors to white for better contrast per user specifications
+  - Changed text-blue-400 to text-white for Eye icon in user management buttons
   - Maintains consistency with overall indigo gradient design theme throughout the application
 - July 22, 2025. Complete real-time notifications system implemented for yacht owner dashboard
   - Enhanced notifications query with 30-second refresh intervals and refetchOnWindowFocus for optimal real-time synchronization
