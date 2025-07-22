@@ -21,6 +21,8 @@ export default function AdminApplications() {
 
   const { data: applications = [], isLoading } = useQuery<Application[]>({
     queryKey: ["/api/admin/applications"],
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
+    refetchOnWindowFocus: true, // Refresh when window regains focus
   });
 
   // Filter applications based on type

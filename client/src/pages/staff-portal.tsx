@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import CalendarPage from "@/pages/calendar-page";
 import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
-import AdminApplications from "@/pages/admin-applications";
+import StaffApplications from "@/pages/staff-applications";
 import AdminEventRegistrations from "@/pages/admin-event-registrations";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
@@ -4818,7 +4818,7 @@ export default function StaffPortal() {
             {activeSection === 'bookings' && renderBookings()}
             {activeSection === 'analytics' && renderAnalytics()}
             {activeSection === 'payments' && renderPayments()}
-            {activeSection === 'applications' && <AdminApplications />}
+            {activeSection === 'applications' && <StaffApplications />}
             {activeSection === 'tour-requests' && renderTourRequests()}
             {activeSection === 'contact-inquiries' && renderContactInquiries()}
             {activeSection === 'event-registrations' && <AdminEventRegistrations />}

@@ -8411,6 +8411,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff applications endpoint - allows staff with users permission to access applications
+  app.get("/api/staff/applications", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has users permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('users')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const applications = await dbStorage.getApplications();
+      res.json(applications);
+    } catch (error: any) {
+      console.error('Error fetching staff applications:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff application update endpoint
+  app.patch("/api/staff/applications/:id", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has users permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('users')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedApplication = await dbStorage.updateApplicationStatus(parseInt(id), status);
+      
+      if (!updatedApplication) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      res.json(updatedApplication);
+    } catch (error: any) {
+      console.error('Error updating staff application:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/admin/applications/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
