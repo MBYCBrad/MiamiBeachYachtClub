@@ -9,7 +9,7 @@ import CustomerServiceDashboard from "@/pages/customer-service-dashboard";
 import StaffApplications from "@/pages/staff-applications";
 import StaffContactInquiries from "@/pages/staff-contact-inquiries";
 import StaffEventRegistrations from "@/pages/staff-event-registrations";
-import StaffServiceBookings from "@/pages/staff-service-bookings";
+
 import AdminEventRegistrations from "@/pages/admin-event-registrations";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import StaffMessagesDropdown from "@/components/StaffMessagesDropdown";
@@ -145,7 +145,7 @@ const sidebarItems = [
   { id: 'services', label: 'Services', icon: Star, color: 'from-orange-500 to-red-500' },
   { id: 'events', label: 'Events', icon: Calendar, color: 'from-green-500 to-emerald-500' },
   { id: 'bookings', label: 'Bookings', icon: CalendarDays, color: 'from-cyan-500 to-teal-500' },
-  { id: 'service-bookings', label: 'Service Bookings', icon: Briefcase, color: 'from-indigo-500 to-purple-500' },
+
   { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-pink-500 to-rose-500' },
   { id: 'payments', label: 'Payments', icon: CreditCard, color: 'from-emerald-500 to-cyan-500' },
   { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'from-purple-500 to-indigo-500' },
@@ -500,10 +500,7 @@ export default function StaffPortal() {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const { data: allServiceBookings = [] } = useQuery({
-    queryKey: ['/api/staff/service-bookings'],
-    refetchInterval: 30000, // Refresh every 30 seconds
-  });
+
 
   const { data: analytics } = useQuery<any>({
     queryKey: ['/api/staff/analytics'],
@@ -4826,7 +4823,7 @@ export default function StaffPortal() {
             {activeSection === 'tour-requests' && renderTourRequests()}
             {activeSection === 'contact-inquiries' && <StaffContactInquiries />}
             {activeSection === 'event-registrations' && <StaffEventRegistrations />}
-            {activeSection === 'service-bookings' && <StaffServiceBookings />}
+
             {activeSection === 'calendar' && <CalendarPage />}
             {activeSection === 'messages' && renderMessages()}
             {activeSection === 'notifications' && renderNotifications()}
