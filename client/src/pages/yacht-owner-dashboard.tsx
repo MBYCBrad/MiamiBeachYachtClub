@@ -4967,16 +4967,9 @@ export default function YachtOwnerDashboard() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {/* Active background gradient */}
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeBackground"
-                        className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-10 rounded-xl`}
-                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                      />
-                    )}
+
                     
-                    <div className={`p-2 rounded-lg ${isActive ? 'bg-gradient-to-br from-purple-600 to-indigo-600' : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
+                    <div className={`p-2 rounded-lg ${isActive ? 'bg-gray-700/50' : 'bg-gray-700/50 group-hover:bg-gray-600/50'} transition-all duration-300`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     
