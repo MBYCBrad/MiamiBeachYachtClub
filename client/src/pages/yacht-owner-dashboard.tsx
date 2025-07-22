@@ -1051,13 +1051,20 @@ export default function YachtOwnerDashboard() {
     staleTime: 0,
     refetchOnMount: true,
     refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
-    onSuccess: (data) => {
-      console.log('Profile data loaded from API:', data);
-    },
-    onError: (error) => {
-      console.error('Profile data loading error:', error);
-    }
   });
+
+  // Handle profile data loading effects
+  useEffect(() => {
+    if (profileDataReal && Object.keys(profileDataReal).length > 0) {
+      console.log('Profile data loaded from API:', profileDataReal);
+    }
+  }, [profileDataReal]);
+
+  useEffect(() => {
+    if (profileError) {
+      console.error('Profile data loading error:', profileErrorDetails);
+    }
+  }, [profileError, profileErrorDetails]);
 
   // Notifications data fetching - moved to top level to fix hooks issue
   const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
@@ -1091,6 +1098,114 @@ export default function YachtOwnerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/yacht-owner/notifications'] });
     }
   });
+
+  // Real-time settings data fetching and state management
+  const { data: settingsData = {}, refetch: refetchSettings } = useQuery<any>({
+    queryKey: ['/api/user/settings'],
+    staleTime: 0,
+    refetchInterval: 30000, // Refresh every 30 seconds for real-time sync
+  });
+
+  // Settings state for real-time updates
+  const [settingsState, setSettingsState] = useState({
+    notifications: {
+      newBookings: true,
+      maintenanceAlerts: true,
+      revenueReports: true,
+      guestReviews: true,
+      emailNotifications: true,
+      smsNotifications: false,
+      pushNotifications: true
+    },
+    privacy: {
+      profileVisibility: 'members',
+      showRevenue: false,
+      showFleetSize: true,
+      showContactInfo: false
+    },
+    security: {
+      twoFactorEnabled: false,
+      sessionTimeout: 30,
+      loginAlerts: true
+    },
+    preferences: {
+      theme: 'dark',
+      language: 'en',
+      timezone: 'America/New_York',
+      currency: 'USD',
+      dateFormat: 'MM/DD/YYYY'
+    }
+  });
+
+  // Update settings state when data loads from API
+  useEffect(() => {
+    if (settingsData && Object.keys(settingsData).length > 0) {
+      console.log('Settings data loaded from API:', settingsData);
+      setSettingsState(prev => ({ ...prev, ...settingsData }));
+    }
+  }, [settingsData]);
+
+  // Settings update mutation with real-time sync
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (updatedSettings: any) => {
+      console.log('Updating settings:', updatedSettings);
+      
+      const response = await fetch('/api/user/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Settings update failed: ${response.status} - ${errorData}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      console.log('Settings updated successfully:', data);
+      toast({ 
+        title: "Settings updated successfully",
+        description: "Your preferences have been saved"
+      });
+      
+      // Update local state immediately
+      setSettingsState(prev => ({ ...prev, ...data }));
+      
+      // Invalidate cache for real-time sync
+      queryClient.invalidateQueries({ queryKey: ['/api/user/settings'] });
+      refetchSettings();
+    },
+    onError: (error: any) => {
+      console.error('Settings update failed:', error);
+      toast({ 
+        title: "Error updating settings", 
+        description: error.message || "Failed to save settings. Please try again.",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  // Handle individual setting changes with real-time updates
+  const handleSettingChange = (category: string, setting: string, value: any) => {
+    console.log(`Setting ${category}.${setting} changing to:`, value);
+    
+    const updatedSettings = { 
+      ...settingsState,
+      [category]: {
+        ...settingsState[category as keyof typeof settingsState],
+        [setting]: value
+      }
+    };
+    
+    setSettingsState(updatedSettings);
+    
+    // Auto-save after 500ms for immediate feedback
+    setTimeout(() => {
+      updateSettingsMutation.mutate(updatedSettings);
+    }, 500);
+  };
 
   // Notifications filter state - moved to top level
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'unread' | 'urgent'>('all');
@@ -3808,19 +3923,31 @@ export default function YachtOwnerDashboard() {
           transition={{ delay: 0.2 }}
           className="flex items-center space-x-4"
         >
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600">
+          <Button 
+            size="sm" 
+            onClick={() => updateSettingsMutation.mutate(settingsState)}
+            disabled={updateSettingsMutation.isPending}
+            className="bg-gradient-to-r from-purple-600 to-indigo-600"
+          >
             <Save className="h-4 w-4 mr-2" />
-            Save Changes
+            {updateSettingsMutation.isPending ? 'Saving...' : 'Save All Changes'}
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-600 hover:border-purple-500">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => refetchSettings()}
+            className="border-gray-600 hover:border-purple-500"
+          >
             <RotateCcw className="h-4 w-4 mr-2" />
-            Reset
+            Refresh
           </Button>
         </motion.div>
       </div>
 
-      {/* Settings Grid */}
+      {/* Real-time Settings Grid with Database Integration */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Notification Settings - Real-time Database Driven */}
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
@@ -3831,27 +3958,39 @@ export default function YachtOwnerDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {[
-              { label: 'New Bookings', description: 'Get notified when guests book your yachts' },
-              { label: 'Maintenance Alerts', description: 'Receive maintenance reminders and updates' },
-              { label: 'Revenue Reports', description: 'Monthly and weekly revenue summaries' },
-              { label: 'Guest Reviews', description: 'Notifications when guests leave reviews' }
-            ].map((notification, index) => (
-              <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+              { key: 'newBookings', label: 'New Bookings', description: 'Get notified when guests book your yachts' },
+              { key: 'maintenanceAlerts', label: 'Maintenance Alerts', description: 'Receive maintenance reminders and updates' },
+              { key: 'revenueReports', label: 'Revenue Reports', description: 'Monthly and weekly revenue summaries' },
+              { key: 'guestReviews', label: 'Guest Reviews', description: 'Notifications when guests leave reviews' },
+              { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive updates via email' },
+              { key: 'smsNotifications', label: 'SMS Notifications', description: 'Receive updates via text message' }
+            ].map((notification) => (
+              <div key={notification.key} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
                 <div>
                   <p className="text-white font-medium">{notification.label}</p>
                   <p className="text-sm text-gray-400">{notification.description}</p>
                 </div>
                 <motion.div
                   whileTap={{ scale: 0.95 }}
-                  className="w-12 h-6 bg-purple-500 rounded-full p-1 cursor-pointer"
+                  onClick={() => handleSettingChange('notifications', notification.key, !settingsState.notifications[notification.key as keyof typeof settingsState.notifications])}
+                  className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${
+                    settingsState.notifications[notification.key as keyof typeof settingsState.notifications] 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                      : 'bg-gray-600'
+                  }`}
                 >
-                  <div className="w-4 h-4 bg-white rounded-full ml-auto transition-all" />
+                  <div className={`w-4 h-4 bg-white rounded-full transition-all ${
+                    settingsState.notifications[notification.key as keyof typeof settingsState.notifications] 
+                      ? 'ml-auto' 
+                      : 'ml-0'
+                  }`} />
                 </motion.div>
               </div>
             ))}
           </CardContent>
         </Card>
 
+        {/* Security Settings - Real-time Database Driven */}
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
@@ -3868,59 +4007,190 @@ export default function YachtOwnerDashboard() {
                 Update Password
               </Button>
             </div>
+            
             <div className="p-4 rounded-xl bg-gray-800/30">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-white font-medium">Two-Factor Authentication</p>
-                <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">Disabled</Badge>
+                <Badge className={`${settingsState.security.twoFactorEnabled ? 'bg-green-600' : 'bg-gray-500/20'} text-white border-gray-500/30`}>
+                  {settingsState.security.twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                </Badge>
               </div>
               <p className="text-sm text-gray-400 mb-3">Add an extra layer of security to your account</p>
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                Enable 2FA
+              <Button 
+                size="sm" 
+                onClick={() => handleSettingChange('security', 'twoFactorEnabled', !settingsState.security.twoFactorEnabled)}
+                className={settingsState.security.twoFactorEnabled ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}
+              >
+                {settingsState.security.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
               </Button>
+            </div>
+            
+            <div className="p-4 rounded-xl bg-gray-800/30">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white font-medium">Login Alerts</p>
+                <motion.div
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSettingChange('security', 'loginAlerts', !settingsState.security.loginAlerts)}
+                  className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${
+                    settingsState.security.loginAlerts ? 'bg-gradient-to-r from-purple-600 to-indigo-600' : 'bg-gray-600'
+                  }`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-all ${
+                    settingsState.security.loginAlerts ? 'ml-auto' : 'ml-0'
+                  }`} />
+                </motion.div>
+              </div>
+              <p className="text-sm text-gray-400">Get notified of new login attempts</p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-white font-medium">Session Timeout (minutes)</label>
+              <select 
+                value={settingsState.security.sessionTimeout}
+                onChange={(e) => handleSettingChange('security', 'sessionTimeout', parseInt(e.target.value))}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
+              >
+                <option value={15}>15 minutes</option>
+                <option value={30}>30 minutes</option>
+                <option value={60}>1 hour</option>
+                <option value={120}>2 hours</option>
+                <option value={240}>4 hours</option>
+              </select>
             </div>
           </CardContent>
         </Card>
 
+        {/* Privacy Settings - Real-time Database Driven */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <User className="h-5 w-5 mr-2 text-purple-500" />
+              Privacy Settings
+            </CardTitle>
+            <CardDescription>Control your profile visibility and data sharing</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-white font-medium">Profile Visibility</label>
+              <select 
+                value={settingsState.privacy.profileVisibility}
+                onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
+              >
+                <option value="public">Public - Anyone can view</option>
+                <option value="members">Members Only</option>
+                <option value="private">Private - Only me</option>
+              </select>
+            </div>
+            
+            {[
+              { key: 'showRevenue', label: 'Show Revenue Data', description: 'Display revenue information in profile' },
+              { key: 'showFleetSize', label: 'Show Fleet Size', description: 'Display number of yachts owned' },
+              { key: 'showContactInfo', label: 'Show Contact Info', description: 'Display phone and email publicly' }
+            ].map((privacy) => (
+              <div key={privacy.key} className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
+                <div>
+                  <p className="text-white font-medium">{privacy.label}</p>
+                  <p className="text-sm text-gray-400">{privacy.description}</p>
+                </div>
+                <motion.div
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSettingChange('privacy', privacy.key, !settingsState.privacy[privacy.key as keyof typeof settingsState.privacy])}
+                  className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-all ${
+                    settingsState.privacy[privacy.key as keyof typeof settingsState.privacy] 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                      : 'bg-gray-600'
+                  }`}
+                >
+                  <div className={`w-4 h-4 bg-white rounded-full transition-all ${
+                    settingsState.privacy[privacy.key as keyof typeof settingsState.privacy] 
+                      ? 'ml-auto' 
+                      : 'ml-0'
+                  }`} />
+                </motion.div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Preferences Settings - Real-time Database Driven */}
         <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Anchor className="h-5 w-5 mr-2 text-purple-500" />
-              Yacht Management
+              Preferences
             </CardTitle>
-            <CardDescription>Configure default settings for your yacht listings</CardDescription>
+            <CardDescription>Customize your yacht owner dashboard experience</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-white font-medium">Default Booking Duration</label>
-              <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600">
-                <option>4 hours</option>
-                <option>8 hours</option>
-                <option>Full day</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-white font-medium">Auto-approval</label>
-              <select className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600">
-                <option>Manual approval</option>
-                <option>Auto-approve all</option>
-                <option>Auto-approve returning guests</option>
-              </select>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30">
-              <div>
-                <p className="text-white font-medium">Instant Booking</p>
-                <p className="text-sm text-gray-400">Allow guests to book without approval</p>
-              </div>
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="w-12 h-6 bg-purple-500 rounded-full p-1 cursor-pointer"
+              <label className="text-white font-medium">Language</label>
+              <select 
+                value={settingsState.preferences.language}
+                onChange={(e) => handleSettingChange('preferences', 'language', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
               >
-                <div className="w-4 h-4 bg-white rounded-full ml-auto transition-all" />
-              </motion.div>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="it">Italiano</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-white font-medium">Timezone</label>
+              <select 
+                value={settingsState.preferences.timezone}
+                onChange={(e) => handleSettingChange('preferences', 'timezone', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
+              >
+                <option value="America/New_York">Eastern Time</option>
+                <option value="America/Chicago">Central Time</option>
+                <option value="America/Denver">Mountain Time</option>
+                <option value="America/Los_Angeles">Pacific Time</option>
+                <option value="Europe/London">GMT</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-white font-medium">Currency</label>
+              <select 
+                value={settingsState.preferences.currency}
+                onChange={(e) => handleSettingChange('preferences', 'currency', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="CAD">CAD ($)</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-white font-medium">Date Format</label>
+              <select 
+                value={settingsState.preferences.dateFormat}
+                onChange={(e) => handleSettingChange('preferences', 'dateFormat', e.target.value)}
+                className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 border border-gray-600"
+              >
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              </select>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Settings Status Indicator */}
+      {updateSettingsMutation.isPending && (
+        <div className="fixed bottom-4 right-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Saving settings...</span>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 

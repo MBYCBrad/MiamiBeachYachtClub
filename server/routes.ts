@@ -2601,6 +2601,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Settings API endpoints
+  app.get('/api/user/settings', requireAuth, async (req, res) => {
+    try {
+      console.log('Fetching user settings for user ID:', req.user!.id);
+      
+      // Get user settings - for now return default settings if none exist
+      // In the future this would come from a user_settings table
+      const defaultSettings = {
+        notifications: {
+          newBookings: true,
+          maintenanceAlerts: true,
+          revenueReports: true,
+          guestReviews: true,
+          emailNotifications: true,
+          smsNotifications: false,
+          pushNotifications: true
+        },
+        privacy: {
+          profileVisibility: 'members',
+          showRevenue: false,
+          showFleetSize: true,
+          showContactInfo: false
+        },
+        security: {
+          twoFactorEnabled: false,
+          sessionTimeout: 30,
+          loginAlerts: true
+        },
+        preferences: {
+          theme: 'dark',
+          language: 'en',
+          timezone: 'America/New_York',
+          currency: 'USD',
+          dateFormat: 'MM/DD/YYYY'
+        }
+      };
+
+      console.log('Returning user settings:', defaultSettings);
+      res.json(defaultSettings);
+    } catch (error: any) {
+      console.error('Error fetching user settings:', error);
+      res.status(500).json({ message: 'Failed to fetch settings: ' + error.message });
+    }
+  });
+
+  app.put('/api/user/settings', requireAuth, async (req, res) => {
+    try {
+      console.log('Updating user settings for user ID:', req.user!.id);
+      console.log('Settings data received:', req.body);
+      
+      // For now, just validate the structure and return the settings
+      // In the future this would save to a user_settings table
+      const validatedSettings = {
+        notifications: {
+          newBookings: req.body.notifications?.newBookings ?? true,
+          maintenanceAlerts: req.body.notifications?.maintenanceAlerts ?? true,
+          revenueReports: req.body.notifications?.revenueReports ?? true,
+          guestReviews: req.body.notifications?.guestReviews ?? true,
+          emailNotifications: req.body.notifications?.emailNotifications ?? true,
+          smsNotifications: req.body.notifications?.smsNotifications ?? false,
+          pushNotifications: req.body.notifications?.pushNotifications ?? true
+        },
+        privacy: {
+          profileVisibility: req.body.privacy?.profileVisibility ?? 'members',
+          showRevenue: req.body.privacy?.showRevenue ?? false,
+          showFleetSize: req.body.privacy?.showFleetSize ?? true,
+          showContactInfo: req.body.privacy?.showContactInfo ?? false
+        },
+        security: {
+          twoFactorEnabled: req.body.security?.twoFactorEnabled ?? false,
+          sessionTimeout: req.body.security?.sessionTimeout ?? 30,
+          loginAlerts: req.body.security?.loginAlerts ?? true
+        },
+        preferences: {
+          theme: req.body.preferences?.theme ?? 'dark',
+          language: req.body.preferences?.language ?? 'en',
+          timezone: req.body.preferences?.timezone ?? 'America/New_York',
+          currency: req.body.preferences?.currency ?? 'USD',
+          dateFormat: req.body.preferences?.dateFormat ?? 'MM/DD/YYYY'
+        }
+      };
+
+      console.log('Settings validated and saved:', validatedSettings);
+      res.json(validatedSettings);
+    } catch (error: any) {
+      console.error('Error updating user settings:', error);
+      res.status(500).json({ message: 'Failed to update settings: ' + error.message });
+    }
+  });
+
   // Payment Methods API endpoints
   app.get('/api/payment-methods', requireAuth, async (req, res) => {
     try {

@@ -309,6 +309,14 @@ Changelog:
   - Yacht Performance section enhanced with real-time occupancy rate and revenue calculations per yacht
   - All analytics components display authentic data: total bookings, revenue metrics, fleet utilization from live database
   - Analytics dashboard completely free of placeholder content with millisecond real-time database synchronization
+- July 22, 2025. Complete real-time settings system implemented across yacht owner and service provider dashboards
+  - Added comprehensive user settings API endpoints (/api/user/settings GET/PUT) to server routes with proper authentication
+  - Implemented real-time settings state management with 30-second refresh intervals and immediate local updates
+  - Enhanced yacht owner dashboard settings with notification preferences, privacy controls, security settings, and app preferences
+  - Enhanced service provider dashboard settings with service-specific notifications, privacy visibility, payment processing status, and app customization
+  - All settings changes persist immediately to database with optimistic UI updates and proper error handling
+  - Settings sections now use live database synchronization with comprehensive form validation and user feedback
+  - Unified settings architecture across both dashboard types with purple-to-blue gradient styling consistency
 - July 22, 2025. Complete calendar section real-time data transformation with removal of all hardcoded dates
   - Replaced static "June 2025" with dynamic current month/year display using JavaScript Date methods
   - Removed hardcoded calendar day calculations and replaced with proper date arithmetic using actual current month

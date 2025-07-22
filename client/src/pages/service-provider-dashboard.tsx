@@ -854,6 +854,65 @@ export default function ServiceProviderDashboard() {
     priceRange: "all"
   });
 
+  // Settings state management with real-time synchronization
+  const [localSettings, setLocalSettings] = useState<any>(null);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+
+  // Fetch user settings with 30-second refresh interval
+  const { data: settings, refetch: refetchSettings } = useQuery({
+    queryKey: ['/api/user/settings'],
+    refetchInterval: 30000, // Real-time settings sync every 30 seconds
+    staleTime: 0, // Always refetch to ensure latest settings
+  });
+
+  // Initialize local settings when data loads
+  useEffect(() => {
+    if (settings && !localSettings) {
+      setLocalSettings(settings);
+    }
+  }, [settings, localSettings]);
+
+  // Settings update mutation
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (updatedSettings: any) => {
+      const response = await apiRequest("PUT", "/api/user/settings", updatedSettings);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Update cache immediately
+      queryClient.setQueryData(['/api/user/settings'], data);
+      setLocalSettings(data);
+      
+      toast({
+        title: "Settings Updated",
+        description: "Your preferences have been saved successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update settings",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Helper function to update specific setting
+  const updateSetting = (section: string, key: string, value: any) => {
+    if (!localSettings) return;
+    
+    const updatedSettings = {
+      ...localSettings,
+      [section]: {
+        ...localSettings[section],
+        [key]: value
+      }
+    };
+    
+    setLocalSettings(updatedSettings);
+    updateSettingsMutation.mutate(updatedSettings);
+  };
+
   const { data: stats } = useQuery<ServiceProviderStats>({
     queryKey: ['/api/service-provider/stats'],
     refetchInterval: 15000, // Real-time stats updates every 15 seconds for service providers
@@ -2121,43 +2180,242 @@ export default function ServiceProviderDashboard() {
 
 
 
-  const renderSettings = () => (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
-          Settings
-        </h1>
-        <p className="text-lg text-gray-400">Manage your payment and account settings</p>
-      </div>
+  const renderSettings = () => {
+    if (!localSettings) {
+      return (
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
+              Settings
+            </h1>
+            <p className="text-lg text-gray-400">Loading your preferences...</p>
+          </div>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          </div>
+        </div>
+      );
+    }
 
-      {/* Stripe Connect Integration */}
-      <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <CreditCard className="h-5 w-5 mr-2 text-purple-500" />
-            Stripe Connect Integration
-          </CardTitle>
-          <CardDescription>Configure payment processing for your services</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Stripe Connection Status */}
-          <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <div>
-                <p className="text-white font-medium">Platform Connected</p>
-                <p className="text-gray-400 text-sm">Using Miami Beach Yacht Club payment processing</p>
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}>
+            Settings
+          </h1>
+          <p className="text-lg text-gray-400">Manage your preferences and account settings</p>
+        </div>
+
+        {/* Notification Preferences */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Bell className="h-5 w-5 mr-2 text-purple-500" />
+              Service Notifications
+            </CardTitle>
+            <CardDescription>Choose how you want to be notified about your service business</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">New Bookings</Label>
+                  <p className="text-sm text-gray-400">Get notified when members book your services</p>
+                </div>
+                <Switch 
+                  checked={localSettings.notifications?.newBookings || false}
+                  onCheckedChange={(checked) => updateSetting('notifications', 'newBookings', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Service Reviews</Label>
+                  <p className="text-sm text-gray-400">Notifications when you receive new reviews</p>
+                </div>
+                <Switch 
+                  checked={localSettings.notifications?.guestReviews || false}
+                  onCheckedChange={(checked) => updateSetting('notifications', 'guestReviews', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Revenue Reports</Label>
+                  <p className="text-sm text-gray-400">Weekly earning summaries and payout notifications</p>
+                </div>
+                <Switch 
+                  checked={localSettings.notifications?.revenueReports || false}
+                  onCheckedChange={(checked) => updateSetting('notifications', 'revenueReports', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Email Notifications</Label>
+                  <p className="text-sm text-gray-400">Receive notifications via email</p>
+                </div>
+                <Switch 
+                  checked={localSettings.notifications?.emailNotifications || false}
+                  onCheckedChange={(checked) => updateSetting('notifications', 'emailNotifications', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">SMS Notifications</Label>
+                  <p className="text-sm text-gray-400">Receive urgent updates via text message</p>
+                </div>
+                <Switch 
+                  checked={localSettings.notifications?.smsNotifications || false}
+                  onCheckedChange={(checked) => updateSetting('notifications', 'smsNotifications', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
               </div>
             </div>
-            <div className="flex items-center space-x-2 text-green-400">
-              <Shield className="h-4 w-4" />
-              <span className="text-sm font-medium">Verified</span>
-            </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Payout Information */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-white font-medium mb-4">Payment & Payout Information</h3>
+        {/* Privacy Settings */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-purple-500" />
+              Privacy & Visibility
+            </CardTitle>
+            <CardDescription>Control who can see your information and services</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <Label className="text-base text-white">Service Profile Visibility</Label>
+                <Select 
+                  value={localSettings.privacy?.profileVisibility || 'members'}
+                  onValueChange={(value) => updateSetting('privacy', 'profileVisibility', value)}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="public" className="text-white">Public - Visible to everyone</SelectItem>
+                    <SelectItem value="members" className="text-white">Members Only - Visible to MBYC members</SelectItem>
+                    <SelectItem value="private" className="text-white">Private - Hidden from search</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Show Revenue Stats</Label>
+                  <p className="text-sm text-gray-400">Display earnings and booking statistics</p>
+                </div>
+                <Switch 
+                  checked={localSettings.privacy?.showRevenue || false}
+                  onCheckedChange={(checked) => updateSetting('privacy', 'showRevenue', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Show Contact Information</Label>
+                  <p className="text-sm text-gray-400">Allow members to see your contact details</p>
+                </div>
+                <Switch 
+                  checked={localSettings.privacy?.showContactInfo || false}
+                  onCheckedChange={(checked) => updateSetting('privacy', 'showContactInfo', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2 text-purple-500" />
+              Security
+            </CardTitle>
+            <CardDescription>Manage your account security and access</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Two-Factor Authentication</Label>
+                  <p className="text-sm text-gray-400">Add an extra layer of security to your account</p>
+                </div>
+                <Switch 
+                  checked={localSettings.security?.twoFactorEnabled || false}
+                  onCheckedChange={(checked) => updateSetting('security', 'twoFactorEnabled', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base text-white">Session Timeout</Label>
+                <Select 
+                  value={localSettings.security?.sessionTimeout?.toString() || '30'}
+                  onValueChange={(value) => updateSetting('security', 'sessionTimeout', parseInt(value))}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="15" className="text-white">15 minutes</SelectItem>
+                    <SelectItem value="30" className="text-white">30 minutes</SelectItem>
+                    <SelectItem value="60" className="text-white">1 hour</SelectItem>
+                    <SelectItem value="120" className="text-white">2 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base text-white">Login Alerts</Label>
+                  <p className="text-sm text-gray-400">Get notified of new login attempts</p>
+                </div>
+                <Switch 
+                  checked={localSettings.security?.loginAlerts || false}
+                  onCheckedChange={(checked) => updateSetting('security', 'loginAlerts', checked)}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment & Payout Settings */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-purple-500" />
+              Payment Processing
+            </CardTitle>
+            <CardDescription>Your Stripe Connect integration and payout preferences</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Stripe Connection Status */}
+            <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <div>
+                  <p className="text-white font-medium">Platform Connected</p>
+                  <p className="text-gray-400 text-sm">Using Miami Beach Yacht Club payment processing</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 text-green-400">
+                <Shield className="h-4 w-4" />
+                <span className="text-sm font-medium">Verified</span>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="p-3 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-400 mb-1">Platform Fee</p>
@@ -2167,117 +2425,78 @@ export default function ServiceProviderDashboard() {
                 <p className="text-gray-400 mb-1">Payout Schedule</p>
                 <p className="text-white font-medium">Weekly (Every Friday)</p>
               </div>
-              <div className="p-3 bg-gray-800/50 rounded-lg">
-                <p className="text-gray-400 mb-1">Minimum Payout</p>
-                <p className="text-white font-medium">$50.00</p>
-              </div>
-              <div className="p-3 bg-gray-800/50 rounded-lg">
-                <p className="text-gray-400 mb-1">Payment Methods</p>
-                <p className="text-white font-medium">Bank Transfer, PayPal</p>
-              </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Payment Integration Info */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-white font-medium mb-4">How It Works</h3>
-            <div className="space-y-3 text-sm text-gray-300">
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">1</div>
-                <p>Members book your services through the MBYC platform</p>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">2</div>
-                <p>Payments are processed securely through our Stripe integration</p>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">3</div>
-                <p>Your earnings (minus platform fee) are tracked in real-time</p>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold mt-0.5">4</div>
-                <p>Weekly payouts are sent directly to your registered payment method</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bank Details Form */}
-          <div className="border-t border-gray-700 pt-6">
-            <h3 className="text-white font-medium mb-4">Payout Details</h3>
+        {/* App Preferences */}
+        <Card className="bg-gray-900/50 border-gray-700/50 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Settings className="h-5 w-5 mr-2 text-purple-500" />
+              App Preferences
+            </CardTitle>
+            <CardDescription>Customize your dashboard experience</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Bank Name</label>
-                  <Input
-                    placeholder="Enter bank name"
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Account Holder Name</label>
-                  <Input
-                    placeholder="Enter account holder name"
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
+              <div className="space-y-3">
+                <Label className="text-base text-white">Language</Label>
+                <Select 
+                  value={localSettings.preferences?.language || 'en'}
+                  onValueChange={(value) => updateSetting('preferences', 'language', value)}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="en" className="text-white">English</SelectItem>
+                    <SelectItem value="es" className="text-white">Español</SelectItem>
+                    <SelectItem value="fr" className="text-white">Français</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Account Number</label>
-                  <Input
-                    type="password"
-                    placeholder="Enter account number"
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-300">Routing Number</label>
-                  <Input
-                    placeholder="Enter routing number"
-                    className="bg-gray-800 border-gray-600 text-white"
-                  />
-                </div>
-              </div>
-              <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
-                <Shield className="h-4 w-4 mr-2" />
-                Save Payout Information
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Notification Settings */}
-      <Card className="bg-gray-900/50 border-gray-700/50">
-        <CardHeader>
-          <CardTitle className="text-white">Notification Preferences</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white font-medium">New Booking Alerts</p>
-              <p className="text-gray-400 text-sm">Get notified when you receive new bookings</p>
+              <div className="space-y-3">
+                <Label className="text-base text-white">Timezone</Label>
+                <Select 
+                  value={localSettings.preferences?.timezone || 'America/New_York'}
+                  onValueChange={(value) => updateSetting('preferences', 'timezone', value)}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="America/New_York" className="text-white">Eastern Time</SelectItem>
+                    <SelectItem value="America/Chicago" className="text-white">Central Time</SelectItem>
+                    <SelectItem value="America/Denver" className="text-white">Mountain Time</SelectItem>
+                    <SelectItem value="America/Los_Angeles" className="text-white">Pacific Time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base text-white">Currency</Label>
+                <Select 
+                  value={localSettings.preferences?.currency || 'USD'}
+                  onValueChange={(value) => updateSetting('preferences', 'currency', value)}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="USD" className="text-white">USD - US Dollar</SelectItem>
+                    <SelectItem value="EUR" className="text-white">EUR - Euro</SelectItem>
+                    <SelectItem value="GBP" className="text-white">GBP - British Pound</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white font-medium">Booking Reminders</p>
-              <p className="text-gray-400 text-sm">Receive reminders before upcoming services</p>
-            </div>
-            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white font-medium">Payment Updates</p>
-              <p className="text-gray-400 text-sm">Get notified about payment status</p>
-            </div>
-            <Switch className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-indigo-600" />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-black">
