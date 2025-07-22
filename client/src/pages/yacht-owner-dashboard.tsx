@@ -3722,37 +3722,7 @@ export default function YachtOwnerDashboard() {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-gray-700">
-              <Button 
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Contact Guest clicked');
-                  handleCloseModal();
-                  setTimeout(() => {
-                    setActiveSection('messages');
-                  }, 100);
-                }}
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Contact Guest
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Close button clicked');
-                  handleCloseModal();
-                }}
-              >
-                Close
-              </Button>
-            </div>
+
           </div>
         </div>
       </div>
