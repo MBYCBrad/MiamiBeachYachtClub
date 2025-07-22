@@ -952,7 +952,7 @@ const AddYachtDialog = React.memo(({ user, dialogOpen, handleCloseDialog }: AddY
       }}
     >
       <div 
-        className="bg-gray-900 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+        className="bg-gray-950 border border-gray-700 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
         onClick={(e) => {
           e.stopPropagation();
         }}
