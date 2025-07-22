@@ -8561,6 +8561,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff service bookings endpoint - allows staff with services permission to access service bookings
+  app.get("/api/staff/service-bookings-management", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has services permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('services')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const serviceBookings = await dbStorage.getServiceBookings();
+      res.json(serviceBookings);
+    } catch (error: any) {
+      console.error('Error fetching staff service bookings:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Staff service booking update endpoint
+  app.patch("/api/staff/service-bookings-management/:id", requireAuth, async (req, res) => {
+    try {
+      // Check if staff has services permission
+      if (req.user!.role === 'staff' || req.user!.role === 'VIP Coordinator') {
+        const staff = await dbStorage.getStaffByUsername(req.user!.username);
+        if (!staff || !staff.permissions.includes('services')) {
+          return res.status(403).json({ message: "Insufficient permissions" });
+        }
+      } else if (req.user!.role !== UserRole.ADMIN) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      const updatedBooking = await dbStorage.updateServiceBooking(parseInt(id), { status });
+      
+      if (!updatedBooking) {
+        return res.status(404).json({ message: "Service booking not found" });
+      }
+
+      res.json(updatedBooking);
+    } catch (error: any) {
+      console.error('Error updating staff service booking:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.patch("/api/admin/applications/:id", requireAuth, requireRole([UserRole.ADMIN]), async (req, res) => {
     try {
       const { id } = req.params;
