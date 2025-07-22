@@ -58,21 +58,21 @@ export default function MyProfile() {
   useEffect(() => {
     if (profileData) {
       setFormData(prev => ({
-        username: profileData.username || '',
-        email: profileData.email || '',
-        phone: profileData.phone || '',
-        location: profileData.location || '',
-        bio: profileData.bio || '',
-        fullName: profileData.fullName || '',
+        username: (profileData as any).username || '',
+        email: (profileData as any).email || '',
+        phone: (profileData as any).phone || '',
+        location: (profileData as any).location || '',
+        bio: (profileData as any).bio || '',
+        fullName: (profileData as any).fullName || '',
         notifications: {
-          email: profileData.notifications?.email ?? prev.notifications.email,
-          sms: profileData.notifications?.sms ?? prev.notifications.sms,
-          push: profileData.notifications?.push ?? prev.notifications.push
+          email: (profileData as any).notifications?.email ?? prev.notifications.email,
+          sms: (profileData as any).notifications?.sms ?? prev.notifications.sms,
+          push: (profileData as any).notifications?.push ?? prev.notifications.push
         },
         privacy: {
-          showEmail: profileData.privacy?.showEmail ?? prev.privacy.showEmail,
-          showPhone: profileData.privacy?.showPhone ?? prev.privacy.showPhone,
-          showLocation: profileData.privacy?.showLocation ?? prev.privacy.showLocation
+          showEmail: (profileData as any).privacy?.showEmail ?? prev.privacy.showEmail,
+          showPhone: (profileData as any).privacy?.showPhone ?? prev.privacy.showPhone,
+          showLocation: (profileData as any).privacy?.showLocation ?? prev.privacy.showLocation
         }
       }));
     }
@@ -133,6 +133,8 @@ export default function MyProfile() {
     updateProfileMutation.mutate(formData);
   };
 
+  const [dragActive, setDragActive] = useState(false);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -140,6 +142,43 @@ export default function MyProfile() {
         toast({
           title: "File Too Large",
           description: "Please select an image under 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      uploadProfileImageMutation.mutate(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "File Too Large",
+          description: "Please select an image under 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file.",
           variant: "destructive",
         });
         return;
@@ -219,16 +258,16 @@ export default function MyProfile() {
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <div className="profile-picture-outline w-24 h-24">
                     <div className="profile-picture-inner w-full h-full">
-                      {(profileData?.profileImage || user.profileImage) ? (
+                      {((profileData as any)?.profileImage || user.profileImage) ? (
                         <img
-                          src={profileData?.profileImage || user.profileImage}
+                          src={(profileData as any)?.profileImage || user.profileImage}
                           alt="Profile"
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
                           <span className="text-white text-2xl font-semibold">
-                            {(profileData?.username || user.username)?.charAt(0).toUpperCase()}
+                            {((profileData as any)?.username || user.username)?.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
@@ -244,23 +283,23 @@ export default function MyProfile() {
                     </Button>
                   )}
                 </div>
-                <CardTitle className="text-white">{profileData?.username || user.username}</CardTitle>
-                <CardDescription className="text-gray-400">{profileData?.email || user.email}</CardDescription>
+                <CardTitle className="text-white">{(profileData as any)?.username || user.username}</CardTitle>
+                <CardDescription className="text-gray-400">{(profileData as any)?.email || user.email}</CardDescription>
                 <div className="flex justify-center mt-3">
-                  <Badge className={getRoleBadgeColor(profileData?.role || user.role)}>
-                    {formatRole(profileData?.role || user.role)}
+                  <Badge className={getRoleBadgeColor((profileData as any)?.role || user.role)}>
+                    {formatRole((profileData as any)?.role || user.role)}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3 text-gray-300">
                   <Calendar className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm">Joined {new Date(profileData?.createdAt || user.createdAt).toLocaleDateString()}</span>
+                  <span className="text-sm">Joined {new Date((profileData as any)?.createdAt || user.createdAt).toLocaleDateString()}</span>
                 </div>
-                {(profileData?.membershipTier || user.membershipTier) && (
+                {((profileData as any)?.membershipTier || user.membershipTier) && (
                   <div className="flex items-center gap-3 text-gray-300">
                     <Shield className="h-4 w-4 text-purple-400" />
-                    <span className="text-sm">{profileData?.membershipTier || user.membershipTier} Member</span>
+                    <span className="text-sm">{(profileData as any)?.membershipTier || user.membershipTier} Member</span>
                   </div>
                 )}
               </CardContent>
@@ -282,7 +321,7 @@ export default function MyProfile() {
                   <Label htmlFor="username" className="text-gray-300">Username</Label>
                   <Input
                     id="username"
-                    value={isEditing ? formData.username : (profileData?.username || user?.username || '')}
+                    value={isEditing ? formData.username : ((profileData as any)?.username || user?.username || '')}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -292,7 +331,7 @@ export default function MyProfile() {
                   <Label htmlFor="fullName" className="text-gray-300">Full Name</Label>
                   <Input
                     id="fullName"
-                    value={isEditing ? formData.fullName : (profileData?.fullName || '')}
+                    value={isEditing ? formData.fullName : ((profileData as any)?.fullName || '')}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -303,7 +342,7 @@ export default function MyProfile() {
                   <Input
                     id="email"
                     type="email"
-                    value={isEditing ? formData.email : (profileData?.email || user?.email || '')}
+                    value={isEditing ? formData.email : ((profileData as any)?.email || user?.email || '')}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -313,7 +352,7 @@ export default function MyProfile() {
                   <Label htmlFor="phone" className="text-gray-300">Phone</Label>
                   <Input
                     id="phone"
-                    value={isEditing ? formData.phone : (profileData?.phone || user?.phone || '')}
+                    value={isEditing ? formData.phone : ((profileData as any)?.phone || user?.phone || '')}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -323,7 +362,7 @@ export default function MyProfile() {
                   <Label htmlFor="location" className="text-gray-300">Location</Label>
                   <Input
                     id="location"
-                    value={isEditing ? formData.location : (profileData?.location || user?.location || '')}
+                    value={isEditing ? formData.location : ((profileData as any)?.location || user?.location || '')}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                     disabled={!isEditing}
                     className="bg-gray-900 border-gray-700 text-white disabled:opacity-60"
@@ -333,7 +372,7 @@ export default function MyProfile() {
                   <Label htmlFor="bio" className="text-gray-300">Bio</Label>
                   <Textarea
                     id="bio"
-                    value={isEditing ? formData.bio : (profileData?.bio || user?.bio || '')}
+                    value={isEditing ? formData.bio : ((profileData as any)?.bio || user?.bio || '')}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     disabled={!isEditing}
                     placeholder="Tell us about yourself..."
@@ -466,24 +505,52 @@ export default function MyProfile() {
             </DialogHeader>
             
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+              <div 
+                className={`
+                  relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 cursor-pointer
+                  ${dragActive 
+                    ? 'border-purple-400 bg-purple-400/10' 
+                    : 'border-gray-600 hover:border-gray-500'
+                  }
+                  ${uploadProfileImageMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
+                `}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => !uploadProfileImageMutation.isPending && fileInputRef.current?.click()}
+              >
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-300 mb-2">Click to upload or drag and drop</p>
-                <p className="text-gray-500 text-sm">PNG, JPG up to 10MB</p>
-                <Button 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   disabled={uploadProfileImageMutation.isPending}
-                >
-                  {uploadProfileImageMutation.isPending ? "Uploading..." : "Choose File"}
-                </Button>
+                />
+                
+                {uploadProfileImageMutation.isPending ? (
+                  <>
+                    <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-300 mb-2">Uploading profile picture...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-300 mb-2">Click to upload or drag and drop</p>
+                    <p className="text-gray-500 text-sm">PNG, JPG up to 10MB</p>
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600"
+                      disabled={uploadProfileImageMutation.isPending}
+                    >
+                      Choose File
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </DialogContent>
