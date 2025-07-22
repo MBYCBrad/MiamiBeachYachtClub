@@ -931,6 +931,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Yacht Owner - Update Yacht
+  app.put("/api/yachts/:id", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
+    try {
+      const yachtId = parseInt(req.params.id);
+      const ownerId = req.user!.id;
+      
+      // First check if yacht exists and belongs to this owner (unless admin)
+      const existingYacht = await dbStorage.getYacht(yachtId);
+      if (!existingYacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+      
+      // Only admin or the yacht owner can update
+      if (req.user!.role !== UserRole.ADMIN && existingYacht.ownerId !== ownerId) {
+        return res.status(403).json({ message: "You can only update your own yachts" });
+      }
+      
+      // Sanitize and convert form data types
+      const updateData = {
+        ...req.body,
+        size: req.body.size && req.body.size !== '' ? parseInt(req.body.size) : undefined,
+        capacity: req.body.capacity && req.body.capacity !== '' ? parseInt(req.body.capacity) : undefined,
+        yearMade: req.body.yearMade && req.body.yearMade !== '' ? parseInt(req.body.yearMade) : undefined,
+        totalCost: req.body.totalCost && req.body.totalCost !== '' ? parseFloat(req.body.totalCost) : undefined
+      };
+
+      const updatedYacht = await dbStorage.updateYacht(yachtId, updateData);
+      if (!updatedYacht) {
+        return res.status(404).json({ message: "Yacht not found" });
+      }
+      
+      await auditService.logAction(req, 'update', 'yacht', yachtId, updateData);
+
+      // CROSS-LAYER CACHE INVALIDATION - Clear all yacht caches
+      memoryCache.clearByPattern('yachts');
+      memoryCache.clearByPattern('api/yachts');
+      memoryCache.delete('/api/yachts');
+
+      // Real-time WebSocket broadcast to all layers
+      if (wss) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'yacht_updated',
+              yacht: updatedYacht,
+              timestamp: new Date().toISOString()
+            }));
+          }
+        });
+      }
+
+      res.json(updatedYacht);
+    } catch (error: any) {
+      console.error('Error updating yacht:', error);
+      await auditService.logAction(req, 'update', 'yacht', parseInt(req.params.id), req.body, false, error.message);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/yacht-owner/bookings", requireAuth, requireRole([UserRole.YACHT_OWNER, UserRole.ADMIN]), async (req, res) => {
     try {
       const ownerId = req.user!.id;
