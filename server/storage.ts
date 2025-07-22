@@ -1069,38 +1069,68 @@ export class DatabaseStorage implements IStorage {
 
   // COMMUNICATION HUB - REAL-TIME DATABASE METHODS
 
-  // Conversation Management - optimized single query approach
+  // Conversation Management - enhanced with detailed booking information
   async getConversations(): Promise<any[]> {
-    // Optimized: Single query with joins instead of multiple separate queries
+    // Enhanced: Include yacht names, guest details, and special requests for realistic messages
     const bookingConversations = await db.select({
       id: bookings.id,
       userId: bookings.userId,
+      yachtId: bookings.yachtId,
       startTime: bookings.startTime,
+      endTime: bookings.endTime,
+      guestCount: bookings.guestCount,
+      specialRequests: bookings.specialRequests,
+      experienceType: bookings.experienceType,
       status: bookings.status,
       createdAt: bookings.createdAt,
       userName: users.username,
       userPhone: users.phone,
-      userTier: users.membershipTier
+      userTier: users.membershipTier,
+      yachtName: yachts.name
     })
     .from(bookings)
     .innerJoin(users, eq(bookings.userId, users.id))
+    .innerJoin(yachts, eq(bookings.yachtId, yachts.id))
     .orderBy(desc(bookings.createdAt))
     .limit(5);
 
-    const conversations = bookingConversations.map(booking => ({
-      id: `booking_conv_${booking.id}`,
-      memberId: booking.userId,
-      memberName: booking.userName,
-      memberPhone: booking.userPhone || `+1-555-${String(booking.userId).padStart(4, '0')}`,
-      membershipTier: booking.userTier || 'gold',
-      status: 'active',
-      priority: 'medium',
-      lastMessage: `Yacht booking inquiry for ${new Date(booking.startTime).toLocaleDateString()}`,
-      lastMessageTime: booking.createdAt || new Date(),
-      unreadCount: 1,
-      tags: ['booking', 'yacht'],
-      currentTripId: booking.id
-    }));
+    const conversations = bookingConversations.map(booking => {
+      // Generate realistic messages based on booking details
+      const date = new Date(booking.startTime).toLocaleDateString();
+      const time = new Date(booking.startTime).toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      });
+      
+      let message = `Hi! I'd like to book the ${booking.yachtName} for ${booking.guestCount} guests on ${date} at ${time}`;
+      
+      if (booking.experienceType && booking.experienceType !== 'Leisure Tour') {
+        message += ` for a ${booking.experienceType}`;
+      }
+      
+      if (booking.specialRequests) {
+        message += `. Special requests: ${booking.specialRequests}`;
+      } else {
+        message += '. Looking forward to an amazing yacht experience!';
+      }
+
+      return {
+        id: `booking_conv_${booking.id}`,
+        memberId: booking.userId,
+        memberName: booking.userName,
+        memberPhone: booking.userPhone || `+1-555-${String(booking.userId).padStart(4, '0')}`,
+        membershipTier: booking.userTier || 'gold',
+        status: 'active',
+        priority: 'medium',
+        lastMessage: message,
+        lastMessageTime: booking.createdAt || new Date(),
+        unreadCount: 1,
+        tags: ['booking', 'yacht'],
+        currentTripId: booking.id,
+        yachtName: booking.yachtName
+      };
+    });
 
     return conversations;
   }
