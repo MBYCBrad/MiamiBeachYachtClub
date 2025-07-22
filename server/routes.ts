@@ -8035,8 +8035,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!isStaff) {
         return res.status(403).json({ message: 'Staff access required' });
       }
-      // Use the exact same conversation data as admin interface
-      const conversations = await dbStorage.getConversations();
+      
+      // Direct SQL query to bypass Drizzle ORM issues
+      const result = await pool.query(`
+        SELECT 
+          b.id as booking_id,
+          b.user_id,
+          b.yacht_id,
+          b.start_time,
+          b.guest_count,
+          b.special_requests,
+          b.experience_type,
+          b.created_at,
+          u.username,
+          u.phone,
+          u.membership_tier,
+          y.name as yacht_name
+        FROM bookings b
+        LEFT JOIN users u ON b.user_id = u.id
+        LEFT JOIN yachts y ON b.yacht_id = y.id
+        ORDER BY b.created_at DESC
+        LIMIT 5
+      `);
+      
+      // Transform to conversation format
+      const conversations = result.rows.map(booking => {
+        const date = new Date(booking.start_time).toLocaleDateString();
+        const time = new Date(booking.start_time).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit', 
+          hour12: true 
+        });
+        
+        let message = `Hi! I'd like to book the ${booking.yacht_name || 'yacht'} for ${booking.guest_count || 2} guests on ${date} at ${time}`;
+        
+        if (booking.experience_type && booking.experience_type !== 'Leisure Tour') {
+          message += ` for a ${booking.experience_type}`;
+        }
+        
+        if (booking.special_requests) {
+          message += `. Special requests: ${booking.special_requests}`;
+        } else {
+          message += '. Looking forward to an amazing yacht experience!';
+        }
+
+        return {
+          id: `booking_conv_${booking.booking_id}`,
+          memberId: booking.user_id,
+          memberName: booking.username || 'Member',
+          memberPhone: booking.phone || `+1-555-${String(booking.user_id).padStart(4, '0')}`,
+          membershipTier: booking.membership_tier || 'gold',
+          status: 'active',
+          priority: 'medium',
+          lastMessage: message,
+          lastMessageTime: booking.created_at,
+          unreadCount: 1,
+          tags: ['booking', 'yacht'],
+          currentTripId: booking.booking_id,
+          yachtName: booking.yacht_name
+        };
+      });
+      
       console.log(`Staff conversations result: ${conversations.length} conversations found`);
       res.json(conversations);
     } catch (error) {

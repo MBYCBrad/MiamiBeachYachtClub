@@ -1069,70 +1069,80 @@ export class DatabaseStorage implements IStorage {
 
   // COMMUNICATION HUB - REAL-TIME DATABASE METHODS
 
-  // Conversation Management - enhanced with detailed booking information
+  // Conversation Management - simplified working version
   async getConversations(): Promise<any[]> {
-    // Enhanced: Include yacht names, guest details, and special requests for realistic messages
-    const bookingConversations = await db.select({
-      id: bookings.id,
-      userId: bookings.userId,
-      yachtId: bookings.yachtId,
-      startTime: bookings.startTime,
-      endTime: bookings.endTime,
-      guestCount: bookings.guestCount,
-      specialRequests: bookings.specialRequests,
-      experienceType: bookings.experienceType,
-      status: bookings.status,
-      createdAt: bookings.createdAt,
-      userName: users.username,
-      userPhone: users.phone,
-      userTier: users.membershipTier,
-      yachtName: yachts.name
-    })
-    .from(bookings)
-    .innerJoin(users, eq(bookings.userId, users.id))
-    .innerJoin(yachts, eq(bookings.yachtId, yachts.id))
-    .orderBy(desc(bookings.createdAt))
-    .limit(5);
+    try {
+      // Step 1: Get bookings first
+      const recentBookings = await db
+        .select()
+        .from(bookings)
+        .orderBy(desc(bookings.createdAt))
+        .limit(5);
 
-    const conversations = bookingConversations.map(booking => {
-      // Generate realistic messages based on booking details
-      const date = new Date(booking.startTime).toLocaleDateString();
-      const time = new Date(booking.startTime).toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit', 
-        hour12: true 
+      if (!recentBookings || recentBookings.length === 0) {
+        return [];
+      }
+
+      // Step 2: Get users for these bookings
+      const userIds = recentBookings.map(b => b.userId);
+      const bookingUsers = await db
+        .select()
+        .from(users)
+        .where(inArray(users.id, userIds));
+
+      // Step 3: Get yachts for these bookings  
+      const yachtIds = recentBookings.map(b => b.yachtId);
+      const bookingYachts = await db
+        .select()
+        .from(yachts)
+        .where(inArray(yachts.id, yachtIds));
+
+      // Step 4: Create conversation objects
+      const conversations = recentBookings.map(booking => {
+        const user = bookingUsers.find(u => u.id === booking.userId);
+        const yacht = bookingYachts.find(y => y.id === booking.yachtId);
+        
+        const date = new Date(booking.startTime).toLocaleDateString();
+        const time = new Date(booking.startTime).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit', 
+          hour12: true 
+        });
+        
+        let message = `Hi! I'd like to book the ${yacht?.name || 'yacht'} for ${booking.guestCount || 2} guests on ${date} at ${time}`;
+        
+        if (booking.experienceType && booking.experienceType !== 'Leisure Tour') {
+          message += ` for a ${booking.experienceType}`;
+        }
+        
+        if (booking.specialRequests) {
+          message += `. Special requests: ${booking.specialRequests}`;
+        } else {
+          message += '. Looking forward to an amazing yacht experience!';
+        }
+
+        return {
+          id: `booking_conv_${booking.id}`,
+          memberId: booking.userId,
+          memberName: user?.username || 'Member',
+          memberPhone: user?.phone || `+1-555-${String(booking.userId).padStart(4, '0')}`,
+          membershipTier: user?.membershipTier || 'gold',
+          status: 'active',
+          priority: 'medium',
+          lastMessage: message,
+          lastMessageTime: booking.createdAt || new Date(),
+          unreadCount: 1,
+          tags: ['booking', 'yacht'],
+          currentTripId: booking.id,
+          yachtName: yacht?.name || 'Yacht'
+        };
       });
-      
-      let message = `Hi! I'd like to book the ${booking.yachtName} for ${booking.guestCount} guests on ${date} at ${time}`;
-      
-      if (booking.experienceType && booking.experienceType !== 'Leisure Tour') {
-        message += ` for a ${booking.experienceType}`;
-      }
-      
-      if (booking.specialRequests) {
-        message += `. Special requests: ${booking.specialRequests}`;
-      } else {
-        message += '. Looking forward to an amazing yacht experience!';
-      }
 
-      return {
-        id: `booking_conv_${booking.id}`,
-        memberId: booking.userId,
-        memberName: booking.userName,
-        memberPhone: booking.userPhone || `+1-555-${String(booking.userId).padStart(4, '0')}`,
-        membershipTier: booking.userTier || 'gold',
-        status: 'active',
-        priority: 'medium',
-        lastMessage: message,
-        lastMessageTime: booking.createdAt || new Date(),
-        unreadCount: 1,
-        tags: ['booking', 'yacht'],
-        currentTripId: booking.id,
-        yachtName: booking.yachtName
-      };
-    });
-
-    return conversations;
+      return conversations;
+    } catch (error) {
+      console.error('Error in getConversations:', error);
+      return [];
+    }
   }
 
   // Crew Management Methods
