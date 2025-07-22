@@ -348,7 +348,7 @@ export default function StaffEventRegistrations() {
 
       {/* View Registration Details Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-black border-purple-500/20 text-white max-w-2xl max-h-[80vh] overflow-hidden">
+        <DialogContent className="bg-gray-950 border-purple-500/20 text-white max-w-2xl max-h-[80vh] overflow-hidden">
           <DialogHeader className="pb-2">
             <DialogTitle className="text-lg font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
               Event Registration Details
