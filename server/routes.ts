@@ -8575,7 +8575,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const serviceBookings = await dbStorage.getServiceBookings();
-      res.json(serviceBookings);
+      const users = await dbStorage.getAllUsers();
+      
+      // Transform the data to match the expected interface
+      const transformedBookings = await Promise.all(
+        serviceBookings.map(async (booking) => {
+          // Get member information
+          const member = users.find(u => u.id === booking.userId);
+          
+          return {
+            id: booking.id,
+            memberId: booking.userId,
+            serviceId: booking.serviceId,
+            bookingDate: booking.bookingDate,
+            deliveryDate: booking.scheduledDate || booking.bookingDate,
+            deliveryTime: '10:00', // Default time, can be updated based on actual data
+            deliveryType: 'yacht', // Default type, can be updated based on actual data
+            guests: booking.guests || 1,
+            specialRequests: booking.notes || booking.specialRequests || '',
+            totalAmount: booking.totalPrice || (booking.service?.price || 0),
+            status: booking.status,
+            createdAt: booking.createdAt,
+            member: member ? {
+              username: member.username,
+              email: member.email,
+              fullName: member.fullName || member.username
+            } : null,
+            service: booking.service ? {
+              name: booking.service.name,
+              category: booking.service.category,
+              provider: booking.service.provider?.username || 'MBYC Staff',
+              price: booking.service.price
+            } : null
+          };
+        })
+      );
+      
+      res.json(transformedBookings);
     } catch (error: any) {
       console.error('Error fetching staff service bookings:', error);
       res.status(500).json({ message: error.message });

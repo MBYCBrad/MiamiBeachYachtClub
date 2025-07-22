@@ -72,6 +72,11 @@ const StaffServiceBookings = () => {
     refetchOnWindowFocus: true,
   });
 
+  // Debug log to see actual data structure
+  console.log('Service bookings data:', serviceBookings);
+  console.log('Service bookings length:', serviceBookings.length);
+  console.log('Is loading:', isLoading);
+
   // Update service booking status mutation
   const updateServiceBookingMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
