@@ -2005,18 +2005,8 @@ export default function StaffPortal() {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
-                        <div className={`p-2 rounded-lg ${
-                          notification.priority === 'urgent' ? 'bg-red-500/20' :
-                          notification.priority === 'high' ? 'bg-red-500/20' :
-                          notification.priority === 'medium' ? 'bg-yellow-500/20' :
-                          'bg-blue-500/20'
-                        }`}>
-                          <Bell className={`h-5 w-5 ${
-                            notification.priority === 'urgent' ? 'text-red-400' :
-                            notification.priority === 'high' ? 'text-red-400' :
-                            notification.priority === 'medium' ? 'text-yellow-400' :
-                            'text-blue-400'
-                          }`} />
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
+                          <Bell className="h-5 w-5 text-white" />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-white font-semibold mb-1">{notification.title}</h3>
@@ -2024,12 +2014,7 @@ export default function StaffPortal() {
                           <div className="flex items-center space-x-4 text-xs text-gray-500">
                             <span>{new Date(notification.created_at).toLocaleDateString()}</span>
                             <span>{new Date(notification.created_at).toLocaleTimeString()}</span>
-                            <Badge className={`text-xs ${
-                              notification.priority === 'urgent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              notification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                              notification.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                            }`}>
+                            <Badge className="text-xs bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-500/30">
                               {notification.priority}
                             </Badge>
                           </div>
