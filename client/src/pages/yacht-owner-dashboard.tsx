@@ -3649,13 +3649,13 @@ export default function YachtOwnerDashboard() {
                           notification.priority === 'urgent' ? 'bg-red-500/20' :
                           notification.priority === 'high' ? 'bg-red-500/20' :
                           notification.priority === 'medium' ? 'bg-yellow-500/20' :
-                          'bg-blue-500/20'
+                          'bg-gradient-to-br from-purple-600/20 to-indigo-600/20'
                         }`}>
                           <Bell className={`h-5 w-5 ${
                             notification.priority === 'urgent' ? 'text-red-400' :
                             notification.priority === 'high' ? 'text-red-400' :
                             notification.priority === 'medium' ? 'text-yellow-400' :
-                            'text-blue-400'
+                            'text-purple-400'
                           }`} />
                         </div>
                         <div className="flex-1">
@@ -3668,7 +3668,7 @@ export default function YachtOwnerDashboard() {
                               notification.priority === 'urgent' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
                               notification.priority === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
                               notification.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                              'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                              'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-400 border-purple-500/30'
                             }`}>
                               {notification.priority}
                             </Badge>
