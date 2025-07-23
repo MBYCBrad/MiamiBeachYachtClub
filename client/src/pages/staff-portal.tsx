@@ -1531,7 +1531,7 @@ export default function StaffPortal() {
                         <Badge className={`${
                           payment.status === 'succeeded' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                           payment.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                          payment.status === 'confirmed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                          payment.status === 'confirmed' ? 'bg-gradient-to-r from-indigo-600 to-indigo-600 text-white border-indigo-500/30' :
                           'bg-red-500/20 text-red-400 border-red-500/30'
                         }`}>
                           {payment.status}
