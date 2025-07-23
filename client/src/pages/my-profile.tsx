@@ -131,11 +131,48 @@ export default function MyProfile() {
         title: "Profile Picture Updated",
         description: "Your profile picture has been updated successfully.",
       });
-      // Invalidate all user-related queries for immediate sync across all components
+      
+      // Comprehensive cache invalidation for real-time sync across all application layers
       queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/profile'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/users'] });
+      
+      // Force immediate refetch for all user-related queries
       queryClient.refetchQueries({ queryKey: ['/api/user/profile'] });
       queryClient.refetchQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/profile'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/stats'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/users'] });
+      
+      // Update cached data optimistically for instant UI updates across all contexts
+      queryClient.setQueryData(['/api/user/profile'], (old: any) => ({
+        ...old,
+        profileImage: data.url,
+        profileImageUrl: data.url
+      }));
+      
+      queryClient.setQueryData(['/api/user'], (old: any) => ({
+        ...old,
+        profileImage: data.url,
+        profileImageUrl: data.url
+      }));
+      
+      // Update staff-specific cache data
+      queryClient.setQueryData(['/api/staff/profile'], (old: any) => ({
+        ...old,
+        profileImage: data.url,
+        profileImageUrl: data.url
+      }));
+      
+      // Also update the user in the staff users list if present
+      queryClient.setQueryData(['/api/staff/users'], (old: any[]) => {
+        if (!old) return old;
+        return old.map(staffUser => 
+          staffUser.id === data.user.id ? { ...staffUser, profileImageUrl: data.url } : staffUser
+        );
+      });
     },
     onError: (error: Error) => {
       console.error('Profile image upload mutation error:', error);

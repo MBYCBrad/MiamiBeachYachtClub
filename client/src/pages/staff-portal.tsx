@@ -4778,9 +4778,9 @@ export default function StaffPortal() {
             <div className="flex items-center space-x-3">
               <div className="profile-picture-outline h-12 w-12">
                 <div className="profile-picture-inner w-full h-full">
-                  {user?.profileImage ? (
+                  {(user?.profileImage || user?.profileImageUrl) ? (
                     <img
-                      src={user.profileImage}
+                      src={user.profileImage || user.profileImageUrl}
                       alt="Profile"
                       className="w-full h-full rounded-full object-cover"
                     />
