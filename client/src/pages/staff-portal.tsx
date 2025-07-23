@@ -3336,7 +3336,7 @@ export default function StaffPortal() {
                         <Button 
                           size="sm" 
                           variant="ghost" 
-                          className="text-emerald-400 hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
+                          className="text-white hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
                           onClick={() => handleViewBooking(booking)}
                         >
                           <Eye className="h-4 w-4" />
@@ -3625,7 +3625,7 @@ export default function StaffPortal() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-emerald-400 hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
+                        className="text-white hover:text-white hover:bg-emerald-500/20 transition-all duration-200"
                         onClick={() => handleViewEvent(event)}
                       >
                         <Eye className="h-4 w-4" />
@@ -3633,7 +3633,7 @@ export default function StaffPortal() {
                       <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-indigo-400 hover:text-white hover:bg-indigo-500/20 transition-all duration-200"
+                        className="text-white hover:text-white hover:bg-indigo-500/20 transition-all duration-200"
                         onClick={() => handleEditEvent(event)}
                       >
                         <Edit className="h-4 w-4" />

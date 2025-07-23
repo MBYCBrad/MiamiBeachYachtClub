@@ -350,6 +350,7 @@ Changelog:
   - Staff portal fully operational with complete team management capabilities for authorized staff users
   - Updated Badge component styling to use purple-to-blue gradients for confirmed and completed payment status
   - Changed Eye icon color from green to white in payment table action buttons
+  - Updated Eye and Edit icons from green/indigo to white in booking management and event management sections
 - July 22, 2025. Complete real-time notifications system implemented for yacht owner dashboard
   - Enhanced notifications query with 30-second refresh intervals and refetchOnWindowFocus for optimal real-time synchronization
   - Added immediate cache invalidation on notification mutations (mark as read, delete) with forced refetch for instant updates
