@@ -340,6 +340,14 @@ Changelog:
   - Enhanced CRUD operations with immediate cache invalidation and refetch for instant UI updates
   - Staff member connectivity now displays millisecond response times with live PostgreSQL integration
   - Complete staff management system operational with authentic real-time database connectivity
+- July 23, 2025. Complete real-time profile editing system with username persistence fixed
+  - Fixed critical JavaScript error causing black screen when role was undefined during username changes
+  - Enhanced profile update backend to fetch user data with correct new username after updates
+  - Added session update mechanism to maintain authentication consistency during username changes
+  - Implemented comprehensive cache invalidation across all application layers for real-time synchronization
+  - Profile editing now supports all fields (username, email, phone, location, fullName) with instant persistence
+  - Username changes no longer cause "username not found" errors or authentication failures
+  - Real-time profile synchronization operational across staff portal navigation, profile displays, and management interfaces
 - July 23, 2025. Staff endpoint architecture and profile image upload system completed
   - Added /api/staff/team endpoint for staff members to access team data with proper authentication
   - Fixed staff management mutations to use appropriate endpoints based on user role (admin vs staff)
