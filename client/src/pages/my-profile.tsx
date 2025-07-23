@@ -102,9 +102,28 @@ export default function MyProfile() {
 
   const uploadProfileImageMutation = useMutation({
     mutationFn: async (file: File) => {
+      console.log('Profile image upload starting for file:', file.name);
       const formData = new FormData();
       formData.append('image', file);
-      return apiRequest('POST', '/api/user/profile/image', formData);
+      
+      // Use fetch directly for file uploads since apiRequest doesn't handle FormData properly
+      const response = await fetch('/api/user/profile/image', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      
+      console.log('Profile image upload response:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Profile image upload error:', errorText);
+        throw new Error(`Upload failed: ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Profile image upload successful:', result);
+      return result;
     },
     onSuccess: (data) => {
       setAvatarDialogOpen(false);
@@ -119,6 +138,7 @@ export default function MyProfile() {
       queryClient.refetchQueries({ queryKey: ['/api/user'] });
     },
     onError: (error: Error) => {
+      console.error('Profile image upload mutation error:', error);
       toast({
         title: "Upload Failed",
         description: error.message,

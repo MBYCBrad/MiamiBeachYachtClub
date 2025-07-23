@@ -340,6 +340,14 @@ Changelog:
   - Enhanced CRUD operations with immediate cache invalidation and refetch for instant UI updates
   - Staff member connectivity now displays millisecond response times with live PostgreSQL integration
   - Complete staff management system operational with authentic real-time database connectivity
+- July 23, 2025. Staff endpoint architecture and profile image upload system completed
+  - Added /api/staff/team endpoint for staff members to access team data with proper authentication
+  - Fixed staff management mutations to use appropriate endpoints based on user role (admin vs staff)
+  - Resolved 403 permission errors for staff user "john" accessing team management functionality
+  - Staff management now properly differentiates between admin and staff API endpoints for secure access
+  - Profile image upload system fixed with proper FormData handling using fetch instead of apiRequest
+  - Enhanced error logging and debugging for profile image upload failures
+  - Staff portal fully operational with complete team management capabilities for authorized staff users
 - July 22, 2025. Complete real-time notifications system implemented for yacht owner dashboard
   - Enhanced notifications query with 30-second refresh intervals and refetchOnWindowFocus for optimal real-time synchronization
   - Added immediate cache invalidation on notification mutations (mark as read, delete) with forced refetch for instant updates
