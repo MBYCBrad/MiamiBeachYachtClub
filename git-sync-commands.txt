@@ -1,0 +1,17 @@
+# Git Sync Commands - Run these in your Shell
+
+# Option 1: Pull and merge (Recommended)
+git pull origin main --allow-unrelated-histories
+# If there are conflicts, resolve them then:
+git add .
+git commit -m "merge: Resolve conflicts with remote repository"
+git push origin main
+
+# Option 2: Force push (Use with caution - will overwrite remote)
+# Only use this if you're sure your local version is the correct one
+git push -f origin main
+
+# Option 3: Create a new branch and push
+git checkout -b new-main
+git push -u origin new-main
+# Then create a pull request on GitHub to merge new-main into main
