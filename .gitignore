@@ -1,5 +1,25 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+dist/
+dist-ssr/
+build/
+
+# Development
+*.local
+.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 .DS_Store
 server/public
 vite.config.ts.*
@@ -7,20 +27,15 @@ vite.config.ts.*
 .env
 .env.local
 .git/index.lock
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 *.log
 .vscode
 .idea
 *.swp
 *.swo
 *~
-.cache
 .parcel-cache
 .next
 out
-build
 *.pid
 *.seed
 *.pid.lock
@@ -40,7 +55,6 @@ typings
 .env.*
 !.env.example
 pids
-logs
 results
 tmp
 temp
@@ -52,13 +66,11 @@ connect.lock
 .serverless/
 .nuxt
 .vuepress/dist
-.cache/
 .temp
 .docusaurus
 .generated
 .turbo
 .vercel
-*.local
 .pnp.*
 yarn.lock
 package-lock.json
@@ -71,5 +83,4 @@ test_*.txt
 .replit
 .config
 .upm
-.cache
 .breakpoints
