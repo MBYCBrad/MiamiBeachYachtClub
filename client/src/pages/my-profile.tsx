@@ -278,9 +278,9 @@ export default function MyProfile() {
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <div className="profile-picture-outline w-24 h-24">
                     <div className="profile-picture-inner w-full h-full">
-                      {((profileData as any)?.profileImage || user.profileImage) ? (
+                      {((profileData as any)?.profileImageUrl || (profileData as any)?.profileImage || user.profileImageUrl || user.profileImage) ? (
                         <img
-                          src={(profileData as any)?.profileImage || user.profileImage}
+                          src={(profileData as any)?.profileImageUrl || (profileData as any)?.profileImage || user.profileImageUrl || user.profileImage}
                           alt="Profile"
                           className="w-full h-full rounded-full object-cover"
                         />
