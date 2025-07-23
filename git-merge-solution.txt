@@ -1,0 +1,19 @@
+# Run these commands in order:
+
+# 1. Configure Git to use merge strategy
+git config pull.rebase false
+
+# 2. Pull with unrelated histories
+git pull origin main --allow-unrelated-histories
+
+# 3. If there are merge conflicts, they'll likely be in README.md
+# Open the conflicted files and resolve them, then:
+git add .
+git commit -m "merge: Sync local repository with GitHub"
+
+# 4. Push the merged changes
+git push origin main
+
+# Alternative: If the above doesn't work, force push your local version
+# (This will overwrite the remote completely)
+git push -f origin main
