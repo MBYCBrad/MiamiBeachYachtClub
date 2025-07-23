@@ -7910,6 +7910,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff team management endpoint - allows staff members to view other staff
+  app.get('/api/staff/team', requireAuth, async (req, res) => {
+    try {
+      const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'staff' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);
+      if (!isStaff) {
+        return res.status(403).json({ message: 'Staff access required' });
+      }
+      
+      console.log('=== STAFF TEAM ENDPOINT DEBUG ===');
+      console.log('User role:', req.user.role);
+      console.log('User department:', req.user.department);
+      
+      // Get all staff members from the database
+      const allStaff = await dbStorage.getAllStaff();
+      console.log('All staff fetched:', allStaff.length, 'members');
+      
+      // Get all users for enrichment
+      const allUsers = await dbStorage.getAllUsers();
+      
+      // Enrich with created by information
+      const enrichedStaff = allStaff.map(staffMember => {
+        const createdByUser = allUsers.find(u => u.id === staffMember.createdBy);
+        return {
+          ...staffMember,
+          createdByName: createdByUser?.username || 'System',
+          permissions: staffMember.permissions || [],
+          status: staffMember.status || 'active'
+        };
+      });
+      
+      console.log('Enriched staff count:', enrichedStaff.length);
+      console.log('=== END STAFF TEAM DEBUG ===');
+      
+      res.json(enrichedStaff);
+    } catch (error) {
+      console.error('Error fetching staff team:', error);
+      res.status(500).json({ message: 'Failed to fetch staff team' });
+    }
+  });
+
   app.get('/api/staff/bookings', requireAuth, async (req, res) => {
     try {
       const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'VIP Coordinator' || req.user.role?.startsWith('Staff') || req.user.department);

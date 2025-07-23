@@ -159,10 +159,12 @@ export default function StaffManagement() {
     department: ""
   });
 
-  // Fetch staff users only (excluding members, yacht owners, service providers)
+  // Fetch staff users - use appropriate endpoint based on user role
+  const staffEndpoint = user?.role === 'admin' ? '/api/admin/staff' : '/api/staff/team';
   const { data: staffUsers = [], isLoading: staffLoading } = useQuery<StaffUser[]>({
-    queryKey: ['/api/admin/staff'],
+    queryKey: [staffEndpoint],
     enabled: !!user && (user.role === 'admin' || 
+      user.role === 'staff' ||
       (user.permissions && user.permissions.includes('users')) ||
       user.role?.includes('Manager') ||
       user.role?.includes('Coordinator')),
@@ -173,17 +175,18 @@ export default function StaffManagement() {
     cacheTime: 1000 * 60 * 5, // 5 minute cache time
   });
 
-  // Add staff mutation
+  // Add staff mutation - use appropriate endpoint based on user role
   const addStaffMutation = useMutation({
     mutationFn: async (staffData: typeof newStaffData) => {
       console.log('Adding new staff member:', staffData);
-      const response = await apiRequest('POST', '/api/admin/staff', staffData);
+      const endpoint = user?.role === 'admin' ? '/api/admin/staff' : '/api/staff/team';
+      const response = await apiRequest('POST', endpoint, staffData);
       return response.json();
     },
     onSuccess: (data) => {
       console.log('Staff member added successfully:', data);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
-      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.invalidateQueries({ queryKey: [staffEndpoint] });
+      queryClient.refetchQueries({ queryKey: [staffEndpoint] });
       setShowAddDialog(false);
       setNewStaffData({
         fullName: "",
@@ -204,17 +207,18 @@ export default function StaffManagement() {
     },
   });
 
-  // Update staff mutation
+  // Update staff mutation - use appropriate endpoint based on user role
   const updateStaffMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<StaffUser> }) => {
       console.log('Updating staff member:', data);
-      const response = await apiRequest('PUT', `/api/admin/staff/${data.id}`, data.updates);
+      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${data.id}` : `/api/staff/team/${data.id}`;
+      const response = await apiRequest('PUT', endpoint, data.updates);
       return response.json();
     },
     onSuccess: (data, variables) => {
       console.log('Staff member updated successfully:', data);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
-      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.invalidateQueries({ queryKey: [staffEndpoint] });
+      queryClient.refetchQueries({ queryKey: [staffEndpoint] });
       setShowEditDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff updated", description: `Staff member ${data.fullName || data.username} has been updated successfully` });
@@ -225,17 +229,18 @@ export default function StaffManagement() {
     },
   });
 
-  // Delete staff mutation
+  // Delete staff mutation - use appropriate endpoint based on user role
   const deleteStaffMutation = useMutation({
     mutationFn: async (id: number) => {
       console.log('Deleting staff member ID:', id);
-      const response = await apiRequest('DELETE', `/api/admin/staff/${id}`);
+      const endpoint = user?.role === 'admin' ? `/api/admin/staff/${id}` : `/api/staff/team/${id}`;
+      const response = await apiRequest('DELETE', endpoint);
       return response.json();
     },
     onSuccess: (data, variables) => {
       console.log('Staff member deleted successfully:', data);
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
-      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.invalidateQueries({ queryKey: [staffEndpoint] });
+      queryClient.refetchQueries({ queryKey: [staffEndpoint] });
       setShowDeleteDialog(false);
       setSelectedStaff(null);
       toast({ title: "Staff deleted", description: `Staff member has been removed successfully` });
