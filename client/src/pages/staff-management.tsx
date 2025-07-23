@@ -166,16 +166,24 @@ export default function StaffManagement() {
       (user.permissions && user.permissions.includes('users')) ||
       user.role?.includes('Manager') ||
       user.role?.includes('Coordinator')),
+    refetchInterval: 30000, // Real-time 30-second refresh
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 1000 * 60 * 1, // 1 minute stale time
+    cacheTime: 1000 * 60 * 5, // 5 minute cache time
   });
 
   // Add staff mutation
   const addStaffMutation = useMutation({
     mutationFn: async (staffData: typeof newStaffData) => {
+      console.log('Adding new staff member:', staffData);
       const response = await apiRequest('POST', '/api/admin/staff', staffData);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Staff member added successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
       setShowAddDialog(false);
       setNewStaffData({
         fullName: "",
@@ -185,11 +193,13 @@ export default function StaffManagement() {
         role: "",
         permissions: [],
         phone: "",
-        location: ""
+        location: "",
+        department: ""
       });
-      toast({ title: "Staff added", description: "New staff member has been created successfully" });
+      toast({ title: "Staff added", description: `${data.fullName || data.username} has been created successfully` });
     },
     onError: (error: any) => {
+      console.error('Error adding staff member:', error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
@@ -197,16 +207,20 @@ export default function StaffManagement() {
   // Update staff mutation
   const updateStaffMutation = useMutation({
     mutationFn: async (data: { id: number; updates: Partial<StaffUser> }) => {
+      console.log('Updating staff member:', data);
       const response = await apiRequest('PUT', `/api/admin/staff/${data.id}`, data.updates);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log('Staff member updated successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
       setShowEditDialog(false);
       setSelectedStaff(null);
-      toast({ title: "Staff updated", description: "Staff member has been updated successfully" });
+      toast({ title: "Staff updated", description: `Staff member ${data.fullName || data.username} has been updated successfully` });
     },
     onError: (error: any) => {
+      console.error('Error updating staff member:', error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
@@ -214,18 +228,35 @@ export default function StaffManagement() {
   // Delete staff mutation
   const deleteStaffMutation = useMutation({
     mutationFn: async (id: number) => {
+      console.log('Deleting staff member ID:', id);
       const response = await apiRequest('DELETE', `/api/admin/staff/${id}`);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log('Staff member deleted successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/staff'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin/staff'] });
       setShowDeleteDialog(false);
       setSelectedStaff(null);
-      toast({ title: "Staff deleted", description: "Staff member has been removed successfully" });
+      toast({ title: "Staff deleted", description: `Staff member has been removed successfully` });
     },
     onError: (error: any) => {
+      console.error('Error deleting staff member:', error);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
+  });
+
+  // Real-time staff connectivity logging
+  console.log('Staff management real-time data:', {
+    totalStaff: staffUsers.length,
+    loading: staffLoading,
+    lastRefresh: new Date().toISOString(),
+    staffMembers: staffUsers.map(s => ({ 
+      id: s.id, 
+      username: s.username, 
+      role: s.role, 
+      status: s.status 
+    }))
   });
 
   // Filter staff users
@@ -281,20 +312,24 @@ export default function StaffManagement() {
   };
 
   const handlePermissionChange = (permissionId: string, checked: boolean) => {
+    console.log('Real-time permission change:', { permissionId, checked, context: showAddDialog ? 'new staff' : 'edit staff' });
     if (showAddDialog) {
-      setNewStaffData(prev => ({
-        ...prev,
-        permissions: checked 
+      setNewStaffData(prev => {
+        const newPermissions = checked 
           ? [...prev.permissions, permissionId]
-          : prev.permissions.filter(p => p !== permissionId)
-      }));
+          : prev.permissions.filter(p => p !== permissionId);
+        console.log('New staff permissions updated:', newPermissions);
+        return { ...prev, permissions: newPermissions };
+      });
     } else if (selectedStaff) {
-      setSelectedStaff(prev => prev ? ({
-        ...prev,
-        permissions: checked
+      setSelectedStaff(prev => {
+        if (!prev) return null;
+        const newPermissions = checked
           ? [...(prev.permissions || []), permissionId]
-          : (prev.permissions || []).filter(p => p !== permissionId)
-      }) : null);
+          : (prev.permissions || []).filter(p => p !== permissionId);
+        console.log('Selected staff permissions updated:', newPermissions);
+        return { ...prev, permissions: newPermissions };
+      });
     }
   };
 
