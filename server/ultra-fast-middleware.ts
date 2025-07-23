@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getCachedData, invalidateRelatedCaches } from './ultra-fast-cache';
+import { getCachedData, invalidateRelatedCaches, ultraFastCache } from './ultra-fast-cache';
 
 // List of endpoints to cache
 const CACHED_ENDPOINTS = [
@@ -23,15 +23,22 @@ const CACHED_ENDPOINTS = [
   '/api/admin/users',
   '/api/admin/bookings',
   '/api/admin/analytics',
+  '/api/admin/payments',
+  '/api/admin/service-bookings',
+  '/api/admin/applications',
   '/api/conversations',
   '/api/notifications',
   '/api/trips',
   '/api/contact-messages',
-  '/api/tour-requests'
+  '/api/tour-requests',
+  '/api/yacht-owner/stats',
+  '/api/yacht-owner/fleet',
+  '/api/service-provider/stats',
+  '/api/service-provider/services'
 ];
 
 // Ultra-fast cache middleware
-export function ultraFastCacheMiddleware(req: Request, res: Response, next: NextFunction) {
+export async function ultraFastCacheMiddleware(req: Request, res: Response, next: NextFunction) {
   // Only cache GET requests
   if (req.method !== 'GET') {
     return next();
@@ -44,32 +51,37 @@ export function ultraFastCacheMiddleware(req: Request, res: Response, next: Next
   }
 
   // Create cache key from path and query params
-  const cacheKey = `${req.path}:${JSON.stringify(req.query)}:${req.user?.id || 'anonymous'}`;
+  const cacheKey = `${req.path}:${JSON.stringify(req.query)}:${(req as any).user?.id || 'anonymous'}`;
 
-  // Override res.json to cache the response
+  // Try to get from cache first
+  const cachedData = ultraFastCache.get(cacheKey);
+  if (cachedData !== undefined) {
+    // Send cached response immediately
+    console.log(`[CACHE HIT] ${req.path} - serving from cache`);
+    return res.json(cachedData);
+  }
+
+  // Cache miss - intercept response to cache it
   const originalJson = res.json.bind(res);
   res.json = function(data: any) {
-    // Cache the successful response
+    // Cache successful responses
     if (res.statusCode === 200) {
-      getCachedData(cacheKey, async () => data, 300); // 5 minute cache
+      // Determine TTL based on endpoint
+      let ttl = 30; // 30 seconds default
+      if (req.path.includes('/analytics') || req.path.includes('/stats')) {
+        ttl = 300; // 5 minutes for analytics
+      } else if (req.path.includes('/events') || req.path.includes('/bookings')) {
+        ttl = 60; // 1 minute for events/bookings
+      }
+      
+      // Store in cache
+      ultraFastCache.set(cacheKey, data, ttl);
+      console.log(`[CACHE MISS] ${req.path} - caching for ${ttl}s`);
     }
     return originalJson(data);
   };
 
-  // Try to get from cache first
-  getCachedData(cacheKey, async () => {
-    // If not in cache, continue with normal request
-    next();
-    return null;
-  }).then(cachedData => {
-    if (cachedData) {
-      // Send cached response
-      res.json(cachedData);
-    }
-  }).catch(() => {
-    // On error, continue with normal request
-    next();
-  });
+  next();
 }
 
 // Invalidation middleware for mutations
