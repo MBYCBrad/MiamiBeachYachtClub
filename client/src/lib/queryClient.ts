@@ -134,16 +134,23 @@ if (typeof window !== 'undefined') {
     try {
       const response = await fetch('/api/user', { credentials: 'include' });
       if (response.ok) {
-        // User is authenticated, prefetch critical data
+        const userData = await response.json();
+        // User is authenticated, prefetch critical data based on role
         const criticalEndpoints = [
           '/api/yachts',
           '/api/services', 
           '/api/events',
-          '/api/conversations',
-          '/api/admin/notifications',
-          '/api/admin/bookings',
-          '/api/admin/analytics'
+          '/api/conversations'
         ];
+        
+        // Only prefetch admin endpoints for admin/staff users
+        if (userData.role === 'admin' || userData.role?.startsWith('staff')) {
+          criticalEndpoints.push(
+            '/api/admin/notifications',
+            '/api/admin/bookings',
+            '/api/admin/analytics'
+          );
+        }
         
         criticalEndpoints.forEach(endpoint => {
           queryClient.prefetchQuery({

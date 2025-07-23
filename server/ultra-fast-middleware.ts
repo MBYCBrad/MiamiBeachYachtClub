@@ -28,6 +28,7 @@ const CACHED_ENDPOINTS = [
   '/api/admin/applications',
   '/api/conversations',
   '/api/notifications',
+  '/api/favorites',
   '/api/trips',
   '/api/contact-messages',
   '/api/tour-requests',
