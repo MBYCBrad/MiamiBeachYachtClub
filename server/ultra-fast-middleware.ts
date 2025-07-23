@@ -6,6 +6,7 @@ const CACHED_ENDPOINTS = [
   '/api/yachts',
   '/api/services', 
   '/api/events',
+  '/api/user',  // Cache user endpoint to fix 688ms latency
   '/api/staff/stats',
   '/api/staff/yachts',
   '/api/staff/services',
