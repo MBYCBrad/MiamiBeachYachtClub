@@ -352,6 +352,7 @@ Changelog:
   - Changed Eye icon color from green to white in payment table action buttons
   - Updated Eye and Edit icons from green/indigo to white in booking management and event management sections
   - Changed Eye icon from purple to white in service management section for complete icon standardization
+  - Updated KPI card backgrounds from purple gradients to bg-gray-950 for consistent dark theme styling
 - July 22, 2025. Complete real-time notifications system implemented for yacht owner dashboard
   - Enhanced notifications query with 30-second refresh intervals and refetchOnWindowFocus for optimal real-time synchronization
   - Added immediate cache invalidation on notification mutations (mark as read, delete) with forced refetch for instant updates

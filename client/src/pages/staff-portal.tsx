@@ -1896,7 +1896,7 @@ export default function StaffPortal() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
+                <div className="p-6 rounded-xl bg-gray-950 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-purple-400 font-medium">Fleet Utilization</div>
                     <TrendingUp className="h-5 w-5 text-purple-400" />
@@ -1911,7 +1911,7 @@ export default function StaffPortal() {
                   </div>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
+                <div className="p-6 rounded-xl bg-gray-950 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-purple-400 font-medium">Member Satisfaction</div>
                     <Star className="h-5 w-5 text-purple-400" />
@@ -1926,7 +1926,7 @@ export default function StaffPortal() {
                   </div>
                 </div>
                 
-                <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
+                <div className="p-6 rounded-xl bg-gray-950 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-4">
                     <div className="text-purple-400 font-medium">Service Efficiency</div>
                     <Zap className="h-5 w-5 text-purple-400" />
