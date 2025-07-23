@@ -2652,8 +2652,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               await dbStorage.updateStaff(staffUser.id, updates);
             }
             
-            // Return updated staff user in profile format
-            const updatedStaffUser = await dbStorage.getStaffByUsername(req.user!.username);
+            // Return updated staff user in profile format - use new username if it was updated
+            const usernameToFetch = req.body.username || req.user!.username;
+            const updatedStaffUser = await dbStorage.getStaffByUsername(usernameToFetch);
             if (updatedStaffUser) {
               updatedUser = {
                 id: updatedStaffUser.id,
@@ -2677,6 +2678,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Update session with new username if it was changed
+      if (req.body.username && req.body.username !== req.user!.username) {
+        req.user!.username = req.body.username;
       }
       
       res.json(updatedUser);

@@ -275,6 +275,7 @@ export default function MyProfile() {
   };
 
   const formatRole = (role: string) => {
+    if (!role) return 'Staff'; // Safe fallback for undefined role
     return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
