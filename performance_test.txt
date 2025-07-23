@@ -1,0 +1,24 @@
+=== PERFORMANCE TEST WITH ULTRA-FAST CACHE ===
+Testing endpoints with cache...
+
+[CACHED ENDPOINTS - FIRST RUN]
+
+/api/service-provider/stats: 200 - 4.034272s
+/api/admin/stats: 200 - 4.350901s
+/api/staff/bookings: 200 - 4.743855s
+/api/admin/analytics: 000 - 237.323458s
+
+[CACHED ENDPOINTS - SECOND RUN (CACHED)]
+
+/api/staff/bookings: 000 - 0.002634s
+/api/service-provider/stats: 000 - 0.002777s
+/api/admin/analytics: 000 - 0.002202s
+/api/admin/stats: 000 - 0.001586s
+
+[FREQUENTLY ACCESSED ENDPOINTS]
+
+/api/events: 000 - 0.001400s
+/api/services: 000 - 0.001640s
+/api/yachts: 000 - 0.005647s
+
+=== TEST COMPLETE ===

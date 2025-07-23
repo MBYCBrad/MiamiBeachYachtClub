@@ -5,6 +5,8 @@ import { seedDatabase } from "./seed";
 import compression from "compression";
 import { memoryCache } from "./memory-cache.js";
 import { DatabaseStorage } from "./storage.js";
+import { ultraFastCacheMiddleware, cacheInvalidationMiddleware } from "./ultra-fast-middleware.js";
+import { prewarmCache } from "./ultra-fast-cache.js";
 
 const app = express();
 
@@ -16,6 +18,10 @@ app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 // Disable unnecessary headers and optimize connections
 app.disable('x-powered-by');
 app.disable('etag');
+
+// Ultra-fast cache middleware for millisecond response times
+app.use(ultraFastCacheMiddleware);
+app.use(cacheInvalidationMiddleware);
 
 // Performance middleware for millisecond response times
 app.use((req, res, next) => {
@@ -68,6 +74,9 @@ app.use((req, res, next) => {
   // Initialize memory cache for millisecond responses
   const dbStorage = new DatabaseStorage();
   await memoryCache.preloadCriticalData(dbStorage);
+  
+  // Pre-warm ultra-fast cache for instant responses
+  await prewarmCache();
   
   const server = await registerRoutes(app);
 

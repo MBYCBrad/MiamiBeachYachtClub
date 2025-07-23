@@ -6807,11 +6807,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const userRole = req.user!.role;
       
+      // Check if user is staff
+      const isStaff = userRole === 'VIP Coordinator' || userRole?.startsWith('Staff') || req.user!.department;
+      
       // Get conversations based on user role
       let conversations;
       if (userRole === UserRole.ADMIN) {
         // Admin sees all conversations
         conversations = await dbStorage.getConversations();
+      } else if (isStaff) {
+        // Staff users don't have conversations - return empty array
+        conversations = [];
       } else {
         // Members see their own conversations
         conversations = await dbStorage.getConversationsByUserId(userId);
@@ -6894,17 +6900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Get all conversations - Ultra-fast memory cache
-  app.get("/api/conversations", async (req, res) => {
-    try {
-      // Use optimized single query method from storage
-      const conversations = await dbStorage.getConversations();
-      res.json(conversations);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-      res.status(500).json({ error: 'Failed to fetch conversations' });
-    }
-  });
+  // NOTE: Removed duplicate /api/conversations endpoint - using the authenticated one above
 
   // Get messages for a conversation - Real-time database connectivity
   app.get("/api/messages/:conversationId", async (req, res) => {
