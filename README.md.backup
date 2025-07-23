@@ -1,0 +1,172 @@
+<<<<<<< HEAD
+# Miami Beach Yacht Club (MBYC)
+
+<div align="center">
+  <img src="attached_assets/MBYC-LOGO-WHITE_1751029522037.png" alt="Miami Beach Yacht Club Logo" width="200" />
+  
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+  [![Node.js Version](https://img.shields.io/badge/node-%3E%3D%2020.0.0-brightgreen.svg)](https://nodejs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+</div>
+
+## 🚢 Overview
+
+Miami Beach Yacht Club is a luxury yacht membership platform providing comprehensive yacht booking and management services. Built with modern web technologies, MBYC offers tiered membership access, premium services, and exclusive events.
+
+### 🌟 Key Features
+
+- **Multi-tier Membership System** - Bronze, Silver, Gold, and Platinum tiers
+- **Yacht Booking Platform** - Real-time availability and reservation system
+- **Service Marketplace** - Professional yacht-related services
+- **Event Management** - Exclusive yacht club events and experiences
+- **Role-based Access** - Member, Yacht Owner, Service Provider, and Admin dashboards
+- **Real-time Messaging** - Integrated communication system
+- **Payment Processing** - Stripe integration for secure transactions
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** with TypeScript
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling framework
+- **shadcn/ui** - Component library
+- **Framer Motion** - Animations
+- **TanStack Query** - Server state management
+- **Wouter** - Client-side routing
+
+### Backend
+- **Node.js** with Express
+- **TypeScript** - Type safety across the stack
+- **PostgreSQL** - Primary database
+- **Drizzle ORM** - Database toolkit
+- **Passport.js** - Authentication
+- **Stripe** - Payment processing
+- **WebSocket** - Real-time features
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 20.x or higher
+- PostgreSQL database
+- Stripe account (for payments)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/MBYCBrad/MiamiBeachYachtClub.git
+cd MiamiBeachYachtClub
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+# Create .env file with the following:
+DATABASE_URL=your_postgresql_url
+SESSION_SECRET=your_session_secret
+STRIPE_SECRET_KEY=your_stripe_secret_key
+VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
+```
+
+4. Run database migrations:
+```bash
+npm run db:push
+```
+
+5. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5000`
+
+## 📁 Project Structure
+
+```
+├── client/             # React frontend application
+│   ├── src/
+│   │   ├── components/ # Reusable UI components
+│   │   ├── pages/      # Route pages
+│   │   ├── hooks/      # Custom React hooks
+│   │   └── lib/        # Utilities and helpers
+├── server/             # Express backend
+│   ├── routes.ts       # API endpoints
+│   ├── storage.ts      # Database operations
+│   ├── auth.ts         # Authentication logic
+│   └── payments.ts     # Stripe integration
+├── shared/             # Shared types and schemas
+│   └── schema.ts       # Database schema definitions
+└── attached_assets/    # Media assets
+```
+
+## 🔒 Authentication
+
+MBYC uses session-based authentication with the following user roles:
+
+- **Members** - Access to yacht booking and services
+- **Yacht Owners** - Fleet management and revenue tracking
+- **Service Providers** - Service listing and booking management
+- **Administrators** - Full system access and management
+- **Staff** - Operational support with granular permissions
+
+## 💳 Payment Integration
+
+The platform integrates Stripe for:
+- Membership subscriptions
+- Service bookings
+- Event registrations
+- Multi-tenant payment routing via Stripe Connect
+
+## 🚄 Performance
+
+- **Ultra-fast caching** - Sub-100ms response times
+- **Optimized queries** - Efficient database operations
+- **CDN integration** - Fast media delivery
+- **Real-time updates** - WebSocket connections
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+npm test
+```
+
+## 🚀 Deployment
+
+The application is designed for deployment on Replit with automatic scaling.
+
+### Production Build
+
+```bash
+npm run build
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📞 Support
+
+For support, email support@miamibeachyachtclub.com
+
+---
+
+<div align="center">
+  Made with ❤️ by the MBYC Team
+</div>
+=======
+# MiamiBeachYachtClub
+>>>>>>> 44fb194405cfba520ccad759cd64ad589c1da3d0
