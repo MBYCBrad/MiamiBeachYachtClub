@@ -2480,13 +2480,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Profile image upload request from user:', req.user!.id, req.user!.username, req.user!.role);
 
-      // Create unique filename
-      const fileName = `profile_${req.user!.id}_${Date.now()}.${req.file.originalname.split('.').pop()}`;
+      // Use uploaded file directly since multer already saved it to attached_assets
+      const fileName = req.file.filename;
       const imageUrl = `/api/media/${fileName}`;
       
-      // Save file to media storage
-      const savedImage = await mediaStorage.saveImage(fileName, req.file.buffer);
-      console.log('Profile image saved to media storage:', savedImage.filename);
+      // Verify file was saved successfully
+      if (!mediaStorageService.fileExists(fileName)) {
+        return res.status(500).json({ message: 'File upload failed' });
+      }
+      
+      console.log('Profile image saved successfully:', fileName);
 
       let updatedUser = null;
       
