@@ -2634,11 +2634,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const staffUser = await dbStorage.getStaffByUsername(req.user!.username);
           if (staffUser) {
-            // Update staff user with allowed fields
+            // Update staff user with allowed fields including username
             const allowedUpdates = {
+              username: req.body.username,
               phone: req.body.phone,
               location: req.body.location,
-              fullName: req.body.fullName
+              fullName: req.body.fullName,
+              email: req.body.email
             };
             
             // Filter out undefined values

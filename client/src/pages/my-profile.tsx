@@ -82,14 +82,33 @@ export default function MyProfile() {
     mutationFn: async (data: any) => {
       return apiRequest('PUT', '/api/user/profile', data);
     },
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
       toast({
         title: "Profile Updated",
         description: "Your profile has been successfully updated.",
       });
       setIsEditing(false);
+      
+      // Comprehensive cache invalidation for real-time sync across all application layers
       queryClient.invalidateQueries({ queryKey: ['/api/user/profile'] });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/profile'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/users'] });
+      
+      // Force immediate refetch for all user-related queries
+      queryClient.refetchQueries({ queryKey: ['/api/user/profile'] });
+      queryClient.refetchQueries({ queryKey: ['/api/user'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/profile'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/stats'] });
+      queryClient.refetchQueries({ queryKey: ['/api/staff/users'] });
+      
+      // Update cached data optimistically for instant UI updates
+      if (updatedData) {
+        queryClient.setQueryData(['/api/user/profile'], updatedData);
+        queryClient.setQueryData(['/api/user'], updatedData);
+        queryClient.setQueryData(['/api/staff/profile'], updatedData);
+      }
     },
     onError: (error: Error) => {
       toast({
